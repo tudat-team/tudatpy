@@ -557,7 +557,7 @@ double ComaModel::calculateSolarLongitude( const double time ) const
  * \param longitude Longitude in comet body-fixed frame [rad]
  * \param latitude Latitude in comet body-fixed frame [rad]
  * \param time Time at which to compute density [s]
- * \return Coma density [kg/m³]
+ * \return Coma density in log2 [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
 double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
@@ -630,7 +630,7 @@ double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, doubl
  * \param longitude Longitude in comet body-fixed frame [rad]
  * \param latitude Latitude in comet body-fixed frame [rad]
  * \param time Time at which to compute density [s]
- * \return Coma density [kg/m³]
+ * \return Coma density in log2 [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
 double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
@@ -1172,16 +1172,27 @@ void ComaModel::createFallback2DInterpolator( const int fileIndex, const int deg
         }
     }
 
+    // Set up periods for periodic interpolation
+    // Dimension 0 (radius): non-periodic (period = 0)
+    // Dimension 1 (solar longitude): periodic with period = 2π
+    std::vector<double> periods(2);
+    periods[0] = 0.0;  // Radius is non-periodic
+    periods[1] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
         independentGrids, cosineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+        periods  // Enable periodic interpolation for solar longitude
     );
 
     auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
         independentGrids, sineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+        periods  // Enable periodic interpolation for solar longitude
     );
 
     interpolationPoint2D_[0] = radius;
@@ -1246,16 +1257,24 @@ void ComaModel::createFallback1DInterpolator( const int fileIndex, const int deg
         reducedSineGrid[longitudeIndex] = reducedCoeffs.second;
     }
 
+    // Set up periods for 1D periodic interpolation (solar longitude only)
+    std::vector<double> reducedPeriods(1);
+    reducedPeriods[0] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
         reducedIndependentGrids, reducedCosineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+        reducedPeriods  // Enable periodic interpolation for solar longitude
     );
 
     auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
         reducedIndependentGrids, reducedSineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+        reducedPeriods  // Enable periodic interpolation for solar longitude
     );
 
     interpolationPoint1D_[0] = solarLongitude;

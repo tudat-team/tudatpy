@@ -1,6 +1,6 @@
 # Generated files
 examples
-tests/test_tudat/data/
+tests/data/
 lib/
 libs/
 CMakeFiles/

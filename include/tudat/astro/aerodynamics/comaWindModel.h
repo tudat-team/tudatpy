@@ -44,10 +44,13 @@ class SphericalHarmonicsCalculator;
  * Class for computing the wind velocity vector from coma models. This class uses three separate datasets
  * for the wind velocity components in the modified vertical frame, each of which can be either polynomial or Stokes coefficients.
  *
- * The wind velocity components are defined in a modified vertical frame:
+ * The wind velocity components are INTERNALLY computed in a modified vertical frame:
  *   - X-component: Meridional direction (North, in meridian plane)
  *   - Y-component: Zonal direction (West, completing the right-handed frame)
- *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
+ *   - Z-component: Radial direction pointing OUTWARD from the nucleus
+ *
+ * The output is converted to standard vertical frame convention (Z inward) to match
+ * the associatedFrame parameter (vertical_frame) used by Tudat's aerodynamics system.
  */
 class ComaWindModel : public WindModel
 {
@@ -171,15 +174,15 @@ private:
     //! Non-owning pointer to shared spherical harmonics calculator (used when sharing with ComaModel)
     SphericalHarmonicsCalculator* sharedSphericalHarmonicsCalculator_;
 
-    //! Pre-initialized interpolators for X-component (meridional/North) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
-    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> xStokesInterpolators_;
-    //! Pre-initialized interpolators for Y-component (zonal/West) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
-    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> yStokesInterpolators_;
-    //! Pre-initialized interpolators for Z-component (radial outward) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
-    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> zStokesInterpolators_;
+    //! Pre-initialized interpolators for X-component (meridional/North) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> xStokesInterpolators_;
+    //! Pre-initialized interpolators for Y-component (zonal/West) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> yStokesInterpolators_;
+    //! Pre-initialized interpolators for Z-component (radial outward) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> zStokesInterpolators_;
 
     //! Pre-initialized reduced interpolators for X-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
     std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,

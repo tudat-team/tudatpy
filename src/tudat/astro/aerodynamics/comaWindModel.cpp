@@ -275,6 +275,11 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
                 throw std::runtime_error( "ComaWindModel: Unknown data type" );
         }
 
+        // Negate Z-component to convert from modified vertical frame (Z outward, as used internally
+        // and in user input data) to standard vertical frame (Z inward, as expected by Tudat's
+        // aerodynamics system for the vertical_frame reference frame)
+        cachedFinalWindVector_.z() = -cachedFinalWindVector_.z();
+
         // Cache the input parameters for future validation
         cachedRadius_ = radius;
         cachedLongitude_ = currentLongitude;
@@ -368,10 +373,11 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
             interpolationPoint2D_[1] = solarLongitude;
 
             // Prepare interpolation state once for all coefficients (batch mode)
-            if ( !xStokesInterpolators_.empty() )
+            // Use file-indexed interpolators
+            if ( fileIndex < static_cast<int>(xStokesInterpolators_.size()) && !xStokesInterpolators_[fileIndex].empty() )
             {
                 // Use the first available interpolator to prepare the shared interpolation state
-                auto firstInterpolator = xStokesInterpolators_.begin()->second.first.get();
+                auto firstInterpolator = xStokesInterpolators_[fileIndex].begin()->second.first.get();
                 auto interpolationState = firstInterpolator->prepareInterpolationState(interpolationPoint2D_);
 
                 // Now interpolate ALL THREE components using the same pre-computed state
@@ -382,8 +388,8 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                         std::pair<int,int> degreeOrderPair = {degree, order};
 
                         // X-component
-                        auto itX = xStokesInterpolators_.find(degreeOrderPair);
-                        if ( itX != xStokesInterpolators_.end() )
+                        auto itX = xStokesInterpolators_[fileIndex].find(degreeOrderPair);
+                        if ( itX != xStokesInterpolators_[fileIndex].end() )
                         {
                             cachedXCosineCoefficients_(degree, order) = itX->second.first->interpolateWithState(interpolationState);
                             if ( order > 0 )
@@ -400,8 +406,8 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                         }
 
                         // Y-component
-                        auto itY = yStokesInterpolators_.find(degreeOrderPair);
-                        if ( itY != yStokesInterpolators_.end() )
+                        auto itY = yStokesInterpolators_[fileIndex].find(degreeOrderPair);
+                        if ( itY != yStokesInterpolators_[fileIndex].end() )
                         {
                             cachedYCosineCoefficients_(degree, order) = itY->second.first->interpolateWithState(interpolationState);
                             if ( order > 0 )
@@ -418,8 +424,8 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                         }
 
                         // Z-component
-                        auto itZ = zStokesInterpolators_.find(degreeOrderPair);
-                        if ( itZ != zStokesInterpolators_.end() )
+                        auto itZ = zStokesInterpolators_[fileIndex].find(degreeOrderPair);
+                        if ( itZ != zStokesInterpolators_[fileIndex].end() )
                         {
                             cachedZCosineCoefficients_(degree, order) = itZ->second.first->interpolateWithState(interpolationState);
                             if ( order > 0 )
@@ -980,6 +986,14 @@ double ComaWindModel::calculateSolarLongitude( const double time ) const
 
     // Calculate solar longitude (angle from X-axis in XY plane)
     cachedSolarLongitude_ = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
+
+    // Normalize to [0, 2π] range to match Stokes dataset storage convention
+    // atan2 returns values in [-π, π], but Stokes datasets store longitudes in [0, 2π]
+    if ( cachedSolarLongitude_ < 0.0 )
+    {
+        cachedSolarLongitude_ += 2.0 * mathematical_constants::PI;
+    }
+
     cachedTime_ = time;
     cacheFlags_.solarLongitudeValid = true;
     cacheFlags_.stateValid = true;
@@ -1015,6 +1029,7 @@ void ComaWindModel::initializeStokesInterpolators()
     const auto& radiiGrid = xStokesDataset_->radii();
     const auto& longitudeGrid = xStokesDataset_->lons();
     const int nmax = xStokesDataset_->nmax();
+    const std::size_t nFiles = xStokesDataset_->nFiles();
 
     // Determine effective maximum degree and order
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
@@ -1025,127 +1040,18 @@ void ComaWindModel::initializeStokesInterpolators()
     independentGrids[0] = radiiGrid;     // Radius grid
     independentGrids[1] = longitudeGrid; // Solar longitude grid
 
-    // Initialize interpolators for each (n,m) pair and each component (x, y, z)
-    for ( int n = 0; n <= effectiveMaxDegree; ++n )
-    {
-        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
-        {
-            // Create 2D grids for this coefficient (across all files for now - using first file)
-            const std::size_t nRadii = radiiGrid.size();
-            const std::size_t nLons = longitudeGrid.size();
-            const int fileIndex = 0; // For now, use first file - this could be extended
+    // Set up periods for periodic interpolation
+    // Dimension 0 (radius): non-periodic (period = 0)
+    // Dimension 1 (solar longitude): periodic with period = 2π
+    std::vector<double> periods(2);
+    periods[0] = 0.0;  // Radius is non-periodic
+    periods[1] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
-            // X-component interpolators
-            {
-                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
-                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
-
-                // Fill grids with coefficient values from x-component dataset
-                for ( std::size_t r = 0; r < nRadii; ++r )
-                {
-                    for ( std::size_t l = 0; l < nLons; ++l )
-                    {
-                        auto coeffs = xStokesDataset_->getCoeff(fileIndex, r, l, n, m);
-                        cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
-                        sineGrid[r][l] = coeffs.second;   // Sine coefficient
-                    }
-                }
-
-                // Create interpolators for x-component
-                auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, cosineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, sineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                // Store interpolators in x-component map
-                std::pair<int,int> nmPair = {n, m};
-                xStokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
-            }
-
-            // Y-component interpolators
-            {
-                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
-                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
-
-                // Fill grids with coefficient values from y-component dataset
-                for ( std::size_t r = 0; r < nRadii; ++r )
-                {
-                    for ( std::size_t l = 0; l < nLons; ++l )
-                    {
-                        auto coeffs = yStokesDataset_->getCoeff(fileIndex, r, l, n, m);
-                        cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
-                        sineGrid[r][l] = coeffs.second;   // Sine coefficient
-                    }
-                }
-
-                // Create interpolators for y-component
-                auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, cosineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, sineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                // Store interpolators in y-component map
-                std::pair<int,int> nmPair = {n, m};
-                yStokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
-            }
-
-            // Z-component interpolators
-            {
-                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
-                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
-
-                // Fill grids with coefficient values from z-component dataset
-                for ( std::size_t r = 0; r < nRadii; ++r )
-                {
-                    for ( std::size_t l = 0; l < nLons; ++l )
-                    {
-                        auto coeffs = zStokesDataset_->getCoeff(fileIndex, r, l, n, m);
-                        cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
-                        sineGrid[r][l] = coeffs.second;   // Sine coefficient
-                    }
-                }
-
-                // Create interpolators for z-component
-                auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, cosineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
-                    independentGrids, sineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                // Store interpolators in z-component map
-                std::pair<int,int> nmPair = {n, m};
-                zStokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
-            }
-        }
-    }
-
-    // Initialize reduced interpolators for coefficients beyond reference radius
-    // These are 1D interpolators (solar longitude only)
-    const std::size_t nFiles = xStokesDataset_->nFiles();
-
-    // Resize reduced interpolator vectors to accommodate all files
+    // Resize interpolator vectors to accommodate all files
     // Note: Using clear() + emplace_back() instead of resize() to avoid copy constructor issues with unique_ptr on MSVC
-    // reserve() is not used as it also requires copy-constructibility on MSVC
+    xStokesInterpolators_.clear();
+    yStokesInterpolators_.clear();
+    zStokesInterpolators_.clear();
     xReducedStokesInterpolators_.clear();
     yReducedStokesInterpolators_.clear();
     zReducedStokesInterpolators_.clear();
@@ -1160,6 +1066,9 @@ void ComaWindModel::initializeStokesInterpolators()
 
     for ( std::size_t i = 0; i < nFiles; ++i )
     {
+        xStokesInterpolators_.emplace_back();
+        yStokesInterpolators_.emplace_back();
+        zStokesInterpolators_.emplace_back();
         xReducedStokesInterpolators_.emplace_back();
         yReducedStokesInterpolators_.emplace_back();
         zReducedStokesInterpolators_.emplace_back();
@@ -1171,8 +1080,142 @@ void ComaWindModel::initializeStokesInterpolators()
         zFallbackReducedStokesInterpolators_.emplace_back();
     }
 
+    // Initialize 2D interpolators for each file
+    for ( std::size_t fileIndex = 0; fileIndex < nFiles; ++fileIndex )
+    {
+        // Initialize interpolators for each (n,m) pair and each component (x, y, z)
+        for ( int n = 0; n <= effectiveMaxDegree; ++n )
+        {
+            for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+            {
+                const std::size_t nRadii = radiiGrid.size();
+                const std::size_t nLons = longitudeGrid.size();
+
+                // X-component interpolators
+                {
+                    boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                    boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                    // Fill grids with coefficient values from x-component dataset
+                    for ( std::size_t r = 0; r < nRadii; ++r )
+                    {
+                        for ( std::size_t l = 0; l < nLons; ++l )
+                        {
+                            auto coeffs = xStokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                            cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
+                            sineGrid[r][l] = coeffs.second;   // Sine coefficient
+                        }
+                    }
+
+                    // Create interpolators for x-component with periodic solar longitude
+                    auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, cosineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, sineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    // Store interpolators in x-component map for this file
+                    std::pair<int,int> nmPair = {n, m};
+                    xStokesInterpolators_[fileIndex][nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
+                }
+
+                // Y-component interpolators
+                {
+                    boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                    boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                    // Fill grids with coefficient values from y-component dataset
+                    for ( std::size_t r = 0; r < nRadii; ++r )
+                    {
+                        for ( std::size_t l = 0; l < nLons; ++l )
+                        {
+                            auto coeffs = yStokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                            cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
+                            sineGrid[r][l] = coeffs.second;   // Sine coefficient
+                        }
+                    }
+
+                    // Create interpolators for y-component with periodic solar longitude
+                    auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, cosineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, sineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    // Store interpolators in y-component map for this file
+                    std::pair<int,int> nmPair = {n, m};
+                    yStokesInterpolators_[fileIndex][nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
+                }
+
+                // Z-component interpolators
+                {
+                    boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                    boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                    // Fill grids with coefficient values from z-component dataset
+                    for ( std::size_t r = 0; r < nRadii; ++r )
+                    {
+                        for ( std::size_t l = 0; l < nLons; ++l )
+                        {
+                            auto coeffs = zStokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                            cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
+                            sineGrid[r][l] = coeffs.second;   // Sine coefficient
+                        }
+                    }
+
+                    // Create interpolators for z-component with periodic solar longitude
+                    auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, cosineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                        independentGrids, sineGrid,
+                        interpolators::huntingAlgorithm,
+                        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                        periods  // Enable periodic interpolation for solar longitude
+                    );
+
+                    // Store interpolators in z-component map for this file
+                    std::pair<int,int> nmPair = {n, m};
+                    zStokesInterpolators_[fileIndex][nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
+                }
+            }
+        }
+    }
+
+    // Initialize reduced interpolators for coefficients beyond reference radius
+    // These are 1D interpolators (solar longitude only)
     std::vector<std::vector<double>> reducedIndependentGrids(1);
     reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only
+
+    // Set up periods for 1D periodic interpolation (solar longitude only)
+    std::vector<double> reducedPeriods(1);
+    reducedPeriods[0] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
     for ( std::size_t fileIndex = 0; fileIndex < nFiles; ++fileIndex )
     {
@@ -1195,17 +1238,21 @@ void ComaWindModel::initializeStokesInterpolators()
                         reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
                     }
 
-                    // Create and store reduced interpolators for x-component
+                    // Create and store reduced interpolators for x-component with periodic solar longitude
                     auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedCosineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedSineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     std::pair<int,int> degreeOrderPair = {degree, order};
@@ -1225,17 +1272,21 @@ void ComaWindModel::initializeStokesInterpolators()
                         reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
                     }
 
-                    // Create and store reduced interpolators for y-component
+                    // Create and store reduced interpolators for y-component with periodic solar longitude
                     auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedCosineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedSineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     std::pair<int,int> degreeOrderPair = {degree, order};
@@ -1255,17 +1306,21 @@ void ComaWindModel::initializeStokesInterpolators()
                         reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
                     }
 
-                    // Create and store reduced interpolators for z-component
+                    // Create and store reduced interpolators for z-component with periodic solar longitude
                     auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedCosineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                         reducedIndependentGrids, reducedSineGrid,
                         interpolators::huntingAlgorithm,
-                        interpolators::extrapolate_at_boundary
+                        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                        reducedPeriods  // Enable periodic interpolation for solar longitude
                     );
 
                     std::pair<int,int> degreeOrderPair = {degree, order};
@@ -1337,16 +1392,27 @@ void ComaWindModel::createFallback2DInterpolator(
         }
     }
 
+    // Set up periods for periodic interpolation
+    // Dimension 0 (radius): non-periodic (period = 0)
+    // Dimension 1 (solar longitude): periodic with period = 2π
+    std::vector<double> periods(2);
+    periods[0] = 0.0;  // Radius is non-periodic
+    periods[1] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
         independentGrids, cosineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+        periods  // Enable periodic interpolation for solar longitude
     );
 
     auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
         independentGrids, sineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+        periods  // Enable periodic interpolation for solar longitude
     );
 
     interpolationPoint2D_[0] = radius;
@@ -1415,16 +1481,24 @@ void ComaWindModel::createFallback1DInterpolator(
         reducedSineGrid[longitudeIndex] = reducedCoeffs.second;
     }
 
+    // Set up periods for 1D periodic interpolation (solar longitude only)
+    std::vector<double> reducedPeriods(1);
+    reducedPeriods[0] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
         reducedIndependentGrids, reducedCosineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+        reducedPeriods  // Enable periodic interpolation for solar longitude
     );
 
     auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
         reducedIndependentGrids, reducedSineGrid,
         interpolators::huntingAlgorithm,
-        interpolators::extrapolate_at_boundary
+        std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+        std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+        reducedPeriods  // Enable periodic interpolation for solar longitude
     );
 
     interpolationPoint1D_[0] = solarLongitude;
