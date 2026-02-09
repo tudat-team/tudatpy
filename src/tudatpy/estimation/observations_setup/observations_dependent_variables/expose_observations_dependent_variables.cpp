@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
@@ -102,7 +103,19 @@ void expose_observations_dependent_variables( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( py::pickle(
+                    []( const tss::ObservationDependentVariableSettings& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString(
+                                std::make_shared< tss::ObservationDependentVariableSettings >( obj ) ) );
+                    },
+                    []( py::bytes data ) {
+                        auto ptr = tudat::serialization::deserializeFromBinaryString<
+                                std::shared_ptr< tss::ObservationDependentVariableSettings > >(
+                                data.cast< std::string >( ) );
+                        return *ptr;
+                    } ),
+                  R"doc(Pickle support for ObservationDependentVariableSettings.)doc" );
 
     m.def( "add_dependent_variables_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
