@@ -225,7 +225,7 @@ endif ()
 # Set required boost components.
 set(
     _TUDAT_REQUIRED_BOOST_LIBS
-    filesystem system regex date_time thread chrono atomic unit_test_framework
+    filesystem system regex date_time thread serialization chrono atomic unit_test_framework
 )
 # if (TUDAT_BUILD_TESTS)
 #     # Add the unit test framework, if needed.
