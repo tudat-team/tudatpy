@@ -1225,7 +1225,7 @@ private:
         ar & const_cast< LinkEndType& >( referenceLinkEnd_ );
         ar & observationsDependentVariables_;
         ar & dependentVariableBookkeeping_;
-        ar & const_cast< std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& >( ancilliarySettings_ );
+        ar & const_cast< std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& >( ancillarySettings_ );
         ar & numberOfObservations_;
         ar & singleObservationSize_;
         ar & weights_;
