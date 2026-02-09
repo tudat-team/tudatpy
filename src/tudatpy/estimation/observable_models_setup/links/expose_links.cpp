@@ -11,6 +11,7 @@
 #include "expose_links.h"
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tom = tudat::observation_models;
@@ -303,7 +304,16 @@ Examples
 
 
 
-      )doc" );
+      )doc" )
+            .def( py::pickle(
+                    []( const tom::LinkEndId& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString< tom::LinkEndId >(
+                                data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for LinkEndId.)doc" );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -473,7 +483,16 @@ Examples
 
              Attribute that contains the dictionary with link end type (as key) and link end if (as value).
 
-          )doc" );
+          )doc" )
+            .def( py::pickle(
+                    []( const tom::LinkDefinition& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString< tom::LinkDefinition >(
+                                data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for LinkDefinition.)doc" );
 
     m.def( "link_definition",
            &tom::linkDefinition,
