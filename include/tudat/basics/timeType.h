@@ -21,6 +21,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/serialization/access.hpp>
 
 #include <Eigen/Core>
 
@@ -1058,6 +1059,17 @@ protected:
 
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & fullPeriods_;
+        ar & secondsIntoFullPeriod_;
+    }
 };
 
 //! The Time at JD0
