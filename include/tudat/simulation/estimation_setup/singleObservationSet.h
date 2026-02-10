@@ -91,7 +91,7 @@ public:
         singleObservationSize_ = getObservableSize( observableType );
 
         // Initialise weights
-        if( weights.size(  ) == 0 )
+        if( weights.size( ) == 0 )
         {
             for( unsigned int k = 0; k < numberOfObservations_; k++ )
             {
@@ -100,13 +100,13 @@ public:
         }
         else
         {
-            if( weights.size(  ) != observationTimes.size(  ) * singleObservationSize_ )
+            if( weights.size( ) != observationTimes.size( ) * singleObservationSize_ )
             {
                 throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
             }
         }
 
-        if( residuals.size(  ) == 0 )
+        if( residuals.size( ) == 0 )
         {
             // Initialise residuals
             for( unsigned int k = 0; k < numberOfObservations_; k++ )
@@ -116,7 +116,7 @@ public:
         }
         else
         {
-            if( residuals.size(  ) != observationTimes.size(  ) * singleObservationSize_ )
+            if( residuals.size( ) != observationTimes.size( ) * singleObservationSize_ )
             {
                 throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
             }
@@ -1013,8 +1013,7 @@ public:
     }
 
 private:
-    static std::vector< std::size_t > getTimeSortingPermutation(
-        const std::vector< TimeType >& observationTimes )
+    static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
     {
         const std::size_t numberOfObservations = observationTimes.size( );
 
@@ -1024,21 +1023,15 @@ private:
             permutation[ i ] = i;
         }
 
-        std::sort(
-            permutation.begin( ),
-            permutation.end( ),
-            [ &observationTimes ]( const std::size_t i, const std::size_t j )
-            {
-                return observationTimes.at( i ) < observationTimes.at( j );
-            } );
+        std::sort( permutation.begin( ), permutation.end( ), [ &observationTimes ]( const std::size_t i, const std::size_t j ) {
+            return observationTimes.at( i ) < observationTimes.at( j );
+        } );
 
         return permutation;
     }
 
     template< typename T >
-    void reorderVectorInPlace(
-        std::vector< T >& data,
-        const std::vector< std::size_t >& permutation )
+    void reorderVectorInPlace( std::vector< T >& data, const std::vector< std::size_t >& permutation )
     {
         const std::size_t numberOfElements = data.size( );
 
@@ -1060,8 +1053,7 @@ private:
             return;
         }
 
-        const std::vector< std::size_t > permutation =
-            getTimeSortingPermutation( observationTimes_ );
+        const std::vector< std::size_t > permutation = getTimeSortingPermutation( observationTimes_ );
 
         reorderVectorInPlace( observationTimes_, permutation );
         reorderVectorInPlace( observations_, permutation );
