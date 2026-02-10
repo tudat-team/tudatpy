@@ -22,6 +22,8 @@
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
+#include <tudat/io/serialization/base.h>
+
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tep = tudat::estimatable_parameters;
@@ -786,7 +788,17 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          Vector of consider parameter normalization terms :math:`\mathbf{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
-      )doc" );
+      )doc" )
+            .def( py::pickle(
+                    []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for CovarianceAnalysisOutput.)doc" );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -846,7 +858,17 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                            R"doc(No documentation found.)doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" );
+                           R"doc(No documentation found.)doc" )
+            .def( py::pickle(
+                    []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for EstimationOutput.)doc" );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 

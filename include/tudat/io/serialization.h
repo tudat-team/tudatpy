@@ -13,18 +13,20 @@
 
 /**
  * @file serialization.h
- * @brief Master header for all Tudat Boost serialization support.
+ * @brief Master header for Tudat Boost serialization infrastructure.
  *
- * Include this single header to get access to all serialization infrastructure
- * and polymorphic type registrations. Individual sub-headers can also be
- * included directly if only a subset is needed.
+ * Provides core serialization helpers (Eigen, archives, serialize/deserialize
+ * utilities). Does NOT include BOOST_CLASS_EXPORT_IMPLEMENT headers, since
+ * those must appear in exactly one translation unit.
  *
- * Sub-headers:
+ * Sub-headers (include directly as needed):
  *   - serialization/base.h          Core infrastructure (Eigen, helpers, archives)
- *   - serialization/observations.h  Observation classes + polymorphic exports
+ *   - serialization/observations.h  BOOST_CLASS_EXPORT_IMPLEMENT for observation types
+ *                                    (include in exactly ONE .cpp file)
+ *   - serialization/propagation.h   BOOST_CLASS_EXPORT_IMPLEMENT for propagation/estimation types
+ *                                    (include in exactly ONE .cpp file)
  */
 
 #include "tudat/io/serialization/base.h"
-#include "tudat/io/serialization/observations.h"
 
 #endif  // TUDAT_SERIALIZATION_H

@@ -35,6 +35,8 @@
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 
+#include <boost/serialization/access.hpp>
+
 namespace tudat
 {
 
@@ -56,6 +58,18 @@ struct PropagatorType {
     RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
     bool otherPropagator_ = false;
     int customStateSize_ = 0;
+
+private:
+    friend class boost::serialization::access;
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & translationalPropagatorType_;
+        ar & rotationalPropagatorType_;
+        ar & otherPropagator_;
+        ar & customStateSize_;
+    }
 };
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics

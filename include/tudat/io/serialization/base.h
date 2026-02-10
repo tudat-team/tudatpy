@@ -36,6 +36,49 @@
 #include "tudat/basics/timeType.h"
 
 #include <sstream>
+#include <tuple>
+
+// Provide std::tuple serialization in boost::serialization namespace
+namespace boost
+{
+namespace serialization
+{
+
+// Helper to serialize a std::tuple element-by-element
+namespace detail
+{
+
+template< std::size_t N >
+struct tuple_serializer
+{
+    template< class Archive, typename... Args >
+    static void serialize( Archive& ar, std::tuple< Args... >& t, const unsigned int version )
+    {
+        tuple_serializer< N - 1 >::serialize( ar, t, version );
+        ar & std::get< N - 1 >( t );
+    }
+};
+
+template<>
+struct tuple_serializer< 0 >
+{
+    template< class Archive, typename... Args >
+    static void serialize( Archive& ar, std::tuple< Args... >& t, const unsigned int version )
+    {
+        (void)ar; (void)t; (void)version;
+    }
+};
+
+}  // namespace detail
+
+template< class Archive, typename... Args >
+void serialize( Archive& ar, std::tuple< Args... >& t, const unsigned int version )
+{
+    detail::tuple_serializer< sizeof...( Args ) >::serialize( ar, t, version );
+}
+
+}  // namespace serialization
+}  // namespace boost
 
 namespace tudat
 {
@@ -86,6 +129,27 @@ T deserializeFromBinaryString( const std::string& data )
     std::istringstream iss( data, std::ios::binary );
     boost::archive::binary_iarchive ia( iss );
     T object;
+    ia >> object;
+    return object;
+}
+
+//! Helper function to serialize a shared_ptr to a binary string (for polymorphic types)
+template< typename T >
+std::string serializeSharedPtrToBinaryString( const std::shared_ptr< T >& object )
+{
+    std::ostringstream oss( std::ios::binary );
+    boost::archive::binary_oarchive oa( oss );
+    oa << object;
+    return oss.str( );
+}
+
+//! Helper function to deserialize a shared_ptr from a binary string (for polymorphic types)
+template< typename T >
+std::shared_ptr< T > deserializeSharedPtrFromBinaryString( const std::string& data )
+{
+    std::istringstream iss( data, std::ios::binary );
+    boost::archive::binary_iarchive ia( iss );
+    std::shared_ptr< T > object;
     ia >> object;
     return object;
 }

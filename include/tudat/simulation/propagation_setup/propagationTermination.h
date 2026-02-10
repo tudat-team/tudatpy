@@ -13,6 +13,11 @@
 
 #include <memory>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 
@@ -688,6 +693,21 @@ protected:
      *  false if not, -1 if neither is relevant.
      */
     bool terminationOnExactCondition_;
+
+    //! Protected default constructor for deserialization (also accessible by derived classes)
+    PropagationTerminationDetails( ):
+        propagationTerminationReason_( propagation_never_run ), terminationOnExactCondition_( false ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & propagationTerminationReason_;
+        ar & terminationOnExactCondition_;
+    }
 };
 
 //! Class for storing details on the propagation termination when using hybrid termination conditions
@@ -729,10 +749,26 @@ public:
 private:
     //! List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     std::vector< bool > isConditionMetWhenStopping_;
+
+    friend class boost::serialization::access;
+
+    PropagationTerminationDetailsFromHybridCondition( ):
+        PropagationTerminationDetails( ) {}
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< PropagationTerminationDetails >( *this );
+        ar & isConditionMetWhenStopping_;
+    }
 };
 
 }  // namespace propagators
 
 }  // namespace tudat
+
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::PropagationTerminationDetails )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

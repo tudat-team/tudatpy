@@ -14,6 +14,9 @@
 #include <tudat/astro/basic_astro.h>
 #include <tudat/astro/propagators.h>
 
+#include <tudat/io/serialization/base.h>
+#include <tudat/io/serialization/propagation.h>
+
 #include "scalarTypes.h"
 
 namespace py = pybind11;
@@ -804,7 +807,17 @@ void expose_propagation( py::module &m )
          Function to delete the contents of this object. This function is typically called when wanting to manually reduce the
          memory usage in large analyses by clearing data. It does not need to be used manually before repropagating.
 
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for SingleArcSimulationResults.)doc" );
 
     py::class_< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr<
@@ -861,7 +874,17 @@ void expose_propagation( py::module &m )
 
 
          :type: SingleArcSimulationResults
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for SingleArcVariationalSimulationResults.)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                STATE_SCALAR_TYPE,
@@ -925,7 +948,17 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for MultiArcSimulationResults.)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                STATE_SCALAR_TYPE,
@@ -968,7 +1001,17 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for MultiArcVariationalSimulationResults.)doc" );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults,
                                                 STATE_SCALAR_TYPE,
@@ -1008,7 +1051,17 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          all numerical and logging results from the multi-arc component.
 
          :type: MultiArcSimulationResults
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for HybridArcSimulationResults.)doc" );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                 STATE_SCALAR_TYPE,
@@ -1049,7 +1102,17 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          all numerical and logging results from the multi-arc component.
 
          :type: MultiArcVariationalSimulationResults
-)doc" );
+)doc" )
+            .def( py::pickle(
+                    []( const tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                    },
+                    []( py::bytes data ) {
+                        return tudat::serialization::deserializeFromBinaryString<
+                                tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                        data.cast< std::string >( ) );
+                    } ),
+                  R"doc(Pickle support for HybridArcVariationalSimulationResults.)doc" );
 
     py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >(
             m, "ThrustMagnitudeWrapper" );

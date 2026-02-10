@@ -8,6 +8,16 @@
 #include <map>
 #include <string>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/string.hpp>
+
+#include "tudat/basics/timeType.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -45,6 +55,15 @@ public:
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
+
+private:
+    friend class boost::serialization::access;
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)ar; (void)version;
+        // Base class has no data members to serialize
+    }
 };
 
 template< typename StateScalarType, typename TimeType >
@@ -66,6 +85,17 @@ class SingleArcSimulationResults : public SimulationResults< StateScalarType, Ti
 public:
     static const bool is_variational = false;
     static const int number_of_columns = 1;
+
+    //! Default constructor for deserialization only — not for general use
+    SingleArcSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ),
+        sequentialPropagation_( true ),
+        rawSolutionConversionFunction_( nullptr ),
+        propagationIsPerformed_( false ),
+        solutionIsCleared_( false ),
+        onlyProcessedSolutionSet_( false ),
+        propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
+    { }
 
     SingleArcSimulationResults(
             const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
@@ -479,6 +509,34 @@ private:
 
     //! Boolean denoting whether the full propagation has been fully completed or is ongoing (for non sequential propagations only)
     bool isPropagationOngoing_ = false;
+
+    // --- Boost serialization support ---
+    friend class boost::serialization::access;
+
+private:
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
+        ar & equationsOfMotionNumericalSolution_;
+        ar & equationsOfMotionNumericalSolutionRaw_;
+        ar & dependentVariableHistory_;
+        ar & cumulativeComputationTimeHistory_;
+        ar & cumulativeNumberOfFunctionEvaluations_;
+        ar & processedStateIds_;
+        ar & propagatedStateIds_;
+        ar & integratedStateAndBodyList_;
+        // Skip: outputSettings_ (non-serializable processing settings)
+        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        ar & sequentialPropagation_;
+        // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        ar & propagationIsPerformed_;
+        ar & solutionIsCleared_;
+        ar & onlyProcessedSolutionSet_;
+        ar & propagationTerminationReason_;
+        ar & isPropagationOngoing_;
+    }
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -487,6 +545,14 @@ class SingleArcVariationalSimulationResults : public SimulationResults< StateSca
 public:
     static const bool is_variational = true;
     static const int number_of_columns = Eigen::Dynamic;
+
+    //! Default constructor for deserialization only — not for general use
+    SingleArcVariationalSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ),
+        singleArcDynamicsResults_( nullptr ),
+        stateTransitionMatrixSize_( 0 ),
+        sensitivityMatrixSize_( 0 )
+    { }
 
     SingleArcVariationalSimulationResults(
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults,
@@ -624,6 +690,23 @@ protected:
     std::map< double, Eigen::MatrixXd > stateTransitionSolution_;
 
     std::map< double, Eigen::MatrixXd > sensitivitySolution_;
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
+        // const_cast needed because members are declared const for runtime safety,
+        // but deserialization must populate them
+        ar & const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ );
+        ar & const_cast< int& >( stateTransitionMatrixSize_ );
+        ar & const_cast< int& >( sensitivityMatrixSize_ );
+        ar & stateTransitionSolution_;
+        ar & sensitivitySolution_;
+    }
 };
 
 template< typename SimulationResults, typename StateScalarType = double, typename TimeType = double >
@@ -664,6 +747,13 @@ class MultiArcSimulationResults : public SimulationResults< StateScalarType, Tim
 {
 public:
     using single_arc_type = SingleArcResults< StateScalarType, TimeType >;
+
+    //! Default constructor for deserialization only — not for general use
+    MultiArcSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( ),
+        propagationIsPerformed_( false ),
+        solutionIsCleared_( false )
+    { }
 
     MultiArcSimulationResults( const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
                                const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface ):
@@ -929,12 +1019,33 @@ private:
     std::vector< double > arcEndTimes_;
 
     std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
+
+    // --- Boost serialization support ---
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
+        ar & const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ );
+        ar & propagationIsPerformed_;
+        ar & solutionIsCleared_;
+        ar & arcStartTimes_;
+        ar & arcEndTimes_;
+        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+    }
 };
 
 template< template< class, class > class SingleArcResults, class StateScalarType, class TimeType >
 class HybridArcSimulationResults : public SimulationResults< StateScalarType, TimeType >
 {
 public:
+    //! Default constructor for deserialization only — not for general use
+    HybridArcSimulationResults( ):
+        SimulationResults< StateScalarType, TimeType >( )
+    { }
+
     HybridArcSimulationResults(
             const std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults,
             const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults ):
@@ -1062,9 +1173,55 @@ protected:
     std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults_;
 
     std::shared_ptr< HybridArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
+        ar & singleArcResults_;
+        ar & multiArcResults_;
+        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+    }
 };
+
+// Type aliases for BOOST_CLASS_EXPORT registration of template instantiations
+using SingleArcDynamicsResults = SingleArcSimulationResults< double, double >;
+using SingleArcVariationalResults = SingleArcVariationalSimulationResults< double, double >;
+using MultiArcDynamicsResults = MultiArcSimulationResults< SingleArcSimulationResults, double, double >;
+using MultiArcVariationalResults = MultiArcSimulationResults< SingleArcVariationalSimulationResults, double, double >;
+using HybridArcDynamicsResults = HybridArcSimulationResults< SingleArcSimulationResults, double, double >;
+using HybridArcVariationalResults = HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, double >;
+
+// Type aliases for <double, Time> instantiations (used in Python bindings)
+using SingleArcDynamicsResultsDT = SingleArcSimulationResults< double, Time >;
+using SingleArcVariationalResultsDT = SingleArcVariationalSimulationResults< double, Time >;
+using MultiArcDynamicsResultsDT = MultiArcSimulationResults< SingleArcSimulationResults, double, Time >;
+using MultiArcVariationalResultsDT = MultiArcSimulationResults< SingleArcVariationalSimulationResults, double, Time >;
+using HybridArcDynamicsResultsDT = HybridArcSimulationResults< SingleArcSimulationResults, double, Time >;
+using HybridArcVariationalResultsDT = HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, Time >;
 
 }  // namespace propagators
 
 }  // namespace tudat
+
+// Register all concrete SimulationResults types for polymorphic serialization
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcDynamicsResults )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcVariationalResults )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcDynamicsResults )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcVariationalResults )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcDynamicsResults )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcVariationalResults )
+
+// <double, Time> variants
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcDynamicsResultsDT )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcVariationalResultsDT )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcDynamicsResultsDT )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcVariationalResultsDT )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcDynamicsResultsDT )
+BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcVariationalResultsDT )
+
 #endif  // TUDAT_PROPAGATIONRESULTS_H
