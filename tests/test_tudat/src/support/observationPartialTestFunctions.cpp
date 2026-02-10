@@ -429,6 +429,11 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     {
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
                     }
+
+                    if( linkEndIterator->first == transmitter && observableType == differenced_frequency_of_arrival )
+                    {
+                        currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
+                    }
                 }
             }
         }

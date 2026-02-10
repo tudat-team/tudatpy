@@ -218,6 +218,16 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::one_way_doppler_measured_frequency && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::differenced_frequency_of_arrival && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
         std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
