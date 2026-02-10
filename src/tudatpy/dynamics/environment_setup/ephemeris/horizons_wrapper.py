@@ -784,7 +784,7 @@ class HorizonsQuery:
                 )
             )
             .assign(
-                epochJ2000secondsTDB=lambda x: (
+                epoch_seconds_TDB=lambda x: (
                     (
                         Time(x.epoch_dt, format="datetime64").jd1
                         - constants.JULIAN_DAY_ON_J2000
@@ -814,7 +814,7 @@ class HorizonsQuery:
                 * constants.ASTRONOMICAL_UNIT
                 / constants.JULIAN_DAY
             )
-            .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
+            .loc[:, ["epoch_seconds_TDB", "x", "y", "z", "vx", "vy", "vz"]]
         )
 
         return tab.to_numpy()
@@ -990,8 +990,8 @@ class HorizonsQuery:
             ]
             res["datetime_str_UTC"] = iso_strings_utc
             res["datetime_jd"] = tudat_julian_days
-            res["epochJ2000secondsTDB"] = tdb_seconds
-            res["epochJ2000secondsUTC"] = utc_seconds
+            res["epoch_seconds_TDB"] = tdb_seconds
+            res["epoch_seconds_UTC"] = utc_seconds
 
             res_list.append(res)
 
@@ -1036,7 +1036,7 @@ class HorizonsQuery:
         )
 
         # Use the correct TDB time column
-        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+        res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "RA", "DEC"]]
 
         if not degrees:
             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
@@ -1085,7 +1085,7 @@ class HorizonsQuery:
             **kwargs,
         )
 
-        res = raw.to_pandas().loc[:, ["epochJ2000secondsUTC", "AZ", "EL"]]
+        res = raw.to_pandas().loc[:, ["epoch_seconds_UTC", "AZ", "EL"]]
 
         if not degrees:
             res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)

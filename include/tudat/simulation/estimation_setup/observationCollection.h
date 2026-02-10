@@ -1626,7 +1626,7 @@ public:
                 break;
             }
             case ancillary_settings_parser: {
-                std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings =
+                std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettings =
                         std::dynamic_pointer_cast< ObservationCollectionAncillarySettingsParser >( observationParser )
                                 ->getAncillarySettings( );
 
@@ -1645,9 +1645,8 @@ public:
                             for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
                             {
                                 bool identicalAncillarySettings = false;
-                                if( ( linkEndsIt.second.at( k )->getAncilliarySettings( )->getDoubleData( ) ==
-                                      setting->getDoubleData( ) ) &&
-                                    ( linkEndsIt.second.at( k )->getAncilliarySettings( )->getDoubleVectorData( ) ==
+                                if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleVectorData( ) ==
                                       setting->getDoubleVectorData( ) ) )
                                 {
                                     identicalAncillarySettings = true;
@@ -2024,14 +2023,13 @@ public:
 
         for( auto set : singleSets )
         {
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
-                    set->getAncilliarySettings( );
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = set->getAncillarySettings( );
 
-            if( ancilliarySettings != nullptr )
+            if( ancillarySettings != nullptr )
             {
-                std::vector< double > linkEndsDelays_ = ancilliarySettings->getAncilliaryDoubleVectorData( link_ends_delays, false );
+                std::vector< double > linkEndsDelays_ = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
                 linkEndsDelays_[ 1 ] = transponderDelay;
-                ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays_ );
+                ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays_ );
             }
         }
     }
@@ -2305,6 +2303,48 @@ public:
         }
     }
 
+    std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndEndIndices( ) const
+    {
+        std::map< ObservableType, std::pair< int, int > > observableTypeIndices;
+
+        int currentIndex = 0;
+
+        // Iterate over observable types (strictly ordered by std::map)
+        for( typename SortedObservationSets::const_iterator observableIt = observationSetList_.begin( );
+             observableIt != observationSetList_.end( );
+             ++observableIt )
+        {
+            const ObservableType observableType = observableIt->first;
+
+            const int startIndex = currentIndex;
+
+            // Loop over link ends
+            for( typename std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > >::
+                         const_iterator linkIt = observableIt->second.begin( );
+                 linkIt != observableIt->second.end( );
+                 ++linkIt )
+            {
+                const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > &observationSetsForLink =
+                        linkIt->second;
+
+                // Loop over observation sets
+                for( std::size_t i = 0; i < observationSetsForLink.size( ); ++i )
+                {
+                    const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > &observationSet =
+                            observationSetsForLink.at( i );
+
+                    currentIndex += static_cast< int >( observationSet->getTotalObservationSetSize( ) );
+                }
+            }
+
+            const int endIndex = currentIndex;
+
+            observableTypeIndices[ observableType ] = std::make_pair( startIndex, endIndex - startIndex );
+        }
+
+        return observableTypeIndices;
+    }
+
 private:
     void setObservationSetIndices( )
     {
@@ -2446,7 +2486,7 @@ private:
     {
         std::shared_ptr< ObservationCollectionParser > observationParser;
 
-        if( !isObservationDependentVariableAncilliarySetting( dependentVariableSettings->variableType_ ) )
+        if( !isObservationDependentVariableAncillarySetting( dependentVariableSettings->variableType_ ) )
         {
             std::vector< std::shared_ptr< ObservationCollectionParser > > parserList;
 
@@ -2597,7 +2637,7 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
                         oldObsSet->getReferenceLinkEnd( ),
                         oldObsSet->getObservationsDependentVariablesReference( ),
                         oldObsSet->getDependentVariableBookkeeping( ),
-                        oldObsSet->getAncilliarySettings( ) );
+                        oldObsSet->getAncillarySettings( ) );
         newObsSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
         newObsSet->setResiduals( oldObsSet->getResiduals( ) );
 
@@ -2668,7 +2708,7 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > &observations,
         const std::vector< TimeType > observationTimes,
         const LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
                                                                                         linkEnds,
@@ -2677,7 +2717,7 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
                                                                                         referenceLinkEnd,
                                                                                         std::vector< Eigen::VectorXd >( ),
                                                                                         nullptr,
-                                                                                        ancilliarySettings );
+                                                                                        ancillarySettings );
 }
 
 // template< typename ObservationScalarType = double, typename TimeType = double,
@@ -2713,10 +2753,10 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > &observations,
         const std::vector< TimeType > observationTimes,
         const LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet = createSingleObservationSet(
-            observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd, ancilliarySettings );
+            observableType, linkEnds.linkEnds_, observations, observationTimes, referenceLinkEnd, ancillarySettings );
 
     std::map< ObservableType,
               std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >

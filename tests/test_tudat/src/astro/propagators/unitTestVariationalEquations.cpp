@@ -358,7 +358,9 @@ std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::D
 executeOrbiterSimulation(
         const Eigen::Matrix< StateScalarType, 6, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ),
         const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 10 ),
-        const bool propagateVariationalEquations = 1 )
+        const bool propagateVariationalEquations = 1,
+        const bool testResultInterpolation = 0,
+        const bool interpolateVariationalEquations = 1 )
 {
     int numberOfParametersToEstimate = 10;
 
@@ -457,6 +459,7 @@ executeOrbiterSimulation(
                                                                                                    initialTranslationalState,
                                                                                                    TimeType( finalEphemerisTime ),
                                                                                                    cowell );
+    propagatorSettings->getOutputSettings( )->setIntegratedVariationalResult( interpolateVariationalEquations );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -514,7 +517,24 @@ executeOrbiterSimulation(
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
         testStates.block( 0, 0, 6, 1 ) = bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( testEpoch );
 
-        if( propagateVariationalEquations )
+        if( testResultInterpolation )
+        {
+            std::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface =
+                    std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            dynamicsSimulator.getStateTransitionMatrixInterface( ) );
+
+            if( interpolateVariationalEquations )
+            {
+                BOOST_CHECK_EQUAL( singleArcInterface->getStateTransitionMatrixInterpolator( ) != nullptr, true );
+                BOOST_CHECK_EQUAL( singleArcInterface->getSensitivityMatrixInterpolator( ) != nullptr, true );
+            }
+            else
+            {
+                BOOST_CHECK_EQUAL( singleArcInterface->getStateTransitionMatrixInterpolator( ) == nullptr, true );
+                BOOST_CHECK_EQUAL( singleArcInterface->getSensitivityMatrixInterpolator( ) == nullptr, true );
+            }
+        }
+        else if( propagateVariationalEquations )
         {
             results.first.push_back(
                     dynamicsSimulator.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
@@ -527,6 +547,14 @@ executeOrbiterSimulation(
         results.second.push_back( testStates );
     }
     return results;
+}
+
+BOOST_AUTO_TEST_CASE( testVariationalEquationInterpolation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ), true, true, true );
+    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ), true, true, false );
 }
 
 //! Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
@@ -1231,7 +1259,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 perturbedInitialMass( 0 ) = initialBodyMass + massPerturbation;
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
                 upPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
@@ -1240,7 +1268,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 perturbedInitialMass( 0 ) = initialBodyMass - massPerturbation;
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
                 downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }

@@ -67,10 +67,10 @@ public:
         parametersToEstimate_( parametersToEstimate ), bodies_( bodies ),
         stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
         parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ), clearNumericalSolution_( clearNumericalSolution )
-    { }
+    {}
 
     //! Destructor
-    virtual ~VariationalEquationsSolver( ) { }
+    virtual ~VariationalEquationsSolver( ) {}
 
     //! Pure virtual function to integrate variational equations and equations of motion.
     /*!
@@ -818,10 +818,10 @@ public:
                                              parametersToEstimate,
                                              integrateDynamicalAndVariationalEquationsConcurrently,
                                              integrateEquationsOnCreation )
-    { }
+    {}
 
     //! Destructor
-    ~SingleArcVariationalEquationsSolver( ) { }
+    ~SingleArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate equations of motion only.
     /*!
@@ -859,7 +859,10 @@ public:
         }
 
         // Reset solution for state transition and sensitivity matrices.
-        resetVariationalEquationsInterpolators( );
+        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedVariationalResult( ) )
+        {
+            resetVariationalEquationsInterpolators( );
+        }
     }
 
     //! Function to return the numerical solution history of numerically integrated variational equations.
@@ -892,9 +895,8 @@ public:
 
     std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionSolutionDouble( )
     {
-        return dynamicsSimulator_->getEquationsOfMotionNumericalSolutionDouble();
+        return dynamicsSimulator_->getEquationsOfMotionNumericalSolutionDouble( );
     }
-
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
     /*!
@@ -1089,7 +1091,7 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
         }
     }
 
-    for( auto itr: arcInitialTranslationalStatesVector )
+    for( auto itr : arcInitialTranslationalStatesVector )
     {
         arcInitialTranslationalStates[ itr.first ] = StateType( 6 * itr.second.size( ) );
         for( unsigned int k = 0; k < itr.second.size( ); k++ )
@@ -1263,13 +1265,13 @@ public:
                                                                                 setDependentVariablesInterface ),
                                             parametersToEstimate,
                                             integrateEquationsOnCreation )
-    { }
+    {}
 
     //! Destructor
     /*!
      *  Destructor
      */
-    ~MultiArcVariationalEquationsSolver( ) { }
+    ~MultiArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate equations of motion only.
     /*!
@@ -1362,7 +1364,10 @@ public:
         }
 
         // Reset solution for state transition and sensitivity matrices.
-        resetVariationalEquationsInterpolators( );
+        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedVariationalResult( ) )
+        {
+            resetVariationalEquationsInterpolators( );
+        }
     }
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
@@ -1690,7 +1695,7 @@ public:
                                                                                   setDependentVariablesInterface ),
                 parametersToEstimate,
                 integrateEquationsOnCreation )
-    { }
+    {}
 
     HybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1714,7 +1719,7 @@ public:
                                                                                   setDependentVariablesInterface ),
                 parametersToEstimate,
                 integrateEquationsOnCreation )
-    { }
+    {}
 
     void initializeHybridArcVariationalEquationsSolver( const simulation_setup::SystemOfBodies& bodies,
                                                         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -1811,7 +1816,7 @@ public:
     }
 
     //! Destructor
-    ~HybridArcVariationalEquationsSolver( ) { }
+    ~HybridArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate variational equations and equations of motion.
     /*!
@@ -1963,7 +1968,7 @@ public:
             counterOriginalArcWiseIndex += originalMultiArcDynamicsSingleArcSize_.at( i );
         }
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
-        propagatorSettings_->setInitialStatesFromConstituents( );
+        propagatorSettings_->updateInitialState( );
 
         // Reset parameters for arc-wise parameters in both originalMultiArcSolver_ and multiArcSolver_
         for( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
@@ -2118,7 +2123,7 @@ protected:
 
         // Reset initial multi-arc states in propagator settings and estimated parameters
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStatesList( arcInitialStates );
-        propagatorSettings_->setInitialStatesFromConstituents( );
+        propagatorSettings_->updateInitialState( );
     }
 
     //! Function that removes the single-arc body data from propagation results before processing data
@@ -2159,7 +2164,7 @@ protected:
         }
 
         originalPopagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStatesList( originalMultiArcInitialStates );
-        originalPopagatorSettings_->setInitialStatesFromConstituents( );
+        originalPopagatorSettings_->updateInitialState( );
     }
 
     //! Object to solve multi-arc variational equations (multi-arc bodies only).

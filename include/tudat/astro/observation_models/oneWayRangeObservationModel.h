@@ -53,9 +53,13 @@ public:
     OneWayRangeObservationModel(
             const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+            const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
+            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator )
+        lightTimeCalculator_( lightTimeCalculator ), scaleForTimeDifference_( scaleForTimeDifference ),
+        stationStates_( groundStationStates )
     {}
 
     //! Destructor
@@ -81,13 +85,13 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         linkEndTimes.clear( );
         linkEndStates.clear( );
 
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
-        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsToUse;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancillarySetings, ancillarySetingsToUse );
 
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -97,14 +101,14 @@ public:
         {
             case receiver:
                 observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 1, ancilliarySetingsToUse );
+                        receiverState, transmitterState, time, 1, ancillarySetingsToUse );
                 transmissionTime = time - observation;
                 receptionTime = time;
                 break;
 
             case transmitter:
                 observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 0, ancilliarySetingsToUse );
+                        receiverState, transmitterState, time, 0, ancillarySetingsToUse );
                 transmissionTime = time;
                 receptionTime = time + observation;
                 break;
@@ -112,6 +116,24 @@ public:
                 std::string errorMessage =
                         "Error, cannot have link end type: " + std::to_string( linkEndAssociatedWithTime ) + "for one-way range";
                 throw std::runtime_error( errorMessage );
+        }
+
+        if( scaleForTimeDifference_ != basic_astrodynamics::tdb_scale )
+        {
+            Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( receiver )->getNominalCartesianPosition( );
+
+            Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( transmitter )->getNominalCartesianPosition( );
+
+            TimeType transmissionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, transmissionTime, nominalTransmittingStationState );
+            TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, receptionTime, nominalReceivingStationState );
+            observation += static_cast< ObservationScalarType >( receptionTimeDifference );
+            observation -= static_cast< ObservationScalarType >( transmissionTimeDifference );
         }
 
         // Convert light time to range.
@@ -149,6 +171,10 @@ private:
 
     //! Pre-declared transmitter state, to prevent many (de-)allocations
     StateType transmitterState;
+
+    basic_astrodynamics::TimeScales scaleForTimeDifference_;
+
+    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };
 
 }  // namespace observation_models

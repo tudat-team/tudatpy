@@ -97,6 +97,8 @@ TimeType timeFromIsoString( const std::string &isoTime )
 
 struct DateTime {
 public:
+    DateTime( ): year_( 0 ), month_( 0 ), day_( 0 ), hour_( 0 ), minute_( 0 ), seconds_( 0.0 ) {}
+
     DateTime( int year, int month, int day, int hour, int minute, long double seconds ):
         year_( year ), month_( month ), day_( day ), hour_( hour ), minute_( minute ), seconds_( seconds )
     {

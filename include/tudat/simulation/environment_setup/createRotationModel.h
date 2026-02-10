@@ -896,11 +896,12 @@ public:
                               const Eigen::Vector2d& polePrecession,
                               const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
                               const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-                              const double referenceEpochJ2000 = 0.0 ):
+                              const double referenceEpochJ2000 = 0.0,
+                              const std::string& anglesBaseFrame = "" ):
         RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
         nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
         meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms ),
-        referenceEpochJ2000_( referenceEpochJ2000 )
+        referenceEpochJ2000_( referenceEpochJ2000 ), anglesBaseFrame_( anglesBaseFrame )
     {}
 
     double nominalMeridian_;
@@ -920,6 +921,8 @@ public:
     double currentMeridian_;
 
     Eigen::Vector2d currentPolePosition_;
+
+    std::string anglesBaseFrame_;
 };
 
 // Function to create a state function for a body, valid both during propagation, and outside propagation
@@ -1150,7 +1153,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
         const Eigen::Vector2d& polePrecession,
         const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
         const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-        double referenceEpochJ2000 = 0.0 )
+        double referenceEpochJ2000 = 0.0,
+        const std::string& anglesBaseFrame = "" )
 {
     return std::make_shared< IauRotationModelSettings >( baseFrameOrientation,
                                                          targetFrameOrientation,
@@ -1160,7 +1164,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          polePrecession,
                                                          meridianPeriodicTerms,
                                                          polePeriodicTerms,
-                                                         referenceEpochJ2000 );
+                                                         referenceEpochJ2000,
+                                                         anglesBaseFrame );
 }
 
 }  // namespace simulation_setup

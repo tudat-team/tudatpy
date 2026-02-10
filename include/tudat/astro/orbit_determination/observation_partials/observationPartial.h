@@ -45,7 +45,7 @@ class PositionPartialScaling
 {
 public:
     //! Destructor
-    virtual ~PositionPartialScaling( ) { }
+    virtual ~PositionPartialScaling( ) {}
 
     //! Update the scaling object to the current times and states (pure virtual).
     /*!
@@ -66,9 +66,9 @@ template< int ObservationSize >
 class DirectPositionPartialScaling : public PositionPartialScaling
 {
 public:
-    DirectPositionPartialScaling( const observation_models::ObservableType observableType ): observableType_( observableType ) { }
+    DirectPositionPartialScaling( const observation_models::ObservableType observableType ): observableType_( observableType ) {}
 
-    virtual ~DirectPositionPartialScaling( ) { }
+    virtual ~DirectPositionPartialScaling( ) {}
 
     virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
 
@@ -159,13 +159,13 @@ public:
      */
     ObservationPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         parameterIdentifier_( parameterIdentifier )
-    { }
+    {}
 
     //! Virtual destructor.
     /*!
      *  Virtual destrcutor.
      */
-    virtual ~ObservationPartial( ) { }
+    virtual ~ObservationPartial( ) {}
 
     //! Pure virtual function to calculate the observation partial(s) at required time(s) and state(s)
     /*!
@@ -183,7 +183,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
 
@@ -229,7 +229,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtConstantAbsoluteBias( ) { }
+    ~ObservationPartialWrtConstantAbsoluteBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. constant absolute bias
     /*!
@@ -245,7 +245,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         return { std::make_pair( constantPartial_, times.at( 0 ) ) };
@@ -297,7 +297,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseAbsoluteBias( ) { }
+    ~ObservationPartialWrtArcWiseAbsoluteBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise constant absolute bias
     /*!
@@ -313,7 +313,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         //        std::cout << "TEST CALCULATE PARTIALS W.R.T. ARC WISE CONSTANT BIAS" << "\n\n";
@@ -373,10 +373,10 @@ public:
         ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
-    { }
+    {}
 
     //! Destructor
-    ~ObservationPartialWrtConstantRelativeBias( ) { }
+    ~ObservationPartialWrtConstantRelativeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. constant relative bias
     /*!
@@ -392,7 +392,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
@@ -441,7 +441,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseRelativeBias( ) { }
+    ~ObservationPartialWrtArcWiseRelativeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise constant relative bias
     /*!
@@ -457,7 +457,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         totalPartial_.setZero( );

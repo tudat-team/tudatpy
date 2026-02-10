@@ -11,6 +11,9 @@
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#if TUDAT_BUILD_WITH_MCD
+#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
+#endif
 #if TUDAT_BUILD_WITH_NRLMSISE
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
@@ -164,10 +167,9 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
-        case mars_dtm_atmosphere:
-        {
+        case mars_dtm_atmosphere: {
             std::shared_ptr< MarsDtmAtmosphereSettings > marsDtmAtmosphereSettings =
-                std::dynamic_pointer_cast< MarsDtmAtmosphereSettings >( atmosphereSettings );
+                    std::dynamic_pointer_cast< MarsDtmAtmosphereSettings >( atmosphereSettings );
 
             if( marsDtmAtmosphereSettings == nullptr )
             {
@@ -188,18 +190,39 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
 
             tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-                tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+                    tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
             std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
-                std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
-            std::function< double( const double ) > f107Function = [=](const double time)
-            {
+                    std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+            std::function< double( const double ) > f107Function = [ = ]( const double time ) {
                 return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed / 2.25;
             };
 
             // Create atmosphere model using NRLMISE00 input function
             atmosphereModel = std::make_shared< aerodynamics::MarsDtmAtmosphereModel >( f107Function );
             break;
-    }
+        }
+#if TUDAT_BUILD_WITH_MCD
+        case mcd_atmosphere: {
+            std::shared_ptr< McdAtmosphereSettings > mcdAtmosphereSettings =
+                    std::dynamic_pointer_cast< McdAtmosphereSettings >( atmosphereSettings );
+
+            if( mcdAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating MCD atmosphere model for body " + body +
+                                          ": model settings are incompatible." );
+            }
+
+            // Create atmosphere model - all parameters are validated in both Settings and Model constructors
+            atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( mcdAtmosphereSettings->getMcdDataPath( ),
+                                                                                    mcdAtmosphereSettings->getDustScenario( ),
+                                                                                    mcdAtmosphereSettings->getPerturbationKey( ),
+                                                                                    mcdAtmosphereSettings->getPerturbationSeed( ),
+                                                                                    mcdAtmosphereSettings->getGravityWaveLength( ),
+                                                                                    mcdAtmosphereSettings->getHighResolutionMode( ) );
+            break;
+        }
+#endif
+
 #if TUDAT_BUILD_WITH_NRLMSISE
         case nrlmsise00: {
             std::string spaceWeatherFilePath;
@@ -261,7 +284,13 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
         }
         default:
             throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
-                                      std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
+                                      std::to_string( atmosphereSettings->getAtmosphereType( ) )
+#if TUDAT_BUILD_WITH_MCD
+                                      + " (MCD support: enabled)"
+#else
+                                      + " (MCD support: disabled)"
+#endif
+            );
     }
 
     if( atmosphereSettings->getWindSettings( ) != nullptr )

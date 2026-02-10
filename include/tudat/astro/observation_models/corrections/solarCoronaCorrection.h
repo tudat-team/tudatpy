@@ -160,7 +160,7 @@ public:
         }
 
         exponentsAreIntegers_ = true;
-        for( double exponent: positiveExponents )
+        for( double exponent : positiveExponents )
         {
             // Check if all exponents are positive
             if( exponent <= 0 )
@@ -192,7 +192,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     /*!

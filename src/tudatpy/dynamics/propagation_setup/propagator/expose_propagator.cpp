@@ -439,7 +439,8 @@ Enumeration of available integrated state types.
          Boolean defining whether the propagation results are to
          be used to update the environment. If this variable is set
          to False, the numerical propagation results can be
-         retrieved from this object (provided the
+         retrieved from the associated :class:`~tudatpy.dynamics.propagation.SingleArcSimulationResults` object
+         (for the case of single-arc propagation; provided the
          :py:attr:`~clear_numerical_solution` is set to False),
          but the (for instance) Ephemeris of the propagated body
          is not updated with the propagation results. If this
@@ -449,6 +450,21 @@ Enumeration of available integrated state types.
          (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html#automatic-processing>`__ for details).
 
 
+         :type: bool
+      )doc" )
+            .def_property( "set_integrated_variational_result",
+                           &tp::PropagatorProcessingSettings::getSetIntegratedVariationalResult,
+                           &tp::PropagatorProcessingSettings::setIntegratedVariationalResult,
+                           R"doc(
+
+         Boolean defining whether the propagation results of variational equations (if any) are to
+         be used to update the interpolators of the state transition and sensitivity matrices. If this variable is set
+         to False, the numerical propagation results of the variational equations can still be
+         retrieved from the associated :class:`~tudatpy.dynamics.propagation.SingleArcVariationalSimulationResults` object
+         (for the case of single-arc propagation; provided the
+         :py:attr:`~clear_numerical_solution` is set to False),
+         but the  :attr:`~tudatpy.dynamics.simulator.VariationalSimulator.state_transition_interface` object will
+         not have its internal interpolators updated with these numerical results.
          :type: bool
       )doc" )
             .def_property( "clear_numerical_solution",
@@ -465,7 +481,8 @@ Enumeration of available integrated state types.
          results) is only sensible when the
          :py:attr:`~set_integrated_result` is set to True. In that
          case, the propagated states are *not* accessible directly
-         from this objects, but the results are used to update the
+         from the associated :class:`~tudatpy.dynamics.propagation.SingleArcVariationalSimulationResults` object
+         (for the case of single-arc propagation) but the results are used to update the
          environment, *e.g.* update the ephemeris of the propagated
          body with the numerical results.
 
@@ -623,6 +640,9 @@ Enumeration of available integrated state types.
             .def_property( "set_integrated_result",
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedResult,
                            &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult )
+            .def_property( "set_integrated_variational_result",
+                           &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedVariationalResult,
+                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult )
             .def_property( "clear_numerical_solution",
                            &tp::HybridArcPropagatorProcessingSettings::getClearNumericalSolutions,
                            &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions )
