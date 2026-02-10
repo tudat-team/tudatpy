@@ -20,7 +20,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/io/serialization.h"
+#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/observations.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"

@@ -19,6 +19,12 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -1035,7 +1041,34 @@ struct CovarianceAnalysisOutput {
     //! Boolean denoting whether consider parameters are included
     bool considerParametersIncluded_;
 
-    bool designMatrixSaved_;
+public:
+    //! Default constructor for deserialization only — not for general use
+    CovarianceAnalysisOutput( ):
+        exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & normalizedDesignMatrix_;
+        ar & weightsMatrixDiagonal_;
+        ar & designMatrixTransformationDiagonal_;
+        ar & inverseNormalizedCovarianceMatrix_;
+        ar & inverseUnnormalizedCovarianceMatrix_;
+        ar & normalizedCovarianceMatrix_;
+        ar & unnormalizedCovarianceMatrix_;
+        ar & considerCovarianceContribution_;
+        ar & normalizedCovarianceWithConsiderParameters_;
+        ar & unnormalizedCovarianceWithConsiderParameters_;
+        ar & normalizedDesignMatrixConsiderParameters_;
+        ar & considerNormalizationFactors_;
+        ar & considerCovariance_;
+        ar & exceptionDuringPropagation_;
+        ar & considerParametersIncluded_;
+    }
 };
 
 //! Data structure through which the output of the orbit determination is communicated
@@ -1224,6 +1257,32 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //    //! List of numerical solutions of dependent variables (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+
+public:
+    //! Default constructor for deserialization only — not for general use
+    EstimationOutput( ):
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( ),
+        bestIteration_( 0 ), residualStandardDeviation_( 0.0 ),
+        exceptionDuringInversion_( false ), numberOfParameters_( 0 ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( *this );
+        ar & parameterEstimate_;
+        ar & residuals_;
+        ar & bestIteration_;
+        ar & residualStandardDeviation_;
+        ar & residualHistory_;
+        ar & parameterHistory_;
+        ar & exceptionDuringInversion_;
+        ar & numberOfParameters_;
+        ar & simulationResultsPerIteration_;
+    }
 };
 
 // extern template class CovarianceAnalysisInput< double, double >;
@@ -1232,8 +1291,21 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 // extern template class EstimationInput< double, double >;
 // extern template struct EstimationOutput< double >;
 
+// Type aliases for BOOST_CLASS_EXPORT registration
+using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;
+using EstimationOutputDD = EstimationOutput< double, double >;
+
+// Type aliases for <double, Time> instantiations (used in Python bindings)
+using CovarianceAnalysisOutputDT = CovarianceAnalysisOutput< double, Time >;
+using EstimationOutputDT = EstimationOutput< double, Time >;
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::CovarianceAnalysisOutputDD )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::EstimationOutputDD )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::CovarianceAnalysisOutputDT )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::EstimationOutputDT )
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H
