@@ -206,6 +206,21 @@ void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4
     partialDerivatives[ 3 ] *= 2.0;
 }
 
+double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual )
+{
+    if ( weightDiagonal.size( ) != residual.size( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunction: size mismatch: "
+                << "weightDiagonal.size() = " << weightDiagonal.size( )
+                << ", residual.size() = " << residual.size( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    return 0.5 * weightDiagonal.cwiseProduct( residual ).dot( residual );
+}
+
+
 }  // namespace linear_algebra
 
 }  // namespace tudat
