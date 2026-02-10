@@ -66,4 +66,6 @@ TUDAT_ADD_TEST_CASE(DsnNWayRangeObservationModel PRIVATE_LINKS ${Tudat_ESTIMATIO
 
 TUDAT_ADD_TEST_CASE(DifferencedTimeOfArrivalObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(OneWayDopplerMeasuredFrequencyObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(DifferencedFrequencyOfArrivalObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
