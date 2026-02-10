@@ -434,7 +434,6 @@ public:
                 propagateOnCreation );
     }
 
-
     OrbitDeterminationManager(
             const SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
@@ -870,10 +869,10 @@ public:
                 covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
             }
 
-
             // Calculate mean residual for current iteration.
             residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
-            costFunction = linear_algebra::computeLeastSquaresCostFunction( estimationInput->getWeightsMatrixDiagonals( ), residuals.template cast< double >( ) );
+            costFunction = linear_algebra::computeLeastSquaresCostFunction( estimationInput->getWeightsMatrixDiagonals( ),
+                                                                            residuals.template cast< double >( ) );
             rmsResidualHistory.push_back( residualRms );
             costFunctionHistory.push_back( costFunction );
 
@@ -888,23 +887,25 @@ public:
 
             if( estimationInput->getPrintOutput( ) )
             {
-                std::map< ObservableType, std::pair< int, int > > indicesPerObservableType = estimationInput->getObservationCollection(  )->getObservableTypeStartAndEndIndices(  );
+                std::map< ObservableType, std::pair< int, int > > indicesPerObservableType =
+                        estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
 
                 if( indicesPerObservableType.size( ) > 1 )
                 {
-                    for( auto it: indicesPerObservableType )
+                    for( auto it : indicesPerObservableType )
                     {
-                        double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
-                        std::cout<<"Current residual for observable ("<<getObservableName( it.first )<<"): "<<currentTypeRms<<std::endl;
+                        double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare(
+                                residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
+                        std::cout << "Current residual for observable (" << getObservableName( it.first ) << "): " << currentTypeRms
+                                  << std::endl;
                     }
                 }
                 else
                 {
                     std::cout << "Current residual: " << residualRms << std::endl;
-
                 }
             }
-            
+
             // If current iteration is better than previous one, update 'best' data.
             if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
             {
@@ -964,7 +965,7 @@ public:
 
         if( estimationInput->getPrintOutput( ) )
         {
-            std::cout << "Best iteration: " << bestIteration <<" out of "<<numberOfIterations -1 << std::endl;
+            std::cout << "Best iteration: " << bestIteration << " out of " << numberOfIterations - 1 << std::endl;
             std::cout << "Rms residual from best iteration: " << bestRmsResidual << std::endl;
             std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
         }
