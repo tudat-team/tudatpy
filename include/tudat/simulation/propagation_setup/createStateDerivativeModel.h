@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
+#include <memory>
 #include <string>
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
@@ -33,6 +34,9 @@
 #include "tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
+#include "tudat/astro/relativity/metric.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
 
 namespace tudat
 {
@@ -62,6 +66,163 @@ private:
 
 namespace propagators
 {
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > createBaryCenteredToPlanetCenteredTimeStateDerivative(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > conversionSettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{    
+    std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > stateDerivativeModel;
+    switch( conversionSettings->getRelativisticStateDerivativeType( ) )
+    {
+    case first_order_barycentric_to_bodycentric:
+    {
+        std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings<StateScalarType, TimeType > > firstOrderConversionSettings =
+                std::dynamic_pointer_cast< FirstOrderBodycentricRelativisticTimePropagatorSettings<StateScalarType, TimeType > >( conversionSettings );
+        if( firstOrderConversionSettings == NULL )
+        {
+            std::cerr<<"Error, expected 1st order relativistic time conversion settings for "<<
+                       conversionSettings->getReferencePointId( ).first<<std::endl;
+        }
+        else
+        {
+            stateDerivativeModel = std::static_pointer_cast< RelativisticTimeStateDerivative< StateScalarType, TimeType > >(
+                std::make_shared< FirstOrderBarycentricToBodyCentricTimeStateDerivative<StateScalarType, TimeType > >(
+                            bodies,
+                            conversionSettings->getReferencePointId( ).first,
+                            firstOrderConversionSettings->getExternalBodyList( ),
+                            firstOrderConversionSettings->getSphericalHarmonicGravityExpansions( ),
+                            firstOrderConversionSettings->getTimeVariableConversionFunction( ),
+                            firstOrderConversionSettings->getDistanceScalingFactor( ) ) );
+        }
+        break;
+    }
+    case second_order_barycentric_to_bodycentric:
+    {
+        std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings<StateScalarType, TimeType > > secondOrderConversionSettings =
+                std::dynamic_pointer_cast< SecondOrderBodyCenteredRelativisticTimeConverterSettings<StateScalarType, TimeType > >( conversionSettings );
+        if( secondOrderConversionSettings == NULL )
+        {
+            std::cerr<<"Error, expected 2nd order relativistic time conversion settings for "<<
+                       conversionSettings->getReferencePointId( ).first<<std::endl;
+        }
+        else
+        {
+            stateDerivativeModel = std::static_pointer_cast<RelativisticTimeStateDerivative<StateScalarType, TimeType>>(
+                std::make_shared< SecondOrderBarycentricToBodyCentricTimeStateDerivative<StateScalarType, TimeType > >(
+                        bodies, conversionSettings->getReferencePointId( ).first,
+                        secondOrderConversionSettings->getExternalBodyList( ),
+                        secondOrderConversionSettings->getSphericalHarmonicGravityExpansions( ),
+                        secondOrderConversionSettings->getTimeVariableConversionFunction( ),
+                        secondOrderConversionSettings->getDistanceScalingFactor( ),
+                        secondOrderConversionSettings->getAngularMomentumBodies( ) ) );
+        }
+        break;
+    }
+    default:
+    {
+        std::cerr<<"Error, could not find relativistic time conversion settings of body "<<
+                conversionSettings->getReferencePointId( ).first<<std::endl;
+    }
+    }
+    return stateDerivativeModel;
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > createPlanetCenteredToTopocentricStateDerivative(
+        const std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > conversionSettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    std::shared_ptr< RelativisticTimeStateDerivative< StateScalarType, TimeType > > stateDerivativeModel;
+    
+    if( conversionSettings != NULL )
+    {
+        stateDerivativeModel = std::static_pointer_cast<RelativisticTimeStateDerivative < StateScalarType, TimeType >>(
+        std::make_shared< FirstOrderBodyCentricToTopoCentricTimeCalculator< StateScalarType, TimeType > >(
+                    bodies, conversionSettings->getReferencePointId( ).first,
+                    conversionSettings->getTopocentricExternalBodies( ),
+                    conversionSettings->getReferencePointId( ).second,
+                    conversionSettings->getMaximumSphericalHarmonicDegree( ),
+                    conversionSettings->getUseAccelerationTerm( ),
+                    conversionSettings->getUseTimeDependentBodyFixedPosition( ) ) );
+    }
+    else
+    {
+        stateDerivativeModel = std::static_pointer_cast<RelativisticTimeStateDerivative < StateScalarType, TimeType >>(
+            std::make_shared< FirstOrderBodyCentricToTopoCentricTimeCalculator<StateScalarType, TimeType > >(
+                    bodies,
+                    conversionSettings->getReferencePointId( ).first,
+                    std::vector< std::string >( ),
+                    conversionSettings->getReferencePointId( ).second ) );
+    }
+
+    return stateDerivativeModel;
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > createDirectFromMetricProperTimeStateDerivative(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > conversionSettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( evaluatedMetricObjects.count( conversionSettings->getReferencePointId( ) ) == 0 )
+    {
+        if( baseMetric != NULL )
+        {
+            evaluatedMetricObjects[ conversionSettings->getReferencePointId( ) ] = baseMetric->Clone( );
+        }
+        else
+        {
+            std::cerr<<"Error when making direct from metric proper time state derivative, no base metric is found"<<std::endl;
+        }
+
+    }
+    return std::static_pointer_cast< RelativisticTimeStateDerivative< StateScalarType, TimeType > >(
+        std::make_shared< DirectProperTimeRateStateDerivative< StateScalarType, TimeType > >(
+            evaluatedMetricObjects.at( conversionSettings->getReferencePointId( ) ),
+            conversionSettings->getReferencePointId( ),
+            bodies )
+    );
+
+}
+
+template< typename StateScalarType, typename TimeType >
+std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createRelativisticTimeStateDerivativeModel(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > timePropagatorSettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
+
+    switch( timePropagatorSettings->getRelativisticStateDerivativeType( ) )
+    {
+    case first_order_barycentric_to_bodycentric:
+    case second_order_barycentric_to_bodycentric:
+        stateDerivativeModel = createBaryCenteredToPlanetCenteredTimeStateDerivative(
+                    timePropagatorSettings, bodies );
+        break;
+    case first_order_bodycentric_to_topocentric:
+    {
+        std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > toTopocentricPropagatorSettings =
+                std::dynamic_pointer_cast< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >( timePropagatorSettings );
+        if( toTopocentricPropagatorSettings == NULL )
+        {
+            std::cerr<<"Error, expected to topocentric time propagation settings when making state derivative model"<<std::endl;
+        }
+        else
+        {
+            stateDerivativeModel = createPlanetCenteredToTopocentricStateDerivative( toTopocentricPropagatorSettings, bodies );
+        }
+        break;
+    }
+    case direct_from_metric:
+        stateDerivativeModel  = createDirectFromMetricProperTimeStateDerivative(
+                    timePropagatorSettings, bodies );
+        break;
+    default:
+        std::cerr<<"Error, did not recognize relativistic time propagator settings "<<
+                   timePropagatorSettings->getRelativisticStateDerivativeType( )<<std::endl;
+    }
+    return stateDerivativeModel;
+}
 
 //! Function to create object handling frame origin transformations during numerical integration
 /*!
@@ -415,6 +576,21 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
             {
                 stateDerivativeModel = std::make_shared< CustomStateDerivative< StateScalarType, TimeType > >(
                         customPropagatorSettings->stateDerivativeFunction_, customPropagatorSettings->stateSize_ );
+            }
+            break;
+        }
+        case proper_time:
+        {
+            std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > timePropagatorSettings =
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( timePropagatorSettings == NULL )
+            {
+                std::cerr<<"Error, expected time propagation settings when making state derivative model"<<std::endl;
+            }
+            else
+            {
+                stateDerivativeModel = createRelativisticTimeStateDerivativeModel< StateScalarType, TimeType >(
+                            timePropagatorSettings, bodies );
             }
             break;
         }

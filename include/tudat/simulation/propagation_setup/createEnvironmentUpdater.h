@@ -54,8 +54,14 @@ void removePropagatedStatesFomEnvironmentUpdates(
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::TorqueModelMap& torqueModels,
-        const simulation_setup::SystemOfBodies& bodies,
+        const simulation_setup::SystemOfBodies& bodyMap,
         const std::vector< std::string > bodiesToIntegrate );
+
+template< typename StateScalarType, typename TimeType >
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createProperTimeEquationEnvironmentUpdaterSettings(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > stateDerivativeModel,
+         const simulation_setup::SystemOfBodies& bodyMap );
+
 
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
@@ -201,6 +207,13 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                     bodies );
             break;
         }
+        case proper_time: {
+            environmentModelsToUpdate = createProperTimeEquationEnvironmentUpdaterSettings(
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                    bodies );
+            break;
+        }
+
         case custom_state: {
             break;
         }

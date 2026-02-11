@@ -17,6 +17,7 @@
 add_subdirectory(acceleration_partials)
 add_subdirectory(rotational_dynamics_partials)
 add_subdirectory(observation_partials)
+add_subdirectory(metric_partials)
 
 TUDAT_ADD_TEST_CASE(EstimationInput
     PRIVATE_LINKS

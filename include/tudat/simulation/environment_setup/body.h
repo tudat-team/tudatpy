@@ -34,6 +34,7 @@
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/ephemerides/timeEphemeris.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
@@ -1793,6 +1794,16 @@ public:
         return ionosphereModel_;
     }
 
+    void setTimeScaleConverter( std::shared_ptr< TimeEphemeris > timeScaleConverter )
+    {
+        timeScaleConverter_ = timeScaleConverter;
+    }
+
+    std::shared_ptr< TimeEphemeris > getTimeScaleConverter( )
+    {
+        return timeScaleConverter_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -1897,6 +1908,9 @@ private:
     bool isRotationSet_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< TimeEphemeris > timeScaleConverter_;
+
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

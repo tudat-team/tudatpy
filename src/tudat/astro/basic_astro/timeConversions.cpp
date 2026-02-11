@@ -17,8 +17,30 @@
 
 namespace tudat
 {
+
 namespace basic_astrodynamics
 {
+
+//! Function to determine whether a time scale is a general, relativistic time scale.
+bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
+{
+    bool isRelativistic = 0;
+    switch( originalTimeScale )
+    {
+    case body_centered_coordinate_time_scale:
+        isRelativistic = 1;
+        break;
+    case barycentric_coordinate_time_scale:
+        isRelativistic = 1;
+        break;
+    case local_proper_time_scale:
+        isRelativistic = 1;
+        break;
+    default:
+        std::cerr<<"Error when getting relativistic time scale, input was "<<originalTimeScale<<std::endl;
+    }
+    return isRelativistic;
+}
 
 //! Function to get the Julian day on J2000, in double precision.
 template<>

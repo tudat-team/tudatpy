@@ -17,9 +17,9 @@
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
+#include "tudat/astro/ephemerides/timeEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
 namespace tudat
@@ -1110,6 +1110,84 @@ public:
 private:
 };
 
+
+std::pair<
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >,
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >
+> createRelativisticTimeInterpolators(std::map< double, double >& originalToTargetTimeMap);
+
+
+
+template< typename TimeType, typename StateScalarType >
+void resetIntegratedDirectFromMetricTimeEphemeris(
+        const simulation_setup::SystemOfBodies& bodies, const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution,
+        const std::pair< std::string, std::string > referencePointIdentifier,
+        const std::pair< int, int >& startIndexAndSize );
+
+template< typename TimeType, typename StateScalarType >
+void resetIntegratedPostNewtonianTimeEphemeris(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution,
+        const std::pair< std::string, std::string > referencePointIdentifier,
+        const std::pair< int, int >& startIndexAndSize );
+
+template< typename TimeType, typename StateScalarType >
+class RelativisticStateIntegratedStateProcessor: public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
+{
+public:
+    RelativisticStateIntegratedStateProcessor(
+        const int startIndex, 
+        const std::pair< std::string, std::string > referencePointIdentifier,
+        const RelativisticTimeStateDerivativeType stateDerivativeType,
+        const simulation_setup::SystemOfBodies& bodies, 
+        const int directConversionOrder ):
+        SingleArcIntegratedStateProcessor< TimeType, StateScalarType >(
+            proper_time, 
+            std::make_pair( startIndex, 1 ), 
+            bodies, 
+            std::vector<std::string>{ referencePointIdentifier.first }
+        ),
+        referencePointIdentifier_( referencePointIdentifier ),
+        stateDerivativeType_( stateDerivativeType ),
+        bodies_(bodies)
+    { }
+
+    virtual ~RelativisticStateIntegratedStateProcessor( ){ }
+
+    void processIntegratedStates(
+            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
+    {
+        // Reset numerically integrated states
+        if( stateDerivativeType_ == direct_from_metric )
+        {
+            std::cout<<"Resetting B: "<<referencePointIdentifier_.first<<" "<<referencePointIdentifier_.second<<std::endl;
+
+            resetIntegratedDirectFromMetricTimeEphemeris< TimeType, StateScalarType >(
+                        bodies_, numericalSolution, referencePointIdentifier_, this->startIndexAndSize_ );
+        }
+        else
+        {
+            resetIntegratedPostNewtonianTimeEphemeris< TimeType, StateScalarType >(
+                        bodies_, numericalSolution, referencePointIdentifier_, this->startIndexAndSize_ );
+        }
+    }
+
+    void processIntegratedMultiArcStates(
+            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
+            const std::vector< std::pair< double, double > >& arcStartEndTimes )
+    {
+        std::cerr<<"Error, cannot yet reset multiarc time ephemeris"<<std::endl;
+    }
+
+private:
+    std::pair< std::string, std::string > referencePointIdentifier_;
+
+    RelativisticTimeStateDerivativeType stateDerivativeType_;
+
+    simulation_setup::SystemOfBodies bodies_;
+};
+
+
 //! Class used for processing numerically integrated masses of bodies.
 template< typename TimeType, typename StateScalarType >
 class BodyMassIntegratedStateProcessor : public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
@@ -1349,6 +1427,18 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
 
             break;
         }
+        case proper_time: {
+            // Check input feasibility
+            std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > properTimePropagatorSettings =
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( properTimePropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, input type for proper time dynamics is inconsistent when checking dynamics feasibility" );
+            }
+
+            break;
+        }
+        
         default:
             throw std::runtime_error( "Error, integrated state type " + std::to_string( propagatorSettings->getStateType( ) ) +
                                       " not recognized when checking dynamics feasibility" );
@@ -1478,6 +1568,17 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
             integratedStateProcessors[ body_mass_state ] =
                     std::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
                             startIndex, bodies, massPropagatorSettings->bodiesWithMassToPropagate_ );
+            break;
+        }
+        case proper_time:
+        {
+            std::shared_ptr< RelativisticTimeStatePropagatorSettings< TimeType, StateScalarType > > properTimePropagatorSettings =
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< TimeType, StateScalarType >>( propagatorSettings );
+
+            integratedStateProcessors[ translational_state ] =
+                        std::make_shared< RelativisticStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+                            startIndex, properTimePropagatorSettings->getReferencePointId( ),
+                            properTimePropagatorSettings->getRelativisticStateDerivativeType( ), bodies, 1 );
             break;
         }
         case custom_state: {

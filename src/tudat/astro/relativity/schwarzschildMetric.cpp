@@ -1,0 +1,144 @@
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/relativity/schwarzschildMetric.h"
+namespace tudat
+{
+
+namespace relativity
+{
+
+void HarmonicSchwarzschildMetric::update( const Eigen::Matrix< double, 6, 1 >& state,
+                                          const double time,
+                                          const bool updateCurrentMetric,
+                                          const bool updateCurrentChristoffelSymbols )
+{
+    currentEvaluationState_ = state;
+    currentTime_ = time;
+    currentCentralBodyGravitationalParameter_ = centralGravitationalParameterFunction_( );
+
+    if ( updateCurrentMetric )
+    {
+        updateMetric( );
+    }
+
+    if ( updateCurrentChristoffelSymbols )
+    {
+        updateChristoffelSymbols( );
+    }
+}
+
+void HarmonicSchwarzschildMetric::updateMetric( )
+{
+    const double distance = currentEvaluationState_.segment( 0, 3 ).norm( );
+    const double scaledPotential = currentCentralBodyGravitationalParameter_ *
+                                   physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / distance;
+
+    currentFirstOrderCovariantMetricContributions_.setZero( );
+    currentFirstOrderCovariantMetricContributions_( 0, 0 ) = 2.0 * scaledPotential;
+    currentFirstOrderCovariantMetricContributions_.block( 1, 1, 3, 3 ) =
+        2.0 * ppnParameterSet_->getParameterGamma( ) * scaledPotential * Eigen::Matrix3d::Identity( );
+
+    currentSecondOrderCovariantMetricContributions_.setZero( );
+    currentSecondOrderCovariantMetricContributions_( 0, 0 ) =
+        -2.0 * ppnParameterSet_->getParameterBeta( ) * scaledPotential * scaledPotential;
+
+    if ( includeSecondPostNewtonianOrder_ )
+    {
+        currentSecondOrderCovariantMetricContributions_.block( 1, 1, 3, 3 ) +=
+            2.0 * ppnParameterSet_->getParameterEpsilon( ) * scaledPotential * scaledPotential * Eigen::Matrix3d::Identity( ) +
+            4.0 * calculateExternalMatrixPotential(
+                      currentCentralBodyGravitationalParameter_,
+                      distance,
+                      currentEvaluationState_.segment( 0, 3 ) ) * physical_constants::INVERSE_QUARTIC_SPEED_OF_LIGHT;
+    }
+
+    currentCovariantMetricContribution_ =
+        currentFirstOrderCovariantMetricContributions_ + currentSecondOrderCovariantMetricContributions_;
+}
+
+void HarmonicSchwarzschildMetric::updateChristoffelSymbols( )
+{
+    const double gamma = ppnParameterSet_->getParameterGamma( );
+    const double beta = ppnParameterSet_->getParameterBeta( );
+    const double epsilon = includeSecondPostNewtonianOrder_ ? ppnParameterSet_->getParameterEpsilon( ) : 0.0;
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        currentChristoffelSymbols_[ i ].setZero( );
+    }
+
+    const Eigen::Vector3d position = currentEvaluationState_.segment( 0, 3 );
+    const Eigen::Vector3d velocity = currentEvaluationState_.segment( 3, 3 );
+
+    const double distance = position.norm( );
+    const double inverseDistanceSquared = 1.0 / ( distance * distance );
+    const double scaledPotential = currentCentralBodyGravitationalParameter_ *
+                                   physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / distance;
+
+    // Placeholder: assume scalarPotentialTimeDerivative = 0 (can be replaced with dynamic model)
+    const double scalarPotentialTimeDerivative = 0.0;
+
+    // ^0_{0i} and ^0_{i0}
+    currentChristoffelSymbols_[ 0 ]( 0, 0 ) = -scalarPotentialTimeDerivative;
+    const Eigen::Vector3d spaceTimeCoupling =
+            position * ( 1.0 + 2.0 * ( 1.0 - beta ) * scaledPotential );
+    currentChristoffelSymbols_[ 0 ].block( 1, 0, 3, 1 ) = spaceTimeCoupling;
+    currentChristoffelSymbols_[ 0 ].block( 0, 1, 1, 3 ) = spaceTimeCoupling.transpose( );
+    currentChristoffelSymbols_[ 0 ].block( 1, 1, 3, 3 ) =
+        scalarPotentialTimeDerivative * gamma * Eigen::Matrix3d::Identity( );
+
+    // ^i_{00}
+    const double timeTimeCommonTerm = 1.0 - 2.0 * ( gamma + beta ) * scaledPotential;
+    for ( int i = 1; i < 4; i++ )
+    {
+        currentChristoffelSymbols_[ i ]( 0, 0 ) = position( i - 1 ) * timeTimeCommonTerm;
+    }
+
+    // ^i_{jk}
+    for ( int i = 0; i < 3; i++ )
+    {
+        Eigen::Matrix3d diagTerm = position( i ) * gamma * Eigen::Matrix3d::Identity( );
+        if ( includeSecondPostNewtonianOrder_ )
+        {
+            diagTerm += position( i ) * 2.0 * scaledPotential *
+                        ( epsilon - gamma * gamma ) * Eigen::Matrix3d::Identity( );
+        }
+
+        Eigen::Matrix3d offDiagTerm = Eigen::Matrix3d::Zero( );
+        Eigen::RowVector3d offDiagRow = position.transpose( ) * -gamma;
+        offDiagTerm.block( i, 0, 1, 3 ) = offDiagRow;
+        offDiagTerm.block( 0, i, 3, 1 ) = offDiagRow.transpose( );
+
+        if ( includeSecondPostNewtonianOrder_ )
+        {
+            offDiagRow += position.transpose( ) *
+                ( -scaledPotential * ( epsilon - 2.0 * gamma * gamma ) );
+            offDiagTerm.block( i, 0, 1, 3 ) = offDiagRow;
+            offDiagTerm.block( 0, i, 3, 1 ) = offDiagRow.transpose( );
+        }
+
+        currentChristoffelSymbols_[ i + 1 ].block( 1, 1, 3, 3 ) += diagTerm + offDiagTerm;
+
+        currentChristoffelSymbols_[ i + 1 ]( 0, i + 1 ) = gamma * scalarPotentialTimeDerivative;
+        currentChristoffelSymbols_[ i + 1 ]( i + 1, 0 ) = gamma * scalarPotentialTimeDerivative;
+    }
+
+    if ( includeSecondPostNewtonianOrder_ )
+    {
+        Eigen::Matrix3d secondOrderCorrection =
+            -position * position.transpose( ) * inverseDistanceSquared * epsilon * scaledPotential;
+        for ( int i = 0; i < 3; i++ )
+        {
+            currentChristoffelSymbols_[ i + 1 ].block( 1, 1, 3, 3 ) += position( i ) * secondOrderCorrection;
+        }
+    }
+
+    const double multiplier = scaledPotential * inverseDistanceSquared;
+    for ( int i = 0; i < 4; i++ )
+    {
+        currentChristoffelSymbols_[ i ] *= multiplier;
+    }
+}
+
+} // namespace relativity
+
+} // namespace tudat

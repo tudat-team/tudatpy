@@ -166,6 +166,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 case custom_state: {
                     break;
                 }
@@ -221,6 +223,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 default:
                     throw std::runtime_error( "Error, could not find  state settings for " + std::to_string( statesToSet.at( i ) ) );
             }

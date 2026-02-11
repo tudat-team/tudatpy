@@ -789,7 +789,6 @@ public:
                            std::placeholders::_2 ),
                 dependentVariableInterface,
                 sequentialPropagation_ );
-
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
         {

@@ -32,6 +32,8 @@ set(environment_HEADERS
         createSystemModel.h
         createThrustModelGuidance.h
         thrustSettings.h
+        createRelativisticTimeConverter.h
+        createMetric.h
         )
 
 # Add header files.
@@ -58,6 +60,8 @@ set(environment_SOURCES
         createRadiationPressureTargetModel.cpp
         createOccultationModel.cpp
         createSurfacePropertyDistribution.cpp
+        createRelativisticTimeConverter.cpp
+        createMetric.cpp
         )
 
 # Add library.
