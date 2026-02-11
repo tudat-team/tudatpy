@@ -182,3 +182,5 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 *.vscode
+# Large test data bundle (handled outside Git)
+tests/test_tudat/data.zip
