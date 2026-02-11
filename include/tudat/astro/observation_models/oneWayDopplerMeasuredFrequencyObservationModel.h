@@ -34,7 +34,7 @@ namespace observation_models
 //         const observation_models::LinkEndType referenceLinkEnd,
 //         const std::vector< Eigen::Vector6d >& linkEndStates,
 //         const std::vector< double >& linkEndTimes,
-//         const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+//         const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 // {
 //     double integrationTime;  // Not used?
 //     std::vector< FrequencyBands > frequencyBands;
@@ -128,7 +128,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )

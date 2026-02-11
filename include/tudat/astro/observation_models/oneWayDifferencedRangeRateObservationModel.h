@@ -60,7 +60,7 @@ inline double getDifferencedFrequencyOfArrivalScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
     return -1.0 / physical_constants::SPEED_OF_LIGHT;
@@ -70,7 +70,7 @@ inline double getFrequencyOfArrivalScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
     return -1.0 / physical_constants::SPEED_OF_LIGHT;
