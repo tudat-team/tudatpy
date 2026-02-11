@@ -42,6 +42,10 @@ TUDAT_ADD_TEST_CASE(EihPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(RelativisticTimeDerivativePartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 
 
 

@@ -30,6 +30,7 @@ set(ephemerides_SOURCES
         "aeordynamicAngleRotationalEphemeris.cpp"
         "directionBasedRotationalEphemeris.cpp"
         "multiArcEphemeris.cpp"
+        "timeEphemeris.cpp"
         )
 
 # Set the header files.
@@ -59,6 +60,7 @@ set(ephemerides_HEADERS
         "tleEphemeris.h"
         "aeordynamicAngleRotationalEphemeris.h"
         "directionBasedRotationalEphemeris.h"
+        "timeEphemeris.h"
         )
 
 TUDAT_ADD_LIBRARY("ephemerides"

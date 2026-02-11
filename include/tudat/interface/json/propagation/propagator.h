@@ -253,6 +253,7 @@ static std::map< IntegratedStateType, std::string > integratedStateTypes = { { h
                                                                              { translational_state, "translational" },
                                                                              { rotational_state, "rotational" },
                                                                              { body_mass_state, "mass" },
+                                                                             { proper_time, "proper time" }
                                                                              { custom_state, "custom" } };
 
 //! `IntegratedStateType`s not supported by `json_interface`.

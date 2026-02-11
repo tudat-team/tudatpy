@@ -7,10 +7,11 @@
  #    a copy of the license with this file. If not, please or visit:
  #    http://tudat.tudelft.nl/LICENSE.
 
- add_subdirectory("acceleration_partials")
- add_subdirectory("rotational_dynamics_partials")
- add_subdirectory("estimatable_parameters")
- add_subdirectory("observation_partials")
+add_subdirectory("acceleration_partials")
+add_subdirectory("rotational_dynamics_partials")
+add_subdirectory("estimatable_parameters")
+add_subdirectory("observation_partials")
+add_subdirectory("metric_partials")
 
 ## Set the source files.
 set(orbit_determination_SOURCES

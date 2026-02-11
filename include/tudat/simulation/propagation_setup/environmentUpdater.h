@@ -166,6 +166,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 case custom_state: {
                     break;
                 }
@@ -221,6 +223,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 default:
                     throw std::runtime_error( "Error, could not find  state settings for " + std::to_string( statesToSet.at( i ) ) );
             }
@@ -482,6 +486,7 @@ private:
     {
         std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, std::function< void( const double ) > > > >
                 updateTimeFunctionList;
+        const bool isProperTimePropagation = ( integratedStates_.count( proper_time ) > 0 );
 
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator updateIterator = updateSettings.begin( );
@@ -494,6 +499,11 @@ private:
             {
                 if( currentBodies.at( i ) != "" )
                 {
+                    if( isProperTimePropagation )
+                    {
+                        std::cerr << "[relativistic_time] setUpdateFunctions type "
+                                  << updateIterator->first << " body " << currentBodies.at( i ) << std::endl;
+                    }
                     // Check whether body exists
                     if( bodyList_.count( currentBodies.at( i ) ) == 0 )
                     {

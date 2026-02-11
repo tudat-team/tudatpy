@@ -20,6 +20,10 @@
 namespace tudat
 {
 
+std::shared_ptr< relativity::Metric > baseMetric;
+
+std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > > evaluatedMetricObjects;
+
 namespace propagators
 {
 
@@ -94,6 +98,7 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
     }
     return stateHistory;
 }
+
 
 }  // namespace propagators
 

@@ -2498,6 +2498,18 @@ inside a `Body` instance and used in observation corrections or environmental qu
          :type: numpy.ndarray
       )doc" )
             .def( "get_ionosphere_model", &tudat::simulation_setup::Body::getIonosphereModel )
+            .def( "get_time_scale_converter",
+                  &tss::Body::getTimeScaleConverter,
+                  R"doc(
+
+         Retrieve the time scale converter (relativistic time ephemeris) associated with this body, if any.
+
+         Returns
+         -------
+         TimeEphemeris
+             Converter object to query time differences between time scales (e.g., TCB, TCG, proper time).
+
+      )doc" )
             .def_property_readonly( "position",
                                     &tss::Body::getPosition,
                                     R"doc(

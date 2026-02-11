@@ -30,6 +30,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -455,6 +456,25 @@ public:
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
     }
 
+    SphericalHarmonicsGravityField(
+        const double gravitationalParameter,
+        const double referenceRadius,
+        const Eigen::MatrixXd& cosineCoefficients,
+        const Eigen::MatrixXd& sineCoefficients,
+        const std::shared_ptr< reference_frames::RotationWrapper >& rotationWrapper,
+        const std::string& fixedReferenceFrame = "",
+        const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+        SphericalHarmonicsGravityField( gravitationalParameter,
+                                        referenceRadius,
+                                        cosineCoefficients,
+                                        sineCoefficients,
+                                        fixedReferenceFrame,
+                                        scaledMeanMomentOfInertia )
+        {
+            rotationWrapper_ = rotationWrapper;
+        }
+
+
     //! Virtual destructor.
     /*!
      *  Virtual destructor.
@@ -648,6 +668,48 @@ public:
                                                                  minimumOrder );
     }
 
+    //! Legacy accessor for rotation wrapper used in old Tudat
+    std::shared_ptr< reference_frames::RotationWrapper > getRotationToLocalFrameWrapper( ) const
+    {
+        if( rotationWrapper_ == nullptr )
+        {
+            throw std::runtime_error( "Error: rotationWrapper_ is nullptr in SphericalHarmonicsGravityField." );
+        }
+        return rotationWrapper_;
+    }
+
+    void setRotationWrapper( const std::shared_ptr< reference_frames::RotationWrapper >& rotationWrapper )
+    {
+        rotationWrapper_ = rotationWrapper;
+    }
+
+    double getGravitationalPotentialFromInertialPosition(
+        const Eigen::Vector3d& inertialPosition,
+        const double maximumDegree,
+        const double maximumOrder,
+        basic_mathematics::LegendreCache* legendreCache = nullptr, // Legacy input, not used
+        const double minimumDegree = 0,
+        const double minimumOrder = 0 )
+    {
+        if( rotationWrapper_ == nullptr )
+        {
+            throw std::runtime_error( "Error: cannot evaluate potential from inertial position without rotationWrapper_." );
+        }
+
+        const Eigen::Vector3d bodyFixedPosition = rotationWrapper_->rotateVector( inertialPosition );
+
+        return calculateSphericalHarmonicGravitationalPotential(
+            bodyFixedPosition,
+            gravitationalParameter_,
+            referenceRadius_,
+            cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+            sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+            sphericalHarmonicsCache_,  
+            minimumDegree,
+            minimumOrder );
+    }
+
+
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
@@ -778,6 +840,9 @@ protected:
 
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
+    std::shared_ptr< reference_frames::RotationWrapper > rotationWrapper_;
+
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients

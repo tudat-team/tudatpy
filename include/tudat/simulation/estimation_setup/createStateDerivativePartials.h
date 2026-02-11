@@ -11,13 +11,29 @@
 #ifndef TUDAT_CREATESTATEDERIVATIVEPARTIALS_H
 #define TUDAT_CREATESTATEDERIVATIVEPARTIALS_H
 
+#include <functional>
+#include <stdexcept>
+#include <vector>
+
+#include "tudat/basics/timeType.h"
+
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 #include "tudat/astro/orbit_determination/massDerivativePartial.h"
-#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/directFromMetricProperTimeDerivativePartials.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/firstOrderBarycentricToBodyCentricTimeDerivativePartial.h"
+#include "tudat/astro/orbit_determination/metric_partials/metricPartial.h"
+#include "tudat/astro/orbit_determination/metric_partials/schwarzschildMetricPartial.h"
+#include "tudat/astro/orbit_determination/metric_partials/solarSystemMetricPartials.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/relativity/schwarzschildMetric.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/estimation_setup/createTorquePartials.h"
 
@@ -128,6 +144,205 @@ orbit_determination::StateDerivativePartialsMap createMassRatePartialsMap(
     return massRatePartialsList;
 }
 
+template< typename InitialStateParameterType >
+std::shared_ptr< orbit_determination::partial_derivatives::MetricPartial > getMetricPartial(
+        const std::shared_ptr< relativity::Metric >& metric,
+        const std::pair< std::string, std::string >& referencePoint,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate )
+{
+    using orbit_determination::partial_derivatives::MetricPartial;
+    using orbit_determination::partial_derivatives::SchwarzschildMetricPartial;
+    using orbit_determination::partial_derivatives::SolarSystemMetricPartial;
+    using ::tudat::SphericalHarmonicPartialWrapper;
+    using std::placeholders::_1;
+
+    static std::map< std::pair< std::string, std::string >, std::shared_ptr< MetricPartial > > metricPartialCache;
+
+    auto cacheIterator = metricPartialCache.find( referencePoint );
+    if( cacheIterator == metricPartialCache.end( ) )
+    {
+        std::shared_ptr< MetricPartial > metricPartial;
+
+        if( auto schwarzschildMetric = std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metric ) )
+        {
+            metricPartial = std::make_shared< SchwarzschildMetricPartial >( schwarzschildMetric, referencePoint );
+        }
+        else if( auto solarSystemMetric = std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metric ) )
+        {
+            const auto& sphericalHarmonicWrappers = solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
+            std::map< int, std::shared_ptr< SphericalHarmonicPartialWrapper > > sphericalHarmonicPartialWrappers;
+
+            for( const auto& wrapperEntry : sphericalHarmonicWrappers )
+            {
+                if( sphericalHarmonicPartialWrappers.count( wrapperEntry.first ) != 0 )
+                {
+                    continue;
+                }
+
+                const std::string currentBodyName = solarSystemMetric->getBodyList( ).at( wrapperEntry.first );
+                if( bodies.count( currentBodyName ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating metric partial, body " + currentBodyName +
+                                              " not found in SystemOfBodies." );
+                }
+
+                auto sphericalHarmonicPartial = std::dynamic_pointer_cast<
+                        acceleration_partials::SphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                                wrapperEntry.second->getSphericalHarmonicPotentialGradientModel( ),
+                                std::make_pair( referencePoint.first, bodies.at( referencePoint.first ) ),
+                                std::make_pair( currentBodyName, bodies.at( currentBodyName ) ),
+                                bodies,
+                                parametersToEstimate ) );
+
+                sphericalHarmonicPartialWrappers[ wrapperEntry.first ] =
+                        std::make_shared< SphericalHarmonicPartialWrapper >( sphericalHarmonicPartial, wrapperEntry.second );
+            }
+
+            if( bodies.count( referencePoint.first ) == 0 )
+            {
+                throw std::runtime_error( "Error when creating metric partial, reference body " + referencePoint.first +
+                                          " not found in SystemOfBodies." );
+            }
+
+            std::function< Eigen::Quaterniond( const double ) > rotationFunction =
+                    []( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
+            if( bodies.at( referencePoint.first )->getRotationalEphemeris( ) != nullptr )
+            {
+                rotationFunction = std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
+                                              bodies.at( referencePoint.first )->getRotationalEphemeris( ), _1 );
+            }
+
+            metricPartial = std::make_shared< SolarSystemMetricPartial >(
+                    solarSystemMetric,
+                    referencePoint,
+                    rotationFunction,
+                    sphericalHarmonicPartialWrappers );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when creating metric partial, metric type not recognized." );
+        }
+
+        cacheIterator = metricPartialCache.emplace( referencePoint, metricPartial ).first;
+    }
+
+    return cacheIterator->second;
+}
+
+template< typename StateScalarType, typename TimeType, typename InitialStateParameterType >
+std::shared_ptr< orbit_determination::StateDerivativePartial > createRelativisticTimeStateDerivativePartial(
+        const std::shared_ptr< RelativisticTimeStateDerivative< StateScalarType, TimeType > > stateDerivativeModel,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate )
+{
+    using orbit_determination::partial_derivatives::DirectFromMetricProperTimeDerivativePartial;
+    using orbit_determination::partial_derivatives::FirstOrderBarycentricToBodyCentricTimeDerivativePartial;
+
+    std::shared_ptr< orbit_determination::StateDerivativePartial > stateDerivativePartial;
+
+    switch( stateDerivativeModel->getRelativisticStateDerivativeType( ) )
+    {
+        case propagators::first_order_barycentric_to_bodycentric:
+        {
+            auto firstOrderModel = std::dynamic_pointer_cast<
+                    FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModel );
+            if( firstOrderModel == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating first-order barycentric-to-bodycentric time derivative partial, model type mismatch." );
+            }
+
+            stateDerivativePartial = std::make_shared< FirstOrderBarycentricToBodyCentricTimeDerivativePartial >( firstOrderModel );
+            break;
+        }
+        case propagators::direct_from_metric:
+        {
+            auto directFromMetricStateDerivative =
+                    std::dynamic_pointer_cast< DirectProperTimeRateStateDerivative< StateScalarType, TimeType > >(
+                            stateDerivativeModel );
+            if( directFromMetricStateDerivative == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating direct-from-metric time derivative partial, model type mismatch." );
+            }
+
+            auto metricPartial = getMetricPartial(
+                    directFromMetricStateDerivative->getSpaceTimeMetric( ),
+                    directFromMetricStateDerivative->getReferencePoint( ),
+                    bodies,
+                    parametersToEstimate );
+
+            stateDerivativePartial = std::make_shared< DirectFromMetricProperTimeDerivativePartial >(
+                    metricPartial,
+                    directFromMetricStateDerivative,
+                    stateDerivativeModel->getReferencePoint( ) );
+            break;
+        }
+        default:
+            throw std::runtime_error(
+                    "Error when creating relativistic time state derivative partial, requested derivative type not supported." );
+    }
+
+    return stateDerivativePartial;
+}
+
+template< typename StateScalarType, typename TimeType, typename InitialStateParameterType >
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< double, double, double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, double > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< double, double, long double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, double > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< double, Time, double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, Time > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< double, Time, long double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, Time > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< long double, double, double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, double > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< long double, double, long double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, double > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< long double, Time, double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, Time > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate );
+
+template<>
+orbit_determination::StateDerivativePartialsMap createRelativisticTimeStateDerivativePartials< long double, Time, long double >(
+        const std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, Time > > >& stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate );
+
 //! Function to create a set of state derivative partial objects.
 /*!
  *  Function to create a set of state derivative partial objects for any propagated state types.
@@ -176,6 +391,19 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
                     stateDerivativePartials[ propagators::translational_state ] =
                             createAccelerationPartialsMap< StateScalarType >( accelerationModelList, bodies, parametersToEstimate );
                 }
+                break;
+            }
+            case propagators::proper_time: {
+                auto relativisticPartials = createRelativisticTimeStateDerivativePartials< StateScalarType, TimeType, StateScalarType >(
+                        stateDerivativeIterator->second, bodies, parametersToEstimate );
+
+                if( relativisticPartials.empty( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating proper-time state derivative partials, no proper-time states selected for estimation." );
+                }
+
+                stateDerivativePartials[ propagators::proper_time ] = relativisticPartials;
                 break;
             }
             case propagators::rotational_state: {
