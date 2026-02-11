@@ -73,14 +73,17 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 {
 
     std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
-    std::string textKernelsPath = spiceKernelsPath + "/inpop10e_TCB_m100_p100_asc";
+    std::string textKernelsPath = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc";
 
-    //Load spice kernels.
+    // Load SPICE kernels (INPOP19a + core kernels).
     std::string kernelsPath = spiceKernelsPath;
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.bpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.tf");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/codes_300ast_20100725.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/codes_300ast_20100725.tf" );
 
     // Map from SPICE ID string to body name
     std::map< std::string, std::string > bodyIdToName = {
@@ -120,42 +123,39 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
     std::string centralBody = "Earth"; 
 
     bodies.at( "Sun" )->setEphemeris( createInpopEphemerisFromFiles(
-                                        textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Sun.asc",
-                                        textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Sun.asc" ) );    
+                                        textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Sun.asc",
+                                        textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Sun.asc" ) );    
     bodies.at( "Mercury" )->setEphemeris( createInpopEphemerisFromFiles(
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Mer.asc",
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Mer.asc" ) );
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Mer.asc",
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Mer.asc" ) );
     bodies.at( "Venus" )->setEphemeris( createInpopEphemerisFromFiles(
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Ven.asc",
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Ven.asc" ) );
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Ven.asc",
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Ven.asc" ) );
     bodies.at( "Earth" )->setEphemeris( createInpopEphemerisFromFiles(
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Ear.asc",
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Ear.asc" ) );
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Ear.asc",
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Ear.asc" ) );
     bodies.at( "Moon" )->setEphemeris( createInpopEphemerisFromFiles(
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Moo.asc",
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Moo.asc",
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Moo.asc",
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Moo.asc",
                                          basic_astrodynamics::JULIAN_DAY_ON_J2000, 1 ) );
     bodies.at( "Mars" )->setEphemeris( createInpopEphemerisFromFiles(
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Mar.asc",
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Mar.asc" ) );
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Mar.asc",
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Mar.asc" ) );
     bodies.at( "Jupiter" )->setEphemeris( createInpopEphemerisFromFiles(
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Jup.asc",
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Jup.asc" ) );
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Jup.asc",
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Jup.asc" ) );
     bodies.at( "Saturn" )->setEphemeris( createInpopEphemerisFromFiles(
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Sat.asc",
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Sat.asc" ) );
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Sat.asc",
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Sat.asc" ) );
     bodies.at( "Uranus" )->setEphemeris( createInpopEphemerisFromFiles(
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Ura.asc",
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Ura.asc" ) );
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Ura.asc",
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Ura.asc" ) );
     bodies.at( "Neptune" )->setEphemeris( createInpopEphemerisFromFiles(
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Nep.asc",
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Nep.asc" ) );
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Nep.asc",
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Nep.asc" ) );
     bodies.at( "Pluto" )->setEphemeris( createInpopEphemerisFromFiles(
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Plu.asc",
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Plu.asc" ) );
-
-    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/codes_300ast_20100725.bsp");
-    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/codes_300ast_20100725.tf");
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Plu.asc",
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Plu.asc" ) );
 
     bodies.at( "Ceres" )->setEphemeris( createTabulatedEphemerisFromSpice(
                                           "Ceres", initialEphemerisTime - buffer, finalEphemerisTime + buffer, 7200.0, "SSB", "ECLIPJ2000" ) );
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
     SingleArcDynamicsSimulator< > timeEquationPropagator = SingleArcDynamicsSimulator< >( bodies, properTimeEquationSettings );
 
-    std::string timeDifferenceFileName = textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_TCG.asc";
+    std::string timeDifferenceFileName = textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_TCG.asc";
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, long double > > timeEphemerisInterpolator =
             input_output::createLongInpopTimeEphemerisInterpolator( timeDifferenceFileName );
@@ -239,9 +239,9 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
         currentTime += testTimeStep;
     }
 
-    //input_output::writeDataMapToTextFile( timeDifferences2,
-    //                                "tcgMinusTcbInpop2.dat",
-    //                                tudat::paths::getTudatTestDataPath( ) + "", "", 16);
+    input_output::writeDataMapToTextFile( timeDifferences2,
+                                    "tcgMinusTcbInpop2_tdb.dat",
+                                    "/Users/michael.plumaris/Downloads/", "", 16);
 
     Eigen::VectorXd timesVector = utilities::convertStlVectorToEigenVector(
                 utilities::createVectorFromMapKeys( timeDifferences2 ) );
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
     std::vector<double> dummy = { 0.0, 1.0 };
     Eigen::VectorXd trendFit = linear_algebra::getLeastSquaresPolynomialFit( timesVector, resultDifferenceVector, dummy );
 
-    BOOST_CHECK_SMALL( std::fabs( trendFit[ 1 ] ), 2.0E-18 );
+    BOOST_CHECK_SMALL( std::fabs( trendFit[ 1 ] ), 5.0E-18 );
 
     Eigen::VectorXd resultDifferenceWithoutTrend = resultDifferenceVector - (
         Eigen::VectorXd::Constant( resultDifferenceVector.rows( ), trendFit[ 0 ] ) + trendFit[ 1 ] * timesVector );
@@ -270,14 +270,12 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
 BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 {
-    spice_interface::loadStandardSpiceKernels( );
     std::string kernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.bpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop10e_TDB_m100_p100_spice.tf");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bpc" );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -285,6 +283,11 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     bodyNames.push_back( "Moon" );
     bodyNames.push_back( "Jupiter" );
     bodyNames.push_back( "Saturn" );
+
+    const std::map< std::string, std::string > gmBodyNameOverrides = {
+        { "Jupiter", "Jupiter Barycenter" },
+        { "Saturn", "Saturn Barycenter" }
+    };
 
     // Specify initial time
     double initialEphemerisTime = -365.25 * 86400.0 * 1.0;
@@ -301,9 +304,11 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
         if( bodyNames[ i ] != "Earth" )
         {
             std::shared_ptr< Body > body = std::make_shared< Body >( );
+            const std::string gmBodyName = ( gmBodyNameOverrides.count( bodyNames[ i ] ) == 0 ) ?
+                        bodyNames[ i ] : gmBodyNameOverrides.at( bodyNames[ i ] );
             body->setGravityFieldModel(
                         std::make_shared< gravitation::GravityFieldModel >(
-                            spice_interface::getBodyGravitationalParameter( bodyNames[ i ] ) / ( 1.0 - physical_constants::LB_TIME_RATE_TERM ) ) );
+                            spice_interface::getBodyGravitationalParameter( gmBodyName ) / ( 1.0 - physical_constants::LB_TIME_RATE_TERM ) ) );
             bodies.addBody( body, bodyNames[ i ] );
         }
     }
@@ -334,26 +339,26 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     lro->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                            lroInitialKeplerianElements, initialEphemerisTime, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon"  ) );
 
-    std::string textKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels/inpop10e_TCB_m100_p100_asc";
+    std::string textKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels/inpop19a_TCB_m100_p100_asc";
 
     bodies.addBody( lro, "LRO" );
 
     bodies.at( "Sun" )->setEphemeris( createInpopEphemerisFromFiles(
-                                        textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Sun.asc",
-                                        textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Sun.asc" ) );
+                                        textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Sun.asc",
+                                        textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Sun.asc" ) );
     bodies.at( "Earth" )->setEphemeris( createInpopEphemerisFromFiles(
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Ear.asc",
-                                          textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Ear.asc" ) );
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Ear.asc",
+                                          textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Ear.asc" ) );
     bodies.at( "Moon" )->setEphemeris( createInpopEphemerisFromFiles(
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Moo.asc",
-                                         textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Moo.asc",
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Moo.asc",
+                                         textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Moo.asc",
                                          basic_astrodynamics::JULIAN_DAY_ON_J2000, 1 ) );
     bodies.at( "Jupiter" )->setEphemeris( createInpopEphemerisFromFiles(
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Jup.asc",
-                                            textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Jup.asc" ) );
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Jup.asc",
+                                            textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Jup.asc" ) );
     bodies.at( "Saturn" )->setEphemeris( createInpopEphemerisFromFiles(
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_pos_Sat.asc",
-                                           textKernelsPath + "/inpop10e_TCB_m100_p100_asc_vel_Sat.asc" ) );
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_Sat.asc",
+                                           textKernelsPath + "/inpop19a_TCB_m100_p100_asc_vel_Sat.asc" ) );
     setGlobalFrameBodyEphemerides( bodies.getMap( ), "SSB", "ECLIPJ2000" );
 
     // Create ground stations
