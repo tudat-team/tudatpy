@@ -665,6 +665,12 @@ public:
             const bool isPartOfMultiArc = false ):
         DynamicsSimulator< StateScalarType, TimeType >( bodies, propagatorSettings ), propagatorSettings_( propagatorSettings )
     {
+        const bool isProperTimePropagation =
+            ( propagatorSettings_ != nullptr && propagatorSettings_->getStateType( ) == proper_time );
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] SingleArcDynamicsSimulator start" << std::endl;
+        }
         // Check consistency of input settings
         if( propagatorSettings == nullptr )
         {
@@ -680,27 +686,52 @@ public:
             outputSettings_ = propagatorSettings_->getOutputSettingsWithCheck( );
             integratorSettings_ = propagatorSettings_->getIntegratorSettings( );
         }
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] output/integrator settings acquired" << std::endl;
+        }
         if( integratorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
         checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, isPartOfMultiArc );
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] propagated states feasibility checked" << std::endl;
+            std::cerr << "[relativistic_time] outputSettings ptr: " << outputSettings_.get( ) << std::endl;
+        }
 
         // Create objects that reset the environment (e.g. ephemerides) after propagation is required
-        if( propagatorSettings_->getOutputSettings( )->getCreateStateProcessors( ) )
+        if( outputSettings_->getCreateStateProcessors( ) )
         {
+            if( isProperTimePropagation )
+            {
+                std::cerr << "[relativistic_time] creating integrated state processors" << std::endl;
+            }
             createAndSetIntegratedStateProcessors( );
+            if( isProperTimePropagation )
+            {
+                std::cerr << "[relativistic_time] integrated state processors created" << std::endl;
+            }
         }
 
         // Create object that updates the environment during propagation
         try
         {
+            if( isProperTimePropagation )
+            {
+                std::cerr << "[relativistic_time] creating environment updater" << std::endl;
+            }
             environmentUpdater_ =
                     createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >( propagatorSettings_, bodies_ );
         }
         catch( const std::runtime_error& error )
         {
             throw std::runtime_error( "Error when creating environment updater: " + std::string( error.what( ) ) );
+        }
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] environment updater created" << std::endl;
         }
 
         // Create object that calculates the complete state derivatives
@@ -725,6 +756,10 @@ public:
                                std::placeholders::_2,
                                std::placeholders::_3 ) );
         }
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] state derivative models created" << std::endl;
+        }
         stateDerivativeFunction_ = std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
                                               dynamicsStateDerivative_,
                                               std::placeholders::_1,
@@ -737,6 +772,10 @@ public:
                                                         integratorSettings_->initialTimeStep_,
                                                         dynamicsStateDerivative_->getStateDerivativeModels( ),
                                                         predefinedStateDerivativeModels.stateDerivativePartials_ );
+        if( isProperTimePropagation )
+        {
+            std::cerr << "[relativistic_time] termination conditions created" << std::endl;
+        }
 
         sequentialPropagation_ = true;
         if( propagationTerminationCondition_->getTerminationType( ) == non_sequential_stopping_condition )

@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_SUITE( test_RelativisticConversions )
 BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 {
 
-    std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string textKernelsPath = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc";
 
     // Load SPICE kernels (INPOP19a + core kernels).
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
 BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 {
-    std::string kernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc" );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls" );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     lro->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                            lroInitialKeplerianElements, initialEphemerisTime, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon"  ) );
 
-    std::string textKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels/inpop19a_TCB_m100_p100_asc";
+    std::string textKernelsPath = paths::getSpiceKernelPath( ) + "/inpop19a_TCB_m100_p100_asc";
 
     bodies.addBody( lro, "LRO" );
 

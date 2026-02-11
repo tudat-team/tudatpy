@@ -19,8 +19,8 @@ void setRelativisticTimeConverter(
     const auto barycentricSettings = conversionSettings->getBaryCentricToBodyCentricConversionSettings( );
     const auto topocentricConversions = conversionSettings->getBodyCentricToTopocentricConversionSettings( );
 
-    const double initialTime = barycentricSettings->getInitialTime( );
-    if( !std::isfinite( initialTime ) )
+    const TimeType initialTime = barycentricSettings->getInitialTime( );
+    if( !std::isfinite( static_cast< double >( initialTime ) ) )
     {
         throw std::runtime_error( "Error in setRelativisticTimeConverter: initial propagation time is not finite." );
     }
@@ -37,10 +37,13 @@ void setRelativisticTimeConverter(
     barycentricIntegratorSettings->initialTimeDeprecated_ = initialTime;
     barycentricSettings->setIntegratorSettings( barycentricIntegratorSettings );
 
-    propagators::SingleArcDynamicsSimulator< double, double > barycentricSimulator(
+    std::cerr << "[relativistic_time] creating barycentric simulator for "
+              << barycentricSettings->getReferencePointId( ).first << std::endl;
+    propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > barycentricSimulator(
         bodyMap,
         barycentricSettings,
         true );
+    std::cerr << "[relativistic_time] barycentric simulator created" << std::endl;
 
     for( const auto& topocentricSettings : topocentricConversions )
     {
@@ -50,8 +53,8 @@ void setRelativisticTimeConverter(
                 "Error in setRelativisticTimeConverter: inconsistent derivative type for topocentric conversion." );
         }
 
-        const double topocentricInitialTime = topocentricSettings->getInitialTime( );
-        if( !std::isfinite( topocentricInitialTime ) )
+        const TimeType topocentricInitialTime = topocentricSettings->getInitialTime( );
+        if( !std::isfinite( static_cast< double >( topocentricInitialTime ) ) )
         {
             throw std::runtime_error( "Error in setRelativisticTimeConverter: topocentric propagation time is not finite." );
         }
@@ -62,10 +65,13 @@ void setRelativisticTimeConverter(
         topocentricIntegratorSettings->initialTimeDeprecated_ = topocentricInitialTime;
         topocentricSettings->setIntegratorSettings( topocentricIntegratorSettings );
 
-        propagators::SingleArcDynamicsSimulator< double, double > topocentricSimulator(
+        std::cerr << "[relativistic_time] creating topocentric simulator for "
+                  << topocentricSettings->getReferencePointId( ).second << std::endl;
+        propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > topocentricSimulator(
             bodyMap,
             topocentricSettings,
             true );
+        std::cerr << "[relativistic_time] topocentric simulator created" << std::endl;
     }
 }
 
@@ -96,6 +102,14 @@ template void setRelativisticTimeConverter<double, double>(
 template void setRelativisticTimeConverters<double, double>(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > > >& converterSettings );
+
+template void setRelativisticTimeConverter<double, Time>(
+        const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > >& conversionSettings,
+        const SystemOfBodies& bodyMap );
+
+template void setRelativisticTimeConverters<double, Time>(
+        const SystemOfBodies& bodyMap,
+        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > > >& converterSettings );
 
 } // namespace simulation_setup
 } // namespace tudat

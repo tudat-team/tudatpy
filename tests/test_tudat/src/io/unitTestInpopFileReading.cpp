@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE( test_inpop_file_reader )
 
 BOOST_AUTO_TEST_CASE( test_inpop_time_ephemeris )
 {
-    std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string timeDifferenceFileName = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc/inpop19a_TCB_m100_p100_asc_pos_TCG.asc" ;
     std::map< double, std::vector< double > > timeEphemerisCoefficients = readInpopTimeEphemeris< double >( timeDifferenceFileName );
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( test_inpop_time_ephemeris )
 
 BOOST_AUTO_TEST_CASE( test_inpop_time_ephemeris2 )
 {
-    std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string timeDifferenceFileName = spiceKernelsPath + "/inpop19a_TDB_m100_p100_asc/inpop19a_TDB_m100_p100_asc_pos_TT.asc" ;
     std::map< double, std::vector< double > > timeEphemerisCoefficients = readInpopTimeEphemeris< double >( timeDifferenceFileName );
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( test_inpop_time_ephemeris2 )
 
 BOOST_AUTO_TEST_CASE( test_inpop_state_ephemeris )
 {
-    std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string positionFileName = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc/inpop19a_TCB_m100_p100_asc_pos_Ear.asc" ;
     std::string velocityFileName = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc/inpop19a_TCB_m100_p100_asc_vel_Ear.asc" ;
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_inpop_state_ephemeris )
 
 BOOST_AUTO_TEST_CASE( test_inpop_state_ephemeris2 )
 {
-    std::string spiceKernelsPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string positionFileName = spiceKernelsPath + "/inpop19a_TDB_m100_p100_asc/inpop19a_TDB_m100_p100_asc_pos_Ear.asc" ;
     std::string velocityFileName = spiceKernelsPath + "/inpop19a_TDB_m100_p100_asc/inpop19a_TDB_m100_p100_asc_vel_Ear.asc" ;
 
