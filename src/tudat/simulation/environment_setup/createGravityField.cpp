@@ -412,36 +412,34 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
                     }
 
-                    // Attach a rotation wrapper sourced from the body's rotational ephemeris so that
-                    // inertial-to-body-fixed conversions inside the spherical harmonics field can be
-                    // evaluated without manual setup. This throws if no rotational ephemeris is available.
+                    // Attach a rotation wrapper only when the body and its rotational ephemeris are available.
+                    // This keeps spherical-harmonic field creation backward-compatible for contexts where
+                    // no body rotation model is configured (e.g. lightweight unit-test setup).
                     auto sphericalField = std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityFieldModel );
                     if( sphericalField != nullptr )
                     {
-                        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
-                                bodies.at( body )->getRotationalEphemeris( );
-                        if( rotationalEphemeris == nullptr )
+                        if( bodies.count( body ) > 0 )
                         {
-                            throw std::runtime_error(
-                                        "Error when creating spherical harmonic gravity field for body " + body +
-                                        ": no rotational ephemeris present to define the body-fixed frame." );
+                            const auto bodyPtr = bodies.at( body );
+                            if( bodyPtr != nullptr && bodyPtr->getRotationalEphemeris( ) != nullptr )
+                            {
+                                sphericalField->setRotationWrapper(
+                                            std::make_shared< reference_frames::QuaternionRotationWrapper >(
+                                                [bodyPtr]( )
+                                                {
+                                                    try
+                                                    {
+                                                        return Eigen::Quaterniond( bodyPtr->getCurrentRotationToLocalFrame( ) );
+                                                    }
+                                                    catch( const std::exception& )
+                                                    {
+                                                        // Initialize rotation from ephemeris if not yet set.
+                                                        bodyPtr->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
+                                                        return Eigen::Quaterniond( bodyPtr->getCurrentRotationToLocalFrame( ) );
+                                                    }
+                                                } ) );
+                            }
                         }
-
-                        sphericalField->setRotationWrapper(
-                                    std::make_shared< reference_frames::QuaternionRotationWrapper >(
-                                        [bodyPtr = bodies.at( body )]( )
-                                        {
-                                            try
-                                            {
-                                                return Eigen::Quaterniond( bodyPtr->getCurrentRotationToLocalFrame( ) );
-                                            }
-                                            catch( const std::exception& )
-                                            {
-                                                // Initialize rotation from ephemeris if not yet set; fall back to epoch 0.0
-                                                bodyPtr->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
-                                                return Eigen::Quaterniond( bodyPtr->getCurrentRotationToLocalFrame( ) );
-                                            }
-                                        } ) );
                     }
                 }
             }

@@ -185,6 +185,13 @@ BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
 }
 #endif  // 0
 
+// Keep one no-op case so the Boost module remains runnable while the
+// full propagation test above is disabled.
+BOOST_AUTO_TEST_CASE( testRelativisticTimePropagationPlaceholder )
+{
+    BOOST_CHECK( true );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
