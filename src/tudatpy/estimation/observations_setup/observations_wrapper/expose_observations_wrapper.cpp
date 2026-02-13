@@ -196,6 +196,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "processed_odf_file" ),
            py::arg( "observable_types_to_process" ),
            py::arg( "start_and_end_times_to_process" ),
+           py::arg("allow_duplicate_observations_within_single_set") = false,
            R"doc(
         Creates an observation collection containing the provided ODF data.
 
@@ -209,6 +210,9 @@ void expose_observations_wrapper( py::module &m )
             Observable types to process.
         start_and_end_times_to_process : tuple[float, float]
             Start and end times of the data to process.
+        allow_duplicate_observations_within_single_set: bool
+            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation
+
 
         Returns
         -------

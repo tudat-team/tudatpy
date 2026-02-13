@@ -1341,8 +1341,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                 std::vector< Eigen::VectorXd >( ),
                                 nullptr,
                                 std::make_shared< observation_models::ObservationAncillarySimulationSettings >(
-                                        ancillarySettings.at( i ) ) ),
-                                !allowDuplicateObservationsWithinSingleObservationSet);
+                                        ancillarySettings.at( i ) ),
+                                !allowDuplicateObservationsWithinSingleObservationSet) );
 
             }
         }
@@ -1583,7 +1583,10 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create observed observation collection
-    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >( processedOdfFileContents );
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
+        processedOdfFileContents, std::vector< observation_models::ObservableType >(),
+        std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
+        allowDuplicateObservationsWithinSingleObservationSet);
 }
 
 }  // namespace observation_models
