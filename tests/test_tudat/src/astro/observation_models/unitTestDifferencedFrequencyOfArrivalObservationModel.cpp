@@ -90,10 +90,10 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
 
     // Create observation settings
     std::shared_ptr< ObservationModelSettings > frequencyObservableSettings1 =
-            std::make_shared< ObservationModelSettings >( one_way_doppler_measured_frequency, linkEnds1, lightTimeCorrectionSettings );
+            oneWayDopplerMeasuredFrequencySettings( linkEnds1, lightTimeCorrectionSettings );
 
     std::shared_ptr< ObservationModelSettings > frequencyObservableSettings2 =
-            std::make_shared< ObservationModelSettings >( one_way_doppler_measured_frequency, linkEnds2, lightTimeCorrectionSettings );
+            oneWayDopplerMeasuredFrequencySettings( linkEnds2, lightTimeCorrectionSettings );
 
     for( int testTimeScale = 0; testTimeScale < 1; testTimeScale++ )
     {
@@ -124,17 +124,17 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
                 receiverObservationTime, receiver, linkEndTimesRange1, linkEndStatesRange1 )( 0 );
 
         double secondFrequency = secondFrequencyObservationModel->computeObservationsWithLinkEndData(
-                linkEndTimesRange1.at( 0 ), transmitter, linkEndTimesRange2, linkEndStatesRange2 )( 0 );
+                receiverObservationTime, receiver, linkEndTimesRange2, linkEndStatesRange2 )( 0 );
 
         std::cout << std::setprecision( 16 ) << linkEndTimesDifferenced.at( 0 ) << " " << linkEndTimesDifferenced.at( 1 ) << " "
-                  << linkEndTimesDifferenced.at( 2 ) << std::endl;
+                  << linkEndTimesDifferenced.at( 2 ) << " " << linkEndTimesDifferenced.at( 3 ) << std::endl;
         std::cout << linkEndTimesRange1.at( 0 ) << " " << linkEndTimesRange1.at( 1 ) << std::endl;
         std::cout << linkEndTimesRange2.at( 0 ) << " " << linkEndTimesRange2.at( 1 ) << std::endl;
 
+        // Check first sub-model: transmitter and receiver times/states match
         BOOST_CHECK_CLOSE_FRACTION(
                 linkEndTimesDifferenced.at( 0 ), linkEndTimesRange1.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
         BOOST_CHECK_CLOSE_FRACTION(
-            
                 linkEndTimesDifferenced.at( 1 ), linkEndTimesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -142,14 +142,15 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 linkEndStatesDifferenced.at( 1 ), linkEndStatesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
+        // Check second sub-model: transmitter and receiver times/states match
         BOOST_CHECK_CLOSE_FRACTION(
-                linkEndTimesDifferenced.at( 0 ), linkEndTimesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+                linkEndTimesDifferenced.at( 2 ), linkEndTimesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
         BOOST_CHECK_CLOSE_FRACTION(
-                linkEndTimesDifferenced.at( 2 ), linkEndTimesRange2.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+                linkEndTimesDifferenced.at( 3 ), linkEndTimesRange2.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStatesDifferenced.at( 0 ), linkEndStatesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 2 ), linkEndStatesRange2.at( 1 ), 2.0E-14 );
+                linkEndStatesDifferenced.at( 2 ), linkEndStatesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 3 ), linkEndStatesRange2.at( 1 ), 2.0E-14 );
 
         std::cout << ( firstFrequency - secondFrequency ) << " " << differencedFrequencyOfArrival << std::endl;
         std::cout << ( firstFrequency - secondFrequency ) - differencedFrequencyOfArrival << std::endl;

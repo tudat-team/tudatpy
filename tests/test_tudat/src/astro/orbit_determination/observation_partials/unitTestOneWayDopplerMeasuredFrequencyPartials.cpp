@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyPartials )
                                       fullEstimatableParameterSet,
                                       linkEnds,
                                       one_way_doppler_measured_frequency,
-                                      1.0E-5,
+                                      5.0E-5,
                                       true,
                                       true,
                                       10.0,

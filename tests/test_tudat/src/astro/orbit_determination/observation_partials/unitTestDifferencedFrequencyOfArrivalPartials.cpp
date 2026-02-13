@@ -162,15 +162,15 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrivalDirectPartial )
             firstFreqPartials.first.begin( )->second->calculatePartial( linkEndStatesFreq1, linkEndTimesFreq1, receiver );
 
     Eigen::VectorXd secondFreqObs = secondFreqModel->computeObservationsWithLinkEndData(
-            linkEndTimesFreq1.at( 0 ), transmitter, linkEndTimesFreq2, linkEndStatesFreq2 );
-    secondFreqPartials.second->update( linkEndStatesFreq2, linkEndTimesFreq2, transmitter, secondFreqObs );
+            receiverObservationTime, receiver, linkEndTimesFreq2, linkEndStatesFreq2 );
+    secondFreqPartials.second->update( linkEndStatesFreq2, linkEndTimesFreq2, receiver, secondFreqObs );
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > secondFreqPartialValues =
-            secondFreqPartials.first.begin( )->second->calculatePartial( linkEndStatesFreq2, linkEndTimesFreq2, transmitter );
+            secondFreqPartials.first.begin( )->second->calculatePartial( linkEndStatesFreq2, linkEndTimesFreq2, receiver );
 
-    // Verify transmitter times match
+    // Verify transmitter times match (both sub-models evaluated at same receiver time, so transmitter times should be close)
     BOOST_CHECK_CLOSE_FRACTION( firstFreqPartialValues.at( 0 ).second, differencedPartialValues.at( 0 ).second,
                                 ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    BOOST_CHECK_CLOSE_FRACTION( secondFreqPartialValues.at( 0 ).second, differencedPartialValues.at( 0 ).second,
+    BOOST_CHECK_CLOSE_FRACTION( secondFreqPartialValues.at( 0 ).second, differencedPartialValues.at( 1 ).second,
                                 ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
     // Verify: differenced partial = first partial - second partial
