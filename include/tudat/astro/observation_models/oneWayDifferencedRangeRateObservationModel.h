@@ -63,7 +63,7 @@ inline double getDifferencedFrequencyOfArrivalScalingFactor(
         const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
-    return -1.0 / physical_constants::SPEED_OF_LIGHT;
+    return -1.0;
 }
 
 inline double getFrequencyOfArrivalScalingFactor(

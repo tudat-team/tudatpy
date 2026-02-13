@@ -667,6 +667,8 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
     switch( differencedObservableType )
     {
         case one_way_differenced_range:
+            undifferencedObservableType = one_way_range;
+            break;
         case differenced_frequency_of_arrival:
             undifferencedObservableType = one_way_doppler_measured_frequency;
             break;
@@ -753,9 +755,12 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
             secondIndices = { 2, 3 };
             break;
         case differenced_time_of_arrival:
-        case differenced_frequency_of_arrival:
             firstIndices = { 0, 1 };
             secondIndices = { 0, 2 };
+            break;
+        case differenced_frequency_of_arrival:
+            firstIndices = { 0, 1 };
+            secondIndices = { 2, 3 };
             break;
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler: {
@@ -1123,12 +1128,13 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
             {
                 case transmitter:
                     linkEndIndices.push_back( 0 );
+                    linkEndIndices.push_back( 2 );
                     break;
                 case receiver:
                     linkEndIndices.push_back( 1 );
                     break;
                 case receiver2:
-                    linkEndIndices.push_back( 2 );
+                    linkEndIndices.push_back( 3 );
                     break;
                 default:
                     std::string errorMessage = "Error, could not find link end type index for link end " + std::to_string( linkEndType ) +
@@ -1563,7 +1569,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
                 ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
-                linkEndIndices.push_back( std::make_pair( 0, 2 ) );
+                linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             }
             else if( ( linkEnds.at( receiver ) == linkEndToCheck ) ||
                      ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
@@ -1573,11 +1579,11 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             else if( linkEnds.at( receiver2 ) == linkEndToCheck ||
                      ( ( linkEnds.at( receiver2 ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
             {
-                linkEndIndices.push_back( std::make_pair( 2, 0 ) );
+                linkEndIndices.push_back( std::make_pair( 3, 2 ) );
             }
             else
             {
-                throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
+                throw std::runtime_error( "Error, parsed irrelevant DFOA link end types for link end indices" );
             }
             break;
 

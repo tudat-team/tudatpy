@@ -115,14 +115,17 @@ public:
                 secondDopplerModel_->computeIdealObservationsWithLinkEndData(
                         time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancilliarySetingsInput );
         // Combine link end times and states
-        linkEndTimes.resize( 3 );
+        // Store all 4 link end times/states: first transmitter, first receiver, second transmitter, second receiver
+        linkEndTimes.resize( 4 );
         linkEndTimes[ 0 ] = firstLinkEndTimes[ 0 ];
         linkEndTimes[ 1 ] = firstLinkEndTimes[ 1 ];
-        linkEndTimes[ 2 ] = secondLinkEndTimes[ 1 ];
-        linkEndStates.resize( 3 );
+        linkEndTimes[ 2 ] = secondLinkEndTimes[ 0 ];
+        linkEndTimes[ 3 ] = secondLinkEndTimes[ 1 ];
+        linkEndStates.resize( 4 );
         linkEndStates[ 0 ] = firstLinkEndStates[ 0 ];
         linkEndStates[ 1 ] = firstLinkEndStates[ 1 ];
-        linkEndStates[ 2 ] = secondLinkEndStates[ 1 ];
+        linkEndStates[ 2 ] = secondLinkEndStates[ 0 ];
+        linkEndStates[ 3 ] = secondLinkEndStates[ 1 ];
 
         // Compute differenced frequency of arrival observation
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = firstDopplerObservation - secondDopplerObservation;
