@@ -223,6 +223,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "target_name" ),
            py::arg( "verbose_output" ) = true,
            py::arg( "earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg("allow_duplicate_observations_within_single_set") = false,
            R"doc(
         Create an observation collection from ODF files.
 
@@ -240,6 +241,8 @@ void expose_observations_wrapper( py::module &m )
             Whether to print verbose output during processing, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
+        allow_duplicate_observations_within_single_set: bool
+            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation
 
         Returns
         -------
