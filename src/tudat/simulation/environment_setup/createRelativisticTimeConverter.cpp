@@ -37,13 +37,10 @@ void setRelativisticTimeConverter(
     barycentricIntegratorSettings->initialTimeDeprecated_ = initialTime;
     barycentricSettings->setIntegratorSettings( barycentricIntegratorSettings );
 
-    std::cerr << "[relativistic_time] creating barycentric simulator for "
-              << barycentricSettings->getReferencePointId( ).first << std::endl;
     propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > barycentricSimulator(
         bodyMap,
         barycentricSettings,
         true );
-    std::cerr << "[relativistic_time] barycentric simulator created" << std::endl;
 
     for( const auto& topocentricSettings : topocentricConversions )
     {
@@ -65,13 +62,10 @@ void setRelativisticTimeConverter(
         topocentricIntegratorSettings->initialTimeDeprecated_ = topocentricInitialTime;
         topocentricSettings->setIntegratorSettings( topocentricIntegratorSettings );
 
-        std::cerr << "[relativistic_time] creating topocentric simulator for "
-                  << topocentricSettings->getReferencePointId( ).second << std::endl;
         propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > topocentricSimulator(
             bodyMap,
             topocentricSettings,
             true );
-        std::cerr << "[relativistic_time] topocentric simulator created" << std::endl;
     }
 }
 

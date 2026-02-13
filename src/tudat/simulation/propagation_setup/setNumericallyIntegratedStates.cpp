@@ -284,7 +284,66 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated time ephemeris for (Time, double)"<<std::endl;
+    if( startIndexAndSize.second != 1 )
+    {
+        std::cerr << "Error when resetting integrated time ephemeris, found requested size " << startIndexAndSize.second << std::endl;
+    }
+
+    std::map< double, double > floatingPointValueNumericalSolution;
+    for( const auto& solutionEntry : numericalSolution )
+    {
+        floatingPointValueNumericalSolution[ static_cast< double >( solutionEntry.first ) ] =
+                solutionEntry.second( startIndexAndSize.first );
+    }
+
+    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > timeInterpolators =
+            createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
+
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    {
+        std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisWithFirstOrderDirectConversion >(
+                    TimeEphemerisFromPostNewtonianExpansion::TimeDifferenceInterpolator( ),
+                    TimeEphemerisFromPostNewtonianExpansion::TimeDifferenceInterpolator( ),
+                    referencePointIdentifier.first,
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                               bodies.getBody( referencePointIdentifier.first ),
+                               std::placeholders::_1 ) );
+        bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );
+    }
+
+    std::shared_ptr< TimeEphemerisFromPostNewtonianExpansion > timeEphemeris =
+            std::dynamic_pointer_cast< TimeEphemerisFromPostNewtonianExpansion >(
+                bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
+    if( timeEphemeris == NULL )
+    {
+        std::cerr << "Error when resetting integrated post newtonian time ephemeris, no TimeEphemeris object found" << std::endl;
+        return;
+    }
+
+    if( referencePointIdentifier.second == "" )
+    {
+        timeEphemeris->resetBarycentricToBodycentricInterpolators( timeInterpolators.first, timeInterpolators.second );
+    }
+    else
+    {
+        if( timeEphemeris->doesReferencePointTopocentricConverterExist( referencePointIdentifier.second ) )
+        {
+            timeEphemeris->resetBodycentricToTopocentricInterpolators(
+                        timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second );
+        }
+        else
+        {
+            std::shared_ptr< ground_stations::GroundStationState > groundStationState =
+                    std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointIdentifier.first ) )->getGroundStation(
+                        referencePointIdentifier.second )->getNominalStationState( );
+            timeEphemeris->resetBodycentricToTopocentricInterpolators(
+                        timeInterpolators.first,
+                        timeInterpolators.second,
+                        referencePointIdentifier.second,
+                        std::bind( &ground_stations::GroundStationState::getNominalCartesianPosition, groundStationState ) );
+        }
+    }
 }
 
 template< >

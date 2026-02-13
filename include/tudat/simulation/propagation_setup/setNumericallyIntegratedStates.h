@@ -1572,13 +1572,17 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
         }
         case proper_time:
         {
-            std::shared_ptr< RelativisticTimeStatePropagatorSettings< TimeType, StateScalarType > > properTimePropagatorSettings =
-                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< TimeType, StateScalarType >>( propagatorSettings );
+            std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > properTimePropagatorSettings =
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( properTimePropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors for proper_time" );
+            }
 
-            integratedStateProcessors[ translational_state ] =
-                        std::make_shared< RelativisticStateIntegratedStateProcessor< TimeType, StateScalarType > >(
-                            startIndex, properTimePropagatorSettings->getReferencePointId( ),
-                            properTimePropagatorSettings->getRelativisticStateDerivativeType( ), bodies, 1 );
+            integratedStateProcessors[ proper_time ] =
+                    std::make_shared< RelativisticStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+                        startIndex, properTimePropagatorSettings->getReferencePointId( ),
+                        properTimePropagatorSettings->getRelativisticStateDerivativeType( ), bodies, 1 );
             break;
         }
         case custom_state: {

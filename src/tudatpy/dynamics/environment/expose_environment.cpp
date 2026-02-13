@@ -228,6 +228,43 @@ void expose_environment( py::module& m )
          :type: str
       )doc" );
 
+    py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >(
+            m, "TimeEphemeris", R"doc(
+
+         Relativistic time-scale converter for a body (and optional reference points).
+
+         This object provides time differences between supported scales (e.g. TCB, TCG,
+         and local proper time) for the associated body.
+
+      )doc" )
+            .def( "get_time_difference",
+                  &tudat::TimeEphemeris::getTimeDifference,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_time" ),
+                  py::arg( "point_identifier" ) = "",
+                  R"doc(
+
+         Get time difference :math:`t_{output} - t_{input}` at a given input epoch.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Input time scale.
+         output_scale : TimeScales
+             Output time scale.
+         input_time : float
+             Input time value in seconds since J2000.
+         point_identifier : str, default = ""
+             Optional reference point identifier (for topocentric/local proper time).
+
+         Returns
+         -------
+         float
+             Time difference in seconds.
+
+      )doc" );
+
     py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >( m,
                                                                                                   "ConstantEphemeris",
                                                                                                   R"doc(No documentation found.)doc" )
