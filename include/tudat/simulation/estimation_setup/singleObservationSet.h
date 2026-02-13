@@ -149,9 +149,8 @@ public:
 
         // Erase duplicate observations if requested
         if (eraseDuplicates) {
-            std::cout << "[OBS CC] Erasing bool active" << std::endl;
             eraseDuplicateObservations( );
-        } else{std::cout << "[OBS CC] Erasing bool inactive" << std::endl;}
+        }
 
         // Initialise time bounds
         updateTimeBounds( );
@@ -730,11 +729,9 @@ public:
         {
             int beforeCount = numberOfObservations_;
             removeObservations(indicesToRemove);
-            std::cout << "[OBS CC] Removed " << beforeCount - numberOfObservations_ << "duplicates." << std::endl;
+            std::cerr << "[WARNING] Detected and removed " << beforeCount - numberOfObservations_ << "duplicate observations when creating instance of SingleObservationSet" << std::endl;
         }
-        else{std::cout << "[OBS CC] Did not identify any duplicates" << std::endl;}
 
-        // numberOfObservations_( observations_.size( ) )
     }
 
 
