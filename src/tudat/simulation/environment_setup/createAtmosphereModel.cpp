@@ -421,6 +421,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                 const int maximumOrder = comaSettings->getRequestedOrder( );
                 const double molecularWeight = comaSettings->getMolecularWeight( );
                 const double heatCapacityRatio = comaSettings->getHeatCapacityRatio( );
+                const bool isLog2Data = comaSettings->getIsLog2Data( );
 
                 // Create ComaModel based on data type
                 if( comaSettings->hasPolyData( ) )
@@ -443,7 +444,8 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                                     maximumDegree,
                                     maximumOrder,
                                     &temperaturePolyDataset,
-                                    heatCapacityRatio );
+                                    heatCapacityRatio,
+                                    isLog2Data );
                         }
                         else if( comaSettings->hasTemperatureStokesData( ) )
                         {
@@ -461,7 +463,10 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                                 bodyStateFunction,
                                 bodyOrientationFunction,
                                 maximumDegree,
-                                maximumOrder );
+                                maximumOrder,
+                                nullptr,
+                                1.33,
+                                isLog2Data );
                     }
                 }
                 else if( comaSettings->hasStokesData( ) )
@@ -484,7 +489,8 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                                     maximumDegree,
                                     maximumOrder,
                                     &temperatureStokesDataset,
-                                    heatCapacityRatio );
+                                    heatCapacityRatio,
+                                    isLog2Data );
                         }
                         else if( comaSettings->hasTemperaturePolyData( ) )
                         {
@@ -502,7 +508,10 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                                 bodyStateFunction,
                                 bodyOrientationFunction,
                                 maximumDegree,
-                                maximumOrder );
+                                maximumOrder,
+                                nullptr,
+                                1.33,
+                                isLog2Data );
                     }
                 }
                 else

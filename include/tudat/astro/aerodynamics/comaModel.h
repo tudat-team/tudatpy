@@ -62,7 +62,8 @@ public:
                const int& maximumDegree = -1,
                const int& maximumOrder = -1,
                const simulation_setup::ComaPolyDataset* temperaturePolyDataset = nullptr,
-               const double heatCapacityRatio = 1.33 );
+               const double heatCapacityRatio = 1.33,
+               const bool isLog2Data = true );
 
     /*!
      * \brief Constructor for Stokes coefficient data.
@@ -84,7 +85,8 @@ public:
                const int& maximumDegree = -1,
                const int& maximumOrder = -1,
                const simulation_setup::ComaStokesDataset* temperatureStokesDataset = nullptr,
-               const double heatCapacityRatio = 1.33 );
+               const double heatCapacityRatio = 1.33,
+               const bool isLog2Data = true );
 
 
     /*!
@@ -259,6 +261,9 @@ private:
 
     //! Flag indicating whether temperature dataset was provided
     bool hasTemperatureDataset_;
+
+    //! Flag indicating whether coefficients represent log2-transformed number density
+    bool isLog2Data_;
 
     // ========== Data and computation infrastructure (large objects, less frequently accessed) ==========
 

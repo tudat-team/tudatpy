@@ -929,11 +929,12 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaPolyDataset&, double, int, int >( &tss::comaSettings ),
+                const tss::ComaPolyDataset&, double, int, int, bool >( &tss::comaSettings ),
             py::arg( "poly_data" ),
             py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
+            py::arg( "is_log2" ) = true,
             R"doc(
 
  Function for creating coma atmosphere model settings from polynomial coefficients.
@@ -947,12 +948,12 @@ using the NRLMSISE-00 global reference model:
  complex 3D density distributions around the nucleus. The model supports time-dependent density
  variations through multiple data files covering different time periods.
 
- .. important::
-     **Data fitting requirement**: The polynomial coefficients must be fitted from **log2-transformed**
-     number density data (i.e., log2(n) where n is the number density in m^-3). The model internally
-     applies the inverse transformation (2^x) to convert back to actual number density values.
-     This logarithmic representation improves numerical stability for the large dynamic range of
-     cometary gas densities.
+ .. note::
+     **Data fitting**: By default (``is_log2=True``), the model assumes that the polynomial coefficients
+     were fitted from **log2-transformed** number density data (i.e., log2(n) where n is the number
+     density in m^-3) and internally applies the inverse transformation (2^x). If your coefficients
+     were fitted to raw (non-log2) number density data, set ``is_log2=False`` to skip the
+     back-transformation.
 
 
  Parameters
@@ -971,6 +972,11 @@ using the NRLMSISE-00 global reference model:
  max_order : int, default = -1
      Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
      use the maximum order available in the dataset.
+
+ is_log2 : bool, default = True
+     Whether the coefficients were fitted to log2-transformed number density data. If True (default),
+     the model applies exp2 to convert back to actual number density. If False, the spherical
+     harmonics output is used directly as number density.
 
  Returns
  -------
@@ -1018,11 +1024,12 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaStokesDataset&, double, int, int >( &tss::comaSettings ),
+                const tss::ComaStokesDataset&, double, int, int, bool >( &tss::comaSettings ),
             py::arg( "stokes_data" ),
             py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
+            py::arg( "is_log2" ) = true,
             R"doc(
 
  Function for creating coma atmosphere model settings from Stokes coefficients.
@@ -1036,12 +1043,12 @@ using the NRLMSISE-00 global reference model:
  to polynomial coefficients, offering faster evaluation during simulation. The coefficients
  are pre-evaluated at a grid of radii and solar longitudes, with interpolation used for intermediate values.
 
- .. important::
-     **Data fitting requirement**: The Stokes coefficients (or the polynomial coefficients they are
-     derived from) must be fitted from **log2-transformed** number density data (i.e., log2(n) where
-     n is the number density in m^-3). The model internally applies the inverse transformation (2^x)
-     to convert back to actual number density values. This logarithmic representation improves
-     numerical stability for the large dynamic range of cometary gas densities.
+ .. note::
+     **Data fitting**: By default (``is_log2=True``), the model assumes that the Stokes coefficients
+     (or the polynomial coefficients they are derived from) were fitted from **log2-transformed**
+     number density data (i.e., log2(n) where n is the number density in m^-3) and internally
+     applies the inverse transformation (2^x). If your coefficients were fitted to raw (non-log2)
+     number density data, set ``is_log2=False`` to skip the back-transformation.
 
 
  Parameters
@@ -1061,6 +1068,11 @@ using the NRLMSISE-00 global reference model:
  max_order : int, default = -1
      Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
      use the maximum order available in the dataset.
+
+ is_log2 : bool, default = True
+     Whether the coefficients were fitted to log2-transformed number density data. If True (default),
+     the model applies exp2 to convert back to actual number density. If False, the spherical
+     harmonics output is used directly as number density.
 
  Returns
  -------

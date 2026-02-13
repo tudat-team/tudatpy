@@ -40,7 +40,8 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                       const int& maximumDegree,
                       const int& maximumOrder,
                       const simulation_setup::ComaPolyDataset* temperaturePolyDataset,
-                      const double heatCapacityRatio ) :
+                      const double heatCapacityRatio,
+                      const bool isLog2Data ) :
     AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     cachedSolarLongitude_( 0.0 ),
     cachedTime_( -std::numeric_limits<double>::infinity() ),
@@ -61,6 +62,7 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     heatCapacityRatio_( heatCapacityRatio ),
     specificGasConstant_( physical_constants::MOLAR_GAS_CONSTANT / molecularWeight ),
     hasTemperatureDataset_( temperaturePolyDataset != nullptr ),
+    isLog2Data_( isLog2Data ),
     polyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( polyDataset ) ),
     stokesDataset_( nullptr ),
     temperaturePolyDataset_( temperaturePolyDataset ?
@@ -124,7 +126,8 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                       const int& maximumDegree,
                       const int& maximumOrder,
                       const simulation_setup::ComaStokesDataset* temperatureStokesDataset,
-                      const double heatCapacityRatio ) :
+                      const double heatCapacityRatio,
+                      const bool isLog2Data ) :
     AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     cachedSolarLongitude_( 0.0 ),
     cachedTime_( -std::numeric_limits<double>::infinity() ),
@@ -145,6 +148,7 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     heatCapacityRatio_( heatCapacityRatio ),
     specificGasConstant_( physical_constants::MOLAR_GAS_CONSTANT / molecularWeight ),
     hasTemperatureDataset_( temperatureStokesDataset != nullptr ),
+    isLog2Data_( isLog2Data ),
     polyDataset_( nullptr ),
     stokesDataset_( std::make_shared<simulation_setup::ComaStokesDataset>( stokesDataset ) ),
     temperaturePolyDataset_( nullptr ),
@@ -259,26 +263,26 @@ double ComaModel::getNumberDensity( const double radius,
         return cachedFinalDensity_;
     }
 
-    // Internal compute functions return log2 of number density
-    // Convert to actual number density before returning
-    double numberDensityLog2;
+    // Internal compute functions return the raw spherical harmonics value.
+    // If coefficients were fitted to log2-transformed data, apply exp2 to recover number density.
+    double numberDensityRaw;
 
     switch ( dataType_ )
     {
         case ComaDataType::POLYNOMIAL_COEFFICIENTS:
-            numberDensityLog2 = computeNumberDensityFromPolyCoefficients( radius, longitude, latitude, time );
+            numberDensityRaw = computeNumberDensityFromPolyCoefficients( radius, longitude, latitude, time );
             break;
 
         case ComaDataType::STOKES_COEFFICIENTS:
-            numberDensityLog2 = computeNumberDensityFromStokesCoefficients( radius, longitude, latitude, time );
+            numberDensityRaw = computeNumberDensityFromStokesCoefficients( radius, longitude, latitude, time );
             break;
 
         default:
             throw std::runtime_error( "ComaModel: Unknown data type" );
     }
 
-    // Convert log2(number_density) to actual number_density and cache it
-    cachedFinalDensity_ = std::exp2( numberDensityLog2 );
+    // Convert back to number density: apply exp2 only if coefficients are log2-transformed
+    cachedFinalDensity_ = isLog2Data_ ? std::exp2( numberDensityRaw ) : numberDensityRaw;
     cacheFlags_.densityValid = true;
 
     return cachedFinalDensity_;

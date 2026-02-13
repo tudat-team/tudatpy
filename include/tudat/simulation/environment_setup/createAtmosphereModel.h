@@ -3775,12 +3775,14 @@ public:
     explicit ComaSettings( const ComaPolyDataset& polyData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
-                           const int requestedOrder = -1) :
+                           const int requestedOrder = -1,
+                           const bool isLog2Data = true ) :
         AtmosphereSettings( coma_model ),
         data_( polyData ),
         molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder )
+        requestedOrder_( requestedOrder ),
+        isLog2Data_( isLog2Data )
     {
         validateAndSetDefaults( );
     }
@@ -3796,12 +3798,14 @@ public:
     explicit ComaSettings( const ComaStokesDataset& stokesData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
-                           const int requestedOrder = -1 ) :
+                           const int requestedOrder = -1,
+                           const bool isLog2Data = true ) :
         AtmosphereSettings( coma_model),
         data_( stokesData ),
         molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder )
+        requestedOrder_( requestedOrder ),
+        isLog2Data_( isLog2Data )
     {
         validateAndSetDefaults( );
     }
@@ -4005,6 +4009,14 @@ public:
         return heatCapacityRatio_;
     }
 
+    /**
+     * \brief Check if coefficient data represents log2-transformed number density
+     */
+    bool getIsLog2Data( ) const
+    {
+        return isLog2Data_;
+    }
+
 private:
     /**
      * \brief Validate settings and set defaults for degree/order
@@ -4093,6 +4105,7 @@ private:
     int temperatureMaxDegree_{ -1 }; // Maximum degree for temperature model
     int temperatureMaxOrder_{ -1 }; // Maximum order for temperature model
     double heatCapacityRatio_{ 1.33 }; // Heat capacity ratio (gamma)
+    bool isLog2Data_{ true }; // Whether coefficients represent log2-transformed number density
 };
 
 
@@ -4233,9 +4246,10 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaPolyDataset& polyData,
         const double molecularWeight,
         const int requestedDegree = -1,
-        const int requestedOrder = -1 )
+        const int requestedOrder = -1,
+        const bool isLog2Data = true )
 {
-    return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder );
+    return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder, isLog2Data );
 }
 
 //@get_docstring(ComaSettings,1)
@@ -4251,9 +4265,10 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaStokesDataset& stokesData,
         const double molecularWeight,
         const int requestedDegree = -1,
-        const int requestedOrder = -1 )
+        const int requestedOrder = -1,
+        const bool isLog2Data = true )
 {
-    return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder );
+    return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder, isLog2Data );
 }
 
 
