@@ -11,6 +11,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <array>
+#include <filesystem>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -65,6 +68,57 @@ using namespace tudat::unit_conversions;
 using namespace tudat::input_output;
 using namespace tudat::basic_astrodynamics;
 
+namespace
+{
+
+bool fileExists( const std::string& filePath )
+{
+    return std::filesystem::exists( std::filesystem::path( filePath ) );
+}
+
+bool areInpop19aResourcesAvailable( const std::string& spiceKernelsPath, const std::string& textKernelsPath )
+{
+    const std::array< std::string, 7 > requiredSpiceKernels = {
+        "pck00010.tpc",
+        "naif0012.tls",
+        "inpop19a_TDB_m100_p100_spice.tpc",
+        "inpop19a_TDB_m100_p100_spice.bsp",
+        "inpop19a_TDB_m100_p100_spice.bpc",
+        "codes_300ast_20100725.bsp",
+        "codes_300ast_20100725.tf"
+    };
+
+    for( const std::string& kernelFile : requiredSpiceKernels )
+    {
+        if( !fileExists( spiceKernelsPath + "/" + kernelFile ) )
+        {
+            BOOST_TEST_MESSAGE( "Skipping INPOP test: missing SPICE kernel " + spiceKernelsPath + "/" + kernelFile );
+            return false;
+        }
+    }
+
+    if( !fileExists( textKernelsPath + "/inpop19a_TCB_m100_p100_asc_pos_TCG.asc" ) )
+    {
+        BOOST_TEST_MESSAGE( "Skipping INPOP test: missing ASCII ephemeris directory " + textKernelsPath );
+        return false;
+    }
+
+    return true;
+}
+
+void loadInpop19aSpiceKernels( const std::string& spiceKernelsPath )
+{
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/pck00010.tpc" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/naif0012.tls" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/inpop19a_TDB_m100_p100_spice.bpc" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/codes_300ast_20100725.bsp" );
+    spice_interface::loadSpiceKernelInTudat( spiceKernelsPath + "/codes_300ast_20100725.tf" );
+}
+
+}  // namespace
+
 
 BOOST_AUTO_TEST_SUITE( test_RelativisticConversions )
 
@@ -75,15 +129,13 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
     std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string textKernelsPath = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc";
 
+    if( !areInpop19aResourcesAvailable( spiceKernelsPath, textKernelsPath ) )
+    {
+        return;
+    }
+
     // Load SPICE kernels (INPOP19a + core kernels).
-    std::string kernelsPath = spiceKernelsPath;
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/codes_300ast_20100725.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/codes_300ast_20100725.tf" );
+    loadInpop19aSpiceKernels( spiceKernelsPath );
 
     // Map from SPICE ID string to body name
     std::map< std::string, std::string > bodyIdToName = {
@@ -239,9 +291,16 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
         currentTime += testTimeStep;
     }
 
-    input_output::writeDataMapToTextFile( timeDifferences2,
-                                    "tcgMinusTcbInpop2_tdb.dat",
-                                    "/Users/michael.plumaris/Downloads/", "", 16);
+    const std::string diagnosticsOutputDirectory = "/Users/michael.plumaris/Downloads/";
+    if( std::filesystem::exists( diagnosticsOutputDirectory ) )
+    {
+        input_output::writeDataMapToTextFile(
+                    timeDifferences2,
+                    "tcgMinusTcbInpop2_tdb.dat",
+                    diagnosticsOutputDirectory,
+                    "",
+                    16 );
+    }
 
     Eigen::VectorXd timesVector = utilities::convertStlVectorToEigenVector(
                 utilities::createVectorFromMapKeys( timeDifferences2 ) );
@@ -270,12 +329,13 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
 BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 {
-    std::string kernelsPath = paths::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/pck00010.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/inpop19a_TDB_m100_p100_spice.bpc" );
+    std::string spiceKernelsPath = paths::getSpiceKernelPath( );
+    std::string textKernelsPath = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc";
+    if( !areInpop19aResourcesAvailable( spiceKernelsPath, textKernelsPath ) )
+    {
+        return;
+    }
+    loadInpop19aSpiceKernels( spiceKernelsPath );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -338,8 +398,6 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 
     lro->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                            lroInitialKeplerianElements, initialEphemerisTime, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon"  ) );
-
-    std::string textKernelsPath = paths::getSpiceKernelPath( ) + "/inpop19a_TCB_m100_p100_asc";
 
     bodies.addBody( lro, "LRO" );
 

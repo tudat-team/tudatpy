@@ -10,9 +10,11 @@
 TUDAT_ADD_TEST_CASE(MetricPartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
+        Tudat::tudat_electromagnetism
         )
 
 TUDAT_ADD_TEST_CASE(SolarSystemMetricPartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
+        Tudat::tudat_electromagnetism
         )

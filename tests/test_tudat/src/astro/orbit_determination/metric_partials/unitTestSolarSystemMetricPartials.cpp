@@ -78,12 +78,6 @@ SystemOfBodies createBodiesForTest(
 void loadStandardKernels( )
 {
     spice_interface::loadStandardSpiceKernels( );
-    const std::string kernelPath = paths::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/pck00011.tpc" );
-    // spice_interface::loadSpiceKernelInTudat( kernelPath + "/jup310.bsp" ); // missing locally
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/de440.bsp" );
 }
 
 BOOST_AUTO_TEST_CASE( testSolarSystemMetricTimePartial )
@@ -183,11 +177,7 @@ BOOST_AUTO_TEST_CASE( testSolarSystemMetricTimePartial )
 
 BOOST_AUTO_TEST_CASE( testSingleBodySphericalHarmonicPartials )
 {
-    const std::string kernelPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
+    loadStandardKernels( );
 
     const double initialEphemerisTime = 1.0E7;
     const double finalEphemerisTime = 1.1E7;
@@ -264,11 +254,7 @@ BOOST_AUTO_TEST_CASE( testSingleBodySphericalHarmonicPartials )
 
 BOOST_AUTO_TEST_CASE( testSolarSystemMetricStateAndParameterPartials )
 {
-    const std::string kernelPath = paths::getTudatTestDataPath( ) + "/spice_kernels";
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/inpop19a_TDB_m100_p100_spice.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp" );
+    loadStandardKernels( );
 
     const double initialEphemerisTime = 1.0E7;
     const double finalEphemerisTime = 1.1E7;

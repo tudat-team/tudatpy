@@ -70,9 +70,7 @@ BOOST_AUTO_TEST_SUITE( test_relativistic_state_derivative_partials )
 
 BOOST_AUTO_TEST_CASE( testFirstOrderBarycentricToBodycentricPartials )
 {
-    const std::string kernelsPath = paths::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/de440.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     const double evaluationTime = 1.0E6;
 
@@ -162,9 +160,7 @@ BOOST_AUTO_TEST_CASE( testFirstOrderBarycentricToBodycentricPartials )
 
 BOOST_AUTO_TEST_CASE( testDirectProperTimeDerivativePartials )
 {
-    const std::string kernelsPath = paths::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "/de440.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     auto sun = std::make_shared< Body >( );
     sun->setState( getBodyCartesianStateAtEpoch( "Sun", "SSB", "ECLIPJ2000", "NONE", 1.0E6 ) );

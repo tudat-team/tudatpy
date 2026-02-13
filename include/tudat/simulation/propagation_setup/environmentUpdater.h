@@ -486,8 +486,6 @@ private:
     {
         std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, std::function< void( const double ) > > > >
                 updateTimeFunctionList;
-        const bool isProperTimePropagation = ( integratedStates_.count( proper_time ) > 0 );
-
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator updateIterator = updateSettings.begin( );
              updateIterator != updateSettings.end( );
@@ -499,11 +497,6 @@ private:
             {
                 if( currentBodies.at( i ) != "" )
                 {
-                    if( isProperTimePropagation )
-                    {
-                        std::cerr << "[relativistic_time] setUpdateFunctions type "
-                                  << updateIterator->first << " body " << currentBodies.at( i ) << std::endl;
-                    }
                     // Check whether body exists
                     if( bodyList_.count( currentBodies.at( i ) ) == 0 )
                     {
@@ -769,6 +762,10 @@ private:
                                                     std::bind( &electromagnetism::RadiationPressureTargetModel::updateMembers,
                                                                targetModel,
                                                                std::placeholders::_1 ) ) );
+                            break;
+                        }
+                        case space_time_metric_update: {
+                            // Reserved for future metric model updates.
                             break;
                         }
                     }
