@@ -4,6 +4,7 @@
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
