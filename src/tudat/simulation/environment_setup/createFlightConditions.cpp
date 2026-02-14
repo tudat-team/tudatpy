@@ -17,6 +17,7 @@
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/basics/deprecationWarnings.h"
 
