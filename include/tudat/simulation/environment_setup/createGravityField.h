@@ -18,7 +18,6 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <memory>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
@@ -31,6 +30,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 // List of gravity field models available in simulations
 /*
@@ -782,7 +783,13 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
 std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
-        const SystemOfBodies& bodies = SystemOfBodies( ),
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+                std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
+
+std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
+        const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+        const std::string& body,
+        const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
                 std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 
