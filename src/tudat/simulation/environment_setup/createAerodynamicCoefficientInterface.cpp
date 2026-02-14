@@ -11,6 +11,7 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 
