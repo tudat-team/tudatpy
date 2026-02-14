@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createThrustModelGuidance.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
