@@ -880,6 +880,11 @@ void getResidualStatistics(
     }
 }
 
+extern template std::shared_ptr< observation_models::ObservationCollection< double, Time > > simulateObservations< double, Time >(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > >& observationsToSimulate,
+        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< double, Time > > >& observationSimulators,
+        const SystemOfBodies bodies );
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

@@ -808,7 +808,7 @@ private:
             integratedStateIterator_;
 };
 
-// extern template class EnvironmentUpdater< double, double >;
+extern template class EnvironmentUpdater< double, Time >;
 
 }  // namespace propagators
 

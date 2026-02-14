@@ -1226,10 +1226,10 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
 };
 
-// extern template class CovarianceAnalysisInput< double, double >;
+extern template class CovarianceAnalysisInput< double, Time >;
 // extern template struct CovarianceAnalysisOutput< double >;
 //
-// extern template class EstimationInput< double, double >;
+extern template class EstimationInput< double, Time >;
 // extern template struct EstimationOutput< double >;
 
 }  // namespace simulation_setup

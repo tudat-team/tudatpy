@@ -52,12 +52,15 @@ set(estimation_SOURCES
         createEulerAngleObservationPartials.cpp
         createTorquePartials.cpp
         variationalEquationsSolver.cpp
+        variationalEquationsSolverMultiArcExplicitInstantiation.cpp
+        variationalEquationsSolverHybridArcExplicitInstantiation.cpp
         createObservationManager.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
         createAtmosphericLightTimeCorrection.cpp
         createLightTimeCorrectionPartials.cpp
         orbitDeterminationManager.cpp
+        orbitDeterminationManagerExplicitInstantiation.cpp
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
@@ -69,6 +72,8 @@ set(estimation_SOURCES
         observationOutputSettings.cpp
         observationOutput.cpp
         simulateObservations.cpp
+        observationCollectionExplicitInstantiation.cpp
+        singleObservationSetExplicitInstantiation.cpp
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp

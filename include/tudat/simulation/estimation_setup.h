@@ -29,7 +29,6 @@
 #include "estimation_setup/createTorquePartials.h"
 #include "estimation_setup/estimatableParameterSettings.h"
 #include "estimation_setup/orbitDeterminationManager.h"
-#include "estimation_setup/orbitDeterminationTestCases.h"
 #include "estimation_setup/podProcessing.h"
 #include "estimation_setup/variationalEquationsSolver.h"
 #include "estimation_setup/processOdfFile.h"

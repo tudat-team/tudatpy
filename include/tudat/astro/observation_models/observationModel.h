@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
@@ -448,10 +449,10 @@ protected:
     std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_ = nullptr;
 };
 //
-// extern template class ObservationModel< 1, double, double >;
-// extern template class ObservationModel< 2, double, double >;
-// extern template class ObservationModel< 3, double, double >;
-// extern template class ObservationModel< 6, double, double >;
+extern template class ObservationModel< 1, double, Time >;
+extern template class ObservationModel< 2, double, Time >;
+extern template class ObservationModel< 3, double, Time >;
+extern template class ObservationModel< 6, double, Time >;
 
 //! Function to compute an observation of size 1 at double precision, with double precision input
 /*!

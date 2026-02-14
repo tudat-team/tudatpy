@@ -531,7 +531,7 @@ protected:
     bool removeCentralTerm_;
 };
 
-// extern template class NBodyStateDerivative< double, double >;
+extern template class NBodyStateDerivative< double, Time >;
 
 }  // namespace propagators
 

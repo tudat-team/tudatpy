@@ -6,7 +6,7 @@ namespace tudat
 namespace observation_models
 {
 
-template class ObservationModel< 1, double, Time >;
+template class ObservationModel< 3, double, Time >;
 
 }  // namespace observation_models
 

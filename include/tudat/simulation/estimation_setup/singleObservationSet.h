@@ -1378,6 +1378,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     return newObsSets;
 }
 
+extern template class SingleObservationSet< double, Time >;
+
 }  // namespace observation_models
 
 }  // namespace tudat

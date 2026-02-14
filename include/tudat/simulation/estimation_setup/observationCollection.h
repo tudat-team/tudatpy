@@ -2752,6 +2752,8 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > merg
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( combinedObservationSets );
 }
 
+extern template class ObservationCollection< double, Time >;
+
 }  // namespace observation_models
 
 }  // namespace tudat

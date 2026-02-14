@@ -59,10 +59,9 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
     return modifiedInverseCovarianceMatrix;
 }
 
-// template class CovarianceAnalysisInput< double, double >;
+template class CovarianceAnalysisInput< double, Time >;
 template struct CovarianceAnalysisOutput< double >;
 
-// template class EstimationInput< double, double >;
 template struct EstimationOutput< double >;
 
 }  // namespace simulation_setup

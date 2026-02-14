@@ -6,8 +6,8 @@ namespace tudat
 namespace observation_models
 {
 
-template class ObservationManagerBase< double, Time >;
+template class ObservationManager< 2, double, Time >;
 
-}
+}  // namespace observation_models
 
 }  // namespace tudat

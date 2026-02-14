@@ -500,11 +500,11 @@ protected:
 };
 
 //
-// extern template class ObservationManagerBase< double, double >;
-// extern template class ObservationManager< 1, double, double >;
-// extern template class ObservationManager< 2, double, double >;
-// extern template class ObservationManager< 3, double, double >;
-// extern template class ObservationManager< 6, double, double >;
+extern template class ObservationManagerBase< double, Time >;
+extern template class ObservationManager< 1, double, Time >;
+extern template class ObservationManager< 2, double, Time >;
+extern template class ObservationManager< 3, double, Time >;
+extern template class ObservationManager< 6, double, Time >;
 
 }  // namespace observation_models
 

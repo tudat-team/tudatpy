@@ -12,19 +12,30 @@
 #ifndef ORBITDETERMINATIONTESTCASES_H
 #define ORBITDETERMINATIONTESTCASES_H
 
+#include <memory>
+#include <utility>
+
+#include <Eigen/Core>
+
+#include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/basics/timeType.h"
+
+#ifdef TUDAT_ESTIMATION_SETUP_ORBIT_DETERMINATION_TEST_CASES_IMPLEMENTATION
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/simulation.h"
+#endif
 
 namespace tudat
 {
 namespace unit_tests
 {
 
+#ifdef TUDAT_ESTIMATION_SETUP_ORBIT_DETERMINATION_TEST_CASES_IMPLEMENTATION
 // Using declarations.
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
@@ -39,10 +50,45 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::coordinate_conversions;
 using namespace tudat::physical_constants;
+#endif
 
 Eigen::VectorXd getDefaultInitialParameterPerturbation( );
 
 template< typename TimeType = double, typename StateScalarType = double >
+void compareEstimationAndCovarianceResults(
+        const std::shared_ptr< orbit_determination::EstimationOutput< StateScalarType, TimeType > > estimationOutput,
+        const std::shared_ptr< orbit_determination::CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput );
+
+template< typename TimeType = double, typename StateScalarType = double >
+std::pair< std::shared_ptr< orbit_determination::EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation(
+        const int observableType = 1,
+        Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
+        Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
+        const double weight = 1.0 );
+
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::VectorXd executeEarthOrbiterParameterEstimation(
+        std::pair< std::shared_ptr< orbit_determination::EstimationOutput< StateScalarType > >,
+                   std::shared_ptr< orbit_determination::EstimationInput< StateScalarType, TimeType > > >& podData,
+        const TimeType startTime = TimeType( 1.0E7 ),
+        const int numberOfDaysOfData = 3,
+        const int numberOfIterations = 5,
+        const bool useFullParameterSet = true,
+        const bool saveDesignMatrix = true );
+
+template< typename TimeType = double, typename StateScalarType = double >
+std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
+        const bool estimateRangeBiases = true,
+        const bool estimateTwoWayBiases = false,
+        const bool useSingleBiasModel = true,
+        const bool estimateAbsoluteBiases = true,
+        const bool omitRangeData = false,
+        const bool useMultiArcBiases = false,
+        const bool estimateTimeBiases = false );
+
+#ifdef TUDAT_ESTIMATION_SETUP_ORBIT_DETERMINATION_TEST_CASES_IMPLEMENTATION
+template< typename TimeType, typename StateScalarType >
 void compareEstimationAndCovarianceResults(
         const std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput,
         const std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput )
@@ -58,12 +104,12 @@ void compareEstimationAndCovarianceResults(
     }
 }
 
-template< typename TimeType = double, typename StateScalarType = double >
+template< typename TimeType, typename StateScalarType >
 std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
-        const int observableType = 1,
-        Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
-        Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
-        const double weight = 1.0 )
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -304,15 +350,15 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
             ( estimationOutput->parameterEstimate_.template cast< double >( ) - truthParameters.template cast< double >( ) ) );
 }
 
-template< typename TimeType = double, typename StateScalarType = double >
+template< typename TimeType, typename StateScalarType >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,
                    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > >& podData,
-        const TimeType startTime = TimeType( 1.0E7 ),
-        const int numberOfDaysOfData = 3,
-        const int numberOfIterations = 5,
-        const bool useFullParameterSet = true,
-        const bool saveDesignMatrix = true )
+        const TimeType startTime,
+        const int numberOfDaysOfData,
+        const int numberOfIterations,
+        const bool useFullParameterSet,
+        const bool saveDesignMatrix )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -588,22 +634,55 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     return estimationError;
 }
 
-// extern template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
-//         std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > >& podData,
-//         const double startTime,
-//         const int numberOfDaysOfData,
-//         const int numberOfIterations,
-//         const bool useFullParameterSet );
+#endif
+
+extern template std::pair< std::shared_ptr< orbit_determination::EstimationOutput< double, double > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation< double, double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+
+extern template std::pair< std::shared_ptr< orbit_determination::EstimationOutput< long double, double > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation< double, long double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+
+extern template std::pair< std::shared_ptr< orbit_determination::EstimationOutput< double, Time > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation< Time, double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+
+extern template std::pair< std::shared_ptr< orbit_determination::EstimationOutput< long double, Time > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation< Time, long double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+
+extern template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
+        std::pair< std::shared_ptr< orbit_determination::EstimationOutput< double > >,
+                   std::shared_ptr< orbit_determination::EstimationInput< double, double > > >& podData,
+        const double startTime,
+        const int numberOfDaysOfData,
+        const int numberOfIterations,
+        const bool useFullParameterSet,
+        const bool saveDesignMatrix );
 
 //! Test the estimation of observation biases.
-template< typename TimeType = double, typename StateScalarType = double >
-std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool estimateRangeBiases = true,
-                                                                      const bool estimateTwoWayBiases = false,
-                                                                      const bool useSingleBiasModel = true,
-                                                                      const bool estimateAbsoluteBiases = true,
-                                                                      const bool omitRangeData = false,
-                                                                      const bool useMultiArcBiases = false,
-                                                                      const bool estimateTimeBiases = false )
+#ifdef TUDAT_ESTIMATION_SETUP_ORBIT_DETERMINATION_TEST_CASES_IMPLEMENTATION
+template< typename TimeType, typename StateScalarType >
+std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool estimateRangeBiases,
+                                                                      const bool estimateTwoWayBiases,
+                                                                      const bool useSingleBiasModel,
+                                                                      const bool estimateAbsoluteBiases,
+                                                                      const bool omitRangeData,
+                                                                      const bool useMultiArcBiases,
+                                                                      const bool estimateTimeBiases )
 {
     const int numberOfDaysOfData = 1;
 
@@ -1193,13 +1272,16 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
               !( estimationOutput->getUnnormalizedCovarianceMatrix( ) == estimationOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
 }
 
-// extern template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
-//         const bool estimateRangeBiases,
-//         const bool estimateTwoWayBiases,
-//         const bool useSingleBiasModel,
-//         const bool estimateAbsoluteBiases,
-//         const bool omitRangeData,
-//         const bool useMultiArcBiases );
+#endif
+
+extern template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
+        const bool estimateRangeBiases,
+        const bool estimateTwoWayBiases,
+        const bool useSingleBiasModel,
+        const bool estimateAbsoluteBiases,
+        const bool omitRangeData,
+        const bool useMultiArcBiases,
+        const bool estimateTimeBiases );
 
 }  // namespace unit_tests
 

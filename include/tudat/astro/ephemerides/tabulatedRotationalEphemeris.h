@@ -263,7 +263,7 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
             ephemerisToInterrogate->getTargetFrameOrientation( ) );
 }
 
-// extern template class TabulatedRotationalEphemeris< double, double >;
+extern template class TabulatedRotationalEphemeris< double, Time >;
 
 bool isTabulatedRotationalEphemeris( const std::shared_ptr< RotationalEphemeris > rotationalEphemeris );
 

@@ -23,6 +23,7 @@
 #include "tudat/simulation/estimation_setup/createObservationManager.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
+#include "tudat/basics/timeType.h"
 
 namespace tudat
 {
@@ -1524,7 +1525,7 @@ protected:
     bool considerParametersIncluded_;
 };
 
-// extern template class OrbitDeterminationManager< double, double >;
+extern template class OrbitDeterminationManager< double, Time >;
 
 }  // namespace simulation_setup
 

@@ -36,6 +36,8 @@ set(propagation_SOURCES
         propagationSettings.cpp
         setNumericallyIntegratedStates.cpp
         dynamicsSimulator.cpp
+        dynamicsSimulatorMultiArcExplicitInstantiation.cpp
+        dynamicsSimulatorHybridArcExplicitInstantiation.cpp
         createTorqueModel.cpp
         propagationOutputSettings.cpp
         createMassRateModels.cpp
