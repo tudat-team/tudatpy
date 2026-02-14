@@ -11,9 +11,9 @@
 #ifndef TUDAT_OBSERVATIONOUTPUT
 #define TUDAT_OBSERVATIONOUTPUT
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 #include <functional>
 #include <map>
@@ -129,18 +129,17 @@ protected:
     ObservationDependentVariableBookkeeping( ): observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & observableType_;
-        ar & linkEnds_;
-        ar & settingsList_;
-        ar & dependentVariableStartIndices_;
-        ar & dependentVariableSizes_;
-        ar & totalDependentVariableSize_;
+        ar( observableType_ );
+        ar( linkEnds_ );
+        ar( settingsList_ );
+        ar( dependentVariableStartIndices_ );
+        ar( dependentVariableSizes_ );
+        ar( totalDependentVariableSize_ );
     }
 
     observation_models::ObservableType observableType_;

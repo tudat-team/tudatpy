@@ -13,18 +13,15 @@
 
 /**
  * @file serialization.h
- * @brief Master header for Tudat Boost serialization infrastructure.
+ * @brief Master header for Tudat cereal serialization infrastructure.
  *
  * Provides core serialization helpers (Eigen, archives, serialize/deserialize
- * utilities). Does NOT include BOOST_CLASS_EXPORT_IMPLEMENT headers, since
- * those must appear in exactly one translation unit.
+ * utilities) backed by cereal. Polymorphic type registrations are handled
+ * via CEREAL_REGISTER_TYPE in the individual class headers, so no separate
+ * "implement" headers are needed.
  *
- * Sub-headers (include directly as needed):
- *   - serialization/base.h          Core infrastructure (Eigen, helpers, archives)
- *   - serialization/observations.h  BOOST_CLASS_EXPORT_IMPLEMENT for observation types
- *                                    (include in exactly ONE .cpp file)
- *   - serialization/propagation.h   BOOST_CLASS_EXPORT_IMPLEMENT for propagation/estimation types
- *                                    (include in exactly ONE .cpp file)
+ * Sub-headers:
+ *   - serialization/base.h   Core infrastructure (Eigen, helpers, archives)
  */
 
 #include "tudat/io/serialization/base.h"

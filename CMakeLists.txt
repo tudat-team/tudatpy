@@ -260,7 +260,7 @@ endif ()
 # Set required boost components.
 set(
     _TUDAT_REQUIRED_BOOST_LIBS
-    filesystem system regex date_time thread serialization chrono atomic unit_test_framework
+    filesystem system regex date_time thread chrono atomic unit_test_framework
 )
 # if (TUDAT_BUILD_TESTS)
 #     # Add the unit test framework, if needed.
@@ -360,6 +360,10 @@ if (APPLE OR (WIN32 AND CLANG))
     list(GET _TUDAT_EIGEN_INCLUDE_DIRS 0 _TUDAT_EIGEN_PRIMARY_INCLUDE_DIR)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${_TUDAT_EIGEN_PRIMARY_INCLUDE_DIR}\"")
 endif ()
+
+# Cereal serialization library (header-only)
+find_package(cereal REQUIRED)
+message(STATUS "cereal found: ${cereal_DIR}")
 
 # PAGMO dependency
 if (TUDAT_BUILD_WITH_PAGMO)

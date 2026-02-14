@@ -17,7 +17,6 @@
 #include <tudat/astro/propagators.h>
 
 #include <tudat/io/serialization/base.h>
-#include <tudat/io/serialization/propagation.h>
 
 #include "scalarTypes.h"
 #include "expose_propagation_bindings.h"

@@ -16,9 +16,9 @@
 #include <string>
 #include <vector>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/string.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/string.hpp>
 
 namespace tudat
 {
@@ -113,14 +113,13 @@ struct LinkEndId {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & bodyName_;
-        ar & stationName_;
+        ar( bodyName_ );
+        ar( stationName_ );
     }
 };
 
@@ -227,13 +226,12 @@ struct LinkDefinition {
         return !operator==( linkEnds1, linkEnds2 );
     }
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & linkEnds_;
+        ar( linkEnds_ );
     }};
 
 inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )

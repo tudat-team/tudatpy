@@ -16,9 +16,9 @@
 #include <memory>
 #include <vector>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -272,15 +272,14 @@ protected:
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & doubleData_;
-        ar & doubleVectorData_;
-        ar & doubleIntermediateData_;
+        ar( doubleData_ );
+        ar( doubleVectorData_ );
+        ar( doubleIntermediateData_ );
     }
 };
 

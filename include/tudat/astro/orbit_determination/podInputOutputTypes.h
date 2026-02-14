@@ -19,11 +19,11 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -748,6 +748,8 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
+    virtual ~CovarianceAnalysisOutput( ) = default;
+
     CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
@@ -1035,6 +1037,9 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd considerCovariance_;
 
+    //! Boolean denoting whether the design matrix was saved
+    bool designMatrixSaved_;
+
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 
@@ -1044,30 +1049,30 @@ struct CovarianceAnalysisOutput {
 public:
     //! Default constructor for deserialization only — not for general use
     CovarianceAnalysisOutput( ):
-        exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
+        designMatrixSaved_( false ), exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & normalizedDesignMatrix_;
-        ar & weightsMatrixDiagonal_;
-        ar & designMatrixTransformationDiagonal_;
-        ar & inverseNormalizedCovarianceMatrix_;
-        ar & inverseUnnormalizedCovarianceMatrix_;
-        ar & normalizedCovarianceMatrix_;
-        ar & unnormalizedCovarianceMatrix_;
-        ar & considerCovarianceContribution_;
-        ar & normalizedCovarianceWithConsiderParameters_;
-        ar & unnormalizedCovarianceWithConsiderParameters_;
-        ar & normalizedDesignMatrixConsiderParameters_;
-        ar & considerNormalizationFactors_;
-        ar & considerCovariance_;
-        ar & exceptionDuringPropagation_;
-        ar & considerParametersIncluded_;
+        ar( normalizedDesignMatrix_ );
+        ar( weightsMatrixDiagonal_ );
+        ar( designMatrixTransformationDiagonal_ );
+        ar( inverseNormalizedCovarianceMatrix_ );
+        ar( inverseUnnormalizedCovarianceMatrix_ );
+        ar( normalizedCovarianceMatrix_ );
+        ar( unnormalizedCovarianceMatrix_ );
+        ar( considerCovarianceContribution_ );
+        ar( normalizedCovarianceWithConsiderParameters_ );
+        ar( unnormalizedCovarianceWithConsiderParameters_ );
+        ar( normalizedDesignMatrixConsiderParameters_ );
+        ar( considerNormalizationFactors_ );
+        ar( considerCovariance_ );
+        ar( designMatrixSaved_ );
+        ar( exceptionDuringPropagation_ );
+        ar( considerParametersIncluded_ );
     }
 };
 
@@ -1266,22 +1271,21 @@ public:
         exceptionDuringInversion_( false ), numberOfParameters_( 0 ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( *this );
-        ar & parameterEstimate_;
-        ar & residuals_;
-        ar & bestIteration_;
-        ar & residualStandardDeviation_;
-        ar & residualHistory_;
-        ar & parameterHistory_;
-        ar & exceptionDuringInversion_;
-        ar & numberOfParameters_;
-        ar & simulationResultsPerIteration_;
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( parameterEstimate_ );
+        ar( residuals_ );
+        ar( bestIteration_ );
+        ar( residualStandardDeviation_ );
+        ar( residualHistory_ );
+        ar( parameterHistory_ );
+        ar( exceptionDuringInversion_ );
+        ar( numberOfParameters_ );
+        ar( simulationResultsPerIteration_ );
     }
 };
 
@@ -1303,9 +1307,14 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 
 }  // namespace tudat
 
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::CovarianceAnalysisOutputDD )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::EstimationOutputDD )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::CovarianceAnalysisOutputDT )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::EstimationOutputDT )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDD )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDD )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDT )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDT )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
+                                      tudat::simulation_setup::EstimationOutputDD )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDT,
+                                      tudat::simulation_setup::EstimationOutputDT )
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

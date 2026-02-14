@@ -13,10 +13,10 @@
 
 #include <memory>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
@@ -699,14 +699,13 @@ protected:
         propagationTerminationReason_( propagation_never_run ), terminationOnExactCondition_( false ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & propagationTerminationReason_;
-        ar & terminationOnExactCondition_;
+        ar( propagationTerminationReason_ );
+        ar( terminationOnExactCondition_ );
     }
 };
 
@@ -750,17 +749,16 @@ private:
     //! List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     std::vector< bool > isConditionMetWhenStopping_;
 
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     PropagationTerminationDetailsFromHybridCondition( ):
         PropagationTerminationDetails( ) {}
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< PropagationTerminationDetails >( *this );
-        ar & isConditionMetWhenStopping_;
+        ar( cereal::base_class< PropagationTerminationDetails >( this ) );
+        ar( isConditionMetWhenStopping_ );
     }
 };
 
@@ -768,7 +766,9 @@ private:
 
 }  // namespace tudat
 
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::PropagationTerminationDetails )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetails )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationDetails,
+                                      tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

@@ -11,9 +11,9 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 #include <memory>
 #include <functional>
@@ -193,17 +193,16 @@ protected:
     ObservationDependentVariableSettings( ): variableType_( station_elevation_angle ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & variableType_;
-        ar & linkEndId_;
-        ar & linkEndType_;
-        ar & originatingLinkEndId_;
-        ar & originatingLinkEndType_;
+        ar( variableType_ );
+        ar( linkEndId_ );
+        ar( linkEndType_ );
+        ar( originatingLinkEndId_ );
+        ar( originatingLinkEndType_ );
     }
 };
 
@@ -274,15 +273,14 @@ protected:
     StationAngleObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ), isLinkEndDefined_( false ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
-        ar & integratedObservableHandling_;
-        ar & isLinkEndDefined_;
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( integratedObservableHandling_ );
+        ar( isLinkEndDefined_ );
     }
 };
 
@@ -364,15 +362,14 @@ protected:
     InterlinkObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
-        ar & integratedObservableHandling_;
-        ar & relativeBody_;
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( integratedObservableHandling_ );
+        ar( relativeBody_ );
     }
 };
 
@@ -443,19 +440,22 @@ protected:
     AncillaryObservationDependentVariableSettings( ): observableType_( undefined_observation_model ) {}
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void save( Archive& ar ) const
     {
-        (void)version;
-        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
-        ar & observableType_;
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( observableType_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( observableType_ );
         // Reconstruct the function after loading
-        if( Archive::is_loading::value )
-        {
-            isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType_ );
-        }
+        isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType_ );
     }
 };
 
@@ -632,9 +632,16 @@ inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDepe
 }  // namespace tudat
 
 // Register derived classes for polymorphic serialization
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::ObservationDependentVariableSettings )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
-BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::ObservationDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
+                                      tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
+                                      tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
+                                      tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
 
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS

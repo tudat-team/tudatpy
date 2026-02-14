@@ -11,7 +11,7 @@
 #ifndef TUDAT_OBSERVATION_SERIALIZATION_H
 #define TUDAT_OBSERVATION_SERIALIZATION_H
 
-// Deprecated: include tudat/io/serialization/observations.h or tudat/io/serialization.h instead.
-#include "tudat/io/serialization/observations.h"
+// Deprecated: include tudat/io/serialization/base.h or tudat/io/serialization.h instead.
+#include "tudat/io/serialization/base.h"
 
 #endif  // TUDAT_OBSERVATION_SERIALIZATION_H

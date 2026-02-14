@@ -35,7 +35,7 @@
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 
-#include <boost/serialization/access.hpp>
+#include <cereal/access.hpp>
 
 namespace tudat
 {
@@ -60,15 +60,14 @@ struct PropagatorType {
     int customStateSize_ = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & translationalPropagatorType_;
-        ar & rotationalPropagatorType_;
-        ar & otherPropagator_;
-        ar & customStateSize_;
+        ar( translationalPropagatorType_ );
+        ar( rotationalPropagatorType_ );
+        ar( otherPropagator_ );
+        ar( customStateSize_ );
     }
 };
 

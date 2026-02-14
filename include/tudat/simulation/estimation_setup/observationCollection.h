@@ -16,10 +16,10 @@
 #include <memory>
 #include <vector>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -27,7 +27,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/boostSerialization.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -2621,21 +2621,24 @@ private:
     int totalNumberOfObservables_;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void save( Archive& ar ) const
     {
-        (void)version;
         // Only serialize the core data - all index maps are reconstructed
-        ar & observationSetList_;
+        ar( observationSetList_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        // Only serialize the core data - all index maps are reconstructed
+        ar( observationSetList_ );
 
         // Reconstruct all derived data after loading
-        if( Archive::is_loading::value )
-        {
-            setObservationSetIndices( );
-            setConcatenatedObservationsAndTimes( );
-        }
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 };
 

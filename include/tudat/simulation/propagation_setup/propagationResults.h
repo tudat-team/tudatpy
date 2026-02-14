@@ -8,14 +8,15 @@
 #include <map>
 #include <string>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/string.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/tuple.hpp>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
@@ -57,11 +58,10 @@ public:
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)ar; (void)version;
         // Base class has no data members to serialize
     }
 };
@@ -510,32 +510,31 @@ private:
     //! Boolean denoting whether the full propagation has been fully completed or is ongoing (for non sequential propagations only)
     bool isPropagationOngoing_ = false;
 
-    // --- Boost serialization support ---
-    friend class boost::serialization::access;
+    // --- Cereal serialization support ---
+    friend class cereal::access;
 
 private:
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
-        ar & equationsOfMotionNumericalSolution_;
-        ar & equationsOfMotionNumericalSolutionRaw_;
-        ar & dependentVariableHistory_;
-        ar & cumulativeComputationTimeHistory_;
-        ar & cumulativeNumberOfFunctionEvaluations_;
-        ar & processedStateIds_;
-        ar & propagatedStateIds_;
-        ar & integratedStateAndBodyList_;
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( equationsOfMotionNumericalSolution_ );
+        ar( equationsOfMotionNumericalSolutionRaw_ );
+        ar( dependentVariableHistory_ );
+        ar( cumulativeComputationTimeHistory_ );
+        ar( cumulativeNumberOfFunctionEvaluations_ );
+        ar( processedStateIds_ );
+        ar( propagatedStateIds_ );
+        ar( integratedStateAndBodyList_ );
         // Skip: outputSettings_ (non-serializable processing settings)
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
-        ar & sequentialPropagation_;
+        ar( sequentialPropagation_ );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
-        ar & propagationIsPerformed_;
-        ar & solutionIsCleared_;
-        ar & onlyProcessedSolutionSet_;
-        ar & propagationTerminationReason_;
-        ar & isPropagationOngoing_;
+        ar( propagationIsPerformed_ );
+        ar( solutionIsCleared_ );
+        ar( onlyProcessedSolutionSet_ );
+        ar( propagationTerminationReason_ );
+        ar( isPropagationOngoing_ );
     }
 };
 
@@ -692,20 +691,19 @@ protected:
     std::map< double, Eigen::MatrixXd > sensitivitySolution_;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         // const_cast needed because members are declared const for runtime safety,
         // but deserialization must populate them
-        ar & const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ );
-        ar & const_cast< int& >( stateTransitionMatrixSize_ );
-        ar & const_cast< int& >( sensitivityMatrixSize_ );
-        ar & stateTransitionSolution_;
-        ar & sensitivitySolution_;
+        ar( const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ ) );
+        ar( const_cast< int& >( stateTransitionMatrixSize_ ) );
+        ar( const_cast< int& >( sensitivityMatrixSize_ ) );
+        ar( stateTransitionSolution_ );
+        ar( sensitivitySolution_ );
     }
 };
 
@@ -1020,19 +1018,18 @@ private:
 
     std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
 
-    // --- Boost serialization support ---
-    friend class boost::serialization::access;
+    // --- Cereal serialization support ---
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
-        ar & const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ );
-        ar & propagationIsPerformed_;
-        ar & solutionIsCleared_;
-        ar & arcStartTimes_;
-        ar & arcEndTimes_;
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ ) );
+        ar( propagationIsPerformed_ );
+        ar( solutionIsCleared_ );
+        ar( arcStartTimes_ );
+        ar( arcEndTimes_ );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
     }
 };
@@ -1175,20 +1172,19 @@ protected:
     std::shared_ptr< HybridArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & boost::serialization::base_object< SimulationResults< StateScalarType, TimeType > >( *this );
-        ar & singleArcResults_;
-        ar & multiArcResults_;
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( singleArcResults_ );
+        ar( multiArcResults_ );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
     }
 };
 
-// Type aliases for BOOST_CLASS_EXPORT registration of template instantiations
+// Type aliases for cereal registration of template instantiations
 using SingleArcDynamicsResults = SingleArcSimulationResults< double, double >;
 using SingleArcVariationalResults = SingleArcVariationalSimulationResults< double, double >;
 using MultiArcDynamicsResults = MultiArcSimulationResults< SingleArcSimulationResults, double, double >;
@@ -1204,24 +1200,55 @@ using MultiArcVariationalResultsDT = MultiArcSimulationResults< SingleArcVariati
 using HybridArcDynamicsResultsDT = HybridArcSimulationResults< SingleArcSimulationResults, double, Time >;
 using HybridArcVariationalResultsDT = HybridArcSimulationResults< SingleArcVariationalSimulationResults, double, Time >;
 
+// Base‐class aliases (needed for CEREAL macros, which cannot handle commas in template args)
+using SimulationResultsDD = SimulationResults< double, double >;
+using SimulationResultsDT = SimulationResults< double, Time >;
+
 }  // namespace propagators
 
 }  // namespace tudat
 
 // Register all concrete SimulationResults types for polymorphic serialization
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcDynamicsResults )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcVariationalResults )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcDynamicsResults )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcVariationalResults )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcDynamicsResults )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcVariationalResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcVariationalResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDynamicsResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcVariationalResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDynamicsResults )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcVariationalResults )
 
 // <double, Time> variants
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcDynamicsResultsDT )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::SingleArcVariationalResultsDT )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcDynamicsResultsDT )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::MultiArcVariationalResultsDT )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcDynamicsResultsDT )
-BOOST_CLASS_EXPORT_KEY( tudat::propagators::HybridArcVariationalResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcVariationalResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDynamicsResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcVariationalResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDynamicsResultsDT )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcVariationalResultsDT )
+
+// Register polymorphic relationships (use typedefs to avoid macro comma issues)
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::SingleArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::SingleArcVariationalResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::MultiArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::MultiArcVariationalResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::HybridArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
+                                      tudat::propagators::HybridArcVariationalResults )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::SingleArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::SingleArcVariationalResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::MultiArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::MultiArcVariationalResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::HybridArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
+                                      tudat::propagators::HybridArcVariationalResultsDT )
 
 #endif  // TUDAT_PROPAGATIONRESULTS_H

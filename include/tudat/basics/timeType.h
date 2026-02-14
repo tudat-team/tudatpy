@@ -21,7 +21,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/serialization/access.hpp>
+#include <cereal/access.hpp>
 
 #include <Eigen/Core>
 
@@ -1061,14 +1061,13 @@ protected:
     int daysToAdd;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar )
     {
-        (void)version;
-        ar & fullPeriods_;
-        ar & secondsIntoFullPeriod_;
+        ar( fullPeriods_ );
+        ar( secondsIntoFullPeriod_ );
     }
 };
 
