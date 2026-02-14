@@ -11,44 +11,91 @@
 #ifndef TUDAT_BODY_H
 #define TUDAT_BODY_H
 
-#include <map>
-#include <vector>
-
+#include <algorithm>
+#include <functional>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+#include <map>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
-#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
-#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/ionosphereModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
-#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
-#include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/ephemerides/multiArcEphemeris.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
-#include "tudat/astro/gravitation/polyhedronGravityField.h"
-#include "tudat/astro/basic_astro/polyhedronFuntions.h"
-#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
-#include "tudat/astro/propulsion/thrustGuidance.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatExceptions.h"
+#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/numericalDerivative.h"
 
 namespace tudat
 {
+
+namespace aerodynamics
+{
+class AerodynamicCoefficientInterface;
+class AtmosphereModel;
+class AtmosphericFlightConditions;
+class FlightConditions;
+}  // namespace aerodynamics
+
+namespace basic_astrodynamics
+{
+class BodyDeformationModel;
+class BodyShapeModel;
+}  // namespace basic_astrodynamics
+
+namespace electromagnetism
+{
+class RadiationPressureInterface;
+class RadiationPressureTargetModel;
+class RadiationSourceModel;
+}  // namespace electromagnetism
+
+namespace environment
+{
+class IonosphereModel;
+}  // namespace environment
+
+namespace gravitation
+{
+class GravityFieldModel;
+class GravityFieldVariations;
+class GravityFieldVariationsSet;
+class TimeDependentSphericalHarmonicsGravityField;
+}  // namespace gravitation
+
+namespace ground_stations
+{
+class GroundStation;
+}  // namespace ground_stations
+
+namespace system_models
+{
+class TimingSystem;
+class VehicleSystems;
+}  // namespace system_models
 
 namespace simulation_setup
 {
@@ -132,6 +179,16 @@ template< typename TimeType, typename StateScalarType >
 class BaseStateInterfaceImplementation : public BaseStateInterface
 {
 public:
+    //! Constructor using a default zero state function.
+    /*!
+     * Constructor using a default zero state function.
+     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
+     */
+    BaseStateInterfaceImplementation( const std::string baseFrameId ):
+        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ),
+        stateMultiplier_( 1 )
+    { }
+
     //! Constructor
     /*!
      * Constructor
@@ -199,6 +256,12 @@ protected:
     }
 
 private:
+    //! Default state function returning a zero vector for all inputs.
+    static Eigen::Matrix< StateScalarType, 6, 1 > getDefaultZeroState( const TimeType )
+    {
+        return Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
+    }
+
     //! Function returning frame's inertial state as a function of time.
     std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
 
@@ -209,64 +272,27 @@ private:
 class RigidBodyProperties
 {
 public:
-    RigidBodyProperties( ):
-        currentMass_( TUDAT_NAN ), currentCenterOfMass_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
-        currentInertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), isBodyInPropagation_( false ), isMassComputed_( false ),
-        isComComputed_( false ), isInertiaTensorComputed_( false )
-    { }
+    RigidBodyProperties( );
 
-    virtual ~RigidBodyProperties( ) { }
+    virtual ~RigidBodyProperties( );
 
-    void update( const double currentTime )
-    {
-        updateMass( currentTime );
-        updateMassDistribution( currentTime );
-    }
+    void update( const double currentTime );
 
     virtual void updateMass( const double currentTime ) = 0;
 
     virtual void updateMassDistribution( const double currentTime ) = 0;
 
-    virtual void resetCurrentTime( )
-    {
-        isMassComputed_ = false;
-        isComComputed_ = false;
-        isInertiaTensorComputed_ = false;
-    }
+    virtual void resetCurrentTime( );
 
-    double getCurrentMass( )
-    {
-        if( !isMassComputed_ )
-        {
-            throw std::runtime_error( "Error when retrieveing mass, mass is not computed/defined." );
-        }
-        return currentMass_;
-    }
+    double getCurrentMass( );
 
-    Eigen::Vector3d getCurrentCenterOfMass( )
-    {
-        if( !isComComputed_ )
-        {
-            throw std::runtime_error( "Error when retrieving center of mass, center of mass is not computed/defined." );
-        }
-        return currentCenterOfMass_;
-    }
+    Eigen::Vector3d getCurrentCenterOfMass( );
 
-    Eigen::Matrix3d getCurrentInertiaTensor( )
-    {
-        if( !isInertiaTensorComputed_ )
-        {
-            throw std::runtime_error( "Error when retrieving inertia tensor, inertia tensor is not computed/defined." );
-        }
-        return currentInertiaTensor_;
-    }
+    Eigen::Matrix3d getCurrentInertiaTensor( );
 
     virtual void setCurrentMass( const double currentMass ) = 0;
 
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
-    {
-        isBodyInPropagation_ = isBodyInPropagation;
-    }
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
 
 protected:
     double currentMass_;
@@ -289,96 +315,27 @@ class TimeDependentRigidBodyProperties : public RigidBodyProperties
 public:
     TimeDependentRigidBodyProperties( const std::function< double( const double ) > massFunction,
                                       const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
-        massFunction_( massFunction ), centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    { }
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr );
 
     TimeDependentRigidBodyProperties( const double mass,
                                       const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
-                                      const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
-        massFunction_( nullptr ), centerOfMassFunction_( nullptr ), inertiaTensorFunction_( nullptr )
-    {
-        currentMass_ = mass;
-        isMassComputed_ = true;
+                                      const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) );
 
-        if( !centerOfMass.hasNaN( ) )
-        {
-            currentCenterOfMass_ = centerOfMass;
-            isComComputed_ = true;
-        }
+    virtual ~TimeDependentRigidBodyProperties( );
 
-        if( !inertiaTensor.hasNaN( ) )
-        {
-            currentInertiaTensor_ = inertiaTensor;
-            isInertiaTensorComputed_ = true;
-        }
-    }
+    virtual void resetCurrentTime( );
 
-    virtual ~TimeDependentRigidBodyProperties( ) { }
+    std::function< double( const double ) > getMassFunction( );
 
-    virtual void resetCurrentTime( )
-    {
-        if( massFunction_ != nullptr )
-        {
-            isMassComputed_ = false;
-        }
+    void setMassFunction( const std::function< double( const double ) > massFunction );
 
-        if( centerOfMassFunction_ != nullptr )
-        {
-            isComComputed_ = false;
-        }
+    virtual void setCurrentMass( const double currentMass );
 
-        if( inertiaTensorFunction_ != nullptr )
-        {
-            isInertiaTensorComputed_ = false;
-        }
-    }
+    void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor );
 
-    std::function< double( const double ) > getMassFunction( )
-    {
-        return massFunction_;
-    }
+    virtual void updateMass( const double currentTime );
 
-    void setMassFunction( const std::function< double( const double ) > massFunction )
-    {
-        massFunction_ = massFunction;
-    }
-
-    virtual void setCurrentMass( const double currentMass )
-    {
-        currentMass_ = currentMass;
-        isMassComputed_ = true;
-    }
-
-    void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor )
-    {
-        currentInertiaTensor_ = inertiaTensor;
-        isInertiaTensorComputed_ = true;
-    }
-
-    virtual void updateMass( const double currentTime )
-    {
-        if( massFunction_ != nullptr && ( !isMassComputed_ || !isBodyInPropagation_ ) )
-        {
-            this->currentMass_ = massFunction_( currentTime );
-            isMassComputed_ = true;
-        }
-    }
-
-    virtual void updateMassDistribution( const double currentTime )
-    {
-        if( centerOfMassFunction_ != nullptr && ( !isComComputed_ || !isBodyInPropagation_ ) )
-        {
-            this->currentCenterOfMass_ = centerOfMassFunction_( currentTime );
-            isComComputed_ = true;
-        }
-
-        if( inertiaTensorFunction_ != nullptr && ( !isInertiaTensorComputed_ || !isBodyInPropagation_ ) )
-        {
-            this->currentInertiaTensor_ = inertiaTensorFunction_( currentTime );
-            isInertiaTensorComputed_ = true;
-        }
-    }
+    virtual void updateMassDistribution( const double currentTime );
 
 protected:
     std::function< double( const double ) > massFunction_;
@@ -393,37 +350,15 @@ class MassDependentRigidBodyProperties : public RigidBodyProperties
 public:
     MassDependentRigidBodyProperties( const double currentMass,
                                       const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
-        centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    {
-        setCurrentMass( currentMass );
-        updateMassDistribution( TUDAT_NAN );
-    }
+                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction );
 
-    virtual ~MassDependentRigidBodyProperties( ) { }
+    virtual ~MassDependentRigidBodyProperties( );
 
-    virtual void updateMass( const double currentTime ) { }
+    virtual void updateMass( const double currentTime );
 
-    virtual void updateMassDistribution( const double currentTime )
-    {
-        if( centerOfMassFunction_ != nullptr && ( !isComComputed_ || !isBodyInPropagation_ ) )
-        {
-            currentCenterOfMass_ = centerOfMassFunction_( currentMass_ );
-            isComComputed_ = true;
-        }
+    virtual void updateMassDistribution( const double currentTime );
 
-        if( inertiaTensorFunction_ != nullptr && ( !isInertiaTensorComputed_ || !isBodyInPropagation_ ) )
-        {
-            currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
-            isInertiaTensorComputed_ = true;
-        }
-    }
-
-    virtual void setCurrentMass( const double currentMass )
-    {
-        currentMass_ = currentMass;
-        isMassComputed_ = true;
-    }
+    virtual void setCurrentMass( const double currentMass );
 
 protected:
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
@@ -434,74 +369,19 @@ protected:
 class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
 {
 public:
-    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ):
-        gravityFieldModel_( gravityFieldModel )
-    {
-        currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-        currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
+    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
 
-        isMassComputed_ = true;
-        isComComputed_ = true;
-        isInertiaTensorComputed_ = true;
+    virtual ~FromGravityFieldRigidBodyProperties( );
 
-        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel ) != nullptr )
-        {
-            modelIsTimeDependent_ = true;
-        }
-        else
-        {
-            modelIsTimeDependent_ = false;
-        }
-    }
+    virtual void resetCurrentTime( );
 
-    virtual ~FromGravityFieldRigidBodyProperties( ) { }
+    virtual void updateMass( const double currentTime );
 
-    virtual void resetCurrentTime( )
-    {
-        if( modelIsTimeDependent_ )
-        {
-            isMassComputed_ = false;
-            isComComputed_ = false;
-            isInertiaTensorComputed_ = false;
-        }
-    }
+    virtual void updateMassDistribution( const double currentTime );
 
-    virtual void updateMass( const double currentTime )
-    {
-        if( ( modelIsTimeDependent_ && !isMassComputed_ ) || !isBodyInPropagation_ )
-        {
-            currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-            isMassComputed_ = true;
-        }
-    }
+    virtual void setCurrentMass( const double currentMass );
 
-    virtual void updateMassDistribution( const double currentTime )
-    {
-        if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ ) ) || !isBodyInPropagation_ )
-        {
-            currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-            currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
-            isComComputed_ = true;
-            isInertiaTensorComputed_ = true;
-        }
-    }
-
-    virtual void setCurrentMass( const double currentMass )
-    {
-        throw std::runtime_error(
-                "Error when resetting body mass; mass cannot be reset for bodies with a gravity field. Reset the gravity field's "
-                "gravitational parameter instead." );
-    }
-
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation )
-    {
-        currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-        currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
-
-        isBodyInPropagation_ = isBodyInPropagation;
-    }
+    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
 
 protected:
     const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
@@ -526,21 +406,7 @@ public:
      * Constructor for a body, sets current state (with zero default value).
      * \param state Current state of body at initialization (default = zeroes).
      */
-    Body( const Eigen::Vector6d& state = Eigen::Vector6d::Zero( ) ):
-        bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
-        ephemerisFrameToBaseFrame_( std::make_shared< BaseStateInterfaceImplementation< double, double > >(
-                "",
-                [ = ]( const double ) { return Eigen::Vector6d::Zero( ); } ) ),
-        currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-        currentRotationToGlobalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-        currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
-        currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-        currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ), bodyName_( "unnamed_body" )
-    {
-        currentLongState_ = currentState_.cast< long double >( );
-        isStateSet_ = false;
-        isRotationSet_ = false;
-    }
+    Body( const Eigen::Vector6d& state = Eigen::Vector6d::Zero( ) );
 
     //! Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
     /*!
@@ -864,23 +730,7 @@ public:
      * rotationalEphemeris_ member object
      * \param time Time at which the rotation is to be retrieved.
      */
-    void setCurrentRotationToLocalFrameFromEphemeris( const double time )
-    {
-        if( rotationalEphemeris_ != nullptr )
-        {
-            currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame( time );
-        }
-        //        else if( dependentOrientationCalculator_ != nullptr )
-        //        {
-        //            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
-        //        }
-        else
-        {
-            throw std::runtime_error( "Error, no rotation model found in Body::setCurrentRotationToLocalFrameFromEphemeris" );
-        }
-        currentRotationToGlobalFrame_ = currentRotationToLocalFrame_.inverse( );
-        isRotationSet_ = true;
-    }
+    void setCurrentRotationToLocalFrameFromEphemeris( const double time );
 
     //! Function to set the full rotational state at given time
     /*!
@@ -923,26 +773,7 @@ public:
      * \param currentRotationalStateFromLocalToGlobalFrame Quaternion from body-fixed to propagation frame
      * (in vector form) and the body's angular velocity vector in body-fixed frame.
      */
-    void setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame )
-    {
-        currentRotationToGlobalFrame_ = Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
-                                                            currentRotationalStateFromLocalToGlobalFrame( 1 ),
-                                                            currentRotationalStateFromLocalToGlobalFrame( 2 ),
-                                                            currentRotationalStateFromLocalToGlobalFrame( 3 ) );
-
-        currentRotationToGlobalFrame_.normalize( );
-        currentRotationToLocalFrame_ = currentRotationToGlobalFrame_.inverse( );
-        currentAngularVelocityVectorInGlobalFrame_ =
-                currentRotationToGlobalFrame_ * currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
-
-        currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 );
-
-        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
-        currentRotationToLocalFrameDerivative_ =
-                linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
-                currentRotationMatrixToLocalFrame;
-        isRotationSet_ = true;
-    }
+    void setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame );
 
     //! Get current rotation from body-fixed to inertial frame.
     /*!
@@ -1144,22 +975,7 @@ public:
      *  body.
      *  \param gravityFieldModel New gravity field of the body.
      */
-    void setGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
-    {
-        gravityFieldModel_ = gravityFieldModel;
-
-        // Update current mass of body, provide warning
-        if( massProperties_ != nullptr )
-        {
-            std::cerr << "Warning when settings gravity field model for body, mass interface already found: overrriding existing mass "
-                         "interface"
-                      << std::endl;
-        }
-        else
-        {
-            massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
-        }
-    }
+    void setGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
 
     //! Function to set the atmosphere model of the body.
     /*!
@@ -1201,24 +1017,7 @@ public:
      *  \param aerodynamicCoefficientInterface Aerodynamic coefficient interface of the body.
      */
     void setAerodynamicCoefficientInterface(
-            const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface )
-    {
-        aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
-        std::vector< std::string > controlSurfaceList = aerodynamicCoefficientInterface->getControlSurfaceNames( );
-        for( unsigned int i = 0; i < controlSurfaceList.size( ); i++ )
-        {
-            if( getVehicleSystems( )->doesControlSurfaceExist( controlSurfaceList.at( i ) ) == 0 )
-            {
-                vehicleSystems_->setCurrentControlSurfaceDeflection( controlSurfaceList.at( i ), 0.0 );
-            }
-        }
-
-        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ ) != nullptr )
-        {
-            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ )
-                    ->resetAerodynamicCoefficientInterface( aerodynamicCoefficientInterface_ );
-        }
-    }
+            const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface );
 
     //! Function to set the body flight conditions
     /*!
@@ -1226,26 +1025,7 @@ public:
      * altitude, etc.
      * \param aerodynamicFlightConditions Body flight conditions
      */
-    void setFlightConditions( const std::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions )
-    {
-        aerodynamicFlightConditions_ = aerodynamicFlightConditions;
-
-        //        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
-        //        if (dependentOrientationCalculator_ != nullptr) {
-        //            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
-        //                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator());
-        //        } else {
-        //            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator();
-        //        }
-
-        // Create closure between rotational ephemeris and aerodynamic angle calculator.
-        if( rotationalEphemeris_ != nullptr &&
-            std::dynamic_pointer_cast< ephemerides::AerodynamicAngleRotationalEphemeris >( rotationalEphemeris_ ) == nullptr )
-        {
-            aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(
-                    std::make_shared< reference_frames::FromGenericEphemerisAerodynamicAngleInterface >( rotationalEphemeris_ ) );
-        }
-    }
+    void setFlightConditions( const std::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions );
 
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > getBodyDeformationModels( )
     {
@@ -1321,15 +1101,7 @@ public:
         return gravityFieldModel_;
     }
 
-    double getGravitationalParameter( )
-    {
-        if( gravityFieldModel_ == nullptr )
-        {
-            throw std::runtime_error( "Error when retrieveing gravitational parameter from body " + bodyName_ +
-                                      ", no gravity field model is defined" );
-        }
-        return gravityFieldModel_->getGravitationalParameter( );
-    }
+    double getGravitationalParameter( );
 
     //! Function to get the ephemeris of the body.
     /*!
@@ -1479,14 +1251,7 @@ public:
      * Function to retrieve container object with hardware systems present on/in body.
      * \return Container object with hardware systems present on/in body.
      */
-    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
-    {
-        if( vehicleSystems_ == nullptr )
-        {
-            vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
-        }
-        return vehicleSystems_;
-    }
+    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( );
 
     //! Function to set container object with hardware systems present on/in body
     /*!
@@ -1503,132 +1268,46 @@ public:
         return massProperties_;
     }
 
-    void setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties )
-    {
-        if( gravityFieldModel_ != nullptr )
-        {
-            std::cerr << "Warning, setting body mass distribution, but existing gravity field model and associated mass properties already "
-                         "found; overriding existing body mass properties"
-                      << std::endl;
-        }
-        massProperties_ = massProperties;
-    }
+    void setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties );
 
     //! Function to set the function returning body mass as a function of time
     /*!
      * Function to set the function returning body mass as a function of time
      * \param bodyMassFunction Function returning body mass as a function of time
      */
-    void setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )
-    {
-        if( massProperties_ == nullptr )
-        {
-            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMassFunction );
-        }
-        else
-        {
-            if( std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ ) != nullptr )
-            {
-                std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ )->setMassFunction( bodyMassFunction );
-            }
-            else
-            {
-                throw std::runtime_error( "Error when resetting body mass function for " + bodyName_ +
-                                          ", no compatible mass properties found" );
-            }
-        }
-    }
+    void setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction );
 
     //! Function to set the body mass as being constant (i.e. time-independent)
     /*!
      * Function to set the body mass as being constant (i.e. time-independent)
      * \param bodyMass New constant body mass
      */
-    void setConstantBodyMass( const double bodyMass )
-    {
-        if( massProperties_ == nullptr )
-        {
-            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMass );
-        }
-        else
-        {
-            massProperties_->setCurrentMass( bodyMass );
-        }
-    }
+    void setConstantBodyMass( const double bodyMass );
 
-    void setCurrentPropagatedBodyMass( const double bodyMass )
-    {
-        if( massProperties_ == nullptr )
-        {
-            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMass );
-        }
-        else
-        {
-            massProperties_->setCurrentMass( bodyMass );
-        }
-    }
+    void setCurrentPropagatedBodyMass( const double bodyMass );
 
     //! Function to get the function returning body mass as a function of time
     /*!
      * Function to get the function returning body mass as a function of time
      * \return Function returning body mass as a function of time
      */
-    std::function< double( const double ) > getBodyMassFunction( )
-    {
-        std::function< double( const double ) > bodyMassFunction;
-        if( std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ ) != nullptr )
-        {
-            bodyMassFunction = std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ )->getMassFunction( );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting body mass function for " + bodyName_ + ", no compatible mass properties found" );
-        }
-        return bodyMassFunction;
-    }
+    std::function< double( const double ) > getBodyMassFunction( );
 
     //! Function to update the body mass to the current time
     /*!
      * Function to update the body mass to the current time, using the bodyMassFunction_ function
      * \param time Current time
      */
-    void updateMass( const double time )
-    {
-        if( massProperties_ == nullptr )
-        {
-            throw std::runtime_error( "Error when updating body mass for " + bodyName_ + ", no mass properties found" );
-        }
-        else
-        {
-            massProperties_->updateMass( time );
-        }
-    }
+    void updateMass( const double time );
 
-    void updateMassDistribution( const double time )
-    {
-        if( massProperties_ == nullptr )
-        {
-            throw std::runtime_error( "Error when updating body mass for " + bodyName_ + ", no mass properties found" );
-        }
-        else
-        {
-            massProperties_->updateMassDistribution( time );
-        }
-    }
+    void updateMassDistribution( const double time );
 
     //! Function to retrieve the current body mass
     /*!
      * Function to retrieve the current body mass
      * \return Current body mass.
      */
-    double getBodyMass( )
-    {
-        if( massProperties_ == nullptr )
-        {
-            throw std::runtime_error( "Error when retrieving mass of " + bodyName_ + ", no mass properties found" );
-        }
-        return massProperties_->getCurrentMass( );
-    }
+    double getBodyMass( );
 
     Eigen::Vector3d getBodyFixedCenterOfMass( )
     {
@@ -1640,40 +1319,14 @@ public:
      * Function to retrieve the body moment-of-inertia tensor.
      * \return  Body moment-of-inertia tensor.
      */
-    Eigen::Matrix3d getBodyInertiaTensor( )
-    {
-        if( massProperties_ == nullptr )
-        {
-            throw std::runtime_error( "Error when retrieving inertia tensor of " + bodyName_ + ", no mass properties found" );
-        }
-        return massProperties_->getCurrentInertiaTensor( );
-    }
+    Eigen::Matrix3d getBodyInertiaTensor( );
 
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
      * \param bodyInertiaTensor Body moment-of-inertia tensor.
      */
-    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
-    {
-        if( massProperties_ == nullptr )
-        {
-            throw std::runtime_error( "Error when setting inertia tensor; no body mass properties object found (add a body mass first)" );
-        }
-        else
-        {
-            if( std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ ) != nullptr )
-            {
-                std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ )->setInertiaTensor( bodyInertiaTensor );
-            }
-            else
-            {
-                throw std::runtime_error(
-                        "Error when trying to reset body inertia tensor, rigid body properties already exist, and are not of compatible "
-                        "type" );
-            }
-        }
-    }
+    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor );
 
     //! Function to add a ground station to the body
     /*!
@@ -1718,14 +1371,7 @@ public:
      * bodies. This function is typically called after equations of motion have been computed and set in environment to
      * ensure full model consistency.
      */
-    void updateConstantEphemerisDependentMemberQuantities( )
-    {
-        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ ) != nullptr )
-        {
-            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ )
-                    ->updateCorrectionFunctions( );
-        }
-    }
+    void updateConstantEphemerisDependentMemberQuantities( );
 
     //! Function to indicate that the state needs to be recomputed on next call to setStateFromEphemeris.
     /*!
