@@ -39,6 +39,7 @@ set(environment_SOURCES
         createRadiationPressureInterface.cpp
         createEphemeris.cpp
         createRotationModel.cpp
+        createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
         createBodies.cpp
         createGravityField.cpp

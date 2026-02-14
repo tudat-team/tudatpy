@@ -12,16 +12,11 @@
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
+#include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
-// #if TUDAT_BUILD_WITH_SOFA_INTERFACE
-#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
-#include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
-#include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
-#include "tudat/math/interpolators/jumpDataLinearInterpolator.h"
-// #endif
 
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/customRotationalEphemeris.h"
@@ -31,6 +26,22 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationModel(
+        const std::shared_ptr< GcrsToItrsRotationModelSettings >& gcrsToItrsRotationSettings );
+
+std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings( const std::string& originalFrame,
+                                                                                const std::string& targetFrame,
+                                                                                const std::string& targetFrameSpice,
+                                                                                const double initialTime )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+            originalFrame,
+            targetFrame,
+            spice_interface::computeRotationQuaternionBetweenFrames( originalFrame, targetFrameSpice, initialTime ),
+            initialTime,
+            spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame( originalFrame, targetFrameSpice, initialTime ).norm( ) );
+}
 
 std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatelliteBasedFrame(
         const ephemerides::SatelliteBasedFrames frameId,
@@ -234,6 +245,13 @@ std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > createAerody
 
 std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
         const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body )
+{
+    return createInertialDirectionCalculator( directionSettings, body, SystemOfBodies( ) );
+}
+
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
 {
@@ -375,6 +393,14 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
 //! Function to create a rotation model.
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
+        const std::string& body )
+{
+    return createRotationModel( rotationModelSettings, body, SystemOfBodies( ) );
+}
+
+//! Function to create a rotation model.
+std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
 {
@@ -421,87 +447,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                std::shared_ptr< earth_orientation::EOPReader > eopReader =
-                        std::make_shared< earth_orientation::EOPReader >( gcrsToItrsRotationSettings->getEopFile( ),
-                                                                          gcrsToItrsRotationSettings->getEopFileFormat( ),
-                                                                          gcrsToItrsRotationSettings->getNutationTheory( ) );
-
-                // Load polar motion corrections
-                std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
-                        std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                                eopReader->getCipInItrsMapInSecondsSinceJ2000( ),
-                                interpolators::huntingAlgorithm,
-                                interpolators::use_default_value,
-                                std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
-
-                // Load nutation corrections
-                std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
-                        std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                                eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ),
-                                interpolators::huntingAlgorithm,
-                                interpolators::use_default_value,
-                                std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
-
-                // Create polar motion correction (sub-diural frequencies) object
-                std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
-                        shortPeriodPolarMotionCalculator =
-                                std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
-                                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->conversionFactor_,
-                                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->minimumAmplitude_,
-                                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->amplitudesFiles_,
-                                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_,
-                                        std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst,
-                                                   std::placeholders::_1 ),
-                                        gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
-
-                // Create full polar motion calculator
-                std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator =
-                        std::make_shared< earth_orientation::PolarMotionCalculator >( cipInItrsInterpolator,
-                                                                                      shortPeriodPolarMotionCalculator );
-
-                // Create IAU 2006 precession/nutation calculator
-                std::shared_ptr< earth_orientation::PrecessionNutationCalculator > precessionNutationCalculator =
-                        std::make_shared< earth_orientation::PrecessionNutationCalculator >(
-                                gcrsToItrsRotationSettings->getNutationTheory( ),
-                                cipInGcrsCorrectionInterpolator,
-                                gcrsToItrsRotationSettings->getCioInterpolatorSettings( ) );
-
-                // Create UT1 correction (sub-diural frequencies) object
-                std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > > ut1CorrectionSettings =
-                        std::make_shared< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > >(
-                                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->conversionFactor_,
-                                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->minimumAmplitude_,
-                                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->amplitudesFiles_,
-                                gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_,
-                                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst,
-                                           std::placeholders::_1 ),
-                                gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
-
-                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > dailyUtcUt1CorrectionInterpolator =
-                        std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-                                eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ),
-                                0.5,
-                                1.0,
-                                interpolators::huntingAlgorithm,
-                                interpolators::use_default_value,
-                                0.0 );
-
-                // Create default time scale converter
-                std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
-                        std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >(
-                                dailyUtcUt1CorrectionInterpolator,
-                                ut1CorrectionSettings,
-                                gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ) );
-
-                // Create rotation model
-                std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
-                        std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >(
-                                polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
-                rotationalEphemeris =
-                        std::make_shared< ephemerides::GcrsToItrsRotationModel >( earthOrientationCalculator,
-                                                                                  gcrsToItrsRotationSettings->getInputTimeScale( ),
-                                                                                  gcrsToItrsRotationSettings->getOriginalFrame( ) );
-
+                rotationalEphemeris = createGcrsToItrsRotationModel( gcrsToItrsRotationSettings );
                 break;
             }
         }
