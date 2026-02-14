@@ -18,13 +18,14 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //! Class for providing settings for a mass rate model.
 /*!
