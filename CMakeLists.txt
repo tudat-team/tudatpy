@@ -317,7 +317,7 @@ else ()
 endif ()
 
 if (UNIX OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
 # Get tudat resource manager dependency.
