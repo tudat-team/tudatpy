@@ -15,7 +15,13 @@
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <tudat/astro/basic_astro/keplerPropagator.h>
-#include <tudat/astro/mission_segments.h>
+#include <tudat/astro/mission_segments/escapeAndCapture.h>
+#include <tudat/astro/mission_segments/gravityAssist.h>
+#include <tudat/astro/mission_segments/lambertTargeter.h>
+#include <tudat/astro/mission_segments/lambertTargeterGooding.h>
+#include <tudat/astro/mission_segments/lambertTargeterIzzo.h>
+#include <tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h>
+#include <tudat/astro/mission_segments/zeroRevolutionLambertTargeterIzzo.h>
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
