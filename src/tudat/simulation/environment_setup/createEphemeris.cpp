@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 

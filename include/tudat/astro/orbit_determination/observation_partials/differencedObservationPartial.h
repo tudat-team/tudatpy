@@ -12,7 +12,6 @@
 #define TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 

@@ -11,7 +11,6 @@
 #define TUDAT_CONSTANTROTATIONALEPHEMERIS_H
 
 #include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 

@@ -12,8 +12,6 @@
 #include <cmath>
 #include <memory>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"

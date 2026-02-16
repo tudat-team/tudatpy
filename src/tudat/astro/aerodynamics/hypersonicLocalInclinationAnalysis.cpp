@@ -14,13 +14,10 @@
  */
 
 #include <string>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
-
-#include <boost/pointer_cast.hpp>
 #include <memory>
 
+#include <boost/pointer_cast.hpp>
 #include <Eigen/Geometry>
 
 #include "tudat/math/basic/mathematicalConstants.h"
