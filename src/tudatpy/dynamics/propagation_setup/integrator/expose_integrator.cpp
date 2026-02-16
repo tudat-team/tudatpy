@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/math/integrators/createNumericalIntegrator.h>
-#include <tudat/math/root_finders.h>
 
 #include "scalarTypes.h"
 
@@ -29,7 +28,6 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
-namespace tmrf = tudat::root_finders;
 
 namespace tudatpy
 {

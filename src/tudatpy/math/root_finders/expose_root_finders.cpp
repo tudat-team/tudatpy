@@ -12,7 +12,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/math/root_finders.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 namespace py = pybind11;
 namespace trf = tudat::root_finders;

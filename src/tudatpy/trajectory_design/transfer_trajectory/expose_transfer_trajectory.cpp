@@ -19,7 +19,7 @@
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
-#include "tudat/math/root_finders.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
