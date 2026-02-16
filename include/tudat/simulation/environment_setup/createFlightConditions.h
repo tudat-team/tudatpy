@@ -11,8 +11,6 @@
 #ifndef TUDAT_CREATEFLIGHTCONDITIONS_H
 #define TUDAT_CREATEFLIGHTCONDITIONS_H
 
-#include <boost/multi_array.hpp>
-
 #include <vector>
 
 #include "tudat/astro/aerodynamics/aerodynamicGuidance.h"

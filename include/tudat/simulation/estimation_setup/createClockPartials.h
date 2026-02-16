@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/simulation/environment_setup/body.h"
