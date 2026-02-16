@@ -25,7 +25,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "tudat/math/geometric/compositeSurfaceGeometry.h"
 #include "tudat/math/geometric/surfaceGeometry.h"
