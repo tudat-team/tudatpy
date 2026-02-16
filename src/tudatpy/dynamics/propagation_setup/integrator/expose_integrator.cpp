@@ -16,7 +16,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/math/integrators.h>
+#include <tudat/math/integrators/createNumericalIntegrator.h>
 #include <tudat/math/root_finders.h>
 
 #include "scalarTypes.h"

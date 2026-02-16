@@ -11,7 +11,6 @@
 #include "expose_numerical_integrators.h"
 
 #include <pybind11/pybind11.h>
-#include <tudat/math/integrators.h>
 
 namespace tni = tudat::numerical_integrators;
 namespace py = pybind11;
