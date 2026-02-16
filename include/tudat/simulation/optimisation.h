@@ -18,62 +18,6 @@
 #ifndef TUDAT_OPTIMISATION_SETTINGS_H
 #define TUDAT_OPTIMISATION_SETTINGS_H
 
-#include <Eigen/Geometry>
-
-#include <functional>
-#include "tudat/astro/low_thrust/lowThrustLeg.h"
-#include "pagmo/algorithm.hpp"
-
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-//! Class defining settings for optimisation.
-/*!
- *  Class defining settings for optimisation.
- */
-class OptimisationSettings
-{
-public:
-    //! Constructor
-    /*!
-     * Constructor
-     * \param lowThrustLegType Type of low-thrust leg that is to be used.
-     */
-    OptimisationSettings(
-            const pagmo::algorithm optimisationAlgorithm,
-            const int numberOfGenerations,
-            const int numberOfIndividualsPerPopulation,
-            const double relativeToleranceConstraints = 1.0e-6,
-            const std::pair< std::vector< double >, double > initialGuessThrustModel = std::make_pair( std::vector< double >( ), 0.0 ) ):
-        optimisationAlgorithm_( optimisationAlgorithm ), numberOfGenerations_( numberOfGenerations ),
-        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        relativeToleranceConstraints_( relativeToleranceConstraints ), initialGuessThrustModel_( initialGuessThrustModel )
-    { }
-
-    //! Destructor.
-    virtual ~OptimisationSettings( ) { }
-
-    //! Optimisation algorithm.
-    pagmo::algorithm optimisationAlgorithm_;
-
-    //! Number of generations.
-    int numberOfGenerations_;
-
-    //! Number of individuals per population.
-    int numberOfIndividualsPerPopulation_;
-
-    //! Relative tolerance for optimisation constraints.
-    double relativeToleranceConstraints_;
-
-    //! Initial guess for the optimisation.
-    std::pair< std::vector< double >, double > initialGuessThrustModel_;
-};
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
+#include "tudat/simulation/optimisation_setup/optimisationSettings.h"
 
 #endif  // TUDAT_OPTIMISATION_SETTINGS_H

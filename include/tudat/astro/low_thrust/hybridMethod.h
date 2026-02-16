@@ -20,7 +20,7 @@
 #include "tudat/astro/low_thrust/hybridMethodModel.h
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/optimisation.h"
+#include "tudat/simulation/optimisation_setup/optimisationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudatespace low_thrust_trajectories
