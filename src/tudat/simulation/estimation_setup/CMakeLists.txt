@@ -25,8 +25,12 @@ set(estimation_HEADERS
         createCartesianStatePartials.h
         createTorquePartials.h
         createStateDerivativePartials.h
+        compareEstimationAndCovarianceResultsTestCase.h
         estimatableParameterSettings.h
-        orbitDeterminationTestCases.h
+        orbitDeterminationTestCaseUtilities.h
+        executePlanetaryParameterEstimationTestCase.h
+        executeEarthOrbiterParameterEstimationTestCase.h
+        executeEarthOrbiterBiasEstimationTestCase.h
         createObservationPartials.h
         podProcessing.h
         determinePostFitParameterInfluence.h
@@ -53,6 +57,7 @@ set(estimation_SOURCES
         createTorquePartials.cpp
         variationalEquationsSolver.cpp
         createObservationManager.cpp
+        createObservationManagersBaseDoubleDoubleInstantiation.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
         createAtmosphericLightTimeCorrection.cpp

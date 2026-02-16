@@ -1524,7 +1524,7 @@ protected:
     bool considerParametersIncluded_;
 };
 
-// extern template class OrbitDeterminationManager< double, double >;
+extern template class OrbitDeterminationManager< double, double >;
 
 }  // namespace simulation_setup
 

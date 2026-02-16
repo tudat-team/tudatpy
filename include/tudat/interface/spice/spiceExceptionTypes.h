@@ -8,7 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/interface/spice/spiceExceptionTypes.h"
+#ifndef TUDAT_SPICE_EXCEPTION_TYPES_H
+#define TUDAT_SPICE_EXCEPTION_TYPES_H
+
+#include "tudat/interface/spice/spiceError.h"
 
 namespace tudat
 {
@@ -16,24 +19,19 @@ namespace tudat
 namespace exceptions
 {
 
-void throwSpiceException( const std::string& shortMessage,
-                          const std::string& explanation,
-                          const std::string& longMessage,
-                          const std::string& traceback )
-{
 #define TUDAT_SPICE_EXCEPTION( short_message, exception_type ) \
-    if( shortMessage == short_message )                         \
-    {                                                           \
-        throw exception_type( shortMessage, explanation, longMessage, traceback ); \
-    }
+    class exception_type : public SpiceError                      \
+    {                                                             \
+    public:                                                       \
+        using SpiceError::SpiceError;                            \
+    };
 
 #include "tudat/interface/spice/spiceExceptionList.def"
 
 #undef TUDAT_SPICE_EXCEPTION
 
-    throw SpiceError( shortMessage, explanation, longMessage, traceback );
-}
-
 }  // namespace exceptions
 
 }  // namespace tudat
+
+#endif  // TUDAT_SPICE_EXCEPTION_TYPES_H

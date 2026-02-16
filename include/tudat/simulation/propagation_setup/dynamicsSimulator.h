@@ -2612,7 +2612,7 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
 }
 
-// extern template class SingleArcDynamicsSimulator< double, double >;
+extern template class SingleArcDynamicsSimulator< double, double >;
 // extern template class MultiArcDynamicsSimulator< double, double >;
 // extern template class HybridArcDynamicsSimulator< double, double >;
 

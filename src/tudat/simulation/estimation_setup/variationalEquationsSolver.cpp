@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-// template class SingleArcVariationalEquationsSolver< double, double >;
+template class SingleArcVariationalEquationsSolver< double, double >;
 // template class MultiArcVariationalEquationsSolver< double, double >;
 // template class HybridArcVariationalEquationsSolver< double, double >;
 

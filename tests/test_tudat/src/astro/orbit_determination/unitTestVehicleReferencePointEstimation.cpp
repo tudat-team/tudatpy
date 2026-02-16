@@ -17,7 +17,7 @@
 
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 
 using namespace tudat;

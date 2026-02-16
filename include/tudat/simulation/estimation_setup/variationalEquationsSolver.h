@@ -2226,7 +2226,7 @@ protected:
     double singleArcInitialTime_;
 };
 
-// extern template class SingleArcVariationalEquationsSolver< double, double >;
+extern template class SingleArcVariationalEquationsSolver< double, double >;
 // extern template class MultiArcVariationalEquationsSolver< double, double >;
 // extern template class HybridArcVariationalEquationsSolver< double, double >;
 

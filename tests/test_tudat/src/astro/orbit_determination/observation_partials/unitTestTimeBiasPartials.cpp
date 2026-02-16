@@ -14,7 +14,8 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
 
 namespace tudat
 {
