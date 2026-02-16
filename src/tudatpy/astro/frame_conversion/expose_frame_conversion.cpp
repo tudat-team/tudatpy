@@ -15,7 +15,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
-#include <tudat/astro/reference_frames.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
