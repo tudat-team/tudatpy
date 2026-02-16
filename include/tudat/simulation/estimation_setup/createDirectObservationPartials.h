@@ -16,7 +16,6 @@
 #include <memory>
 #include <vector>
 
-#include "tudat/astro/observation_models.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/observableTypes.h"

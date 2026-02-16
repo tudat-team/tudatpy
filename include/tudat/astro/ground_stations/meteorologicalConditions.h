@@ -11,7 +11,10 @@
 #ifndef TUDAT_METEOROLOGICALCONDITIONS_H
 #define TUDAT_METEOROLOGICALCONDITIONS_H
 
+#include <functional>
+#include <map>
 #include <memory>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -20,6 +23,7 @@
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 
 namespace tudat
 {

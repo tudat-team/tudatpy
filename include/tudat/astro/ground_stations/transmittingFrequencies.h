@@ -15,7 +15,7 @@
 #define TUDAT_TRANSMITTINGFREQUENCIES_H
 
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
-#include "tudat/math/interpolators.h"
+#include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 
 namespace tudat

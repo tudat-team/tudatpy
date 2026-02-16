@@ -14,14 +14,13 @@
 #include <vector>
 #include <utility>
 #include <limits>
+#include <functional>
 
 #include <Eigen/Core>
 
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
-
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {

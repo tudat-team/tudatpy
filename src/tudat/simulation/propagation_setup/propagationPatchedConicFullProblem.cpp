@@ -21,7 +21,9 @@
 
 #include <tudat/io/basicInputOutput.h>
 #include <tudat/io/applicationOutput.h>
-#include <tudat/simulation/simulation.h>
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include "tudat/astro/trajectory_design/captureLeg.h"
 #include "tudat/astro/trajectory_design/departureLegMga.h"

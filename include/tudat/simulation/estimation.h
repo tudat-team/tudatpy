@@ -11,7 +11,6 @@
 #ifndef TUDAT_ESTIMATIONHEADER_H
 #define TUDAT_ESTIMATIONHEADER_H
 
-#include "tudat/simulation/simulation.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
