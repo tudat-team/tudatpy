@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "tudat/io/fieldType.h"
-#include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/interface/spice/spiceInterface.h"

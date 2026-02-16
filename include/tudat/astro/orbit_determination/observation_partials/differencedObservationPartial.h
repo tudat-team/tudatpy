@@ -16,7 +16,8 @@
 #include <Eigen/Core>
 
 #include "tudat/simulation/environment_setup.h"
-#include "tudat/astro/observation_models.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/basics/utilities.h"

@@ -16,7 +16,8 @@
 
 #include <numeric>
 
-#include "tudat/astro/observation_models.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
 #include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/environment_setup.h"
 #include "tudat/io/readTabulatedWeatherData.h"
