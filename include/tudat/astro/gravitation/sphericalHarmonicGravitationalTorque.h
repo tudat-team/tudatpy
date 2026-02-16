@@ -12,7 +12,6 @@
 #define TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 
 #include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Geometry>
 
