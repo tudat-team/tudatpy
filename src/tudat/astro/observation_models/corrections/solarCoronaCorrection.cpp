@@ -11,7 +11,7 @@
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/math/quadrature.h"
+#include "tudat/math/quadrature/gaussianQuadrature.h"
 
 namespace tudat
 {

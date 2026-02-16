@@ -15,7 +15,9 @@
 
 #include "tudat/io/readTabulatedWeatherData.h"
 
-#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 
 #include "tudat/io/readIonexFile.h"

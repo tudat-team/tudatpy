@@ -23,8 +23,9 @@
 #include <Eigen/Core>
 
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup.h"
 #include "tudat/simulation/estimation_setup.h"
 

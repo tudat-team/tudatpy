@@ -22,7 +22,9 @@
 
 #include "tudat/basics/utilityMacros.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup.h"
 
 using namespace tudat;
