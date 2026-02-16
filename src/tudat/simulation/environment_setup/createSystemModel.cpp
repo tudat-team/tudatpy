@@ -12,6 +12,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createThrustModelGuidance.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 
 namespace tudat

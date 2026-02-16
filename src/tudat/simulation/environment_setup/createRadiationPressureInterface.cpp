@@ -10,6 +10,7 @@
 
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 

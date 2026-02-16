@@ -49,6 +49,10 @@ target_link_libraries(kernel PRIVATE
     ${Tudat_ESTIMATION_LIBRARIES}
 )
 
+if (TUDAT_BUILD_WITH_PCH)
+    target_precompile_headers(kernel PRIVATE ${TUDAT_COMMON_PCH_HEADERS})
+endif ()
+
 # Include headers
 target_include_directories(kernel PUBLIC
     $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>

@@ -23,31 +23,17 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
-#include "tudat/astro/aerodynamics/atmosphereModel.h"
-#include "tudat/astro/aerodynamics/flightConditions.h"
-#include "tudat/astro/basic_astro/bodyShapeModel.h"
-#include "tudat/astro/basic_astro/ionosphereModel.h"
-#include "tudat/astro/electromagnetism/radiationPressureInterface.h"
-#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
-#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
-#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
-#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
-#include "tudat/astro/ground_stations/bodyDeformationModel.h"
-#include "tudat/astro/ground_stations/groundStation.h"
-#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/basics/tudatExceptions.h"
-#include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/simulation/environment_setup/baseStateInterface.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -100,295 +86,6 @@ class VehicleSystems;
 namespace simulation_setup
 {
 
-//! Base class used for the determination of the inertial state of a Body's ephemeris origin
-/*!
- *  Base class used for the determination of the inertial state of a Body's ephemeris origin. This base class is used
- *  to provide an untemplated interface class through which to call the base frame state. The state may be defined
- *  in a templated manner in the derived class.
- */
-class BaseStateInterface
-{
-public:
-    //! Constructor
-    /*!
-     * Constructor
-     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
-     */
-    BaseStateInterface( const std::string baseFrameId ): baseFrameId_( baseFrameId ) { }
-
-    //! Destructor
-    virtual ~BaseStateInterface( ) { }
-
-    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    template< typename OutputTimeType, typename OutputStateScalarType >
-    Eigen::Matrix< OutputStateScalarType, 6, 1 > getBaseFrameState( const OutputTimeType time );
-
-    std::string getBaseFrameId( )
-    {
-        return baseFrameId_;
-    }
-
-protected:
-    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (double time and double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time ) = 0;
-
-    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (double time and double long state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time ) = 0;
-
-    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time ) = 0;
-
-    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and long double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time ) = 0;
-
-    //! Name of frame origin for which inertial state is computed by this class
-    std::string baseFrameId_;
-};
-
-//! Class used for the determination of the inertial state of a Body's ephemeris origin
-template< typename TimeType, typename StateScalarType >
-class BaseStateInterfaceImplementation : public BaseStateInterface
-{
-public:
-    //! Constructor using a default zero state function.
-    /*!
-     * Constructor using a default zero state function.
-     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
-     */
-    BaseStateInterfaceImplementation( const std::string baseFrameId ):
-        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ),
-        stateMultiplier_( 1 )
-    { }
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
-     * \param stateFunction Function returning frame's inertial state as a function of time.
-     * \param subtractStateFunction Boolean denoting whether to subtract or add the state function (i.e. whether to multiply
-     * result of stateFunction by -1).
-     */
-    BaseStateInterfaceImplementation( const std::string baseFrameId,
-                                      const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
-                                      const bool subtractStateFunction = 0 ):
-        BaseStateInterface( baseFrameId ), stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 )
-    { }
-
-    //! Destructor
-    ~BaseStateInterfaceImplementation( ) { }
-
-protected:
-    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (double time and double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
-    {
-        return static_cast< double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< double >( );
-    }
-
-    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (double time and double long state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
-    {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
-    }
-
-    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time )
-    {
-        return static_cast< double >( stateMultiplier_ ) * stateFunction_( time ).template cast< double >( );
-    }
-
-    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-    /*!
-     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and long double state scalar).
-     *  \param time Time at which state is to be computed
-     *  \return Inertial state of frame origin at requested time
-     */
-    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
-    {
-        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
-    }
-
-private:
-    //! Default state function returning a zero vector for all inputs.
-    static Eigen::Matrix< StateScalarType, 6, 1 > getDefaultZeroState( const TimeType )
-    {
-        return Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
-    }
-
-    //! Function returning frame's inertial state as a function of time.
-    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
-
-    //! Value (1 or -1) by which to multiply the state returned by stateFunction_.
-    int stateMultiplier_;
-};
-
-class RigidBodyProperties
-{
-public:
-    RigidBodyProperties( );
-
-    virtual ~RigidBodyProperties( );
-
-    void update( const double currentTime );
-
-    virtual void updateMass( const double currentTime ) = 0;
-
-    virtual void updateMassDistribution( const double currentTime ) = 0;
-
-    virtual void resetCurrentTime( );
-
-    double getCurrentMass( );
-
-    Eigen::Vector3d getCurrentCenterOfMass( );
-
-    Eigen::Matrix3d getCurrentInertiaTensor( );
-
-    virtual void setCurrentMass( const double currentMass ) = 0;
-
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
-
-protected:
-    double currentMass_;
-
-    Eigen::Vector3d currentCenterOfMass_;
-
-    Eigen::Matrix3d currentInertiaTensor_;
-
-    bool isBodyInPropagation_;
-
-    bool isMassComputed_;
-
-    bool isComComputed_;
-
-    bool isInertiaTensorComputed_;
-};
-
-class TimeDependentRigidBodyProperties : public RigidBodyProperties
-{
-public:
-    TimeDependentRigidBodyProperties( const std::function< double( const double ) > massFunction,
-                                      const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr );
-
-    TimeDependentRigidBodyProperties( const double mass,
-                                      const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
-                                      const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) );
-
-    virtual ~TimeDependentRigidBodyProperties( );
-
-    virtual void resetCurrentTime( );
-
-    std::function< double( const double ) > getMassFunction( );
-
-    void setMassFunction( const std::function< double( const double ) > massFunction );
-
-    virtual void setCurrentMass( const double currentMass );
-
-    void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor );
-
-    virtual void updateMass( const double currentTime );
-
-    virtual void updateMassDistribution( const double currentTime );
-
-protected:
-    std::function< double( const double ) > massFunction_;
-
-    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
-
-    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
-};
-
-class MassDependentRigidBodyProperties : public RigidBodyProperties
-{
-public:
-    MassDependentRigidBodyProperties( const double currentMass,
-                                      const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
-                                      const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction );
-
-    virtual ~MassDependentRigidBodyProperties( );
-
-    virtual void updateMass( const double currentTime );
-
-    virtual void updateMassDistribution( const double currentTime );
-
-    virtual void setCurrentMass( const double currentMass );
-
-protected:
-    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
-
-    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
-};
-
-class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
-{
-public:
-    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
-
-    virtual ~FromGravityFieldRigidBodyProperties( );
-
-    virtual void resetCurrentTime( );
-
-    virtual void updateMass( const double currentTime );
-
-    virtual void updateMassDistribution( const double currentTime );
-
-    virtual void setCurrentMass( const double currentMass );
-
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
-
-protected:
-    const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
-
-    bool modelIsTimeDependent_;
-};
-
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
  *  Body class representing the properties of a celestial body (natural or artificial). By storing
@@ -413,37 +110,21 @@ public:
      * Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
      * \return Class returning the state of this body's ephemeris origin w.r.t. the global origin
      */
-    std::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( )
-    {
-        return ephemerisFrameToBaseFrame_;
-    }
+    std::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( );
 
     //! Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
     /*!
      * Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
      * \param ephemerisFrameToBaseFrame Class returning the state of this body's ephemeris origin w.r.t. the global origin
      */
-    void setEphemerisFrameToBaseFrame( const std::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame )
-    {
-        ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
-    }
+    void setEphemerisFrameToBaseFrame( const std::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame );
 
     //! Get current state.
     /*!
      * Returns the internally stored current state vector.
      * \return Current state.
      */
-    Eigen::Vector6d getState( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
-        }
-        else
-        {
-            return currentState_;
-        }
-    }
+    Eigen::Vector6d getState( );
 
     //! Set current state of body manually
     /*!
@@ -452,11 +133,7 @@ public:
      * long precision current state.
      * \param state Current state of the body that is set.
      */
-    void setState( const Eigen::Vector6d& state )
-    {
-        currentState_ = state;
-        isStateSet_ = true;
-    }
+    void setState( const Eigen::Vector6d& state );
 
     //! Set current state of body manually in long double precision.
     /*!
@@ -465,12 +142,7 @@ public:
      * (currentLongState_ directly and currentState_ by casting the input to double entries).
      * \param longState Current state of the body that is set, in long double precision.
      */
-    void setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
-    {
-        currentLongState_ = longState;
-        currentState_ = longState.cast< double >( );
-        isStateSet_ = true;
-    }
+    void setLongState( const Eigen::Matrix< long double, 6, 1 >& longState );
 
     //! Templated function to set the state manually.
     /*!
@@ -619,32 +291,14 @@ public:
      * Returns the internally stored current rotational state vector.
      * \return Current rotational state.
      */
-    Eigen::Vector7d getRotationalStateVector( )
-    {
-        Eigen::Vector7d rotationalStateVector;
-
-        rotationalStateVector.segment( 0, 4 ) =
-                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
-        rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
-        return rotationalStateVector;
-    }
+    Eigen::Vector7d getRotationalStateVector( );
 
     //! Get current position.
     /*!
      * Returns the internally stored current position vector.
      * \return Current position.
      */
-    Eigen::Vector3d getPosition( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
-        }
-        else
-        {
-            return currentState_.segment( 0, 3 );
-        }
-    }
+    Eigen::Vector3d getPosition( );
 
     void getPositionByReference( Eigen::Vector3d& position );
 
@@ -653,68 +307,28 @@ public:
      * Returns the internally stored current velocity vector.
      * \return Current velocity.
      */
-    Eigen::Vector3d getVelocity( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
-        }
-        else
-        {
-            return currentState_.segment( 3, 3 );
-        }
-    }
+    Eigen::Vector3d getVelocity( );
 
     //! Get current state, in long double precision
     /*!
      * Returns the internally stored current state vector, in long double precision
      * \return Current state, in long double precisio
      */
-    Eigen::Matrix< long double, 6, 1 > getLongState( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
-        }
-        else
-        {
-            return currentLongState_;
-        }
-    }
+    Eigen::Matrix< long double, 6, 1 > getLongState( );
 
     //! Get current position, in long double precision
     /*!
      * Returns the internally stored current position vector, in long double precision
      * \return Current position, in long double precision
      */
-    Eigen::Matrix< long double, 3, 1 > getLongPosition( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
-        }
-        else
-        {
-            return currentLongState_.segment( 0, 3 );
-        }
-    }
+    Eigen::Matrix< long double, 3, 1 > getLongPosition( );
 
     //! Get current velocity, in long double precision.
     /*!
      * Returns the internally stored current velocity vector.
      * \return Current velocity, in long double precision
      */
-    Eigen::Matrix< long double, 3, 1 > getLongVelocity( )
-    {
-        if( !isStateSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
-        }
-        else
-        {
-            return currentLongState_.segment( 3, 3 );
-        }
-    }
+    Eigen::Matrix< long double, 3, 1 > getLongVelocity( );
 
     //! Templated function to retrieve the state.
     /*!
@@ -783,29 +397,9 @@ public:
      *  an identity quaternion (no rotation) is returned.
      *  \return Current rotation from body-fixed to inertial frame.
      */
-    Eigen::Quaterniond getCurrentRotationToGlobalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
-        }
-        else
-        {
-            return currentRotationToGlobalFrame_;
-        }
-    }
+    Eigen::Quaterniond getCurrentRotationToGlobalFrame( );
 
-    Eigen::Quaterniond& getCurrentRotationToGlobalFrameReference( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
-        }
-        else
-        {
-            return currentRotationToGlobalFrame_;
-        }
-    }
+    Eigen::Quaterniond& getCurrentRotationToGlobalFrameReference( );
 
     //! Get current rotation from inertial to body-fixed frame.
     /*!
@@ -815,42 +409,11 @@ public:
      *  an identity quaternion (no rotation) is returned.
      *  \return Current rotation from inertial to body-fixed frame.
      */
-    Eigen::Quaterniond getCurrentRotationToLocalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
-        }
-        else
-        {
-            return currentRotationToLocalFrame_;
-        }
-    }
+    Eigen::Quaterniond getCurrentRotationToLocalFrame( );
 
-    Eigen::Matrix3d getCurrentRotationMatrixToGlobalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
+    Eigen::Matrix3d getCurrentRotationMatrixToGlobalFrame( );
 
-        }
-        else
-        {
-            return Eigen::Matrix3d( currentRotationToLocalFrame_.inverse( ) );
-        }
-    }
-
-    Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
-        }
-        else
-        {
-            return Eigen::Matrix3d( currentRotationToLocalFrame_ );
-        }
-    }
+    Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame( );
 
     //! Get current rotational state.
     /*!
@@ -858,19 +421,7 @@ public:
      *  (in vector form) and the body's angular velocity vector in inertial frame.
      *  \return Current rotational state in quaternions and rotational velocity.
      */
-    Eigen::Vector7d getCurrentRotationalState( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
-        }
-        else
-        {
-            return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
-                     getCurrentAngularVelocityVectorInGlobalFrame( ) )
-                    .finished( );
-        }
-    }
+    Eigen::Vector7d getCurrentRotationalState( );
 
     //! Get current rotation matrix derivative from body-fixed to global frame.
     /*!
@@ -880,22 +431,7 @@ public:
      *  ephemeris, an zero matrix (no rotation) is returned.
      *  \return Current otation matrix derivative from global to body-fixed frame.
      */
-    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative body-fixed to global frame)" );
-        }
-        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
-        {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ +
-                                      ", matrix is undefined" );
-        }
-        else
-        {
-            return currentRotationToLocalFrameDerivative_.transpose( );
-        }
-    }
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( );
 
     //! Get current rotation matrix derivative from global to body-fixed frame.
     /*!
@@ -905,39 +441,14 @@ public:
      *  ephemeris, an zero matrix (no rotation) is returned.
      *  \return Current otation matrix derivative from global to body-fixed frame.
      */
-    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative global to body-fixed  frame)" );
-        }
-        else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
-        {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ +
-                                      ", matrix is undefined" );
-        }
-        else
-        {
-            return currentRotationToLocalFrameDerivative_;
-        }
-    }
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame( );
 
     //! Get current angular velocity vector for body's rotation, expressed in the global frame.
     /*!
      *  Get current angular velocity vector for body's rotation, expressed in the global frame.
      *  \return Current angular velocity vector for body's rotation, expressed in the global frame.
      */
-    Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in global frame)" );
-        }
-        else
-        {
-            return currentAngularVelocityVectorInGlobalFrame_;
-        }
-    }
+    Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( );
 
     //! Get current angular velocity vector for body's rotation, expressed in the local frame.
     /*!
@@ -946,17 +457,7 @@ public:
      *  current quaternion to local frame.
      *  \return Current angular velocity vector for body's rotation, expressed in the local frame.
      */
-    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
-    {
-        if( !isRotationSet_ )
-        {
-            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in body-fixed frame)" );
-        }
-        else
-        {
-            return currentAngularVelocityVectorInLocalFrame_;
-        }
-    }
+    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( );
 
     //! Function to set the ephemeris of the body.
     /*!
@@ -964,10 +465,7 @@ public:
      *  state history of the body.
      *  \param bodyEphemeris New ephemeris of the body.
      */
-    void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
-    {
-        bodyEphemeris_ = bodyEphemeris;
-    }
+    void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris );
 
     //! Function to set the gravity field of the body.
     /*!
@@ -982,34 +480,21 @@ public:
      *  Function to set the atmosphere model of the body.
      *  \param atmosphereModel Atmosphere model of the body.
      */
-    void setAtmosphereModel( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
-    {
-        atmosphereModel_ = atmosphereModel;
-    }
+    void setAtmosphereModel( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel );
 
     //! Function to set the rotation model of the body.
     /*!
      *  Function to set the rotation model of the body.
      *  \param rotationalEphemeris Rotation model of the body.
      */
-    void setRotationalEphemeris( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris )
-    {
-        //        if (dependentOrientationCalculator_ != nullptr) {
-        //            std::cerr << "Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting
-        //            closure" << std::endl;
-        //        }
-        rotationalEphemeris_ = rotationalEphemeris;
-    }
+    void setRotationalEphemeris( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris );
 
     //! Function to set the shape model of the body.
     /*!
      *  Function to set the shape model of the body.
      *  \param shapeModel Shape model of the body.
      */
-    void setShapeModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
-    {
-        shapeModel_ = shapeModel;
-    }
+    void setShapeModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel );
 
     //! Function to set the aerodynamic coefficient interface of the body.
     /*!
@@ -1027,20 +512,11 @@ public:
      */
     void setFlightConditions( const std::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions );
 
-    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > getBodyDeformationModels( )
-    {
-        return bodyDeformationModels_;
-    }
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > getBodyDeformationModels( );
 
-    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( )
-    {
-        return bodyDeformationModels_;
-    }
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& getBodyDeformationModelsReference( );
 
-    void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel )
-    {
-        bodyDeformationModels_.push_back( deformationModel );
-    }
+    void addBodyDeformationModel( const std::shared_ptr< basic_astrodynamics::BodyDeformationModel > deformationModel );
     //! Function to set the radiation pressure interface of the body, for a single radiation source.
     /*!
      *  Function to set the radiation pressure interface of the body, for a single radiation source
@@ -1048,21 +524,14 @@ public:
      *  \param radiationPressureInterface Radiation pressure interface of the body.
      */
     void setRadiationPressureInterface( const std::string& radiatingBody,
-                                        const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface )
-    {
-        // RP-OLD
-        radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
-    }
+                                        const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface );
 
     //! Function to set the radiation source model of the body.
     /*!
      *  Function to set the radiation source model of the body.
      *  \param radiationSourceModel Radiation source model of the body.
      */
-    void setRadiationSourceModel( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel )
-    {
-        radiationSourceModel_ = radiationSourceModel;
-    }
+    void setRadiationSourceModel( const std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel );
 
     //! Function to set the radiation pressure target model of the body.
     /*!
@@ -1070,36 +539,24 @@ public:
      *  \param radiationPressureTargetModel Radiation pressure target model of the body.
      */
     void setRadiationPressureTargetModels(
-            const std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > radiationPressureTargetModel )
-    {
-        radiationPressureTargetModels_ = radiationPressureTargetModel;
-    }
+            const std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > radiationPressureTargetModel );
 
     void addRadiationPressureTargetModel(
-            const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > radiationPressureTargetModel )
-    {
-        radiationPressureTargetModels_.push_back( radiationPressureTargetModel );
-    }
+            const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > radiationPressureTargetModel );
 
     //! Function to set object containing all variations in the gravity field of this body.
     /*!
      * Function to set object containing all variations in the gravity field of this body.
      * \param gravityFieldVariationSet Object containing all variations in the gravity field of this body.
      */
-    void setGravityFieldVariationSet( const std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet )
-    {
-        gravityFieldVariationSet_ = gravityFieldVariationSet;
-    }
+    void setGravityFieldVariationSet( const std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet );
 
     //! Function to get the gravity field model of the body.
     /*!
      *  Function to get the gravity field model of the body.
      *  \return Gravity field model of the body.
      */
-    std::shared_ptr< gravitation::GravityFieldModel > getGravityFieldModel( )
-    {
-        return gravityFieldModel_;
-    }
+    std::shared_ptr< gravitation::GravityFieldModel > getGravityFieldModel( );
 
     double getGravitationalParameter( );
 
@@ -1108,30 +565,21 @@ public:
      *  Function to get the ephemeris of the body.
      *  \return Ephemeris of the body.
      */
-    std::shared_ptr< ephemerides::Ephemeris > getEphemeris( )
-    {
-        return bodyEphemeris_;
-    }
+    std::shared_ptr< ephemerides::Ephemeris > getEphemeris( );
 
     //! Function to get the atmosphere model of the body.
     /*!
      *  Function to get the atmosphere model of the body.
      *  \return Atmosphere model of the body.
      */
-    std::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( )
-    {
-        return atmosphereModel_;
-    }
+    std::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( );
 
     //! Function to get the rotation model of the body.
     /*!
      *  Function to get the rotation model of the body.
      *  \return Rotation model of the body.
      */
-    std::shared_ptr< ephemerides::RotationalEphemeris > getRotationalEphemeris( )
-    {
-        return rotationalEphemeris_;
-    }
+    std::shared_ptr< ephemerides::RotationalEphemeris > getRotationalEphemeris( );
 
     //    //! Function to retrieve the model to compute the rotation of the body based on the current state of the environment.
     //    /*!
@@ -1148,20 +596,14 @@ public:
      * Function to retrieve the shape model of body.
      * \return Shape model of body.
      */
-    std::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
-    {
-        return shapeModel_;
-    }
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( );
 
     //! Function to retrieve the aerodynamic coefficient model of body.
     /*!
      * Function to retrieve the body aerodynamic coefficient model of body.
      * \return Aerodynamic coefficient model of body.
      */
-    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
-    {
-        return aerodynamicCoefficientInterface_;
-    }
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( );
 
     //! Function to retrieve the body flight conditions
     /*!
@@ -1169,58 +611,30 @@ public:
      * altitude, etc.
      * \return Body flight conditions
      */
-    std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( )
-    {
-        return aerodynamicFlightConditions_;
-    }
+    std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( );
 
     //! Function to retrieve the shape model of the body.
     /*!
      *  Function to retrieve the shape model of the body.
      *  \return Shape model of the body.
      */
-    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > getRadiationPressureInterfaces( )
-    {
-        // RP-OLD
-        return radiationPressureInterfaces_;
-    }
+    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > > getRadiationPressureInterfaces( );
 
     //! Function to retrieve the radiation source model of the body.
     /*!
      *  Function to retrieve the radiation source model of the body.
      *  \return Radiation source model of the body.
      */
-    const std::shared_ptr< electromagnetism::RadiationSourceModel > getRadiationSourceModel( ) const
-    {
-        return radiationSourceModel_;
-    }
+    const std::shared_ptr< electromagnetism::RadiationSourceModel > getRadiationSourceModel( ) const;
 
     //! Function to retrieve the radiation pressure target model of the body.
     /*!
      *  Function to retrieve the radiation pressure target model of the body.
      *  \return Radiation pressure target model of the body.
      */
-    const std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > getRadiationPressureTargetModels( ) const
-    {
-        return radiationPressureTargetModels_;
-    }
+    const std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > getRadiationPressureTargetModels( ) const;
 
-    const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > getRadiationPressureTargetModel( ) const
-    {
-        if( radiationPressureTargetModels_.size( ) == 1 )
-        {
-            return radiationPressureTargetModels_.at( 0 );
-        }
-        else if( radiationPressureTargetModels_.size( ) == 0 )
-        {
-            return nullptr;
-        }
-        else
-        {
-            throw std::runtime_error( "Error, could not unambiguously retrieve radiation pressure target model, found " +
-                                      std::to_string( radiationPressureTargetModels_.size( ) ) + " models." );
-        }
-    }
+    const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > getRadiationPressureTargetModel( ) const;
     //! Function to retrieve a single object describing variation in the gravity field of this body.
     /*!
      *  Function to retrieve a single object describing variation in the gravity field of this body.
@@ -1231,20 +645,14 @@ public:
      */
     std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > getGravityFieldVariation(
             const gravitation::BodyDeformationTypes& deformationType,
-            const std::string identifier = "" )
-    {
-        return gravityFieldVariationSet_->getGravityFieldVariation( deformationType, identifier );
-    }
+            const std::string identifier = "" );
 
     //! Function to retrieve object containing all variations in the gravity field of this body.
     /*!
      * Function to retrieve object containing all variations in the gravity field of this body.
      * \return Object containing all variations in the gravity field of this body.
      */
-    std::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( )
-    {
-        return gravityFieldVariationSet_;
-    }
+    std::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( );
 
     //! Function to retrieve container object with hardware systems present on/in body
     /*!
@@ -1258,15 +666,9 @@ public:
      * Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
      * \param vehicleSystems Container object with hardware systems present on/in body.
      */
-    void setVehicleSystems( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems )
-    {
-        vehicleSystems_ = vehicleSystems;
-    }
+    void setVehicleSystems( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems );
 
-    std::shared_ptr< RigidBodyProperties > getMassProperties( )
-    {
-        return massProperties_;
-    }
+    std::shared_ptr< RigidBodyProperties > getMassProperties( );
 
     void setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties );
 
@@ -1309,10 +711,7 @@ public:
      */
     double getBodyMass( );
 
-    Eigen::Vector3d getBodyFixedCenterOfMass( )
-    {
-        return massProperties_->getCurrentCenterOfMass( );
-    }
+    Eigen::Vector3d getBodyFixedCenterOfMass( );
 
     //! Function to retrieve the body moment-of-inertia tensor.
     /*!
@@ -1334,10 +733,7 @@ public:
      * \param stationName Name of ground station
      * \param station Ground station object that is to be set
      */
-    void addGroundStation( const std::string& stationName, const std::shared_ptr< ground_stations::GroundStation >& station )
-    {
-        groundStationMap[ stationName ] = station;
-    }
+    void addGroundStation( const std::string& stationName, const std::shared_ptr< ground_stations::GroundStation >& station );
 
     //! Function to retrieve a ground station
     /*!
@@ -1345,25 +741,14 @@ public:
      * \param stationName Name of ground station
      * \return Ground station object that is retrieved
      */
-    std::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const
-    {
-        if( groundStationMap.count( stationName ) == 0 )
-        {
-            throw std::runtime_error( "Error, station " + stationName + " does not exist" );
-        }
-
-        return groundStationMap.at( stationName );
-    }
+    std::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const;
 
     //! Function to retrieve full list of ground stations
     /*!
      * Function to retrieve full list of ground stations
      * \return Full list of ground stations
      */
-    std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const
-    {
-        return groundStationMap;
-    }
+    std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const;
 
     //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
     /*!
@@ -1378,35 +763,23 @@ public:
      * Function to reset the time to which the state was last updated using setStateFromEphemeris function to nan, thereby
      * singalling that it needs to be recomputed upon next call.
      */
-    void recomputeStateOnNextCall( )
-    {
-        timeOfCurrentState_ = Time( TUDAT_NAN );
-    }
+    void recomputeStateOnNextCall( );
 
-    double getDoubleTimeOfCurrentState( )
-    {
-        return static_cast< double >( timeOfCurrentState_ );
-    }
+    double getDoubleTimeOfCurrentState( );
 
     //! Function to retrieve variable denoting whether this body is the global frame origin
     /*!
      * Function to retrieve variable denoting whether this body is the global frame origin
      * \return Variable denoting whether this body is the global frame origin
      */
-    int getIsBodyGlobalFrameOrigin( )
-    {
-        return bodyIsGlobalFrameOrigin_;
-    }
+    int getIsBodyGlobalFrameOrigin( );
 
     //! Function to set variable denoting whether this body is the global frame origin
     /*!
      * Function to set variable denoting whether this body is the global frame origin
      * \param bodyIsGlobalFrameOrigin Variable denoting whether this body is the global frame origin
      */
-    void setIsBodyGlobalFrameOrigin( const int bodyIsGlobalFrameOrigin )
-    {
-        bodyIsGlobalFrameOrigin_ = bodyIsGlobalFrameOrigin;
-    }
+    void setIsBodyGlobalFrameOrigin( const int bodyIsGlobalFrameOrigin );
 
     //! Function to define whether the body is currently being propagated, or not
     /*!
@@ -1419,25 +792,13 @@ public:
     //        suppressDependentOrientationCalculatorWarning_ = suppressDependentOrientationCalculatorWarning;
     //    }
 
-    std::string getBodyName( )
-    {
-        return bodyName_;
-    }
+    std::string getBodyName( );
 
-    void setBodyName( const std::string bodyName )
-    {
-        bodyName_ = bodyName;
-    }
+    void setBodyName( const std::string bodyName );
 
-    void setIonosphereModel( const std::shared_ptr< environment::IonosphereModel >& ionosphereModel )
-    {
-        ionosphereModel_ = ionosphereModel;
-    }
+    void setIonosphereModel( const std::shared_ptr< environment::IonosphereModel >& ionosphereModel );
 
-    std::shared_ptr< environment::IonosphereModel > getIonosphereModel( ) const
-    {
-        return ionosphereModel_;
-    }
+    std::shared_ptr< environment::IonosphereModel > getIonosphereModel( ) const;
 
 protected:
 private:

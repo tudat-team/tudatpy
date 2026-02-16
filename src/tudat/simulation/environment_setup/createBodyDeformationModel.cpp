@@ -2,6 +2,8 @@
 #include "tudat/astro/ground_stations/poleTideDeformation.h"
 #include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
+#include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/body.h"

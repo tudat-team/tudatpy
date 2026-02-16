@@ -12,8 +12,10 @@
 
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
