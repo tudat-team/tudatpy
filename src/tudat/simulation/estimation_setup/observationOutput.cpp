@@ -532,6 +532,32 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
             };
             break;
         }
+        case link_end_epochs_dependent_variable: {
+            if( observableType != n_way_range && observableType != dsn_n_way_range )
+            {
+                throw std::runtime_error( "Error in observation dependent variables, requested link-end epochs for observable " +
+                                          observation_models::getObservableName( observableType, linkEnds.size( ) ) +
+                                          ". This setting is currently only available for n-way range observables." );
+            }
+
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
+                                    const Eigen::VectorXd &observationValue,
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
+                const int expectedNumberOfLinkEndTimes = 2 * ( static_cast< int >( linkEnds.size( ) ) - 1 );
+                if( static_cast< int >( linkEndTimes.size( ) ) != expectedNumberOfLinkEndTimes )
+                {
+                    throw std::runtime_error( "Error in observation dependent variables, link-end epochs size for observable " +
+                                              observation_models::getObservableName( observableType, linkEnds.size( ) ) +
+                                              " is of inconsistent size. Should be " +
+                                              std::to_string( expectedNumberOfLinkEndTimes ) + " but is " +
+                                              std::to_string( linkEndTimes.size( ) ) + "." );
+                }
+                return utilities::convertStlVectorToEigenVector( linkEndTimes );
+            };
+            break;
+        }
         default:
             throw std::runtime_error( "Error when parsing vector observation dependent variable, did not recognize variable" +
                                       getObservationDependentVariableId( variableSettings ) );

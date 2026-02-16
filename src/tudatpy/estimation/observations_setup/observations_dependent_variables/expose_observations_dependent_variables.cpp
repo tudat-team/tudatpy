@@ -470,6 +470,27 @@ void expose_observations_dependent_variables( py::module& m )
         tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
             The dependent variable settings object.
         )doc" );
+
+    m.def( "link_end_epochs_dependent_variable",
+           &tss::linkEndEpochsDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           R"doc(
+        Function to create a dependent variable for the link-end epochs of an n-way range observable.
+
+        The returned vector contains the internally computed link-end epochs for each leg in chronological solution order.
+        This setting is currently available for :class:`~tudatpy.estimation.observable_models.n_way_range`
+        and :class:`~tudatpy.estimation.observable_models.dsn_n_way_range`.
+
+        Parameters
+        ----------
+        observable_type : tudatpy.astro.ObservableType, optional
+            Observable type for which to retrieve the link-end epochs.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
 }
 
 }  // namespace observations_dependent_variables

@@ -25,6 +25,7 @@
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
 #define TUDAT_TABULATEDMEDIACORRECTION_H
 
+#include <array>
 #include <cmath>
 #include <vector>
 
@@ -754,10 +755,9 @@ public:
     VMF3TroposphericCorrection( const std::shared_ptr< TroposhericElevationMapping > elevationMapping,
                                 const bool isUplinkCorrection,
                                 const std::shared_ptr< ground_stations::StationTroposphereData > troposphereData,
-                                const bool useGradient ):
-        MappedTroposphericCorrection( vmf3_tropospheric, elevationMapping, isUplinkCorrection ), troposphereData_( troposphereData ),
-        useGradient_( useGradient )
-    {}
+                                const bool useGradient,
+                                const LightTimeCorrectionType correctionType = vmf3_tropospheric,
+                                const double observationWavelengthNm = 532.0 );
 
     // Computes the dry atmosphere zenith range correction (in meters)
     double computeDryZenithRangeCorrection( const double stationTime )
@@ -778,11 +778,27 @@ public:
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
 private:
+    void loadWavelengthCorrectionParameters( );
+
+    double getWavelengthCorrectionFactor( const int parameterIndex ) const;
+
     // VMF3 data container (interpolated coefficients)
     std::shared_ptr< ground_stations::StationTroposphereData > troposphereData_;
 
     //! Whether gradient data should be used
     bool useGradient_;
+
+    //! Type of VMF correction (vmf3/vmf3o)
+    LightTimeCorrectionType correctionType_;
+
+    //! Observation wavelength in nm (used by VMF3o)
+    double observationWavelengthNm_;
+
+    //! Flag indicating whether wavelength correction coefficients are loaded
+    bool hasWavelengthCorrectionParameters_;
+
+    //! Wavelength correction parameters (A,B,C) for a_h and a_w
+    std::array< Eigen::Vector3d, 2 > wavelengthCorrectionParameters_;
 };
 
 class VMF3MappingModel : public TroposhericElevationMapping
@@ -791,12 +807,13 @@ public:
     VMF3MappingModel( std::function< double( Eigen::Vector3d, double ) > elevationFunction,
                       std::function< double( Eigen::Vector3d, double ) > azimuthFunction,
                       std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction,
-                      bool isUplinkCorrection ):
+                      bool isUplinkCorrection,
+                      const LightTimeCorrectionType correctionType = vmf3_tropospheric ):
         elevationFunction_( std::move( elevationFunction ) ), azimuthFunction_( std::move( azimuthFunction ) ),
         groundStationGeodeticPositionFunction_( std::move( groundStationGeodeticPositionFunction ) ),
         isUplinkCorrection_( isUplinkCorrection ), currentElevation_( TUDAT_NAN ), currentAzimuth_( TUDAT_NAN ),
         currentStationLatitude_( TUDAT_NAN ), currentStationLongitude_( TUDAT_NAN ), currentDayOfYear_( TUDAT_NAN ),
-        currentDryMappingCoefficient_( TUDAT_NAN ), currentWetMappingCoefficient_( TUDAT_NAN )
+        currentDryMappingCoefficient_( TUDAT_NAN ), currentWetMappingCoefficient_( TUDAT_NAN ), correctionType_( correctionType )
     {
         legendreCache_ = basic_mathematics::LegendreCache( 12, 1 );
         loadLegendreCoefficientTables( );
@@ -841,6 +858,7 @@ private:
     double currentElevation_, currentAzimuth_, currentStationLatitude_, currentStationLongitude_;
     double currentDayOfYear_;
     double currentDryMappingCoefficient_, currentWetMappingCoefficient_;
+    LightTimeCorrectionType correctionType_;
     mutable tudat::basic_mathematics::LegendreCache legendreCache_;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
 
@@ -859,11 +877,8 @@ private:
     Vmf3SphericalHarmonicComponentSet loadCoefficientSet( const std::string& filePath );
     void loadLegendreCoefficientTables( );
 
-    double evaluateSeasonalCoefficient( const Eigen::VectorXd& A0,
-                                        const Eigen::VectorXd& A1,
-                                        const Eigen::VectorXd& B1,
-                                        const Eigen::VectorXd& A2,
-                                        const Eigen::VectorXd& B2,
+    double evaluateSeasonalCoefficient( const Vmf3SphericalHarmonicComponentSet& anmSet,
+                                        const Vmf3SphericalHarmonicComponentSet& bnmSet,
                                         const std::vector< std::vector< double > >& V,
                                         const std::vector< std::vector< double > >& W,
                                         const double dayOfYear ) const;

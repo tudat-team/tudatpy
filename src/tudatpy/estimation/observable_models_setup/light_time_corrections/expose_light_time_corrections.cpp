@@ -381,6 +381,18 @@ Examples
            py::arg( "tropospheric_mapping_model" ) = tom::TroposphericMappingModel::vmf3,
            R"doc(Create VMF3 tropospheric light time correction settings.)doc" );
 
+    m.def( "vmf3o_tropospheric_light_time_correction",
+           &tom::vmf3oTroposphericCorrectionSettings,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           py::arg( "use_gradient_correction" ) = true,
+           py::arg( "tropospheric_mapping_model" ) = tom::TroposphericMappingModel::vmf3,
+           py::arg( "observation_wavelength_nm" ) = 532.0,
+           R"doc(
+Create VMF3o (optical) tropospheric light time correction settings.
+
+This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-dependent scaling.
+           )doc" );
+
     m.def( "inverse_power_series_solar_corona_light_time_correction",
            &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
            py::arg( "coefficients" ) = std::vector< double >{ 1.3e14, 0.5e12 },
@@ -419,7 +431,14 @@ Examples
            py::arg( "bodies" ),
            py::arg( "set_troposphere_data" ) = true,
            py::arg( "set_meteo_data" ) = true,
-           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ) );
+           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ),
+           py::arg( "retrieve_mapping_internally" ) = false,
+           R"doc(
+Set VMF/VMF3/VMF3o troposphere (and optional meteo) data in Earth ground stations.
+
+If ``retrieve_mapping_internally`` is ``True``, station-name matching first attempts direct key matching and then
+internally maps ILRS station code <-> DOMES identifiers using the default ILRS SINEX ``SITE/ID`` registry.
+           )doc" );
 
     m.def( "set_ionosphere_model_from_ionex",
            &tom::setIonosphereModelFromIonex,

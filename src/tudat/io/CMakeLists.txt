@@ -32,6 +32,8 @@ set(io_SOURCES
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "readCrdFile.cpp"
+        "readSinexFile.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
@@ -75,6 +77,8 @@ set(io_HEADERS
         "tabulatedAtmosphereReader.h"
         "util.h"
         "readOdfFile.h"
+        "readCrdFile.h"
+        "readSinexFile.h"
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
         "readTabulatedWeatherData.h"
@@ -89,4 +93,3 @@ TUDAT_ADD_LIBRARY("input_output"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-

@@ -318,6 +318,64 @@ void expose_ground_station_setup( py::module& m )
 
      )doc" );
 
+    m.def( "default_ilrs_sinex_state_file",
+           &tss::getDefaultIlrsSinexStateFilePath,
+           R"doc(
+
+ Return the default SINEX station-state file path for ILRS station loading.
+
+ Returns
+ -------
+ str
+     Path to the default ILRS SINEX state file in Tudat resources.
+
+     )doc" );
+
+    m.def( "default_ilrs_sinex_eccentricity_file",
+           &tss::getDefaultIlrsSinexEccentricityFilePath,
+           R"doc(
+
+ Return the default SINEX station-eccentricity file path for ILRS station loading.
+
+ Returns
+ -------
+ str
+     Path to the default ILRS SINEX eccentricity file in Tudat resources.
+
+     )doc" );
+
+    m.def( "ilrs_stations_from_sinex_domes",
+           &tss::getIlrsStationSettingsFromSinexDomes,
+           py::arg( "domes_ids" ),
+           py::arg( "sinex_state_file" ),
+           py::arg( "sinex_eccentricity_file" ),
+           py::arg( "evaluation_epoch" ) = TUDAT_NAN,
+           py::arg( "throw_exception_on_missing_data" ) = false,
+           R"doc(
+
+ Function for creating ILRS station settings from SINEX state/eccentricity files using IERS DOMES identifiers.
+
+ Parameters
+ ----------
+ domes_ids : List[str]
+     List of IERS DOMES identifiers to load (for example, ``["14201S018"]`` for Wettzell).
+ sinex_state_file : str
+     Path to SINEX station-state file (position/velocity).
+ sinex_eccentricity_file : str
+     Path to SINEX eccentricity file. Set to an empty string to disable eccentricity offsets.
+ evaluation_epoch : float, default = nan
+     Retained for API compatibility. Eccentricities are applied as piecewise-constant offsets over time
+     from the full SINEX arc history.
+ throw_exception_on_missing_data : bool, default = False
+     Whether to throw when requested stations cannot be mapped or found.
+
+ Returns
+ -------
+ list[ GroundStationSettings ]
+     Ground station settings for the selected ILRS DOMES stations.
+
+     )doc" );
+
     m.def( "linear_station_motion",
            &tss::linearGroundStationMotionSettings,
            py::arg( "linear_velocity" ),
