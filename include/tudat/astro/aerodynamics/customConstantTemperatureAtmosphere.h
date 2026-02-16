@@ -20,8 +20,6 @@
 #ifndef TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 #define TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 
-#include <boost/function.hpp>
-
 #include <cmath>
 
 #include "tudat/basics/utilityMacros.h"
@@ -141,7 +139,7 @@ public:
                                          const double ratioOfSpecificHeats = 1.4 ):
         densityFunction_( densityFunction ), constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {}
 
     //! Constructor.
     /*!
