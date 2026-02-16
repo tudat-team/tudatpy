@@ -17,9 +17,33 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/astro/aerodynamics.h>
-#include <tudat/astro/ephemerides.h>
-#include <tudat/astro/gravitation.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/atmosphereModel.h>
+#include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/flightConditions.h>
+#include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/basic_astro/ionosphereModel.h>
+#include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
+#include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
+#include <tudat/astro/electromagnetism/radiationSourceModel.h>
+#include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/constantEphemeris.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/itrsToGcrsRotationModel.h>
+#include <tudat/astro/ephemerides/keplerEphemeris.h>
+#include <tudat/astro/ephemerides/multiArcEphemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/ephemerides/synchronousRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/tabulatedEphemeris.h>
+#include <tudat/astro/ephemerides/tleEphemeris.h>
+#include <tudat/astro/gravitation/gravityFieldModel.h>
+#include <tudat/astro/gravitation/gravityFieldVariations.h>
+#include <tudat/astro/gravitation/polyhedronGravityField.h>
+#include <tudat/astro/gravitation/sphericalHarmonicsGravityField.h>
+#include <tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h>
+#include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
 
 #include "scalarTypes.h"

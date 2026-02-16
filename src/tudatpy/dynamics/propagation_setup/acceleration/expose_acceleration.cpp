@@ -18,7 +18,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/simulation/environment_setup/thrustSettings.h>
+#include <tudat/simulation/propagation_setup/accelerationSettings.h>
+#include <tudat/simulation/propagation_setup/createAccelerationModels.h>
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;

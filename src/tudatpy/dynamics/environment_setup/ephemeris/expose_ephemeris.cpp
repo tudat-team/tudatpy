@@ -12,7 +12,7 @@
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
 
 #include "scalarTypes.h"
 

@@ -17,7 +17,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/astro/basic_astro.h>
 
 #include "expose_spice.h"
 

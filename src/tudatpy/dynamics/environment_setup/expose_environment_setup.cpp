@@ -16,7 +16,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/body.h>
+#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
+#include <tudat/simulation/environment_setup/createBodies.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
+#include <tudat/simulation/environment_setup/createFlightConditions.h>
+#include <tudat/simulation/environment_setup/createGroundStations.h>
+#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
+#include <tudat/simulation/environment_setup/createSystemModel.h>
+#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"
 #include "atmosphere/expose_atmosphere.h"

@@ -11,8 +11,23 @@
 #include "expose_propagation.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
-#include <tudat/astro/basic_astro.h>
-#include <tudat/astro/propagators.h>
+#include <tudat/astro/basic_astro/accelerationModel.h>
+#include <tudat/astro/basic_astro/massRateModel.h>
+#include <tudat/astro/basic_astro/torqueModel.h>
+#include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
+#include <tudat/astro/propagators/singleStateTypeDerivative.h>
+#include <tudat/astro/propulsion/thrustMagnitudeWrapper.h>
+#include <tudat/simulation/environment_setup/body.h>
+#include <tudat/simulation/propagation_setup/accelerationSettings.h>
+#include <tudat/simulation/propagation_setup/createMassRateModels.h>
+#include <tudat/simulation/propagation_setup/createTorqueModel.h>
+#include <tudat/simulation/propagation_setup/dynamicsSimulator.h>
+#include <tudat/simulation/propagation_setup/propagationOutput.h>
+#include <tudat/simulation/propagation_setup/propagationOutputSettings.h>
+#include <tudat/simulation/propagation_setup/propagationSettings.h>
+#include <tudat/simulation/propagation_setup/propagationTermination.h>
+#include <tudat/simulation/propagation_setup/propagationTerminationSettings.h>
+#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
 
 #include "scalarTypes.h"
 

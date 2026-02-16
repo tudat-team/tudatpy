@@ -12,7 +12,7 @@
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/basic_astro.h>
+#include <tudat/astro/basic_astro/missionGeometry.h>
 
 namespace py = pybind11;
 namespace tmg = tudat::mission_geometry;

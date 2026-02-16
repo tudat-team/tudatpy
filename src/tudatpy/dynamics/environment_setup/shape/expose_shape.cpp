@@ -11,7 +11,7 @@
 #include "expose_shape.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createBodyShapeModel.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

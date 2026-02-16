@@ -13,8 +13,9 @@
 #include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/aerodynamics/nrlmsise00InputFunctions.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/aerodynamics/mcdAtmosphereModel.h>
+#include <tudat/simulation/environment_setup/createAtmosphereModel.h>
+#include <tudat/paths.hpp>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

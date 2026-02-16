@@ -15,6 +15,8 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
 namespace py = pybind11;

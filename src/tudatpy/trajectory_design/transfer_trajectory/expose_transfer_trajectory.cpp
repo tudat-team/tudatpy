@@ -15,6 +15,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
+#include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"

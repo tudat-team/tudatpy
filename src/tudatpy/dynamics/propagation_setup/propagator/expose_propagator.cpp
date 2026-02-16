@@ -17,7 +17,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/simulation/propagation_setup/propagationOutputSettings.h>
+#include <tudat/simulation/propagation_setup/propagationSettings.h>
+#include <tudat/simulation/propagation_setup/propagationTerminationSettings.h>
 
 #include "scalarTypes.h"
 

@@ -17,6 +17,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include "tudat/math/interpolators/createInterpolator.h"
+
 #include "scalarTypes.h"
 
 namespace py = pybind11;

@@ -9,8 +9,8 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_vehicle_systems.h"
+#include <tudat/simulation/environment_setup/createSystemModel.h>
 
-#include <tudat/simulation/environment_setup.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -19,7 +19,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/math/basic.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

@@ -16,6 +16,11 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/simulation/propagation_setup/createAccelerationModels.h>
+#include <tudat/simulation/propagation_setup/createMassRateModels.h>
+#include <tudat/simulation/propagation_setup/createStateDerivativeModel.h>
+#include <tudat/simulation/propagation_setup/createTorqueModel.h>
+#include <tudat/simulation/propagation_setup/dynamicsSimulator.h>
 
 #include "acceleration/expose_acceleration.h"
 #include "dependent_variable/expose_dependent_variable.h"

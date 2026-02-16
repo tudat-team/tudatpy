@@ -11,7 +11,7 @@
 #include "expose_gravity_field_variation.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
