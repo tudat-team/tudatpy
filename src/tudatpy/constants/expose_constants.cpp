@@ -13,8 +13,10 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/constants.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace py = pybind11;
 namespace tbc = tudat::celestial_body_constants;
