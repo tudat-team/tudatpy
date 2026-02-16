@@ -19,7 +19,6 @@
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
-#include "tudat/math/statistics/multiVariateGaussianProbabilityDistributions.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"

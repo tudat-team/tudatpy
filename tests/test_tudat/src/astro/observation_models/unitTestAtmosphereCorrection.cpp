@@ -16,6 +16,7 @@
 
 #include <numeric>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models.h"
 #include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/environment_setup.h"

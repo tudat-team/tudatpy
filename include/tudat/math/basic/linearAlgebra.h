@@ -20,7 +20,6 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/SVD>
 #include <Eigen/Geometry>
 
 #include "tudat/basics/basicTypedefs.h"

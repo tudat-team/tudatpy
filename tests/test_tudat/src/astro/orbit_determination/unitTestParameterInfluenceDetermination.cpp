@@ -20,6 +20,7 @@
 #include "tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
