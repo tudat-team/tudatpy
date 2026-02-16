@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
+#include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 #include "tudat/simulation/estimation_setup.h"
 
 namespace tudat
