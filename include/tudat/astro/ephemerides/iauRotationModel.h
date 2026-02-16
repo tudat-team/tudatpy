@@ -14,8 +14,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/function.hpp>
-
 #include "tudat/interface/spice/spiceInterface.h"
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"

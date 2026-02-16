@@ -11,8 +11,6 @@
 #ifndef TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 #define TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 
-#include <boost/function.hpp>
-
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"

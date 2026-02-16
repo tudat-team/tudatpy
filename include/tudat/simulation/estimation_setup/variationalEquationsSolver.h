@@ -11,10 +11,6 @@
 #ifndef TUDAT_VARIATIONALEQUATIONSSOLVER_H
 #define TUDAT_VARIATIONALEQUATIONSSOLVER_H
 
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
-#include <boost/tuple/tuple_io.hpp>
-
 #include "tudat/basics/utilities.h"
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
