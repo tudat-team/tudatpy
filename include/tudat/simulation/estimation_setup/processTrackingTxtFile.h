@@ -21,11 +21,16 @@
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+class SystemOfBodies;
+}
+
 namespace observation_models
 {
 

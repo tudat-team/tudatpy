@@ -14,10 +14,18 @@
 #ifndef TUDAT_READTABULATEDWEATHERDATA_H
 #define TUDAT_READTABULATEDWEATHERDATA_H
 
-#include <vector>
+#include <algorithm>
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
+#include <Eigen/Core>
+
+#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {

@@ -30,7 +30,6 @@
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
