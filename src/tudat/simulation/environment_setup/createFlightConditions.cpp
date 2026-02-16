@@ -12,9 +12,6 @@
 #include <string>
 #include <iostream>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
