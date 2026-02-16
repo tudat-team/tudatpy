@@ -31,6 +31,8 @@ namespace tudat
 namespace simulation_setup
 {
 
+class RigidBodyProperties;
+
 class SystemOfBodies;
 
 // List of gravity field models available in simulations
