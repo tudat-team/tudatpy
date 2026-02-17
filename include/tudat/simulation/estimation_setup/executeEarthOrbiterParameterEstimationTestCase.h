@@ -13,6 +13,7 @@
 #define EXECUTEEARTHORBITERPARAMETERESTIMATIONTESTCASE_H
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -20,6 +21,14 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace ephemerides;
+using namespace basic_astrodynamics;
+using namespace simulation_setup;
+using namespace orbital_element_conversions;
+using namespace coordinate_conversions;
+using namespace physical_constants;
+
 
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(

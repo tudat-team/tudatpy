@@ -13,6 +13,7 @@
 #define EXECUTEEARTHORBITERBIASESTIMATIONTESTCASE_H
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 

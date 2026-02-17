@@ -12,27 +12,66 @@
 #ifndef EXECUTEPLANETARYPARAMETERESTIMATIONTESTCASE_H
 #define EXECUTEPLANETARYPARAMETERESTIMATIONTESTCASE_H
 
+#include <memory>
+#include <utility>
+
+#include <Eigen/Core>
+
+#include "tudat/basics/timeType.h"
+#include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+
 
 namespace tudat
 {
+namespace simulation_setup
+{
+
+template< typename ObservationScalarType, typename TimeType >
+struct EstimationOutput;
+
+}  // namespace simulation_setup
+
 namespace unit_tests
 {
 
+using namespace simulation_setup;
+using namespace basic_astrodynamics;
+using namespace estimatable_parameters;
+using namespace propagators;
+using namespace numerical_integrators;
+
+Eigen::VectorXd getDefaultInitialParameterPerturbation( );
+
 template< typename TimeType = double, typename StateScalarType = double >
-std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
+std::pair< std::shared_ptr< simulation_setup::EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation(
         const int observableType = 1,
         Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
         Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
-        const double weight = 1.0 )
+        const double weight = 1.0 );
+
+extern template std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double, double > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation< double, double >( const int observableType,
+                                                       Eigen::VectorXd parameterPerturbation,
+                                                       Eigen::MatrixXd inverseAPrioriCovariance,
+                                                       const double weight );
+
+template< typename TimeType, typename StateScalarType >
+std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >
+executePlanetaryParameterEstimation(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define setting for total number of bodies and those which need to be integrated numerically.
     // The first numberOfNumericalBodies from the bodyNames vector will be integrated numerically.
-
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Mars" );
@@ -41,17 +80,16 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     bodyNames.push_back( "Jupiter" );
     bodyNames.push_back( "Saturn" );
 
-    // Specify initial time
+    // Specify initial time.
     TimeType initialEphemerisTime = TimeType( 1.0E7 );
     TimeType finalEphemerisTime = TimeType( 3.0E7 );
     double maximumTimeStep = 3600.0;
-
     double buffer = 10.0 * maximumTimeStep;
 
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
 
-    // Create bodies needed in simulation
+    // Create bodies needed in simulation.
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
@@ -62,12 +100,9 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     accelerationsOfEarth[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfEarth[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationsOfEarth[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     // Set bodies for which initial state is to be estimated and integrated.
-    std::vector< std::string > bodiesToEstimate;
-    bodiesToEstimate.push_back( "Earth" );
     std::vector< std::string > bodiesToIntegrate;
     bodiesToIntegrate.push_back( "Earth" );
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
@@ -75,7 +110,6 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     // Define propagator settings.
     std::vector< std::string > centralBodies;
     std::map< std::string, std::string > centralBodyMap;
-
     centralBodies.resize( numberOfNumericalBodies );
     for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
     {
@@ -110,7 +144,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
                     TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
                     cowell );
 
-    // Define link ends
+    // Define link ends.
     LinkEnds linkEnds;
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
 
@@ -158,17 +192,15 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     double observationTimeStep = 1000.0;
     TimeType observationTime = Time( initialEphemerisTime + 10.0E4 );
     int numberOfObservations = 18000;
-
     std::vector< TimeType > initialObservationTimes;
     initialObservationTimes.resize( numberOfObservations );
-
     for( int i = 0; i < numberOfObservations; i++ )
     {
         initialObservationTimes[ i ] = observationTime;
         observationTime += observationTimeStep;
     }
 
-    // Define observation simulation settings
+    // Define observation simulation settings.
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
     if( observableType == 0 )
@@ -209,7 +241,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
         }
     }
 
-    // Simulate observations
+    // Simulate observations.
     std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
             simulateObservations< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
@@ -227,7 +259,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
         simulatedObservations->setConstantWeight( weight );
     }
 
-    // Perturb parameter estimate
+    // Perturb parameter estimate.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
@@ -241,7 +273,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-    // Define estimation input
+    // Define estimation input.
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations, inverseAPrioriCovariance );
     std::shared_ptr< CovarianceAnalysisInput< StateScalarType, TimeType > > covarianceInput =
@@ -250,7 +282,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     covarianceInput->defineCovarianceSettings( true, true, true, false );
     estimationInput->applyFinalParameterCorrection_ = false;
 
-    // Perform estimation
+    // Perform estimation.
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
 

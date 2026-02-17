@@ -66,6 +66,7 @@ set(estimation_SOURCES
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
+        executePlanetaryParameterEstimationTestCase.cpp
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
