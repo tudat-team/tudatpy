@@ -21,7 +21,7 @@
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/environment_setup.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
