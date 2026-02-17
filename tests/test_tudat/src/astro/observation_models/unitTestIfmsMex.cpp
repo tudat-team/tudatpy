@@ -17,9 +17,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
 #include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
