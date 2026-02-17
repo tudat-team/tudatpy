@@ -15,8 +15,9 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readOdfFile.h"
+#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
-#include "tudat/simulation/estimation.h"
 
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
