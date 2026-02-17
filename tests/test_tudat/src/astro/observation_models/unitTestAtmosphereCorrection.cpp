@@ -32,6 +32,8 @@ namespace unit_tests
 using namespace input_output;
 using namespace observation_models;
 using namespace ground_stations;
+using namespace physical_constants;
+using namespace basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_tabulated_media_corrections )
 

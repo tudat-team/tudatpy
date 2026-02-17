@@ -23,6 +23,7 @@ namespace unit_tests
 {
 
 using namespace observation_models;
+using namespace physical_constants;
 
 BOOST_AUTO_TEST_SUITE( test_solar_corona_corrections )
 

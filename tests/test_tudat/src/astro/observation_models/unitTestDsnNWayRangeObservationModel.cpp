@@ -38,7 +38,7 @@ using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
-using namespace tudat::unit_tests;
+// using namespace tudat::unit_tests;
 using namespace tudat;
 
 // BOOST_AUTO_TEST_SUITE( test_dsn_n_way_range_observation_model )

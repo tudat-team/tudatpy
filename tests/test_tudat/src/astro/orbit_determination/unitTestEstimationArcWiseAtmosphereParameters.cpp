@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 
     std::vector< double > observationTimes;
     double dataPointInterval = 1.;
-    for( int k = 0; k < integrationArcStartTimes.size( ); k++ )
+    for( unsigned int k = 0; k < integrationArcStartTimes.size( ); k++ )
     {
         double currentTime = integrationArcStartTimes.at( k ) + 5.0;
         while( currentTime < integrationArcEndTimes.at( k ) - 5.0 )

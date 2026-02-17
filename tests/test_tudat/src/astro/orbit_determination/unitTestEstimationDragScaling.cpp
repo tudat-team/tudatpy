@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
 
         std::vector< double > integrationArcStartTimes = arcStartTimes;
         std::vector< double > integrationArcEndTimes( arcStartTimes.begin( ) + 1, arcStartTimes.end( ) );
-        for( int i = 0; i < integrationArcEndTimes.size( ); ++i )
+        for( unsigned int i = 0; i < integrationArcEndTimes.size( ); ++i )
         {
             integrationArcEndTimes.at( i ) = integrationArcEndTimes.at( i ) - 200 * ( i + 1 );
         }

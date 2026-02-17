@@ -11,6 +11,7 @@
 #ifndef TUDAT_CONSTANTDRAGCOEFFICIENT_H
 #define TUDAT_CONSTANTDRAGCOEFFICIENT_H
 
+#include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
