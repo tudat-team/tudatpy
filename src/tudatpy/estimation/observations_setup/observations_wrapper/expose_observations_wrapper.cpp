@@ -416,7 +416,7 @@ void expose_observations_wrapper( py::module &m )
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
                               const tom::ObservationAncillarySimulationSettings & >(
-                   &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
+                   &tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),
            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),

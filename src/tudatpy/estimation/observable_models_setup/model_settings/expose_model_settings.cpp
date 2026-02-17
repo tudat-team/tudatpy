@@ -184,6 +184,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a one-way range observable.
@@ -192,12 +193,24 @@ Examples
  a single-valued observable :math:`h_{_{\text{1-range}}}` as follows (in the unbiased case):
 
  .. math::
-    h_{_{\text{1-range}}}(t_{R},t_{T})=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
+    h_{_{\text{1-range}}}(t_{R},t_{T})&=c\left(t_{R}-t_{T}\right)\\
+                                      &=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
 
  where :math:`\mathbf{r}_{R}`, :math:`\mathbf{r}_{T}`, :math:`t_{R}` and :math:`t_{T}` denote the position function of receiver and transmitter, and evaluation time
  of receiver and transmitter. The term :math:`\Delta s` denotes light-time corrections due to e.g relativistic, atmospheric effects (as defined by the ``light_time_correction_settings`` input).
- The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`, which is in turn related to the one-way range as :math:`T=h/c`
- As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the light-time equation (see :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings` for details)
+ The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`
+ As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the light-time equation (see :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings` for details).
+
+ If the observable is computed in a different time scale (that is, if the ``time_scale_for_observable`` is set to something other than TDB), the observable is computed from:
+
+ .. math::
+      \bar{h}_{_{\text{1-range}}}(t_{R},t_{T})=h_{_{\text{1-range}}}(t_{R},t_{T})+\left(\bar{t}_{R}-t_{R}\right)-\left(\bar{t}_{t}-t_{t}\right)
+
+ Here, :math:`t` denotes the epoch in TDB and :math:`\bar{t}` the epoch on the time scale defined by ``time_scale_for_observable`` (typically UTC),
+ ;math:`h_{_{\text{1-range}}}` is the observable as defined above (as computed from the TDB light time) and :math:`\bar{h}_{_{\text{1-range}}}` is the
+ corrected observable as computed from the light time as measured in the correct time scale. It is important to note that the time tag of the observation
+ wil always be in TDB.
+
 
 
  Parameters
@@ -215,6 +228,9 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -254,6 +270,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -278,6 +295,10 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
+
 
  Returns
  -------
@@ -316,6 +337,7 @@ Examples
            &tom::twoWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -335,6 +357,9 @@ Examples
  bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -373,6 +398,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
@@ -407,6 +433,9 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -447,6 +476,7 @@ Examples
            &tom::nWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
@@ -466,6 +496,9 @@ Examples
  bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------

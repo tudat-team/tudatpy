@@ -177,7 +177,7 @@ Variation model due to pole tides
 
          .. math::
             \Delta \bar{C}_{lm}&=k_{l.m}F_{C,lm}(r,\theta,\phi)\\
-            \Delta \bar{S}_{lm}&k_{l.m}F_{S,lm}(r,\theta,\phi)
+            \Delta \bar{S}_{lm}&=k_{l.m}F_{S,lm}(r,\theta,\phi)
 
          (where we have added the order dependent Love number :math:`k_{l,m}` and have retained only a single tide-raising body for the sake of brevity).
 
@@ -186,7 +186,7 @@ Variation model due to pole tides
 
          .. math::
             \Delta \bar{C}_{lm}&=k_{l.m}\left(F_{C,lm}(r,\theta,\phi) - \overline{F_{C,lm}} \right)\\
-            \Delta \bar{S}_{lm}&k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
+            \Delta \bar{S}_{lm}&=k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
 
          This option can be used for any of the solid-body tide gravity field variation options.
 

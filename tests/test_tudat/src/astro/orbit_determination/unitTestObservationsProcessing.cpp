@@ -206,7 +206,7 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
     baseTimeList[ angular_position ] = angularPositionObsTimes;
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-    for( auto linkEndIterator: linkEndsPerObservable )
+    for( auto linkEndIterator : linkEndsPerObservable )
     {
         ObservableType currentObservable = linkEndIterator.first;
 
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
     std::vector< ObservableType > trueObservableTypes = { one_way_range, one_way_doppler, angular_position };
     BOOST_CHECK( observableTypes.size( ) == trueObservableTypes.size( ) );
-    for( auto type: trueObservableTypes )
+    for( auto type : trueObservableTypes )
     {
         BOOST_CHECK( std::count( observableTypes.begin( ), observableTypes.end( ), type ) == 1 );
     }
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
                                                  stationReceiverLinkEnds[ 1 ], stationTransmitterLinkEnds[ 1 ],
                                                  stationReceiverLinkEnds[ 2 ], stationTransmitterLinkEnds[ 2 ] };
     BOOST_CHECK( linkEndsList.size( ) == trueLinkEndsList.size( ) );
-    for( auto linkEnds: trueLinkEndsList )
+    for( auto linkEnds : trueLinkEndsList )
     {
         BOOST_CHECK( std::count( linkEndsList.begin( ), linkEndsList.end( ), linkEnds ) == 1 );
     }
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< std::string > bodyNamesInLinkEnds = simulatedObservations->getBodiesInLinkEnds( );
     std::vector< std::string > trueBodyNamesInLinkEnds = { "Earth", "Vehicle" };
     BOOST_CHECK( bodyNamesInLinkEnds.size( ) == trueBodyNamesInLinkEnds.size( ) );
-    for( auto name: trueBodyNamesInLinkEnds )
+    for( auto name : trueBodyNamesInLinkEnds )
     {
         BOOST_CHECK( std::count( bodyNamesInLinkEnds.begin( ), bodyNamesInLinkEnds.end( ), name ) == 1 );
     }
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< std::string > referencePointsInLinkEnds = simulatedObservations->getReferencePointsInLinkEnds( );
     std::vector< std::string > trueReferencePointsInLinkEnds = { "Station1", "Station2", "Station3" };
     BOOST_CHECK( referencePointsInLinkEnds.size( ) == trueReferencePointsInLinkEnds.size( ) );
-    for( auto refPoint: trueReferencePointsInLinkEnds )
+    for( auto refPoint : trueReferencePointsInLinkEnds )
     {
         BOOST_CHECK( std::count( referencePointsInLinkEnds.begin( ), referencePointsInLinkEnds.end( ), refPoint ) == 1 );
     }
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     // Check full list of time bounds
     std::vector< std::pair< double, double > > timeBoundsList = simulatedObservations->getTimeBoundsList( );
     std::vector< std::pair< double, double > > trueTimeBoundsList;
-    for( auto it: obsStartTimes )
+    for( auto it : obsStartTimes )
     {
         if( it.first != angular_position )
         {
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
         }
     }
     BOOST_CHECK( timeBoundsList.size( ) == trueTimeBoundsList.size( ) );
-    for( auto timeBounds: trueTimeBoundsList )
+    for( auto timeBounds : trueTimeBoundsList )
     {
         BOOST_CHECK( std::count( timeBoundsList.begin( ), timeBoundsList.end( ), timeBounds ) == 1 );
     }
@@ -334,9 +334,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< std::shared_ptr< SingleObservationSet<> > > manuallyExtractedRangeObservationSets;
     std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet<> > > > manuallyExtractedRangeObservationSetsMap =
             simulatedObservations->getObservationsSets( ).at( one_way_range );
-    for( auto linkEndsIt: manuallyExtractedRangeObservationSetsMap )
+    for( auto linkEndsIt : manuallyExtractedRangeObservationSetsMap )
     {
-        for( auto obsSet: linkEndsIt.second )
+        for( auto obsSet : linkEndsIt.second )
         {
             manuallyExtractedRangeObservationSets.push_back( obsSet );
         }
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< std::string > trueRangeReferencePoints = { "Station1", "Station2" };
 
     std::vector< LinkEnds > rangeLinkEnds;
-    for( auto obsSet: rangeObservationSets )
+    for( auto obsSet : rangeObservationSets )
     {
         rangeLinkEnds.push_back( obsSet->getLinkEnds( ).linkEnds_ );
     }
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     BOOST_CHECK( rangeLinkEnds.size( ) == rangeLinkEndsFromObsCollection.size( ) );
     BOOST_CHECK( rangeLinkEnds.size( ) == 3 );
 
-    for( auto testLinkEnds: trueRangeLinkEnds )
+    for( auto testLinkEnds : trueRangeLinkEnds )
     {
         BOOST_CHECK( std::count( rangeLinkEnds.begin( ), rangeLinkEnds.end( ), testLinkEnds ) == 1 );
         BOOST_CHECK( std::count( rangeLinkEndsFromObsCollection.begin( ), rangeLinkEndsFromObsCollection.end( ), testLinkEnds ) == 1 );
@@ -369,14 +369,14 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
 
     std::vector< std::string > rangeBodyNamesFromObsCollection =
             simulatedObservations->getBodiesInLinkEnds( observationParser( one_way_range ) );
-    for( auto testBodyName: trueRangeBodyNames )
+    for( auto testBodyName : trueRangeBodyNames )
     {
         BOOST_CHECK( std::count( rangeBodyNamesFromObsCollection.begin( ), rangeBodyNamesFromObsCollection.end( ), testBodyName ) == 1 );
     }
 
     std::vector< std::string > rangeRefPointsFromObsCollection =
             simulatedObservations->getReferencePointsInLinkEnds( observationParser( one_way_range ) );
-    for( auto testRefPoint: trueRangeReferencePoints )
+    for( auto testRefPoint : trueRangeReferencePoints )
     {
         BOOST_CHECK( std::count( rangeRefPointsFromObsCollection.begin( ), rangeRefPointsFromObsCollection.end( ), testRefPoint ) == 1 );
     }
@@ -404,7 +404,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > rangeSetsStartAndSize =
             simulatedObservations->getObservationSetStartAndSize( observationParser( one_way_range ) );
     BOOST_CHECK( utilities::createVectorFromMapKeys( rangeSetsStartAndSize ).size( ) == 1 );
-    for( auto linkEndsIt: rangeSetsStartAndSize.at( one_way_range ) )
+    for( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
     {
         for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
         {
@@ -427,13 +427,13 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
             simulatedObservations->getSingleObservationSets( observationParser( "Station1", true ) );
 
     std::vector< std::shared_ptr< SingleObservationSet<> > > manuallyExtractedStation1ObservationSets;
-    for( auto observableIt: simulatedObservations->getObservationsSets( ) )
+    for( auto observableIt : simulatedObservations->getObservationsSets( ) )
     {
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             if( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ] )
             {
-                for( auto obsSet: linkEndsIt.second )
+                for( auto obsSet : linkEndsIt.second )
                 {
                     manuallyExtractedStation1ObservationSets.push_back( obsSet );
                 }
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > station1SetsStartAndSize =
             simulatedObservations->getObservationSetStartAndSize( observationParser( "Station1", true ) );
     BOOST_CHECK( utilities::createVectorFromMapKeys( station1SetsStartAndSize ).size( ) == 1 );
-    for( auto linkEndsIt: rangeSetsStartAndSize.at( one_way_range ) )
+    for( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
     {
         if( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ] )
         {
@@ -480,11 +480,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     // Manually retrieve observation sets based on time bounds
     std::vector< std::shared_ptr< SingleObservationSet<> > > manuallyDefinedFirstDayObservationSets,
             manuallyDefinedAfterFirstDayObservationSets;
-    for( auto observableIt: simulatedObservations->getObservationsSets( ) )
+    for( auto observableIt : simulatedObservations->getObservationsSets( ) )
     {
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
-            for( auto obsSet: linkEndsIt.second )
+            for( auto obsSet : linkEndsIt.second )
             {
                 if( ( obsSet->getTimeBounds( ).first >= startTime ) && ( obsSet->getTimeBounds( ).second <= startTime + 1000.0 + 86400.0 ) )
                 {
@@ -517,14 +517,14 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
             simulatedObservations->getSingleObservationSets( observationParser( multiTypeParserList ) );
 
     std::vector< std::shared_ptr< SingleObservationSet<> > > manuallyDefinedMultiTypeObservationSets;
-    for( auto observableIt: simulatedObservations->getObservationsSets( ) )
+    for( auto observableIt : simulatedObservations->getObservationsSets( ) )
     {
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             if( ( observableIt.first == one_way_doppler ) || ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] ) ||
                 ( linkEndsIt.first == stationTransmitterLinkEnds[ 0 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) )
             {
-                for( auto obs: linkEndsIt.second )
+                for( auto obs : linkEndsIt.second )
                 {
                     manuallyDefinedMultiTypeObservationSets.push_back( obs );
                 }
@@ -549,13 +549,13 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
             simulatedObservations->getSingleObservationSets( observationParser( multiTypeParserList2, true ) );
 
     std::vector< std::shared_ptr< SingleObservationSet<> > > manuallyDefinedMultiTypeObservationSets2;
-    for( auto observableIt: simulatedObservations->getObservationsSets( ) )
+    for( auto observableIt : simulatedObservations->getObservationsSets( ) )
     {
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             if( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) ) )
             {
-                for( auto obs: linkEndsIt.second )
+                for( auto obs : linkEndsIt.second )
                 {
                     manuallyDefinedMultiTypeObservationSets2.push_back( obs );
                 }
@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
         Eigen::Matrix< double, Eigen::Dynamic, 1 > filteredObs =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( indicesRemainingObs.size( ) );
         unsigned int filteredObsIndex = 0;
-        for( auto ind: indicesRemainingObs )
+        for( auto ind : indicesRemainingObs )
         {
             filteredObs[ filteredObsIndex ] = unfilteredObs[ ind ];
             filteredObsIndex += 1;
@@ -665,12 +665,12 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSizeAfterFilter =
             simulatedObservations->getObservationSetStartAndSize( );
     int startIndex = 0;
-    for( auto observableIt: obsSetsStartAndSizeAfterFilter )
+    for( auto observableIt : obsSetsStartAndSizeAfterFilter )
     {
         unsigned int linkEndsIndex = 0;
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
-            for( auto indices: linkEndsIt.second )
+            for( auto indices : linkEndsIt.second )
             {
                 BOOST_CHECK( indices.first == startIndex );
                 if( observableIt.first == one_way_range )
@@ -713,9 +713,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     // Observation sets start and size after de-filtering (should be equal to original ones)
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSizeAfterDefilter =
             simulatedObservations->getObservationSetStartAndSize( );
-    for( auto observableIt: obsSetsStartAndSizeAfterDefilter )
+    for( auto observableIt : obsSetsStartAndSizeAfterDefilter )
     {
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
             {
@@ -733,7 +733,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
             std::make_pair( rangeObsTimes[ int( numberOfObservations / 3 ) ], rangeObsTimes[ 2 * int( numberOfObservations / 3 ) ] );
     std::vector< double > epochsToFilter;
     std::vector< double > epochsLeft;
-    for( auto time: rangeObsTimes )
+    for( auto time : rangeObsTimes )
     {
         if( time >= timeBounds.first && time <= timeBounds.second )
         {
@@ -866,7 +866,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     std::vector< Eigen::MatrixXd > originalElevationAngles =
             simulatedObservations->getDependentVariables( elevationAngleSettings, false ).first;
     std::vector< unsigned int > nbObservationsToKeepPerSet;
-    for( auto elevationAngleMatrix: originalElevationAngles )
+    for( auto elevationAngleMatrix : originalElevationAngles )
     {
         unsigned int nbPositiveElevationAngles = 0;
         for( unsigned int i = 0; i < elevationAngleMatrix.rows( ); i++ )
@@ -929,12 +929,12 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == numberOfObservations - ( indexSplitEpoch + 1 ) );
 
     // Check that all observations in the first set occur before splitEpoch
-    for( auto time: splitObsSets.at( 0 )->getObservationTimes( ) )
+    for( auto time : splitObsSets.at( 0 )->getObservationTimes( ) )
     {
         BOOST_CHECK( time <= splitEpoch );
     }
     // Check that all observations in the first set occur after splitEpoch
-    for( auto time: splitObsSets.at( 1 )->getObservationTimes( ) )
+    for( auto time : splitObsSets.at( 1 )->getObservationTimes( ) )
     {
         BOOST_CHECK( time > splitEpoch );
     }
@@ -993,6 +993,90 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
         }
     }
     BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
+}
+
+BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMetadata )
+{
+    typedef double ObservationScalarType;
+    typedef double TimeType;
+
+    // --- Unsorted observation times (10 epochs) ---
+    std::vector< TimeType > observationTimes;
+    observationTimes.push_back( 90.0 );   // index 0
+    observationTimes.push_back( 10.0 );   // index 1
+    observationTimes.push_back( 70.0 );   // index 2
+    observationTimes.push_back( 30.0 );   // index 3
+    observationTimes.push_back( 50.0 );   // index 4
+    observationTimes.push_back( 20.0 );   // index 5
+    observationTimes.push_back( 80.0 );   // index 6
+    observationTimes.push_back( 40.0 );   // index 7
+    observationTimes.push_back( 60.0 );   // index 8
+    observationTimes.push_back( 100.0 );  // index 9
+
+    // --- Observations: store original index ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > obs( 1 );
+        obs( 0 ) = static_cast< ObservationScalarType >( i );
+        observations.push_back( obs );
+    }
+
+    // --- Weights: encode original index ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > weights;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > weight( 1 );
+        weight( 0 ) = 100.0 + static_cast< ObservationScalarType >( i );
+        weights.push_back( weight );
+    }
+
+    // --- Residuals ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residual( 1 );
+        residual( 0 ) = -static_cast< ObservationScalarType >( i );
+        residuals.push_back( residual );
+    }
+
+    std::map< LinkEndType, LinkEndId > linkEnds;
+    linkEnds[ receiver ] = LinkEndId( "A" );
+    linkEnds[ transmitter ] = LinkEndId( "A" );
+
+    LinkDefinition linkDefinition( linkEnds );
+    // --- Construct observation set (ordering must happen in constructor) ---
+    SingleObservationSet< ObservationScalarType, TimeType > observationSet( one_way_range,
+                                                                            linkDefinition,
+                                                                            observations,
+                                                                            observationTimes,
+                                                                            receiver,
+                                                                            std::vector< Eigen::VectorXd >( ),
+                                                                            nullptr,
+                                                                            nullptr,
+                                                                            weights,
+                                                                            residuals );
+
+    // --- Extract reordered data ---
+    const std::vector< TimeType >& sortedTimes = observationSet.getObservationTimes( );
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& sortedObservations = observationSet.getObservations( );
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& sortedWeights = observationSet.getWeights( );
+
+    // --- Verify strictly increasing time order ---
+    for( std::size_t i = 1; i < sortedTimes.size( ); ++i )
+    {
+        BOOST_CHECK( sortedTimes[ i ] > sortedTimes[ i - 1 ] );
+    }
+
+    // --- Verify metadata consistency ---
+    // Observation value == original index
+    // Weight value must equal 100 + same index
+    for( std::size_t i = 0; i < sortedTimes.size( ); ++i )
+    {
+        const std::size_t originalIndex = static_cast< std::size_t >( sortedObservations[ i ]( 0 ) );
+
+        BOOST_CHECK_EQUAL( sortedWeights[ i ]( 0 ), 100.0 + static_cast< ObservationScalarType >( originalIndex ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
