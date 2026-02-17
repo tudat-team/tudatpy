@@ -22,29 +22,11 @@ namespace tudat
 
 using namespace basic_astrodynamics;
 
-double combineTimeDifferenceFunction( const std::vector< std::function< double( const double ) > >& timeDifferenceFunctions,
-                                      const std::vector< int >& evaluationStepIndices,
-                                      const double time )
-{
-    double timeDifference = 0.0;
-    std::vector< double > intermediateTimes;
-    intermediateTimes.push_back( time );
-
-    for( unsigned int i = 0; i < timeDifferenceFunctions.size( ); i++ )
-    {
-        timeDifference += timeDifferenceFunctions.at( i )( intermediateTimes.at( evaluationStepIndices.at( i ) ) );
-        intermediateTimes.push_back( time + timeDifference );
-    }
-    return timeDifference;
-}
-
-
-std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion::getTimeDifferenceFunction(
+std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::getTimeDifferenceFunctionFromExtendedTime(
         const TimeScales inputScale, const TimeScales outputScale, const std::string& pointIdentifier )
 {
-    std::function< double( const double ) > timeDifferenceFunction;
+    std::function< Time( const Time ) > timeDifferenceFunction;
 
-    typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
     using namespace std::placeholders;
 
     if( !isTimeScaleRelativistic( inputScale ) || !isTimeScaleRelativistic( outputScale ) )
@@ -55,14 +37,66 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
     {
         const bool requiresBarycentricInterpolators =
                 ( inputScale == barycentric_coordinate_time_scale || outputScale == barycentric_coordinate_time_scale );
-        if( requiresBarycentricInterpolators &&
-            ( barycenterToPlanetCenterCoordinateTimeInterpolator_ == nullptr ||
-              planetCenterToBarycenterCoordinateTimeInterpolator_ == nullptr ) )
+        const bool hasDoubleBarycentricInterpolators =
+                ( barycenterToPlanetCenterCoordinateTimeInterpolator_ != nullptr &&
+                  planetCenterToBarycenterCoordinateTimeInterpolator_ != nullptr );
+        const bool hasExtendedBarycentricInterpolators =
+                ( barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_ != nullptr &&
+                  planetCenterToBarycenterCoordinateTimeInterpolatorExtended_ != nullptr );
+        if( requiresBarycentricInterpolators && !( hasDoubleBarycentricInterpolators || hasExtendedBarycentricInterpolators ) )
         {
             throw std::runtime_error(
                         "Error in TimeEphemerisFromPostNewtonianExpansion: barycentric/bodycentric interpolators not initialized for " +
                         centralBodyName_ );
         }
+
+        auto getBarycentricToBodycentricDifference = [=]( const Time currentTime )
+        {
+            if( barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_ != nullptr )
+            {
+                return barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_->interpolate( currentTime );
+            }
+            else
+            {
+                return barycenterToPlanetCenterCoordinateTimeInterpolator_->interpolate( currentTime.getSeconds< double >( ) );
+            }
+        };
+
+        auto getBodycentricToBarycentricDifference = [=]( const Time currentTime )
+        {
+            if( planetCenterToBarycenterCoordinateTimeInterpolatorExtended_ != nullptr )
+            {
+                return planetCenterToBarycenterCoordinateTimeInterpolatorExtended_->interpolate( currentTime );
+            }
+            else
+            {
+                return planetCenterToBarycenterCoordinateTimeInterpolator_->interpolate( currentTime.getSeconds< double >( ) );
+            }
+        };
+
+        auto getPlanetCoordinateToProperDifference = [=]( const std::string& point, const Time currentTime )
+        {
+            if( planetCoordinateToProperTimeInterpolatorsExtended_.count( point ) > 0 )
+            {
+                return planetCoordinateToProperTimeInterpolatorsExtended_.at( point )->interpolate( currentTime );
+            }
+            else
+            {
+                return planetCoordinateToProperTimeInterpolators_.at( point )->interpolate( currentTime.getSeconds< double >( ) );
+            }
+        };
+
+        auto getProperToPlanetCoordinateDifference = [=]( const std::string& point, const Time currentTime )
+        {
+            if( properTimeToPlanetCoordinateInterpolatorsExtended_.count( point ) > 0 )
+            {
+                return properTimeToPlanetCoordinateInterpolatorsExtended_.at( point )->interpolate( currentTime );
+            }
+            else
+            {
+                return properTimeToPlanetCoordinateInterpolators_.at( point )->interpolate( currentTime.getSeconds< double >( ) );
+            }
+        };
 
         switch( inputScale )
         {
@@ -70,24 +104,23 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
         {
             if( outputScale == body_centered_coordinate_time_scale )
             {
-                timeDifferenceFunction = std::bind(
-                            static_cast< double( LocalInterpolator::* )( const double ) >
-                            ( &LocalInterpolator::interpolate ), barycenterToPlanetCenterCoordinateTimeInterpolator_, _1 );
+                timeDifferenceFunction = [=]( const Time currentTime )
+                {
+                    return Time( getBarycentricToBodycentricDifference( currentTime ) );
+                };
             }
             else if( outputScale == local_proper_time_scale )
             {
-                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
+                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
+                    planetCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found "<<
-                               planetCoordinateToProperTimeInterpolators_.size( )<<" "<<planetCoordinateToProperTimeInterpolators_.begin( )->first<<std::endl;
+                    std::cerr << "Error, body-point " << pointIdentifier << " not found in time ephemeris for body "
+                              << centralBodyName_ << std::endl;
                 }
                 else
                 {
-                    std::vector< std::function< double( const double ) > > timeDifferenceFunctions;
-                    timeDifferenceFunctions.push_back(
-                                std::bind(
-                                    static_cast< double( LocalInterpolator::* )( const double ) >
-                                    ( &LocalInterpolator::interpolate ), barycenterToPlanetCenterCoordinateTimeInterpolator_, _1 ) );
+                    std::vector< std::function< double( const Time ) > > timeDifferenceFunctions;
+                    timeDifferenceFunctions.push_back( getBarycentricToBodycentricDifference );
 
                     std::function< Eigen::Vector3d( const double ) > stationPositionFunction =
                             groundStationPositionFunctions_.at( pointIdentifier );
@@ -96,14 +129,17 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
                                 std::bind( &TimeEphemerisFromPostNewtonianExpansion::calculateDirectTimeDifferenceTermFromFunction, this,
                                            stationPositionFunction, _1, 1.0 ) );
 
-                    timeDifferenceFunctions.push_back(
-                                std::bind(
-                                    static_cast< double( LocalInterpolator::* )( const double ) >
-                                    ( &LocalInterpolator::interpolate ), planetCoordinateToProperTimeInterpolators_.at( pointIdentifier ), _1 ) );
+                    timeDifferenceFunctions.push_back( [=]( const Time currentTime )
+                    {
+                        return getPlanetCoordinateToProperDifference( pointIdentifier, currentTime );
+                    } );
 
                     std::vector< int > timeEvaluationIndex = { 0, 1, 1 };
 
-                    timeDifferenceFunction = std::bind( combineTimeDifferenceFunction, timeDifferenceFunctions, timeEvaluationIndex, _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        return Time( combineTimeDifferenceFunction( timeDifferenceFunctions, timeEvaluationIndex, currentTime ) );
+                    };
                 }
             }
             else
@@ -117,21 +153,24 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
         {
             if( outputScale == barycentric_coordinate_time_scale )
             {
-                timeDifferenceFunction = std::bind(
-                            static_cast< double( LocalInterpolator::* )( const double ) >
-                            ( &LocalInterpolator::interpolate ), planetCenterToBarycenterCoordinateTimeInterpolator_, _1 );
+                timeDifferenceFunction = [=]( const Time currentTime )
+                {
+                    return Time( getBodycentricToBarycentricDifference( currentTime ) );
+                };
             }
             else if( outputScale == local_proper_time_scale )
             {
-                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
+                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
+                    planetCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
                     std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
                 }
                 else
                 {
-                    timeDifferenceFunction = std::bind(
-                                static_cast< double( LocalInterpolator::* )( const double ) >
-                                ( &LocalInterpolator::interpolate ), planetCoordinateToProperTimeInterpolators_.at( pointIdentifier ) , _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        return Time( getPlanetCoordinateToProperDifference( pointIdentifier, currentTime ) );
+                    };
                 }
             }
             else
@@ -145,17 +184,18 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
         {
             if( outputScale == barycentric_coordinate_time_scale )
             {
-                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
+                if( properTimeToPlanetCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
+                    properTimeToPlanetCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
                     std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
                 }
                 else
                 {
-                    std::vector< std::function< double( const double ) > > timeDifferenceFunctions;
-                    timeDifferenceFunctions.push_back(
-                                std::bind(
-                                    static_cast< double( LocalInterpolator::* )( const double ) >
-                                    ( &LocalInterpolator::interpolate ), properTimeToPlanetCoordinateInterpolators_.at( pointIdentifier ), _1 ) );
+                    std::vector< std::function< double( const Time ) > > timeDifferenceFunctions;
+                    timeDifferenceFunctions.push_back( [=]( const Time currentTime )
+                    {
+                        return getProperToPlanetCoordinateDifference( pointIdentifier, currentTime );
+                    } );
 
                     std::function< Eigen::Vector3d( const double ) > stationPositionFunction =
                             groundStationPositionFunctions_.at( pointIdentifier );
@@ -164,27 +204,29 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
                                 std::bind( &TimeEphemerisFromPostNewtonianExpansion::calculateDirectTimeDifferenceTermFromFunction,
                                            this, stationPositionFunction, _1, -1.0 ) );
 
-                    timeDifferenceFunctions.push_back(
-                                std::bind(
-                                    static_cast< double( LocalInterpolator::* )( const double ) >
-                                    ( &LocalInterpolator::interpolate ), planetCenterToBarycenterCoordinateTimeInterpolator_, _1 ) );
+                    timeDifferenceFunctions.push_back( getBodycentricToBarycentricDifference );
 
                     std::vector< int > timeEvaluationIndex = { 0, 1, 2 };
 
-                    timeDifferenceFunction = std::bind( combineTimeDifferenceFunction, timeDifferenceFunctions, timeEvaluationIndex, _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        return Time( combineTimeDifferenceFunction( timeDifferenceFunctions, timeEvaluationIndex, currentTime ) );
+                    };
                 }
             }
             else if( outputScale == body_centered_coordinate_time_scale )
             {
-                if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
+                if( properTimeToPlanetCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
+                    properTimeToPlanetCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
                     std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
                 }
                 else
                 {
-                    timeDifferenceFunction = std::bind(
-                                static_cast< double( LocalInterpolator::* )( const double ) >
-                                ( &LocalInterpolator::interpolate ), properTimeToPlanetCoordinateInterpolators_.at( pointIdentifier ), _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        return Time( getProperToPlanetCoordinateDifference( pointIdentifier, currentTime ) );
+                    };
                 }
             }
             else
@@ -200,11 +242,10 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
 }
 
 
-std::function< double( const double ) > TimeEphemerisDirectFromMetric::getTimeDifferenceFunction(
+std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDifferenceFunctionFromExtendedTime(
         const TimeScales inputScale, const TimeScales outputScale, const std::string& pointIdentifier )
 {
-    std::function< double( const double ) > timeDifferenceFunction;
-    using namespace std::placeholders;
+    std::function< Time( const Time ) > timeDifferenceFunction;
 
     if( !isTimeScaleRelativistic( inputScale ) || !isTimeScaleRelativistic( outputScale ) )
     {
@@ -226,15 +267,24 @@ std::function< double( const double ) > TimeEphemerisDirectFromMetric::getTimeDi
         {
             if( outputScale == local_proper_time_scale )
             {
-                if( globalCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
+                if( globalCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
+                    globalCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
                     std::cerr<<"Error, body-point "<<pointIdentifier<<" not found in direct-from-metric time ephemeris"<<std::endl;
                 }
                 else
                 {
-                    timeDifferenceFunction = std::bind(
-                                &TimeEphemerisDirectFromMetric::getGlobalCoordinateToProperTimeDifference,
-                                this, pointIdentifier, _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        if( globalCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) > 0 )
+                        {
+                            return Time( globalCoordinateToProperTimeInterpolatorsExtended_.at( pointIdentifier )->interpolate( currentTime ) );
+                        }
+                        else
+                        {
+                            return Time( getGlobalCoordinateToProperTimeDifference( pointIdentifier, currentTime.getSeconds< double >( ) ) );
+                        }
+                    };
                 }
             }
             else
@@ -246,15 +296,24 @@ std::function< double( const double ) > TimeEphemerisDirectFromMetric::getTimeDi
         {
             if( outputScale == barycentric_coordinate_time_scale )
             {
-                if( properTimeToGlobalCoordinateInterpolators_.count( pointIdentifier ) == 0 )
+                if( properTimeToGlobalCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
+                    properTimeToGlobalCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
                     std::cerr<<"Error, body-point "<<pointIdentifier<<" not found in direct-from-metric time ephemeris"<<std::endl;
                 }
                 else
                 {
-                    timeDifferenceFunction = std::bind(
-                                &TimeEphemerisDirectFromMetric::getProperToGlobalCoordinateTimeDifference,
-                                this, pointIdentifier, _1 );
+                    timeDifferenceFunction = [=]( const Time currentTime )
+                    {
+                        if( properTimeToGlobalCoordinateInterpolatorsExtended_.count( pointIdentifier ) > 0 )
+                        {
+                            return Time( properTimeToGlobalCoordinateInterpolatorsExtended_.at( pointIdentifier )->interpolate( currentTime ) );
+                        }
+                        else
+                        {
+                            return Time( getProperToGlobalCoordinateTimeDifference( pointIdentifier, currentTime.getSeconds< double >( ) ) );
+                        }
+                    };
                 }
             }
             else

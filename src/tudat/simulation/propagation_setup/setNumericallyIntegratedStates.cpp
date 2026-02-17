@@ -34,6 +34,22 @@ std::pair<
     );
 }
 
+std::pair<
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >,
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >
+> createRelativisticTimeInterpolators(std::map< Time, double >& originalToTargetTimeMap)
+{
+    std::map< Time, double > targetToOriginalTimeMap;
+    for( auto mapIterator = originalToTargetTimeMap.begin(); mapIterator != originalToTargetTimeMap.end(); mapIterator++ )
+    {
+        targetToOriginalTimeMap[ mapIterator->first + mapIterator->second ] = -mapIterator->second;
+    }
+    return std::make_pair(
+        std::make_shared< interpolators::LinearInterpolator< Time, double > >( originalToTargetTimeMap ),
+        std::make_shared< interpolators::LinearInterpolator< Time, double > >( targetToOriginalTimeMap )
+    );
+}
+
 //! Function to create an interpolator for the new translational state of a body.
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > > createStateInterpolator(
@@ -158,19 +174,12 @@ void resetIntegratedDirectFromMetricTimeEphemeris< double, double >(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
-    std::cout<<"AA"<<std::endl;
     if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
     {
-        std::cout<<"BB "<<referencePointIdentifier.first<<std::endl;
-
-
         std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisDirectFromMetric >(
                     referencePointIdentifier.first );
         bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );
-        std::cout<<"BB "<<referencePointIdentifier.first<<std::endl;
-
     }
-    std::cout<<"AA"<<std::endl;
 
     std::shared_ptr< TimeEphemerisDirectFromMetric > timeEphemeris =
             std::dynamic_pointer_cast< TimeEphemerisDirectFromMetric >(
@@ -190,7 +199,39 @@ void resetIntegratedDirectFromMetricTimeEphemeris< Time, double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated direct from metric time ephemeris for (Time, double)"<<std::endl;
+    if( startIndexAndSize.second != 1 )
+    {
+        std::cerr << "Error when resetting integrated time ephemeris, found requested size " << startIndexAndSize.second << std::endl;
+    }
+
+    std::map< Time, double > floatingPointValueNumericalSolution;
+    for( const auto& solutionEntry : numericalSolution )
+    {
+        floatingPointValueNumericalSolution[ solutionEntry.first ] = solutionEntry.second( startIndexAndSize.first );
+    }
+
+    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > > timeInterpolators =
+            createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
+
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    {
+        std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisDirectFromMetric >(
+                    referencePointIdentifier.first );
+        bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );
+    }
+
+    std::shared_ptr< TimeEphemerisDirectFromMetric > timeEphemeris =
+            std::dynamic_pointer_cast< TimeEphemerisDirectFromMetric >(
+                bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
+    if( timeEphemeris == NULL )
+    {
+        std::cerr << "Error when resetting integrated direct from metric time ephemeris, no TimeEphemeris object found" << std::endl;
+        return;
+    }
+
+    timeEphemeris->resetGlobalToProperTimeInterpolators(
+                timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second );
 }
 
 template< >
@@ -289,15 +330,14 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
         std::cerr << "Error when resetting integrated time ephemeris, found requested size " << startIndexAndSize.second << std::endl;
     }
 
-    std::map< double, double > floatingPointValueNumericalSolution;
+    std::map< Time, double > floatingPointValueNumericalSolution;
     for( const auto& solutionEntry : numericalSolution )
     {
-        floatingPointValueNumericalSolution[ static_cast< double >( solutionEntry.first ) ] =
-                solutionEntry.second( startIndexAndSize.first );
+        floatingPointValueNumericalSolution[ solutionEntry.first ] = solutionEntry.second( startIndexAndSize.first );
     }
 
-    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >,
-            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > timeInterpolators =
+    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
     if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
@@ -306,7 +346,7 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
                     TimeEphemerisFromPostNewtonianExpansion::TimeDifferenceInterpolator( ),
                     TimeEphemerisFromPostNewtonianExpansion::TimeDifferenceInterpolator( ),
                     referencePointIdentifier.first,
-                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, Time >,
                                bodies.getBody( referencePointIdentifier.first ),
                                std::placeholders::_1 ) );
         bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );

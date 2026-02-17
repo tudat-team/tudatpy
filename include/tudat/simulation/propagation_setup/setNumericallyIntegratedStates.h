@@ -1116,6 +1116,11 @@ std::pair<
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >
 > createRelativisticTimeInterpolators(std::map< double, double >& originalToTargetTimeMap);
 
+std::pair<
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >,
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >
+> createRelativisticTimeInterpolators(std::map< Time, double >& originalToTargetTimeMap);
+
 
 
 template< typename TimeType, typename StateScalarType >

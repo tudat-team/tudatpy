@@ -17,6 +17,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include <Eigen/Core>
@@ -24,6 +25,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/relativity/relativisticPotentials.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
@@ -40,9 +42,22 @@ namespace tudat
  *  \param time Base input epoch.
  *  \return Total time difference obtained by summing all conversion steps.
  */
-double combineTimeDifferenceFunction( const std::vector< std::function< double( const double ) > >& timeDifferenceFunctions,
+template< typename TimeType >
+double combineTimeDifferenceFunction( const std::vector< std::function< double( const TimeType ) > >& timeDifferenceFunctions,
                                       const std::vector< int >& evaluationStepIndices,
-                                      const double time );
+                                      const TimeType time )
+{
+    double timeDifference = 0.0;
+    std::vector< TimeType > intermediateTimes;
+    intermediateTimes.push_back( time );
+
+    for( unsigned int i = 0; i < timeDifferenceFunctions.size( ); i++ )
+    {
+        timeDifference += timeDifferenceFunctions.at( i )( intermediateTimes.at( evaluationStepIndices.at( i ) ) );
+        intermediateTimes.push_back( time + timeDifference );
+    }
+    return timeDifference;
+}
 
 class TimeEphemeris
 {
@@ -67,8 +82,9 @@ public:
                                 const TimeType inputTime,
                                 const std::string& pointIdentifier = "" )
     {
-        return static_cast< TimeType >( getTimeDifferenceFunction( inputScale, outputScale, pointIdentifier )(
-                    static_cast< double >( inputTime ) ) );
+        const std::function< TimeType( const TimeType ) > timeDifferenceFunction =
+                getTimeDifferenceFunction< TimeType >( inputScale, outputScale, pointIdentifier );
+        return timeDifferenceFunction( inputTime );
     }
 
     //! Double-precision convenience overload.
@@ -101,15 +117,37 @@ public:
                                                         const std::vector< TimeType >& inputTimes,
                                                         const std::string& pointIdentifier = "" )
     {
-        const std::function< double( const double ) > timeDifferenceFunction =
-                getTimeDifferenceFunction( inputScale, outputScale, pointIdentifier );
+        const std::function< TimeType( const TimeType ) > timeDifferenceFunction =
+                getTimeDifferenceFunction< TimeType >( inputScale, outputScale, pointIdentifier );
 
         std::map< TimeType, TimeType > timeDifferences;
         for( const TimeType& inputTime : inputTimes )
         {
-            timeDifferences[ inputTime ] = static_cast< TimeType >( timeDifferenceFunction( static_cast< double >( inputTime ) ) );
+            timeDifferences[ inputTime ] = timeDifferenceFunction( inputTime );
         }
         return timeDifferences;
+    }
+
+    //! Retrieve the callable that computes the requested conversion at a given epoch.
+    /*!
+     *  This overload returns a function with templated time input/output type.
+     *  \param inputScale Input time scale.
+     *  \param outputScale Output time scale.
+     *  \param pointIdentifier Optional point identifier for topocentric/proper-time conversions.
+     *  \return Function object evaluating \f$t_{\mathrm{output}}-t_{\mathrm{input}}\f$.
+     */
+    template< typename TimeType >
+    std::function< TimeType( const TimeType ) > getTimeDifferenceFunction(
+            const basic_astrodynamics::TimeScales inputScale,
+            const basic_astrodynamics::TimeScales outputScale,
+            const std::string& pointIdentifier = "" )
+    {
+        const std::function< Time( const Time ) > timeDifferenceFunction =
+                getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
+        return [=]( const TimeType inputTime )
+        {
+            return convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
+        };
     }
 
     //! Double-precision convenience overload.
@@ -135,15 +173,47 @@ public:
      *  \param pointIdentifier Optional point identifier for topocentric/proper-time conversions.
      *  \return Function object evaluating \f$t_{\mathrm{output}}-t_{\mathrm{input}}\f$.
      */
-    virtual std::function< double( const double ) > getTimeDifferenceFunction(
+    std::function< double( const double ) > getTimeDifferenceFunction(
+            const basic_astrodynamics::TimeScales inputScale,
+            const basic_astrodynamics::TimeScales outputScale,
+            const std::string& pointIdentifier = "" )
+    {
+        const std::function< Time( const Time ) > timeDifferenceFunction =
+                getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
+        return [=]( const double inputTime )
+        {
+            return timeDifferenceFunction( Time( inputTime ) ).getSeconds< double >( );
+        };
+    }
+
+    //! Retrieve the callable that computes the requested conversion at a given epoch.
+    /*!
+     *  \param inputScale Input time scale.
+     *  \param outputScale Output time scale.
+     *  \param pointIdentifier Optional point identifier for topocentric/proper-time conversions.
+     *  \return Function object evaluating \f$t_{\mathrm{output}}-t_{\mathrm{input}}\f$.
+     */
+    virtual std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
             const basic_astrodynamics::TimeScales inputScale,
             const basic_astrodynamics::TimeScales outputScale,
             const std::string& pointIdentifier = "" ) = 0;
 
 protected:
 
+    template< typename TimeType >
+    static TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifference )
+    {
+        return static_cast< TimeType >( timeDifference.getSeconds< long double >( ) );
+    }
+
     std::string centralBodyName_;
 };
+
+template<>
+inline Time TimeEphemeris::convertTimeDifferenceFromExtendedTime< Time >( const Time& timeDifference )
+{
+    return timeDifference;
+}
 
 //! Relativistic time ephemeris using post-Newtonian conversion terms and optional direct corrections.
 /*!
@@ -163,6 +233,7 @@ class TimeEphemerisFromPostNewtonianExpansion : public TimeEphemeris
 {
 public:
     typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > TimeDifferenceInterpolator;
+    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > ExtendedTimeDifferenceInterpolator;
 
     //! Constructor.
     /*!
@@ -212,6 +283,21 @@ public:
         planetCenterToBarycenterCoordinateTimeInterpolator_ = planetCenterToBarycenterCoordinateTimeInterpolator;
     }
 
+    //! Reset barycentric/bodycentric conversion interpolators in extended time.
+    /*!
+     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
+     *  barycentric-to-bodycentric conversion.
+     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
+     *  bodycentric-to-barycentric conversion.
+     */
+    void resetBarycentricToBodycentricInterpolators(
+            const ExtendedTimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
+            const ExtendedTimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator )
+    {
+        barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_ = barycenterToPlanetCenterCoordinateTimeInterpolator;
+        planetCenterToBarycenterCoordinateTimeInterpolatorExtended_ = planetCenterToBarycenterCoordinateTimeInterpolator;
+    }
+
     //! Reset bodycentric/topocentric conversion interpolators for a reference point.
     /*!
      *  \param planetCoordinateToProperTimeInterpolator Interpolator for bodycentric-to-proper conversion.
@@ -241,8 +327,37 @@ public:
         }
     }
 
-    //! Retrieve conversion function for a requested pair of scales.
-    std::function< double( const double ) > getTimeDifferenceFunction(
+    //! Reset bodycentric/topocentric conversion interpolators for a reference point in extended time.
+    /*!
+     *  \param planetCoordinateToProperTimeInterpolator Interpolator for bodycentric-to-proper conversion.
+     *  \param properTimeToPlanetCoordinateInterpolator Interpolator for proper-to-bodycentric conversion.
+     *  \param referencePoint Reference point identifier.
+     *  \param referencePointPositionFunction Optional position function for the reference point.
+     */
+    void resetBodycentricToTopocentricInterpolators(
+            const ExtendedTimeDifferenceInterpolator planetCoordinateToProperTimeInterpolator,
+            const ExtendedTimeDifferenceInterpolator properTimeToPlanetCoordinateInterpolator,
+            const std::string& referencePoint,
+            const std::function< Eigen::Vector3d( const double ) > referencePointPositionFunction = nullptr )
+    {
+        planetCoordinateToProperTimeInterpolatorsExtended_[ referencePoint ] = planetCoordinateToProperTimeInterpolator;
+        properTimeToPlanetCoordinateInterpolatorsExtended_[ referencePoint ] = properTimeToPlanetCoordinateInterpolator;
+        if( !doesReferencePointTopocentricConverterExist( referencePoint ) )
+        {
+            if( referencePointPositionFunction == nullptr )
+            {
+                std::cerr << "Error when resetting bodycentric to topocentric time converter for point " << referencePoint
+                          << ", must also provide point position function; point not yet known in TimeEphemeris" << std::endl;
+            }
+            else
+            {
+                groundStationPositionFunctions_[ referencePoint ] = referencePointPositionFunction;
+            }
+        }
+    }
+
+    //! Retrieve conversion function for a requested pair of scales in extended time.
+    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
             const basic_astrodynamics::TimeScales inputScale,
             const basic_astrodynamics::TimeScales outputScale,
             const std::string& pointIdentifier = "" ) override;
@@ -279,19 +394,28 @@ public:
      */
     bool doesReferencePointTopocentricConverterExist( const std::string& referencePointName )
     {
-        return ( groundStationPositionFunctions_.count( referencePointName ) > 0 ) &&
-               ( planetCoordinateToProperTimeInterpolators_.count( referencePointName ) > 0 ) &&
-               ( properTimeToPlanetCoordinateInterpolators_.count( referencePointName ) > 0 );
+        const bool hasPosition = ( groundStationPositionFunctions_.count( referencePointName ) > 0 );
+        const bool hasDoubleInterpolators =
+                ( planetCoordinateToProperTimeInterpolators_.count( referencePointName ) > 0 ) &&
+                ( properTimeToPlanetCoordinateInterpolators_.count( referencePointName ) > 0 );
+        const bool hasExtendedInterpolators =
+                ( planetCoordinateToProperTimeInterpolatorsExtended_.count( referencePointName ) > 0 ) &&
+                ( properTimeToPlanetCoordinateInterpolatorsExtended_.count( referencePointName ) > 0 );
+        return hasPosition && ( hasDoubleInterpolators || hasExtendedInterpolators );
     }
 
 protected:
 
     TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator_;
     TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator_;
+    ExtendedTimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_;
+    ExtendedTimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolatorExtended_;
 
     std::map< std::string, std::function< Eigen::Vector3d( const double ) > > groundStationPositionFunctions_;
     std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators_;
     std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators_;
+    std::map< std::string, ExtendedTimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolatorsExtended_;
+    std::map< std::string, ExtendedTimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolatorsExtended_;
 };
 
 //! Post-Newtonian converter with first-order direct local term.
@@ -415,6 +539,7 @@ class TimeEphemerisDirectFromMetric : public TimeEphemeris
 {
 public:
     typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > TimeDifferenceInterpolator;
+    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > ExtendedTimeDifferenceInterpolator;
 
     //! Constructor.
     /*!
@@ -450,8 +575,23 @@ public:
         properTimeToGlobalCoordinateInterpolators_[ referencePoint ] = properTimeToGlobalCoordinateInterpolator;
     }
 
-    //! Retrieve conversion function for a requested pair of scales.
-    std::function< double( const double ) > getTimeDifferenceFunction(
+    //! Reset direct conversion interpolators for a specific reference point in extended time.
+    /*!
+     *  \param globalCoordinateToProperTimeInterpolator Interpolator for global-to-proper conversion.
+     *  \param properTimeToGlobalCoordinateInterpolator Interpolator for proper-to-global conversion.
+     *  \param referencePoint Reference point identifier.
+     */
+    void resetGlobalToProperTimeInterpolators(
+            const ExtendedTimeDifferenceInterpolator globalCoordinateToProperTimeInterpolator,
+            const ExtendedTimeDifferenceInterpolator properTimeToGlobalCoordinateInterpolator,
+            const std::string& referencePoint )
+    {
+        globalCoordinateToProperTimeInterpolatorsExtended_[ referencePoint ] = globalCoordinateToProperTimeInterpolator;
+        properTimeToGlobalCoordinateInterpolatorsExtended_[ referencePoint ] = properTimeToGlobalCoordinateInterpolator;
+    }
+
+    //! Retrieve conversion function for a requested pair of scales in extended time.
+    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
             const basic_astrodynamics::TimeScales inputScale,
             const basic_astrodynamics::TimeScales outputScale,
             const std::string& pointIdentifier = "" ) override;
@@ -482,6 +622,8 @@ protected:
 
     std::map< std::string, TimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolators_;
     std::map< std::string, TimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolators_;
+    std::map< std::string, ExtendedTimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolatorsExtended_;
+    std::map< std::string, ExtendedTimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolatorsExtended_;
 };
 
 }  // namespace tudat
