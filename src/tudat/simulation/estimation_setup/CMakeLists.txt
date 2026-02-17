@@ -62,6 +62,10 @@ set(estimation_SOURCES
         createEulerAngleObservationPartials.cpp
         createTorquePartials.cpp
         variationalEquationsSolver.cpp
+        variationalEquationsSolverDoubleDoubleInstantiation.cpp
+        singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+        multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+        hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
         createObservationManager.cpp
         createObservationManagersBaseDoubleDoubleInstantiation.cpp
         createEstimatableParameters.cpp

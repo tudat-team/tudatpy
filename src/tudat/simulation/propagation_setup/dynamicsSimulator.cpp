@@ -18,10 +18,6 @@ namespace tudat
 namespace propagators
 {
 
-template class SingleArcDynamicsSimulator< double, double >;
-// template class MultiArcDynamicsSimulator< double, double >;
-// template class HybridArcDynamicsSimulator< double, double >;
-
 }
 
 }  // namespace tudat
