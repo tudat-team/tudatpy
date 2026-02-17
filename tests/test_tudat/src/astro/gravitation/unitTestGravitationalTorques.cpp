@@ -24,7 +24,14 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
 
 namespace tudat
 {
