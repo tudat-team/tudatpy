@@ -19,7 +19,8 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
