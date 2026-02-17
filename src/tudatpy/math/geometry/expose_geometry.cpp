@@ -15,6 +15,8 @@
 #include <pybind11/stl.h>
 #include <tudat/basics/basicTypedefs.h>
 
+#include "tudat/math/geometric/capsule.h"
+
 namespace py = pybind11;
 
 namespace tgs = tudat::geometric_shapes;

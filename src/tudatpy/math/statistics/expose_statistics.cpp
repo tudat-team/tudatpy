@@ -16,6 +16,7 @@
 #include <tudat/basics/basicTypedefs.h>
 
 #include "tudat/astro/system_models/timingSystem.h"
+#include "tudat/math/statistics/allanVariance.h"
 
 namespace py = pybind11;
 
