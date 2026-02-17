@@ -19,6 +19,8 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "observations_processing/expose_observations_processing.h"
+#include "observations_geometry/expose_observations_geometry.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

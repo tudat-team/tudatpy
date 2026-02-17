@@ -6,8 +6,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <boost/shared_ptr.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"

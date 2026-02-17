@@ -9,7 +9,13 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_observations_wrapper.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
@@ -410,7 +416,7 @@ void expose_observations_wrapper( py::module &m )
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
                               const tom::ObservationAncillarySimulationSettings & >(
-                   &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
+                   &tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),
            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),

@@ -2303,6 +2303,48 @@ public:
         }
     }
 
+    std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndEndIndices( ) const
+    {
+        std::map< ObservableType, std::pair< int, int > > observableTypeIndices;
+
+        int currentIndex = 0;
+
+        // Iterate over observable types (strictly ordered by std::map)
+        for( typename SortedObservationSets::const_iterator observableIt = observationSetList_.begin( );
+             observableIt != observationSetList_.end( );
+             ++observableIt )
+        {
+            const ObservableType observableType = observableIt->first;
+
+            const int startIndex = currentIndex;
+
+            // Loop over link ends
+            for( typename std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > >::
+                         const_iterator linkIt = observableIt->second.begin( );
+                 linkIt != observableIt->second.end( );
+                 ++linkIt )
+            {
+                const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > &observationSetsForLink =
+                        linkIt->second;
+
+                // Loop over observation sets
+                for( std::size_t i = 0; i < observationSetsForLink.size( ); ++i )
+                {
+                    const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > &observationSet =
+                            observationSetsForLink.at( i );
+
+                    currentIndex += static_cast< int >( observationSet->getTotalObservationSetSize( ) );
+                }
+            }
+
+            const int endIndex = currentIndex;
+
+            observableTypeIndices[ observableType ] = std::make_pair( startIndex, endIndex - startIndex );
+        }
+
+        return observableTypeIndices;
+    }
+
 private:
     void setObservationSetIndices( )
     {

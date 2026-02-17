@@ -18,7 +18,6 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

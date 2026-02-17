@@ -12,7 +12,6 @@
 #ifndef TUDAT_CENTRAL_J2_GRAVITY_MODEL_H
 #define TUDAT_CENTRAL_J2_GRAVITY_MODEL_H
 
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"

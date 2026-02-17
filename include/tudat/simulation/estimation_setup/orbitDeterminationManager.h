@@ -50,7 +50,7 @@ class ObservationManagerBase;
 
 template< typename ObservationScalarType, typename TimeType >
 class ObservationSimulatorBase;
-}
+}  // namespace observation_models
 
 namespace propagators
 {

@@ -12,7 +12,18 @@
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/chrono.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 
+#include "environment/expose_environment.h"
+#include "environment_setup/expose_environment_setup.h"
+#include "propagation/expose_propagation.h"
+#include "propagation_setup/expose_propagation_setup.h"
+#include "simulator/expose_simulator.h"
+#include "parameters_setup/expose_parameters_setup.h"
+#include "parameters/expose_parameters.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;

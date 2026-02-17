@@ -13,9 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "shape_based_thrust/expose_shape_based_thrust.h"
-#include "transfer_trajectory/expose_transfer_trajectory.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

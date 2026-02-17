@@ -12,7 +12,6 @@
 #ifndef TUDAT_CENTRAL_GRAVITY_MODEL_H
 #define TUDAT_CENTRAL_GRAVITY_MODEL_H
 
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include <Eigen/Core>
@@ -215,7 +214,7 @@ public:
                 [ = ]( ) { return aGravitationalParameter; },
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
-    { }
+    {}
 
     //! Constructor taking position-functions for bodies, and constant gravitational parameter.
     /*!
@@ -247,7 +246,7 @@ public:
               aGravitationalParameterFunction,
               positionOfBodyExertingAccelerationFunction,
               isMutualAttractionUsed )
-    { }
+    {}
 
     //! Update members.
     /*!

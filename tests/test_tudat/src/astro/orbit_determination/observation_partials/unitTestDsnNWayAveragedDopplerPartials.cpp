@@ -18,8 +18,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -113,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
                         std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( linkEnds,
-                                                                                                           lightTimeCorrectionsList ),
+                                                                                                                lightTimeCorrectionsList ),
                         bodies );
 
         // Create parameter objects.
@@ -168,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
                         std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( linkEnds,
-                                                                                                           lightTimeCorrectionsList ),
+                                                                                                                lightTimeCorrectionsList ),
                         bodies );
 
         // Create parameter objects.

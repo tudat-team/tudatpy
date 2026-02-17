@@ -213,6 +213,8 @@ double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
 void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4d quaternionVector,
                                                             std::vector< Eigen::Matrix3d >& partialDerivatives );
 
+double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual );
+
 }  // namespace linear_algebra
 
 }  // namespace tudat

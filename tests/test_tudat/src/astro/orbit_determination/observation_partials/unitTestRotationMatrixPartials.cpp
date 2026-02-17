@@ -14,8 +14,6 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
