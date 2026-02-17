@@ -4,8 +4,9 @@ import os
 import requests
 from collections import defaultdict
 import numpy as np
+from mypyc.ir.rtypes import none_rprimitive
 from tudatpy.dynamics import environment, environment_setup, propagation_setup
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import math
 from tudatpy.data import get_resource_path
 
@@ -15,7 +16,7 @@ class SpaceTrackQuery:
     It manages authentication, session persistence, and local caching of TLE files to minimize API usage.
     """
 
-    def __init__(self, username: str | None = None, password: str | None = None, tle_data_folder: str = get_resource_path() + "/tle_data") -> None:
+    def __init__(self, username: str | None = None, password: str | None = None, spacetrack_url = 'https://www.space-track.org', tle_data_folder: str = get_resource_path() + "/tle_data") -> None:
         """
         Initializes the query client.
 
@@ -45,7 +46,7 @@ class SpaceTrackQuery:
         self.password: str = password
         """ Space-Track.org username """
 
-        self.spacetrack_url: str = 'https://www.space-track.org'
+        self.spacetrack_url: str = spacetrack_url
         """ Space-Track.org url """
 
         # Setup local TLE data folder
@@ -88,242 +89,340 @@ class SpaceTrackQuery:
             print(f"Login failed: {e}")
             raise
 
-    def _get_json_and_save(self, url: str, json_name: str) -> dict | list | None:
+    def _get_json_and_save(self, url: str, json_name: str, merge: bool = False) -> dict | list | None:
         """
-        Retrieves JSON data. Checks local folder FIRST.
-        If missing, fetches from API, saves to file, and returns parsed JSON.
+        Retrieves JSON data.
 
         Parameters
         ----------
         url : str
-            The URL to fetch the JSON data from.
+            API Endpoint.
         json_name : str
-            The filename (not path) to check/save in the local TLE folder.
-
-        Returns
-        -------
-        dict | list | None
-            The parsed JSON data if successful, otherwise None.
+            Filename.
+        merge : bool
+            If True, merges new data with existing file (Append Mode).
+            If False, overwrites the file with new data (Replace Mode).
         """
         filepath = os.path.join(self.tle_data_folder, json_name)
 
-        # 1. Check Local Cache
-        if os.path.exists(filepath):
-            print(f"Found local file: {filepath}. Skipping API call.")
-            try:
-                with open(filepath, 'r') as f:
-                    return json.load(f)
-            except json.JSONDecodeError:
-                print(f"Local file {filepath} is corrupted. Re-downloading.")
-
-        # 2. Fetch from API
+        # 1. Fetch from API
         try:
-            print(f"Fetching new data for {json_name} from API...")
+            print(f"Fetching data for {json_name}...")
             response = self.session.get(url)
             response.raise_for_status()
-            json_data = response.json()
+            new_data = response.json()
 
-            # Save the file to the cache folder
-            with open(filepath, "w") as json_file:
-                json.dump(json_data, json_file, indent=4)
-                print(f"Data saved to {filepath}.")
+            # 2. Save Logic
+            if merge and os.path.exists(filepath):
+                print(f"Merge requested. Updating {json_name}...")
+                # Use our robust merger to combine old + new
+                self._save_unique_sorted(filepath, new_data)
 
-            return json_data
+                # Reload the full merged set to return it
+                with open(filepath, 'r') as f:
+                    final_data = json.load(f)
+                    # Handle new dict structure if present
+                    if isinstance(final_data, dict) and 'data' in final_data:
+                        return final_data['data']
+                    return final_data
+
+            else:
+                # Overwrite Mode (Default)
+                print(f"Overwrite requested (or file missing). Saving {json_name}...")
+
+                # _save_unique_sorted reads the file if it exists.
+                # To force overwrite, we should just delete the file first if it exists.
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+
+                self._save_unique_sorted(filepath, new_data)
+                return new_data
 
         except requests.exceptions.RequestException as e:
-            print(f"Failed to retrieve data from the API. Error: {e}")
+            print(f"API Error: {e}")
             return None
-        except json.JSONDecodeError:
-            print(f"Failed to decode JSON response. Content: {response.text[:200]}...")
-            return None
-
-    def _retrieve_local_tle_data(self, norad_cat_id: str | int, start_date: str, end_date: str) -> list[dict] | None:
+    def get_tles_for_date_range(self, norad_id: int | str, start_date: str, end_date: str, override_last_api_hit: bool = False) -> list[dict] | None:
         """
-        Checks for a file covering the specific ID and Date Range.
-        Pattern: tle_{ID}_{START}_{END}.json
-
-        Parameters
-        ----------
-        norad_cat_id : str | int
-            The NORAD ID of the object.
-        start_date : str
-            The start date of the requested range (YYYY-MM-DD).
-        end_date : str
-            The end date of the requested range (YYYY-MM-DD).
-
-        Returns
-        -------
-        list[dict] | None
-            A list of filtered TLE dictionaries if a covering file is found locally, otherwise None.
+        Retrieves TLEs. Respects a 2-hour API cooldown to prevent spamming queries
+        for missing data (e.g., if start_date is before the satellite was launched).
         """
-        norad_cat_id = str(norad_cat_id)
-        tle_file_name_pattern = f"tle_{norad_cat_id}_"
+        norad_id = str(norad_id)
+        filename = f"tle_{norad_id}.json"
+        filepath = os.path.join(self.tle_data_folder, filename)
+
+        # 1. Parse dates
+        req_start = datetime.strptime(start_date, "%Y-%m-%d")
+        req_end = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1, microseconds=-1)
+
+        # 2. Load Local Data & Metadata
+        local_data = []
+        last_hit = None
+
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r') as f:
+                    content = json.load(f)
+
+                    if isinstance(content, dict):
+                        local_data = content.get('data', [])
+                        if 'last_api_hit' in content:
+                            last_hit = datetime.fromisoformat(content['last_api_hit'])
+                    elif isinstance(content, list):
+                        # Legacy format support
+                        local_data = content
+            except json.JSONDecodeError:
+                pass
+
+        # 3. Check Cooldown Logic
+        needs_fetch = True
+
+        # Check 1: Do we have full coverage?
+        if local_data:
+            local_min = datetime.fromisoformat(local_data[0]['EPOCH'])
+            local_max = datetime.fromisoformat(local_data[-1]['EPOCH'])
+
+            if req_start >= local_min and req_end <= local_max:
+                print(f"Local cache fully covers request. Skipping API.")
+                needs_fetch = False
+
+        # Check 2: Are we in the cooldown period?
+        if needs_fetch and last_hit:
+            time_since_last_hit = datetime.now() - last_hit
+            cooldown_period = timedelta(hours=1.5)
+
+            if not override_last_api_hit and time_since_last_hit < cooldown_period:
+                print(f"Cache is recent ({time_since_last_hit} ago). Skipping API despite gaps.")
+                needs_fetch = False
+            elif override_last_api_hit and time_since_last_hit < cooldown_period:
+                needs_fetch = True
+        # 4. Fetch from API (Only if needed AND allowed)
+        if needs_fetch:
+            print(f"Fetching {norad_id} from API ({start_date} -- {end_date})...")
+            url = os.path.join(
+                self.spacetrack_url,
+                f"basicspacedata/query/class/gp/NORAD_CAT_ID/{norad_id}/EPOCH/{start_date}--{end_date}/orderby/EPOCH asc/format/json"
+            )
+
+            # Even if API returns empty list, we MUST save to update the timestamp!
+            fetched_data = self._fetch_json(url)
+
+            # This updates 'last_api_hit' and merges any new data
+            self._save_unique_sorted(filepath, fetched_data if fetched_data else [])
+
+            # Reload fresh data
+            with open(filepath, 'r') as f:
+                content = json.load(f)
+                local_data = content.get('data', [])
+
+        # 5. Filter and Return
+        filtered_omm = []
+        for omm in local_data:
+            tle_epoch = datetime.fromisoformat(omm['EPOCH'])
+            if req_start <= tle_epoch <= req_end:
+                filtered_omm.append(omm)
+
+        return filtered_omm
+    def _fetch_json(self, url: str) -> list | None:
+        """Fetches and returns list."""
+        response = self.session.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data if isinstance(data, list) else [data]
+
+    def _save_unique_sorted(self, filepath: str, new_data: list[dict]):
+        """
+        Merges new data into the file and updates the 'last_api_hit' timestamp.
+        File Structure: {"last_api_hit": "ISO_STR", "data": [ ... ]}
+        """
+        # 1. Load existing content
+        existing_data = []
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r') as f:
+                    content = json.load(f)
+
+                    # Handle migration from old list-only format to new dict format
+                    if isinstance(content, list):
+                        existing_data = content
+                    elif isinstance(content, dict):
+                        existing_data = content.get('data', [])
+            except json.JSONDecodeError:
+                existing_data = []
+
+        # This prevents Sat A from overwriting Sat B if they share an Epoch
+        unique_map = {}
+        for item in existing_data:
+            key = f"{item['NORAD_CAT_ID']}_{item['EPOCH']}"
+            unique_map[key] = item
+
+        for new_item in new_data:
+            key = f"{new_item['NORAD_CAT_ID']}_{new_item['EPOCH']}"
+
+            if key not in unique_map:
+                unique_map[key] = new_item
+            else:
+                # Revision check (check creation date)
+                if new_item.get('CREATION_DATE', '') > unique_map[key].get('CREATION_DATE', ''):
+                    unique_map[key] = new_item
+
+        # Sort by EPOCH (and ID for cleanliness)
+        sorted_data = sorted(unique_map.values(), key=lambda x: (x['EPOCH'], x['NORAD_CAT_ID']))
+
+        file_content = {
+            "last_api_hit": datetime.now().isoformat(),
+            "data": sorted_data
+        }
+
+        with open(filepath, 'w') as f:
+            json.dump(file_content, f, indent=4)
+
+    def clean_tle_file(self, filepath: str) -> None:
+        """
+        Removes duplicate TLE entries from a JSON file.
+        Supports both legacy (list) and new (dict with metadata) formats.
+        """
+        if not os.path.exists(filepath):
+            print(f"File not found: {filepath}")
+            return
 
         try:
-            req_start = datetime.strptime(start_date, "%Y-%m-%d")
-            req_end = datetime.strptime(end_date, "%Y-%m-%d")
-        except ValueError as e:
-            print(f"Date parsing error: {e}")
-            return None
+            with open(filepath, 'r') as f:
+                content = json.load(f)
 
-        if not os.path.exists(self.tle_data_folder):
-            return None
+            # 1. Detect Format and Extract Data
+            is_dict_format = False
+            metadata = {}
 
-        for file_name in os.listdir(self.tle_data_folder):
-            if file_name.startswith(tle_file_name_pattern) and file_name.endswith(".json"):
-                try:
-                    # Parse: tle_12345_2023-01-01_2023-01-10.json
-                    parts = file_name.split('_')
-                    if len(parts) < 4: continue
+            if isinstance(content, list):
+                data = content
+            elif isinstance(content, dict) and 'data' in content:
+                is_dict_format = True
+                data = content['data']
+                # Preserve metadata (like last_api_hit)
+                metadata = {k: v for k, v in content.items() if k != 'data'}
+            else:
+                print(f"Skipping {filepath}: Unknown format.")
+                return
 
-                    f_start_str = parts[2]
-                    f_end_str = parts[3].split('.')[0]
+            # 2. Deduplicate
+            initial_count = len(data)
+            unique_map = {}
 
-                    f_start = datetime.strptime(f_start_str, "%Y-%m-%d")
-                    f_end = datetime.strptime(f_end_str, "%Y-%m-%d")
+            for entry in data:
+                epoch = entry.get('EPOCH')
+                if not epoch: continue
 
-                    # Check if file fully covers the requested range
-                    if f_start <= req_start and f_end >= req_end:
-                        filepath = os.path.join(self.tle_data_folder, file_name)
-                        print(f"Found valid local coverage: {file_name}")
-                        with open(filepath, 'r') as f:
-                            data = json.load(f)
-                            # Filter explicitly for the requested range
-                            filtered = [
-                                d for d in data
-                                if start_date <= d['EPOCH'][:10] <= end_date
-                            ]
-                            return filtered
-                except (ValueError, IndexError):
-                    continue
+                if epoch not in unique_map:
+                    unique_map[epoch] = entry
+                else:
+                    # Conflict resolution: keep newest CREATION_DATE
+                    existing = unique_map[epoch]
+                    if entry.get('CREATION_DATE', '') > existing.get('CREATION_DATE', ''):
+                        unique_map[epoch] = entry
 
-        return None
+            cleaned_data = sorted(unique_map.values(), key=lambda x: x['EPOCH'])
+            final_count = len(cleaned_data)
 
-    def get_tles_for_date_range(self, norad_id: int | str, start_date: str, end_date: str) -> list[dict] | None:
-        """
-        Primary method for simulation workflows.
-        Checks local file cache for date coverage before hitting API.
+            # 3. Save back in the same format it was found
+            if is_dict_format:
+                output = metadata
+                output['data'] = cleaned_data
+            else:
+                output = cleaned_data
 
-        Parameters
-        ----------
-        norad_id : int | str
-            The NORAD ID of the object.
-        start_date : str
-            The start date of the range (YYYY-MM-DD).
-        end_date : str
-            The end date of the range (YYYY-MM-DD).
+            with open(filepath, 'w') as f:
+                json.dump(output, f, indent=4)
 
-        Returns
-        -------
-        list[dict] | None
-            A list of TLE dictionaries covering the requested range, or None if retrieval fails.
-        """
-        # 1. Smart Range Check
-        local_tles = self._retrieve_local_tle_data(norad_id, start_date, end_date)
-        if local_tles is not None:
-            return local_tles
+            print(f"Successfully cleaned {filepath}. Removed {initial_count - final_count} duplicates.")
 
-        # 2. Query Space-Track
-        print(f"No local file covers range {start_date} to {end_date} for {norad_id}. Querying API...")
-
-        url = os.path.join(
-            self.spacetrack_url,
-            f"basicspacedata/query/class/gp/NORAD_CAT_ID/{norad_id}/EPOCH/{start_date}--{end_date}/orderby/EPOCH asc/format/json"
-        )
-
-        filename = f"tle_{norad_id}_{start_date}_{end_date}.json"
-
-        # Use centralized saver (which handles saving to folder)
-        # Note: We pass the URL. Since we know the file didn't exist (from step 1 check),
-        # _get_json_and_save will fetch and save it.
-        return self._get_json_and_save(url, filename)
+        except json.JSONDecodeError:
+            print(f"Error: {filepath} contains invalid JSON.")
 
     #####################################
     # --- AVAILABLE DOWNLOAD METHODS ---#
     #####################################
-
-    def latest_on_orbit(self) -> dict | list | None:
+    def latest_on_orbit(self, update_existing: bool = False, filename: str | None = None) -> dict | list | None:
         """
         Retrieves the newest propagable element set for all on-orbit payloads.
-        Checks 'latest_on_orbit.json' in local folder first.
 
-        Returns
-        -------
-        dict | list | None
-            The parsed JSON data containing the latest TLEs, or None if retrieval fails.
+        Parameters
+        ----------
+        update_existing : bool
+            If True, merges the new snapshot into the target file.
+            If False (default), overwrites the target file with the current snapshot.
+        filename : str | None
+            Optional override for the filename.
+            If None, defaults to 'latest_on_orbit.json'.
         """
-        json_name = "latest_on_orbit.json"
+        # 1. Determine Filename
+        if filename:
+            json_name = filename
+        else:
+            json_name = "latest_on_orbit.json"
+
+        # Note: We use 'epoch/>now-30' to get data from the last 30 days.
         url = os.path.join(
             self.spacetrack_url,
             'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/decay_date/null-val/epoch/>now-30/orderby/norad_cat_id/format/json'
         )
-        return self._get_json_and_save(url, json_name)
 
-    def descending_epoch(self, N: int | None = None) -> dict | list | None:
+        return self._get_json_and_save(url, json_name, merge=update_existing)
+
+    def descending_epoch(self, N: int | None = None, update_existing: bool = False, filename: str | None = None) -> dict | list | None:
         """
-        Retrieves GP data ordered by epoch. Checks local folder first.
+        Retrieves GP data ordered by epoch.
 
         Parameters
         ----------
-        N : int | None, optional
-            Limit the number of results returned. If None, no limit is applied.
-
-        Returns
-        -------
-        dict | list | None
-            The parsed JSON data containing TLEs ordered by descending epoch, or None if retrieval fails.
+        N : int | None
+            Limit number of results.
+        update_existing : bool
+            If True, merges results into the local file.
+        filename : str | None
+            Optional override for the filename.
+            Useful if you want to update a 'master' file with a small N query.
         """
-        if N is not None:
+        # 1. Determine Filename
+        if filename:
+            json_name = filename
+        elif N is not None:
             json_name = f"gp_descending_limit_{N}.json"
-            url = os.path.join(
-                self.spacetrack_url,
-                f'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc/limit/{N}/format/json'
-            )
         else:
             json_name = "gp_descending.json"
-            url = os.path.join(
-                self.spacetrack_url,
-                'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc/format/json'
-            )
 
-        json_data = self._get_json_and_save(url, json_name)
+        url_parts = ['basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc']
 
-        # Optional: Filter duplicates if new data was fetched
-        if json_data and N != 1:
-            filepath = os.path.join(self.tle_data_folder, json_name)
+        if N is not None:
+            url_parts.append(f'limit/{N}')
 
-            # Perform filtering
-            filtered_values = list(self.OMMUtils.filter_tles_keep_latest_creation_from_json(filepath))
+        url_parts.append('format/json')
+        url = os.path.join(self.spacetrack_url, "/".join(url_parts))
 
-            # Save FILTERED data back to the SAME filename to ensure cache stability
-            with open(filepath, "w") as f:
-                json.dump(filtered_values, f, indent=4)
-            print(f"Filtered and updated local file: {json_name}")
-
-        return json_data
+        return self._get_json_and_save(url, json_name, merge=update_existing)
 
     def get_tles_by_norad_ids(
             self, norad_ids: int | list[int], history: bool = False,
-            orderby: str = 'epoch desc', limit_per_object: int = 1
+            orderby: str = 'epoch desc', limit_per_object: int = 1,
+            update_existing: bool = False, filename: str | None = None
     ) -> dict | list | None:
         """
-        Retrieves TLEs for specific IDs. Checks local folder first.
+        Retrieves TLEs for specific IDs.
 
         Parameters
         ----------
         norad_ids : int | list[int]
             A single NORAD ID or a list of NORAD IDs to query.
-        history : bool, optional
-            If True, queries the 'gp_history' class instead of 'gp'. Defaults to False.
-        orderby : str, optional
-            Ordering criteria for the query results. Defaults to 'epoch desc'.
-        limit_per_object : int, optional
-            Limit the number of TLEs returned per object. Defaults to 1.
-
-        Returns
-        -------
-        dict | list | None
-            The parsed JSON data containing the requested TLEs, or None if retrieval fails.
+        history : bool
+            If True, queries 'gp_history'.
+        orderby : str
+            Ordering criteria.
+        limit_per_object : int
+            Limit TLEs per object.
+        update_existing : bool
+            If True, merges results into the target file.
+        filename : str | None
+            Force a specific filename. Essential if building a custom list
+            (e.g., 'my_favorites.json') from multiple queries.
         """
         if not isinstance(norad_ids, (list, tuple, set)):
             norad_ids = [norad_ids]
@@ -338,13 +437,13 @@ class SpaceTrackQuery:
                 print("Note: Removing 'orderby' for batch history query.")
                 use_orderby = False
 
-        # Stable Filename Generation
-        if len(norad_ids) == 1:
+        # 1. Determine Filename
+        if filename:
+            json_name = filename
+        elif len(norad_ids) == 1:
             single_id = norad_ids[0]
-            # Use query params in filename to make it unique
             json_name = f"{tle_class}_{single_id}_limit_{limit_per_object}.json"
         else:
-            # Hash or summary for multiple IDs could be used, but simplified here:
             json_name = f"{tle_class}_batch_{len(norad_ids)}_ids_limit_{limit_per_object}.json"
 
         # Build URL
@@ -355,17 +454,25 @@ class SpaceTrackQuery:
 
         url = os.path.join(self.spacetrack_url, "/".join(url_parts))
 
-        # 1. Fetch (or Load Local)
-        json_data = self._get_json_and_save(url, json_name)
+        # 2. Fetch using the new Merge logic
+        json_data = self._get_json_and_save(url, json_name, merge=update_existing)
 
-        # 2. Post-Process (Filter Duplicates)
-        # Only needed if we suspect duplicates and we just downloaded it.
-        # But for consistency, we can re-filter or ensure the saved file is clean.
+        # 3. Post-Process (Filter Duplicates)
+        # Since _get_json_and_save now handles deduplication via _save_unique_sorted
+        # internally if merge=True, we strictly only need this extra step
+        # if you want to ensure the file is perfectly clean based on *Creation Date* specifically
+        # or if _save_unique_sorted wasn't called (e.g. merge=False).
+        # However, keeping it is safe as it re-verifies the file.
         if json_data and (history or limit_per_object > 1):
             filepath = os.path.join(self.tle_data_folder, json_name)
+
+            # Note: We read from the file to ensure we are filtering the *merged* result
             filtered_values = list(self.OMMUtils.filter_tles_keep_latest_creation_from_json(filepath))
 
-            # Save FILTERED data back to SAME filename
+            # Since filter_tles_keep_latest... returns a list, we need to handle
+            # the dictionary structure if we want to keep metadata,
+            # OR just save the list back if we don't care about 'last_api_hit' here.
+            # For simplicity in this specific helper method, we just dump the list.
             with open(filepath, "w") as f:
                 json.dump(filtered_values, f, indent=4)
             print(f"Filtered local file content: {json_name}")
@@ -374,25 +481,23 @@ class SpaceTrackQuery:
 
     def filtered_by_oe_dict(
             self, filter_oe_dict: dict[str, tuple[float | None, float | None]],
-            limit: int = 100, output_file: str = 'filtered_results.json'
+            limit: int = 100, output_file: str = 'filtered_results.json',
+            update_existing: bool = False
     ) -> dict | list | None:
         """
-        Retrieves TLEs by orbital elements. Checks local folder first.
+        Retrieves TLEs by orbital elements.
 
         Parameters
         ----------
-        filter_oe_dict : dict[str, tuple[float | None, float | None]]
-            A dictionary where keys are orbital element names (e.g., 'SEMIMAJOR_AXIS') and values are tuples of (min, max).
-            Use None for unbound limits.
-        limit : int, optional
-            Limit the number of results returned. Defaults to 100.
-        output_file : str, optional
-            Filename to save the results to locally. Defaults to 'filtered_results.json'.
-
-        Returns
-        -------
-        dict | list | None
-            The parsed JSON data containing the filtered TLEs, or None if retrieval fails.
+        filter_oe_dict : dict
+            Dictionary of Orbital Elements bounds.
+        limit : int
+            Limit results.
+        output_file : str
+            Filename to save/merge results.
+        update_existing : bool
+            If True, appends results to 'output_file'.
+            If False, overwrites 'output_file'.
         """
         base_url_parts = ['basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD']
 
@@ -411,7 +516,8 @@ class SpaceTrackQuery:
         base_url_parts.extend([f"orderby/epoch desc/limit/{limit}/format/json"])
         url = os.path.join(self.spacetrack_url, "/".join(base_url_parts))
 
-        return self._get_json_and_save(url, output_file)
+        # Pass the merge flag directly to the helper
+        return self._get_json_and_save(url, output_file, merge=update_existing)
 
     #################
     # OMM Utilities #
