@@ -18,7 +18,7 @@
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/simulation/propagation_setup//propagationSettings.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {
