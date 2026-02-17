@@ -511,8 +511,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                                                                                                        observationSimulator,
                                                                                                        observationPartials,
                                                                                                        observationPartialScalers,
-                                                                                                       stateTransitionMatrixInterface,
-                                                                                                       dependentVariablesInterface );
+                                                                                                       stateTransitionMatrixInterface );
 }
 
 //! Function to create an object to simulate observations of a given type and associated partials
