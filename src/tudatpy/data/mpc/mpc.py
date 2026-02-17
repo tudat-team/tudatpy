@@ -1522,9 +1522,9 @@ class BatchMPC:
                                 ].to_numpy()[:, 0]
 
             # create a set of obs for this link
-            observation_set = observations.single_observation_set(
+            observation_set = observations.create_single_observation_set(
                 model_settings.angular_position_type,
-                link_definition,
+                link_definition.link_ends,
                 observation_angles,
                 observation_times,
                 links.receiver,

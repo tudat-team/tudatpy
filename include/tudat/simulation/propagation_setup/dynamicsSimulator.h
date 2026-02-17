@@ -1266,8 +1266,8 @@ public:
 
         for( auto it : stateHistory )
         {
-            Eigen::Matrix< InputStateScalarType, Eigen::Dynamic, 1 > unprocessedState =
-                    dynamicsStateDerivative_->convertFromOutputSolution( it.second, it.first );
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState =
+                    dynamicsStateDerivative_->convertFromOutputSolution( it.second.template cast< StateScalarType >( ), it.first );
             dynamicsStateDerivative_->computeStateDerivative( static_cast< double >( it.first ), unprocessedState );
             dependentVariables_[ it.first ] = dependentVariablesFunctions_( );
         }

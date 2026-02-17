@@ -66,13 +66,10 @@ TleEphemeris::TleEphemeris( const std::string &referenceFrameOrigin,
 
 Eigen::Vector6d TleEphemeris::getCartesianStateInTemeFrame( double secondsSinceEpoch )
 {
-    double ttSinceEpoch = secondsSinceEpoch - sofa_interface::getTDBminusTT( secondsSinceEpoch, Eigen::Vector3d::Zero( ) );
-    double utcSecondSinceEpoch = sofa_interface::convertTTtoUTC( ttSinceEpoch );
-
     // Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
     // Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
     // therefore needs to be converted to an intermediate standard reference frame.
-    return spice_interface::getCartesianStateFromTleAtEpoch( utcSecondSinceEpoch, tle_ );
+    return spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 }
 
 Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
@@ -104,6 +101,42 @@ Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
     return cartesianStateOutput;
 }
 
+// Computes the TLE checksum (0-9) for a 69-character line (checksum digit is at index 68).
+int computeTleChecksum( const std::string &line )
+{
+    if( line.size( ) != 69 )
+    {
+        throw std::runtime_error( "TLE line must be exactly 69 characters." );
+    }
+
+    int checksum = 0;
+    for( std::size_t i = 0; i < 68; ++i )
+    {
+        const char c = line[ i ];
+        if( c == '-' )
+        {
+            ++checksum;
+        }
+        else if( std::isdigit( static_cast< unsigned char >( c ) ) )
+        {
+            checksum += static_cast< int >( c ) - '0';
+        }
+    }
+
+    return checksum % 10;
+}
+
+void validateTleChecksumOrThrow( const std::string &line )
+{
+    const int expected = computeTleChecksum( line );
+    const int provided = static_cast< int >( line.at( 68 ) ) - '0';
+
+    if( expected != provided )
+    {
+        throw std::runtime_error( "Invalid TLE checksum: expected " + std::to_string( expected ) + ", got " + std::to_string( provided ) );
+    }
+}
+
 Tle::Tle( const std::string &lines )
 {
     // First of all, the TLE lines to be checked for validity: they shall not be empty, contain more than 69 characters
@@ -122,7 +155,7 @@ Tle::Tle( const std::string &lines )
         throw std::runtime_error( "Error: TLE class was instantiated with string object, but string does not contain two 2 lines." );
     }
     // Check line length
-    for( std::string line: tleLines )
+    for( std::string line : tleLines )
     {
         if( line.length( ) != 69 )
         {
@@ -162,6 +195,27 @@ Tle::Tle( const std::string &lines )
     std::string line1 = tleLines.at( 0 );
     std::string line2 = tleLines.at( 1 );
 
+    rawLine1_ = line1;
+    rawLine2_ = line2;
+
+    // Local-only metadata
+    const int lineNumber1 = std::stoi( line1.substr( 0, 1 ) );
+    const int lineNumber2 = std::stoi( line2.substr( 0, 1 ) );
+
+    if( lineNumber1 != 1 || lineNumber2 != 2 )
+    {
+        throw std::runtime_error( "Error, line numbers incorrect in TLE: \n " + line1 + "\n" + line2 );
+    }
+    validateTleChecksumOrThrow( line1 );
+    validateTleChecksumOrThrow( line2 );
+
+    noradCatalogNumber_ = std::stoi( line1.substr( 2, 5 ) );
+    classification_ = line1.at( 7 );
+
+    internationalDesignatorLaunchYear_ = std::stoi( line1.substr( 9, 2 ) );
+    internationalDesignatorLaunchNumber_ = std::stoi( line1.substr( 11, 3 ) );
+    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
 
@@ -177,14 +231,30 @@ Tle::Tle( const std::string &lines )
         epochYear += 1900;
     }
     // TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
-    epoch_ = basic_astrodynamics::DateTime( epochYear, 1, 1, 0, 0, 0.0 ).epoch< Time >( ).getSeconds< double >( ) +
-            ( epochDayFraction - 1.0 ) * physical_constants::JULIAN_DAY;
+    referenceDate_ = basic_astrodynamics::DateTime( epochYear, 1, 1, 0, 0, 0.0 );
+    referenceDate_ = referenceDate_.addDaysToDateTime( epochDayFraction - 1.0 );
+    epoch_ = referenceDate_.epoch< Time >( ).getSeconds< double >( );
+
+    epoch_ = sofa_interface::convertUTCtoTT< double >( epoch_ );
+    epoch_ += sofa_interface::getTDBminusTT( epoch_, Eigen::Vector3d::Zero( ) );
+
+    // Mean motion first derivative (rev/day^2)
+    meanMotionFirstDerivative_ = std::stod( line1.substr( 33, 10 ) );
+    meanMotionFirstDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
+    // Mean motion second derivative (rev/day^3), mantissa+exponent format
+    const double nDdotMantissa = std::stod( line1.substr( 44, 6 ) );
+    const int nDdotExponent = std::stoi( line1.substr( 50, 2 ) );
+    meanMotionSecondDerivative_ = nDdotMantissa * 1.0e-5 * std::pow( 10.0, nDdotExponent );
+    meanMotionSecondDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
 
     double bStar = std::stod( line1.substr( 53, 6 ) );
     double bStarExp = std::stod( line1.substr( 59, 2 ) );
     bStar_ = bStar * std::pow( 10, bStarExp - 5 );
 
-    // Convert angles to radians
+    ephemerisType_ = std::stoi( line1.substr( 62, 1 ) );
+    elementSetNumber_ = std::stoi( line1.substr( 64, 4 ) );
+
+    // ---- Line 2: classical elements ----
     inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 7 ) ) );
     rightAscension_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 17, 8 ) ) );
 
@@ -196,14 +266,16 @@ Tle::Tle( const std::string &lines )
 
     // Convert mean motion to radians per min (as opposed to rev/day as given in TLE)
     double meanMotionRevDay = std::stod( line2.substr( 52, 11 ) );
-    meanMotion_ = meanMotionRevDay * 2.0 * mathematical_constants::PI / ( 60 * 24 );
+    meanMotion_ = meanMotionRevDay * 2.0 * mathematical_constants::PI / ( 60.0 * 24.0 );
+
+    revolutionNumberAtEpoch_ = std::stoi( line2.substr( 63, 5 ) );
 }
 
-Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) { }
+Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
 
 Tle::Tle( const double *spiceElements )
 {
-    for( double &spiceElement: spiceElements_ )
+    for( double &spiceElement : spiceElements_ )
     {
         spiceElement = *spiceElements;
         spiceElements++;
