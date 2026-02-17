@@ -18,7 +18,6 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/dateTime.h"
-#include "tudat/simulation/estimation.h"
 #include "tudat/simulation/estimation_setup.h"
 
 #include "tudat/io/readOdfFile.h"
