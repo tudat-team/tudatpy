@@ -29,7 +29,7 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
