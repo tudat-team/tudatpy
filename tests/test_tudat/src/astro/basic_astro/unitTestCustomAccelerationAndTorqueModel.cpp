@@ -23,7 +23,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/propagation_setup.h"
 
 namespace tudat
 {
