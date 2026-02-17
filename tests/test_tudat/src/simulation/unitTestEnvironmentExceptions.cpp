@@ -20,7 +20,9 @@
 #include <functional>
 #include <cmath>
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
