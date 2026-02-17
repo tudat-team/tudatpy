@@ -159,20 +159,16 @@ class SpaceTrackQuery:
         last_hit = None
 
         if os.path.exists(filepath):
-            try:
-                with open(filepath, 'r') as f:
-                    content = json.load(f)
+            with open(filepath, 'r') as f:
+                content = json.load(f)
 
-                    if isinstance(content, dict):
-                        local_data = content.get('data', [])
-                        if 'last_api_hit' in content:
-                            last_hit = datetime.fromisoformat(content['last_api_hit'])
-                    elif isinstance(content, list):
-                        # Legacy format support
-                        local_data = content
-            except json.JSONDecodeError:
-                pass
-
+                if isinstance(content, dict):
+                    local_data = content.get('data', [])
+                    if 'last_api_hit' in content:
+                        last_hit = datetime.fromisoformat(content['last_api_hit'])
+                elif isinstance(content, list):
+                    # Legacy format support
+                    local_data = content
         # 3. Check Cooldown Logic
         needs_fetch = True
 
@@ -285,58 +281,54 @@ class SpaceTrackQuery:
             print(f"File not found: {filepath}")
             return
 
-        try:
-            with open(filepath, 'r') as f:
-                content = json.load(f)
+        with open(filepath, 'r') as f:
+            content = json.load(f)
 
-            # 1. Detect Format and Extract Data
-            is_dict_format = False
-            metadata = {}
+        # 1. Detect Format and Extract Data
+        is_dict_format = False
+        metadata = {}
 
-            if isinstance(content, list):
-                data = content
-            elif isinstance(content, dict) and 'data' in content:
-                is_dict_format = True
-                data = content['data']
-                # Preserve metadata (like last_api_hit)
-                metadata = {k: v for k, v in content.items() if k != 'data'}
+        if isinstance(content, list):
+            data = content
+        elif isinstance(content, dict) and 'data' in content:
+            is_dict_format = True
+            data = content['data']
+            # Preserve metadata (like last_api_hit)
+            metadata = {k: v for k, v in content.items() if k != 'data'}
+        else:
+            print(f"Skipping {filepath}: Unknown format.")
+            return
+
+        # 2. Deduplicate
+        initial_count = len(data)
+        unique_map = {}
+
+        for entry in data:
+            epoch = entry.get('EPOCH')
+            if not epoch: continue
+
+            if epoch not in unique_map:
+                unique_map[epoch] = entry
             else:
-                print(f"Skipping {filepath}: Unknown format.")
-                return
-
-            # 2. Deduplicate
-            initial_count = len(data)
-            unique_map = {}
-
-            for entry in data:
-                epoch = entry.get('EPOCH')
-                if not epoch: continue
-
-                if epoch not in unique_map:
+                # Conflict resolution: keep newest CREATION_DATE
+                existing = unique_map[epoch]
+                if entry.get('CREATION_DATE', '') > existing.get('CREATION_DATE', ''):
                     unique_map[epoch] = entry
-                else:
-                    # Conflict resolution: keep newest CREATION_DATE
-                    existing = unique_map[epoch]
-                    if entry.get('CREATION_DATE', '') > existing.get('CREATION_DATE', ''):
-                        unique_map[epoch] = entry
 
-            cleaned_data = sorted(unique_map.values(), key=lambda x: x['EPOCH'])
-            final_count = len(cleaned_data)
+        cleaned_data = sorted(unique_map.values(), key=lambda x: x['EPOCH'])
+        final_count = len(cleaned_data)
 
-            # 3. Save back in the same format it was found
-            if is_dict_format:
-                output = metadata
-                output['data'] = cleaned_data
-            else:
-                output = cleaned_data
+        # 3. Save back in the same format it was found
+        if is_dict_format:
+            output = metadata
+            output['data'] = cleaned_data
+        else:
+            output = cleaned_data
 
-            with open(filepath, 'w') as f:
-                json.dump(output, f, indent=4)
+        with open(filepath, 'w') as f:
+            json.dump(output, f, indent=4)
 
-            print(f"Successfully cleaned {filepath}. Removed {initial_count - final_count} duplicates.")
-
-        except json.JSONDecodeError:
-            print(f"Error: {filepath} contains invalid JSON.")
+        print(f"Successfully cleaned {filepath}. Removed {initial_count - final_count} duplicates.")
 
     #####################################
     # --- AVAILABLE DOWNLOAD METHODS ---#
@@ -454,7 +446,7 @@ class SpaceTrackQuery:
 
         url = os.path.join(self.spacetrack_url, "/".join(url_parts))
 
-        # 2. Fetch using the new Merge logic
+        # 2. Fetch using the Merge logic
         json_data = self._get_json_and_save(url, json_name, merge=update_existing)
 
         # 3. Post-Process (Filter Duplicates)
@@ -575,48 +567,6 @@ class SpaceTrackQuery:
             print(f"Split batch data into {len(saved_files)} individual files in {self.parent.tle_data_folder}.")
             return saved_files
 
-        def get_norad_id_name_map(self, limit: int | None = None) -> dict[int, str]:
-            """
-            Retrieves a mapping of NORAD IDs to object names from the satellite catalog.
-
-            Parameters
-            ----------
-            limit : int | None, optional
-                Limit the number of catalog entries to retrieve. If None, retrieves all.
-
-            Returns
-            -------
-            dict[int, str]
-                A dictionary mapping NORAD IDs (int) to object names (str).
-
-            Raises
-            ------
-            RuntimeError
-                If the SATCAT data fails to fetch.
-            """
-            query_parts = ['basicspacedata/query/class/satcat/orderby/NORAD_CAT_ID/format/json']
-            if limit:
-                query_parts.append(f"limit/{limit}")
-
-            url = os.path.join(self.parent.spacetrack_url, "/".join(query_parts))
-            json_name = 'norad_id_to_name.json'
-
-            data = self.parent._get_json_and_save(url, json_name)
-
-            if not data:
-                raise RuntimeError("Failed to fetch SATCAT data.")
-
-            map_data: dict[int, str] = {int(obj['NORAD_CAT_ID']): obj['OBJECT_NAME'] for obj in data if obj['OBJECT_NAME']}
-
-            map_json_name = 'norad_id_to_name_map.json'
-            map_path = os.path.join(self.parent.tle_data_folder, map_json_name)
-
-            with open(map_path, "w") as f:
-                json.dump(map_data, f, indent=4)
-                print(f"Saved map to {map_path}.")
-
-            return map_data
-
         def filter_tles_keep_latest_creation_from_json(self, full_filepath: str) -> any:
             """
             Filters duplicates. Requires full path.
@@ -732,30 +682,6 @@ class SpaceTrackQuery:
             ephemeris_object = environment.TleEphemeris("Earth", "J2000", object_tle, False)
             return ephemeris_object
 
-        def plot_earth(self, ax: any, radius: float = 6378, color: str = 'lightblue', alpha: float = 0.5, resolution: int = 50) -> None:
-            """
-            Plots a 3D sphere representing Earth on the given axes.
-
-            Parameters
-            ----------
-            ax : any
-                The matplotlib 3D axes to plot on.
-            radius : float, optional
-                Radius of the sphere. Defaults to 6378.
-            color : str, optional
-                Color of the sphere. Defaults to 'lightblue'.
-            alpha : float, optional
-                Transparency of the sphere. Defaults to 0.5.
-            resolution : int, optional
-                Mesh resolution of the sphere. Defaults to 50.
-            """
-            u = np.linspace(0, 2 * np.pi, resolution)
-            v = np.linspace(0, np.pi, resolution)
-            x = radius * np.outer(np.cos(u), np.sin(v))
-            y = radius * np.outer(np.sin(u), np.sin(v))
-            z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
-            ax.plot_surface(x, y, z, rstride=1, cstride=1, color=color, alpha=alpha, edgecolor='none')
-
         def get_tle_reference_epoch(self, tle_line_1: str) -> datetime:
             """
             Parses the reference epoch from the first line of a TLE.
@@ -777,45 +703,3 @@ class SpaceTrackQuery:
             day_of_year = float(day_str)
             epoch = datetime(year, 1, 1) + timedelta(days=day_of_year - 1)
             return epoch
-
-        def mean_to_true_anomaly(self, mo: float, e: float, tol: float = 1e-8, max_iter: int = 100) -> float:
-            """
-            Converts mean anomaly to true anomaly using Newton-Raphson iteration on Kepler's Equation.
-
-            Parameters
-            ----------
-            mo : float
-                Mean anomaly in radians.
-            e : float
-                Eccentricity.
-            tol : float, optional
-                Convergence tolerance. Defaults to 1e-8.
-            max_iter : int, optional
-                Maximum number of iterations. Defaults to 100.
-
-            Returns
-            -------
-            float
-                The true anomaly in radians.
-
-            Raises
-            ------
-            RuntimeError
-                If the iteration fails to converge.
-            """
-            E = mo if e < 0.8 else np.pi
-            for _ in range(max_iter):
-                f = E - e * np.sin(E) - mo
-                f_prime = 1 - e * np.cos(E)
-                E_new = E - f / f_prime
-                if abs(E_new - E) < tol:
-                    break
-                E = E_new
-            else:
-                raise RuntimeError("Kepler's equation did not converge.")
-
-            v = 2 * np.arctan2(
-                np.sqrt(1 + e) * np.sin(E / 2),
-                np.sqrt(1 - e) * np.cos(E / 2)
-            )
-            return v
