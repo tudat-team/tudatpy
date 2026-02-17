@@ -40,7 +40,6 @@
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
