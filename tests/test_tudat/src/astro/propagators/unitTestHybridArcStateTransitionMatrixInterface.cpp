@@ -17,8 +17,6 @@
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation.h"
-
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -29,7 +27,7 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
