@@ -11,8 +11,14 @@
 #ifndef TUDAT_CREATENUMERICALSIMULATOR_H
 #define TUDAT_CREATENUMERICALSIMULATOR_H
 
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudat

@@ -619,6 +619,8 @@ protected:
     double singleArcInitialTime_;
 };
 
+extern template class HybridArcVariationalEquationsSolver< double, double >;
+
 }  // namespace propagators
 
 }  // namespace tudat

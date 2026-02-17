@@ -12,6 +12,10 @@
 set(propagation_HEADERS
         createAccelerationModels.h
         dynamicsSimulator.h
+        dynamicsSimulatorBase.h
+        singleArcDynamicsSimulator.h
+        multiArcDynamicsSimulator.h
+        hybridArcDynamicsSimulator.h
         createTorqueModel.h
         createStateDerivativeModel.h
         createEnvironmentUpdater.h

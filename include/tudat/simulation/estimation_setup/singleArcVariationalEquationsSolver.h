@@ -376,6 +376,8 @@ private:
     std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > variationalPropagationResults_;
 };
 
+extern template class SingleArcVariationalEquationsSolver< double, double >;
+
 }  // namespace propagators
 
 }  // namespace tudat

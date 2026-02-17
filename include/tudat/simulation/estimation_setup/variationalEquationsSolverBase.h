@@ -19,7 +19,7 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
@@ -667,6 +667,8 @@ void getParametersToEstimatePerArc(
         arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
     }
 }
+
+extern template class VariationalEquationsSolver< double, double >;
 
 }  // namespace propagators
 

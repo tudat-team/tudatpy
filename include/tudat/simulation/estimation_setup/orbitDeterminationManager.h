@@ -22,7 +22,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
 
 namespace tudat

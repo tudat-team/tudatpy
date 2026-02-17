@@ -41,6 +41,10 @@ set(estimation_HEADERS
         podProcessing.h
         determinePostFitParameterInfluence.h
         variationalEquationsSolver.h
+        variationalEquationsSolverBase.h
+        singleArcVariationalEquationsSolver.h
+        multiArcVariationalEquationsSolver.h
+        hybridArcVariationalEquationsSolver.h
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createDopplerPartials.h

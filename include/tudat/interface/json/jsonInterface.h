@@ -14,7 +14,7 @@
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 #include "support/deserialization.h"

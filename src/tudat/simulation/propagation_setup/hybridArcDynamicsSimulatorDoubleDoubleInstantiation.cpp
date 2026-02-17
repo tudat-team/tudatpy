@@ -1,4 +1,4 @@
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
 
 namespace tudat
 {

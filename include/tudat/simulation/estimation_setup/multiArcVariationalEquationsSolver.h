@@ -613,6 +613,8 @@ private:
     std::shared_ptr< MultiArcVariationalResults > variationalPropagationResults_;
 };
 
+extern template class MultiArcVariationalEquationsSolver< double, double >;
+
 }  // namespace propagators
 
 }  // namespace tudat
