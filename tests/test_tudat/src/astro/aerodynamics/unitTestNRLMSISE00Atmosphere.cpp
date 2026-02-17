@@ -30,7 +30,8 @@
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/environment_setup.h"
+#include "tudat/simulation/propagation_setup.h"
 
 namespace tudat
 {
