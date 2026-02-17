@@ -28,7 +28,7 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
