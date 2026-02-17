@@ -12,6 +12,7 @@
 #define TUDAT_MULTIARCVARIATIONALEQUATIONSSOLVER_H
 
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
 
 namespace tudat
 {

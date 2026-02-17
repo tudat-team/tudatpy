@@ -13,6 +13,7 @@
 
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
 
 namespace tudat
 {

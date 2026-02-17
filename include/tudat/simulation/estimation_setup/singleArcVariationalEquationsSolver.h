@@ -12,6 +12,7 @@
 #define TUDAT_SINGLEARCVARIATIONALEQUATIONSSOLVER_H
 
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {
