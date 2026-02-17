@@ -304,7 +304,8 @@ public:
             const std::pair< std::string, std::string >& referencePoint,
             const std::vector< std::string >& externalBodies,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
-            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                []( const TimeType& inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0 ):
         RelativisticTimeStateDerivative< StateScalarType, TimeType >( referencePoint, relativisticStateDerivativeType ),
         timeVariableConversionFunction_( timeVariableConversionFunction ),distanceScalingFactor_( distanceScalingFactor )
@@ -312,7 +313,7 @@ public:
         // Check if central body exists.
         if( referencePoint.first == "SSB" )
         {
-            centralBodyStateFunction_ = []() { return Eigen::Vector6d::Zero(); };
+            centralBodyStateFunction_ = []( const TimeType& ){ return Eigen::Vector6d::Zero( ); };
         }
         else if( !bodies.doesBodyExist( referencePoint.first ) )
         {
@@ -321,7 +322,11 @@ public:
         else
         {
             // Set central body state function.
-            centralBodyStateFunction_ = std::bind( &simulation_setup::Body::getState, bodies.getBody( referencePoint.first ) );
+            const std::shared_ptr< simulation_setup::Body > centralBody = bodies.getBody( referencePoint.first );
+            centralBodyStateFunction_ = [=]( const TimeType& evaluationTime )
+            {
+                return centralBody->getStateInBaseFrameFromEphemeris< double, TimeType >( evaluationTime );
+            };
         }
 
         // Iterate over all external bodies and set their state and gravitational parameter functions.
@@ -347,7 +352,11 @@ public:
                 // Set state and gravitational parameter functions of current body.
                 std::shared_ptr< simulation_setup::Body > body =
                         std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) );
-                this->externalBodyStateFunctions_.push_back( std::bind( &simulation_setup::Body::getState, body ) );
+                this->externalBodyStateFunctions_.push_back(
+                    [=]( const TimeType& evaluationTime )
+                    {
+                        return body->getStateInBaseFrameFromEphemeris< double, TimeType >( evaluationTime );
+                    } );
                 this->externalBodyGravitationalParameterFunctions_.push_back( std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                                                                                     body->getGravityFieldModel( ) ) );
             }
@@ -365,7 +374,7 @@ public:
     /*!
      *  \return Time-conversion function.
      */
-    std::function< double( const double ) > getTimeVariableConversionFunction( )
+    std::function< TimeType( const TimeType& ) > getTimeVariableConversionFunction( )
     {
         return timeVariableConversionFunction_;
     }
@@ -374,20 +383,20 @@ protected:
 
 
     //! State function of central body.
-    std::function< Eigen::Vector6d( ) > centralBodyStateFunction_;
+    std::function< Eigen::Vector6d( const TimeType& ) > centralBodyStateFunction_;
 
     //! List of functions returning gravitational parameters of bodies influencing time conversion.
     std::vector< std::function< double( ) > > externalBodyGravitationalParameterFunctions_;
 
     //! List of functions returning Cartesian states as function of baseFrameTime (see updateStateDerivativeModel) of bodies influencing time conversion.
-    std::vector< std::function< Eigen::Vector6d( ) > > externalBodyStateFunctions_;
+    std::vector< std::function< Eigen::Vector6d( const TimeType& ) > > externalBodyStateFunctions_;
 
     //! Bodies for which spherical-harmonic corrections are applied (index matches external body list).
     std::map< int, std::shared_ptr< simulation_setup::Body > > sphericalHarmonicBodies_;
 
     std::shared_ptr< propagators::EnvironmentUpdater< double, double > > environmentUpdater_;
 
-    std::function< double( const double ) > timeVariableConversionFunction_;
+    std::function< TimeType( const TimeType& ) > timeVariableConversionFunction_;
 
     double distanceScalingFactor_;
 };
@@ -415,7 +424,8 @@ public:
             const std::string& centralBody,
             const std::vector< std::string >& externalBodies,
             const std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions = ( std::map< std::string, std::pair< int, int > >( ) ),
-            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                []( const TimeType& inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType =
             propagators::first_order_barycentric_to_bodycentric):
@@ -494,10 +504,11 @@ public:
     {
         // Update variables relevant for both this class and its derived class (2nd order conversion)
         updateBaseVariables( baseFrameTime );
+        const TimeType convertedTime = this->timeVariableConversionFunction_( baseFrameTime );
         // Calculate state, and distance to central body, of each external body.
         for( unsigned int i = 0; i < this->externalBodyStateFunctions_.size( ); i++ )
         {
-            this->currentExternalBodyStates_[ i ] = this->externalBodyStateFunctions_[ i ]( );
+            this->currentExternalBodyStates_[ i ] = this->externalBodyStateFunctions_[ i ]( convertedTime );
             this->currentExternalBodyStates_[ i ].segment( 0, 3 ) = this->currentExternalBodyStates_[ i ].segment( 0, 3 ) * this->distanceScalingFactor_;
 
             this->currentExternalBodyDistances_[ i ] = ( this->currentCentralBodyState_.segment( 0, 3 ) - this->currentExternalBodyStates_[ i ].segment( 0, 3 ) ).norm( );
@@ -552,9 +563,9 @@ public:
      *  body states and gravitational parameters.
      *  \param baseFrameTime Current time, in frame from which conversion is done (i.e. independent variable of equations of motion of bodies)
      */
-    void updateBaseVariables( double baseFrameTime )
+    void updateBaseVariables( const TimeType& baseFrameTime )
     {
-        double convertedTime = this->timeVariableConversionFunction_( baseFrameTime );
+        const TimeType convertedTime = this->timeVariableConversionFunction_( baseFrameTime );
 
         std::map< propagators::IntegratedStateType, Eigen::VectorXd > currentState;
         currentState[ propagators::proper_time ] = ( Eigen::VectorXd( 1 ) << 0.0 ).finished( );
@@ -567,7 +578,7 @@ public:
         //environmentUpdater_->updateEnvironment( convertedTime, currentState );
 
         // Calculate state of central body.
-        this->currentCentralBodyState_ = this->centralBodyStateFunction_( );
+        this->currentCentralBodyState_ = this->centralBodyStateFunction_( convertedTime );
         this->currentCentralBodyState_.segment( 0, 3 ) = this->currentCentralBodyState_.segment( 0, 3 ) * this->distanceScalingFactor_;
 
         this->currentVelocity_ = this->currentCentralBodyState_.segment( 3, 3 ).norm( );
@@ -628,7 +639,8 @@ public:
             const std::string centralBody,
             const std::vector< std::string >& externalBodies,
             const std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions = ( std::map< std::string, std::pair< int, int > >( ) ),
-            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                []( const TimeType& inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0,
             const std::vector< std::string >& angularMomentumBodies = std::vector< std::string >( ) ): 
                 FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType >(
@@ -686,6 +698,7 @@ public:
     void updateStateDerivativeModel( const TimeType baseFrameTime )
     {
         this->updateBaseVariables( baseFrameTime );
+        const TimeType convertedTime = this->timeVariableConversionFunction_( baseFrameTime );
 
         for( std::map< int, std::function< Eigen::Vector3d( ) > >::iterator momentaIterator = angularMomentumFunctions_.begin( );
             momentaIterator != angularMomentumFunctions_.end( ); momentaIterator++ )
@@ -695,7 +708,7 @@ public:
 
         for( unsigned int i = 0; i < this->externalBodyStateFunctions_.size( ); i++ )
         {
-            this->currentExternalBodyStates_[ i ] = this->externalBodyStateFunctions_[ i ]( );
+            this->currentExternalBodyStates_[ i ] = this->externalBodyStateFunctions_[ i ]( convertedTime );
             this->currentExternalBodyStates_[ i ].segment( 0, 3 ) = this->currentExternalBodyStates_[ i ].segment( 0, 3 ) * this->distanceScalingFactor_;
 
             this->currentExternalBodyDistances_[ i ] = ( this->currentCentralBodyState_.segment( 0, 3 ) - this->currentExternalBodyStates_[ i ].segment( 0, 3 ) ).norm( );
@@ -923,11 +936,12 @@ public:
      */
     void updateStateDerivativeModel( const TimeType baseFrameTime )
     {
+        const TimeType convertedTime = this->timeVariableConversionFunction_( baseFrameTime );
         std::map< propagators::IntegratedStateType, Eigen::VectorXd > currentState;
         currentState[ propagators::proper_time ] = ( Eigen::VectorXd( 1 ) << 0.0 ).finished( );
         //environmentUpdater_->updateEnvironment( baseFrameTime, currentState );
         // Get central body state
-        Eigen::Matrix< double, 6, 1 > currentCentralBodyState = this->centralBodyStateFunction_( );
+        Eigen::Matrix< double, 6, 1 > currentCentralBodyState = this->centralBodyStateFunction_( convertedTime );
         Eigen::Vector3d currentCentralBodyPosition = currentCentralBodyState.segment( 0, 3 );
         currentCentralBodyBarycentricVelocity_ = currentCentralBodyState.segment( 3, 3 );
 
@@ -935,7 +949,8 @@ public:
         for( unsigned int i = 0; i < this->externalBodyStateFunctions_.size( ); i++ )
         {
             this->currentExternalBodyGravitationalParameters_[ i ] = this->externalBodyGravitationalParameterFunctions_[ i ]( );
-            currentExternalBodyRelativePositions_[ i ] = this->externalBodyStateFunctions_[ i ]( ).segment( 0, 3 ) - currentCentralBodyPosition;
+            currentExternalBodyRelativePositions_[ i ] =
+                this->externalBodyStateFunctions_[ i ]( convertedTime ).segment( 0, 3 ) - currentCentralBodyPosition;
             this->currentExternalBodyDistances_[ i ] = currentExternalBodyRelativePositions_[ i ].norm( );
         }
 

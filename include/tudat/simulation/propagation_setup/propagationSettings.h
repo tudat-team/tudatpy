@@ -1664,7 +1664,8 @@ public:
         const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
@@ -1688,7 +1689,8 @@ public:
         const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
@@ -1716,7 +1718,7 @@ public:
         return referencePointId_;
     }
 
-    std::function< double( const double ) > getTimeVariableConversionFunction( )
+    std::function< TimeType( const TimeType& ) > getTimeVariableConversionFunction( )
     {
         return timeVariableConversionFunction_;
     }
@@ -1729,7 +1731,7 @@ public:
 protected:
     RelativisticTimeStateDerivativeType relativisticStateDerivativeType_;
     std::pair< std::string, std::string > referencePointId_;
-    std::function< double( const double ) > timeVariableConversionFunction_;
+    std::function< TimeType( const TimeType& ) > timeVariableConversionFunction_;
     double distanceScalingFactor_;
 
 //private:
@@ -1747,7 +1749,8 @@ public:
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions = ( std::map< std::string, std::pair< int, int > > ( ) ),
-        const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
@@ -1798,7 +1801,8 @@ public:
         const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
             ( std::map< std::string, std::pair< int, int > >( ) ),
         const std::vector< std::string  >& angularMomentumBodies = std::vector< std::string  >( ),
-        const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
@@ -1864,7 +1868,7 @@ public:
         : RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >(
               referencePointId, first_order_bodycentric_to_topocentric,
               initialBodyStates, initialTime, integratorSettings, terminationSettings,
-              []( const double inputTime ){ return inputTime; }, 1.0, dependentVariablesToSave, outputSettings ),
+              []( const TimeType& inputTime ){ return inputTime; }, 1.0, dependentVariablesToSave, outputSettings ),
           useAccelerationTerm_( useAccelerationTerm ),
           maximumSphericalHarmonicDegree_( maximumSphericalHarmonicDegree ),
           useTimeDependentBodyFixedPosition_( useTimeDependentBodyFixedPosition ),
@@ -1913,7 +1917,8 @@ public:
         const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
