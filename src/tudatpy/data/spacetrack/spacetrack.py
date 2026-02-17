@@ -703,3 +703,45 @@ class SpaceTrackQuery:
             day_of_year = float(day_str)
             epoch = datetime(year, 1, 1) + timedelta(days=day_of_year - 1)
             return epoch
+
+        def mean_to_true_anomaly(self, mo: float, e: float, tol: float = 1e-8, max_iter: int = 100) -> float:
+            """
+            Converts mean anomaly to true anomaly using Newton-Raphson iteration on Kepler's Equation.
+
+            Parameters
+            ----------
+            mo : float
+                Mean anomaly in radians.
+            e : float
+                Eccentricity.
+            tol : float, optional
+                Convergence tolerance. Defaults to 1e-8.
+            max_iter : int, optional
+                Maximum number of iterations. Defaults to 100.
+
+            Returns
+            -------
+            float
+                The true anomaly in radians.
+
+            Raises
+            ------
+            RuntimeError
+                If the iteration fails to converge.
+            """
+            E = mo if e < 0.8 else np.pi
+            for _ in range(max_iter):
+                f = E - e * np.sin(E) - mo
+                f_prime = 1 - e * np.cos(E)
+                E_new = E - f / f_prime
+                if abs(E_new - E) < tol:
+                    break
+                E = E_new
+            else:
+                raise RuntimeError("Kepler's equation did not converge.")
+
+            v = 2 * np.arctan2(
+                np.sqrt(1 + e) * np.sin(E / 2),
+                np.sqrt(1 - e) * np.cos(E / 2)
+            )
+            return v
