@@ -26,7 +26,6 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
