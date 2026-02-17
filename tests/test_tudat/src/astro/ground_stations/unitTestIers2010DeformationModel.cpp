@@ -12,7 +12,7 @@
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 
 namespace tudat
@@ -23,7 +23,6 @@ namespace unit_tests
 using namespace tudat;
 using namespace tudat::ephemerides;
 using namespace tudat::utilities;
-using namespace tudat::spice_interface;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::basic_astrodynamics::iers_2010_parameters;
 
