@@ -1324,7 +1324,8 @@ public:
             Eigen::MatrixXd& cosineCoefficients,
             Eigen::MatrixXd& sineCoefficients,
             int maxDegree,
-            int maxOrder )
+            int maxOrder,
+            bool isLog2Data = true )
     {
         // --- Unit conversion ---
         const double radius_km = radius_m / 1000.0; // Conversion from m to km
@@ -1412,8 +1413,8 @@ public:
                     sineCoefficients( degree, absoluteOrder ) = value;
             }
 
-            // Add logarithmic term for 1/r² decay
-            applyDecayTerm( cosineCoefficients, radius_m, refRadius_m );
+            // Apply 1/r² decay term
+            applyDecayTerm( cosineCoefficients, radius_m, refRadius_m, isLog2Data );
         }
     }
 
@@ -1488,19 +1489,30 @@ public:
         }
     }
 
-    /// Apply logarithmic decay term for 1/r² behavior when radius exceeds reference radius
+    /// Apply 1/r² decay term when radius exceeds reference radius.
+    /// For log2-transformed data: additive in log2 space, C(0,0) += 2*log2(R_ref/r).
+    /// For linear data: multiplicative, C(0,0) *= (R_ref/r)².
     /// @param cosineCoefficients Matrix of cosine coefficients to modify
     /// @param radius_m Current radius in meters
     /// @param referenceRadius_m Reference radius in meters
-    static void applyDecayTerm( Eigen::MatrixXd& cosineCoefficients, double radius_m, double referenceRadius_m )
+    /// @param isLog2Data Whether coefficients represent log2-transformed data (default true)
+    static void applyDecayTerm( Eigen::MatrixXd& cosineCoefficients, double radius_m, double referenceRadius_m,
+                                bool isLog2Data = true )
     {
-        // Convert to km for the logarithmic calculation (consistent with existing formula)
-        const double radius_km = radius_m / 1000.0;
-        const double referenceRadius_km = referenceRadius_m / 1000.0;
-
-        // Apply logarithmic decay term to C(0,0) coefficient
-        cosineCoefficients( 0, 0 ) += 2.0 *
-                std::log2( ( referenceRadius_km < 1.0e-10 ) ? 1.0 / radius_km : referenceRadius_km / radius_km );
+        if ( isLog2Data )
+        {
+            // In log2 space: log2(n * (R_ref/r)²) = log2(n) + 2*log2(R_ref/r)
+            const double radius_km = radius_m / 1000.0;
+            const double referenceRadius_km = referenceRadius_m / 1000.0;
+            cosineCoefficients( 0, 0 ) += 2.0 *
+                    std::log2( ( referenceRadius_km < 1.0e-10 ) ? 1.0 / radius_km : referenceRadius_km / radius_km );
+        }
+        else
+        {
+            // In linear space: n * (R_ref/r)²
+            const double ratio = ( referenceRadius_m < 1.0e-7 ) ? 0.0 : referenceRadius_m / radius_m;
+            cosineCoefficients( 0, 0 ) *= ratio * ratio;
+        }
     }
 };
 
@@ -1513,7 +1525,8 @@ public:
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
             const int requestedMaxOrder = -1,
-            const bool computeReducedCoeffs = true )
+            const bool computeReducedCoeffs = true,
+            const bool isLog2Data = true )
     {
         // Validate inputs
         validateTransformInputs( polyDataset,
@@ -1550,7 +1563,7 @@ public:
                 computeReducedCoeffs );
 
         // Fill dataset with computed coefficients
-        fillStokesDataset( polyDataset, stokesDataset, effectiveMaxDegree, effectiveMaxOrder, computeReducedCoeffs );
+        fillStokesDataset( polyDataset, stokesDataset, effectiveMaxDegree, effectiveMaxOrder, computeReducedCoeffs, isLog2Data );
 
         return stokesDataset;
     }
@@ -1652,7 +1665,8 @@ private:
             ComaStokesDataset& stokesDataset,
             const int effectiveMaxDegree,
             const int effectiveMaxOrder,
-            const bool computeReducedCoeffs )
+            const bool computeReducedCoeffs,
+            const bool isLog2Data = true )
     {
         Eigen::MatrixXd cosineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         Eigen::MatrixXd sineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
@@ -1693,7 +1707,8 @@ private:
                             cosineCoefficients,
                             sineCoefficients,
                             effectiveMaxDegree,
-                            effectiveMaxOrder );
+                            effectiveMaxOrder,
+                            isLog2Data );
 
                     // Store regular coefficients using batch write via block reference
                     auto coeffBlock = stokesDataset.block( fileIndex, radiusIndex, longitudeIndex );
@@ -1988,7 +2003,8 @@ public:
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
             const int requestedMaxOrder = -1,
-            const bool computeReducedCoeffs = true ) const
+            const bool computeReducedCoeffs = true,
+            const bool isLog2Data = true ) const
     {
         if(fileType_ != FileType::PolyCoefficients)
         {
@@ -2005,7 +2021,8 @@ public:
                 solLongitudes_deg,
                 requestedMaxDegree,
                 requestedMaxOrder,
-                computeReducedCoeffs );
+                computeReducedCoeffs,
+                isLog2Data );
     }
 
     // Create SH files (combines dataset creation and writing)
@@ -2015,14 +2032,16 @@ public:
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
             const int requestedMaxOrder = -1,
-            const bool computeReducedCoeffs = true ) const
+            const bool computeReducedCoeffs = true,
+            const bool isLog2Data = true ) const
     {
         const ComaStokesDataset stokesDataset = createSHDataset(
                 radii_m,
                 solLongitudes_deg,
                 requestedMaxDegree,
                 requestedMaxOrder,
-                computeReducedCoeffs );
+                computeReducedCoeffs,
+                isLog2Data );
 
         ComaStokesDatasetWriter::writeCsvAll( stokesDataset, outputDir );
     }

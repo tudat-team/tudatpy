@@ -1601,13 +1601,14 @@ Examples
 
       )doc")
         .def("create_sh_dataset",
-             py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int, const bool>(
+             py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int, const bool, const bool>(
                  &tss::ComaModelFileProcessor::createSHDataset, py::const_),
              py::arg("radii_m"),
              py::arg("sol_longitudes_deg"),
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
              py::arg("compute_reduced_coeffs") = true,
+             py::arg("is_log2") = true,
              R"doc(
 
  Create Stokes coefficient dataset by transforming polynomial coefficients (parameterized version).
@@ -1630,6 +1631,11 @@ Examples
 
  requested_max_order : int, default = -1
      Maximum spherical harmonic order to include. Set to -1 to use maximum available.
+
+ is_log2 : bool, default = True
+     Whether the polynomial coefficients represent log2-transformed data.
+     This affects how the 1/r² decay term is applied for radii beyond the reference radius.
+     Set to False if the coefficients were fitted to non-log2-transformed (linear) data.
 
  Returns
  -------
@@ -1671,6 +1677,7 @@ Examples
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
              py::arg("compute_reduced_coeffs") = true,
+             py::arg("is_log2") = true,
              R"doc(
 
  Create and save Stokes coefficient CSV files from polynomial coefficients.

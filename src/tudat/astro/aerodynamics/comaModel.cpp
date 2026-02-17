@@ -612,7 +612,8 @@ double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, doubl
         cachedCosineCoefficients_,
         cachedSineCoefficients_,
         maximumDegree_,
-        maximumOrder_ );
+        maximumOrder_,
+        isLog2Data_ );
 
     // Update cached position values for density cache
     cachedLatitude_ = latitude;
@@ -798,7 +799,7 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
         }
 
         // Apply decay term to the reduced coefficients
-        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedCosineCoefficients_, radius, referenceRadius);
+        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedCosineCoefficients_, radius, referenceRadius, isLog2Data_);
     }
 
         // Update interpolation cache after successful coefficient computation
@@ -1346,7 +1347,7 @@ double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double 
         cachedTemperatureSineCoefficients_.setZero();
     }
 
-    // Evaluate polynomial coefficients to get spherical harmonic coefficients
+    // Evaluate polynomial coefficients to get spherical harmonic coefficients (temperature is never log2)
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
         radius,
         solarLongitude,
@@ -1357,7 +1358,8 @@ double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double 
         cachedTemperatureCosineCoefficients_,
         cachedTemperatureSineCoefficients_,
         maximumDegree_,
-        maximumOrder_ );
+        maximumOrder_,
+        false );
 
     // Compute temperature using spherical harmonics expansion
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
@@ -1479,8 +1481,8 @@ double ComaModel::computeTemperatureFromStokesCoefficients( double radius, doubl
             throw std::runtime_error( "ComaModel: Reduced temperature Stokes interpolators not initialized." );
         }
 
-        // Apply decay term to the reduced coefficients
-        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedTemperatureCosineCoefficients_, radius, referenceRadius);
+        // Apply decay term to the reduced coefficients (temperature is never log2-transformed)
+        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedTemperatureCosineCoefficients_, radius, referenceRadius, false);
     }
 
     // Step 5: Compute temperature using spherical harmonics expansion
