@@ -22,6 +22,13 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace ephemerides;
+using namespace basic_astrodynamics;
+using namespace simulation_setup;
+using namespace orbital_element_conversions;
+using namespace coordinate_conversions;
+using namespace physical_constants;
+
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool estimateRangeBiases = true,
                                                                       const bool estimateTwoWayBiases = false,
