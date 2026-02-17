@@ -20,7 +20,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/environment_setup.h"
 
 namespace tudat
 {
