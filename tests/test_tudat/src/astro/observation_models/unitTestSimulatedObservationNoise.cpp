@@ -16,7 +16,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/math/statistics/basicStatistics.h"
 
 namespace tudat
 {
