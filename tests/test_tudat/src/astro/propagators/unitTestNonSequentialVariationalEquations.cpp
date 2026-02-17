@@ -11,11 +11,19 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/simulation.h"
-#include "tudat/simulation/estimation.h"
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/rungeKuttaCoefficients.h"
+
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
