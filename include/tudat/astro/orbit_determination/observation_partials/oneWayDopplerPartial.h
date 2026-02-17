@@ -218,7 +218,7 @@ public:
      * \param transmitterProperTimePartials Object used to compute the contribution of receiver proper time rate to the scaling
      * \param receiverProperTimePartials Object used to compute the contribution of transmitter proper time rate to the scaling
      * \param observableType Observable type for this scaling object (defaults to one_way_doppler, but can be overridden
-     *        for one_way_frequency_of_arrival which uses the same mathematical formulation)
+     *        for one_way_doppler_measured_frequency which uses the same mathematical formulation)
      */
     OneWayDopplerScaling( const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
                           const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
