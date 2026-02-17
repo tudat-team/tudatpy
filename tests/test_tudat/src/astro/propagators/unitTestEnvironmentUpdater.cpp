@@ -22,7 +22,6 @@
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
