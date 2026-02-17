@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef TUDAT_READINPOPTIMEEPHEMERIS_H
 #define TUDAT_READINPOPTIMEEPHEMERIS_H
 
@@ -21,14 +32,21 @@ namespace tudat
 namespace input_output
 {
 
-// Utility: Trim whitespace from a string
+//! Utility function to trim leading/trailing whitespace from a string.
+/*!
+ *  \param str String to be trimmed in-place.
+ */
 inline void trimString( std::string& str )
 {
     str.erase( 0, str.find_first_not_of( " \t\r\n" ) );
     str.erase( str.find_last_not_of( " \t\r\n" ) + 1 );
 }
 
-// Utility: Split string into tokens
+//! Utility function to split a whitespace-separated line into tokens.
+/*!
+ *  \param str Input string.
+ *  \return List of tokens.
+ */
 inline std::vector< std::string > splitString( const std::string& str )
 {
     std::istringstream iss( str );
@@ -41,7 +59,12 @@ inline std::vector< std::string > splitString( const std::string& str )
     return tokens;
 }
 
-// Templated function to read INPOP time ephemeris Chebyshev coefficients
+//! Read INPOP time-ephemeris Chebyshev coefficients from an ASCII file.
+/*!
+ *  \param fileName Path to INPOP time-ephemeris coefficient file.
+ *  \param referenceJulianDay Reference epoch in Julian day used to convert epochs to seconds.
+ *  \return Map from segment start epoch (seconds since reference epoch) to Chebyshev coefficients.
+ */
 template< typename DifferenceScalarType >
 std::map< double, std::vector< DifferenceScalarType > > readInpopTimeEphemeris(
         const std::string& fileName,
@@ -92,23 +115,46 @@ std::map< double, std::vector< DifferenceScalarType > > readInpopTimeEphemeris(
     return chebyshevCoefficients;
 }
 
-// Reads INPOP state ephemerides (defined in .cpp)
+//! Read INPOP Cartesian state ephemeris from position and velocity ASCII files.
+/*!
+ *  \param positionFileName Path to INPOP position data file.
+ *  \param velocityFileName Path to INPOP velocity data file.
+ *  \param referenceJulianDay Reference epoch in Julian day used to convert epochs to seconds.
+ *  \return Map from epoch (seconds since reference epoch) to state vectors.
+ */
 std::map< double, std::vector< Eigen::Vector6d > > readInpopStateEphemeris(
         const std::string& positionFileName,
         const std::string& velocityFileName,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-// Creates a double-precision interpolator from INPOP time ephemeris data
+//! Create a double-precision Chebyshev interpolator from INPOP time-ephemeris data.
+/*!
+ *  \param fileName Path to INPOP time-ephemeris coefficient file.
+ *  \param referenceJulianDay Reference epoch in Julian day used to convert epochs to seconds.
+ *  \return Interpolator for time difference values as double.
+ */
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > createInpopTimeEphemerisInterpolator(
         const std::string& fileName,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-// Creates a long double-precision interpolator from INPOP time ephemeris data
+//! Create a long-double-precision Chebyshev interpolator from INPOP time-ephemeris data.
+/*!
+ *  \param fileName Path to INPOP time-ephemeris coefficient file.
+ *  \param referenceJulianDay Reference epoch in Julian day used to convert epochs to seconds.
+ *  \return Interpolator for time difference values as long double.
+ */
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, long double > > createLongInpopTimeEphemerisInterpolator(
         const std::string& fileName,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-// Constructs a full tabulated ephemeris from INPOP position and velocity data
+//! Construct tabulated translational ephemeris from INPOP position and velocity files.
+/*!
+ *  \param positionFileName Path to INPOP position data file.
+ *  \param velocityFileName Path to INPOP velocity data file.
+ *  \param referenceJulianDay Reference epoch in Julian day used to convert epochs to seconds.
+ *  \param useGeocentricReference If true, generated ephemeris is interpreted in geocentric frame.
+ *  \return Ephemeris object containing INPOP state history.
+ */
 std::shared_ptr< ephemerides::Ephemeris > createInpopEphemerisFromFiles(
         const std::string& positionFileName,
         const std::string& velocityFileName,

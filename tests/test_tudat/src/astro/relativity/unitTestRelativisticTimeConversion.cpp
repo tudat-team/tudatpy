@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
                 centralBody, externalBodies, startTime, integratorSettings, terminationSettings,
                 ( std::map< std::string, std::pair< int, int > >( ) ),
                 std::vector< std::string  >( ),
-                &basic_astrodynamics::doDummyTimeConversion< double >,
+                []( const double inputTime ){ return inputTime; },
                 1.0,
                 dependentVariablesList
                 //outputProcessingSettings 

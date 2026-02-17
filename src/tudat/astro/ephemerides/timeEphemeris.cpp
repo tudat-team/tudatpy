@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #include <functional>
 #include <vector>
 #include <iostream>
@@ -9,8 +20,10 @@
 namespace tudat
 {
 
-double combineTimeDifferenceFunction( const std::vector< std::function< double( const double ) > > timeDifferenceFunctions,
-                                      const std::vector< int > evaluationStepIndices,
+using namespace basic_astrodynamics;
+
+double combineTimeDifferenceFunction( const std::vector< std::function< double( const double ) > >& timeDifferenceFunctions,
+                                      const std::vector< int >& evaluationStepIndices,
                                       const double time )
 {
     double timeDifference = 0.0;
@@ -27,7 +40,7 @@ double combineTimeDifferenceFunction( const std::vector< std::function< double( 
 
 
 std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion::getTimeDifferenceFunction(
-        const TimeScales inputScale, const TimeScales outputScale, const std::string pointIdentifier )
+        const TimeScales inputScale, const TimeScales outputScale, const std::string& pointIdentifier )
 {
     std::function< double( const double ) > timeDifferenceFunction;
 
@@ -188,7 +201,7 @@ std::function< double( const double ) > TimeEphemerisFromPostNewtonianExpansion:
 
 
 std::function< double( const double ) > TimeEphemerisDirectFromMetric::getTimeDifferenceFunction(
-        const TimeScales inputScale, const TimeScales outputScale, const std::string pointIdentifier )
+        const TimeScales inputScale, const TimeScales outputScale, const std::string& pointIdentifier )
 {
     std::function< double( const double ) > timeDifferenceFunction;
     using namespace std::placeholders;

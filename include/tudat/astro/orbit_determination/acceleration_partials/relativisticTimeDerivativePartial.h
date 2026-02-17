@@ -32,6 +32,11 @@ namespace partial_derivatives
 class RelativisticTimeDerivativePartial : public StateDerivativePartial
 {
 public:
+    //! Constructor.
+    /*!
+     *  \param referencePoint Reference point for proper-time state (body, optional point identifier).
+     *  \param relativisticStateDerivativeType Relativistic time-derivative model type.
+     */
     RelativisticTimeDerivativePartial(
             const std::pair< std::string, std::string >& referencePoint,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType ):
@@ -41,6 +46,12 @@ public:
 
     ~RelativisticTimeDerivativePartial( ) override = default;
 
+    //! Retrieve function for partial w.r.t. state of an integrated body.
+    /*!
+     *  \param stateReferencePoint Body/reference-point identifier of integrated state.
+     *  \param integratedStateType Integrated state type.
+     *  \return Pair of (partial function, number of output columns).
+     */
     std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType ) override
@@ -70,6 +81,12 @@ public:
         return std::make_pair( partialFunction, numberOfColumns );
     }
 
+    //! Check whether this partial depends on an integrated additional-state type.
+    /*!
+     *  \param stateReferencePoint Body/reference-point identifier of integrated state.
+     *  \param integratedStateType Integrated state type.
+     *  \return True if a non-zero dependency exists.
+     */
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType ) override
@@ -88,9 +105,19 @@ public:
         return false;
     }
 
+    //! Retrieve function for partial w.r.t. translational state of a body.
+    /*!
+     *  \param bodyName Name of body for which partial is requested.
+     *  \return Function returning a 1x6 partial matrix.
+     */
     virtual std::function< Eigen::Matrix< double, 1, 6 >( ) > getDerivativeFunctionWrtTranslationalStateOfBody(
             const std::string& bodyName ) = 0;
 
+    //! Check whether translational-state partial for a body is non-zero.
+    /*!
+     *  \param bodyName Name of body for which partial is requested.
+     *  \return True if partial is non-zero.
+     */
     virtual bool isStateDerivativePartialWrtTranslationalStateNonNull( const std::string& bodyName ) = 0;
 
 protected:

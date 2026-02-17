@@ -1006,6 +1006,37 @@ void expose_environment_setup( py::module &m )
         build a time-scale converter for a given body (e.g., TCB↔TCG and
         body-centered↔topocentric conversions).
 
+        The barycentric↔body-centered leg follows the Soffel et al. (2003),
+        Eq. (58)-type implementation in Tudat:
+
+        .. math::
+
+            \frac{d}{dt}\Delta_{BC}
+            =
+            -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+            +
+            \frac{1}{c^4}\left(
+            -\frac{1}{8}v_C^4
+            -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+            +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+            +\frac{1}{2}w_{0,\mathrm{ext}}^2
+            +\Delta_{\mathrm{ext}}
+            \right),
+
+        while body-centered↔topocentric settings follow Turyshev et al. (2013),
+        Eq. (22):
+
+        .. math::
+
+            \frac{d}{dt_C}\left(\tau-t_C\right)
+            =
+            -\frac{1}{c^2}\left[
+            \frac{1}{2}v_0^2
+            +U_E(\mathbf{y})
+            +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+            +\mathbf{a}_E\cdot\mathbf{y}
+            \right].
+
      )doc" );
 
     m.def(
@@ -1033,6 +1064,39 @@ void expose_environment_setup( py::module &m )
      Numerical integrator settings used for time-scale propagation.
  bodycentric_to_topocentric_settings : list[RelativisticTimePropagatorSettings], optional
      Optional list of body-centered↔topocentric conversion settings (local proper time).
+
+ Notes
+ -----
+ The barycentric↔body-centered component propagates
+
+ .. math::
+
+     \frac{d}{dt}\Delta_{BC}
+     =
+     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+     +
+     \frac{1}{c^4}\left(
+     -\frac{1}{8}v_C^4
+     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+     +\frac{1}{2}w_{0,\mathrm{ext}}^2
+     +\Delta_{\mathrm{ext}}
+     \right),
+
+ and the body-centered↔topocentric component propagates
+
+ .. math::
+
+     \frac{d}{dt_C}\left(\tau-t_C\right)
+     =
+     -\frac{1}{c^2}\left[
+     \frac{1}{2}v_0^2
+     +U_E(\mathbf{y})
+     +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+     +\mathbf{a}_E\cdot\mathbf{y}
+     \right].
+
+ In both cases, Tudat propagates the corresponding differential quantity directly.
 
  Returns
  -------

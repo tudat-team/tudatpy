@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 /*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
@@ -40,9 +51,15 @@ namespace tudat
 
 //! Base class for relativistic time difference calculations.
 /*!
- *  Base class for relativistic time difference calculations. Derived classes implement various kinds of relativistic
- *  time conversions, such as TCG <-> TCB (1st and 2nd order). The conversion between time scale t1 and time scale t2 are assumed to be of the
- *  form t2-t1 = integral(A(t))+B(t)
+ *  Base class for relativistic time-derivative propagation models.
+ *  Derived classes implement specific models for:
+ *  - barycentric <-> bodycentric coordinate-time conversion (Soffel et al., 2003, Eq. (58));
+ *  - bodycentric <-> topocentric/proper-time conversion (Turyshev et al., 2013, Eq. (22));
+ *  - direct proper-time rate from a metric model.
+ *
+ *  The propagated state is the relative time quantity (typically \f$\tau-t\f$ or
+ *  barycentric/bodycentric coordinate-time difference) and the state derivative equals the
+ *  corresponding model equation evaluated at the current environment state.
  */
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -52,6 +69,11 @@ class RelativisticTimeStateDerivative: public propagators::SingleStateTypeDeriva
 
 public:
 
+    //! Constructor.
+    /*!
+     *  \param referencePointId Pair identifying body and optional reference point.
+     *  \param relativisticStateDerivativeType Relativistic time-derivative model type.
+     */
     RelativisticTimeStateDerivative(
             const std::pair< std::string, std::string >& referencePointId,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType ):
@@ -62,6 +84,12 @@ public:
     virtual ~RelativisticTimeStateDerivative( ){ }
 
 
+    //! Convert internal propagated state to global representation.
+    /*!
+     *  \param internalSolution Internal propagated state.
+     *  \param time Current time.
+     *  \param currentCartesianLocalSolution Output global representation block.
+     */
     void convertCurrentStateToGlobalRepresentation(
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
         const TimeType& time,
@@ -71,12 +99,24 @@ public:
     }
 
 
+    //! Convert output solution back to internal representation.
+    /*!
+     *  \param outputSolution Output solution history.
+     *  \param time Current time.
+     *  \return Converted solution history.
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time ) override
     {
         return outputSolution;
     }
 
+    //! Convert internal solution to output representation.
+    /*!
+     *  \param internalSolution Internal propagated state.
+     *  \param time Current time.
+     *  \param currentCartesianLocalSolution Output solution block.
+     */
     void convertToOutputSolution(
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
         const TimeType& time,
@@ -86,29 +126,50 @@ public:
     }
 
 
+    //! Get propagated state size.
+    /*!
+     *  \return State size.
+     */
     virtual int getStateSize( )
     {
         return 1;
     }
 
+    //! Get conventional state size.
+    /*!
+     *  \return Conventional state size.
+     */
     int getConventionalStateSize( ) override
     { 
         return 1;
     }
 
+    //! Clear internal model state (no-op).
     void clearStateDerivativeModel( ) override { }
 
 
+    //! Get central body name.
+    /*!
+     *  \return Central body name.
+     */
     std::string getCentralBody( )
     {
         return referencePointId_.first;
     }
 
+    //! Get reference point identifier.
+    /*!
+     *  \return Pair of body and optional reference-point name.
+     */
     std::pair< std::string, std::string > getReferencePoint( )
     {
         return referencePointId_;
     }
 
+    //! Get relativistic derivative type.
+    /*!
+     *  \return Relativistic derivative model type.
+     */
     propagators::RelativisticTimeStateDerivativeType getRelativisticStateDerivativeType( )
     {
         return relativisticStateDerivativeType_;
@@ -125,6 +186,12 @@ template< typename StateScalarType = double, typename TimeType = double >
 class DirectProperTimeRateStateDerivative: public RelativisticTimeStateDerivative< StateScalarType, TimeType >
 {
 public:
+    //! Constructor.
+    /*!
+     *  \param spaceTimeMetric Space-time metric used in proper-time-rate evaluation.
+     *  \param referencePointId Reference point of propagated proper-time state.
+     *  \param bodies System of bodies providing point-state functions.
+     */
     DirectProperTimeRateStateDerivative(
             const std::shared_ptr< relativity::Metric > spaceTimeMetric,
             const std::pair< std::string, std::string > referencePointId,
@@ -156,6 +223,12 @@ public:
         }
     }
 
+    //! Evaluate proper-time state derivative.
+    /*!
+     *  \param time Current evaluation time.
+     *  \param stateOfSystemToBeIntegrated Current propagated time state.
+     *  \param stateDerivative Output state derivative.
+     */
     void calculateSystemStateDerivative(
         const TimeType time,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
@@ -165,6 +238,10 @@ public:
     }
 
 
+    //! Update environment-dependent quantities and current derivative value.
+    /*!
+     *  \param currentTime Current evaluation time.
+     */
     void updateStateDerivativeModel( const TimeType currentTime )
     {
         if( spaceTimeMetric_ == nullptr )
@@ -181,11 +258,19 @@ public:
         currentProperTimeDerivative_ = evaluateProperTimeEquation( spaceTimeMetric_, referenceState, 2 );
     }
 
+    //! Get metric object used by this model.
+    /*!
+     *  \return Shared pointer to metric object.
+     */
     std::shared_ptr< relativity::Metric > getSpaceTimeMetric( )
     {
         return spaceTimeMetric_;
     }
 
+    //! Get most recently computed proper-time derivative.
+    /*!
+     *  \return Current proper-time derivative.
+     */
     double getCurrentProperTimeDerivative( )
     {
         return currentProperTimeDerivative_;
@@ -219,7 +304,7 @@ public:
             const std::pair< std::string, std::string >& referencePoint,
             const std::vector< std::string >& externalBodies,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
-            const std::function< double( const double ) > timeVariableConversionFunction = &basic_astrodynamics::doDummyTimeConversion< double >,
+            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0 ):
         RelativisticTimeStateDerivative< StateScalarType, TimeType >( referencePoint, relativisticStateDerivativeType ),
         timeVariableConversionFunction_( timeVariableConversionFunction ),distanceScalingFactor_( distanceScalingFactor )
@@ -276,6 +361,10 @@ public:
     virtual ~PostNewtonianRelativisticTimeStateDerivative( ){ }
 
 
+    //! Get optional time-conversion function used prior to environment updates.
+    /*!
+     *  \return Time-conversion function.
+     */
     std::function< double( const double ) > getTimeVariableConversionFunction( )
     {
         return timeVariableConversionFunction_;
@@ -303,7 +392,7 @@ protected:
     double distanceScalingFactor_;
 };
 
-//! Class for generating time ephemerides of 1st order (i.e. up to c^{-2} terms) using IAU 2000 resolutions on relativity
+//! First-order barycentric->bodycentric time-derivative model (Soffel et al., Eq. (58), \f$c^{-2}\f$ part).
 template< typename StateScalarType = double, typename TimeType = double >
 class FirstOrderBarycentricToBodyCentricTimeStateDerivative: public PostNewtonianRelativisticTimeStateDerivative< StateScalarType, TimeType >
 {
@@ -316,13 +405,17 @@ public:
      *  \param centralBody Name of central body used in conversion
      *  \param externalBodies List of bodies causing gravitational variation of time conversion, from which 1st order contributions will
      *  be calculated and combined.
+     *  \param sphericalHarmonicGravityExpansions Optional spherical-harmonic degree/order settings per external body.
+     *  \param timeVariableConversionFunction Optional time conversion applied before environment updates.
+     *  \param distanceScalingFactor Optional scale factor applied to positions.
+     *  \param relativisticStateDerivativeType Internal derivative type identifier.
      */
     FirstOrderBarycentricToBodyCentricTimeStateDerivative(
             const simulation_setup::SystemOfBodies& bodies,
             const std::string& centralBody,
             const std::vector< std::string >& externalBodies,
             const std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions = ( std::map< std::string, std::pair< int, int > >( ) ),
-            const std::function< double( const double ) > timeVariableConversionFunction = &basic_astrodynamics::doDummyTimeConversion< double >,
+            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0,
             const propagators::RelativisticTimeStateDerivativeType relativisticStateDerivativeType =
             propagators::first_order_barycentric_to_bodycentric):
@@ -375,8 +468,9 @@ public:
 
     //! Function for evaluating the integrand which is required for the conversion.
     /*!
-     *  Function for evaluating the integrand which is required for the conversion, i.e. the c^{-2} integral contribution
-     *  from Soffel et al. Eq. (58) is calculated.
+     *  Evaluates the first-order barycentric/body-centric conversion contribution
+     *  from the Soffel et al. (2003) framework (Eq. (58), first-order terms).
+     *  The sign convention is set by the selected conversion direction.
      *  \param currentGlobalTime Current time, in frame from which conversion is done (i.e. independent variable of equations of motion of bodies)
      *  \param integratedValue Value of integral up to current time.
      *  \return Value of integrand at current time.
@@ -512,18 +606,28 @@ protected:
     std::map< int, double > fullShPotentials_;
 };
 
-//! Class for generating time ephemerides of 2nd order (i.e. up to c^{-4} terms) using IAU 2000 resolutions on relativity
+//! Second-order barycentric->bodycentric time-derivative model (Soffel et al., Eq. (58), up to \f$c^{-4}\f$).
 template< typename StateScalarType = double, typename TimeType = double >
 class SecondOrderBarycentricToBodyCentricTimeStateDerivative: public FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType >
 {
 public:
 
+    //! Constructor.
+    /*!
+     *  \param bodies System of bodies.
+     *  \param centralBody Name of central body used in conversion.
+     *  \param externalBodies External bodies used in conversion.
+     *  \param sphericalHarmonicGravityExpansions Optional spherical-harmonic degree/order settings per external body.
+     *  \param timeVariableConversionFunction Optional time conversion applied before environment updates.
+     *  \param distanceScalingFactor Optional scale factor applied to positions.
+     *  \param angularMomentumBodies Bodies for which angular-momentum terms are included.
+     */
     SecondOrderBarycentricToBodyCentricTimeStateDerivative(
             const simulation_setup::SystemOfBodies& bodies,
             const std::string centralBody,
             const std::vector< std::string >& externalBodies,
             const std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions = ( std::map< std::string, std::pair< int, int > >( ) ),
-            const std::function< double( const double ) > timeVariableConversionFunction = &basic_astrodynamics::doDummyTimeConversion< double >,
+            const std::function< double( const double ) > timeVariableConversionFunction = []( const double inputTime ){ return inputTime; },
             const double distanceScalingFactor = 1.0,
             const std::vector< std::string >& angularMomentumBodies = std::vector< std::string >( ) ): 
                 FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType >(
@@ -553,6 +657,12 @@ public:
 
     ~SecondOrderBarycentricToBodyCentricTimeStateDerivative( ){ }
 
+    //! Evaluate first+second-order Soffel Eq. (58) integrand.
+    /*!
+     *  \param currentGlobalTime Current global coordinate time.
+     *  \param stateOfSystemToBeIntegrated Current propagated time state.
+     *  \param stateDerivative Output state derivative.
+     */
     void calculateSystemStateDerivative(
         const TimeType currentGlobalTime,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
@@ -568,6 +678,10 @@ public:
     }
 
 
+    //! Update all environment-dependent quantities used in second-order integrand.
+    /*!
+     *  \param baseFrameTime Current global coordinate time.
+     */
     void updateStateDerivativeModel( const TimeType baseFrameTime )
     {
         this->updateBaseVariables( baseFrameTime );
@@ -625,10 +739,16 @@ private:
 
 };
 
-//! Class for generating time ephemerides of 1st order (i.e. up to c^{-2} terms) of ground station w.r.t. a PCRS
+//! First-order bodycentric->topocentric/proper-time model (Turyshev et al., 2013, Eq. (22)).
 /*!
- *  Class for generating time ephemerides of 1st order (i.e. up to c^{-2} terms) of ground station w.r.t. a PCRS. Conversion is based on
- *  Eq. (22) of Turyshev et al. (2012)
+ *  Implements, for a station-fixed point \f$\mathbf{y}\f$:
+ *  \f[
+ *      \frac{d\tau}{dt_C} = 1-\frac{1}{c^2}\left[
+ *      \frac{1}{2}v_0^2 + U_E(\mathbf{y}) +
+ *      \sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right) +
+ *      \mathbf{a}_E\cdot\mathbf{y}
+ *      \right] + \mathcal{O}(y^3,c^{-4}).
+ *  \f]
  */
 template< typename StateScalarType = double, typename TimeType = double >
 class FirstOrderBodyCentricToTopoCentricTimeCalculator: public PostNewtonianRelativisticTimeStateDerivative< StateScalarType, TimeType >
@@ -769,8 +889,8 @@ public:
 
     //! Function for evaluating the integrand which is required for the conversion.
     /*!
-     *  Function for evaluating the integrand which is required for the conversion, i.e. the integral contribution
-     *  from Turyshev et al. (2013) Eq. (22) is calculated.
+     *  Evaluates the Turyshev et al. (2013), Eq. (22) contribution for the currently selected
+     *  body-fixed point and environment state.
      *  \param currentGlobalTime Current time, in frame from which conversion is done (i.e. bodycentric coordinate time)
      *  \param integratedValue Value of integral up to current time.
      *  \return Value of integrand at current time.

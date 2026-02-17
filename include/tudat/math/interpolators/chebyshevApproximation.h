@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef TUDAT_CHEBYSHEV_APPROXIMATION_H
 #define TUDAT_CHEBYSHEV_APPROXIMATION_H
 
@@ -14,17 +25,38 @@ namespace tudat
 namespace interpolators
 {
 
+//! Map interpolation epoch to normalized Chebyshev variable.
+/*!
+ *  \param intervalStart Lower bound of interpolation interval.
+ *  \param intervalEnd Upper bound of interpolation interval.
+ *  \param evaluationPoint Epoch at which polynomial is evaluated.
+ *  \return Normalized Chebyshev independent variable in \f$[-1,1]\f$.
+ */
 double determineChebyshevPolynomialIndependentVariable(
         const double intervalStart,
         const double intervalEnd,
         const double evaluationPoint );
 
+//! Evaluate Chebyshev polynomial basis up to requested order on a physical interval.
+/*!
+ *  \param intervalStart Lower bound of interpolation interval.
+ *  \param intervalEnd Upper bound of interpolation interval.
+ *  \param evaluationPoint Epoch at which basis is evaluated.
+ *  \param maximumOrder Maximum polynomial order.
+ *  \return Vector of basis values \f$T_0,\ldots,T_N\f$.
+ */
 std::vector< double > evaluateChebyshevPolynomials(
         const double intervalStart,
         const double intervalEnd,
         const double evaluationPoint,
         const int maximumOrder );
 
+//! Evaluate Chebyshev polynomial basis up to requested order at normalized variable.
+/*!
+ *  \param independentChebyshevVariable Normalized variable in \f$[-1,1]\f$.
+ *  \param maximumOrder Maximum polynomial order.
+ *  \return Vector of basis values \f$T_0,\ldots,T_N\f$.
+ */
 std::vector< double > evaluateChebyshevPolynomials(
         const double independentChebyshevVariable,
         const int maximumOrder );
@@ -41,7 +73,11 @@ public:
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
-    //! Constructor from map of Chebyshev coefficients
+    //! Constructor from map of Chebyshev coefficients.
+    /*!
+     *  \param chebyshevCoefficients Map from segment start epoch to coefficient vector.
+     *  \param selectedLookupScheme Lookup scheme used to locate current interpolation segment.
+     */
     ChebyshevInterpolator(
             const std::map< IndependentVariableType, std::vector< DependentVariableType > >& chebyshevCoefficients,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
@@ -67,7 +103,12 @@ public:
         this->makeLookupScheme( selectedLookupScheme );
     }
 
-    //! Constructor from vectors of nodes and coefficients
+    //! Constructor from vectors of nodes and coefficients.
+    /*!
+     *  \param independentValues Ordered list of segment start epochs.
+     *  \param chebyshevCoefficients Chebyshev coefficient vector per segment.
+     *  \param selectedLookupScheme Lookup scheme used to locate current interpolation segment.
+     */
     ChebyshevInterpolator(
             const std::vector< IndependentVariableType >& independentValues,
             const std::vector< std::vector< DependentVariableType > >& chebyshevCoefficients,
@@ -85,7 +126,11 @@ public:
         this->makeLookupScheme( selectedLookupScheme );
     }
 
-    //! Interpolate value
+    //! Interpolate value.
+    /*!
+     *  \param independentVariableValue Epoch at which interpolated value is requested.
+     *  \return Interpolated dependent-variable value.
+     */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
         DependentVariableType interpolatedValue{};

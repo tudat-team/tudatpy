@@ -1717,7 +1717,25 @@ HybridArcPropagatorSettings
         Settings for second-order body-centered relativistic time propagation.
 
         Used to construct barycentric↔body-centered time conversions (e.g., TCB↔TCG)
-        with post-Newtonian corrections.
+        with the Soffel et al. (2003), Eq. (58)-type post-Newtonian terms.
+
+        Tudat propagates:
+
+        .. math::
+
+            \frac{d}{dt}\Delta_{BC}
+            =
+            -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+            +
+            \frac{1}{c^4}\left(
+            -\frac{1}{8}v_C^4
+            -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+            +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+            +\frac{1}{2}w_{0,\mathrm{ext}}^2
+            +\Delta_{\mathrm{ext}}
+            \right),
+
+        where :math:`\Delta_{BC}` is the propagated barycentric/body-centered time difference.
 
      )doc" );
 
@@ -1729,6 +1747,20 @@ HybridArcPropagatorSettings
         Settings for body-centered↔topocentric relativistic time propagation.
 
         Used for local proper time conversions at a ground station or reference point.
+
+        Tudat follows Turyshev et al. (2013), Eq. (22), and propagates
+        :math:`d(\tau-t_C)/dt_C` as:
+
+        .. math::
+
+            \frac{d}{dt_C}\left(\tau-t_C\right)
+            =
+            -\frac{1}{c^2}\left[
+            \frac{1}{2}v_0^2
+            +U_E(\mathbf{y})
+            +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+            +\mathbf{a}_E\cdot\mathbf{y}
+            \right].
 
      )doc" );
 
@@ -1768,6 +1800,25 @@ HybridArcPropagatorSettings
      Termination settings for the time-state propagation.
  spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
      Optional map of body name to (degree, order) for spherical harmonic gravity.
+
+ Notes
+ -----
+ This setting corresponds to the barycentric↔body-centered Soffel Eq. (58)
+ implementation in Tudat. The propagated derivative is:
+
+ .. math::
+
+     \frac{d}{dt}\Delta_{BC}
+     =
+     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+     +
+     \frac{1}{c^4}\left(
+     -\frac{1}{8}v_C^4
+     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+     +\frac{1}{2}w_{0,\mathrm{ext}}^2
+     +\Delta_{\mathrm{ext}}
+     \right).
 
  Returns
  -------
@@ -1862,6 +1913,22 @@ HybridArcPropagatorSettings
      Numerical integrator settings for the time-state propagation.
  termination_settings : PropagationTerminationSettings
      Termination settings for the time-state propagation.
+
+ Notes
+ -----
+ This setting is for the body-centered↔topocentric segment and follows
+ Turyshev et al. (2013), Eq. (22), i.e.
+
+ .. math::
+
+     \frac{d}{dt_C}\left(\tau-t_C\right)
+     =
+     -\frac{1}{c^2}\left[
+     \frac{1}{2}v_0^2
+     +U_E(\mathbf{y})
+     +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+     +\mathbf{a}_E\cdot\mathbf{y}
+     \right].
 
  Returns
  -------

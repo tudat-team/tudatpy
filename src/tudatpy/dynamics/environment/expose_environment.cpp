@@ -236,9 +236,48 @@ void expose_environment( py::module& m )
          This object provides time differences between supported scales (e.g. TCB, TCG,
          and local proper time) for the associated body.
 
+         For barycentric↔body-centered conversion, Tudat propagates
+         (Soffel et al., 2003, Eq. 58 implementation):
+
+         .. math::
+
+             \frac{d}{dt}\Delta_{BC}
+             =
+             -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+             +
+             \frac{1}{c^4}\left(
+             -\frac{1}{8}v_C^4
+             -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+             +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+             +\frac{1}{2}w_{0,\mathrm{ext}}^2
+             +\Delta_{\mathrm{ext}}
+             \right).
+
+         For body-centered↔topocentric conversion, Tudat propagates
+         (Turyshev et al., 2013, Eq. 22 implementation):
+
+         .. math::
+
+             \frac{d}{dt_C}\left(\tau-t_C\right)
+             =
+             -\frac{1}{c^2}\left[
+             \frac{1}{2}v_0^2
+             +U_E(\mathbf{y})
+             +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}
+             \left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+             +\mathbf{a}_E\cdot\mathbf{y}
+             \right].
+
+         These propagated rates are integrated internally to provide requested
+         scale differences.
+
       )doc" )
             .def( "get_time_difference",
-                  &tudat::TimeEphemeris::getTimeDifference,
+                  static_cast< double ( tudat::TimeEphemeris::* )(
+                      const tudat::basic_astrodynamics::TimeScales,
+                      const tudat::basic_astrodynamics::TimeScales,
+                      const double,
+                      const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference ),
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_time" ),

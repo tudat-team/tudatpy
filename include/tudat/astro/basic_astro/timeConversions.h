@@ -481,12 +481,6 @@ double calculateSecondsInCurrentJulianDay( const double julianDay );
  */
 boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int daysInYear );
 
-template< typename TimeType >
-TimeType doDummyTimeConversion( const TimeType inputTime )
-{
-    return inputTime;
-}
-
 //! Function to convert TCB to TDB times scale
 /*!
  *  Function to convert TCB to TDB times scale, with both input and output referenced to the J2000 reference time.
