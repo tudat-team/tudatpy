@@ -35,12 +35,6 @@ namespace tudat
 
 namespace propagators
 {
-namespace tudat
-{
-
-namespace propagators
-{
-
 //! Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time.
 /*!
  * Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time.
