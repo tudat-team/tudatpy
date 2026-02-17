@@ -14,6 +14,8 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 //
@@ -25,8 +27,12 @@
 // BOOST_AUTO_TEST_SUITE( test_estimation_time_bias )
 //
 // BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
+
+
 int main( )
 {
+
+
     using namespace tudat;
     using namespace tudat::observation_models;
     using namespace tudat::orbit_determination;

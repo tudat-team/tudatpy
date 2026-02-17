@@ -13,6 +13,7 @@
 #define EXECUTEPLANETARYPARAMETERESTIMATIONTESTCASE_H
 
 #include <memory>
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include <utility>
 
 #include <Eigen/Core>

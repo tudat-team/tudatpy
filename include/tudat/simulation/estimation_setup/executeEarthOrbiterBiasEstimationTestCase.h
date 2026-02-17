@@ -13,14 +13,30 @@
 #define EXECUTEEARTHORBITERBIASESTIMATIONTESTCASE_H
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
 {
+
+using namespace basic_astrodynamics;
+using namespace simulation_setup;
+using namespace observation_models;
+using namespace orbital_element_conversions;
+using namespace propagators;
+using namespace estimatable_parameters;
+using namespace propagators;
+using namespace numerical_integrators;
+using namespace ephemerides;
+using namespace coordinate_conversions;
+
 namespace unit_tests
 {
+
+
+
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool estimateRangeBiases = true,
@@ -552,7 +568,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
     weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
     weightsPerObservationParser[ observationParser( n_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-    weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-12 * 1.0E-12 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+    weightsPerObservationParser[ observationParser( one_way_doppler ) ] =
+            1.0 / ( 1.0E-12 * 1.0E-12 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
     simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
 
     // Perturb parameter estimate

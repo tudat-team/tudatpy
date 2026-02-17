@@ -45,6 +45,7 @@
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"

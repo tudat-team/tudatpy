@@ -13,6 +13,8 @@
 
 #include "tudat/simulation/estimation.h"
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 //! Test suite for astro functions.
 BOOST_AUTO_TEST_SUITE( test_propagation_termination_reason )

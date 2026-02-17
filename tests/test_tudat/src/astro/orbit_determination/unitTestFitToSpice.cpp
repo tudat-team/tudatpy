@@ -18,6 +18,7 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 

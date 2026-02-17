@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/interface/json/tests/unitTestSupport.h"
 #include "tudat/interface/json/jsonEstimationInterface.h"
 

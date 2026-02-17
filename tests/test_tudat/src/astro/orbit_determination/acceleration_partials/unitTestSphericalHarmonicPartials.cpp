@@ -14,9 +14,14 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"

@@ -20,6 +20,8 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"

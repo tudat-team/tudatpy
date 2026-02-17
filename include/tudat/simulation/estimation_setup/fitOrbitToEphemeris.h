@@ -12,6 +12,7 @@
 #define TUDAT_FITORBITTOEPHEMERIS_H
 
 #include <vector>
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 #include <memory>
 #include <functional>

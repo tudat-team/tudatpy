@@ -21,6 +21,7 @@
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"

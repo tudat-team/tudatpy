@@ -27,6 +27,8 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"

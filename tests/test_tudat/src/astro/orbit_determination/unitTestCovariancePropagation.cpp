@@ -16,7 +16,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
