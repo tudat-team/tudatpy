@@ -471,7 +471,16 @@ configure_file(
 
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-# Add Tudat subdirectories
+# +============================================================================
+# Unity build for C++ libraries (reduces header re-parsing across TUs)
+# Libraries are always built with unity for speed. Test targets disable it
+# (single .cpp each) and link the full library set to satisfy any transitive
+# dependencies that unity object files expose.
+# +============================================================================
+set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+
+# Add Tudat subdirectories (libraries — built with unity)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -479,6 +488,9 @@ add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
+
+# Turn off unity before tests (test executables are single .cpp files)
+set(CMAKE_UNITY_BUILD OFF)
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()
