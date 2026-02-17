@@ -18,6 +18,10 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "biases/expose_biases.h"
+#include "links/expose_links.h"
+#include "light_time_corrections/expose_light_time_corrections.h"
+#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 

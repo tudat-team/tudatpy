@@ -9,7 +9,14 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_model_settings.h"
+
 #include <pybind11/functional.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
