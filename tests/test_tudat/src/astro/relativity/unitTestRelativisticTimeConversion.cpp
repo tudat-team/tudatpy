@@ -627,6 +627,146 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-12 );
 }
 
+BOOST_AUTO_TEST_CASE( test_geoid_tt_tcg_sh_rotation_rate )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double initialEpoch = 0.0;
+    const double finalEpoch = initialEpoch + 7.0 * physical_constants::JULIAN_DAY;
+    const double integrationStep = 100.0;
+    const double ephemerisBuffer = physical_constants::JULIAN_DAY;
+
+    const std::string globalFrameOrigin = "Earth";
+    const std::string globalFrameOrientation = "J2000";
+    const std::vector< std::string > bodyNames{ "Sun", "Earth", "Moon" };
+    BodyListSettings bodySettings = getDefaultBodySettings(
+                bodyNames, initialEpoch - ephemerisBuffer, finalEpoch + ephemerisBuffer,
+                globalFrameOrigin, globalFrameOrientation );
+
+    // WGS84 mean geoid geometry.
+    const double wgs84Flattening = 1.0 / 298.257223563;
+    const double wgs84EquatorialRadius = 6378137.0;
+    bodySettings.at( "Earth" )->shapeModelSettings =
+            std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >(
+                wgs84EquatorialRadius, wgs84Flattening );
+
+    // High-accuracy Earth rotation (GCRS<->ITRS).
+    bodySettings.at( "Earth" )->rotationModelSettings =
+            std::make_shared< simulation_setup::GcrsToItrsRotationModelSettings >(
+                basic_astrodynamics::iau_2006, globalFrameOrientation );
+
+    // Truncate Earth gravity field to degree/order 2 (SH-enabled PN integrand test).
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > earthGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
+                bodySettings.at( "Earth" )->gravityFieldSettings );
+    BOOST_REQUIRE( earthGravityFieldSettings != nullptr );
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients.block( 0, 0, 3, 3 ) =
+            earthGravityFieldSettings->getCosineCoefficients( ).block( 0, 0, 3, 3 );
+    sineCoefficients.block( 0, 0, 3, 3 ) =
+            earthGravityFieldSettings->getSineCoefficients( ).block( 0, 0, 3, 3 );
+
+    bodySettings.at( "Earth" )->gravityFieldSettings =
+            std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                earthGravityFieldSettings->getGravitationalParameter( ),
+                earthGravityFieldSettings->getReferenceRadius( ),
+                cosineCoefficients,
+                sineCoefficients,
+                "ITRS",
+                earthGravityFieldSettings->getScaledMeanMomentOfInertia( ) );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
+
+    for( const std::string& bodyName : bodyNames )
+    {
+        bodies.getBody( bodyName )->setStateFromEphemeris( initialEpoch );
+    }
+    bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEpoch );
+
+    const std::string stationName = "Equator45";
+    // Geodetic coordinates in Tudat are ellipsoidal; use a local undulation correction so h_geoid = 0
+    // is represented on the WGS84 ellipsoid at this site.
+    const double geoidHeight = 0.0;
+    const double geoidUndulationAtStation = 15.0;
+    const double ellipsoidalHeightForMeanGeoid = geoidHeight - geoidUndulationAtStation;
+    const Eigen::Vector3d stationGeodeticCoordinates =
+            ( Eigen::Vector3d( ) << convertDegreesToRadians( 0.0 ),
+              convertDegreesToRadians( 45.0 ), ellipsoidalHeightForMeanGeoid ).finished( );
+    createGroundStation(
+                bodies.getBody( "Earth" ),
+                stationName,
+                stationGeodeticCoordinates,
+                coordinate_conversions::geodetic_position );
+
+    auto integratorSettings = numerical_integrators::rungeKuttaFixedStepSettings(
+                integrationStep, numerical_integrators::rungeKutta87DormandPrince );
+    auto terminationSettings =
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( finalEpoch );
+
+    const Eigen::VectorXd initialRelativisticState = Eigen::VectorXd::Zero( 1 );
+    std::vector< std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, double > > >
+            bodyCentricToTopocentricSettings;
+    const std::vector< std::string > topocentricPerturbingBodies{ "Sun", "Moon" };
+    bodyCentricToTopocentricSettings.push_back(
+                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
+                    std::make_pair( "Earth", stationName ),
+                    false,
+                    2,
+                    true,
+                    topocentricPerturbingBodies,
+                    initialRelativisticState,
+                    initialEpoch,
+                    integratorSettings,
+                    terminationSettings ) );
+
+    const std::vector< std::string > earthPerturbingBodies{ "Sun", "Moon" };
+    std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings<> > > converterSettings;
+    converterSettings[ "Earth" ] = std::make_shared< DirectRelativisticTimeConverterSettings<> >(
+                std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< double, double > >(
+                    "Earth", earthPerturbingBodies, initialEpoch, integratorSettings, terminationSettings ),
+                integratorSettings,
+                bodyCentricToTopocentricSettings );
+
+    setRelativisticTimeConverters( bodies, converterSettings );
+
+    std::shared_ptr< TimeEphemeris > earthTimeScaleConverter = bodies.getBody( "Earth" )->getTimeScaleConverter( );
+    BOOST_REQUIRE( earthTimeScaleConverter != nullptr );
+
+    // Sample TCG-local_proper over one week and fit mean slope.
+    std::vector< double > times;
+    std::vector< double > tcgMinusProper;
+    for( double epoch = initialEpoch; epoch <= finalEpoch + std::numeric_limits< double >::epsilon( ); epoch += integrationStep )
+    {
+        times.push_back( epoch - initialEpoch );
+        tcgMinusProper.push_back(
+                    earthTimeScaleConverter->getTimeDifference(
+                        body_centered_coordinate_time_scale, local_proper_time_scale, epoch, stationName ) );
+    }
+
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector( times );
+    Eigen::VectorXd resultVector = utilities::convertStlVectorToEigenVector( tcgMinusProper );
+
+    const double meanTime = timeVector.mean( );
+    const double meanResult = resultVector.mean( );
+    const Eigen::VectorXd centeredTimes =
+            timeVector - Eigen::VectorXd::Constant( timeVector.rows( ), meanTime );
+    const Eigen::VectorXd centeredResults =
+            resultVector - Eigen::VectorXd::Constant( resultVector.rows( ), meanResult );
+
+    const double measuredRate = centeredTimes.dot( centeredResults ) / centeredTimes.squaredNorm( );
+    const double fittedOffset = meanResult - measuredRate * meanTime;
+    BOOST_CHECK_CLOSE_FRACTION( measuredRate, -physical_constants::LG_TIME_RATE_TERM, 1.0E-6 );
+
+    const Eigen::VectorXd detrendedResults = resultVector - (
+                Eigen::VectorXd::Constant( resultVector.rows( ), fittedOffset ) +
+                measuredRate * timeVector );
+    const double maximumResidualAmplitude = detrendedResults.cwiseAbs( ).maxCoeff( );
+    BOOST_CHECK_SMALL( maximumResidualAmplitude, 1.0E-12 );
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END( )

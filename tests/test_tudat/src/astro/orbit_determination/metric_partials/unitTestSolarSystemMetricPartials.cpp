@@ -107,7 +107,6 @@ BOOST_AUTO_TEST_CASE( testSolarSystemMetricTimePartial )
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 earthBody->getGravityFieldModel( ) );
     BOOST_REQUIRE( earthGravityField != nullptr );
-    BOOST_REQUIRE( earthGravityField->getRotationToLocalFrameWrapper( ) != nullptr );
 
     std::vector< std::string > firstOrderPerturbingBodies{ "Sun", "Earth" };
     std::vector< std::string > secondOrderPerturbingBodies;

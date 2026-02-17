@@ -34,60 +34,6 @@ namespace tudat
 namespace reference_frames
 {
 
-class RotationWrapper
-{
-public:
-    virtual ~RotationWrapper( ){ }
-
-    virtual Eigen::Vector3d rotateVector( Eigen::Vector3d originalVector ) = 0;
-
-    virtual Eigen::Matrix3d getRotationMatrix( ) = 0;
-
-    virtual Eigen::Quaterniond getRotationQuaternion( ) = 0;
-
-protected:
-};
-
-class QuaternionRotationWrapper: public RotationWrapper
-{
-public:
-
-    QuaternionRotationWrapper( const std::function< Eigen::Quaterniond( ) > quaternionFunction )
-    {
-        quaternionFunctions_.push_back( quaternionFunction );
-    }
-
-    QuaternionRotationWrapper( const std::vector< std::function< Eigen::Quaterniond( ) > > quaternionFunctions )
-    {
-        quaternionFunctions_ = quaternionFunctions;
-    }
-
-    ~QuaternionRotationWrapper( ){ }
-
-    Eigen::Vector3d rotateVector( Eigen::Vector3d originalVector )
-    {
-        return getRotationQuaternion( ) * originalVector;
-    }
-
-    Eigen::Matrix3d getRotationMatrix( )
-    {
-        return getRotationQuaternion( ).toRotationMatrix( );
-    }
-
-    Eigen::Quaterniond getRotationQuaternion( )
-    {
-        Eigen::Quaterniond currentRotation = quaternionFunctions_[ 0 ]( );
-        for( unsigned int i = 1; i < quaternionFunctions_.size( ); i++ )
-        {
-            currentRotation *= quaternionFunctions_[ i ]( );
-        }
-        return currentRotation;
-    }
-
-private:
-    std::vector< std::function< Eigen::Quaterniond( ) > > quaternionFunctions_;
-};
-
 //! Enum to define ids for various reference frames for calculating between inertial and body-fixed
 //! frame, using transformation chain via aerodynamic frame.
 enum AerodynamicsReferenceFrames {

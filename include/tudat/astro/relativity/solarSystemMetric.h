@@ -39,6 +39,7 @@ public:
      *  \param centralBodyPositionFunction Function returning central-body position.
      *  \param maximumDegreeAndOrder Maximum degree/order used in spherical-harmonic evaluations.
      *  \param legendreCache Cache for Legendre polynomial evaluations.
+     *  \param currentRotationToBodyFixedFrameFunction Function returning inertial-to-body-fixed rotation.
      *  \param currentRotationToBodyFixedFrameDerivative Function returning body-frame rotation derivative.
      */
     SphericalHarmonicWrapper(
@@ -46,8 +47,10 @@ public:
             const std::function< Eigen::Vector3d( ) > centralBodyPositionFunction,
             const std::pair< int, int >& maximumDegreeAndOrder,
             basic_mathematics::LegendreCache* legendreCache,
+            const std::function< Eigen::Quaterniond( ) > currentRotationToBodyFixedFrameFunction,
             const std::function< Eigen::Matrix3d( ) > currentRotationToBodyFixedFrameDerivative ):
         sphericalHarmonicGravityField_( sphericalHarmonicGravityField ),
+        currentRotationToBodyFixedFrameFunction_( currentRotationToBodyFixedFrameFunction ),
         currentRotationToBodyFixedFrameDerivative_( currentRotationToBodyFixedFrameDerivative ),
         centralBodyPositionFunction_( centralBodyPositionFunction ),
         maximumDegreeAndOrder_( maximumDegreeAndOrder ),
@@ -83,8 +86,7 @@ public:
                 cosineBlock,
                 sineBlock,
                 wrappedCentralBodyPositionFunction,
-                std::bind( &reference_frames::RotationWrapper::getRotationQuaternion,
-                        sphericalHarmonicGravityField_->getRotationToLocalFrameWrapper( ) ),
+                [this]( ){ return this->currentRotationToBodyFixedFrameFunction_( ).inverse( ); },
                 false,
                 basic_mathematics::SphericalHarmonicsCache( maximumDegreeAndOrder_.first + 1,
                                                             maximumDegreeAndOrder_.second + 1 ) );
@@ -102,6 +104,7 @@ public:
         currentEvaluationPosition_ = currentEvaluationPosition;
         return sphericalHarmonicGravityField_->getGravitationalPotentialFromInertialPosition(
                     currentEvaluationPosition_ - centralBodyPositionFunction_( ),
+                    currentRotationToBodyFixedFrameFunction_( ),
                     maximumDegreeAndOrder_.first, maximumDegreeAndOrder_.second,
                     legendreCache_ );
     }
@@ -153,7 +156,7 @@ public:
      */
     Eigen::Quaterniond getRotationToBodyFixedFrame( )
     {
-        return sphericalHarmonicGravityField_->getRotationToLocalFrameWrapper( )->getRotationQuaternion( );
+        return currentRotationToBodyFixedFrameFunction_( );
     }
 
     //! Get time derivative of rotation to body-fixed frame.
@@ -179,6 +182,8 @@ private:
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField_;
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicPotentialGradientModel_;
+
+    std::function< Eigen::Quaterniond( ) > currentRotationToBodyFixedFrameFunction_;
 
     std::function< Eigen::Matrix3d( ) > currentRotationToBodyFixedFrameDerivative_;
 

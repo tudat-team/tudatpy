@@ -153,9 +153,17 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
                     std::cerr << "Error: Body " << currentBody << " does not have SH gravity model.\n";
                     continue;
                 }
+                if( body->getRotationalEphemeris( ) == nullptr )
+                {
+                    std::cerr << "Error: Body " << currentBody
+                              << " has SH metric settings but no rotational ephemeris.\n";
+                    continue;
+                }
 
                 std::function< Eigen::Matrix3d( ) > rotationDerivativeFunction =
                         std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, body );
+                std::function< Eigen::Quaterniond( ) > rotationFunction =
+                        std::bind( &Body::getCurrentRotationToLocalFrame, body );
 
                 rotationUpdateFunctions[ i ] =
                         [ body, currentBody ]( const double t )
@@ -170,6 +178,7 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
                     new basic_mathematics::LegendreCache(
                         harmonicMap.at( currentBody ).first + 1,
                         harmonicMap.at( currentBody ).second + 1 ),
+                    rotationFunction,
                     rotationDerivativeFunction );
             }
         }

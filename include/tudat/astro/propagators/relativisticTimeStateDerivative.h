@@ -455,6 +455,7 @@ public:
                     higherOrderGravityFieldPotentialFunctions_[ i ] = [=]( const Eigen::Vector3d& position ) {
                         return shGravityField->getGravitationalPotentialFromInertialPosition(
                                     position,
+                                    currentCelestialBody->getCurrentRotationToLocalFrame( ),
                                     static_cast< double >( sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).first ),
                                     static_cast< double >( sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).second ) );
                         };

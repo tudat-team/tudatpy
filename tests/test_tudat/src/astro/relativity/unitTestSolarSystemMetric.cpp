@@ -24,7 +24,6 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/relativity/solarSystemMetric.h"
-#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/math/basic/legendrePolynomials.h"
@@ -188,21 +187,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies.getMap( ), "SSB", "ECLIPJ2000" );
-    // Ensure harmonic gravity has a rotation wrapper before creating metrics
-    {
-        auto earthGravityField =
-                std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                        bodies.getBody( "Earth" )->getGravityFieldModel( ) );
-        if( earthGravityField != nullptr )
-        {
-            earthGravityField->setRotationWrapper(
-                std::make_shared< reference_frames::QuaternionRotationWrapper >(
-                    [earth = bodies.getBody( "Earth" )]( )
-                    {
-                        return Eigen::Quaterniond( earth->getCurrentRotationToLocalFrame( ) );
-                    } ) );
-        }
-    }
 
     const double evaluationTime = 1.05E7;
     bodies.getBody( "Sun" )->setStateFromEphemeris( evaluationTime );
@@ -212,12 +196,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                     bodies.getBody( "Earth" )->getGravityFieldModel( ) );
     BOOST_REQUIRE_MESSAGE( earthGravityField != nullptr, "Earth gravity field is not spherical harmonics." );
-    earthGravityField->setRotationWrapper(
-            std::make_shared< reference_frames::QuaternionRotationWrapper >(
-                    [earth = bodies.getBody( "Earth" )]( )
-                    {
-                        return Eigen::Quaterniond( earth->getCurrentRotationToLocalFrame( ) );
-                    } ) );
 
     std::vector< std::string > firstOrderPerturbingBodies{ "Earth" };
     std::map< std::string, std::pair< int, int > > bodySphericalHarmonicExpansions;
@@ -260,11 +238,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     const Eigen::Vector3d relativePosition = testCartesianElements.segment( 0, 3 );
 
     const double fullPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, fullDegree, fullOrder, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), fullDegree, fullOrder, legendreCache.get( ) );
     const double truncatedPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, truncatedDegree, truncatedOrder, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), truncatedDegree, truncatedOrder, legendreCache.get( ) );
     const double pointMassPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, 0, 0, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), 0, 0, legendreCache.get( ) );
 
     std::vector< double > metricTerms{
         2.0 * fullPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,
