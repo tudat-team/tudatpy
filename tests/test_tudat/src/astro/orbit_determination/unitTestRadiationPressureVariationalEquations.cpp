@@ -23,7 +23,6 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"

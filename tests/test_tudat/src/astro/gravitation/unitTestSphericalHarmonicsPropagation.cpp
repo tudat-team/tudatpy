@@ -30,7 +30,6 @@
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 

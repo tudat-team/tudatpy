@@ -14,7 +14,7 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
 
 namespace tudat
 {
@@ -23,8 +23,8 @@ namespace unit_tests
 
 template< typename TimeType = double, typename StateScalarType = double >
 void compareEstimationAndCovarianceResults(
-        const std::shared_ptr< observation_models::EstimationOutput< StateScalarType, TimeType > > estimationOutput,
-        const std::shared_ptr< observation_models::CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput )
+        const std::shared_ptr< simulation_setup::EstimationOutput< StateScalarType, TimeType > > estimationOutput,
+        const std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput )
 {
     for( int i = 0; i < estimationOutput->getCorrelationMatrix( ).rows( ); i++ )
     {

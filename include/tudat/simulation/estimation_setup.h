@@ -28,7 +28,7 @@
 #include "estimation_setup/createStateDerivativePartials.h"
 #include "estimation_setup/createTorquePartials.h"
 #include "estimation_setup/estimatableParameterSettings.h"
-#include "estimation_setup/orbitDeterminationManager.h"
+#include "estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
 #include "estimation_setup/podProcessing.h"
 #include "estimation_setup/variationalEquationsSolver.h"
 #include "estimation_setup/processOdfFile.h"

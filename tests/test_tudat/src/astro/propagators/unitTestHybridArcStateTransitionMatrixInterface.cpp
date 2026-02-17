@@ -34,6 +34,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 

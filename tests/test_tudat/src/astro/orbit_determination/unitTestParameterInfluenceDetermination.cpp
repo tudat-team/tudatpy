@@ -16,7 +16,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"

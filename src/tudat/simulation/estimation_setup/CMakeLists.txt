@@ -20,6 +20,12 @@ set(estimation_HEADERS
         createAtmosphericLightTimeCorrection.h
         createObservationManager.h
         orbitDeterminationManager.h
+        orbitDeterminationManagerForwardDeclarations.h
+        orbitDeterminationManagerHelpers.h
+        orbitDeterminationManagerConstructionImplementation.h
+        orbitDeterminationManagerUtilitiesImplementation.h
+        orbitDeterminationManagerCovarianceImplementation.h
+        orbitDeterminationManagerEstimationImplementation.h
         createLightTimeCorrectionPartials.h
         createEstimatableParameters.h
         createCartesianStatePartials.h
