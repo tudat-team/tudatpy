@@ -27,7 +27,7 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
