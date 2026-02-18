@@ -10,6 +10,15 @@ from dataclasses import dataclass
 from typing import Generator
 
 
+def check_needed_test_credentials():
+    if not os.getenv("SPACETRACK_USER") or not os.getenv("SPACETRACK_PASS"):
+        print("-" * 60)
+        print("NOTICE: Space-Track remote data tests will be skipped.")
+        print("To enable them, set your credentials in the environment:")
+        print("  export SPACETRACK_USER='your_email'")
+        print("  export SPACETRACK_PASS='your_password'")
+        print("-" * 60)
+
 @dataclass
 class Environment:
     """Mock environment
@@ -1247,8 +1256,11 @@ class Builder:
 if __name__ == "__main__":
 
     args = BuildParser().parse_args()
-    builder = Builder(args)
 
+    if args.build_tests:
+        check_needed_test_credentials()
+
+    builder = Builder(args)
     # Build libraries
     if not args.skip_build:
         builder.build_libraries()
