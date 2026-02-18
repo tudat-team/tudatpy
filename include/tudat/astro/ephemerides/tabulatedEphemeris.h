@@ -158,7 +158,14 @@ public:
      */
     std::pair< double, double > getSafeInterpolationInterval( const bool acceptUserDefinedRisk = true )
     {
-        return interpolator_->getValidDoubleInterpolationInterval( acceptUserDefinedRisk );
+        if( interpolator_ == nullptr )
+        {
+            return std::make_pair( 0.0, 0.0 );
+        }
+        else
+        {
+            return interpolator_->getValidDoubleInterpolationInterval( acceptUserDefinedRisk );
+        }
     }
 
 private:

@@ -100,6 +100,14 @@ public:
         return totalDependentVariableSize_;
     }
 
+    void clearSettings( )
+    {
+        settingsList_.clear( );
+        dependentVariableStartIndices_.clear( );
+        dependentVariableSizes_.clear( );
+        totalDependentVariableSize_ = 0;
+    }
+
 private:
     observation_models::ObservableType observableType_;
 

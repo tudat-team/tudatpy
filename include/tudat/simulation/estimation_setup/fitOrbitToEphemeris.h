@@ -82,6 +82,42 @@ simulatePseudoObservations( const SystemOfBodies& bodies,
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
+std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
+           std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
+simulatePseudoObservations( const SystemOfBodies& bodies,
+                            const std::vector< std::string >& bodiesToPropagate,
+                            const std::vector< std::string >& centralBodies,
+                            const std::vector< TimeType > observationTimes )
+{
+    using namespace observation_models;
+
+    std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
+
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        // Create link ends
+        LinkEnds linkEnds;
+        linkEnds[ observed_body ] = bodiesToPropagate.at( i );
+        linkEnds[ observer ] = centralBodies.at( i );
+
+        // Create observation model settings
+        observationModelSettingsList.push_back( relativePositionObservableSettings( linkEnds ) );
+
+        measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+                relative_position_observable, linkEnds, observationTimes, observed_body ) );
+    }
+
+    std::shared_ptr< ObservationSimulatorBase< StateScalarType, TimeType > > observationSimulator =
+            createObservationSimulators< StateScalarType, TimeType >( observationModelSettingsList, bodies ).at( 0 );
+
+    std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationCollection =
+            simulateObservations< StateScalarType, TimeType >( measurementSimulationInput, { observationSimulator }, bodies );
+
+    return std::make_pair( observationModelSettingsList, observationCollection );
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitToCurrentEphemeris(
         const SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,

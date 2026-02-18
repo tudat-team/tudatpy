@@ -174,7 +174,9 @@ public:
         verifySeconds( );
     }
 
-    std::string isoString( const bool addT = false, const int numberOfFractionalSecondDigits = 15 ) const
+    std::string isoStringWithCheck( const bool addT = false,
+                                    const int numberOfFractionalSecondDigits = 15,
+                                    const bool checkRounding = true ) const
     {
         std::string yearString = std::to_string( year_ );
         std::string monthString = utilities::paddedZeroIntString( month_, 2 );
@@ -184,13 +186,27 @@ public:
         std::string secondString = utilities::paddedZeroIntString( static_cast< int >( seconds_ ), 2 );
         long double fractionalSeconds =
                 seconds_ - mathematical_constants::getFloatingInteger< long double >( static_cast< int >( seconds_ ) );
-        std::string fractionalSecondString =
+        std::pair< std::string, bool > stringAndRounding =
                 utilities::to_string_with_precision< long double >( fractionalSeconds, numberOfFractionalSecondDigits );
+        std::string fractionalSecondString = stringAndRounding.first;
+        if( stringAndRounding.second == true && checkRounding )
+        {
+            DateTime copyDateTime = DateTime( year_, month_, day_, hour_, minute_, seconds_ );
 
+            DateTime incrementedDateTime =
+                    copyDateTime.addSecondsToDateTime( mathematical_constants::getFloatingInteger< long double >( 1.0 ) );
+
+            return incrementedDateTime.isoStringWithCheck( addT, numberOfFractionalSecondDigits, false );
+        }
         secondString += fractionalSecondString.substr( 1, fractionalSecondString.length( ) - 1 );
         std::string separationCharacter = addT ? "T" : " ";
         return yearString + "-" + monthString + "-" + dayString + separationCharacter + hourString + ":" + minuteString + ":" +
                 secondString;
+    }
+
+    std::string isoString( const bool addT = false, const int numberOfFractionalSecondDigits = 15 ) const
+    {
+        return isoStringWithCheck( addT, numberOfFractionalSecondDigits, true );
     }
 
     template< typename TimeType >

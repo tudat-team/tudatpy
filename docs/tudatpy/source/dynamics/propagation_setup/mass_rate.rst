@@ -2,18 +2,14 @@
 
 ``mass_rate``
 =============
-This module provides the functionality for creating mass rate settings.
+Here, you will find a list of all mass rate models available in Tudat, which are needed when propagating the mass of
+a body numerically (for instance for a spacecraft under thrust). Some more specifics on this, and the overall interaction with Tudat, can be found on
+the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/mass.html>`_ .
 
-
-
-
-
-
-
-
-
-
-
+The functions here all create settings
+objects for mass rate models that are provided as input to the :func:`~tudatpy.dynamics.propagation_setup.create_mass_rate_models`
+function. The functions in this submodule create objects of type :class:`~MassRateModelSettings` or (in case more information than only
+the type of mass rate is needed to create the model), one of its derived classes.
 
 Functions
 ---------

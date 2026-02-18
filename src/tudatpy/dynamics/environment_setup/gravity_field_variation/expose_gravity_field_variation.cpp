@@ -169,15 +169,35 @@ Variation model due to pole tides
                   py::arg( "mean_tidal_forcing_sine_terms" ),
                   R"doc(
 
-         Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations.
+         Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations. This is typically
+         used for tides raised on synchronously rotating satellites, where the variation in longitude :math:`\theta` (see :func:`~solid_body_tide`) is
+         small and the main part of the associated computed gravity field variations is a permanent tide.
 
-                 Parameters
-                 ----------
-                 mean_tidal_forcing_cosine_terms : dict{ int, numpy.ndarray}
-                 Dictionary in which key value represents degree m and vector position order m of mean forcing acting on cosine coefficient
+         Denoting the cosine and sine forcing as :math:`F_{C,lm}` and :math:`F_{S,lm}`, we can reformulate the gravity field variation in :func:`~solid_body_tide` as:
 
-                 mean_tidal_forcing_sine_terms : numpy.ndarray
-                 Dictionary in which key value represents degree m and vector position order m of mean forcing acting on cosine coefficient
+         .. math::
+            \Delta \bar{C}_{lm}&=k_{l.m}F_{C,lm}(r,\theta,\phi)\\
+            \Delta \bar{S}_{lm}&k_{l.m}F_{S,lm}(r,\theta,\phi)
+
+         (where we have added the order dependent Love number :math:`k_{l,m}` and have retained only a single tide-raising body for the sake of brevity).
+
+         In this function, one can provide mean forcing values per degree/order combination for both cosine and sine coefficients, denoted
+         :math:`\overline{F_{C,lm}}` and :math:`\overline{F_{S,lm}}`, which modifies the computation of the gravity field variations to:
+
+         .. math::
+            \Delta \bar{C}_{lm}&=k_{l.m}\left(F_{C,lm}(r,\theta,\phi) - \overline{F_{C,lm}} \right)\\
+            \Delta \bar{S}_{lm}&k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
+
+         This option can be used for any of the solid-body tide gravity field variation options.
+
+         Parameters
+         ----------
+
+         mean_tidal_forcing_cosine_terms : dict{ int, numpy.ndarray}
+             Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the cosine coefficient variations
+
+         mean_tidal_forcing_sine_terms : numpy.ndarray
+             Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the sine coefficient variations
 
     )doc" );
 

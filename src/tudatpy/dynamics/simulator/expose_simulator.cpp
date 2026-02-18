@@ -37,7 +37,6 @@ namespace simulator
 
 void expose_simulator( py::module& m )
 {
-
     /*!
      *************** DYNAMICS SIMULATOR ***************
      */
@@ -50,8 +49,7 @@ void expose_simulator( py::module& m )
 
     py::class_< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "SingleArcSimulator", R"doc(
+                tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >( m, "SingleArcSimulator", R"doc(
 
          Class for propagation of single arc dynamics.
 
@@ -60,8 +58,7 @@ void expose_simulator( py::module& m )
 
       )doc" )
             .def_property_readonly( "bodies",
-                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                                     TIME_TYPE >::getSystemOfBodies,
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSystemOfBodies,
                                     R"doc(
          **read-only**
 
@@ -69,11 +66,9 @@ void expose_simulator( py::module& m )
 
          :type: SystemOfBodies
       )doc" )
-            .def_property_readonly(
-                    "propagator_settings",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getPropagatorSettings,
-                    R"doc(
+            .def_property_readonly( "propagator_settings",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatorSettings,
+                                    R"doc(
          **read-only**
 
          Settings for the propagation used to initialize the simulator
@@ -93,11 +88,9 @@ void expose_simulator( py::module& m )
         New initial state from which the dynamics is to be propagated
 
       )doc" )
-            .def_property_readonly(
-                    "state_derivative_function",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getStateDerivativeFunction,
-                    R"doc(
+            .def_property_readonly( "state_derivative_function",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getStateDerivativeFunction,
+                                    R"doc(
 
          **read-only**
 
@@ -106,13 +99,11 @@ void expose_simulator( py::module& m )
          by the numerical integration routine. Typically, this function is NOT used directly by users.
 
 
-         :type: Callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
+         :type: callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "environment_updater",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getEnvironmentUpdater,
-                    R"doc(
+            .def_property_readonly( "environment_updater",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEnvironmentUpdater,
+                                    R"doc(
 
          **read-only**
 
@@ -123,11 +114,9 @@ void expose_simulator( py::module& m )
 
          :type: EnvironmentUpdater
       )doc" )
-            .def_property_readonly(
-                    "propagation_results",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getPropagationResults,
-                    R"doc(
+            .def_property_readonly( "propagation_results",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagationResults,
+                                    R"doc(
 
          **read-only**
 
@@ -137,110 +126,95 @@ void expose_simulator( py::module& m )
 
          :type: SingleArcSimulationResults
       )doc" )
-        .def_property_readonly(
-            "state_history_time_object",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getEquationsOfMotionNumericalSolution,
-            R"doc(
+            .def_property_readonly( "state_history_time_object",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolution,
+                                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.state_history_time_object
 
          :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "state_history",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getEquationsOfMotionNumericalSolutionDouble,
-            R"doc(
+            .def_property_readonly(
+                    "state_history",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolutionDouble,
+                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.state_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "unprocessed_state_history_time_object",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getEquationsOfMotionNumericalSolutionRaw,
-            R"doc(
+            .def_property_readonly(
+                    "unprocessed_state_history_time_object",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolutionRaw,
+                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.unprocessed_state_history_time_object
 
          :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "unprocessed_state_history",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getEquationsOfMotionNumericalSolutionRawDouble,
-            R"doc(
+            .def_property_readonly(
+                    "unprocessed_state_history",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolutionRawDouble,
+                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.unprocessed_state_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "dependent_variable_history",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                TIME_TYPE >::getDependentVariableHistoryDouble,
-            R"doc(
+            .def_property_readonly( "dependent_variable_history",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
+                                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.dependent_variable_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "dependent_variable_history_time_object",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                TIME_TYPE >::getDependentVariableHistory,
-            R"doc(
+            .def_property_readonly( "dependent_variable_history_time_object",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
+                                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.dependent_variable_history_time_object
 
          :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
-        .def_property_readonly(
-            "cumulative_computation_time_history",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getCumulativeComputationTimeHistoryDouble,
-            R"doc(
+            .def_property_readonly(
+                    "cumulative_computation_time_history",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getCumulativeComputationTimeHistoryDouble,
+                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.cumulative_computation_time_history
 
          :type: dict[float, float]
       )doc" )
-        .def_property_readonly(
-            "cumulative_number_of_function_evaluations",
-            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-            getCumulativeNumberOfFunctionEvaluationsDouble,
-            R"doc(
+            .def_property_readonly(
+                    "cumulative_number_of_function_evaluations",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getCumulativeNumberOfFunctionEvaluationsDouble,
+                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.cumulative_number_of_function_evaluations
 
          :type: dict[float, int]
       )doc" )
-            .def_property_readonly(
-                    "propagation_termination_details",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getPropagationTerminationReason,
-                    R"doc(
+            .def_property_readonly( "propagation_termination_details",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagationTerminationReason,
+                                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.termination_details
 
          :type: PropagationTerminationDetails
       )doc" )
-            .def_property_readonly(
-                    "integration_completed_successfully",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::integrationCompletedSuccessfully,
-                    R"doc(
+            .def_property_readonly( "integration_completed_successfully",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::integrationCompletedSuccessfully,
+                                    R"doc(
          **read-only**
 
          Shorthand for propagation_results.integration_completed_successfully
@@ -273,11 +247,9 @@ void expose_simulator( py::module& m )
         New initial state from which the dynamics is to be propagated, consisting of concatenated initial states of each arc
 
       )doc" )
-            .def_property_readonly(
-                    "propagation_results",
-                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getMultiArcPropagationResults,
-                    R"doc(
+            .def_property_readonly( "propagation_results",
+                                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getMultiArcPropagationResults,
+                                    R"doc(
 
          **read-only**
 
@@ -287,11 +259,9 @@ void expose_simulator( py::module& m )
 
          :type: MultiArcSimulationResults
          )doc" )
-            .def_property_readonly(
-                    "single_arc_simulators",
-                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getSingleArcDynamicsSimulators,
-                    R"doc(
+            .def_property_readonly( "single_arc_simulators",
+                                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcDynamicsSimulators,
+                                    R"doc(
 
          **read-only**
 
@@ -326,11 +296,9 @@ void expose_simulator( py::module& m )
         New initial state from which the dynamics is to be propagated, consisting of concatenated initial state single-arc portion of dynamics, followed by concatenated initial states of the constituent arcs of the multi-arc portion
 
       )doc" )
-            .def_property_readonly(
-                    "single_arc_simulator",
-                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getSingleArcDynamicsSimulator,
-                    R"doc(
+            .def_property_readonly( "single_arc_simulator",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcDynamicsSimulator,
+                                    R"doc(
 
          **read-only**
 
@@ -339,11 +307,9 @@ void expose_simulator( py::module& m )
 
          :type: SingleArcSimulator
          )doc" )
-            .def_property_readonly(
-                    "multi_arc_simulator",
-                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getMultiArcDynamicsSimulator,
-                    R"doc(
+            .def_property_readonly( "multi_arc_simulator",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getMultiArcDynamicsSimulator,
+                                    R"doc(
 
          **read-only**
 
@@ -351,11 +317,9 @@ void expose_simulator( py::module& m )
 
          :type: MultiArcSimulator
          )doc" )
-            .def_property_readonly(
-                    "propagation_results",
-                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getHybridArcPropagationResults,
-                    R"doc(
+            .def_property_readonly( "propagation_results",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getHybridArcPropagationResults,
+                                    R"doc(
 
          **read-only**
 
@@ -365,11 +329,9 @@ void expose_simulator( py::module& m )
 
          :type: HybridArcSimulationResults
          )doc" )
-            .def_property_readonly(
-                    "propagation_results",
-                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getHybridArcPropagationResults,
-                    R"doc(
+            .def_property_readonly( "propagation_results",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getHybridArcPropagationResults,
+                                    R"doc(
 
          **read-only**
 
@@ -425,16 +387,14 @@ void expose_simulator( py::module& m )
 
         )doc" );
 
-
     /*!
      *************** VARIATIONAL EQUATIONS SOLVER ***************
      */
 
     py::class_< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "VariationalSimulator",
-            R"doc(
+                std::shared_ptr< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                     "VariationalSimulator",
+                                                                                                     R"doc(
 
          Base class for variational equations propagation.
 
@@ -443,11 +403,9 @@ void expose_simulator( py::module& m )
          :class:`~HybridArcVariationalSimulator` implement single-, multi- and hybrid-arc functionality, respectively.
 
       )doc" )
-      .def_property_readonly(
-                    "state_transition_interface",
-                    &tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getStateTransitionMatrixInterface,
-                    R"doc(
+            .def_property_readonly( "state_transition_interface",
+                                    &tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixInterface,
+                                    R"doc(
 
          **read-only**
 
@@ -458,24 +416,20 @@ void expose_simulator( py::module& m )
       )doc" );
 
     py::class_< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr<
-                        tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >, tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m,
-            "SingleArcVariationalSimulator",
-            R"doc(
+                std::shared_ptr< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                  "SingleArcVariationalSimulator",
+                                                                                  R"doc(
 
          Class for single arc variational equations propagation.
 
       )doc" )
-            .def( py::init< const tudat::simulation_setup::SystemOfBodies &,
-                            const std::shared_ptr<
-                                    tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
+            .def( py::init< const tudat::simulation_setup::SystemOfBodies&,
+                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
                             const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
-                            const std::shared_ptr<
-                                    tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
                             const bool,
-                            const std::shared_ptr<
-                                    tudat::numerical_integrators::IntegratorSettings< double > >,
+                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
                             const bool,
                             const bool,
                             const bool,
@@ -485,8 +439,8 @@ void expose_simulator( py::module& m )
                   py::arg( "propagator_settings" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "integrate_equations_concurrently" ) = true,
-                  py::arg( "variational_only_integrator_settings" ) = std::shared_ptr<
-                          tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
+                  py::arg( "variational_only_integrator_settings" ) =
+                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
                   py::arg( "clear_numerical_solutions" ) = false,
                   py::arg( "integrate_on_creation" ) = true,
                   py::arg( "set_integrated_result" ) = false,
@@ -546,8 +500,7 @@ void expose_simulator( py::module& m )
 
      )doc" )
             .def( "integrate_equations_of_motion_only",
-                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                          integrateDynamicalEquationsOfMotionOnly,
+                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateDynamicalEquationsOfMotionOnly,
                   py::arg( "initial_states" ),
                   R"doc(
 
@@ -569,8 +522,7 @@ void expose_simulator( py::module& m )
 
      )doc" )
             .def( "integrate_full_equations",
-                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                          integrateVariationalAndDynamicalEquations,
+                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateVariationalAndDynamicalEquations,
                   py::arg( "initial_states" ),
                   py::arg( "integrate_equations_concurrently" ) = true,
                   R"doc(
@@ -602,24 +554,21 @@ void expose_simulator( py::module& m )
 
 
      )doc" )
-            .def_property(
-                    "parameter_vector",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
-                                                              TIME_TYPE >::getParametersToEstimate,
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
-                                                              TIME_TYPE >::resetParameterEstimate,
-                    R"doc(
+            .def_property_readonly( "parameter_vector",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getParametersToEstimate,
+                                    R"doc(
 
-         Consolidated set of (estimatable) parameters
-         w.r.t. the variational dynamics in the Variational Simulator are defined.
+         **read-only**
+
+         Object containing the set of (estimatable) parameters
+         w.r.t. the variational dynamics in this object are estimated
 
 
          :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
       )doc" )
             .def_property_readonly(
                     "variational_equations_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getNumericalVariationalEquationsSolution,
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
                     R"doc(
 
          **read-only**
@@ -627,57 +576,102 @@ void expose_simulator( py::module& m )
          List containing the solution of the variational equations, i.e. the
          state transition matrix history (first entry) and sensitivity matrix history (second vector entry).
 
+         .. warning::
+
+           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history``
+           and ``sensitivity_matrix_history` attributes of
+           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
+
 
          :type: list[ dict[float, numpy.ndarray] ]
       )doc" )
             .def_property_readonly(
                     "state_transition_matrix_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getStateTransitionMatrixSolution,
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixSolution,
                     R"doc(
 
          **read-only**
 
          State transition matrix history, given as epoch with propagation epochs as keys.
-         This is (alongside the `sensitivity_matrix_history`) the solution of the variational equations.
 
+         .. warning::
+
+           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history`` attribute of
+           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "sensitivity_matrix_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getSensitivityMatrixSolution,
-                    R"doc(
+            .def_property_readonly( "sensitivity_matrix_history",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getSensitivityMatrixSolution,
+                                    R"doc(
 
          **read-only**
 
          Sensitivity matrix history, given as epoch with propagation epochs as keys.
-         This is (alongside the `state_transition_matrix_history`) the solution of the variational equations.
+
+         .. warning::
+
+            This function is deprecated and will be removed in a future version of Tudat. Use ``sensitivity_matrix_history`` attribute of
+            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
 
          :type: dict[float, numpy.ndarray]
       )doc" )
             .def_property_readonly(
                     "state_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionSolutionDouble,
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionSolutionDouble,
                     R"doc(
 
          **read-only**
 
          State history, given as epoch with propagation epochs as keys.
-         This is the solution of the (propagated) equations of motion, describing the states along which
-         the variational dynamics are solved.
 
+         .. warning::
+
+            This function is deprecated and will be removed in a future version of Tudat. Use ``dynamics_results.state_history`` attribute of
+            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
          :type: dict[float, numpy.ndarray]
       )doc" )
             .def_property_readonly(
-                    "dynamics_simulator",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
-                                                              TIME_TYPE >::getDynamicsSimulator,
+                    "variational_propagation_results",
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalPropagationResults,
                     R"doc(
+
+        **read-only**
+
+        Object containing all the results of the numerical propagation of both the dynamics and the variational equations, stored
+        in a single wrapper object.
+
+        Examples
+        --------
+
+        Assuming you have an object of type ``SingleArcVariationalSimulator`` named ``variational_simulator``, the numerical solution
+        of the state transition matrix and sensitivity matrix can be retrieved as:
+
+        .. code-block:: python
+
+           # Retrieve object containing all propagation results
+           results_container = variational_simulator.variational_propagation_results
+
+           # Retrieve dictionaries with numerically integrated time histories of state transition and sensitivity matrices
+           state_transition_matrix_history = results_container.state_transition_matrix_history
+           sensitivity_matrix_history = results_container.sensitivity_matrix_history
+
+           # Retrieve object containing propagation results of the dynamics (not including variational equations)
+           dynamics_results_container = results_container.dynamics_results
+
+           # Retrieve dictionaries with numerically integrated time history of states and associated dependent variables
+           state_history = dynamics_results_container.state_history
+           dependent_variable_history = dynamics_results_container.dependent_variable_history
+
+        :type: SingleArcVariationalSimulationResults
+
+      )doc" )
+
+            .def_property_readonly( "dynamics_simulator",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getDynamicsSimulator,
+                                    R"doc(
 
          **read-only**
 
@@ -726,11 +720,10 @@ void expose_simulator( py::module& m )
 
   )doc" );
 
-
     /*!
      *************** STATE TRANSITION INTERFACE ***************
      */
-         
+
     py::class_< tp::CombinedStateTransitionAndSensitivityMatrixInterface,
                 std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > >(
             m,
@@ -749,8 +742,7 @@ void expose_simulator( py::module& m )
 
       )doc" )
             .def( "state_transition_sensitivity_at_epoch",
-                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                          getCombinedStateTransitionAndSensitivityMatrix,
+                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix,
                   py::arg( "time" ),
                   py::arg( "add_central_body_dependency" ) = true,
                   py::arg( "arc_defining_bodies" ) = std::vector< std::string >( ),
@@ -777,8 +769,7 @@ void expose_simulator( py::module& m )
 
      )doc" )
             .def( "full_state_transition_sensitivity_at_epoch",
-                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                          getFullCombinedStateTransitionAndSensitivityMatrix,
+                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix,
                   py::arg( "time" ),
                   py::arg( "add_central_body_dependency" ) = true,
                   py::arg( "arc_defining_bodies" ) = std::vector< std::string >( ),
@@ -800,8 +791,7 @@ void expose_simulator( py::module& m )
 
      )doc" )
             .def_property_readonly( "state_transition_size",
-                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                                            getStateTransitionMatrixSize,
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getStateTransitionMatrixSize,
                                     R"doc(
 
          **read-only**
@@ -811,8 +801,7 @@ void expose_simulator( py::module& m )
          :type: int
       )doc" )
             .def_property_readonly( "sensitivity_size",
-                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                                            getSensitivityMatrixSize,
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getSensitivityMatrixSize,
                                     R"doc(
 
          **read-only**
@@ -822,8 +811,7 @@ void expose_simulator( py::module& m )
          :type: int
       )doc" )
             .def_property_readonly( "full_parameter_size",
-                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                                            getFullParameterVectorSize,
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getFullParameterVectorSize,
                                     R"doc(
 
          **read-only**
@@ -832,7 +820,6 @@ void expose_simulator( py::module& m )
 
          :type: int
       )doc" );
-
 }
 
 }  // namespace simulator

@@ -9,6 +9,14 @@ specific properties of how it interacts with the environment. At present, the sp
 used for the calculation of a panelled radiation pressure acceleration, but future updates will also use it for the
 calculation of aerodynamic coefficients in both rarefied and hypersonic flow.
 
+The main interfaces with Tudat for a vehicle shape model is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings`
+attribute  (of type :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings`) of the body settings, which defines settings for the macromodel of a body.
+**The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.VehicleSystems` is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.system_models` attribute. The ``VehicleSystems`` contains (among various other models) the macromodel properties of the body.
+
 The current panels in Tudat allow a list of panels to be defined, with the geometrical properties of panel :math:`i` defined by the
 surface normal vector :math:`\hat{\mathbf{n}}_{i}` and the surface area :math:`A_{i}`. Note that, since the panel shape or
 location is not yet defined, computing torques due to surface forces, or incorporating shadowing into the panel

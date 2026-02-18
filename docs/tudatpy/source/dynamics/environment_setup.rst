@@ -2,18 +2,20 @@
 
 ``environment_setup``
 =====================
-Definition of environment settings.
 
-This module contains submodules to define environment settings. It also contains a set of factory functions to use
-environment settings in a simulation by creating natural and artificial body objects.
+This module contains submodules to define environment settings. In Tudat, the definition of 'environment' is the collection
+of all bodies (natural and artificial) and their physical properties. Each of the submodules below contains a set of
+functions to create a specific type of environment settings.
 
+This module contains the :class:`~tudatpy.dynamics.environment_setup.BodyListSettings`, which is the contained that holds
+all the settings for the bodies that are to be created and used in a simulation/analysis. The
+:class:`~tudatpy.dynamics.environment_setup.BodyListSettings` stores a list of :class:`~tudatpy.dynamics.environment_setup.BodySettings`
+objects, each of which can be endowed with a list of environment (and system) settings, settings for which
+are defined in the modules listed below . The creation of the actual bodies used in the simulation/analysis from the
+settings defined in this module is done using the :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function.
 
-
-
-
-
-
-
+More details on the procedure and options in creating environment models and bodies can be found in our `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup.html>`_. For the use of the environment models *during*
+a numerical propagation (for instance for custom models) see `here <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models/environment-during-propagation.html#environment-during-propagation>`_.
 
 
 .. toctree::

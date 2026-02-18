@@ -147,7 +147,7 @@ void expose_observations_dependent_variables( py::module& m )
  Function for including dependent variables into selected existing observation simulation settings.
 
  As :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, except that the function only adds includes the
- computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type`.
+ computation and reporting of dependent variables to entries of the ``observation_simulation_settings`` list that matches the specified `observable_type`.
 
 
  Parameters
@@ -186,7 +186,7 @@ void expose_observations_dependent_variables( py::module& m )
  Function for including dependent variables into selected existing observation simulation settings.
 
  As :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, except that the function only adds includes the
- computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type` and `link_ends`.
+ computation and reporting of dependent variables to entries of the ``observation_simulation_settings`` list that matches the specified `observable_type` and `link_ends`.
 
 
  Parameters

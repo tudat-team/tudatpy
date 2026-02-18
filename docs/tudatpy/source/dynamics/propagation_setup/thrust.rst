@@ -2,17 +2,9 @@
 
 ``thrust``
 ==========
-This module provides the functionality for creating thrust 
-magnitude and direction settings.
-
-
-
-
-
-
-
-
-
+This module provides the functionality for creating thrust magnitude settings. These models
+are used in the calculation of thrust accelerations. The various details of thrust modelling and the interaction
+of the functionality in this model with the rest of Tudat is provided on the user guide page for `thrust models <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
 
 
 

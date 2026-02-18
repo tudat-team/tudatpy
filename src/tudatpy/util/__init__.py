@@ -9,7 +9,7 @@ from ._support import (
     redirect_std,
     pareto_optimums,
     vector2matrix,
-    get_orbital_regime,
+    transform_integer_to_roman_number,
 )
 
 __all__ = [
@@ -18,8 +18,8 @@ __all__ = [
     "redirect_std",
     "pareto_optimums",
     "vector2matrix",
-    "get_orbital_regime",
     "get_orthogonal_array",
     "get_yates_array",
     "anova_analysis",
+    "transform_integer_to_roman_number"
 ]

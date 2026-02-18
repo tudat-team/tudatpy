@@ -78,51 +78,63 @@ public:
         return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).transpose( );
     }
 
+    // Getter / Setter Nominal Pole
     Eigen::Vector2d getNominalPole( )
     {
         return nominalPole_;
     }
-
     void setNominalPole( const Eigen::Vector2d& nominalPole )
     {
         nominalPole_ = nominalPole;
     }
 
+    // Getter / Setter pole rate of change
     Eigen::Vector2d getPolePrecession( )
     {
         return polePrecession_;
     }
-
-    std::map< double, std::pair< double, double > > getMeridianPeriodicTerms( )
-    {
-        return meridianPeriodicTerms_;
-    }
-
-    std::map< double, std::pair< double, double > > getMeridianPeriodicTermsReference( )
-    {
-        return meridianPeriodicTerms_;
-    }
-
-    void setMeridianPeriodicTerms( const std::map< double, std::pair< double, double > >& meridianPeriodicTerms )
-    {
-        meridianPeriodicTerms_ = meridianPeriodicTerms;
-    }
-
     void setPolePrecession( const Eigen::Vector2d& polePrecession )
     {
         polePrecession_ = polePrecession;
     }
 
+    // Getter / Setter pole periodic terms
+    std::map< double, std::pair< Eigen::Vector2d, double > > getPolePeriodicTerms( )
+    {
+        return polePeriodicTerms_;
+    }
+    std::map< double, std::pair< Eigen::Vector2d, double > >& getPolePeriodicTermsReference( )
+    {
+        return polePeriodicTerms_;
+    }
+    void setPolePeriodicTerms( std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms )
+    {
+        polePeriodicTerms_ = polePeriodicTerms;
+    }
+
+    // Getter / Setter meridian periodic terms
+    std::map< double, std::pair< double, double > > getMeridianPeriodicTerms( )
+    {
+        return meridianPeriodicTerms_;
+    }
+    std::map< double, std::pair< double, double > >& getMeridianPeriodicTermsReference( )
+    {
+        return meridianPeriodicTerms_;
+    }
+    void setMeridianPeriodicTerms( const std::map< double, std::pair< double, double > >& meridianPeriodicTerms )
+    {
+        meridianPeriodicTerms_ = meridianPeriodicTerms;
+    }
+
+    // Getters for instantaneous rotations
     Eigen::Matrix3d getCurrentMeridianRotationAboutZAxis( )
     {
         return meridianRotationAboutZAxis_;
     }
-
     Eigen::Matrix3d getCurrentDeclinationRotationAboutXAxis( )
     {
         return declinationRotationAboutXAxis_;
     }
-
     Eigen::Matrix3d getCurrentRightAscensionRotationAboutZAxis( )
     {
         return rightAscensionRotationAboutZAxis_;

@@ -580,6 +580,33 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
             }
             break;
         }
+        case estimatable_parameters::rotation_pole_libration_terms: {
+            if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not an IAU rotational model when making"
+                        "position w.r.t. pole libration amplitudes partial";
+                throw std::runtime_error( errorMessage );
+            }
+
+            std::shared_ptr< estimatable_parameters::RotationPoleLibrationTermsParameter > librationParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::RotationPoleLibrationTermsParameter >( parameterToEstimate );
+            if( librationParameter == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, inconsistent parameter type when making partial of position w.r.t. pole libration amplitudes "
+                        "partial";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                // Create rotation matrix partial object
+                rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPoleLibrationTermAmplitudes >(
+                        std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ),
+                        librationParameter->getAngularFrequencies( ) );
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
                     std::to_string( parameterToEstimate->getParameterName( ).first );

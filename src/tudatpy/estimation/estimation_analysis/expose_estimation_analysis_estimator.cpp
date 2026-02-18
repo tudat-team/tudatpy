@@ -147,11 +147,40 @@ void expose_estimation_analysis_estimator( py::module &m )
 
          Function to trigger the parameter estimation.
 
+         Function to trigger the parameter estimation. Part the process and requirements are similar to those described in the
+         :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function.
 
-         Function to trigger the parameter estimation. Much of the process and requirements are similar to those described in the
-         :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
-         estimate process to fit the data (inside ``estimation_input``) to the model defined by the inputs to the ``Estimator`` constructor.s
+         The estimation performs an iterative differential correction of the estimated parameters, where for iteration :math:`i` a correction
+         to the parameter vector :math:`\mathbf{p}` is computed according to:
 
+         .. math::
+
+           \Delta\mathbf{p}_{i}&=\mathbf{P}_{i}\left(\mathbf{H}_{i}\mathbf{W}\Delta\mathbf{z}_{i}\right)\\
+           \mathbf{p}_{i+1}&=\mathbf{p}_{i}+\Delta\mathbf{p}_{i}
+
+         where :math:`\mathbf{P}` is the covariance (see previous section; where using consider parameters, we have :math:`\mathbf{P}\rightarrow\mathbf{P}^{c}` in the above), and :math:`\Delta\mathbf{z}_{i}` is the observation residual at
+         iteration :math:`i`, computed from:
+
+         .. math::
+
+           \Delta\mathbf{z}_{i} = \mathbf{z} - \mathbf{h}(\mathbf{p}_{i})
+
+         with :math:`\mathbf{z}` the vector of all observations provided as input to the data (observed data) and
+         :math:`\mathbf{h}(\mathbf{p}_{i})` the vector of all observations, as computed from the current
+         estimate of the parameters (computed data). The above procedure is performed iteratively, until convergence has been reached.
+
+         The results of the estimation are stored in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` object
+         (which by default contains the results from the iteration where the residual was lowest), with
+         two key quantities being:
+
+         * The residual vector of the iteration that had the lowest residual, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+         * The values of the parameters at the iteration that had the lowest residual, from the :attr:`~tudatpyestimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+
+         After the estimation is finished, the properties of both the environment (in the ``bodies``) and the estimated parameters
+         (in the ``parameters_to_estimate``) are modified as follows:
+
+         * The ephemerides of all propagated/estimated bodies will be set to the propagation results of the last iteration in the estimation. For instance, when estimating the state of body "Delfi-C3", the (tabulated) ephemeris of this body will be set to contain the numerical results of the last iteration of the estimation
+         * The values of the parameter values in the ``parameters_to_estimate`` object are those of the last iteration of the estimation. Note that, if the ``apply_final_parameter_correction`` parameter to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` is set to ``True``, the parameter correction computed at the end of the last iteration (for which the performance has *not* been computed) has been used to update the parameters vector
 
          Parameters
          ----------
@@ -176,23 +205,33 @@ void expose_estimation_analysis_estimator( py::module &m )
 
          Function to perform a covariance analysis for the given observations and parameters
 
-
-         Function to perform a covariance analysis for the given observations and parameters. The observations are provided through the
-         ``covariance_analysis_input`` input, as are the weights :math:`\mathbf{W}` and inverse a priori covariance :math:`(\mathbf{P}_{0})^{-1}`.
+         Function to perform a covariance analysis for the given observations and parameters. The observations (which include weights, see TODO)
+         are provided through the
+         ``covariance_analysis_input`` input and inverse a priori covariance :math:`(\mathbf{P}_{0})^{-1}`.
          Calling this function uses the environment and propagator settings provided to the constructor of this class to simulate
-         the dynamics of any relevant bodies for the observations (and associated variational equations). The observations are then
-         computed using the observation models created by the settings provided to the constructor of this `Estimator` class, as is the
-         associated design matrix :math:`\mathbf{H}`. This function then produces the covariance :math:`\mathbf{P}` (omitting the normalization used
-         internally for numerical stability)
+         the dynamics of any relevant bodies for the observations (and associated variational equations for the estimated parameters and states :math:`\mathbf{p}`).
+         The observations :math:\mathbf{h}` are then
+         computed using the observation models created by the settings provided to the constructor of this ``Estimator`` class, as is the
+         associated design matrix :math:`\mathbf{H}(=\frac{\partial\mathbf{h}}{\mathbf{p}})`. This function then produces the covariance :math:`\mathbf{P}`
+         (internally using the normalized partials and covariance for stability, see :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput` for details)
 
          .. math::
             \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}\right)^{-1}
 
-         In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed (see :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution`)
+         In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed that denotes the contribution
+         of the consider covariance to the parameter uncertainties, which is computed from the above as:
+
+         .. math::
+           \Delta \mathbf{P}^{c} = \left(\mathbf{P}\mathbf{H}^{T}\mathbf{W}\right)\left(\mathbf{H}_{c}\mathbf{C}\mathbf{H}_{c}^{T}\right)\left(\mathbf{P}\mathbf{H}^{T}\mathbf{W}\right)^{T}
+           \mathbf{P}^{c}=\mathbf{P}+ \Delta \mathbf{P}^{c}
+
+         where :math:`\mathbf{H}_{c}` is the design matrix for the consider parameters.
 
          Note that, although the actual observations are formally not required for a covariance analysis, all additional data (e.g. observation time, type, link ends, etc.)
          are. And, as such, the ``covariance_analysis_input`` does require the full set of observations and associated information, for consistency purposes (e.g., same input as
          ``perform_estimation`` function) .
+
+         To propagate the covariance of the initial states obtained from this function to other epochs, use the :func:`~tudatpy.estimation.estimation_analysis.propagate_covariance` function
 
 
          Parameters

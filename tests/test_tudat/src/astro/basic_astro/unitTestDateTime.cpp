@@ -164,6 +164,35 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testDateTimeStringRepresentation )
+{
+    double timeValue = 0.99999999;
+    for( int i = 0; i < 15; i++ )
+    {
+        DateTime date1 = DateTime( 2008, 4, 1, 4, 6, 59 + timeValue );
+        std::string dateString1 = date1.isoString( false, i );
+
+        DateTime date2 = DateTime( 1999, 12, 31, 23, 59, 59 + timeValue );
+        std::string dateString2 = date2.isoString( false, i );
+        if( i >= 8 )
+        {
+            std::string testString1 = "2008-04-01 04:06:59.99999999";
+            std::string testString2 = "1999-12-31 23:59:59.99999999";
+
+            BOOST_CHECK_EQUAL( testString1, dateString1.substr( 0, testString1.length( ) ) );
+            BOOST_CHECK_EQUAL( testString2, dateString2.substr( 0, testString1.length( ) ) );
+        }
+        else
+        {
+            std::string testString1 = "2008-04-01 04:07:00";
+            std::string testString2 = "2000-01-01 00:00:00";
+
+            BOOST_CHECK_EQUAL( testString1, dateString1.substr( 0, testString1.length( ) ) );
+            BOOST_CHECK_EQUAL( testString2, dateString2.substr( 0, testString1.length( ) ) );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE( testTimePointConversions )
 {
     for( unsigned int i = 0; i < years.size( ); i++ )

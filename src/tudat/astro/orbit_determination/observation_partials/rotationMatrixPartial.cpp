@@ -255,6 +255,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
+//! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
+//! pole position rate.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const double ephemerisTime )
@@ -275,6 +277,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
+//! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
+//! longitudinal librations amplitude.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtLongitudinalLibrationAmplitudes(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const std::vector< double > librationFrequencies,
@@ -297,6 +301,45 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
                   rotationModel->getCurrentDeclinationRotationAboutXAxis( ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
                         .transpose( ) *
                 currentLibrationTerm );
+    }
+    return rotationMatrixPartials;
+}
+
+//! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
+//! pole librations amplitude.
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPoleLibrationAmplitudes(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const std::vector< double > librationFrequencies,
+        const double ephemerisTime )
+{
+    std::map< double, std::pair< Eigen::Vector2d, double > > librationTerms = rotationModel->getPolePeriodicTermsReference( );
+
+    rotationModel->updateRotationMatrices( ephemerisTime );
+
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+
+    for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
+    {
+        std::pair< Eigen::Vector2d, double > signature = librationTerms.at( librationFrequencies.at( librationIndex ) );
+        double currentSineLibrationTerm = std::sin(
+                librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
+        double currentCosineLibrationTerm = std::cos(
+                librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
+
+        // Push back RA
+        rotationMatrixPartials.push_back(
+                ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                  reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
+                        .transpose( ) *
+                currentSineLibrationTerm );
+
+        // Push back DEC
+        rotationMatrixPartials.push_back(
+                ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
+                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+                        .transpose( ) *
+                currentCosineLibrationTerm );
     }
     return rotationMatrixPartials;
 }
