@@ -18,6 +18,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {

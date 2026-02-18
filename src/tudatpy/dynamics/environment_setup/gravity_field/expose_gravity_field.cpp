@@ -9,6 +9,7 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_gravity_field.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>

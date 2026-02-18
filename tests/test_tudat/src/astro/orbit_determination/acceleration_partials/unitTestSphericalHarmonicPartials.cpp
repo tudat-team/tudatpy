@@ -12,6 +12,9 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"

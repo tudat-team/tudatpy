@@ -32,6 +32,7 @@
 #include "tudat/simulation/estimation_setup/createClockPartials.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/simulation/estimation_setup/createObservationBiasPartial.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
 
 namespace tudat

@@ -13,6 +13,8 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <iostream>
 #include <limits>
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"

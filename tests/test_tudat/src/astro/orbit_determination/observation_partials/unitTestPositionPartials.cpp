@@ -31,6 +31,7 @@
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat

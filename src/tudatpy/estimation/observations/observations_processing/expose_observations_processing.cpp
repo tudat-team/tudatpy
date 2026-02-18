@@ -18,6 +18,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
 namespace py = pybind11;

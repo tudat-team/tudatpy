@@ -16,6 +16,8 @@
 #define BOOST_TEST_MAIN
 
 #include <iostream>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <utility>
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"

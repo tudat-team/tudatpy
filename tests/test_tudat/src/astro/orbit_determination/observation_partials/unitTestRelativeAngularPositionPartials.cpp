@@ -28,6 +28,8 @@
 #include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 #include "tudat/support/observationPartialTestFunctions.h"
 

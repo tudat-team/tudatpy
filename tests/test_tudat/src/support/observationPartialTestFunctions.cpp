@@ -9,6 +9,7 @@
  */
 
 #include <algorithm>
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/support/observationPartialTestFunctions.h"

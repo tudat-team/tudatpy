@@ -30,6 +30,7 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"

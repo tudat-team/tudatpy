@@ -43,6 +43,7 @@
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/system_models/panelGeometryUtils.h"

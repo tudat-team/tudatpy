@@ -12,6 +12,7 @@
 #define TUDAT_ENVIRONMENT_SETUP_H
 
 #include "environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "environment_setup/createAerodynamicCoefficientInterface.h"
 #include "environment_setup/createAerodynamicControlSurfaces.h"
 #include "environment_setup/createAtmosphereModel.h"

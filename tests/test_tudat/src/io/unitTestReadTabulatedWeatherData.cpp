@@ -12,6 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include "tudat/io/readTabulatedWeatherData.h"
 

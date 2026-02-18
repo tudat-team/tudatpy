@@ -19,6 +19,8 @@
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"

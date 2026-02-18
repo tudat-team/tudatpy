@@ -9,6 +9,9 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_environment_setup.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
@@ -24,6 +27,7 @@
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createSystemModel.h>
+#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"

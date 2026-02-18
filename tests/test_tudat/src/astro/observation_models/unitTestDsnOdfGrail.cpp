@@ -9,6 +9,9 @@
  */
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>

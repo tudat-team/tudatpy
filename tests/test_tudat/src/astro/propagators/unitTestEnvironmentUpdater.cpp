@@ -29,6 +29,7 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat

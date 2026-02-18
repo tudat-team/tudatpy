@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/simulation/simulation.h"

@@ -17,6 +17,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"

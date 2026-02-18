@@ -9,6 +9,7 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_rotation_model.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createRotationModel.h>
