@@ -3,7 +3,9 @@ import json
 import pytest
 from unittest.mock import patch, MagicMock
 from tudatpy.data.spacetrack import SpaceTrackQuery
+from tudatpy.data.spacetrack import OMMUtils
 from datetime import datetime, timedelta
+import numpy as np
 
 # --- Unit Tests (Offline) ---
 @pytest.fixture
@@ -17,9 +19,13 @@ def temp_tle_folder(tmp_path):
 # Every time a query is created through: query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder),
 # its _init_ has _login, but this is patched so the actual _login method will never run.
 @pytest.fixture(autouse=True)
-def mock_login():
-    with patch('tudatpy.data.spacetrack.SpaceTrackQuery._login', return_value=None):
+def mock_login(request):
+    # If the test is marked as remote_data, do NOT patch login
+    if request.node.get_closest_marker("remote_data"):
         yield
+    else:
+        with patch('tudatpy.data.spacetrack.SpaceTrackQuery._login', return_value=None):
+            yield
 
 # --- 1. Testing URL/Query Construction ---
 def test_descending_epoch_url_construction(temp_tle_folder):
@@ -105,28 +111,29 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     # Create mock batch data, very minimal.
     batch_data = [
         {"NORAD_CAT_ID": "111", "EPOCH": "2025-01-01T00:00:00"},
+        {"NORAD_CAT_ID": "111", "EPOCH": "2025-01-01T01:00:00"},
         {"NORAD_CAT_ID": "222", "EPOCH": "2025-01-01T00:00:00"}
     ]
 
     # Call the function to test
-    query.OMMUtils.save_batch_to_individual_files(batch_data)
+    OMMUtils.save_batch_to_individual_files(batch_data, temp_tle_folder)
 
-    # Verify that two separate files are created
-    assert os.path.exists(os.path.join(temp_tle_folder, "gp_111_limit_1.json"))
-    assert os.path.exists(os.path.join(temp_tle_folder, "gp_222_limit_1.json"))
+    # Verify that two separate files are created (gp_111_limit_1 111 will have 2 entries)
+    assert os.path.exists(os.path.join(temp_tle_folder, "222_from_batch.json"))
+    assert os.path.exists(os.path.join(temp_tle_folder, "111_from_batch.json"))
 
     # Open Files
-    with open(os.path.join(temp_tle_folder, "gp_111_limit_1.json"), 'r') as first:
+    with open(os.path.join(temp_tle_folder, "111_from_batch.json"), 'r') as first:
         first_dict = json.load(first)
-    with open(os.path.join(temp_tle_folder, "gp_222_limit_1.json"), 'r') as second:
+    with open(os.path.join(temp_tle_folder, "222_from_batch.json"), 'r') as second:
         second_dict = json.load(second)
     # Verify that the two files contain the dictionaries in batch data
-    assert first_dict == [batch_data[0]]
-    assert second_dict == [batch_data[1]]
+    assert first_dict == [batch_data[0], batch_data[1]] # this also checks that both 111 entries are in the same json
+    assert second_dict == [batch_data[2]]
 
 # --- 4. Cleaning Logic ---
 def test_clean_tle_file_dict_format(temp_tle_folder):
-    """Verifies cleaning works on the new dictionary/metadata format."""
+    """Verifies cleaning works on the dictionary/metadata format."""
     query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
     filepath = os.path.join(temp_tle_folder, "to_clean.json")
 
@@ -149,13 +156,12 @@ def test_clean_tle_file_dict_format(temp_tle_folder):
     assert cleaned["data"][0]["CREATION_DATE"] == "2021"
     assert "last_api_hit" in cleaned # Metadata preserved
 
-@patch('tudatpy.data.spacetrack.SpaceTrackQuery._login', return_value=None)
 def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     """Verifies deduplication logic without any network calls."""
     query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
     filepath = os.path.join(temp_tle_folder, "test_logic.json")
 
-    # Simulate an existing file with one entry
+    # Simulate an existing file with one object and some entries
     existing_data = [{
         "NORAD_CAT_ID": "25544",
         "EPOCH": "2025-01-01T12:00:00",
@@ -177,40 +183,6 @@ def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     # Should still only have 1 entry, but with the newer creation date
     assert len(content["data"]) == 1
     assert content["data"][0]["CREATION_DATE"] == "2025-01-01T10:00:00"
-
-@patch('tudatpy.data.spacetrack.SpaceTrackQuery._login', return_value=None)
-def test_omm_utils_keplerian_conversion(temp_tle_folder):
-    """Tests coordinate conversion using static mock data."""
-    query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
-    mock_omm = [{
-        "SEMIMAJOR_AXIS": "7000.0",
-        "ECCENTRICITY": "0.001",
-        "INCLINATION": "51.6",
-        "ARG_OF_PERICENTER": "30.0",
-        "RA_OF_ASC_NODE": "40.0",
-        "MEAN_ANOMALY": "50.0"
-    }]
-
-    kep = query.OMMUtils.get_tudat_keplerian_element_set(mock_omm)
-    assert kep[0] == 7000.0 * 1e3 # Meters
-    assert kep[1] == 0.001
-
-# --- Integration Tests (Online) ---
-
-@pytest.mark.remote_data
-def test_live_api_query(temp_tle_folder):
-    """Actually hits the testing API. Skipped unless --remote-data is used."""
-    # This requires your environment variables or valid test credentials
-    query = SpaceTrackQuery(
-        username="your_spacetrack_username",
-        password="your_spacetrack_password",
-        spacetrack_url="https://for-testing-only.space-track.org",
-        tle_data_folder=temp_tle_folder
-    )
-
-    # ISS ID is usually available on test servers
-    res = query.get_tles_for_date_range("25544", "2025-01-01", "2025-01-02")
-    assert isinstance(res, list)
 
 def test_latest_on_orbit_custom_filename(temp_tle_folder):
     """Verifies that latest_on_orbit respects the custom filename parameter."""
@@ -284,3 +256,82 @@ def test_descending_epoch_overwrite_logic(temp_tle_folder):
         content = json.load(f)
         assert content['data'][0]['NORAD_CAT_ID'] == "2"
         assert len(content['data']) == 1
+
+def test_get_tudat_keplerian_element_set_full_conversion(mock_login, temp_tle_folder):
+    """
+    Tests the full extraction and conversion process:
+    - km to meters (SMA)
+    - degrees to radians (i, Omega, raan, M)
+    - Mean to True anomaly
+    """
+    query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
+
+    # Define inputs in "Space-Track" units (km and deg)
+    sma_km = 7000.0
+    ecc = 0.1
+    inc_deg = 51.6
+    raan_deg = 120.0
+    argp_deg = 45.0
+    mean_anom_deg = 90.0
+
+    mock_omm_list = [{
+        "SEMIMAJOR_AXIS": str(sma_km),
+        "ECCENTRICITY": str(ecc),
+        "INCLINATION": str(inc_deg),
+        "RA_OF_ASC_NODE": str(raan_deg),
+        "ARG_OF_PERICENTER": str(argp_deg),
+        "MEAN_ANOMALY": str(mean_anom_deg),
+        "NORAD_CAT_ID": "25544"
+    }]
+
+    # get_tudat_keplerian_element_set wants a single dictionary, not a list
+    with pytest.raises(TypeError):
+        OMMUtils.get_tudat_keplerian_element_set(mock_omm_list)
+
+    mock_json_dict = mock_omm_list[0]
+    # Execute conversion
+    kep = OMMUtils.get_tudat_keplerian_element_set(mock_json_dict)
+
+    # Extract results: (a, e, i, omega, raan, true_anomaly)
+    a_res, e_res, i_res, omega_res, raan_res, nu_res = kep
+
+    # 1. Check Semi-major axis (km -> m)
+    assert a_res == sma_km * 1000.0
+
+    # 2. Check Eccentricity (dimensionless, should remain same)
+    assert e_res == ecc
+
+    # 3. Check Angular elements (deg -> rad)
+    assert i_res == pytest.approx(np.deg2rad(inc_deg))
+    assert raan_res == pytest.approx(np.deg2rad(raan_deg))
+    assert omega_res == pytest.approx(np.deg2rad(argp_deg))
+
+    # 4. We do not check mean-true anomaly conversion,
+    # since that is a tudapty function and we know it works well already.
+
+# --- Integration Tests (Online) ---
+@pytest.mark.remote_data
+def test_live_api_query(temp_tle_folder):
+    """Actually hits the testing API. Skipped unless credentials are provided."""
+
+    # 1. Retrieve credentials from environment
+    username = os.getenv("SPACETRACK_USER")
+    password = os.getenv("SPACETRACK_PASS")
+
+    # 2. Skip if credentials aren't set (even if --remote-data is passed)
+    if not username or not password:
+        pytest.skip("Space-Track credentials not found in environment variables.")
+
+    query = SpaceTrackQuery(
+        username=username,
+        password=password,
+        spacetrack_url="https://for-testing-only.space-track.org",
+        tle_data_folder=temp_tle_folder
+    )
+
+    # ISS ID: check if we get a valid list back
+    res = query.get_tles_for_date_range("25544", "2025-01-01", "2026-01-02")
+
+    assert isinstance(res, list)
+    if len(res) > 0:
+        assert res[0]['NORAD_CAT_ID'] == "25544"
