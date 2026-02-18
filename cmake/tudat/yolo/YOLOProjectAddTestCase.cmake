@@ -82,7 +82,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         target_link_libraries("${target_name}"
                 PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
                 PRIVATE "${Boost_LIBRARIES}"
-                    -Wl,--start-group ${Tudat_ESTIMATION_LIBRARIES} -Wl,--end-group
+                    $<$<PLATFORM_ID:Linux>:-Wl,--start-group> ${Tudat_ESTIMATION_LIBRARIES} $<$<PLATFORM_ID:Linux>:-Wl,--end-group>
                 )
 
         # ---- Test build speed optimizations ----
