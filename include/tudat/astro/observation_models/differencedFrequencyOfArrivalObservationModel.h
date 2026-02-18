@@ -88,7 +88,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr )
     {
         if( linkEndAssociatedWithTime == transmitter || linkEndAssociatedWithTime == receiver2 )
         {
