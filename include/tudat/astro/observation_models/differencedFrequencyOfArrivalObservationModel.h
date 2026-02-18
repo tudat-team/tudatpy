@@ -98,7 +98,7 @@ public:
                     getLinkEndTypeString( linkEndAssociatedWithTime ) + ") is not valid. Must be the receiver." );
         }
 
-        // Seperate link ends for both doppler models
+        // Separate link ends for both doppler models
         LinkEnds firstDopplerLinkEnds;
         firstDopplerLinkEnds[ transmitter ] = this->linkEnds_.at( transmitter );
         firstDopplerLinkEnds[ receiver ] = this->linkEnds_.at( receiver );
@@ -109,11 +109,12 @@ public:
         // Compute both doppler observables
         std::vector< double > firstLinkEndTimes, secondLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates, secondLinkEndStates;
+        const auto ancillarySettingsInput = ancilliarySetingsInput;
         Eigen::Matrix< ObservationScalarType, 1, 1 > firstDopplerObservation = firstDopplerModel_->computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancilliarySetingsInput );
+                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
         Eigen::Matrix< ObservationScalarType, 1, 1 > secondDopplerObservation =
                 secondDopplerModel_->computeIdealObservationsWithLinkEndData(
-                        time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancilliarySetingsInput );
+                        time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettingsInput );
         // Combine link end times and states
         // Store all 4 link end times/states: first transmitter, first receiver, second transmitter, second receiver
         linkEndTimes.resize( 4 );

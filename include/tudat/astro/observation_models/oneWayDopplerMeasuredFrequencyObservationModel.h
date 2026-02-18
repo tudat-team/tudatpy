@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2023, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -105,7 +105,7 @@ public:
             throw std::runtime_error(
                     "Error when defining One Way Doppler Measured Frequency Model: model allows exactly 2 "
                     "link ends, " +
-                    std::to_string( numberOfLinkEnds_ ) + "were selected." );
+                    std::to_string( numberOfLinkEnds_ ) + " were selected." );
         }
 
         lightTimeCalculator_ = oneWayDopplerModel_->getLightTimeCalculator( );
@@ -119,7 +119,7 @@ public:
      * \param time Time at which observable is to be evaluated.
      * \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for
      * which associated time is kept constant (to input value) \param linkEndTimes List of times at
-     * each link end during observation. Set in this mothod. \param linkEndStates List of states at
+     * each link end during observation. Set in this method. \param linkEndStates List of states at
      * each link end during observation. Set in this method. \param ancillarySettings Ancillary
      * settings for the observation model \return Measured Frequency for a doppler observation model
      */
@@ -224,7 +224,6 @@ private:
     // Number of link ends
     unsigned int numberOfLinkEnds_;
 
-    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > dopplerModel_;
 
     // Light time calculator
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;

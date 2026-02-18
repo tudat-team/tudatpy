@@ -212,7 +212,7 @@ public:
                 if( isPartialForConcatenatedObservable )
                 {
                     throw std::runtime_error(
-                            "Error when requesting partial creation for difference of arrival; concatenated partial not supported" );
+                            "Error when requesting partial creation for differenced time/frequency of arrival; concatenated partial not supported" );
                 }
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
