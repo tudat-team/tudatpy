@@ -12,6 +12,6 @@
 #define TUDAT_CREATEOBSERVATIONMODEL_H
 
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
-#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+// Include createObservationModelFactory.h when observation model creation functions are needed.
 
 #endif  // TUDAT_CREATEOBSERVATIONMODEL_H

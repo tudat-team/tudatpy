@@ -16,7 +16,7 @@
 #include "tudat/interface/json/estimation/observation.h"
 #include "tudat/interface/json/estimation/parameter.h"
 #include "tudat/interface/json/support/valueConversions.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
