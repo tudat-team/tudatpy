@@ -11,35 +11,6 @@
 #ifndef TUDAT_ORBITDETERMINATIONMANAGERFORWARDDECLARATIONS_H
 #define TUDAT_ORBITDETERMINATIONMANAGERFORWARDDECLARATIONS_H
 
-#include <type_traits>
-
-#include "tudat/basics/tudatTypeTraits.h"
-
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-template< typename ObservationScalarType, typename TimeType >
-class CovarianceAnalysisInput;
-
-template< typename ObservationScalarType, typename TimeType >
-class EstimationInput;
-
-template< typename ObservationScalarType, typename TimeType >
-struct CovarianceAnalysisOutput;
-
-template< typename ObservationScalarType, typename TimeType >
-struct EstimationOutput;
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-class OrbitDeterminationManager;
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
+#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 
 #endif  // TUDAT_ORBITDETERMINATIONMANAGERFORWARDDECLARATIONS_H

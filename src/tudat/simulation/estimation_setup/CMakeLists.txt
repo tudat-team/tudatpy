@@ -20,6 +20,8 @@ set(estimation_HEADERS
         createAtmosphericLightTimeCorrection.h
         createObservationManager.h
         orbitDeterminationManager.h
+        estimationInterfacesForwardDeclarations.h
+        observationInterfacesForwardDeclarations.h
         orbitDeterminationManagerForwardDeclarations.h
         orbitDeterminationManagerHelpers.h
         orbitDeterminationManagerConstructionImplementation.h

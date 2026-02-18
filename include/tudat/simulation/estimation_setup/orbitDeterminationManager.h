@@ -23,7 +23,8 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 
 namespace tudat
 {
@@ -39,18 +40,6 @@ namespace numerical_integrators
 template< typename TimeType >
 class IntegratorSettings;
 }
-
-namespace observation_models
-{
-class ObservationModelSettings;
-struct ObservationAncillarySimulationSettings;
-
-template< typename ObservationScalarType, typename TimeType >
-class ObservationManagerBase;
-
-template< typename ObservationScalarType, typename TimeType >
-class ObservationSimulatorBase;
-}  // namespace observation_models
 
 namespace propagators
 {

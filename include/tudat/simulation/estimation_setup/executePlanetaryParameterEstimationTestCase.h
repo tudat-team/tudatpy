@@ -21,6 +21,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -29,14 +30,6 @@
 
 namespace tudat
 {
-namespace simulation_setup
-{
-
-template< typename ObservationScalarType, typename TimeType >
-struct EstimationOutput;
-
-}  // namespace simulation_setup
-
 namespace unit_tests
 {
 

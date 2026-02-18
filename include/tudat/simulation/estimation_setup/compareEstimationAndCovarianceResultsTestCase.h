@@ -14,7 +14,7 @@
 
 #include <boost/test/test_tools.hpp>
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 
 namespace tudat
 {
