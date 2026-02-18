@@ -70,6 +70,16 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_ALL_TESTS
+    "Enable compilation of all test-oriented explicit instantiations (e.g. <double,double> extern templates)."
+    ON
+)
+option(
+    TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES
+    "Enable kernel-only explicit template instantiations for <STATE_SCALAR_TYPE, TIME_TYPE>."
+    ON
+)
+option(
     TUDAT_DOWNLOAD_AND_BUILD_BOOST
     "Downloads and builds boost"
     OFF
@@ -203,6 +213,11 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
+endif ()
+if (NOT TUDAT_BUILD_ALL_TESTS)
+    add_definitions(-DTUDAT_BUILD_ALL_TESTS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_ALL_TESTS=1)
 endif ()
 
 # +============================================================================

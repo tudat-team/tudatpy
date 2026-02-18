@@ -615,6 +615,7 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     return observationManagers;
 }
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
@@ -631,6 +632,7 @@ extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBas
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+#endif
 
 }  // namespace observation_models
 

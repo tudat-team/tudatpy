@@ -24,7 +24,7 @@
 #include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {

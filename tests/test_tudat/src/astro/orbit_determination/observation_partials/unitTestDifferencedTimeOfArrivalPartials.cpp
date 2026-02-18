@@ -24,7 +24,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"

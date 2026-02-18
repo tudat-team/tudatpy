@@ -12,7 +12,9 @@
 #ifndef COMPAREESTIMATIONANDCOVARIANCERESULTSTESTCASE_H
 #define COMPAREESTIMATIONANDCOVARIANCERESULTSTESTCASE_H
 
-#include <boost/test/test_tools.hpp>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
 
 #include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 
@@ -28,11 +30,26 @@ void compareEstimationAndCovarianceResults(
 {
     for( int i = 0; i < estimationOutput->getCorrelationMatrix( ).rows( ); i++ )
     {
-        BOOST_CHECK_EQUAL( estimationOutput->getFormalErrorVector( )( i ), covarianceOutput->getFormalErrorVector( )( i ) );
-        BOOST_CHECK_EQUAL( estimationOutput->getNormalizationTerms( )( i ), covarianceOutput->getNormalizationTerms( )( i ) );
+        if( estimationOutput->getFormalErrorVector( )( i ) != covarianceOutput->getFormalErrorVector( )( i ) )
+        {
+            std::ostringstream error;
+            error << "Formal error mismatch at index " << i << ".";
+            throw std::runtime_error( error.str( ) );
+        }
+        if( estimationOutput->getNormalizationTerms( )( i ) != covarianceOutput->getNormalizationTerms( )( i ) )
+        {
+            std::ostringstream error;
+            error << "Normalization term mismatch at index " << i << ".";
+            throw std::runtime_error( error.str( ) );
+        }
         for( int j = 0; j < estimationOutput->getCorrelationMatrix( ).cols( ); j++ )
         {
-            BOOST_CHECK_EQUAL( estimationOutput->getCorrelationMatrix( )( i, j ), covarianceOutput->getCorrelationMatrix( )( i, j ) );
+            if( estimationOutput->getCorrelationMatrix( )( i, j ) != covarianceOutput->getCorrelationMatrix( )( i, j ) )
+            {
+                std::ostringstream error;
+                error << "Correlation matrix mismatch at (" << i << ", " << j << ").";
+                throw std::runtime_error( error.str( ) );
+            }
         }
     }
 }

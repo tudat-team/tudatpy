@@ -26,7 +26,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 //! Test suite for astro functions.
 BOOST_AUTO_TEST_SUITE( test_propagation_termination_reason )

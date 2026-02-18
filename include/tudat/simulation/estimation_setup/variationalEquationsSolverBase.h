@@ -22,7 +22,7 @@
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {
@@ -668,7 +668,9 @@ void getParametersToEstimatePerArc(
     }
 }
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template class VariationalEquationsSolver< double, double >;
+#endif
 
 }  // namespace propagators
 

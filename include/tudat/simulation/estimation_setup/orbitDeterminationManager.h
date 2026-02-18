@@ -322,7 +322,9 @@ protected:
     bool considerParametersIncluded_;
 };
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template class OrbitDeterminationManager< double, double >;
+#endif
 
 }  // namespace simulation_setup
 

@@ -19,11 +19,11 @@
 
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
-#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 

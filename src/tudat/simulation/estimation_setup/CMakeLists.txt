@@ -19,6 +19,7 @@ set(estimation_HEADERS
         createLightTimeCorrection.h
         createAtmosphericLightTimeCorrection.h
         createObservationManager.h
+        simulatePseudoObservations.h
         orbitDeterminationManager.h
         estimationInterfacesForwardDeclarations.h
         observationInterfacesForwardDeclarations.h
@@ -30,15 +31,13 @@ set(estimation_HEADERS
         orbitDeterminationManagerEstimationImplementation.h
         createLightTimeCorrectionPartials.h
         createEstimatableParameters.h
+        createEstimatableParametersInterface.h
+        createEstimatableParametersFactory.h
         createCartesianStatePartials.h
         createTorquePartials.h
         createStateDerivativePartials.h
-        compareEstimationAndCovarianceResultsTestCase.h
         estimatableParameterSettings.h
         orbitDeterminationTestCaseUtilities.h
-        executePlanetaryParameterEstimationTestCase.h
-        executeEarthOrbiterParameterEstimationTestCase.h
-        executeEarthOrbiterBiasEstimationTestCase.h
         createObservationPartials.h
         podProcessing.h
         determinePostFitParameterInfluence.h
@@ -68,12 +67,7 @@ set(estimation_SOURCES
         createEulerAngleObservationPartials.cpp
         createTorquePartials.cpp
         variationalEquationsSolver.cpp
-        variationalEquationsSolverDoubleDoubleInstantiation.cpp
-        singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
-        multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
-        hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
         createObservationManager.cpp
-        createObservationManagersBaseDoubleDoubleInstantiation.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
         createAtmosphericLightTimeCorrection.cpp
@@ -82,7 +76,6 @@ set(estimation_SOURCES
         createCartesianStatePartials.cpp
         createStateDerivativePartials.cpp
         orbitDeterminationTestCases.cpp
-        executePlanetaryParameterEstimationTestCase.cpp
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
@@ -95,6 +88,16 @@ set(estimation_SOURCES
         processOdfFile.cpp
         processTrackingTxtFile.cpp
         )
+
+if (TUDAT_BUILD_ALL_TESTS)
+    list(APPEND estimation_SOURCES
+            variationalEquationsSolverDoubleDoubleInstantiation.cpp
+            singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            createObservationManagersBaseDoubleDoubleInstantiation.cpp
+            )
+endif ()
 
 # Add library.
 TUDAT_ADD_LIBRARY("estimation_setup"

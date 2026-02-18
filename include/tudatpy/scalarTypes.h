@@ -26,4 +26,8 @@ using tudat::Time;
 #define TUDATPY_TYPE_ID_INDIR( x ) TUDATPY_TYPE_ID_##x
 #define TUDATPY_TYPE_ID( x ) TUDATPY_TYPE_ID_INDIR( x )
 
+#if defined( TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES )
+#include "tudatpy/kernelExternTemplates.h"
+#endif
+
 #endif  // TUDATPY_SCALAR_TYPES_H

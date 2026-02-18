@@ -23,7 +23,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"

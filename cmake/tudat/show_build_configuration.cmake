@@ -1,5 +1,7 @@
 message(STATUS "******************** BUILD CONFIGURATION ********************")
 message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
+message(STATUS "TUDAT_BUILD_ALL_TESTS                                 ${TUDAT_BUILD_ALL_TESTS}")
+message(STATUS "TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES                   ${TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES}")
 message(STATUS "TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
 message(STATUS "TUDAT_BUILD_WITH_ESTIMATION_TOOLS                     ${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
 message(STATUS "TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BUILD_TUDAT_TUTORIALS}")

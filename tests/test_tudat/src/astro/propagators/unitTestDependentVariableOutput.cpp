@@ -22,7 +22,7 @@
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"

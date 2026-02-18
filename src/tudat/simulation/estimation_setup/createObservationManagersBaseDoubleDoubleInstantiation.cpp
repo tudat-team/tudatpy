@@ -6,6 +6,7 @@ namespace tudat
 namespace observation_models
 {
 
+#if TUDAT_BUILD_ALL_TESTS
 template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > > createObservationManagersBase<
         double,
         double >(
@@ -14,6 +15,7 @@ template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< doub
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+#endif
 
 }  // namespace observation_models
 

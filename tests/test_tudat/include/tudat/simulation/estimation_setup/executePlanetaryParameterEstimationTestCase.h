@@ -13,7 +13,7 @@
 #define EXECUTEPLANETARYPARAMETERESTIMATIONTESTCASE_H
 
 #include <memory>
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include <utility>
 
 #include <Eigen/Core>
@@ -49,11 +49,13 @@ executePlanetaryParameterEstimation(
         Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
         const double weight = 1.0 );
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double, double > >, Eigen::VectorXd >
 executePlanetaryParameterEstimation< double, double >( const int observableType,
                                                        Eigen::VectorXd parameterPerturbation,
                                                        Eigen::MatrixXd inverseAPrioriCovariance,
                                                        const double weight );
+#endif
 
 template< typename TimeType, typename StateScalarType >
 std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >

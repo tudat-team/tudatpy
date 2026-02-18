@@ -822,7 +822,9 @@ private:
     }
 };
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template class SingleArcDynamicsSimulator< double, double >;
+#endif
 
 }  // namespace propagators
 

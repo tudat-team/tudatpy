@@ -40,10 +40,6 @@ set(propagation_SOURCES
         propagationSettings.cpp
         setNumericallyIntegratedStates.cpp
         dynamicsSimulator.cpp
-        dynamicsSimulatorDoubleDoubleInstantiation.cpp
-        singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
-        multiArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
-        hybridArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
         createTorqueModel.cpp
         propagationOutputSettings.cpp
         createMassRateModels.cpp
@@ -54,6 +50,15 @@ set(propagation_SOURCES
         environmentUpdater.cpp
         dependentVariablesInterface.cpp
         )
+
+if (TUDAT_BUILD_ALL_TESTS)
+    list(APPEND propagation_SOURCES
+            dynamicsSimulatorDoubleDoubleInstantiation.cpp
+            singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            multiArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            hybridArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            )
+endif ()
 
 # Add library.
 TUDAT_ADD_LIBRARY("propagation_setup"

@@ -39,6 +39,20 @@ update_sources(dynamics sources)
 update_sources(estimation sources)
 update_sources(exceptions sources)
 
+if (TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES)
+    list(APPEND sources
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateSingleArcDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateMultiArcDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateHybridArcDynamicsSimulator.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateSingleArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateMultiArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateHybridArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateOrbitDeterminationManager.cpp
+    )
+endif ()
+
 YACMA_PYTHON_MODULE(kernel ${sources})
 
 # Link against libraries
@@ -61,6 +75,13 @@ target_include_directories(kernel PUBLIC
     $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
     $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
     $<INSTALL_INTERFACE:include>)
+
+if (TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES)
+    target_compile_definitions(kernel PRIVATE TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES=1)
+else ()
+    target_compile_definitions(kernel PRIVATE TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES=0)
+endif ()
+
     target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
     target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")

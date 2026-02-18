@@ -16,7 +16,7 @@
 #include "tudat/interface/json/propagation/acceleration.h"
 #include "tudat/interface/json/support/valueConversions.h"
 #include "tudat/interface/json/tests/unitTestSupport.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 

@@ -20,7 +20,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"

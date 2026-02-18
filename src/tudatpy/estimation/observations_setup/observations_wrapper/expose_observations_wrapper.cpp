@@ -20,7 +20,9 @@
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
-#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;

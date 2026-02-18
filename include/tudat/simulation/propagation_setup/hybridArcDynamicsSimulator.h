@@ -343,7 +343,9 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
 }
 
 
+#if TUDAT_BUILD_ALL_TESTS
 extern template class HybridArcDynamicsSimulator< double, double >;
+#endif
 
 }  // namespace propagators
 
