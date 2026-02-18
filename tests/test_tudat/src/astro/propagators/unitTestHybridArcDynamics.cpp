@@ -14,7 +14,7 @@
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"

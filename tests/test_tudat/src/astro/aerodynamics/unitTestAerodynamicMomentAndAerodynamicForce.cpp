@@ -48,7 +48,7 @@
 #include "tudat/astro/system_models/panelGeometryUtils.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 
 namespace tudat

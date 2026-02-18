@@ -24,7 +24,7 @@
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {

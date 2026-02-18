@@ -25,7 +25,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"

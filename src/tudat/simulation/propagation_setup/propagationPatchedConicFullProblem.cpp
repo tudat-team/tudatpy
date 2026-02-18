@@ -21,7 +21,7 @@
 
 #include <tudat/io/basicInputOutput.h>
 #include <tudat/io/applicationOutput.h>
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 

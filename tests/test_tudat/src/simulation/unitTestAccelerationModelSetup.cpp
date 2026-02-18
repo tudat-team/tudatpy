@@ -33,7 +33,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"

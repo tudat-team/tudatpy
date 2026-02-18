@@ -18,6 +18,8 @@ set(environment_HEADERS
         createRotationModel.h
         defaultBodies.h
         createBodies.h
+        createBodiesFactory.h
+        createBodiesSettings.h
         createGroundStations.h
         createBodyDeformationModel.h
         baseStateInterface.h

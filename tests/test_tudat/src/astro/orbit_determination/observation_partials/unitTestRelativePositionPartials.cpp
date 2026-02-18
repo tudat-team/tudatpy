@@ -29,7 +29,7 @@
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/support/observationPartialTestFunctions.h"

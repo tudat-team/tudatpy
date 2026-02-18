@@ -22,7 +22,7 @@
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/system_models/selfShadowing.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"

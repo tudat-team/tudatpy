@@ -22,7 +22,7 @@
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"

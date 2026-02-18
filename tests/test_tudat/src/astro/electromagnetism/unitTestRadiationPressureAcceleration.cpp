@@ -36,7 +36,7 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"

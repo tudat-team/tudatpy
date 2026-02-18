@@ -15,7 +15,7 @@
 #include "environment_setup/createAerodynamicCoefficientInterface.h"
 #include "environment_setup/createAerodynamicControlSurfaces.h"
 #include "environment_setup/createAtmosphereModel.h"
-#include "environment_setup/createBodies.h"
+#include "environment_setup/createBodiesFactory.h"
 #include "environment_setup/createBodyShapeModel.h"
 #include "environment_setup/createEphemeris.h"
 #include "environment_setup/createFlightConditions.h"

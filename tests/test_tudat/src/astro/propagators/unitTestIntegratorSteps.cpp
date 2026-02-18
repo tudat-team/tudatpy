@@ -31,7 +31,7 @@
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 

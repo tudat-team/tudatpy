@@ -18,7 +18,7 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
-#include <tudat/simulation/environment_setup/createBodies.h>
+#include <tudat/simulation/environment_setup/createBodiesFactory.h>
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 #include <tudat/simulation/environment_setup/createFlightConditions.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
