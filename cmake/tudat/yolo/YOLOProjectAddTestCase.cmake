@@ -88,11 +88,8 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         # ---- Test build speed optimizations ----
         # Tests only need correctness, not runtime speed. -O0 cuts compile
         # time 2-4x vs -O2 for template-heavy simulation test files.
-        # Gold linker is faster than GNU ld for the 200+ test executables.
         target_compile_options(${target_name} PRIVATE
             $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-O0>)
-        target_link_options(${target_name} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-fuse-ld=gold>)
 
         #==========================================================================
         # BUILD-TREE.
