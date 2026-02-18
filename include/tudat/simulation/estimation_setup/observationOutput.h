@@ -11,7 +11,8 @@
 #ifndef TUDAT_OBSERVATIONOUTPUT
 #define TUDAT_OBSERVATIONOUTPUT
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat

@@ -19,6 +19,8 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/timeType.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"

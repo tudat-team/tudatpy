@@ -17,7 +17,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tom = tudat::observation_models;
