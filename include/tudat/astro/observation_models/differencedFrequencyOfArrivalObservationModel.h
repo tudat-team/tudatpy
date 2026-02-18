@@ -109,7 +109,6 @@ public:
         // Compute both doppler observables
         std::vector< double > firstLinkEndTimes, secondLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates, secondLinkEndStates;
-        const auto ancillarySettingsInput = ancilliarySetingsInput;
         Eigen::Matrix< ObservationScalarType, 1, 1 > firstDopplerObservation = firstDopplerModel_->computeIdealObservationsWithLinkEndData(
                 time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
         Eigen::Matrix< ObservationScalarType, 1, 1 > secondDopplerObservation =

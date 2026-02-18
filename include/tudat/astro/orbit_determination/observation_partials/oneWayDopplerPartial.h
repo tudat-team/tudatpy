@@ -560,14 +560,14 @@ public:
     }
 
     //! Function to get the size of the direct dependency of proper time rate on parameter
-    int getProperTimeParameterDependencySize( const estimatable_parameters::EstimatableParameterIdentifier parameterType )
+    int getProperTimeParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
     {
         return oneWayDopplerScaling_->getProperTimeParameterDependencySize( parameterType );
     }
 
     //! Function to get the direct partial derivatives, and associated times, of proper time components
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getLinkIndependentPartials(
-            const estimatable_parameters::EstimatableParameterIdentifier parameterType )
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
     {
         // Get the underlying Doppler partials and scale by transmitted frequency
         auto dopplerPartials = oneWayDopplerScaling_->getLinkIndependentPartials( parameterType );
