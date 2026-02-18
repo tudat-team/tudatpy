@@ -25,7 +25,7 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/interpolators/createInterpolator.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {

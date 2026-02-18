@@ -17,6 +17,7 @@ set(environment_HEADERS
         createAerodynamicControlSurfaces.h
         createRotationModel.h
         defaultBodies.h
+        defaultGroundStationSettings.h
         createBodies.h
         createBodiesFactory.h
         createBodiesSettings.h
@@ -54,6 +55,7 @@ set(environment_SOURCES
         createAerodynamicCoefficientInterface.cpp
         createAerodynamicControlSurfaces.cpp
         defaultBodies.cpp
+        defaultGroundStationSettings.cpp
         baseStateInterface.cpp
         rigidBodyProperties.cpp
         body.cpp
