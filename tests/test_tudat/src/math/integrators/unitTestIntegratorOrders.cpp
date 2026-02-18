@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 

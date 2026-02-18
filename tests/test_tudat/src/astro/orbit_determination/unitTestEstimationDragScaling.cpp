@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <ctime>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>

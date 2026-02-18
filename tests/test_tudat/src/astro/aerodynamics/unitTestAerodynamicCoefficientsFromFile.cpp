@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>

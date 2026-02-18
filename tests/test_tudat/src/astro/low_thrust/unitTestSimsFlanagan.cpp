@@ -21,6 +21,7 @@
 #include <Eigen/Dense>
 #include <cmath>
 #include <iostream>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"

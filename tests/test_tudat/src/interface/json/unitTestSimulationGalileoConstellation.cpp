@@ -14,6 +14,7 @@
 #include "tudat/simulation/simulation.h"
 #include "tudat/interface/json/unitTestSupport.h"
 #include "tudat/interface/json/jsonInterface.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {

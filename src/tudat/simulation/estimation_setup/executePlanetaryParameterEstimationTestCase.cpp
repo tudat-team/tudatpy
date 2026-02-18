@@ -9,8 +9,6 @@
  *
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 
 namespace tudat

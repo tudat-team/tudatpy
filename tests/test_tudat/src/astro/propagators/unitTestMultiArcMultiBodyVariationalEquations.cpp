@@ -13,6 +13,8 @@
 
 #include <string>
 #include <thread>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
 

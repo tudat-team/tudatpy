@@ -13,6 +13,7 @@
 
 #include <string>
 #include <thread>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <limits>
 

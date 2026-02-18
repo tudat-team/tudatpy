@@ -17,6 +17,8 @@
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"

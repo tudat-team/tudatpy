@@ -25,6 +25,7 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {

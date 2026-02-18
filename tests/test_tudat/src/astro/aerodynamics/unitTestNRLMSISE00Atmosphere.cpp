@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <vector>
 #include <utility>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 

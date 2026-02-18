@@ -12,7 +12,7 @@
 #ifndef COMPAREESTIMATIONANDCOVARIANCERESULTSTESTCASE_H
 #define COMPAREESTIMATIONANDCOVARIANCERESULTSTESTCASE_H
 
-#include <boost/test/tools/floating_point_comparison.hpp>
+#include <boost/test/test_tools.hpp>
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerForwardDeclarations.h"
 
