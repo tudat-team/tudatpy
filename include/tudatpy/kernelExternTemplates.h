@@ -16,7 +16,6 @@
 #if TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverForwardDeclarations.h"
-#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 #endif
 
 #if TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES
@@ -38,13 +37,6 @@ extern template class MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIM
 extern template class HybridArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >;
 
 }  // namespace propagators
-
-namespace simulation_setup
-{
-
-extern template class OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE, 0 >;
-
-}  // namespace simulation_setup
 
 }  // namespace tudat
 
