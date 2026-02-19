@@ -1541,11 +1541,13 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
     // Only reset if degree/order changed to avoid unnecessary cache invalidation
     const int maxDegree = static_cast< int >(cosineCoefficients.rows( ));
     const int maxOrder = static_cast< int >(cosineCoefficients.cols( ));
-    if ( maxDegree != lastMaxDegree_ || maxOrder != lastMaxOrder_ )
+    if ( maxDegree > lastMaxDegree_ || maxOrder > lastMaxOrder_ )
     {
-        sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maxDegree, maxOrder );
-        lastMaxDegree_ = maxDegree;
-        lastMaxOrder_ = maxOrder;
+        const int newMaxDegree = std::max( maxDegree, lastMaxDegree_ );
+        const int newMaxOrder = std::max( maxOrder, lastMaxOrder_ );
+        sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( newMaxDegree, newMaxOrder );
+        lastMaxDegree_ = newMaxDegree;
+        lastMaxOrder_ = newMaxOrder;
     }
     // else: Cache is still valid - skip expensive reset operation
 
