@@ -11,20 +11,12 @@
 #ifndef TUDATPY_KERNEL_EXTERN_TEMPLATES_H
 #define TUDATPY_KERNEL_EXTERN_TEMPLATES_H
 
-#include <type_traits>
-
-#include "tudat/basics/tudatTypeTraits.h"
+#include "tudatpy/scalarTypes.h"
 
 #if TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES
-#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
-#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
-#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
-#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
-#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
 #endif
 
 #if TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES

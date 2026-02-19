@@ -32,6 +32,7 @@ set(io_SOURCES
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "mapTextFileReader.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
@@ -89,4 +90,3 @@ TUDAT_ADD_LIBRARY("input_output"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
