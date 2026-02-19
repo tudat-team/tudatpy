@@ -1342,6 +1342,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                 nullptr,
                                 std::make_shared< observation_models::ObservationAncillarySimulationSettings >(
                                         ancillarySettings.at( i ) ),
+                                std::vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(),                // weights
+                                std::vector<Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1>>(), // residuals
                                 !allowDuplicateObservationsWithinSingleObservationSet) );
 
             }
