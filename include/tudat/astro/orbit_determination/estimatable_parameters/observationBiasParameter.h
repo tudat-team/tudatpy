@@ -22,6 +22,23 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Utility function to create more precise secondary identification string of observation bias parameters.
+inline std::string createObsBiasSecondaryIdentifier(
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkEnds& linkEnds )
+{
+    const std::string& transmitter =
+        linkEnds.at(observation_models::transmitter).stationName_;
+
+    const std::string& receiver =
+        linkEnds.at(observation_models::receiver).stationName_;
+
+    return transmitter + " --> " +
+           receiver + " , " +
+           observation_models::getObservableName(observableType);
+}
+
+
 //! Interface class for the estimation of a constant absolute or relative observation bias.
 /*!
  *  Interface class for the estimation of a constant absolute or relative observation bias (at given link ends and observable
@@ -48,7 +65,7 @@ public:
                                       const observation_models::ObservableType observableType,
                                       const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >( biasIsAbsolute ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                                 linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
+                                                 linkEnds.begin( )->second.bodyName_, createObsBiasSecondaryIdentifier(observableType, linkEnds) ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEnds_( linkEnds ), observableType_( observableType )
     { }
 
@@ -208,7 +225,7 @@ public:
                                      const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
                 biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
+                linkEnds.begin( )->second.bodyName_, createObsBiasSecondaryIdentifier(observableType, linkEnds)  ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {
