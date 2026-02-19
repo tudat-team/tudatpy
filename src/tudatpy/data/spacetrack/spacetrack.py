@@ -522,42 +522,6 @@ class OMMUtils:
         return saved_files
 
     @staticmethod
-    def filter_tles_keep_latest_creation_from_json(full_filepath: str) -> list[dict]:
-        """
-        Reads a TLE cache file and deduplicates by EPOCH, keeping the record
-        with the latest ``CREATION_DATE`` for each epoch.
-
-        Parameters
-        ----------
-        full_filepath : str
-            Absolute path to the JSON cache file.
-
-        Returns
-        -------
-        list[dict]
-            Deduplicated list of OMM dictionaries.
-        """
-        with open(full_filepath, "r") as f:
-            objects_list = json.load(f)
-
-        # Unwrap nested list if present (legacy quirk)
-        if objects_list and isinstance(objects_list[0], list):
-            objects_list = objects_list[0]
-
-        filtered: dict[str, dict] = {}
-        for record in objects_list:
-            epoch = record["EPOCH"]
-            creation = datetime.fromisoformat(record["CREATION_DATE"])
-            if epoch not in filtered:
-                filtered[epoch] = record
-            else:
-                existing_creation = datetime.fromisoformat(filtered[epoch]["CREATION_DATE"])
-                if creation > existing_creation:
-                    filtered[epoch] = record
-
-        return list(filtered.values())
-
-    @staticmethod
     def get_tles(json_data: list[dict] | dict) -> dict[str, tuple[str, str]]:
         """
         Extracts TLE line pairs from a list of OMM records.
@@ -652,21 +616,22 @@ class OMMUtils:
         )
 
     @staticmethod
-    def get_tle_reference_epoch(tle_line_1: str) -> datetime:
+    def tle_to_Tle_object(
+            tle_line_1: str, tle_line_2: str
+    ) -> environment.TleEphemeris:
         """
-        Parses the reference epoch from the first line of a TLE.
+        Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
         Parameters
         ----------
         tle_line_1 : str
             First line of the TLE.
+        tle_line_2 : str
+            Second line of the TLE.
 
         Returns
         -------
-        datetime
-            The reference epoch as a ``datetime`` object.
+        environment.TleEphemeris
+            Tle object.
         """
-        year = int(tle_line_1[18:20])
-        year += 2000 if year < 57 else 1900
-        return datetime(year, 1, 1) + timedelta(days=float(tle_line_1[20:32]) - 1)
-
+        return environment.Tle(tle_line_1, tle_line_2)
