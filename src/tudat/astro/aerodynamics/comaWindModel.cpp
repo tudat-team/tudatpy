@@ -95,17 +95,12 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
         }
 
-        // Try to share the spherical harmonics calculator with the ComaModel
-        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
-        {
-            // Share the calculator from ComaModel (non-owning pointer)
-            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
-        }
-        else
-        {
-            // Create our own calculator
-            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
-        }
+        // Always create own calculator to avoid shared mutable state with ComaModel.
+        // Sharing caused density corruption when wind and density models use different
+        // degree/order, as the shared calculator's Legendre/trig caches were resized
+        // by interleaved calls.
+        sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
+        sharedSphericalHarmonicsCalculator_ = nullptr;
 
         // Pre-allocate coefficient matrices based on maximum degree/order from dataset
         const int maxDegreeAvailable = xPolyDataset_->getMaxDegreeSH( 0 );
@@ -199,17 +194,12 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
         }
 
-        // Try to share the spherical harmonics calculator with the ComaModel
-        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
-        {
-            // Share the calculator from ComaModel (non-owning pointer)
-            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
-        }
-        else
-        {
-            // Create our own calculator
-            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
-        }
+        // Always create own calculator to avoid shared mutable state with ComaModel.
+        // Sharing caused density corruption when wind and density models use different
+        // degree/order, as the shared calculator's Legendre/trig caches were resized
+        // by interleaved calls.
+        sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
+        sharedSphericalHarmonicsCalculator_ = nullptr;
 
         // Pre-allocate coefficient matrices based on nmax from dataset
         const int nmax = xStokesDataset_->nmax();
