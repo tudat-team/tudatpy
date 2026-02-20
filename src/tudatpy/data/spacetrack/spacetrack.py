@@ -3,7 +3,7 @@ import getpass
 import os
 import requests
 from collections import defaultdict
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from tudatpy.dynamics import environment
 from datetime import datetime, timedelta
 import math
@@ -425,52 +425,67 @@ class SpaceTrackQuery:
         parts.append(f"orderby/epoch desc/limit/{limit}/format/json")
         return self._get_json_and_save(self._build_url("/".join(parts)), output_file, merge=update_existing)
 
-    def clean_tle_file(self, filepath: str) -> None:
+    def query_from_query_builder_url(
+            self,
+            query: str,
+            output_file: str = "custom_query.json",
+            update_existing: bool = False,
+    ) -> list | None:
         """
-        Removes duplicate TLE entries from a cache file in-place.
+        Executes a user-provided Space-Track query URL or query path.
 
-        Supports both legacy (plain list) and current (dict with metadata)
-        formats. When two records share the same EPOCH, the one with the later
-        ``CREATION_DATE`` is kept.
+        The input may be:
+        - a full URL copied from the Space-Track 'Query Builder'
+        - only the query path starting from 'basicspacedata/query/...'
 
         Parameters
         ----------
-        filepath : str
-            Absolute path to the cache file.
+        query : str
+            Full Space-Track API URL or query path.
+        output_file : str
+            Local cache filename.
+        update_existing : bool
+            True → merge with existing cache. False → overwrite.
+
+        Returns
+        -------
+        list | None
+            JSON records returned by the API.
         """
-        if not os.path.exists(filepath):
-            print(f"File not found: {filepath}")
-            return
 
-        with open(filepath, "r") as f:
-            content = json.load(f)
+        query = query.strip()
 
-        if isinstance(content, list):
-            data, metadata, is_dict = content, {}, False
-        elif isinstance(content, dict) and "data" in content:
-            data = content["data"]
-            metadata = {k: v for k, v in content.items() if k != "data"}
-            is_dict = True
+        if query.startswith("http"): # Full URL provided
+            parsed = urlparse(query)
+
+            if "space-track.org" not in parsed.netloc:
+                raise ValueError("Only space-track.org URLs are allowed.")
+
+            # Extract only the path part
+            path = parsed.path.lstrip("/")
+
         else:
-            print(f"Skipping {filepath}: unknown format.")
-            return
+            path = query.lstrip("/") # Only path provided
 
-        initial_count = len(data)
-        unique: dict[str, dict] = {}
-        for entry in data:
-            epoch = entry.get("EPOCH")
-            if not epoch:
-                continue
-            if epoch not in unique or entry.get("CREATION_DATE", "") > unique[epoch].get("CREATION_DATE", ""):
-                unique[epoch] = entry
+        # Ensure correct prefix
+        if not path.startswith("basicspacedata/query"):
+            raise ValueError(
+                "Query must start with 'basicspacedata/query/...'"
+            )
 
-        cleaned = sorted(unique.values(), key=lambda x: x["EPOCH"])
-        output: dict | list = ({**metadata, "data": cleaned} if is_dict else cleaned)
+        # Ensure JSON format
+        if "format/json" not in path:
+            if not path.endswith("/"):
+                path += "/"
+            path += "format/json"
 
-        with open(filepath, "w") as f:
-            json.dump(output, f, indent=4)
+        url = self._build_url(path)
 
-        print(f"Cleaned {filepath}. Removed {initial_count - len(cleaned)} duplicates.")
+        return self._get_json_and_save(
+            url,
+            output_file,
+            merge=update_existing
+        )
 
 class OMMUtils:
     """
@@ -635,3 +650,51 @@ class OMMUtils:
             Tle object.
         """
         return environment.Tle(tle_line_1, tle_line_2)
+
+    @staticmethod
+    def clean_file(filepath: str) -> None:
+        """
+        Removes duplicate TLE entries from a cache file in-place.
+
+        Supports both legacy (plain list) and current (dict with metadata)
+        formats. When two records share the same EPOCH, the one with the later
+        ``CREATION_DATE`` is kept.
+
+        Parameters
+        ----------
+        filepath : str
+            Absolute path to the cache file.
+        """
+        if not os.path.exists(filepath):
+            print(f"File not found: {filepath}")
+            return
+
+        with open(filepath, "r") as f:
+            content = json.load(f)
+
+        if isinstance(content, list):
+            data, metadata, is_dict = content, {}, False
+        elif isinstance(content, dict) and "data" in content:
+            data = content["data"]
+            metadata = {k: v for k, v in content.items() if k != "data"}
+            is_dict = True
+        else:
+            print(f"Skipping {filepath}: unknown format.")
+            return
+
+        initial_count = len(data)
+        unique: dict[str, dict] = {}
+        for entry in data:
+            epoch = entry.get("EPOCH")
+            if not epoch:
+                continue
+            if epoch not in unique or entry.get("CREATION_DATE", "") > unique[epoch].get("CREATION_DATE", ""):
+                unique[epoch] = entry
+
+        cleaned = sorted(unique.values(), key=lambda x: x["EPOCH"])
+        output: dict | list = ({**metadata, "data": cleaned} if is_dict else cleaned)
+
+        with open(filepath, "w") as f:
+            json.dump(output, f, indent=4)
+
+        print(f"Cleaned {filepath}. Removed {initial_count - len(cleaned)} duplicates.")
