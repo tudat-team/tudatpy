@@ -27,16 +27,28 @@ inline std::string createObsBiasSecondaryIdentifier(
     const observation_models::ObservableType observableType,
     const observation_models::LinkEnds& linkEnds )
 {
-    const std::string& transmitter =
-        linkEnds.at(observation_models::transmitter).stationName_;
+    std::string transmitterStr = "None";
+    std::string receiverStr    = "None";
 
-    const std::string& receiver =
-        linkEnds.at(observation_models::receiver).stationName_;
+    // Check if transmitter exists
+    auto transmitterIt = linkEnds.find( observation_models::transmitter );
+    if( transmitterIt != linkEnds.end( ) )
+    {
+        transmitterStr = transmitterIt->second.stationName_;
+    }
 
-    return transmitter + " --> " +
-           receiver + " , " +
-           observation_models::getObservableName(observableType);
+    // Check if receiver exists
+    auto receiverIt = linkEnds.find( observation_models::receiver );
+    if( receiverIt != linkEnds.end( ) )
+    {
+        receiverStr = receiverIt->second.stationName_;
+    }
+
+    return transmitterStr + " --> " +
+           receiverStr + " , " +
+           observation_models::getObservableName( observableType );
 }
+
 
 
 //! Interface class for the estimation of a constant absolute or relative observation bias.
