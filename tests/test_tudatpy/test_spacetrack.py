@@ -133,9 +133,7 @@ def test_save_batch_to_individual_files(temp_tle_folder):
 # --- 4. Cleaning Logic ---
 def test_clean_file_dict_format(temp_tle_folder):
     """Verifies cleaning works on the dictionary/metadata format."""
-    if not os.path.exists(temp_tle_folder):
-        os.mkdir(temp_tle_folder)
-
+    os.makedirs(temp_tle_folder, exist_ok=True)
     filepath = os.path.join(temp_tle_folder, "to_clean.json")
 
     dirty_data = {
@@ -156,9 +154,6 @@ def test_clean_file_dict_format(temp_tle_folder):
     assert len(cleaned["data"]) == 1
     assert cleaned["data"][0]["CREATION_DATE"] == "2021"
     assert "last_api_hit" in cleaned # Metadata preserved
-
-    os.remove(filepath)
-    os.rmdir(temp_tle_folder)
 
 def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     """Verifies deduplication logic without any network calls."""
@@ -360,7 +355,7 @@ def test_custom_query_from_url_live(temp_tle_folder):
     query = SpaceTrackQuery(
         username=username,
         password=password,
-        tle_data_folder=temp_tle_folder,
+        tle_data_folder=temp_tle_folder
     )
 
     full_url = (
@@ -371,19 +366,26 @@ def test_custom_query_from_url_live(temp_tle_folder):
         "limit/1/format/json"
     )
 
-    data = query.query_from_query_builder_url(
+    half_url = "basicspacedata/query/class/gp/NORAD_CAT_ID/25544/limit/1/format/json"
+
+    data_full_url = query.query_from_query_builder_url(
         full_url,
         output_file="custom_test.json",
         update_existing=False
     )
 
+    data_half_url = query.query_from_query_builder_url(
+        half_url,
+        output_file="custom_test_half_url.json",
+        update_existing=False
+    )
+
     # --- Assertions ---
+    assert data_full_url is not None
+    assert isinstance(data_full_url, list)
+    assert len(data_full_url) == 1
 
-    assert data is not None
-    assert isinstance(data, list)
-    assert len(data) == 1
-
-    record = data[0]
+    record = data_full_url[0]
 
     # Core OMM fields expected from Space-Track GP class
     assert "NORAD_CAT_ID" in record
@@ -392,5 +394,21 @@ def test_custom_query_from_url_live(temp_tle_folder):
     assert "TLE_LINE2" in record
 
     # Verify compatibility with OMMUtils
-    tles = OMMUtils.get_tles(data)
+    tles = OMMUtils.get_tles(data_full_url)
+    assert "25544" in tles
+
+    assert data_half_url is not None
+    assert isinstance(data_half_url, list)
+    assert len(data_half_url) == 1
+
+    record = data_half_url[0]
+
+    # Core OMM fields expected from Space-Track GP class
+    assert "NORAD_CAT_ID" in record
+    assert "EPOCH" in record
+    assert "TLE_LINE1" in record
+    assert "TLE_LINE2" in record
+
+    # Verify compatibility with OMMUtils
+    tles = OMMUtils.get_tles(data_half_url)
     assert "25544" in tles
