@@ -49,6 +49,7 @@ if (TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES)
         ${TUDATPY_SOURCE_DIR}/kernelExternTemplateSingleArcVariationalEquationsSolver.cpp
         ${TUDATPY_SOURCE_DIR}/kernelExternTemplateMultiArcVariationalEquationsSolver.cpp
         ${TUDATPY_SOURCE_DIR}/kernelExternTemplateHybridArcVariationalEquationsSolver.cpp
+        ${TUDATPY_SOURCE_DIR}/kernelExternTemplateOrbitDeterminationManager.cpp
     )
 endif ()
 
