@@ -2,8 +2,7 @@ import os
 import json
 import pytest
 from unittest.mock import patch, MagicMock
-from tudatpy.data.spacetrack import SpaceTrackQuery
-from tudatpy.data.spacetrack import OMMUtils
+from tudatpy.data.spacetrack import SpaceTrackQuery, OMMUtils
 from datetime import datetime, timedelta
 import numpy as np
 
@@ -132,9 +131,11 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     assert second_dict == [batch_data[2]]
 
 # --- 4. Cleaning Logic ---
-def test_clean_tle_file_dict_format(temp_tle_folder):
+def test_clean_file_dict_format(temp_tle_folder):
     """Verifies cleaning works on the dictionary/metadata format."""
-    query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
+    if not os.path.exists(temp_tle_folder):
+        os.mkdir(temp_tle_folder)
+
     filepath = os.path.join(temp_tle_folder, "to_clean.json")
 
     dirty_data = {
@@ -147,7 +148,7 @@ def test_clean_tle_file_dict_format(temp_tle_folder):
     with open(filepath, 'w') as f:
         json.dump(dirty_data, f)
 
-    query.clean_tle_file(filepath)
+    OMMUtils.clean_file(filepath)
 
     with open(filepath, 'r') as f:
         cleaned = json.load(f)
@@ -155,6 +156,9 @@ def test_clean_tle_file_dict_format(temp_tle_folder):
     assert len(cleaned["data"]) == 1
     assert cleaned["data"][0]["CREATION_DATE"] == "2021"
     assert "last_api_hit" in cleaned # Metadata preserved
+
+    os.remove(filepath)
+    os.rmdir(temp_tle_folder)
 
 def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     """Verifies deduplication logic without any network calls."""
@@ -320,12 +324,12 @@ def test_live_api_query(temp_tle_folder):
 
     # 2. Skip if credentials aren't set (even if --remote-data is passed)
     if not username or not password:
-        pytest.skip("Space-Track credentials not found in environment variables.")
+        pytest.skip("Skipping custom live api query test:\n"
+                    "Space-Track credentials not found in environment variables.")
 
     query = SpaceTrackQuery(
         username=username,
         password=password,
-        spacetrack_url="https://for-testing-only.space-track.org",
         tle_data_folder=temp_tle_folder
     )
 
@@ -335,3 +339,58 @@ def test_live_api_query(temp_tle_folder):
     assert isinstance(res, list)
     if len(res) > 0:
         assert res[0]['NORAD_CAT_ID'] == "25544"
+
+@pytest.mark.remote_data
+def test_custom_query_from_url_live(temp_tle_folder):
+    """
+    Verifies that a full Space-Track GUI-style URL
+    can be ingested and returns valid OMM data.
+    """
+
+    # 1. Retrieve credentials from environment
+    username = os.getenv("SPACETRACK_USER")
+    password = os.getenv("SPACETRACK_PASS")
+
+    # 2. Skip if credentials aren't set (even if --remote-data is passed)
+    if not username or not password:
+        pytest.skip("Skipping custom query url test:\n "
+                    "Space-Track credentials not found in environment variables.")
+
+    # Instantiate query (credentials must be set in env for CI)
+    query = SpaceTrackQuery(
+        username=username,
+        password=password,
+        tle_data_folder=temp_tle_folder,
+    )
+
+    full_url = (
+        "https://www.space-track.org/"
+        "basicspacedata/query/class/gp/"
+        "NORAD_CAT_ID/25544/"
+        "orderby/epoch desc/"
+        "limit/1/format/json"
+    )
+
+    data = query.query_from_query_builder_url(
+        full_url,
+        output_file="custom_test.json",
+        update_existing=False
+    )
+
+    # --- Assertions ---
+
+    assert data is not None
+    assert isinstance(data, list)
+    assert len(data) == 1
+
+    record = data[0]
+
+    # Core OMM fields expected from Space-Track GP class
+    assert "NORAD_CAT_ID" in record
+    assert "EPOCH" in record
+    assert "TLE_LINE1" in record
+    assert "TLE_LINE2" in record
+
+    # Verify compatibility with OMMUtils
+    tles = OMMUtils.get_tles(data)
+    assert "25544" in tles
