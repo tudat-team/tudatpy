@@ -1,3 +1,5 @@
+.. _index_tudatpy:
+
 API Reference
 =============
 
@@ -37,6 +39,14 @@ On this page, we provide a comprehensive overview of the functionality available
    util
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Tudat Space
+
+   Getting started <https://docs.tudat.space/en/latest/index-getting-started.html>
+   Examples <https://docs.tudat.space/en/latest/index-examples.html>
+   User guide <https://docs.tudat.space/en/latest/index-user-guide.html>
+   About <https://docs.tudat.space/en/latest/index-about.html>
 
 
 Bibliography

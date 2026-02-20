@@ -196,12 +196,12 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 }
 
                 // Compute 2-way range
-                twoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
-                        observationTime,
-                        linkEndIterator->first,
-                        twoWayLinkEndTimes,
-                        twoWayLinkEndStates,
-                        getNWayRangeAncilliarySettings( retransmissionDelays ) );
+                twoWayRange =
+                        twoWayObservationModel->computeObservationsWithLinkEndData( observationTime,
+                                                                                    linkEndIterator->first,
+                                                                                    twoWayLinkEndTimes,
+                                                                                    twoWayLinkEndStates,
+                                                                                    getNWayRangeAncillarySettings( retransmissionDelays ) );
 
                 // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                         linkEndIterator->first,
                         fourWayLinkEndTimes,
                         fourWayLinkEndStates,
-                        getNWayRangeAncilliarySettings( retransmissionDelays ) );
+                        getNWayRangeAncillarySettings( retransmissionDelays ) );
 
                 // Set observation times of constituent one-way ranges
                 firstlinkObservationTime = fourWayLinkEndTimes.at( 0 );
@@ -580,10 +580,12 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
         double unbiasedTwoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
-        std::shared_ptr< ObservationBiasSettings > biasSettings = twoWayTimeScaleRangeBias( );
         std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias =
-                std::make_shared< NWayRangeObservationModelSettings >(
-                        twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds,
+                                                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                                                       nullptr,
+                                                                       std::make_shared< LightTimeConvergenceCriteria >( ),
+                                                                       basic_astrodynamics::utc_scale );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );
 
@@ -695,10 +697,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsUncorrected, bodies );
 
         // Compute correction
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
 
-        ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
 
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;

@@ -101,7 +101,7 @@ void calculateResiduals(
                         ->computeObservations( currentObservations->getObservationTimes( ),
                                                currentLinkEnds,
                                                currentObservations->getReferenceLinkEnd( ),
-                                               currentObservations->getAncilliarySettings( ),
+                                               currentObservations->getAncillarySettings( ),
                                                observationsVector );
 
                 residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
@@ -187,7 +187,7 @@ void calculateDesignMatrixAndResiduals(
                             ->computeObservationsWithPartials( currentObservations->getObservationTimes( ),
                                                                currentLinkEnds,
                                                                currentObservations->getReferenceLinkEnd( ),
-                                                               currentObservations->getAncilliarySettings( ),
+                                                               currentObservations->getAncillarySettings( ),
                                                                observationsVector,
                                                                partialsMatrix,
                                                                calculateResiduals,
@@ -433,30 +433,6 @@ public:
                 propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
                 propagateOnCreation );
     }
-    //        parametersToEstimate_( parametersToEstimate )
-    //    {
-    //        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-    //                { integratorSettings };
-    //        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >(
-    //        propagatorSettings ) != nullptr )
-    //        {
-    //            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-    //                        parametersToEstimate, true );
-    //            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
-    //                        arcStartTimes.size( ), integratorSettings);
-    //            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
-
-    //            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
-    //            {
-    //                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
-    //            }
-    //        }
-    //        propagatorSettings =
-
-    //        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings(
-    //        integratorSettings, propagatorSettings ),
-    //                                             propagateOnCreation );
-    //    }
 
     OrbitDeterminationManager(
             const SystemOfBodies& bodies,
@@ -583,75 +559,8 @@ public:
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
 
-        //        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
-        //        {
-        //            int currentColumn = observationLinkParameterIndices_.at( i );
-        //            int startIndex = -1;
-        //            int endIndex = -1;
-        //            std::vector< double > partialMaximum;
-        //            bool isInRange = 0;
-
-        //            for( int j = 0; j < observationMatrix.rows( ); j++ )
-        //            {
-        //                if( observationMatrix( j, currentColumn ) != 0.0 )
-        //                {
-        //                   if( isInRange == 0 )
-        //                   {
-        //                       isInRange = 1;
-        //                       startIndex = j;
-        //                   }
-        //                }
-        //                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
-        //                {
-        //                    isInRange = 0;
-        //                    endIndex = j;
-        //                }
-
-        //            }
-        //        }
         return normalizationTerms;
     }
-
-    //    void saveResultsFromCurrentIteration(
-    //            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >&
-    //            dynamicsHistoryPerIteration )
-    //    {
-    //        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
-    //        variationalEquationsSolver_) != nullptr )
-    //        {
-
-    //            std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-    //                    std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
-    //                    variationalEquationsSolver_);
-
-    //            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDynamicsSolution;
-    //            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >
-    //            currentDependentVariableSolution;
-
-    //            currentDynamicsSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator(
-    //            )->getEquationsOfMotionNumericalSolutionBase( ); currentDependentVariableSolution = hybridArcSolver->getSingleArcSolver(
-    //            )->getDynamicsSimulator( )->getDependentVariableNumericalSolutionBase( );
-
-    //            auto multiArcDynamicsSolution =
-    //                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-    //            auto multiArcDependentVariableSolution =
-    //                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-    //            currentDynamicsSolution.insert( currentDynamicsSolution.end( ), multiArcDynamicsSolution.begin( ),
-    //            multiArcDynamicsSolution.end( ) ); currentDependentVariableSolution.insert( currentDependentVariableSolution.end( ),
-    //            multiArcDependentVariableSolution.begin( ), multiArcDependentVariableSolution.end( ) );
-
-    //            dynamicsHistoryPerIteration.push_back( currentDynamicsSolution );
-    //            dependentVariableHistoryPerIteration.push_back( currentDependentVariableSolution );
-    //        }
-    //        else
-    //        {
-    //            dynamicsHistoryPerIteration.push_back(
-    //                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
-    //            dependentVariableHistoryPerIteration.push_back(
-    //                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
-
-    //        }
-    //    }
 
     void getNormalizedConsiderCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
@@ -752,11 +661,11 @@ public:
         // Create covariance output object
         std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                        designMatrixEstimatedParameters,
+                        estimationInput->getSaveDesignMatrix( ) ? designMatrixEstimatedParameters : Eigen::MatrixXd::Zero( 0, 0 ),
                         estimationInput->getWeightsMatrixDiagonals( ),
                         normalizationTerms,
                         inverseNormalizedCovariance,
-                        designMatrixConsiderParameters,
+                        estimationInput->getSaveDesignMatrix( ) ? designMatrixConsiderParameters : Eigen::MatrixXd::Zero( 0, 0 ),
                         considerNormalizationTerms,
                         covarianceContributionConsiderParameters,
                         estimationInput->getConsiderCovariance( ),
@@ -800,12 +709,13 @@ public:
                                       ")" );
         }
         // Declare variables to be returned (i.e. results from best iteration)
-        double bestResidual = TUDAT_NAN;
+        double bestCostFunction = TUDAT_NAN;
+        double bestRmsResidual = TUDAT_NAN;
+
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestDesignMatrixEstimatedParameters =
-                Eigen::MatrixXd::Constant( totalNumberOfObservations, numberEstimatedParameters_, TUDAT_NAN );
+        Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
                 Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -815,8 +725,7 @@ public:
         if( considerParametersIncluded_ )
         {
             bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
-            bestDesignMatrixConsiderParameters =
-                    Eigen::MatrixXd::Constant( totalNumberOfObservations, numberConsiderParameters_, TUDAT_NAN );
+            bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
             bestConsiderCovarianceContribution =
                     Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
         }
@@ -833,7 +742,10 @@ public:
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
+        std::vector< double > costFunctionHistory;
         double residualRms;
+        std::map< ObservableType, double > residualRmsPerType;
+        double costFunction;
 
         // Set current parameter estimate as both previous and current estimate
         ParameterVectorType newParameterEstimate = currentParameterEstimate_;
@@ -959,7 +871,10 @@ public:
 
             // Calculate mean residual for current iteration.
             residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
+            costFunction = linear_algebra::computeLeastSquaresCostFunction( estimationInput->getWeightsMatrixDiagonals( ),
+                                                                            residuals.template cast< double >( ) );
             rmsResidualHistory.push_back( residualRms );
+            costFunctionHistory.push_back( costFunction );
 
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
@@ -972,13 +887,30 @@ public:
 
             if( estimationInput->getPrintOutput( ) )
             {
-                std::cout << "Current residual: " << residualRms << std::endl;
+                std::map< ObservableType, std::pair< int, int > > indicesPerObservableType =
+                        estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
+
+                if( indicesPerObservableType.size( ) > 1 )
+                {
+                    for( auto it : indicesPerObservableType )
+                    {
+                        double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare(
+                                residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
+                        std::cout << "Current residual for observable (" << getObservableName( it.first ) << "): " << currentTypeRms
+                                  << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cout << "Current residual: " << residualRms << std::endl;
+                }
             }
 
             // If current iteration is better than previous one, update 'best' data.
-            if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
+            if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
             {
-                bestResidual = residualRms;
+                bestCostFunction = costFunction;
+                bestRmsResidual = residualRms;
                 bestParameterEstimate = oldParameterEstimate;
                 bestResiduals = std::move( residuals.template cast< double >( ) );
                 estimationInput->getObservationCollection( )->setResiduals( residuals );
@@ -1033,7 +965,9 @@ public:
 
         if( estimationInput->getPrintOutput( ) )
         {
-            std::cout << "Final residual: " << bestResidual << std::endl;
+            std::cout << "Best iteration: " << bestIteration << " out of " << numberOfIterations - 1 << std::endl;
+            std::cout << "Rms residual from best iteration: " << bestRmsResidual << std::endl;
+            std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
         }
 
         // Create estimation output object
@@ -1044,7 +978,7 @@ public:
                                                                                          bestWeightsMatrixDiagonal,
                                                                                          bestTransformationData,
                                                                                          bestInverseNormalizedCovarianceMatrix,
-                                                                                         bestResidual,
+                                                                                         bestRmsResidual,
                                                                                          bestIteration,
                                                                                          residualHistory,
                                                                                          parameterHistory,
@@ -1066,7 +1000,7 @@ public:
     template< int ObservationSize >
     void computePartialsAndObservations(
             const observation_models::LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
             const observation_models::ObservableType observableType,
             const observation_models::LinkEndType referenceLinkEnd,
             const std::vector< TimeType >& times,
@@ -1083,7 +1017,7 @@ public:
 
         // Compute analytical partials
         observationManager->computeObservationsWithPartials(
-                times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
+                times, linkEnds, referenceLinkEnd, ancillarySettings, observationsVector, partials, true, true );
     }
     //! Function to reset the current parameter estimate.
     /*!

@@ -120,7 +120,7 @@ double integrationTimeFunction( const double currentObservationTime )
 //                    referenceLinkEnd,
 //                    rangeRateLinkEndTimes,
 //                    rangeRateLinkEndStates,
-//                    getAveragedDopplerAncilliarySettings( dopplerCountInterval ) )( 0 );
+//                    getAveragedDopplerAncillarySettings( dopplerCountInterval ) )( 0 );
 //
 //            double arcEndRange = rangeObservationModel->computeObservationsWithLinkEndData(
 //                    arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );
@@ -228,12 +228,12 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
                     ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsUncorrected, bodies );
 
             // Compute correction
-            std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                    std::make_shared< ObservationAncilliarySimulationSettings >( );
+            std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                    std::make_shared< ObservationAncillarySimulationSettings >( );
 
             double integrationTime = 7200.0;
-            ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
-            ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+            ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+            ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
             std::vector< double > linkEndTimes;
             std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;

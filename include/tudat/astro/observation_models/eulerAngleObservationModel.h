@@ -52,10 +52,10 @@ public:
                                    const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >( euler_angle_313_observable, linkEnds, observationBiasCalculator ),
         toBodyFixedFrameFunction_( toBodyFixedFrameFunction )
-    { }
+    {}
 
     //! Destructor
-    ~EulerAngle313ObservationModel( ) { }
+    ~EulerAngle313ObservationModel( ) {}
 
     //! Function to compute ideal Euler angle observation at given time.
     /*!
@@ -74,7 +74,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
@@ -82,9 +82,9 @@ public:
             throw std::runtime_error( "Error when computing position observable, associated link end must be observed_body " );
         }
 
-        if( ancilliarySetings != nullptr )
+        if( ancillarySetings != nullptr )
         {
-            throw std::runtime_error( "Error, calling Euler angle observable with ancilliary settings, but none are supported." );
+            throw std::runtime_error( "Error, calling Euler angle observable with ancillary settings, but none are supported." );
         }
 
         // Set link end times and states.

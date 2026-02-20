@@ -295,6 +295,8 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 
 std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( );
 
+std::vector< std::shared_ptr< GroundStationSettings > > getMPCStationSettings( );
+
 std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( );
 
 }  // namespace simulation_setup

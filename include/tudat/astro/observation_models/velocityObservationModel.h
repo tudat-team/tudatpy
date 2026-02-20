@@ -44,10 +44,10 @@ public:
                               const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
         ObservationModel< 3, ObservationScalarType, TimeType >( velocity_observable, linkEnds, observationBiasCalculator ),
         stateFunction_( stateFunction )
-    { }
+    {}
 
     //! Destructor
-    ~VelocityObservationModel( ) { }
+    ~VelocityObservationModel( ) {}
 
     //! Function to compute ideal velocity observation at given time.
     /*!
@@ -65,7 +65,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )

@@ -58,10 +58,10 @@ public:
      */
     TabulatedMediaReferenceCorrection( const double startTime = TUDAT_NAN, const double endTime = TUDAT_NAN ):
         startTime_( startTime ), endTime_( endTime )
-    { }
+    {}
 
     // Destructor
-    virtual ~TabulatedMediaReferenceCorrection( ) { }
+    virtual ~TabulatedMediaReferenceCorrection( ) {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Should be implemented in the derived
@@ -117,7 +117,7 @@ public:
      */
     ConstantReferenceCorrection( const double startTime, const double endTime, const double constantCorrection ):
         TabulatedMediaReferenceCorrection( startTime, endTime ), constantCorrection_( constantCorrection )
-    { }
+    {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Returns the value of the constant
@@ -158,7 +158,7 @@ public:
      */
     PowerSeriesReferenceCorrection( const double startTime, const double endTime, const std::vector< double > coefficients ):
         TabulatedMediaReferenceCorrection( startTime, endTime ), coefficients_( coefficients )
-    { }
+    {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Correction is computed according to
@@ -235,7 +235,7 @@ public:
     /*!
      * Constructor.
      */
-    TabulatedMediaReferenceCorrectionManager( ): isLookupSchemeUpdated_( false ) { }
+    TabulatedMediaReferenceCorrectionManager( ): isLookupSchemeUpdated_( false ) {}
 
     /*!
      * Constructor.
@@ -314,10 +314,10 @@ public:
     /*!
      * Constructor.
      */
-    TroposhericElevationMapping( ) { }
+    TroposhericElevationMapping( ) {}
 
     // Destructor
-    virtual ~TroposhericElevationMapping( ) { }
+    virtual ~TroposhericElevationMapping( ) {}
 
     /*!
      * Computes the factor that maps the dry troposheric correction. The computation of this factor should be
@@ -370,7 +370,7 @@ public:
             std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
             bool isUplinkCorrection ):
         TroposhericElevationMapping( ), elevationFunction_( elevationFunction ), isUplinkCorrection_( isUplinkCorrection )
-    { }
+    {}
 
     /*!
      * Computes the factor that maps the dry troposheric correction, using the simplified Chao mapping model.
@@ -608,7 +608,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
@@ -665,11 +665,12 @@ public:
     {
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
-        dryZenithRangeCorrectionFunction_ = [ = ]( double time ) {
+        // Capture only this to stay C++17-compatible
+        dryZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
-        wetZenithRangeCorrectionFunction_ = [ = ]( double time ) {
+        wetZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
@@ -756,7 +757,7 @@ public:
                                 const bool useGradient ):
         MappedTroposphericCorrection( vmf3_tropospheric, elevationMapping, isUplinkCorrection ), troposphereData_( troposphereData ),
         useGradient_( useGradient )
-    { }
+    {}
 
     // Computes the dry atmosphere zenith range correction (in meters)
     double computeDryZenithRangeCorrection( const double stationTime )
@@ -774,7 +775,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
 private:
     // VMF3 data container (interpolated coefficients)
@@ -948,7 +949,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
@@ -973,10 +974,10 @@ public:
      *
      * @param referenceIonosphereHeight Reference height of the ionosphere layer used when computing VTEC.
      */
-    VtecCalculator( const double referenceIonosphereHeight ): referenceIonosphereHeight_( referenceIonosphereHeight ) { }
+    VtecCalculator( const double referenceIonosphereHeight ): referenceIonosphereHeight_( referenceIonosphereHeight ) {}
 
     // Destructor
-    virtual ~VtecCalculator( ) { }
+    virtual ~VtecCalculator( ) {}
 
     /*!
      * Function to calculate the VTEC in [m^-2]. (m^-2 = 1e16 TECU). Pure virtual function, should be implemented in
@@ -1103,7 +1104,7 @@ public:
             const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter = nullptr,
             const double referenceHeight = 400.0e3 ):
         VtecCalculator( referenceHeight ), ionosphereModel_( ionosphereModel ), timeScaleConverter_( timeScaleConverter )
-    { }
+    {}
 
     double calculateVtec( const double time, const Eigen::Vector3d subIonosphericPointGeodeticPosition ) override
     {
@@ -1174,7 +1175,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Class to calculate the vertical total electron content (VTEC)

@@ -386,9 +386,9 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
 
     double earthEquatorialRadius = 6378.137e3;  // [m]
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    //    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > dummyAncillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    //    dummyAncillarySettings->setAncillaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
     // Corrections computed for Doppler observations (i.e. they should be negative)
 
@@ -528,9 +528,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 
     unsigned int currentMultiLegTransmitterIndex = 0;
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    //    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    //    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     double time = initialTime - timeStep;
@@ -608,9 +608,9 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
     linkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-26" );
     linkEnds[ receiver ] = LinkEndId( "MRO" );
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    //    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    //    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     // Create Saastamoinen corrections
@@ -718,9 +718,9 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         double maxError = 0.0;
         double minError = 1.0E100;
         double maxErrorElevation = TUDAT_NAN;
-        double minErrorElevation = TUDAT_NAN;
+        //        double minErrorElevation = TUDAT_NAN;
         double maxErrorRelative = TUDAT_NAN;
-        double minErrorRelative = TUDAT_NAN;
+        //        double minErrorRelative = TUDAT_NAN;
 
         std::vector< double > numericalDerivativesWrtTime;
         std::vector< double > reconstructedDerivativesWrtTime;
@@ -753,8 +753,8 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
                 if( absoluteError < minError )
                 {
                     minError = absoluteError;
-                    minErrorRelative = relativeError;
-                    minErrorElevation = elevationAngles.at( i );
+                    //                    minErrorRelative = relativeError;
+                    //                    minErrorElevation = elevationAngles.at( i );
                 }
                 counter++;
             }

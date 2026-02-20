@@ -35,10 +35,9 @@ namespace shape
 
 void expose_shape_setup( py::module &m )
 {
-    py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >(
-            m,
-            "BodyShapeSettings",
-            R"doc(
+    py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >( m,
+                                                                                     "BodyShapeSettings",
+                                                                                     R"doc(
 
          Base class for providing settings for body shape model.
 
@@ -76,11 +75,10 @@ void expose_shape_setup( py::module &m )
          :type: float
       )doc" );
 
-    py::class_< tss::OblateSphericalBodyShapeSettings,
-                std::shared_ptr< tss::OblateSphericalBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "OblateSphericalBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::OblateSphericalBodyShapeSettings, std::shared_ptr< tss::OblateSphericalBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "OblateSphericalBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a oblate spherical body shape.
 
@@ -113,11 +111,10 @@ void expose_shape_setup( py::module &m )
          :type: float
       )doc" );
 
-    py::class_< tss::PolyhedronBodyShapeSettings,
-                std::shared_ptr< tss::PolyhedronBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "PolyhedronBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::PolyhedronBodyShapeSettings, std::shared_ptr< tss::PolyhedronBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "PolyhedronBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a polyhedron body shape.
 
@@ -177,11 +174,10 @@ void expose_shape_setup( py::module &m )
          :type: bool, default=False
       )doc" );
 
-    py::class_< tss::HybridBodyShapeSettings,
-                std::shared_ptr< tss::HybridBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "HybridBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::HybridBodyShapeSettings, std::shared_ptr< tss::HybridBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "HybridBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a hybrid body shape.
 
@@ -256,8 +252,6 @@ void expose_shape_setup( py::module &m )
 
 
 
-
-
  Examples
  --------
  In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
@@ -313,7 +307,15 @@ void expose_shape_setup( py::module &m )
 
     m.def( "oblate_spherical_spice",
            &tss::fromSpiceOblateSphericalBodyShapeSettings,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+Function for creating oblate spherical body shape model settings entirely from spice.
+Returns
+-------
+BodyShapeSettings
+    Instance of :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` class
+
+
+)doc" );
 
     m.def( "polyhedron",
            &tss::polyhedronBodyShapeSettings,

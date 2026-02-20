@@ -45,8 +45,6 @@ namespace electromagnetism
 
 typedef std::vector< std::pair< double, Eigen::Vector3d > > IrradianceWithSourceList;
 
-class SourcePanelRadiosityModelUpdater;
-
 /*!
  * Class modeling a body that emits electromagnetic radiation, used for radiation pressure calculations.
  *
@@ -59,7 +57,7 @@ class SourcePanelRadiosityModelUpdater;
 class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceModel( const std::string& sourceName = "" ): sourceName_( sourceName ) { }
+    explicit RadiationSourceModel( const std::string& sourceName = "" ): sourceName_( sourceName ) {}
 
     virtual ~RadiationSourceModel( ) = default;
 
@@ -95,7 +93,7 @@ public:
     }
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
 
@@ -123,7 +121,7 @@ public:
     explicit IsotropicPointRadiationSourceModel( const std::shared_ptr< LuminosityModel >& luminosityModel,
                                                  const std::string& sourceName = "" ):
         RadiationSourceModel( sourceName ), luminosityModel_( luminosityModel )
-    { }
+    {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
@@ -241,6 +239,78 @@ private:
     std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels_;
 };
 
+class SourcePanelRadiosityModelUpdater
+{
+public:
+    /*!
+     * Constructor.
+     *
+     * @param sourcePositionFunction Function to get source position (global frame)
+     * @param sourceRotationFromLocalToGlobalFrameFunction Function to get source local to global rotation
+     * @param originalSourceModels Isostropic point source models of the original sources
+     * @param originalSourceBodyShapeModels Body shape models of the original sources
+     * @param originalSourcePositionFunctions Functions to get original source positions (global frame)
+     * @param originalSourceToSourceOccultationModels Occultation models between original sources and source
+     */
+    explicit SourcePanelRadiosityModelUpdater(
+            const std::function< Eigen::Vector3d( ) >& sourcePositionFunction,
+            const std::function< Eigen::Quaterniond( ) >& sourceRotationFromLocalToGlobalFrameFunction,
+            const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels,
+            const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels,
+            const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions,
+            const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels ):
+        sourcePositionFunction_( sourcePositionFunction ),
+        sourceRotationFromLocalToGlobalFrameFunction_( sourceRotationFromLocalToGlobalFrameFunction ),
+        originalSourceModels_( originalSourceModels ), originalSourceBodyShapeModels_( originalSourceBodyShapeModels ),
+        originalSourcePositionFunctions_( originalSourcePositionFunctions ),
+        originalSourceToSourceOccultationModels_( originalSourceToSourceOccultationModels )
+    {
+        for( const auto& kv : originalSourceToSourceOccultationModels_ )
+        {
+            auto originalSourceBodyName = kv.first;
+            originalSourceBodyNames_.push_back( originalSourceBodyName );
+
+            auto occultingBodyNames = kv.second->getOccultingBodyNames( );
+            originalSourceToSourceOccultingBodyNames_.insert( occultingBodyNames.begin( ), occultingBodyNames.end( ) );
+        }
+    }
+
+    /*!
+     * Update class members.
+     *
+     * @param currentTime Current simulation time
+     */
+    void updateMembers( double currentTime );
+
+    void updatePanel( RadiationSourcePanel& panel );
+
+    const std::vector< std::string >& getOriginalSourceBodyNames( ) const
+    {
+        return originalSourceBodyNames_;
+    }
+
+    const std::set< std::string >& getOriginalSourceToSourceOccultingBodyNames( ) const
+    {
+        return originalSourceToSourceOccultingBodyNames_;
+    }
+
+private:
+    std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
+    std::function< Eigen::Quaterniond( ) > sourceRotationFromLocalToGlobalFrameFunction_;
+
+    std::vector< std::string > originalSourceBodyNames_;
+    std::set< std::string > originalSourceToSourceOccultingBodyNames_;
+    std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > > originalSourceModels_;
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > > originalSourceBodyShapeModels_;
+    std::map< std::string, std::function< Eigen::Vector3d( ) > > originalSourcePositionFunctions_;
+    std::map< std::string, std::shared_ptr< OccultationModel > > originalSourceToSourceOccultationModels_;
+
+    std::map< std::string, Eigen::Vector3d > originalSourceToSourceCenterDirections_;  // in source frame
+    std::map< std::string, double > originalSourceUnoccultedIrradiances_;
+
+    double currentTime_{ TUDAT_NAN };
+};
+
 //*********************************************************************************************
 //   Paneled radiation source
 //*********************************************************************************************
@@ -269,7 +339,7 @@ public:
                                           const std::string& sourceName = "" ):
         RadiationSourceModel( sourceName ), sourceBodyShapeModel_( sourceBodyShapeModel ),
         sourcePanelRadiosityModelUpdater_( std::move( sourcePanelRadiosityModelUpdater ) )
-    { }
+    {}
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
@@ -277,7 +347,9 @@ public:
     explicit PaneledRadiationSourceModel( std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
                                           const std::string& sourceName = "" ):
         PaneledRadiationSourceModel( nullptr, std::move( sourcePanelRadiosityModelUpdater ), sourceName )
-    { }
+    {}
+
+    ~PaneledRadiationSourceModel( ) override;
 
     IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
@@ -342,7 +414,7 @@ public:
                                                     const std::string& sourceName = "" ):
         PaneledRadiationSourceModel( std::move( sourcePanelRadiosityModelUpdater ) ), numberOfPanels( panels.size( ) ),
         panels_( std::move( panels ) )
-    { }
+    {}
 
     /*!
      * Constructor for automatic generation of panels.
@@ -426,78 +498,6 @@ private:
     const std::vector< int > numberOfPanelsPerRing_;
 
     std::vector< RadiationSourcePanel > panels_;
-};
-
-class SourcePanelRadiosityModelUpdater
-{
-public:
-    /*!
-     * Constructor.
-     *
-     * @param sourcePositionFunction Function to get source position (global frame)
-     * @param sourceRotationFromLocalToGlobalFrameFunction Function to get source local to global rotation
-     * @param originalSourceModels Isostropic point source models of the original sources
-     * @param originalSourceBodyShapeModels Body shape models of the original sources
-     * @param originalSourcePositionFunctions Functions to get original source positions (global frame)
-     * @param originalSourceToSourceOccultationModels Occultation models between original sources and source
-     */
-    explicit SourcePanelRadiosityModelUpdater(
-            const std::function< Eigen::Vector3d( ) >& sourcePositionFunction,
-            const std::function< Eigen::Quaterniond( ) >& sourceRotationFromLocalToGlobalFrameFunction,
-            const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels,
-            const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels,
-            const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions,
-            const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels ):
-        sourcePositionFunction_( sourcePositionFunction ),
-        sourceRotationFromLocalToGlobalFrameFunction_( sourceRotationFromLocalToGlobalFrameFunction ),
-        originalSourceModels_( originalSourceModels ), originalSourceBodyShapeModels_( originalSourceBodyShapeModels ),
-        originalSourcePositionFunctions_( originalSourcePositionFunctions ),
-        originalSourceToSourceOccultationModels_( originalSourceToSourceOccultationModels )
-    {
-        for( const auto& kv: originalSourceToSourceOccultationModels_ )
-        {
-            auto originalSourceBodyName = kv.first;
-            originalSourceBodyNames_.push_back( originalSourceBodyName );
-
-            auto occultingBodyNames = kv.second->getOccultingBodyNames( );
-            originalSourceToSourceOccultingBodyNames_.insert( occultingBodyNames.begin( ), occultingBodyNames.end( ) );
-        }
-    }
-
-    /*!
-     * Update class members.
-     *
-     * @param currentTime Current simulation time
-     */
-    void updateMembers( double currentTime );
-
-    void updatePanel( RadiationSourcePanel& panel );
-
-    const std::vector< std::string >& getOriginalSourceBodyNames( ) const
-    {
-        return originalSourceBodyNames_;
-    }
-
-    const std::set< std::string >& getOriginalSourceToSourceOccultingBodyNames( ) const
-    {
-        return originalSourceToSourceOccultingBodyNames_;
-    }
-
-private:
-    std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
-    std::function< Eigen::Quaterniond( ) > sourceRotationFromLocalToGlobalFrameFunction_;
-
-    std::vector< std::string > originalSourceBodyNames_;
-    std::set< std::string > originalSourceToSourceOccultingBodyNames_;
-    std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > > originalSourceModels_;
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > > originalSourceBodyShapeModels_;
-    std::map< std::string, std::function< Eigen::Vector3d( ) > > originalSourcePositionFunctions_;
-    std::map< std::string, std::shared_ptr< OccultationModel > > originalSourceToSourceOccultationModels_;
-
-    std::map< std::string, Eigen::Vector3d > originalSourceToSourceCenterDirections_;  // in source frame
-    std::map< std::string, double > originalSourceUnoccultedIrradiances_;
-
-    double currentTime_{ TUDAT_NAN };
 };
 
 /*!

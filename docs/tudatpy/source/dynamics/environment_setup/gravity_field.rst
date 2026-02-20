@@ -48,10 +48,7 @@ In Tudat, the gravity field itself is not directly responsible for providing the
 * Point-mass gravity field: mass computed from gravitational parameter; zero inertia tensor, and center of mass at origin of body-fixed frame
 * Spherical harmonic gravity field: mass computed from gravitational parameter, center of mass computed from degree 1 gravity field coefficients, inertia tensor as described in :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (only if the :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` is set)
 * Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
-
-
-
-
+* Ring gravity field model: mass computed from gravitational parameter; zero inertia tensor, and center of mass at origin of body-fixed frame
 
 
 
@@ -92,6 +89,8 @@ Functions
 
    polyhedron_from_density
 
+   ring_model
+
    sbdb_wrapper.central_sbdb
 
    sbdb_wrapper.central_sbdb_density
@@ -114,6 +113,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_mu
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_density
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.ring_model
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb
 

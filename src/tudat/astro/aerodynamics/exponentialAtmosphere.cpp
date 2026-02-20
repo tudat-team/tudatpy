@@ -29,7 +29,7 @@ ExponentialAtmosphere::ExponentialAtmosphere( const BodiesWithPredefinedExponent
             scaleHeight_ = 7.200e3;
 
             // Set density at zero altitude.
-            densityAtZeroAltitude_ = 1.225;
+            baseDensity_ = 1.225;
 
             // Set atmosphere temperature.
             constantTemperature_ = 246.0;
@@ -49,7 +49,7 @@ ExponentialAtmosphere::ExponentialAtmosphere( const BodiesWithPredefinedExponent
             scaleHeight_ = 11.100e3;
 
             // Set density at zero altitude.
-            densityAtZeroAltitude_ = 0.02;
+            baseDensity_ = 0.02;
 
             // Set atmosphere temperature.
             constantTemperature_ = 215.0;

@@ -27,6 +27,11 @@ string(
 project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Set position independent code [From tudat cmake]
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
@@ -317,7 +322,7 @@ else ()
 endif ()
 
 if (UNIX OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
 # Get tudat resource manager dependency.
@@ -329,7 +334,7 @@ include_directories(TudatResources_INCLUDE_DIRS)
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 if (APPLE OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
 # PAGMO dependency
@@ -373,7 +378,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
         include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
         set(
             CMAKE_CXX_FLAGS
-            "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\""
+            "${CMAKE_CXX_FLAGS} -I\"${FFTW3_INCLUDE_DIR}\""
         )
         set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
         add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
@@ -386,6 +391,34 @@ endif( )
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
+
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
+
+if(TUDAT_BUILD_WITH_MCD)
+    # Enable Fortran language
+    enable_language(Fortran)
+    
+    # Find NetCDF (required for MCD)
+    find_package(NetCDF REQUIRED COMPONENTS Fortran C)
+    
+    if(NOT NetCDF_FOUND)
+        message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
+                           "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
+    endif()
+    
+    message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
+    message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
+    message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
+    
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+else()
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
 set(Boost_USE_STATIC_LIBS OFF)
@@ -400,6 +433,35 @@ include(YOLOProjectAddExternalData)
 
 # Define list of libraries in tudat and run setup for submodules
 include(TudatLinkLibraries)
+
+# Build MCD library if enabled (must be AFTER TudatLinkLibraries)
+if(TUDAT_BUILD_WITH_MCD)
+    set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
+    add_subdirectory(${MCD_SOURCE_DIR})
+    
+    # Set MCD data directory path
+    set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
+    target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
+    
+    message(STATUS "MCD: Library configured successfully")
+    message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
+endif()
+
+# Set up config.hpp file BEFORE building subdirectories
+file(
+    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
+    "${CMAKE_INSTALL_PREFIX}"
+    "${INSTALL_DATA_DIR}/tudat"
+)
+
+configure_file(
+    "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
+    "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
+)
+
+include_directories("${PROJECT_BINARY_DIR}/include")
+
+# Add Tudat subdirectories
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -417,18 +479,6 @@ endif()
 
 # Additional contents from original tudat cmake
 # ========================================================================
-
-file(
-    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    "${INSTALL_DATA_DIR}/tudat"
-)
-
-# Set up config.hpp file of tudat for current version
-configure_file(
-        "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-)
 
 # Installation of the header files.
 install(

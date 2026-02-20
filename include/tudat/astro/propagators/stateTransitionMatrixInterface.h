@@ -51,7 +51,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~CombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    virtual ~CombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
     /*!
@@ -151,7 +151,7 @@ public:
     }
 
     //! Destructor.
-    ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -319,7 +319,7 @@ public:
     }
 
     //! Destructor
-    ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -371,7 +371,7 @@ public:
         lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
 
         lookUpschemePerBody_.clear( );
-        for( auto itr: arcStartTimesPerBody_ )
+        for( auto itr : arcStartTimesPerBody_ )
         {
             std::vector< double > arcSplitTimes = itr.second.first;
             arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
@@ -436,8 +436,8 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
                 ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                    " & " + arcDefiningBodies.at( 0 ) + "." );
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                                          " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ] != -1 )
             {
@@ -469,10 +469,9 @@ public:
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
-
 
             if( addCentralBodyDependency )
             {
@@ -537,7 +536,7 @@ public:
         {
             std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > >
                     arcWiseAndFullSolutionIndices = arcWiseAndFullSolutionInitialStateIndices_.at( currentArc );
-            for( auto itr: arcWiseAndFullSolutionIndices )
+            for( auto itr : arcWiseAndFullSolutionIndices )
             {
                 std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
                 std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
@@ -551,7 +550,7 @@ public:
                                                              indicesInArcWiseSolution.second,
                                                              indicesInArcWiseSolution.second );
 
-                for( auto itr2: arcWiseAndFullSolutionIndices )
+                for( auto itr2 : arcWiseAndFullSolutionIndices )
                 {
                     if( itr2.first != itr.first )
                     {
@@ -774,7 +773,7 @@ protected:
 
     void getArcStartTimesPerBody( )
     {
-        for( auto itr: estimatedBodiesPerArc_ )
+        for( auto itr : estimatedBodiesPerArc_ )
         {
             for( unsigned int i = 0; i < itr.second.size( ); i++ )
             {
@@ -800,7 +799,7 @@ protected:
             }
         }
 
-        for( auto itr: arcStartTimesPerBody_ )
+        for( auto itr : arcStartTimesPerBody_ )
         {
             std::vector< double > arcSplitTimes = itr.second.first;
             arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
@@ -923,7 +922,7 @@ public:
     }
 
     //! Destructor
-    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to get the size of the total parameter vector.
     /*!
@@ -961,8 +960,8 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) &&
                 ( currentArcsDefinedByEachBody[ i ].first != -1 ) && ( currentArcsDefinedByEachBody[ 0 ].first != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                    " & " + arcDefiningBodies.at( 0 ) + "." );
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                                          " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ].first != -1 )
             {
@@ -1123,7 +1122,7 @@ public:
                             multiArcInterface_->getArcWiseAndFullSolutionInitialStateIndices( ).at( currentArc.first );
 
             // Set multi-arc block
-            for( auto itr: arcWiseAndFullSolutionIndices )
+            for( auto itr : arcWiseAndFullSolutionIndices )
             {
                 std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
                 std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
@@ -1164,7 +1163,7 @@ public:
                                                              fullSensitivityMatrixSize );
 
                 // Set multi-arc block (other bodies)
-                for( auto itr2: arcWiseAndFullSolutionIndices )
+                for( auto itr2 : arcWiseAndFullSolutionIndices )
                 {
                     if( itr2.first != itr.first )
                     {

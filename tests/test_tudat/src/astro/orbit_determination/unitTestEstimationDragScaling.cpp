@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
 
         std::vector< double > observationTimes;
         double dataPointInterval = 120.;
-        for( int k = 0; k < integrationArcStartTimes.size( ); k++ )
+        for( unsigned int k = 0; k < integrationArcStartTimes.size( ); k++ )
         {
             double currentTime = integrationArcStartTimes.at( k ) + 300.0;
             while( currentTime < integrationArcEndTimes.at( k ) - 300.0 )
