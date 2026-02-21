@@ -18,6 +18,14 @@
 #include "tudat/math/root_finders/createRootFinder.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
+#include <iostream>
+
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+
 namespace tudat
 {
 
@@ -63,6 +71,21 @@ public:
     //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
     //! on the first step where it is violated.
     bool checkTerminationToExactCondition_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationTerminationSettings( ):
+        terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( terminationType_, checkTerminationToExactCondition_ );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -89,6 +112,22 @@ public:
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationTimeTerminationSettings( ):
+        PropagationTerminationSettings( ), terminationTime_( 0.0 )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ),
+            terminationTime_ );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time
@@ -113,6 +152,22 @@ public:
 
     //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
     double cpuTerminationTime_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationCPUTimeTerminationSettings( ):
+        PropagationTerminationSettings( ), cpuTerminationTime_( 0.0 )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ),
+            cpuTerminationTime_ );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a
@@ -170,6 +225,24 @@ public:
 
     //! Settings to create root finder used to converge on exact final condition.
     std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationDependentVariableTerminationSettings( ):
+        PropagationTerminationSettings( ), dependentVariableSettings_( nullptr ),
+        limitValue_( 0.0 ), useAsLowerLimit_( false ), terminationRootFinderSettings_( nullptr )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ),
+            dependentVariableSettings_, limitValue_, useAsLowerLimit_,
+            terminationRootFinderSettings_ );
+    }
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation based on custom requirements
@@ -200,6 +273,23 @@ public:
 
     //! Custom temination function.
     std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationCustomTerminationSettings( ):
+        PropagationTerminationSettings( ), checkStopCondition_( nullptr )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        std::cerr << "Warning: serializing/deserializing PropagationCustomTerminationSettings, "
+                  << "std::function member 'checkStopCondition_' will not be preserved." << std::endl;
+    }
 };
 
 //! Class for propagation stopping conditions settings: combination of other stopping conditions.
@@ -242,6 +332,22 @@ public:
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.
     bool fulfillSingleCondition_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    PropagationHybridTerminationSettings( ):
+        PropagationTerminationSettings( ), terminationSettings_( ), fulfillSingleCondition_( false )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ),
+            terminationSettings_, fulfillSingleCondition_ );
+    }
 };
 
 //! Class for propagation stopping conditions settings: combination of two stopping conditions.
@@ -274,6 +380,23 @@ public:
 
     //! Termination settings for backward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    NonSequentialPropagationTerminationSettings( ):
+        PropagationTerminationSettings( ), forwardTerminationSettings_( nullptr ),
+        backwardTerminationSettings_( nullptr )
+    { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ),
+            forwardTerminationSettings_, backwardTerminationSettings_ );
+    }
 };
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVariableTerminationSettings(
@@ -328,5 +451,20 @@ inline std::shared_ptr< PropagationTerminationSettings > nonSequentialPropagatio
 }  // namespace propagators
 
 }  // namespace tudat
+
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTimeTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCPUTimeTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationDependentVariableTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCustomTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::PropagationHybridTerminationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::NonSequentialPropagationTerminationSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationTimeTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationCPUTimeTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationDependentVariableTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationCustomTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationHybridTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::NonSequentialPropagationTerminationSettings )
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

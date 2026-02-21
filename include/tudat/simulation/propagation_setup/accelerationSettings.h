@@ -12,7 +12,13 @@
 #define TUDAT_ACCELERATIONSETTINGS_H
 
 #include <functional>
+#include <iostream>
 #include <memory>
+
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
@@ -57,6 +63,19 @@ public:
 
     // Type of acceleration from AvailableAcceleration enum.
     basic_astrodynamics::AvailableAcceleration accelerationType_;
+
+protected:
+    // Default constructor for serialization
+    AccelerationSettings( ): accelerationType_( basic_astrodynamics::undefined_acceleration ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( accelerationType_ );
+    }
 };
 
 class RadiationPressureAccelerationSettings : public AccelerationSettings
@@ -80,6 +99,20 @@ public:
     virtual ~RadiationPressureAccelerationSettings( ) { }
 
     RadiationPressureTargetModelType targetModelType_;
+
+protected:
+    // Default constructor for serialization
+    RadiationPressureAccelerationSettings( int ): targetModelType_( undefined_target ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( targetModelType_ );
+    }
 };
 
 inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType )
@@ -144,6 +177,22 @@ public:
     int maximumOrder_;
 
     bool removePointMass_;
+
+protected:
+    // Default constructor for serialization
+    SphericalHarmonicAccelerationSettings( ): maximumDegree_( 0 ), maximumOrder_( 0 ), removePointMass_( false ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( maximumDegree_ );
+        ar( maximumOrder_ );
+        ar( removePointMass_ );
+    }
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
@@ -203,6 +252,28 @@ public:
 
     // Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+
+protected:
+    // Default constructor for serialization
+    MutualSphericalHarmonicAccelerationSettings( ):
+        maximumDegreeOfBodyExertingAcceleration_( 0 ), maximumOrderOfBodyExertingAcceleration_( 0 ),
+        maximumDegreeOfBodyUndergoingAcceleration_( 0 ), maximumOrderOfBodyUndergoingAcceleration_( 0 ),
+        maximumDegreeOfCentralBody_( 0 ), maximumOrderOfCentralBody_( 0 ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( maximumDegreeOfBodyExertingAcceleration_ );
+        ar( maximumOrderOfBodyExertingAcceleration_ );
+        ar( maximumDegreeOfBodyUndergoingAcceleration_ );
+        ar( maximumOrderOfBodyUndergoingAcceleration_ );
+        ar( maximumDegreeOfCentralBody_ );
+        ar( maximumOrderOfCentralBody_ );
+    }
 };
 
 //! @get_docstring(mutualSphericalHarmonicAcceleration)
@@ -282,6 +353,26 @@ public:
 
     // Constant angular momentum of central body
     Eigen::Vector3d centralBodyAngularMomentum_;
+
+protected:
+    // Default constructor for serialization
+    RelativisticAccelerationCorrectionSettings( int ):
+        calculateSchwarzschildCorrection_( false ), calculateLenseThirringCorrection_( false ),
+        calculateDeSitterCorrection_( false ), centralBodyAngularMomentum_( Eigen::Vector3d::Zero( ) ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( calculateSchwarzschildCorrection_ );
+        ar( calculateLenseThirringCorrection_ );
+        ar( calculateDeSitterCorrection_ );
+        ar( primaryBody_ );
+        ar( centralBodyAngularMomentum_ );
+    }
 };
 
 //! @get_docstring(relativisticAccelerationCorrection)
@@ -331,6 +422,24 @@ public:
 
     // Acceleration (in RSW frame) that scales with cosine of true anomaly
     Eigen::Vector3d cosineAcceleration_;
+
+protected:
+    // Default constructor for serialization
+    EmpiricalAccelerationSettings( int ):
+        constantAcceleration_( Eigen::Vector3d::Zero( ) ), sineAcceleration_( Eigen::Vector3d::Zero( ) ),
+        cosineAcceleration_( Eigen::Vector3d::Zero( ) ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( constantAcceleration_ );
+        ar( sineAcceleration_ );
+        ar( cosineAcceleration_ );
+    }
 };
 
 //! @get_docstring(empiricalAcceleration)
@@ -359,6 +468,20 @@ public:
 
     // Yarkovsky parameter (A2) au d^{-1}
     double yarkovskyParameter_;
+
+protected:
+    // Default constructor for serialization
+    YarkovskyAccelerationSettings( int ): yarkovskyParameter_( 0.0 ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( yarkovskyParameter_ );
+    }
 };
 
 //! @get_docstring(yarkovskyAcceleration)
@@ -500,6 +623,18 @@ public:
 
     bool useAllEngines_;
 
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( engineIds_ );
+        ar( useAllEngines_ );
+    }
+
+public:
     template< typename ReturnType >
     ReturnType printDeprecationError( )
     {
@@ -604,6 +739,21 @@ public:
     { }
 
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
+
+protected:
+    // Default constructor for serialization
+    CustomAccelerationSettings( int ): accelerationFunction_( nullptr ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        // Warning: std::function member cannot be serialized
+        std::cerr << "Warning: serializing/deserializing CustomAccelerationSettings, std::function member 'accelerationFunction_' will not be preserved." << std::endl;
+    }
 };
 
 //! @get_docstring(customAccelerationSettings)
@@ -636,6 +786,23 @@ public:
     const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
     const double decayScaleFactor_;
     const double referenceEpoch_;
+
+protected:
+    // Default constructor for serialization
+    RTGAccelerationSettings( int ):
+        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( const_cast< Eigen::Vector3d& >( bodyFixedForceVectorAtReferenceEpoch_ ) );
+        ar( const_cast< double& >( decayScaleFactor_ ) );
+        ar( const_cast< double& >( referenceEpoch_ ) );
+    }
 };
 
 
@@ -731,6 +898,28 @@ public:
     bool useTideRaisedOnPlanet_;
 
     bool explicitLibraionalTideOnSatellite_;
+
+protected:
+    // Default constructor for serialization
+    DirectTidalDissipationAccelerationSettings( int ):
+        k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( k2LoveNumber_ );
+        ar( timeLag_ );
+        ar( inverseTidalQualityFactor_ );
+        ar( tidalPeriod_ );
+        ar( includeDirectRadialComponent_ );
+        ar( useTideRaisedOnPlanet_ );
+        ar( explicitLibraionalTideOnSatellite_ );
+    }
 };
 
 //! @get_docstring(directTidalDissipationAcceleration)
@@ -797,6 +986,23 @@ public:
 
     // Desaturation maneuvers rise time.
     double maneuverRiseTime_;
+
+protected:
+    // Default constructor for serialization
+    MomentumWheelDesaturationAccelerationSettings( int ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( thrustMidTimes_ );
+        ar( deltaVValues_ );
+        ar( totalManeuverTime_ );
+        ar( maneuverRiseTime_ );
+    }
 };
 
 //! @get_docstring(momentumWheelDesaturationAcceleration)
@@ -818,5 +1024,41 @@ typedef std::map< std::string, std::vector< std::pair< std::string, std::shared_
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::AccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::RadiationPressureAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::EmpiricalAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::YarkovskyAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::ThrustAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::RTGAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::RadiationPressureAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::EmpiricalAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::YarkovskyAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::ThrustAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::CustomAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::RTGAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings )
 
 #endif  // TUDAT_ACCELERATIONSETTINGS_H

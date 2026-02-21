@@ -11,6 +11,13 @@
 #ifndef TUDAT_TORQUESETTINGS_H
 #define TUDAT_TORQUESETTINGS_H
 
+#include <boost/tuple/tuple.hpp>
+#include <iostream>
+
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
 namespace tudat
@@ -47,6 +54,19 @@ public:
 
     // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
+
+protected:
+    // Default constructor for serialization
+    TorqueSettings( ): torqueType_( basic_astrodynamics::underfined_torque ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( torqueType_ );
+    }
 };
 
 // Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
@@ -70,6 +90,21 @@ public:
 
     // Maximum order to which gravity field of body undergoing torque is to be exerted
     int maximumOrder_;
+
+protected:
+    // Default constructor for serialization
+    SphericalHarmonicTorqueSettings( ): maximumDegree_( 0 ), maximumOrder_( 0 ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        ar( maximumDegree_ );
+        ar( maximumOrder_ );
+    }
 };
 
 inline Eigen::Vector3d applyTorqueScalingFunction( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
@@ -94,6 +129,21 @@ public:
     {}
 
     std::function< Eigen::Vector3d( const double ) > torqueFunction_;
+
+protected:
+    // Default constructor for serialization
+    CustomTorqueSettings( ): torqueFunction_( nullptr ) {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        // Warning: std::function member cannot be serialized
+        std::cerr << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved." << std::endl;
+    }
 };
 
 //! @get_docstring(aerodynamicTorque)
@@ -143,5 +193,14 @@ typedef std::map< std::string, std::map< std::string, std::vector< std::shared_p
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::TorqueSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomTorqueSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
+                                      tudat::simulation_setup::SphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
+                                      tudat::simulation_setup::CustomTorqueSettings )
 
 #endif  // TUDAT_TORQUESETTINGS_H
