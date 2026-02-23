@@ -196,7 +196,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "processed_odf_file" ),
            py::arg( "observable_types_to_process" ),
            py::arg( "start_and_end_times_to_process" ),
-           py::arg("allow_duplicate_observations_within_single_set") = false,
+           py::arg("allow_duplicate_observations_within_single_set") = true,
            R"doc(
         Creates an observation collection containing the provided ODF data.
 
@@ -211,7 +211,7 @@ void expose_observations_wrapper( py::module &m )
         start_and_end_times_to_process : tuple[float, float]
             Start and end times of the data to process.
         allow_duplicate_observations_within_single_set: bool
-            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation
+            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
 
 
         Returns
@@ -227,7 +227,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "target_name" ),
            py::arg( "verbose_output" ) = true,
            py::arg( "earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
-           py::arg("allow_duplicate_observations_within_single_set") = false,
+           py::arg("allow_duplicate_observations_within_single_set") = true,
            R"doc(
         Create an observation collection from ODF files.
 
@@ -246,7 +246,7 @@ void expose_observations_wrapper( py::module &m )
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
         allow_duplicate_observations_within_single_set: bool
-            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation
+            Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
 
         Returns
         -------
