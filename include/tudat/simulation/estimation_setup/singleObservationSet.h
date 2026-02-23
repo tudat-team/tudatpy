@@ -716,9 +716,12 @@ public:
             // Check if current observation time equals previous observation time
             if(observationTimes_[i] == observationTimes_[i-1])
             {
+                const double currentObsValue = observationTimes_[i];
+                const double previousObsValue = observationTimes_[i-1];
+
                 // Check if observation values are also identical (with relative tolerance)
-                if (std::abs(observations_[i] - observations_[i-1])
-                    <= 1e-12 * std::max(std::abs(observations_[i]), std::abs(observations_[i-1])))
+                if (std::abs(currentObsValue - previousObsValue)
+                    <= 1e-12 * std::max(std::abs(currentObsValue), std::abs(previousObsValue)))
                 {
                     // Mark current observation for removal
                     indicesToRemove.push_back(i);
