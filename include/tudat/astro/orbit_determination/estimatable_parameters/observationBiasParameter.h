@@ -22,6 +22,35 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Utility function to create more precise secondary identification string of observation bias parameters.
+inline std::string createObsBiasSecondaryIdentifier(
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkEnds& linkEnds )
+{
+    std::string transmitterStr = "None";
+    std::string receiverStr    = "None";
+
+    // Check if transmitter exists
+    auto transmitterIt = linkEnds.find( observation_models::transmitter );
+    if( transmitterIt != linkEnds.end( ) )
+    {
+        transmitterStr = transmitterIt->second.stationName_;
+    }
+
+    // Check if receiver exists
+    auto receiverIt = linkEnds.find( observation_models::receiver );
+    if( receiverIt != linkEnds.end( ) )
+    {
+        receiverStr = receiverIt->second.stationName_;
+    }
+
+    return transmitterStr + " --> " +
+           receiverStr + " , " +
+           observation_models::getObservableName( observableType );
+}
+
+
+
 //! Interface class for the estimation of a constant absolute or relative observation bias.
 /*!
  *  Interface class for the estimation of a constant absolute or relative observation bias (at given link ends and observable
@@ -48,7 +77,7 @@ public:
                                       const observation_models::ObservableType observableType,
                                       const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >( biasIsAbsolute ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                                 linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
+                                                 linkEnds.begin( )->second.bodyName_, createObsBiasSecondaryIdentifier(observableType, linkEnds) ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEnds_( linkEnds ), observableType_( observableType )
     { }
 
@@ -208,7 +237,7 @@ public:
                                      const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
                 biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
+                linkEnds.begin( )->second.bodyName_, createObsBiasSecondaryIdentifier(observableType, linkEnds)  ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {
