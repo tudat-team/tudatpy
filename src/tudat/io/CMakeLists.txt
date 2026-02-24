@@ -90,3 +90,7 @@ TUDAT_ADD_LIBRARY("input_output"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
+
+# Disable unity build: aerodynamicCoefficientReader.h contains template definitions
+# that cause redefinition errors when multiple TUs are merged.
+set_target_properties(tudat_input_output PROPERTIES UNITY_BUILD OFF)

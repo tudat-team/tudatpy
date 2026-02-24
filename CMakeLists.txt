@@ -27,6 +27,16 @@ string(
 project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
+# Enable ccache if available (dramatically speeds up rebuilds)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache: ${CCACHE_PROGRAM} — enabling compiler caching")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message(STATUS "ccache not found — install it for faster rebuilds")
+endif()
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -474,7 +484,16 @@ configure_file(
 
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-# Add Tudat subdirectories
+# +============================================================================
+# Unity build for C++ libraries (reduces header re-parsing across TUs)
+# Libraries are always built with unity for speed. Test targets disable it
+# (single .cpp each) and link the full library set to satisfy any transitive
+# dependencies that unity object files expose.
+# +============================================================================
+set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+
+# Add Tudat subdirectories (libraries — built with unity)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -482,6 +501,9 @@ add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
+
+# Turn off unity before tests (test executables are single .cpp files)
+set(CMAKE_UNITY_BUILD OFF)
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()
