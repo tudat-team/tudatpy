@@ -43,16 +43,8 @@ endfunction()
 #
 # Compiler detection
 #
-# Allow forcing of building with GNU or Clang (ignore detected)
-# NB: do not combine USE_XXX and detection cases in one multi-arg if
-# statement, we want overriding before detection.
-if( USE_CLANG )
-  message(STATUS "BOOST: Using clang.")
-  set( BOOST_BUILD_CLANG ON)
-elseif( USE_GNU )
-  message(STATUS "BOOST: Using gnu.")
-  set( BOOST_BUILD_GNU ON)
-elseif( "${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$" )
+# Use CMake-detected compiler ID.
+if( "${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$" )
   message(STATUS "BOOST: Using clang.")
   set( BOOST_BUILD_CLANG ON)
 elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )

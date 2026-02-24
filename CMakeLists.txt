@@ -56,8 +56,6 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 endif ()
 
 # +============================================================================
