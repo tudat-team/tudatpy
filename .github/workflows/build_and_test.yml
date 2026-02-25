@@ -130,16 +130,14 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
-      run: >
-        cmake -B "${{ github.workspace }}/build"
-        -S "${{ github.workspace }}"
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
-        #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
-        #-DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DTUDAT_BUILD_GITHUB_ACTIONS=ON
-        -DCMAKE_UNITY_BUILD=ON
+      run: |
+        cmake -B "${{ github.workspace }}/build" \
+          -S "${{ github.workspace }}" \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
+          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
+          -DTUDAT_BUILD_GITHUB_ACTIONS=ON \
+          -DCMAKE_UNITY_BUILD=ON
 
     - name: Debug
       run: |
