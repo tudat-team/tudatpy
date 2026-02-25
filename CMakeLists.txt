@@ -90,9 +90,9 @@ option(
     ON
 )
 option(
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    "Downloads and builds boost"
-    OFF
+    TUDAT_BUILD_WITH_PCH
+    "Enable precompiled headers for supported targets."
+    ON
 )
 option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
@@ -183,8 +183,6 @@ if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
     endif()
 endif()
 
-include(show_build_configuration)
-
 # +============================================================================
 # TUDAT DEFINITIONS (Based on user configuration)
 # +============================================================================
@@ -256,31 +254,6 @@ set(
 #     # Add the unit test framework, if needed.
 #     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
 # endif ()
-
-# Download boost if option is used.
-if (
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-)
-    set(TUDAT_DOWNLOAD_AND_BUILD_BOOST ON)
-    # Set the required boost components (for tudat)
-    set(BoostComponents ${_TUDAT_REQUIRED_BOOST_LIBS})
-    # Pick a boost version
-    if (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-        set(BoostVersion ${TUDAT_BOOST_VERSION})
-        set(BoostSHA1 ${TUDAT_BOOST_SHA1})
-    else ()
-        set(BoostVersion 1.67.0)
-        set(BoostSHA1 694ae3f4f899d1a80eb7a3b31b33be73c423c1ae)
-    endif ()
-    message(STATUS "Downloading Boost Version ${BoostVersion}")
-    include(cmake_modules/add_boost.cmake)
-    message(STATUS "Downloading Boost Version ${BoostVersion} - done")
-    #    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
-    #    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-endif ()
 
 # Set cmake build-type.
 # If not supplied by the user (either directly as an argument of through
@@ -494,6 +467,8 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # +============================================================================
 set(CMAKE_UNITY_BUILD ON)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+
+include(show_build_configuration)
 
 # Add Tudat subdirectories (libraries — built with unity)
 add_subdirectory(src/tudat/astro)

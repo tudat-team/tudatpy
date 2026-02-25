@@ -82,14 +82,13 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         target_link_libraries("${target_name}"
                 PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
                 PRIVATE "${Boost_LIBRARIES}"
-                    $<$<PLATFORM_ID:Linux>:-Wl,--start-group> ${Tudat_ESTIMATION_LIBRARIES} $<$<PLATFORM_ID:Linux>:-Wl,--end-group>
+                    ${Tudat_ESTIMATION_LIBRARIES}
                 )
 
-        # ---- Test build speed optimizations ----
-        # Tests only need correctness, not runtime speed. -O0 cuts compile
-        # time 2-4x vs -O2 for template-heavy simulation test files.
+        # Keep project optimization policy by configuration.
         target_compile_options(${target_name} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-O0>)
+            $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Debug>>:-O0>
+            $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Release>>:-O3>)
 
         #==========================================================================
         # BUILD-TREE.

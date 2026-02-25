@@ -66,29 +66,23 @@ target_link_libraries(kernel PRIVATE
 # ---- Precompiled header for pybind11 bindings ----
 # These headers are included by virtually every binding .cpp file.
 # PCH eliminates redundant parsing across all 86+ translation units.
-target_precompile_headers(kernel PRIVATE
-    <pybind11/pybind11.h>
-    <pybind11/stl.h>
-    <pybind11/eigen.h>
-    <pybind11/functional.h>
-    <pybind11/numpy.h>
-    <pybind11/chrono.h>
-    <Eigen/Core>
-    <Eigen/Geometry>
-    <memory>
-    <vector>
-    <string>
-    <map>
-    <functional>
-)
-
-# ---- Optimization overrides for binding code ----
-# Pybind11 glue code gets negligible runtime benefit from heavy optimization
-# but pays enormous compile-time cost. Use -O1 for Debug, -O2 for Release.
-target_compile_options(kernel PRIVATE
-    $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Debug>>:-O1>
-    $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Release>>:-O2>
-)
+if (TUDAT_BUILD_WITH_PCH)
+    target_precompile_headers(kernel PRIVATE
+        <pybind11/pybind11.h>
+        <pybind11/stl.h>
+        <pybind11/eigen.h>
+        <pybind11/functional.h>
+        <pybind11/numpy.h>
+        <pybind11/chrono.h>
+        <Eigen/Core>
+        <Eigen/Geometry>
+        <memory>
+        <vector>
+        <string>
+        <map>
+        <functional>
+    )
+endif ()
 
 # Disable unity build for binding target (each file exposes unique symbols)
 set_target_properties(kernel PROPERTIES UNITY_BUILD OFF)
