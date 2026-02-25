@@ -82,13 +82,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         target_link_libraries("${target_name}"
                 PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
                 PRIVATE "${Boost_LIBRARIES}"
-                    ${Tudat_ESTIMATION_LIBRARIES}
                 )
-
-        # Keep project optimization policy by configuration.
-        target_compile_options(${target_name} PRIVATE
-            $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Debug>>:-O0>
-            $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Release>>:-O3>)
 
         #==========================================================================
         # BUILD-TREE.
