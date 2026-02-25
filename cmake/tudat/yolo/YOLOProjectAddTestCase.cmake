@@ -90,6 +90,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         set_target_properties(${target_name}
                 PROPERTIES
                 LINKER_LANGUAGE CXX
+                UNITY_BUILD OFF
                 ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
                 LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
                 RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/tests"

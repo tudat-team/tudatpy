@@ -458,13 +458,16 @@ configure_file(
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 # +============================================================================
-# Unity build for C++ libraries (reduces header re-parsing across TUs)
-# Libraries are always built with unity for speed. Test targets disable it
-# (single .cpp each) and link the full library set to satisfy any transitive
-# dependencies that unity object files expose.
+# Unity build for C++ libraries (reduces header re-parsing across TUs).
+# Respect user/cache values from -DCMAKE_UNITY_BUILD=... and only set defaults
+# when these variables are not provided.
 # +============================================================================
-set(CMAKE_UNITY_BUILD OFF)
-set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+if (NOT DEFINED CMAKE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD OFF)
+endif ()
+if (NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+endif ()
 
 include(show_build_configuration)
 
@@ -477,8 +480,6 @@ add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
 
-# Turn off unity before tests (test executables are single .cpp files)
-set(CMAKE_UNITY_BUILD OFF)
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()
