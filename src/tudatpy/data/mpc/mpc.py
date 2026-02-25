@@ -1352,12 +1352,28 @@ class BatchMPC:
             station_body: str = "Earth"
     ) -> observations.ObservationCollection:
         """
-        Creates a Tudat ObservationCollection from an Astropy table without requiring
-        a SystemOfBodies object.
+        Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
+        Unlike to_tudat(), it does not require a SystemOfBodies object as input.
 
-        NOTE: You must manually ensure that the ground stations (observatory codes)
-        and bodies (MPC numbers) referenced in this collection are added to your
-        simulation environment later.
+        This method is useful for creating observation collections when the environment
+        is not defined. Note that, when performing a simulation,
+        you must manually ensure that the ground stations (observatory codes)
+        and bodies (MPC numbers) referenced in this
+        collection are added to your simulation environment.
+
+        Parameters
+        ----------
+        table : astropy.table.Table | pd.DataFrame
+            The input table containing observations. Must include 'number',
+            'observatory', 'epoch', 'RA', and 'DEC' columns.
+        station_body : str, optional
+            The name of the body to which the ground stations (observatories)
+            are attached, by default "Earth".
+
+        Returns
+        -------
+        observations.ObservationCollection
+            A collection of observation sets grouped by link.
         """
 
         # 1. Convert Astropy Table to Pandas DataFrame for easier handling
