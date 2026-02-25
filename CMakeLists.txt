@@ -66,8 +66,6 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 endif ()
 
 # +============================================================================
@@ -465,7 +463,7 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # (single .cpp each) and link the full library set to satisfy any transitive
 # dependencies that unity object files expose.
 # +============================================================================
-set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
 
 include(show_build_configuration)

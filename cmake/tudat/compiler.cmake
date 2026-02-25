@@ -90,6 +90,12 @@
      add_compile_definitions(TUDAT_BUILD_CLANG)
      message(STATUS "Using clang compiler.")
 
+     # Ensure consistent optimization policy for Clang builds.
+     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+     set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
      # set default cmake c flags for clang
      set(CMAKE_C_FLAGS "-Wall -std=c11")
      set(CMAKE_C_FLAGS_DEBUG "-g")
@@ -219,10 +225,6 @@
                  endif ()
              endif ()
          endif ()
-         set(CMAKE_CXX_FLAGS_DEBUG "-g")
-         set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
      endif ()
 
  elseif (TUDAT_BUILD_GNU)
@@ -240,8 +242,8 @@
      endif ()
 
      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_DEBUG "-g")
+     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
 
@@ -367,7 +369,6 @@ if (MSVC)
   message(STATUS "Setting /bigobj")
   add_compile_options(/bigobj)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
 endif ()
 
@@ -376,4 +377,3 @@ endif ()
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
 message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}.")
-
