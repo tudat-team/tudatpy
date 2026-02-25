@@ -1349,11 +1349,17 @@ class BatchMPC:
     def create_observations_from_astropy_table(
             self,
             table,
-            station_body: str = "Earth"
+            station_body: str = "Earth",
+            apply_weights_VFCC17: bool = False,
+            apply_star_catalog_debias: bool = False,
+            debias_kwargs: dict = dict(),
     ) -> observations.ObservationCollection:
         """
         Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
         Unlike to_tudat(), it does not require a SystemOfBodies object as input.
+        Unlike to_tudat(), apply_weights_VFCC17 and apply_star_catalog_debias flags are set to False by default,
+        as users might have minimal tables available, which do not necessary contain all the fields required
+        by the batchMPC class (e.g. note1,note2, catalog, etc...)
 
         This method is useful for creating observation collections when the environment
         is not defined. Note that, when performing a simulation,
@@ -1376,62 +1382,52 @@ class BatchMPC:
             A collection of observation sets grouped by link.
         """
 
-        # 1. Convert Astropy Table to Pandas DataFrame for easier handling
+        # 1. Initialize internal table handling
+        # We temporarily use a BatchMPC instance to leverage existing logic
+        temp_batch = BatchMPC()
         if isinstance(table, Table):
-            df = table.to_pandas()
+            temp_batch.from_astropy(table)
         else:
-            df = table.copy()
+            temp_batch.from_pandas(table)
 
-        # 2. Ensure required columns exist
-        required_cols = ["number", "observatory", "epoch", "RA", "DEC"]
-        if not set(required_cols).issubset(df.columns):
-            raise ValueError(f"Table must contain columns: {required_cols}")
+        # 2. Apply Star Catalog Debias (EFCC18)
+        # Matches logic in to_tudat()
+        if apply_star_catalog_debias:
+            temp_batch._apply_EFCC18(**debias_kwargs)
+            RA_col = "RA_EFCC18"
+            DEC_col = "DEC_EFCC18"
+        else:
+            RA_col = "RA"
+            DEC_col = "DEC"
 
-        # 3. Pre-processing (ensure strings)
-        df["number"] = df["number"].astype(str)
-        df["observatory"] = df["observatory"].astype(str)
+        # 3. Apply Weighting (VFCC17)
+        # Matches logic in to_tudat()
+        if apply_weights_VFCC17:
+            weights_table = get_weights_VFCC17(
+                mpc_table=temp_batch.table,
+                return_full_table=True,
+            )
+            df = weights_table # Work with the table containing weights
+        else:
+            df = temp_batch.table.copy()
 
         # 4. Group by unique Link (Target Body + Observatory)
-        #    Tudat organizes observations by 'Observation Sets', where one set
-        #    corresponds to one link geometry (e.g. Eros observed by Station 703).
         unique_links = df.groupby(["number", "observatory"])
-
         observation_set_list = []
 
         for (mpc_code, observatory_code), group in unique_links:
-
-            # --- A. Define Link Ends using Strings ---
-            # We use string identifiers here. Tudat will look up these names
-            # in the environment during the estimation process.
+            # --- A. Define Link Ends ---
             link_ends = dict()
-
-            # Transmitter: The Asteroid/Comet (Body Origin)
-            link_ends[links.transmitter] = links.body_origin_link_end_id(mpc_code)
-
-            # Receiver: The Ground Station on Earth (Reference Point)
-            # Note: We assume the observatory code is the reference point name
+            link_ends[links.transmitter] = links.body_origin_link_end_id(str(mpc_code))
             link_ends[links.receiver] = links.body_reference_point_link_end_id(
-                station_body, observatory_code
+                station_body, str(observatory_code)
             )
-
             link_definition = links.link_definition(link_ends)
 
             # --- B. Extract Data ---
-            # Convert Julian Days (UTC) to seconds since J2000 (TDB)
-            time_scale_converter = time_representation.default_time_scale_converter()
-            epoch_seconds_TDB = np.array([
-                time_scale_converter.convert_time(
-                    input_scale=time_representation.utc_scale,
-                    output_scale=time_representation.tdb_scale,
-                    input_value=DateTime.from_julian_day(jd).epoch(),
-                )
-                for jd in group["epoch"]
-            ])
-
-            times = epoch_seconds_TDB
-
-                # Extract observables (RA/DEC in radians)
-            observables = group[["RA", "DEC"]].to_numpy()
+            # Use the pre-calculated TDB seconds from the internal processing
+            times = group["epoch_seconds_TDB"].to_numpy()
+            observables = group[[RA_col, DEC_col]].to_numpy()
 
             # --- C. Create SingleObservationSet ---
             observation_set = observations.create_single_observation_set(
@@ -1442,17 +1438,15 @@ class BatchMPC:
                 links.receiver
             )
 
-            # --- D. Handle Weights (Optional) ---
+            # --- D. Apply Weights ---
+            # Extract weights and flatten for Tudat (RA1, DEC1, RA2, DEC2...)
             if "weight" in group.columns:
                 weights = group["weight"].to_numpy()
-                # Weights in Tudat are a flat vector [w_ra_1, w_dec_1, w_ra_2, w_dec_2, ...]
-                # We repeat the weight for both RA and DEC
-                weights_flat = np.repeat(weights, 2)
+                weights_flat = np.ravel([weights, weights], "F")
                 observation_set.weights_vector = weights_flat
 
             observation_set_list.append(observation_set)
 
-        # 5. Return the Collection
         return observations.ObservationCollection(observation_set_list)
 
     def to_tudat(
