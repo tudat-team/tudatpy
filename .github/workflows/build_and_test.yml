@@ -139,6 +139,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
           -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
           -DTUDAT_BUILD_GITHUB_ACTIONS=ON \
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
           -DCMAKE_UNITY_BUILD=OFF
 
     - name: Debug
