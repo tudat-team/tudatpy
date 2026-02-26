@@ -79,8 +79,13 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                 "${TudatResources_INCLUDE_DIRS}"
                 )
 
+        set(test_private_links ${PARSED_ARGS_PRIVATE_LINKS})
+        if (CMAKE_UNITY_BUILD)
+            list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
+        endif ()
+
         target_link_libraries("${target_name}"
-                PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
+                PUBLIC ${test_private_links}
                 PRIVATE "${Boost_LIBRARIES}"
                 )
 
