@@ -255,8 +255,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         {
             for( int j = 0; j < currentMatrix.cols( ); j++ )
             {
-                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 3 ).norm( ) * 1.0E-10 );
-                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 3 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 1 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 1 ).norm( ) * 1.0E-10 );
             }
         }
     }
