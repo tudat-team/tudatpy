@@ -13,11 +13,6 @@
 #set(OBSERVATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/ObservationPartials")
 #set(LIGHTTIMECORRECTIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/LightTimeCorrectionPartials")
 
-# Add subdirectories.
-add_subdirectory(acceleration_partials)
-add_subdirectory(rotational_dynamics_partials)
-add_subdirectory(observation_partials)
-
 add_library(tudat_estimation_test_case_support
     executePlanetaryParameterEstimationTestCase.cpp
 )
@@ -40,6 +35,41 @@ target_include_directories(tudat_estimation_test_case_support SYSTEM PRIVATE
 target_link_libraries(tudat_estimation_test_case_support PUBLIC
     ${Tudat_ESTIMATION_LIBRARIES}
 )
+
+if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_ORBIT_DETERMINATION_TEST_PCH)
+    set_target_properties(tudat_estimation_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)
+    target_compile_options(tudat_estimation_test_case_support PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-fPIE>
+    )
+
+    target_precompile_headers(tudat_estimation_test_case_support PRIVATE
+        <tudat/simulation/environment_setup/createBodiesFactory.h>
+        <tudat/simulation/environment_setup/defaultBodies.h>
+        <tudat/simulation/environment_setup/createGroundStations.h>
+        <tudat/simulation/estimation_setup/createEstimatableParametersFactory.h>
+        <tudat/simulation/estimation_setup/createObservationModelFactory.h>
+        <tudat/simulation/estimation_setup/createNumericalSimulator.h>
+        <tudat/simulation/estimation_setup/orbitDeterminationManager.h>
+        <tudat/simulation/estimation_setup/podProcessing.h>
+        <tudat/simulation/estimation_setup/simulateObservations.h>
+        <tudat/astro/propagators/propagateCovariance.h>
+        <tudat/interface/spice/spiceInterface.h>
+        <Eigen/Core>
+        <Eigen/Geometry>
+        <limits>
+        <map>
+        <memory>
+        <string>
+        <thread>
+        <vector>
+    )
+    set(TUDAT_TEST_PCH_REUSE_TARGET tudat_estimation_test_case_support)
+endif ()
+
+# Add subdirectories.
+add_subdirectory(acceleration_partials)
+add_subdirectory(rotational_dynamics_partials)
+add_subdirectory(observation_partials)
 
 set(ORBIT_DETERMINATION_TEST_PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
@@ -220,4 +250,3 @@ TUDAT_ADD_TEST_CASE(EstimationDragScaling
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
  )
-

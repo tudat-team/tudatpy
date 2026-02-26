@@ -84,10 +84,29 @@ function("TUDAT_ADD_TEST_CASE" arg1)
             list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
         endif ()
 
+        # Unity build on Linux can expose circular static-library dependencies;
+        # GNU ld resolves archives in one pass unless grouped.
+        set(test_private_link_items ${test_private_links})
+        if (CMAKE_UNITY_BUILD AND TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            set(test_private_link_items
+                    -Wl,--start-group
+                    ${test_private_links}
+                    -Wl,--end-group
+                    )
+        endif ()
+
         target_link_libraries("${target_name}"
-                PUBLIC ${test_private_links}
+                PUBLIC ${test_private_link_items}
                 PRIVATE "${Boost_LIBRARIES}"
                 )
+
+        if (TUDAT_BUILD_WITH_PCH)
+            if (DEFINED TUDAT_TEST_PCH_REUSE_TARGET AND TARGET "${TUDAT_TEST_PCH_REUSE_TARGET}")
+                target_precompile_headers("${target_name}" REUSE_FROM "${TUDAT_TEST_PCH_REUSE_TARGET}")
+            elseif (DEFINED TUDAT_TEST_PCH_HEADERS)
+                target_precompile_headers("${target_name}" PRIVATE ${TUDAT_TEST_PCH_HEADERS})
+            endif ()
+        endif ()
 
         #==========================================================================
         # BUILD-TREE.

@@ -93,6 +93,11 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_WITH_ORBIT_DETERMINATION_TEST_PCH
+    "Enable precompiled headers for orbit-determination unit tests."
+    ON
+)
+option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
     "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)"
     OFF
