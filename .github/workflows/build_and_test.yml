@@ -39,7 +39,7 @@ jobs:
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
             build_jobs: 2
-            build_type: Debug
+            build_type: Release
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
@@ -49,7 +49,7 @@ jobs:
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
             build_jobs: 2
-            build_type: Debug
+            build_type: Release
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
         exclude:
           - platform: {os: windows-latest}
