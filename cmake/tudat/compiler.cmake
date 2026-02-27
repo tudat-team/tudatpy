@@ -84,24 +84,82 @@
      endif ()
  endif ()
 
+ macro(tudat_apply_optimization_policy)
+     if (TUDAT_BUILD_MSVC)
+         set(TUDAT_OPTIMIZATION_REGEX "(^| )[/-]O[d123x]?([ ]|$)")
+
+         if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+             set(TUDAT_OPT_DEBUG "/Od")
+             set(TUDAT_OPT_RELEASE "/Od")
+             set(TUDAT_OPT_RELWITHDEBINFO "/Od")
+             set(TUDAT_OPT_MINSIZEREL "/Od")
+             message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+         else ()
+             set(TUDAT_OPT_DEBUG "/Od")
+             set(TUDAT_OPT_RELEASE "/O2")
+             set(TUDAT_OPT_RELWITHDEBINFO "/O2")
+             set(TUDAT_OPT_MINSIZEREL "/O1")
+             message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy.")
+         endif ()
+     else ()
+         set(TUDAT_OPTIMIZATION_REGEX "(^| )-O[^ ]*([ ]|$)")
+
+         if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
+             set(TUDAT_OPT_DEBUG "-O0")
+             set(TUDAT_OPT_RELEASE "-O0")
+             set(TUDAT_OPT_RELWITHDEBINFO "-O0")
+             set(TUDAT_OPT_MINSIZEREL "-O0")
+             message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON: forcing reduced optimization flags.")
+         else ()
+             set(TUDAT_OPT_DEBUG "-O0")
+             set(TUDAT_OPT_RELEASE "-O3")
+             set(TUDAT_OPT_RELWITHDEBINFO "-O2")
+             set(TUDAT_OPT_MINSIZEREL "-Os")
+             message(STATUS "TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=OFF: using default optimization policy.")
+         endif ()
+     endif ()
+
+     foreach (flag_var
+             CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG
+             CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE
+             CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO
+             CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL)
+         if (DEFINED ${flag_var})
+             if (flag_var MATCHES "_DEBUG$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_DEBUG}")
+             elseif (flag_var MATCHES "_RELEASE$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_RELEASE}")
+             elseif (flag_var MATCHES "_RELWITHDEBINFO$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_RELWITHDEBINFO}")
+             elseif (flag_var MATCHES "_MINSIZEREL$")
+                 set(TUDAT_OPTIMIZATION_VALUE "${TUDAT_OPT_MINSIZEREL}")
+             else ()
+                 continue()
+             endif ()
+             string(REGEX REPLACE "${TUDAT_OPTIMIZATION_REGEX}" " " ${flag_var} "${${flag_var}}")
+             set(${flag_var} "${${flag_var}} ${TUDAT_OPTIMIZATION_VALUE}")
+         endif ()
+     endforeach ()
+ endmacro()
+
  # Set the compile flags
  if (TUDAT_BUILD_CLANG)
      # add compile definition and print status
      add_compile_definitions(TUDAT_BUILD_CLANG)
      message(STATUS "Using clang compiler.")
 
-     # Ensure consistent optimization policy for Clang builds.
-     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-     set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+     # Optimization is configured centrally via tudat_apply_optimization_policy().
+     set(CMAKE_CXX_FLAGS_DEBUG "-g")
+     set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
 
      # set default cmake c flags for clang
      set(CMAKE_C_FLAGS "-Wall -std=c11")
      set(CMAKE_C_FLAGS_DEBUG "-g")
-     set(CMAKE_C_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+     set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
+     set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
+     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
 
      if (APPLE)
          # standard apple clang compiler flags
@@ -241,9 +299,11 @@
          endif ()
      endif ()
 
-     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+     # Optimization is configured centrally via tudat_apply_optimization_policy().
+     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+     set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+     set(CMAKE_CXX_FLAGS_DEBUG "-g")
+     set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
 
@@ -279,15 +339,6 @@
      # solution: https://stackoverflow.com/questions/1091662/vc-internal-compiler-error
      #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
-    # Normalize optimization policy for MSVC: /Od in Debug, /O2 in Release.
-    foreach (flag_var CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG)
-        string(REGEX REPLACE "(^| )[/-]O[d123x]?([ ]|$)" " " ${flag_var} "${${flag_var}}")
-        set(${flag_var} "${${flag_var}} /Od")
-    endforeach ()
-    foreach (flag_var CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE)
-        string(REGEX REPLACE "(^| )[/-]O[d123x]?([ ]|$)" " " ${flag_var} "${${flag_var}}")
-        set(${flag_var} "${${flag_var}} /O2")
-    endforeach ()
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
          # This is needed for conda builds, as the prebuilt libraries are MD.
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
@@ -313,6 +364,8 @@
      message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}")
      message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")
  endif ()
+
+ tudat_apply_optimization_policy()
 
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 

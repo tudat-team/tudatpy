@@ -93,6 +93,11 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
+    "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O0 (/Od), OFF uses -O3 (/O2)."
+    OFF
+)
+option(
     TUDAT_BUILD_WITH_TEST_PCH
     "Enable precompiled headers for selected unit tests."
     OFF
