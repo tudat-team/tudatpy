@@ -279,6 +279,15 @@
      # solution: https://stackoverflow.com/questions/1091662/vc-internal-compiler-error
      #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
+    # Normalize optimization policy for MSVC: /Od in Debug, /O2 in Release.
+    foreach (flag_var CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG)
+        string(REGEX REPLACE "(^| )[/-]O[d123x]?([ ]|$)" " " ${flag_var} "${${flag_var}}")
+        set(${flag_var} "${${flag_var}} /Od")
+    endforeach ()
+    foreach (flag_var CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE)
+        string(REGEX REPLACE "(^| )[/-]O[d123x]?([ ]|$)" " " ${flag_var} "${${flag_var}}")
+        set(${flag_var} "${${flag_var}} /O2")
+    endforeach ()
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
          # This is needed for conda builds, as the prebuilt libraries are MD.
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
