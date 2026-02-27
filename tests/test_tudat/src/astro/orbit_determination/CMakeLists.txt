@@ -35,8 +35,11 @@ target_include_directories(tudat_estimation_test_case_support SYSTEM PRIVATE
 target_link_libraries(tudat_estimation_test_case_support PUBLIC
     ${Tudat_ESTIMATION_LIBRARIES}
 )
+target_link_libraries(tudat_estimation_test_case_support PRIVATE
+    "${Boost_LIBRARIES}"
+)
 
-if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_ORBIT_DETERMINATION_TEST_PCH)
+if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
     set_target_properties(tudat_estimation_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)
     target_compile_options(tudat_estimation_test_case_support PRIVATE
         $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-fPIE>

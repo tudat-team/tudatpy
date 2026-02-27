@@ -93,9 +93,9 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_ORBIT_DETERMINATION_TEST_PCH
-    "Enable precompiled headers for orbit-determination unit tests."
-    ON
+    TUDAT_BUILD_WITH_TEST_PCH
+    "Enable precompiled headers for selected unit tests."
+    OFF
 )
 option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
