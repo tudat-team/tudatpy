@@ -102,6 +102,12 @@ else ()
     target_compile_definitions(kernel PRIVATE TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES=0)
 endif ()
 
+if (TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS)
+    target_compile_definitions(kernel PRIVATE TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS=1)
+else ()
+    target_compile_definitions(kernel PRIVATE TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS=0)
+endif ()
+
     target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
     target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")

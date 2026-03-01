@@ -4,9 +4,13 @@ cmake_minimum_required(VERSION 3.20)
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
-# Remove caches if present [Trick to recompile changes for BUILD-TREE]
-# From tudat cmake, might not be needed.
-if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
+# Optional cache reset toggle (kept OFF by default for incremental configure/build stability).
+option(
+    TUDAT_FORCE_CMAKE_CACHE_RESET
+    "Remove CMakeCache.txt from CMAKE_BINARY_DIR during configure."
+    OFF
+)
+if (TUDAT_FORCE_CMAKE_CACHE_RESET AND EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
 
@@ -93,6 +97,11 @@ option(
     ON
 )
 option(
+    TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS
+    "Enable PYBIND11_DETAILED_ERROR_MESSAGES for TudatPy bindings."
+    OFF
+)
+option(
     TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
     "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1), OFF uses -O3 (/O2) with -O1 (/O1) for Debug."
     OFF
@@ -100,11 +109,6 @@ option(
 option(
     TUDAT_BUILD_WITH_TEST_PCH
     "Enable precompiled headers for selected unit tests."
-    OFF
-)
-option(
-    TUDAT_BUILD_WITH_PROPAGATION_TESTS
-    "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)"
     OFF
 )
 option(

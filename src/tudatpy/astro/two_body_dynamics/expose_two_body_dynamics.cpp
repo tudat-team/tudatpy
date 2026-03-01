@@ -8,7 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 
 #include "expose_two_body_dynamics.h"
 
