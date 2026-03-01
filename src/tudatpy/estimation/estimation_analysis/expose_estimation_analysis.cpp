@@ -23,7 +23,6 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "kernelExternTemplatesOrbitDetermination.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

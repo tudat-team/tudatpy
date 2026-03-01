@@ -22,7 +22,6 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "kernelExternTemplates.h"
 
 namespace py = pybind11;
 namespace tp = tudat::propagators;

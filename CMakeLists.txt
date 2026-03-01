@@ -112,6 +112,11 @@ option(
     OFF
 )
 option(
+    TUDAT_BUILD_WITH_PROPAGATION_TESTS
+    "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)"
+    OFF
+)
+option(
     TUDAT_BUILD_WITH_ESTIMATION_TOOLS
     "Build tudat with estimation tools."
     ON
