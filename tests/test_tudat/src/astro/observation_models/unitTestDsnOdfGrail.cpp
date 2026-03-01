@@ -17,8 +17,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
@@ -38,7 +36,6 @@ using namespace tudat::ephemerides;
 using namespace tudat::input_output;
 using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
-using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::reference_frames;
 

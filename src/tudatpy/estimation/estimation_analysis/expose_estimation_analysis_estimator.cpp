@@ -16,6 +16,7 @@
 
 #include "expose_estimation_analysis_estimator_bindings.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "kernelExternTemplatesOrbitDetermination.h"
 
 namespace py = pybind11;
 

@@ -23,8 +23,6 @@
 #include <tudat/basics/testMacros.h>
 #include <tudat/astro/basic_astro/sphericalStateConversions.h>
 
-#include <tudat/simulation/environment_setup.h>
-#include <tudat/simulation/propagation_setup.h>
 
 namespace tudat
 {

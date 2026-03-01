@@ -43,7 +43,6 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         <tudat/simulation/environment_setup/body.h>
         <tudat/simulation/environment_setup/createBodiesFactory.h>
         <tudat/simulation/environment_setup/defaultBodies.h>
-        <tudat/simulation/estimation_setup.h>
         <tudat/simulation/estimation_setup/createObservationModelFactory.h>
         <tudat/simulation/estimation_setup/processOdfFile.h>
         <tudat/simulation/estimation_setup/simulateObservations.h>

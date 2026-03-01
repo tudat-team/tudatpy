@@ -26,8 +26,6 @@
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
 
 namespace tudat
 {

@@ -16,6 +16,7 @@
 
 #include "expose_simulator_variational_helpers.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "kernelExternTemplates.h"
 
 namespace py = pybind11;
 

@@ -18,8 +18,6 @@
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
 #include "tudat/math/statistics/basicStatistics.h"
 
 namespace tudat

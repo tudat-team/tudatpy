@@ -25,8 +25,6 @@
 
 #include "tudat/basics/utilityMacros.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
 
 using namespace tudat;
 using namespace tudat::numerical_integrators;

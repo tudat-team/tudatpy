@@ -7,6 +7,7 @@
 #include <pybind11/pybind11.h>
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "kernelExternTemplatesOrbitDetermination.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

@@ -30,9 +30,6 @@
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
-#include "tudat/simulation/estimation_setup.h"
 
 namespace tudat
 {

@@ -24,7 +24,6 @@
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/io/readOdfFile.h"
 

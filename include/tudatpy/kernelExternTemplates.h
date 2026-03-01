@@ -39,13 +39,6 @@ extern template class HybridArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TI
 
 }  // namespace propagators
 
-namespace simulation_setup
-{
-
-extern template class OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE, 0 >;
-
-}  // namespace simulation_setup
-
 }  // namespace tudat
 
 #endif

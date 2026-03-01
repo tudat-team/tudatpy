@@ -6,7 +6,6 @@
 #include <pybind11/pybind11.h>
 
 #include "scalarTypes.h"
-#include "kernelExternTemplates.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverForwardDeclarations.h"
 
 namespace py = pybind11;
