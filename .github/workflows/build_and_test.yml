@@ -43,7 +43,7 @@ jobs:
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
-            build_jobs: 3
+            build_jobs: 2
             build_type: Release
           - os: macos-latest
             label: osx-64
