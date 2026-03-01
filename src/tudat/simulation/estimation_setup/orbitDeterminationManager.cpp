@@ -6,7 +6,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 template class OrbitDeterminationManager< double, double >;
 #endif
 

@@ -82,8 +82,8 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_ALL_TESTS
-    "Enable compilation of all test-oriented explicit instantiations (e.g. <double,double> extern templates)."
+    TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
     ON
 )
 option(
@@ -234,10 +234,10 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
-if (NOT TUDAT_BUILD_ALL_TESTS)
-    add_definitions(-DTUDAT_BUILD_ALL_TESTS=0)
+if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=0)
 else ()
-    add_definitions(-DTUDAT_BUILD_ALL_TESTS=1)
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
 endif ()
 
 # +============================================================================

@@ -89,7 +89,7 @@ set(estimation_SOURCES
         processTrackingTxtFile.cpp
         )
 
-if (TUDAT_BUILD_ALL_TESTS)
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES
             variationalEquationsSolverDoubleDoubleInstantiation.cpp
             singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
