@@ -161,7 +161,6 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ steps.resolve_ci_ccache_mode.outputs.value }} \
           -DTUDAT_BUILD_WITH_TEST_PCH=ON \
-          -DTUDAT_BUILD_KERNEL_EXTERN_TEMPLATES=ON \
           -DTUDAT_BUILD_WITH_PCH=ON \
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
           -DCMAKE_UNITY_BUILD=ON

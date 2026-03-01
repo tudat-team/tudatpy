@@ -87,11 +87,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES
-    "Enable kernel-only explicit template instantiations for <STATE_SCALAR_TYPE, TIME_TYPE>."
-    ON
-)
-option(
     TUDAT_BUILD_WITH_PCH
     "Enable precompiled headers for supported targets."
     ON

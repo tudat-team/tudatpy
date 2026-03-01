@@ -1,7 +1,6 @@
 message(STATUS "******************** BUILD CONFIGURATION ********************")
 message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
 message(STATUS "TUDAT_BUILD_ALL_TESTS                                 ${TUDAT_BUILD_ALL_TESTS}")
-message(STATUS "TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES                   ${TUDAT_BUILD_KERNEL_EXTERN_TEMPLATES}")
 message(STATUS "TUDAT_BUILD_WITH_PCH                                  ${TUDAT_BUILD_WITH_PCH}")
 message(STATUS "TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS           ${TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS}")
 message(STATUS "TUDAT_FORCE_CMAKE_CACHE_RESET                         ${TUDAT_FORCE_CMAKE_CACHE_RESET}")
