@@ -844,6 +844,30 @@ BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
     BOOST_CHECK_CLOSE_FRACTION( totalSlantDelay, 6.9705, 1.0e-1 );
 }
 
+BOOST_AUTO_TEST_CASE( testVmf3oCorrectionType )
+{
+    std::shared_ptr< observation_models::LightTimeCorrectionSettings > settings =
+            observation_models::vmf3oTroposphericCorrectionSettings( "Earth", true, observation_models::TroposphericMappingModel::vmf3, 1064.0 );
+
+    BOOST_CHECK_EQUAL( settings->getCorrectionType( ), observation_models::vmf3o_tropospheric );
+    BOOST_CHECK_EQUAL(
+            observation_models::requiresMultiLegIterations( observation_models::vmf3o_tropospheric ), false );
+    BOOST_CHECK_EQUAL( observation_models::getLightTimeCorrectionName( observation_models::vmf3o_tropospheric ),
+                       "VMF3o tropospheric" );
+
+    std::shared_ptr< observation_models::VMF3TroposphericCorrectionSettings > vmf3oSettings =
+            std::dynamic_pointer_cast< observation_models::VMF3TroposphericCorrectionSettings >( settings );
+    BOOST_REQUIRE( vmf3oSettings != nullptr );
+    BOOST_CHECK_CLOSE_FRACTION( vmf3oSettings->getObservationWavelengthNm( ), 1064.0, 1.0e-15 );
+
+    BOOST_CHECK_THROW( observation_models::vmf3oTroposphericCorrectionSettings(
+                               "Earth",
+                               true,
+                               observation_models::TroposphericMappingModel::vmf3,
+                               0.0 ),
+                       std::runtime_error );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
