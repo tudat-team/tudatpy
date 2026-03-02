@@ -6,7 +6,7 @@ namespace tudat
 namespace propagators
 {
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 template class SingleArcDynamicsSimulator< double, double >;
 #endif
 

@@ -200,7 +200,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
     }
 }
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template std::shared_ptr< propagators::VariationalEquationsSolver< double, double > > createVariationalEquationsSolver< double, double >(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,

@@ -49,7 +49,7 @@ executePlanetaryParameterEstimation(
         Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
         const double weight = 1.0 );
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double, double > >, Eigen::VectorXd >
 executePlanetaryParameterEstimation< double, double >( const int observableType,
                                                        Eigen::VectorXd parameterPerturbation,

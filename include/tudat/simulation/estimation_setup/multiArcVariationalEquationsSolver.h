@@ -614,7 +614,7 @@ private:
     std::shared_ptr< MultiArcVariationalResults > variationalPropagationResults_;
 };
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template class MultiArcVariationalEquationsSolver< double, double >;
 #endif
 

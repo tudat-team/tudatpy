@@ -51,7 +51,7 @@ set(propagation_SOURCES
         dependentVariablesInterface.cpp
         )
 
-if (TUDAT_BUILD_ALL_TESTS)
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES
             dynamicsSimulatorDoubleDoubleInstantiation.cpp
             singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp

@@ -615,7 +615,7 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     return observationManagers;
 }
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,

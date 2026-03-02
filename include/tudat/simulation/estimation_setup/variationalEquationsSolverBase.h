@@ -668,7 +668,7 @@ void getParametersToEstimatePerArc(
     }
 }
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template class VariationalEquationsSolver< double, double >;
 #endif
 

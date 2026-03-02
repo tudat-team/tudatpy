@@ -16,7 +16,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#if TUDAT_BUILD_ALL_TESTS
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 template std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double, double > >, Eigen::VectorXd >
 executePlanetaryParameterEstimation< double, double >( const int observableType,
                                                        Eigen::VectorXd parameterPerturbation,
