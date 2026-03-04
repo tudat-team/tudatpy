@@ -93,7 +93,17 @@ public:
         }
 
         singleObservationSize_ = getObservableSize( observableType );
-
+        if( getObservableSize( observableType ) > 0 && !observations_.empty( ) )
+        {
+            if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
+                                          std::to_string( observations_.at( 0 ).rows( ) ) +
+                                          ") is inconsistent with observable type " +
+                                          getObservableName( observableType ) + " (expected size " +
+                                          std::to_string( singleObservationSize_ ) + ")." );
+            }
+        }
         // Initialise weights
         if( weights.size( ) == 0 )
         {
