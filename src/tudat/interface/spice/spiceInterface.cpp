@@ -621,13 +621,26 @@ void loadSpiceKernelInTudat( const std::string &fileName )
 {
     setSpiceErrorHandling( );
 
-    setSpiceErrorHandling( );
+    SpiceChar kernelType[ 33 ];
+    SpiceChar kernelSource[ 256 ];
+    SpiceInt kernelHandle = 0;
+    SpiceBoolean isKernelLoaded = SPICEFALSE;
 
-    furnsh_c( fileName.c_str( ) );
+    kinfo_c( fileName.c_str( ), 33, 256, kernelType, kernelSource, &kernelHandle, &isKernelLoaded );
 
     if( failed_c( ) )
     {
         handleSpiceException( );
+    }
+
+    if( !static_cast< bool >( isKernelLoaded ) )
+    {
+        furnsh_c( fileName.c_str( ) );
+
+        if( failed_c( ) )
+        {
+            handleSpiceException( );
+        }
     }
 }
 
