@@ -686,12 +686,16 @@ class OMMUtils:
         unique: dict[str, dict] = {}
         for entry in data:
             epoch = entry.get("EPOCH")
-            if not epoch:
+            norad_id = entry.get("NORAD_CAT_ID")
+            if not epoch or not norad_id:
                 continue
-            if epoch not in unique or entry.get("CREATION_DATE", "") > unique[epoch].get("CREATION_DATE", ""):
-                unique[epoch] = entry
 
-        cleaned = sorted(unique.values(), key=lambda x: x["EPOCH"])
+            composite_key = f"{norad_id}_{epoch}"
+
+            if composite_key not in unique or entry.get("CREATION_DATE", "") > unique[composite_key].get("CREATION_DATE", ""):
+                unique[composite_key] = entry
+
+        cleaned = sorted(unique.values(), key=lambda x: (x["EPOCH"], x["NORAD_CAT_ID"]))
         output: dict | list = ({**metadata, "data": cleaned} if is_dict else cleaned)
 
         with open(filepath, "w") as f:
