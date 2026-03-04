@@ -7,7 +7,7 @@ The TU Delft Astrodynamics Toolbox (Tudat) is a powerful set of libraries that s
 
 To get started with using Tudat, we recommend starting on our user guide where a top-level overview of core functionality on `state propagation <https://docs.tudat.space/en/latest/user-guide/state-propagation.html>`_ and `state estimation https://docs.tudat.space/en/latest/user-guide/state-estimation.html <https://docs.tudat.space/en/latest/user-guide/state-estimation.html>`_ can be found. A list of worked out `example scripts <https://docs.tudat.space/en/latest/index-examples.html>`_, ranging from simple starting points to detailed analyses is also provided
 
-On this page, we provide a comprehensive overview of the functionality available throug the Tudat Python interface. The functionalitv is divided into the following submodules
+On this page, we provide a comprehensive overview of the functionality available through the Tudat Python interface. The functionality is divided into the following submodules
 
 
 * :ref:`dynamics`: This submodule contains the interfaces for one of core application of Tudatpy: numerical state propagation. The functionality in this submodule consists of a large number of interconnected elements that work together as a whole. It facilitates applications ranging from low-fidelity orbit modelling in the context of a global optimization to high-fidelity modelling for applications in precise orbit determination. The framework supports single- an multi-arc propagation, translational dynamics, rotational dynamics, as well as combinations of these.

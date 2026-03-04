@@ -1,398 +1,702 @@
 import json
 import getpass
 import os
-from collections import defaultdict
-import numpy as np
-from tudatpy.dynamics import environment, environment_setup, propagation_setup
-from datetime import datetime, timedelta
 import requests
+from collections import defaultdict
+from urllib.parse import urljoin, urlparse
+from tudatpy.dynamics import environment
+from datetime import datetime, timedelta
 import math
+from tudatpy.data import get_resource_path
+from tudatpy.astro.element_conversion import mean_to_true_anomaly
 
 class SpaceTrackQuery:
-    def __init__(self, username=None, password=None):
+    """
+    Handles queries to the Space-Track.org API for retrieving TLEs and other
+    space data. Manages authentication, session persistence, and local caching
+    to minimise API usage.
+
+    For working with the retrieved OMM records, see :class:`OMMUtils`.
+    """
+
+    def __init__(
+            self,
+            username: str | None = None,
+            password: str | None = None,
+            spacetrack_url: str = "https://www.space-track.org",
+            tle_data_folder: str = get_resource_path() + "/tle_data",
+    ) -> None:
+        """
+        Parameters
+        ----------
+        username : str | None, optional
+            Space-Track.org username. Prompted interactively if not provided.
+        password : str | None, optional
+            Space-Track.org password. Prompted interactively if not provided.
+        spacetrack_url : str, optional
+            Base URL. Defaults to ``'https://www.space-track.org'``.
+        tle_data_folder : str, optional
+            Directory for locally cached TLE files.
+        """
         if not username:
-            username = input('space-track username: ')
+            username = input("space-track username: ")
         if not password:
-            password = getpass.getpass('space-track password: ')
-
-        self.username = username
-        self.password = password
-        self.spacetrack_url = 'https://www.space-track.org'
-        self.download_tle = self.DownloadTle(self)  # Pass parent to subclass
-
-    class DownloadTle:
-        def __init__(self, parent):
-            self.parent = parent  # Store reference to parent SpaceTrackQuery
-
-            # Optionally prompt again if parent credentials aren't available
-            if not self.parent.username:
-                self.parent.username = input('space-track username: ')
-            if not self.parent.password:
-                self.parent.password = getpass.getpass('space-track password: ')
-
-            self.username = self.parent.username
-            self.password = self.parent.password
-            self.spacetrack_url = self.parent.spacetrack_url
-
-        def latest_on_orbit(self):
-
-            """
-            This function retrieves the newest propagable element set for all on-orbit objects (according to Space-Track.org)
-            :return: dictionary corresponding to the downloaded json file
-            """
-            with requests.Session() as s:
-                s.post(self.spacetrack_url+"/ajaxauth/login", json={'identity':self.username, 'password':self.password})
-                response = s.get(os.path.join(self.spacetrack_url,'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json'))
-                json_name = "latest_on_orbit.json"
-
-                if response.status_code == 200:
-                    queried_data = response.json()
-                    if os.path.exists(json_name):
-                        os.remove(json_name)
-                    json_data = queried_data
-                    with open(json_name, "w") as json_file:
-                        json.dump(json_data, json_file, indent=4)
-                        print(f"Data downloaded to {json_name} file.")
-
-                else:
-                    print("Failed to retrieve data from the API. Status code:", response.status_code)
-
-            return json_data
-
-        def descending_epoch(self, N = None):
-
-            """
-            This function retrieves the general perturbations (GP) class
-            (newest SGP4 keplerian element set for each man-made earth-orbiting object tracked by the 18th Space Defense Squadron)
-
-            :param N: Number of first N objects (optional) to download. Default is None (full catalog is downloaded).
-            :return: dictionary corresponding to the downloaded json data
-            """
-            with requests.Session() as s:
-                s.post(self.spacetrack_url+"/ajaxauth/login", json={'identity':self.username, 'password':self.password})
-                if N is not None and float(N):
-                    json_name = f"gp_descending_{N}.json"
-                    response = s.get(os.path.join(self.spacetrack_url,f'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc/limit/{N}/format/json'))
-                else:
-                    json_name = f"gp_descending.json"
-                    response = s.get(os.path.join(self.spacetrack_url,f'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc/format/json'))
-
-                if response.status_code == 200:
-                    queried_data = response.json()
-                    if os.path.exists(json_name):
-                        os.remove(json_name)
-                    json_data = queried_data
-                    with open(json_name, "w") as json_file:
-                        json.dump(json_data, json_file, indent=4)
-
-                    if N != 1:
-                        filtered_values = self.parent.OMMUtils.filter_tles_keep_latest_creation_from_json(self, json_name)
-                        parts_json_name = json_name.split('.')[0].split('_')
-                        parts_json_name[-1] = f'{len(filtered_values)}'
-                        new_name = '_'.join(parts_json_name) + '.json'
-                        os.system(f'mv temp_filtered_tles.json {new_name}')
-
-                        if new_name != json_name:
-                            os.system(f'rm {json_name}')
-                        print(f"Data downloaded to {new_name} file.")
-
-                        print(f"Data downloaded to {json_name} file.")
-
-                else:
-                    print("Failed to retrieve data from the API. Status code:", response.status_code)
-
-            return json_data
-
-        def single_norad_id(self, norad_id, N = 1):
-
-            """
-            This function retrieves the general perturbations (GP or GP history) class
-            (newest SGP4 keplerian element set for each man-made earth-orbiting object tracked by the 18th Space Defense Squadron)
-
-            :param N: Number of N TLEs (optional) to download. Default is 1.
-            :return: dictionary corresponding to the downloaded json data
-            """
-            filtered_dict = None
-            with requests.Session() as s:
-                s.post(self.spacetrack_url+"/ajaxauth/login", json={'identity':self.username, 'password':self.password})
-                if N is not None and float(N):
-                    json_name = f"single_{norad_id}_{N}.json"
-                    if N == 1:
-                        response = s.get(os.path.join(self.spacetrack_url,f'basicspacedata/query/class/gp/NORAD_CAT_ID/{norad_id}/orderby/epoch desc/limit/{N}/format/json'))
-                    else:
-                        response = s.get(os.path.join(self.spacetrack_url,f'basicspacedata/query/class/gp_history/NORAD_CAT_ID/{norad_id}/orderby/epoch desc/limit/{N}/format/json'))
-
-                if response.status_code == 200:
-                    queried_data = response.json()
-                    if os.path.exists(json_name):
-                        os.remove(json_name)
-                    json_data = queried_data
-                    with open(json_name, "w") as json_file:
-                        json.dump(json_data, json_file, indent=4)
-
-                    # SOMETIMES, Duplicate TLE for a given EPOCH for a given OBJECT are found in the gp_history.
-                    # The following function filters the .json created above, keeping only the latest TLEs
-                    # among the duplicated ones (latest creation date)
-
-                    if N != 1:
-                        filtered_values = self.parent.OMMUtils.filter_tles_keep_latest_creation_from_json(self, json_name)
-                        parts_json_name = json_name.split('.')[0].split('_')
-                        parts_json_name[-1] = f'{len(filtered_values)}'
-                        new_name = '_'.join(parts_json_name) + '.json'
-                        os.system(f'mv temp_filtered_tles.json {new_name}')
-
-                        if new_name != json_name:
-                            os.system(f'rm {json_name}')
-                        print(f"Data downloaded to {new_name} file.")
-
-                else:
-                    print("Failed to retrieve data from the API. Status code:", response.status_code)
-
-            if filtered_dict:
-                return filtered_dict
-
-            return json_data
-
-        def filtered_by_oe_dict(self, filter_oe_dict, limit=100, output_file='filtered_results.json'):
-
-            """
-            :param filter_oe_dict: dictionary containing the orbital elements as keys and the list of min and max bounds as a value
-            :param limit: optional, retrieves the first N = limit objects
-            :param output_file: optional, name of output file
-            :return: dictionary corresponding to the downloaded filtered data
-            """
-            base_url = "basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/"
-            session = requests.Session()
-            session.post(self.spacetrack_url + "/ajaxauth/login", json={'identity': self.username, 'password': self.password})
-
-            all_results = None
-
-            for oe, bounds in filter_oe_dict.items():
-                min_val = bounds[0] if len(bounds) > 0 else None
-                max_val = bounds[1] if len(bounds) > 1 else None
-
-                results_min, results_max = [], []
-
-                if min_val is not None:
-                    url_min = f"{base_url}{oe}/>{min_val}/orderby/epoch desc/limit/{limit}/format/json/"
-                    resp_min = session.get(os.path.join(self.spacetrack_url, url_min))
-                    if resp_min.status_code == 200:
-                        results_min = resp_min.json()
-
-                if max_val is not None:
-                    url_max = f"{base_url}{oe}/<{max_val}/orderby/epoch desc/limit/{limit}/format/json"
-                    resp_max = session.get(os.path.join(self.spacetrack_url, url_max))
-                    if resp_max.status_code == 200:
-                        results_max = resp_max.json()
-
-                if min_val is not None and max_val is not None:
-                    ids_min = set(obj['NORAD_CAT_ID'] for obj in results_min)
-                    ids_max = set(obj['NORAD_CAT_ID'] for obj in results_max)
-                    common_ids = ids_min.intersection(ids_max)
-                    filtered = [obj for obj in results_min if obj['NORAD_CAT_ID'] in common_ids]
-                elif min_val is not None:
-                    filtered = results_min
-                else:
-                    filtered = results_max
-
-                if all_results is None:
-                    all_results = filtered
-                else:
-                    current_ids = set(obj['NORAD_CAT_ID'] for obj in filtered)
-                    all_results = [obj for obj in all_results if obj['NORAD_CAT_ID'] in current_ids]
-
-            if not all_results:
-                print('No object found satisfying all user-defined filters. Exiting...\n')
-                exit()
-
-            with open(output_file, 'w') as f_out:
-                json.dump([all_results], f_out, indent=4)
-
-            return all_results
-
-
-
-    class OMMUtils:
-        def __init__(self, parent):
-            self.parent = parent  # Store reference to parent SpaceTrackQuery
-
-            # Optionally prompt again if parent credentials aren't available
-            if not self.parent.username:
-                self.parent.username = input('space-track username: ')
-            if not self.parent.password:
-                self.parent.password = getpass.getpass('space-track password: ')
-
-            self.username = self.parent.username
-            self.password = self.parent.password
-            self.spacetrack_url = self.parent.spacetrack_url
-
-        def get_norad_id_name_map(self, limit=None):
-            """
-            This function gives a norad_cat_id - object_name mapping of the full satcat catalogue.
-            Users only need to run it once.
-
-            :param limit [optional], limits the numbers of considered satellites.
-            :return: Returns norad_id to name mapping.
-            """
-            with requests.Session() as s:
-                s.post(self.spacetrack_url+"/ajaxauth/login", json={'identity':self.username, 'password':self.password})
-                # Download satcat data
-                query = f"{self.spacetrack_url}/basicspacedata/query/class/satcat/orderby/NORAD_CAT_ID/format/json"
-                if limit:
-                    query = f"{self.spacetrack_url}/basicspacedata/query/class/satcat/orderby/NORAD_CAT_ID/limit/{limit}/format/json"
-
-                response = s.get(query)
-                if response.status_code != 200:
-                    raise RuntimeError(f"Failed to fetch data: {response.status_code}")
-
-                data = response.json()
-                map = {int(obj['NORAD_CAT_ID']): obj['OBJECT_NAME'] for obj in data if obj['OBJECT_NAME']}
-                # Create the dictionary mapping
-                json_name = 'norad_id_to_name.json'
-                with open(json_name, "w") as f:
-                    json.dump(map, f, indent=4)
-                    print(f"Saved {len(map)} entries to {json_name}.")
-
-            return map
-
-        def filter_tles_keep_latest_creation_from_json(self, json_filename):
-            """
-            Reads TLE data from a JSON file, filters duplicates by EPOCH keeping
-            only the latest CREATION_DATE for each unique EPOCH,
-            and returns the filtered list of TLE dictionaries.
-
-            Used within the single_norad_id function.
-
-            :param json_filename: path to JSON file
-            :return: Dictionary corresponding to the newly created json
-            """
-            with open(json_filename, "r") as f:
-                objects_list = json.load(f)
-
-            filtered = {}
-            for i, object_ in enumerate(objects_list):
-                epoch = object_['EPOCH']
-
-                creation_date = datetime.fromisoformat(object_['CREATION_DATE'])
-
-                if epoch not in filtered:
-                    filtered[epoch] = object_
-                else:
-                    print(f'Number of TLEs in the JSON file for OBJECT {object_["NORAD_CAT_ID"]}: {len(objects_list[0])}')
-                    print(f'Warning: Found Duplicate TLE for EPOCH {epoch} for OBJECT {object_["NORAD_CAT_ID"]}. Keeping only the latest one...')
-                    print(f'Updating JSON file accordingly...')
-                    existing_creation_date = datetime.fromisoformat(filtered[epoch]['CREATION_DATE'])
-                    if creation_date > existing_creation_date:
-                        filtered[epoch] = object_
-
-            with open("temp_filtered_tles.json", "w") as f_out:
-                json.dump([list(filtered.values())], f_out, indent=4)
-
-            print(f'Number of Filtered TLEs in the JSON file for OBJECT {object_["NORAD_CAT_ID"]}: {len(filtered.values())}')
-
-            return filtered.values()
-
-        def get_tles(self, json_dict):
-            tle_dict = defaultdict(list)
-
-            if type(json_dict) is list:
-                for json in json_dict:
-                    norad_cat_id = json['NORAD_CAT_ID']
-                    tle_line_1 = json['TLE_LINE1']
-                    tle_line_2 = json['TLE_LINE2']
-                    tle_dict[norad_cat_id] = (tle_line_1, tle_line_2)
-
-            return tle_dict
-
-        def get_tudat_keplerian_element_set(self, json_dict):
-
-            # retrieve orbital elements from json_dict
-            a = float(json_dict[0]['SEMIMAJOR_AXIS'])*1e3 # [meters]
-            e =float(json_dict[0]['ECCENTRICITY'])
-            i = float(json_dict[0]['INCLINATION']) * math.pi/180 # [rad]
-            omega = float(json_dict[0]['ARG_OF_PERICENTER']) * math.pi/180 # [rad]
-            raan = float(json_dict[0]['RA_OF_ASC_NODE']) * math.pi/180 # [rad]
-            mo = float(json_dict[0]['MEAN_ANOMALY']) * math.pi/180 # [rad]
-
-            # Compute true anomaly from mean anomaly via Kepler's equation
-            true_anomaly = self.mean_to_true_anomaly(self,mo,e)
-            
-            return a,e,i,omega,raan,true_anomaly
-
-        def tle_to_TleEphemeris_object(self, tle_line_1, tle_line_2):
-            object_tle = environment.Tle(tle_line_1, tle_line_2)
-            ephemeris_object = environment.TleEphemeris("Earth", "J2000", object_tle, False)
-            return ephemeris_object
-
-        def plot_earth(self, ax, radius=6378, color='lightblue', alpha=0.5, resolution=50):
-            """Plot Earth as a sphere in the 3D axes."""
-            u = np.linspace(0, 2 * np.pi, resolution)
-            v = np.linspace(0, np.pi, resolution)
-            x = radius * np.outer(np.cos(u), np.sin(v))
-            y = radius * np.outer(np.sin(u), np.sin(v))
-            z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
-            ax.plot_surface(x, y, z, rstride=1, cstride=1, color=color, alpha=alpha, edgecolor='none')
-
-        def get_tle_reference_epoch(self, tle_line_1):
-
-            """
-            Extracts and converts the epoch from TLE line 1 to a UTC datetime object.
-
-            Parameters:
-                tle_line1 (str): The first line of a TLE string.
-
-            Returns:
-                datetime: The epoch in UTC.
-            """
-
-            year_str = tle_line_1[18:20]
-            day_str = tle_line_1[20:32]
-
-            # Convert to full year
-            year = int(year_str)
-            year += 2000 if year < 57 else 1900
-
-            # Convert fractional day to datetime
-            day_of_year = float(day_str)
-
-            # add n = day_of_year days to 1st of january of that year, then subtract one.
-            epoch = datetime(year, 1, 1) + timedelta(days=day_of_year - 1)
-
-            return epoch
-
-        def mean_to_true_anomaly(self, mo, e, tol=1e-8, max_iter=100):
-            """
-            Convert mean anomaly M to true anomaly ν for elliptical orbits (solving Kepler's equation).
-
-            Parameters:
-                M : float
-                    Mean anomaly (radians)
-                e : float
-                    Eccentricity (0 <= e < 1)
-                tol : float
-                    Tolerance for Newton-Raphson iteration
-                max_iter : int
-                    Maximum number of iterations
-
-            Returns:
-                ν : float
-                    True anomaly (radians)
-            """
-            # Solve Kepler's Equation: M = E - e*sin(E)
-            E = mo if e < 0.8 else np.pi  # Initial guess
-            for _ in range(max_iter):
-                f = E - e * np.sin(E) - mo
-                f_prime = 1 - e * np.cos(E)
-                E_new = E - f / f_prime
-                if abs(E_new - E) < tol:
-                    break
-                E = E_new
-            else:
-                raise RuntimeError("Kepler's equation did not converge.")
-
-            # Convert eccentric anomaly to true anomaly
-            ν = 2 * np.arctan2(
-                np.sqrt(1 + e) * np.sin(E / 2),
-                np.sqrt(1 - e) * np.cos(E / 2)
+            password = getpass.getpass("space-track password: ")
+
+        self.username: str = username
+        self.spacetrack_url: str = spacetrack_url
+        self.tle_data_folder: str = tle_data_folder
+
+        os.makedirs(self.tle_data_folder, exist_ok=True)
+
+        self.session: requests.Session = requests.Session()
+        self._login(password)
+        del password  # do not keep the plaintext password on the instance
+
+    # ------------------------------------------------------------------
+    # Context manager
+    # ------------------------------------------------------------------
+
+    def __enter__(self) -> "SpaceTrackQuery":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.logout()
+
+    # ------------------------------------------------------------------
+    # Authentication
+    # ------------------------------------------------------------------
+
+    def _login(self, password: str) -> None:
+        """
+        Logs in to Space-Track.org.
+
+        Parameters
+        ----------
+        password : str
+            Plaintext password. Never stored on the instance.
+
+        Raises
+        ------
+        requests.exceptions.RequestException
+            On network errors or bad credentials.
+        """
+        print("Logging into Space-Track...")
+        try:
+            response = self.session.post(
+                urljoin(self.spacetrack_url, "/ajaxauth/login"),
+                json={"identity": self.username, "password": password},
             )
-            return ν
+            response.raise_for_status()
+            print("Login successful.")
+        except requests.exceptions.RequestException as e:
+            print(f"Login failed: {e}")
+            raise
+
+    def logout(self) -> None:
+        """
+        Logs out and closes the session. Safe to call multiple times.
+        """
+        try:
+            self.session.get(urljoin(self.spacetrack_url, "/ajaxauth/logout"))
+            print("Logged out of Space-Track.")
+        except requests.exceptions.RequestException as e:
+            print(f"Logout request failed (session may already be expired): {e}")
+        finally:
+            self.session.close()
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _build_url(self, *path_parts: str) -> str:
+        """Joins path segments onto the base URL, safe on all platforms."""
+        path = "/".join(part.strip("/") for part in path_parts)
+        return urljoin(self.spacetrack_url.rstrip("/") + "/", path)
+
+    def _fetch_json(self, url: str) -> list:
+        """GET a URL and return the body as a list."""
+        response = self.session.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data if isinstance(data, list) else [data]
+
+    def _get_json_and_save(
+            self, url: str, json_name: str, merge: bool = False
+    ) -> list | None:
+        """
+        Fetches JSON from the API and persists it to the local cache.
+
+        Parameters
+        ----------
+        url : str
+            API endpoint.
+        json_name : str
+            Cache filename (relative to ``tle_data_folder``).
+        merge : bool
+            ``True`` → merge into existing file. ``False`` → overwrite.
+
+        Returns
+        -------
+        list | None
+            The freshly fetched records, or ``None`` on failure.
+        """
+        filepath = os.path.join(self.tle_data_folder, json_name)
+        try:
+            print(f"Fetching data for {json_name}...")
+            new_data = self._fetch_json(url)
+
+            if merge and os.path.exists(filepath):
+                print(f"Merge requested. Updating {json_name}...")
+                self._save_unique_sorted(filepath, new_data)
+                with open(filepath, "r") as f:
+                    final = json.load(f)
+                return final.get("data", final) if isinstance(final, dict) else final
+            else:
+                print(f"Overwrite mode. Saving {json_name}...")
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                self._save_unique_sorted(filepath, new_data)
+                return new_data
+
+        except requests.exceptions.RequestException as e:
+            print(f"API Error: {e}")
+            return None
+
+    def _save_unique_sorted(self, filepath: str, new_data: list[dict]) -> None:
+        """
+        Merges ``new_data`` into the cache file and updates ``last_api_hit``.
+
+        When two records share the same ``NORAD_CAT_ID + EPOCH`` key the one
+        with the later ``CREATION_DATE`` wins.
+
+        File structure on disk::
+
+            {"last_api_hit": "<ISO datetime>", "data": [...]}
+        """
+        existing: list[dict] = []
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, "r") as f:
+                    content = json.load(f)
+                existing = content.get("data", content) if isinstance(content, dict) else content
+            except json.JSONDecodeError:
+                existing = []
+
+        unique: dict[str, dict] = {}
+        for item in existing:
+            unique[f"{item['NORAD_CAT_ID']}_{item['EPOCH']}"] = item
+        for item in new_data:
+            key = f"{item['NORAD_CAT_ID']}_{item['EPOCH']}"
+            if key not in unique or item.get("CREATION_DATE", "") > unique[key].get("CREATION_DATE", ""):
+                unique[key] = item
+
+        sorted_data = sorted(unique.values(), key=lambda x: (x["EPOCH"], x["NORAD_CAT_ID"]))
+        with open(filepath, "w") as f:
+            json.dump({"last_api_hit": datetime.now().isoformat(), "data": sorted_data}, f, indent=4)
+
+    # ------------------------------------------------------------------
+    # Download methods
+    # ------------------------------------------------------------------
+
+    def get_tles_for_date_range(
+            self,
+            norad_id: int | str,
+            start_date: str,
+            end_date: str,
+            override_last_api_hit: bool = False,
+    ) -> list[dict] | None:
+        """
+        Retrieves TLEs for a single satellite over a date range.
+
+        Respects a 1.5-hour API cooldown to avoid hammering the server when
+        data is absent (e.g. the satellite had not yet launched).
+
+        Parameters
+        ----------
+        norad_id : int | str
+            NORAD catalogue ID.
+        start_date : str
+            Start of range, ``"YYYY-MM-DD"``.
+        end_date : str
+            End of range, ``"YYYY-MM-DD"``.
+        override_last_api_hit : bool
+            If ``True``, bypass the cooldown and force an API call.
+
+        Returns
+        -------
+        list[dict] | None
+            OMM records within the requested window.
+        """
+        norad_id = str(norad_id)
+        filepath = os.path.join(self.tle_data_folder, f"tle_{norad_id}.json")
+
+        req_start = datetime.strptime(start_date, "%Y-%m-%d")
+        req_end = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1, microseconds=-1)
+
+        local_data: list[dict] = []
+        last_hit: datetime | None = None
+        if os.path.exists(filepath):
+            with open(filepath, "r") as f:
+                content = json.load(f)
+            if isinstance(content, dict):
+                local_data = content.get("data", [])
+                last_hit = datetime.fromisoformat(content["last_api_hit"]) if "last_api_hit" in content else None
+            else:
+                local_data = content  # legacy list format
+
+        needs_fetch = True
+        cooldown = timedelta(hours=1.5)
+
+        if local_data:
+            local_min = datetime.fromisoformat(local_data[0]["EPOCH"])
+            local_max = datetime.fromisoformat(local_data[-1]["EPOCH"])
+            if req_start >= local_min and req_end <= local_max:
+                print("Local cache fully covers request. Skipping API.")
+                needs_fetch = False
+
+        if needs_fetch and last_hit:
+            time_since = datetime.now() - last_hit
+            if not override_last_api_hit and time_since < cooldown:
+                print(f"Cache is recent ({time_since} ago). Skipping API despite gaps.")
+                needs_fetch = False
+
+        if needs_fetch:
+            print(f"Fetching {norad_id} from API ({start_date} -- {end_date})...")
+            url = self._build_url(
+                f"basicspacedata/query/class/gp_history/NORAD_CAT_ID/{norad_id}"
+                f"/EPOCH/{start_date}--{end_date}/orderby/EPOCH asc/format/json"
+            )
+            fetched = self._fetch_json(url)
+            self._save_unique_sorted(filepath, fetched or [])
+            with open(filepath, "r") as f:
+                local_data = json.load(f).get("data", [])
+
+        return [
+            omm for omm in local_data
+            if req_start <= datetime.fromisoformat(omm["EPOCH"]) <= req_end
+        ]
+
+    def latest_on_orbit(
+            self, update_existing: bool = False, filename: str | None = None
+    ) -> list | None:
+        """
+        Retrieves the newest propagable element set for all on-orbit payloads.
+
+        Parameters
+        ----------
+        update_existing : bool
+            ``True`` → merge into existing file. ``False`` → overwrite.
+        filename : str | None
+            Optional filename override. Defaults to ``'latest_on_orbit.json'``.
+        """
+        url = self._build_url(
+            "basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"
+            "/decay_date/null-val/epoch/>now-30/orderby/norad_cat_id/format/json"
+        )
+        return self._get_json_and_save(url, filename or "latest_on_orbit.json", merge=update_existing)
+
+    def descending_epoch(
+            self,
+            N: int | None = None,
+            update_existing: bool = False,
+            filename: str | None = None,
+    ) -> list | None:
+        """
+        Retrieves GP data ordered by epoch (most recent first).
+
+        Parameters
+        ----------
+        N : int | None
+            Optional result limit.
+        update_existing : bool
+            ``True`` → merge. ``False`` → overwrite.
+        filename : str | None
+            Optional filename override.
+        """
+        if filename:
+            json_name = filename
+        elif N is not None:
+            json_name = f"gp_descending_limit_{N}.json"
+        else:
+            json_name = "gp_descending.json"
+
+        parts = ["basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/orderby/epoch desc"]
+        if N is not None:
+            parts.append(f"limit/{N}")
+        parts.append("format/json")
+        return self._get_json_and_save(self._build_url("/".join(parts)), json_name, merge=update_existing)
+
+    def get_tles_by_norad_ids(
+            self,
+            norad_ids: int | list[int],
+            history: bool = False,
+            orderby: str = "epoch desc",
+            limit_per_object: int = 1,
+            update_existing: bool = False,
+            filename: str | None = None,
+    ) -> list | None:
+        """
+        Retrieves TLEs for one or more specific NORAD IDs.
+
+        Parameters
+        ----------
+        norad_ids : int | list[int]
+            One or more NORAD IDs.
+        history : bool
+            If ``True``, queries ``gp_history`` for historical records.
+        orderby : str
+            API ordering string.
+        limit_per_object : int
+            Maximum records per object.
+        update_existing : bool
+            ``True`` → merge. ``False`` → overwrite.
+        filename : str | None
+            Force a specific cache filename.
+        """
+        if not isinstance(norad_ids, (list, tuple, set)):
+            norad_ids = [norad_ids]
+
+        id_string = ",".join(map(str, norad_ids))
+        tle_class = "gp"
+        use_orderby = True
+
+        if history or limit_per_object > 1:
+            tle_class = "gp_history"
+            if len(norad_ids) > 1:
+                print("Note: Removing 'orderby' for batch history query.")
+                use_orderby = False
+
+        if filename:
+            json_name = filename
+        elif len(norad_ids) == 1:
+            json_name = f"{tle_class}_{norad_ids[0]}_limit_{limit_per_object}.json"
+        else:
+            json_name = f"{tle_class}_batch_{len(norad_ids)}_ids_limit_{limit_per_object}.json"
+
+        parts = ["basicspacedata/query", f"class/{tle_class}", f"NORAD_CAT_ID/{id_string}"]
+        if use_orderby:
+            parts.append(f"orderby/{orderby}")
+        parts.extend([f"limit/{limit_per_object}", "format/json"])
+
+        json_data = self._get_json_and_save(self._build_url("/".join(parts)), json_name, merge=update_existing)
+
+        return json_data
+
+    def filtered_by_oe_dict(
+            self,
+            filter_oe_dict: dict[str, tuple[float | None, float | None]],
+            limit: int = 100,
+            output_file: str = "filtered_results.json",
+            update_existing: bool = False,
+    ) -> list | None:
+        """
+        Retrieves payloads filtered by orbital element bounds.
+
+        Parameters
+        ----------
+        filter_oe_dict : dict
+            Mapping of orbital element names to ``(min, max)`` bound tuples.
+            Either bound may be ``None`` for a one-sided filter.
+        limit : int
+            Maximum number of results.
+        output_file : str
+            Cache filename.
+        update_existing : bool
+            ``True`` → merge. ``False`` → overwrite.
+        """
+        parts = ["basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"]
+        for oe, bounds in filter_oe_dict.items():
+            min_val = bounds[0] if len(bounds) > 0 else None
+            max_val = bounds[1] if len(bounds) > 1 else None
+            if min_val is not None and max_val is not None:
+                parts.extend([oe.upper(), f"{min_val}--{max_val}"])
+            elif min_val is not None:
+                parts.extend([oe.upper(), f">{min_val}"])
+            elif max_val is not None:
+                parts.extend([oe.upper(), f"<{max_val}"])
+        parts.append(f"orderby/epoch desc/limit/{limit}/format/json")
+        return self._get_json_and_save(self._build_url("/".join(parts)), output_file, merge=update_existing)
+
+    def query_from_query_builder_url(
+            self,
+            query: str,
+            output_file: str = "custom_query.json",
+            update_existing: bool = False,
+    ) -> list | None:
+        """
+        Executes a user-provided Space-Track query URL or query path.
+
+        The input may be:
+        - a full URL copied from the Space-Track 'Query Builder'
+        - only the query path starting from 'basicspacedata/query/...'
+
+        Parameters
+        ----------
+        query : str
+            Full Space-Track API URL or query path.
+        output_file : str
+            Local cache filename.
+        update_existing : bool
+            True → merge with existing cache. False → overwrite.
+
+        Returns
+        -------
+        list | None
+            JSON records returned by the API.
+        """
+
+        query = query.strip()
+
+        if query.startswith("http"): # Full URL provided
+            parsed = urlparse(query)
+
+            if "space-track.org" not in parsed.netloc:
+                raise ValueError("Only space-track.org URLs are allowed.")
+
+            # Extract only the path part
+            path = parsed.path.lstrip("/")
+
+        else:
+            path = query.lstrip("/") # Only path provided
+
+        # Ensure correct prefix
+        if not path.startswith("basicspacedata/query"):
+            raise ValueError(
+                "Query must start with 'basicspacedata/query/...'"
+            )
+
+        # Ensure JSON format
+        if "format/json" not in path:
+            if not path.endswith("/"):
+                path += "/"
+            path += "format/json"
+
+        url = self._build_url(path)
+
+        return self._get_json_and_save(
+            url,
+            output_file,
+            merge=update_existing
+        )
+
+class OMMUtils:
+    """
+    Stateless utility class for working with OMM (Orbit Mean-Elements Message)
+    records in dictionary form.
+
+    This class has no dependency on Space-Track.org or any particular data
+    source — it operates on plain OMM dicts regardless of where they came from.
+    All methods are static; instantiation is not required.
+    """
+
+    @staticmethod
+    def save_batch_to_individual_files(
+            json_data: list[dict],
+            output_folder: str,
+    ) -> list[str] | None:
+        """
+        Splits a batch list of OMM records into one JSON file per NORAD ID.
+
+        Parameters
+        ----------
+        json_data : list[dict]
+            Batch OMM records, each containing a ``NORAD_CAT_ID`` field.
+        output_folder : str
+            Directory in which to write the per-satellite files.
+
+        Returns
+        -------
+        list[str] | None
+            List of created filenames (basenames only), or None if no data.
+        """
+        if not json_data:
+            print("No data to split.")
+            return None
+
+        grouped: dict[str, list] = defaultdict(list)
+        for record in json_data:
+            grouped[record["NORAD_CAT_ID"]].append(record)
+
+        saved_files: list[str] = []
+        for norad_id, records in grouped.items():
+            filename = f"{norad_id}_from_batch.json"
+            filepath = os.path.join(output_folder, filename)
+            with open(filepath, "w") as f:
+                json.dump(records, f, indent=4)
+            saved_files.append(filename)
+
+        print(f"Split batch data into {len(saved_files)} individual files in {output_folder}.")
+        return saved_files
+
+    @staticmethod
+    def get_tles(json_data: list[dict] | dict) -> defaultdict[str, list[tuple[str, str]]]:
+        """
+        Extracts TLE line pairs from a list of OMM records.
+
+        Parameters
+        ----------
+        json_data : list[dict] | dict
+            One or more OMM records containing ``TLE_LINE1`` and ``TLE_LINE2``.
+
+        Returns
+        -------
+        dict[str, tuple[str, str]]
+            Mapping of NORAD ID (str) → (TLE line 1, TLE line 2).
+        """
+        if isinstance(json_data, dict):
+            json_data = [json_data]
+
+        if json_data and isinstance(json_data, list):
+            pass
+
+        final_dict = defaultdict(list)
+
+        for entry in json_data:
+            final_dict[entry["NORAD_CAT_ID"]].append(
+                (entry["TLE_LINE1"], entry["TLE_LINE2"])
+            )
+
+        return final_dict
+
+
+
+    @staticmethod
+    def get_tudat_keplerian_element_set(
+            omm: dict,
+    ) -> tuple[float, float, float, float, float, float]:
+        """
+        Extracts and converts Keplerian elements from a single OMM record into
+        SI units suitable for Tudat.
+
+        Parameters
+        ----------
+        omm : dict
+            A single OMM record (km and degrees, as returned by Space-Track or
+            any compliant source).
+
+        Returns
+        -------
+        tuple[float, float, float, float, float, float]
+            ``(a, e, i, omega, RAAN, true_anomaly)`` where distances are in
+            metres and angles are in radians.
+
+        Raises
+        ------
+        TypeError
+            If ``omm`` is a list rather than a single dict.
+        ValueError
+            If ``omm`` is empty or falsy.
+        """
+        if not omm:
+            raise ValueError("No OMM record provided.")
+        if isinstance(omm, list):
+            raise TypeError(
+                "omm must be a single dictionary, not a list. "
+                "Pass one record at a time."
+            )
+
+        a     = float(omm["SEMIMAJOR_AXIS"])    * 1e3
+        e     = float(omm["ECCENTRICITY"])
+        i     = float(omm["INCLINATION"])        * math.pi / 180
+        omega = float(omm["ARG_OF_PERICENTER"]) * math.pi / 180
+        raan  = float(omm["RA_OF_ASC_NODE"])    * math.pi / 180
+        mo    = float(omm["MEAN_ANOMALY"])       * math.pi / 180
+
+        return a, e, i, omega, raan, mean_to_true_anomaly(e, mo)
+
+    @staticmethod
+    def tle_to_TleEphemeris_object(
+            tle_line_1: str, tle_line_2: str
+    ) -> environment.TleEphemeris:
+        """
+        Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
+
+        Parameters
+        ----------
+        tle_line_1 : str
+            First line of the TLE.
+        tle_line_2 : str
+            Second line of the TLE.
+
+        Returns
+        -------
+        environment.TleEphemeris
+            Configured TleEphemeris object.
+        """
+        return environment.TleEphemeris(
+            "Earth", "J2000", environment.Tle(tle_line_1, tle_line_2), False
+        )
+
+    @staticmethod
+    def tle_to_Tle_object(
+            tle_line_1: str, tle_line_2: str
+    ) -> environment.TleEphemeris:
+        """
+        Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
+
+        Parameters
+        ----------
+        tle_line_1 : str
+            First line of the TLE.
+        tle_line_2 : str
+            Second line of the TLE.
+
+        Returns
+        -------
+        environment.TleEphemeris
+            Tle object.
+        """
+        return environment.Tle(tle_line_1, tle_line_2)
+
+    @staticmethod
+    def clean_file(filepath: str) -> None:
+        """
+        Removes duplicate TLE entries from a cache file in-place.
+
+        Supports both legacy (plain list) and current (dict with metadata)
+        formats. When two records share the same EPOCH, the one with the later
+        ``CREATION_DATE`` is kept.
+
+        Parameters
+        ----------
+        filepath : str
+            Absolute path to the cache file.
+        """
+        if not os.path.exists(filepath):
+            print(f"File not found: {filepath}")
+            return
+
+        with open(filepath, "r") as f:
+            content = json.load(f)
+
+        if isinstance(content, list):
+            data, metadata, is_dict = content, {}, False
+        elif isinstance(content, dict) and "data" in content:
+            data = content["data"]
+            metadata = {k: v for k, v in content.items() if k != "data"}
+            is_dict = True
+        else:
+            print(f"Skipping {filepath}: unknown format.")
+            return
+
+        initial_count = len(data)
+        unique: dict[str, dict] = {}
+        for entry in data:
+            epoch = entry.get("EPOCH")
+            norad_id = entry.get("NORAD_CAT_ID")
+            if not epoch or not norad_id:
+                continue
+
+            composite_key = f"{norad_id}_{epoch}"
+
+            if composite_key not in unique or entry.get("CREATION_DATE", "") > unique[composite_key].get("CREATION_DATE", ""):
+                unique[composite_key] = entry
+
+        cleaned = sorted(unique.values(), key=lambda x: (x["EPOCH"], x["NORAD_CAT_ID"]))
+        output: dict | list = ({**metadata, "data": cleaned} if is_dict else cleaned)
+
+        with open(filepath, "w") as f:
+            json.dump(output, f, indent=4)
+
+        print(f"Cleaned {filepath}. Removed {initial_count - len(cleaned)} duplicates.")

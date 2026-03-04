@@ -12,7 +12,7 @@ can be modelled using light-time corrections, for which settings (as objects of 
 for observation biases (as objects of type :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`) are created
 in the :ref:`biases` module. Definition of the observation link are created through the :ref:`links` module.
 
-Details on the procedure to create observation models, and the various top-level options for their creatoon, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
+Details on the procedure to create observation models, and the various top-level options for their creation, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
 
 
 
@@ -68,6 +68,10 @@ Functions
    euler_angles_313
 
 
+
+   differenced_time_of_arrival
+
+   doppler_measured_frequency
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_range
@@ -111,6 +115,10 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.euler_angles_313
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.doppler_measured_frequency
 
 
 Enumerations

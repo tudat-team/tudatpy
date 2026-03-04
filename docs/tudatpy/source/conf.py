@@ -19,6 +19,7 @@
 
 import os
 import sys
+import importlib
 from datetime import datetime
 
 sys.path.insert(0, os.path.abspath("."))
@@ -43,6 +44,32 @@ if bool(os.getenv("READTHEDOCS")) is True:
 else:
     # when building locally, use the binaries generated with tudat-bundle
     sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+
+
+def has_mcd_support():
+    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+    try:
+        atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
+    except Exception:
+        return False
+    return hasattr(atmosphere, "mcd")
+
+
+HAS_MCD_SUPPORT = has_mcd_support()
+
+
+def filter_mcd_docs(app, docname, source):
+    """Hide MCD docs when the imported tudatpy build has no MCD support."""
+    if docname != "dynamics/environment_setup/atmosphere" or HAS_MCD_SUPPORT:
+        return
+
+    text = source[0]
+    text = text.replace("\n   mcd\n", "\n")
+    text = text.replace(
+        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
+        "\n",
+    )
+    source[0] = text
 
 # -- General configuration ------------------------------------------------
 
@@ -77,7 +104,8 @@ autodoc_member_order = "groupwise"
 
 
 autodoc_default_options = {
-    "show-inheritance": True
+    "show-inheritance": True,
+    "exclude-members": "pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1",
 }
 
 bibtex_bibfiles = ["refs.bib"]
@@ -111,6 +139,10 @@ def process_constants_docstring(app, what, name, obj, options, lines):
     The docstring in the .rst file will be appended to this type information.
     The function applies only to the modules specified in the modules_to_process list.
     """
+
+    if is_internal_pybind_record(name, obj):
+        lines[:] = ["Pybind11 overload helper record."]
+        return
 
     modules_to_process = ("tudatpy.constants",)
 
@@ -166,6 +198,20 @@ def replace_annotated_nparrays(text: str) -> str:
 
     return text
 
+
+def is_internal_pybind_record(name, obj):
+    """Detect pybind overload helper records exposed to Python."""
+    marker = "pybind11_detail_function_record"
+    if marker in name:
+        return True
+
+    for attr in ("__qualname__", "__name__", "__module__"):
+        value = getattr(obj, attr, "")
+        if isinstance(value, str) and marker in value:
+            return True
+
+    return False
+
 def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
 
 
@@ -196,10 +242,19 @@ def simplify_signature_types(app, what, name, obj, options, signature, return_an
         return_annotation = replace_annotated_nparrays(return_annotation)
 
     return signature, return_annotation
+
+
+def skip_internal_pybind_members(app, what, name, obj, would_skip, options):
+    """Suppress pybind-internal helper records from autodoc output."""
+    if is_internal_pybind_record(name, obj):
+        return True
+    return would_skip
     
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
     app.connect("autodoc-process-signature", simplify_signature_types)
+    app.connect("autodoc-skip-member", skip_internal_pybind_members)
+    app.connect("source-read", filter_mcd_docs)
     
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -345,7 +400,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "pagmo": ("https://esa.github.io/pagmo2/", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
 }

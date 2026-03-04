@@ -233,16 +233,14 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "time_step" ) );
 
     m.def( "interpolator_generation_settings",
            &ti::interpolatorGenerationSettings< double >,
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "time_step" ) );
 
     m.def( "linear_interpolation",
            &ti::linearInterpolation,

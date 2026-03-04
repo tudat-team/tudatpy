@@ -414,14 +414,14 @@ void expose_rotation_model_setup( py::module& m )
  .. math::
     \mathbf{R}^{(\text{GCRS}/\text{ITRS})} = \mathbf{R}^{(\text{GCRS}/\text{CIRS})}(X,Y,s)\mathbf{R}^{(\text{CIRS}/\text{TIRS})}(\theta_{E})\mathbf{R}^{(\text{TIRS}/\text{ITRS})}(x_{p}, y_{p}, s')
 
- using the intermediate frames TIRS (Terrestial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
+ using the intermediate frames TIRS (Terrestrial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
  :math:`\mathbf{R}^{(\text{TIRS}/\text{ITRS})}` implements Eq. (5.3). The inputs to these rotation matrices are :
 
  * :math:`X`, :math:`Y`: Celestial pole position elements
  * :math:`s`: The CIO (Celestial Intermediate Origin)
  * :math:`\theta_{E}`: Earth rotation angle (denoted as :math:`ERA` in IERS Conventions)
  * :math:`x_{p}`, :math:`y_{p}`: Polar motion components
- * :math:`s'`: The TIO (Terrestial Intermediate Origin)
+ * :math:`s'`: The TIO (Terrestrial Intermediate Origin)
 
  Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
  :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`

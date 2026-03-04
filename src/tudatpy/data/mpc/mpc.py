@@ -159,7 +159,7 @@ def get_biases_EFCC18(
     """Calculate and return star catalog bias values as described in:
     "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
     Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
-    This can then be selected using the bias_file paramater.
+    This can then be selected using the bias_file parameter.
 
     Parameters
     ----------
@@ -181,7 +181,7 @@ def get_biases_EFCC18(
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Right Ascencion Corrections, Declination corrections
+        Right Ascension Corrections, Declination corrections
 
     Raises
     ------
@@ -417,7 +417,7 @@ def get_weights_VFCC17(
 
     # CCD
     # ###################
-    # TABLE 3: astroid observers
+    # TABLE 3: asteroid observers
     # Table 3 conditions:
     # NOTE for now CCD will receive the same base weighting as CCD.
     # CMOS sensors for astronomy is a new development.
@@ -485,7 +485,7 @@ def get_weights_VFCC17(
         "F65",
     ]
     # NOTE these are additional LCO observatories, mostly online after publication
-    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omssion in the paper.
+    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omission in the paper.
     # Those thus assume the default inv_weight of 1.0
     # Since remaining 1m telescopes are duplicates of existing observatories, they are included.
     # Dates retrieved from: https://sbnmpc.astro.umd.edu/mpecwatch/obs.html
@@ -740,18 +740,18 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
-            # This query checks if Longitude is Nan: non-terretrial telescopes
+            # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
             self._MPC_space_telescopes = sats
         except Exception as e:
-            print("An error occured while retrieving observatory data")
+            print("An error occurred while retrieving observatory data")
             print(e)
 
     def _add_observatory_positions(
             self, bodies: environment.SystemOfBodies, earth_name
     ) -> None:
-        """Internal. Add observatory cartesian postions to station data"""
+        """Internal. Add observatory cartesian positions to station data"""
         temp = self._observatory_info
 
         if temp is None:
@@ -1182,7 +1182,7 @@ class BatchMPC:
         in_place : bool, optional
             If true, modify the current batch object.\
                   If false returns a new object that is\
-                      filtered, currect batch remains unmodified, by default True
+                      filtered, correct batch remains unmodified, by default True
 
         Raises
         ------
@@ -1758,7 +1758,7 @@ class BatchMPC:
             include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
-        Carthesian positions are only available after running the `to_tudat()` method.
+        Cartesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------

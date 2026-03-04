@@ -282,9 +282,9 @@ void expose_environment_setup( py::module &m )
          Parameters
          ----------
          frame_origin : str
-             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
+             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
          frame_orientation : str
-             Definition of the global frame orientation for the bodies. See the `user guide https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
+             Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
 
 
       )doc" )
@@ -318,7 +318,7 @@ void expose_environment_setup( py::module &m )
 
              This method is rarely called by the user, as :class:`BodySettings` objects cannot be created directly but only be extracted from a BodyListSettings instance.
              Instead, users are recommended to use the :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.dynamics.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
-             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
+             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
 
 
          Parameters
@@ -340,7 +340,7 @@ void expose_environment_setup( py::module &m )
          This method adds empty settings to the :class:`BodyListSettings` instance.
 
          Adds empty settings to the :class:`BodyListSettings` instance. This is typically used to add settings for custom bodies, for which no default settings are available.
-         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
+         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
 
          Parameters
          ----------
@@ -357,7 +357,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
+         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
 
          :type: str
       )doc" )
@@ -365,7 +365,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
+         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
 
          :type: str
       )doc" );

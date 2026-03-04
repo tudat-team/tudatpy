@@ -451,7 +451,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Parameters
  ----------
  body_name_to_use : str, default = ""
-     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
+     Body from which Spice gravitational parameter is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
 
  Returns
  -------

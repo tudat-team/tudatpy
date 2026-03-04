@@ -30,5 +30,5 @@ def test_datetime_conversions():
     # seconds_in_day_to_check = ( julian_day_to_check - math.floor( julian_day_to_check ) ) * 86400.0
     # manual_seconds_in_day = 1 * 3600 + 7 * 60 + 23.891234
     # assert math.fabs( manual_seconds_in_day - seconds_in_day_to_check ) < 1.0E-4
-    # print('DATE TIME TEST SUCCESFUL')
+    # print('DATE TIME TEST SUCCESSFUL')
 

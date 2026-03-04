@@ -533,29 +533,30 @@ list[BodyPanelSettings]
            py::arg( "normal_velocity_at_wall_ratio" ) = -1,
 
            R"doc(
-           
-           Function for creating a set of material properties
-Parameters
-----------
-specular_reflectivity : float, default = -1
-    Specular reflectivity coefficient.
-diffuse_reflectivity : float, default = -1
-    Diffuse reflectivity coefficient.
-energy_accomodation_coefficient : float, default = -1
-    Energy accommodation coefficient.  
-normal_accomodation_coefficient : float, default = -1
-    Normal accommodation coefficient.  
-tangential_accomodation_coefficient : float, default = -1
-    Tangential accommodation coefficient.  
-normal_velocity_at_wall_ratio : float, default = -1
-    Normal velocity ratio at the wall.  
 
-Returns
--------
-MaterialProperties
-    Material properties of a panel
-           
-           )doc" );
+ Function for creating a set of material properties.
+
+ Parameters
+ ----------
+ specular_reflectivity : float, default = -1
+     Specular reflectivity coefficient.
+ diffuse_reflectivity : float, default = -1
+     Diffuse reflectivity coefficient.
+ energy_accomodation_coefficient : float, default = -1
+     Energy accommodation coefficient.
+ normal_accomodation_coefficient : float, default = -1
+     Normal accommodation coefficient.
+ tangential_accomodation_coefficient : float, default = -1
+     Tangential accommodation coefficient.
+ normal_velocity_at_wall_ratio : float, default = -1
+     Normal velocity ratio at the wall.
+
+ Returns
+ -------
+ MaterialProperties
+     Material properties of a panel.
+
+ )doc" );
 }
 
 }  // namespace vehicle_systems

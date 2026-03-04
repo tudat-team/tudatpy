@@ -561,7 +561,7 @@ void expose_data( py::module& m )
 
            :param file_name: String representing the path to the file to be loaded
            :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
-           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined (Default: True)
+           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
 
            :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
            )doc" );

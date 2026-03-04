@@ -684,7 +684,7 @@ GravityFieldVariationSettings
 Function for creating polynomial gravity field variations at a single variation period.
 
 Function for creating polynomial gravity field variations at a single variation period, same as :math:`~polynomial`, but with a single
-polynmial power :math:`p`.
+polynomial power :math:`p`.
 
 Parameters
 ----------

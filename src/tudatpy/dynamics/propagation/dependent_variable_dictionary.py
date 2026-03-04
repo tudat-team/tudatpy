@@ -1,6 +1,6 @@
 """
 Copyright (c) 2010-2023, Delft University of Technology
-All rigths reserved
+All rights reserved
 
 This file is part of the Tudat. Redistribution and use in source and
 binary forms, with or without modification, are permitted exclusively
@@ -224,7 +224,7 @@ class DependentVariableDictionary(dict):
         """
 
         width = max([len(ID) for ID in self.keys()]) + 10
-        title = f'{"Depent Variable Dictionary Summary":^{width}}'
+        title = f'{"Dependent Variable Dictionary Summary":^{width}}'
 
         representation_string = (
             f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
