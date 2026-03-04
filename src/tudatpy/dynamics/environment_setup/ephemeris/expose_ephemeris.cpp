@@ -1233,8 +1233,7 @@ void expose_ephemeris_setup( py::module& m )
            &tss::customEphemerisSettingsDeprecated,
            py::arg( "custom_state_function" ),
            py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           R"doc(Deprecated function. Use custom_ephemeris instead.)doc" );
+           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
 }
 
 }  // namespace ephemeris

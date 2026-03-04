@@ -23,6 +23,7 @@ functionality. The other modules make extensive use of the functionality exposed
 
    math/interpolators
    math/root_finders
+   math/statistics
 
 
 

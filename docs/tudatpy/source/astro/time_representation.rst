@@ -92,6 +92,12 @@ Functions
 
    iso_string_to_epoch_time_object
 
+
+
+   epoch_from_julian_day
+
+   epoch_from_modified_julian_day
+
 .. autofunction:: tudatpy.astro.time_representation.date_time_components_to_epoch
 
 .. autofunction:: tudatpy.astro.time_representation.iso_string_to_epoch
@@ -137,6 +143,12 @@ Functions
 .. autofunction:: tudatpy.astro.time_representation.date_time_components_to_epoch_time_object
 
 .. autofunction:: tudatpy.astro.time_representation.iso_string_to_epoch_time_object
+
+
+.. autofunction:: tudatpy.astro.time_representation.epoch_from_julian_day
+
+.. autofunction:: tudatpy.astro.time_representation.epoch_from_modified_julian_day
+
 
 Enumerations
 ------------
@@ -185,7 +197,6 @@ Classes
 
 .. autoclass:: tudatpy.astro.time_representation.TimeScaleConverter
    :members:
-
 
 
 

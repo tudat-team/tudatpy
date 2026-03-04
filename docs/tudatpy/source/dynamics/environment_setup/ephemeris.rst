@@ -124,6 +124,9 @@ Functions
 
 
 
+
+   create_ephemeris
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.direct_spice
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.interpolated_spice
@@ -153,6 +156,9 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.multi_arc_ephemeris
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.create_ephemeris
+
 
 
 
@@ -210,6 +216,5 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings
    :members:
-
 
 

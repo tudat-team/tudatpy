@@ -35,6 +35,10 @@ Functions
    pole_tide
 
 
+
+   ocean_tidal
+
+   pole_tidal
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.degree_two_basic_solid_body_tidal
@@ -44,6 +48,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tide
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tide
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tidal
 
 
 

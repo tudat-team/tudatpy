@@ -68,6 +68,10 @@ Functions
    euler_angles_313
 
 
+
+   differenced_time_of_arrival
+
+   doppler_measured_frequency
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_range
@@ -111,6 +115,10 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.euler_angles_313
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.doppler_measured_frequency
 
 
 Enumerations
