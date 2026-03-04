@@ -234,8 +234,6 @@ class SpaceTrackQuery:
         req_start = datetime.strptime(start_date, "%Y-%m-%d")
         req_end = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1, microseconds=-1)
 
-        print(req_start, req_end)
-
         local_data: list[dict] = []
         last_hit: datetime | None = None
         if os.path.exists(filepath):
