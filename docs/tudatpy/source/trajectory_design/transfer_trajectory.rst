@@ -189,5 +189,3 @@ Classes
 .. autoclass:: tudatpy.trajectory_design.transfer_trajectory.TransferTrajectory
    :members:
 
-
-

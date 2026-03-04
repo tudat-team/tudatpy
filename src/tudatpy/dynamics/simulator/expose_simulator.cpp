@@ -54,7 +54,7 @@ void expose_simulator( py::module& m )
          Class for propagation of single arc dynamics.
 
          Class for propagation of single arc dynamics, from propagation settings and environment models, typically
-         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
+         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`__ for more details.
 
       )doc" )
             .def_property_readonly( "bodies",
@@ -252,7 +252,7 @@ void expose_simulator( py::module& m )
          Class for propagation of multi-arc dynamics.
 
          Class for propagation of multi-arc dynamics, from propagation settings and environment models, typically
-         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
+         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`__ for more details.
 
       )doc" )
             .def( "integrate_equations_of_motion",
@@ -301,7 +301,7 @@ void expose_simulator( py::module& m )
          Class for propagation of hybrid-arc dynamics.
 
          Class for propagation of hybrid-arc dynamics, from propagation settings and environment models, typically
-         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
+         instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`__ for more details.
 
       )doc" )
             .def( "integrate_equations_of_motion",
@@ -599,7 +599,7 @@ void expose_simulator( py::module& m )
          .. warning::
 
            This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history``
-           and ``sensitivity_matrix_history` attributes of
+           and ``sensitivity_matrix_history`` attributes of
            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
 

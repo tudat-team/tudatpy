@@ -191,6 +191,7 @@ Functions
 
    local_aerodynamic_heat_rate
 
+
    per_target_panel_radiation_pressure_force
 
    radiation_pressure_source_panel_geometry
@@ -201,9 +202,11 @@ Functions
 
    total_spherical_harmonic_cosine_coefficient_variations_
 
+
    total_spherical_harmonic_sine_coefficient_variations
 
    total_spherical_harmonic_sine_coefficient_variations_
+
 
    vehicle_panel_surface_normals_body_fixed_frame
 
@@ -419,6 +422,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings
    :members:
-
-
 

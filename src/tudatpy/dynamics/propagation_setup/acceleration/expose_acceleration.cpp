@@ -1005,15 +1005,15 @@ In this example, we define the relativistic correction acceleration for a Mars o
  force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
  to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-The force enacted by the rtg emission is calculated as:
+ The force enacted by the RTG emission is calculated as:
 
  .. math::
 
      \mathbf{F}=R^{I/BF}\left(\mathbf{F}_{\text{0}} \cdot e^{\left(-\beta \left(t-t_{\text{0}}\right) \right)} \right)
 
  Here, :math:`R^{I/BF}` is the rotation matrix from the body-fixed frame (of the body undergoing the acceleration),
- :math: `\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math: `t_{\text{0}}` and
- :math:`beta` is the decay scale factor (:math: `= ln(2)/t_(1/2))`.
+ :math:`\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math:`t_{\text{0}}` and
+ :math:`\beta` is the decay scale factor (:math:`= \ln(2)/t_{1/2}`).
 
 
  Parameters
@@ -1022,7 +1022,7 @@ The force enacted by the rtg emission is calculated as:
      Force vector at the reference epoch, defined in the body-fixed frame.
  decay_scale_factor : float
      Scale factor of the exponential decay model.
- cosine_acceleration : float
+ reference_epoch : float
      Reference epoch for exponential decay model.
  Returns
  -------
@@ -1334,7 +1334,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a list of engine models.
 
- Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1361,7 +1361,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1387,7 +1387,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
  Returns

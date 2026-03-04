@@ -19,8 +19,7 @@ dependent variables to save and many more options. The full options and structur
 <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup.html>`_
 
 In addition to settings for the full propagation, this module also contains function to create settings for the termination
-of a propagation (stored in instances of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings
-and its derived class). These objects are passed to the propagator settings function in this module to define the
+of a propagation (stored in instances of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings` and its derived class). These objects are passed to the propagator settings function in this module to define the
 propagation termination.
 
 
@@ -236,6 +235,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.HybridArcPropagatorProcessingSettings
    :members:
-
-
 

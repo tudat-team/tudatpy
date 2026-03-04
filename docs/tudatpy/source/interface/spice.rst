@@ -125,5 +125,3 @@ Functions
 .. autofunction:: tudatpy.interface.spice.suppress_error_output
 
 
-
-

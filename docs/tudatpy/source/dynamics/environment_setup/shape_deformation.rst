@@ -75,5 +75,3 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings
    :members:
 
-
-

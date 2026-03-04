@@ -382,7 +382,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with Exponential map for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -411,7 +411,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with quaternion for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -440,7 +440,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with Modified Rodrigues parameters map for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -469,7 +469,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with Exponential map for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -499,7 +499,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with quaternion for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -528,7 +528,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with Modified Rodrigues parameters for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
