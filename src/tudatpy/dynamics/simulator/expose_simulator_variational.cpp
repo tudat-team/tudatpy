@@ -224,7 +224,7 @@ void expose_simulator_variational_bindings( py::module& m )
          .. warning::
 
            This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history``
-           and ``sensitivity_matrix_history` attributes of
+           and ``sensitivity_matrix_history`` attributes of
            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
 
