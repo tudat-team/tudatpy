@@ -410,8 +410,7 @@ void expose_ephemeris_setup( py::module& m )
     m.def( "create_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "body_name" ) );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,

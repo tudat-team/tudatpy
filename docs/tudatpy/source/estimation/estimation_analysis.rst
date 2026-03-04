@@ -28,13 +28,6 @@ Functions
 
 
 
-   propagate_covariance_rsw_split_output
-
-   propagate_covariance_split_output
-
-   propagate_formal_errors_rsw_split_output
-
-   propagate_formal_errors_split_output
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects
@@ -44,18 +37,6 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_rsw_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_rsw_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_split_output
-
-
-
-
 
 Classes
 -------
@@ -102,4 +83,3 @@ Classes
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
    :members:
-
