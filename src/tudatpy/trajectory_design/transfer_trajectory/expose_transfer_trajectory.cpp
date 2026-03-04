@@ -214,7 +214,7 @@ void expose_transfer_trajectory( py::module &m )
            py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
            R"doc(
 
- Function to get the legs and nodes settings of a transfer with just upowered legs.
+ Function to get the legs and nodes settings of a transfer with just unpowered legs.
 
 
  Function determines the legs and nodes settings of a multi-gravity assist transfer trajectory consisting of:

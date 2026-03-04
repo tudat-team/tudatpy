@@ -403,7 +403,7 @@ Examples
  By default, the reception time of the :math:`i^{th}` one-way range in this n-way range is set as the
  transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancillary settings
  (see :func:`~func.estimation.observations_setup.ancillary_settings.n_way_range_ancillary_settings`) when creating observation
- simulation setings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_).
+ simulation settings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_).
 
  For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
 

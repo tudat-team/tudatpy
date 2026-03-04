@@ -629,7 +629,7 @@
 
 #         ambiguoustxt = (
 #             "Time intervals like month and year "
-#             + "are ambigious, please reformulate the timestep in days instead"
+#             + "are ambiguous, please reformulate the timestep in days instead"
 #         )
 #         if alpha_part.startswith("y") or alpha_part.startswith("mo"):
 #             raise ValueError(ambiguoustxt)

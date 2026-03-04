@@ -1570,7 +1570,7 @@ datetime.datetime
  Parameters
  ----------
  TDB_time : astro.time_representation.Time
-    Timne object representing the epoch as seconds since J2000, in the TDB time scale.
+    Time object representing the epoch as seconds since J2000, in the TDB time scale.
  earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
      Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
  Returns

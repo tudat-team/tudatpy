@@ -740,7 +740,7 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
-            # This query checks if Longitude is Nan: non-terretrial telescopes
+            # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
             self._MPC_space_telescopes = sats
@@ -1758,7 +1758,7 @@ class BatchMPC:
             include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
-        Carthesian positions are only available after running the `to_tudat()` method.
+        Cartesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------

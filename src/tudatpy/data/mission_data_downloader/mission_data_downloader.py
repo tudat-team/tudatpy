@@ -2455,7 +2455,7 @@ class LoadPDS:
               This will filter the data to include only those within the date range.
             - end_date (`datetime`): The end date for downloading data.
               This will filter the data to include only those within the date range.
-            - radio_observation_type (`str`): The type of radio science files to download (e.g. phobos gravity, commissioniong, etc...)
+            - radio_observation_type (`str`): The type of radio science files to download (e.g. phobos gravity, commissioning, etc...)
 
         Outputs:
             - (`dict`, `dict`, `dict`): A tuple containing:

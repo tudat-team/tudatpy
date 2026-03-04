@@ -631,7 +631,7 @@ class HorizonsQuery:
 
         ambiguoustxt = (
             "Time intervals like month and year "
-            + "are ambigious, please reformulate the timestep in days instead"
+            + "are ambiguous, please reformulate the timestep in days instead"
         )
         if alpha_part.startswith("y") or alpha_part.startswith("mo"):
             raise ValueError(ambiguoustxt)
@@ -1242,7 +1242,7 @@ def jpl_horizons(
 
     This function is a wrapper for the tudatpy.data.horizons functionality.
     That api is not available on the api documentation yet.
-    For now, visit the HorizonsQuery souce code for extensive documentation:
+    For now, visit the HorizonsQuery source code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/horizons.py
 
     For more information on the Horizons System, visit: https://ssd.jpl.nasa.gov/horizons/manual.html
