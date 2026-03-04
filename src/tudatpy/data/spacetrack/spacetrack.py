@@ -539,7 +539,7 @@ class OMMUtils:
         return saved_files
 
     @staticmethod
-    def get_tles(json_data: list[dict] | dict) -> dict[str, tuple[str, str]]:
+    def get_tles(json_data: list[dict] | dict) -> defaultdict[str, list[tuple[str, str]]]:
         """
         Extracts TLE line pairs from a list of OMM records.
 
@@ -556,14 +556,19 @@ class OMMUtils:
         if isinstance(json_data, dict):
             json_data = [json_data]
 
-        # Unwrap nested list if present (legacy quirk)
-        if json_data and isinstance(json_data[0], list):
-            json_data = json_data[0]
+        if json_data and isinstance(json_data, list):
+            pass
 
-        return {
-            entry["NORAD_CAT_ID"]: (entry["TLE_LINE1"], entry["TLE_LINE2"])
-            for entry in json_data
-        }
+        final_dict = defaultdict(list)
+
+        for entry in json_data:
+            final_dict[entry["NORAD_CAT_ID"]].append(
+                (entry["TLE_LINE1"], entry["TLE_LINE2"])
+            )
+
+        return final_dict
+
+
 
     @staticmethod
     def get_tudat_keplerian_element_set(
