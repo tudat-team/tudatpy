@@ -755,7 +755,7 @@ Examples
  The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`.
 
  The observable may be non-dimensionalized by the speed of light :math:`c` (using the ``normalized_with_speed_of_light`` input), which results in the observable being equal to the
- received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`. For the observation model provding a model for the received
+ received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`. For the observation model providing a model for the received
  frequency, use :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency`.
 
  This observable represents the 'instantaneous (non-integrated)' Doppler observable, such as those obtained from open-loop observations.
@@ -867,7 +867,7 @@ a scalar observable :math:`h_{_{\text{2-Dopp.}}}`
 
 with the link end :math:`T` and :math:`R` denoting the transmitter and receiver of a two-way link. The observable is computed
 from a concatenation of a one-way Doppler uplink observation
-:math:`h_{_{\text{1-Dopp.}\uparrow}}` and a one-way Doppler downlink obervation :math:`h_{_{\text{1-Dopp.}\downarrow}}` (see
+:math:`h_{_{\text{1-Dopp.}\uparrow}}` and a one-way Doppler downlink observation :math:`h_{_{\text{1-Dopp.}\downarrow}}` (see
 :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous`) as (with the term :math:`c` omitted in the 1-way computations):
 
 .. math::
@@ -1068,7 +1068,7 @@ normalized_with_speed_of_light : bool, default = false
 
  Function for creating settings for an n-way averaged Doppler observable.
 
- Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
  analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 

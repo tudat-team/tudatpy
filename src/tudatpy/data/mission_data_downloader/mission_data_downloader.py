@@ -4429,7 +4429,7 @@ class LoadPDS:
             - local_folder (`str`): The local directory where the downloaded files will be saved.
             - start_date (`datetime`): The start date for downloading data. This will filter the data to include only those within the date range.
             - end_date (`datetime`): The end date for downloading data. This will filter the data to include only those within the date range.
-            - radio_observation_type (`str`): The type of radio science files to download (e.g. commissioning, checkout, solar conjuction, Lutetia, Global Gravity etc...)
+            - radio_observation_type (`str`): The type of radio science files to download (e.g. commissioning, checkout, solar conjunction, Lutetia, Global Gravity etc...)
 
         Outputs:
             (`dict`, `dict`, `dict`): A tuple containing:

@@ -13,7 +13,7 @@ import datetime
 
 spice.load_standard_kernels()
 
-# 87% test coverage for tudatpy/data/horizons.py. Remaineder is rare user input validation
+# 87% test coverage for tudatpy/data/horizons.py. Remainder is rare user input validation
 # 100% test coverage for tudatpy/numerical_simulation/environment_setup/ephemeris/horizons_wrapper.py.
 
 

@@ -572,7 +572,7 @@ void expose_transfer_trajectory( py::module &m )
 
          Class defining a transfer trajectory constituted by transfer legs and nodes.
 
-         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is tipically created using the `create_transfer_trajectory` function.
+         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is typically created using the `create_transfer_trajectory` function.
 
 
 

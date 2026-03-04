@@ -311,7 +311,7 @@ class HorizonsQuery:
             raise ValueError(txt)
 
         # query is smaller than limit -> one batch
-        # seperate check for list as the num lines is smaller
+        # separate check for list as the num lines is smaller
         elif (
             (self.epoch_type != "list")
             and (num_lines < HorizonsQuery.query_limit)
@@ -454,10 +454,10 @@ class HorizonsQuery:
     @property
     def name(self) -> Union[str, None]:
         """Retrieve the name of the query's object.
-        The name is infered from the data retrieved and will return none
+        The name is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Unnamed minor planets will use their designation instead.
-        If a name can not be infered, the raw name from Horizons will be returned.
+        If a name can not be inferred, the raw name from Horizons will be returned.
         Please consider raising an issue on the Tudat github in such cases."""
         try:
             self._infer_name()
@@ -471,7 +471,7 @@ class HorizonsQuery:
     @property
     def MPC_number(self) -> Union[str, None]:
         """Retrieve the MPC (Minor Planet Centre) number of the object.
-        The MPC number is infered from data retrieved and will return none
+        The MPC number is inferred from data retrieved and will return none
         if data has not been retrieved yet.
         The MPC number is only relevant to minor planets such as asteroids, TNOs and
         Near-Earth Asteroids."""
@@ -484,7 +484,7 @@ class HorizonsQuery:
     @property
     def designation(self) -> Union[str, None]:
         """Retrieve the relevant designation of the query's object.
-        The designation is infered from the data retrieved and will return none
+        The designation is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Minor planets and Comets will return their provisional designation
         (1898 DQ for Eros, 1982 HG1 for Halley).
@@ -1183,7 +1183,7 @@ class HorizonsBatch:
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
     ) -> None:
-        """Uses the data queried to add ephemerides of the bodies querried
+        """Uses the data queried to add ephemerides of the bodies queried
         to the body_settings. The names of the bodies added can be retrieved
         using the names property.
 
@@ -1238,7 +1238,7 @@ def jpl_horizons(
     """Factory function for creating ephemeris model settings from tabulated JPL Horizons vectors.
 
     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
-    including asteriuds, comets, planets, moons and select spacecraft.
+    including asteroids, comets, planets, moons and select spacecraft.
 
     This function is a wrapper for the tudatpy.data.horizons functionality.
     That api is not available on the api documentation yet.

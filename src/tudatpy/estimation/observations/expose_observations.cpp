@@ -683,7 +683,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Dictionaty mapping a link end integer identifier to the specific link ends
+         Dictionary mapping a link end integer identifier to the specific link ends
 
          :type: dict[ int, dict[ LinkEndType, LinkEndId ] ]
       )doc" )
@@ -693,7 +693,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Dictionary defining per obervable type (dict key), the index in the full observation vector (:func:`concatenated_observations`) where the given observable type starts, and the number of subsequent entries in this vector containing a value of an observable of this type
+         Dictionary defining per observable type (dict key), the index in the full observation vector (:func:`concatenated_observations`) where the given observable type starts, and the number of subsequent entries in this vector containing a value of an observable of this type
 
          :type: dict[ ObservableType, [ int, int ] ]
       )doc" )
@@ -704,7 +704,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         The nested dictionary/list returned by this property mirrors the structure of the :func:`sorted_observation_sets` property of this class. The present function provides the start index and size of the observables in the full observation vector that come from the correspoding `SingleObservationSet` in the :func:`sorted_observation_sets` Consequently, the present property returns a nested dictionary defining per obervable type, link end identifier, and `SingleObservationSet` index (for the given observable type and link end identifier), where the observables in the given `SingleObservationSet` starts, and the number of subsequent entries in this vector containing data from it.
+         The nested dictionary/list returned by this property mirrors the structure of the :func:`sorted_observation_sets` property of this class. The present function provides the start index and size of the observables in the full observation vector that come from the corresponding `SingleObservationSet` in the :func:`sorted_observation_sets` Consequently, the present property returns a nested dictionary defining per observable type, link end identifier, and `SingleObservationSet` index (for the given observable type and link end identifier), where the observables in the given `SingleObservationSet` starts, and the number of subsequent entries in this vector containing data from it.
 
          :type: dict[ ObservableType, dict[ int, list[ int, int ] ] ]
       )doc" )

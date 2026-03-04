@@ -12,7 +12,7 @@ can be modelled using light-time corrections, for which settings (as objects of 
 for observation biases (as objects of type :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`) are created
 in the :ref:`biases` module. Definition of the observation link are created through the :ref:`links` module.
 
-Details on the procedure to create observation models, and the various top-level options for their creatoon, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
+Details on the procedure to create observation models, and the various top-level options for their creation, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
 
 
 
