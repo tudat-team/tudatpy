@@ -410,8 +410,7 @@ void expose_ephemeris_setup( py::module& m )
     m.def( "create_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "body_name" ) );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,
@@ -1233,8 +1232,7 @@ void expose_ephemeris_setup( py::module& m )
            &tss::customEphemerisSettingsDeprecated,
            py::arg( "custom_state_function" ),
            py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           R"doc(Deprecated function. Use custom_ephemeris instead.)doc" );
+           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
 }
 
 }  // namespace ephemeris

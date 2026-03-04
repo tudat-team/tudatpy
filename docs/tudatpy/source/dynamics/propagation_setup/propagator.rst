@@ -73,6 +73,8 @@ Functions
 
 
 
+
+   custom_termination_with_state_input
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.translational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational
@@ -100,6 +102,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.non_sequential_termination
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.add_dependent_variable_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.custom_termination_with_state_input
 
 
 

@@ -79,6 +79,8 @@ Functions
 
 
 
+
+   predefined_spherical_harmonic_surface_property_
 .. autofunction:: tudatpy.dynamics.environment_setup.radiation_pressure.constant_luminosity
 
 .. autofunction:: tudatpy.dynamics.environment_setup.radiation_pressure.irradiance_based_constant_luminosity
@@ -122,6 +124,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target
 
 .. autofunction:: tudatpy.dynamics.environment_setup.radiation_pressure.panelled_radiation_target
+
+.. autofunction:: tudatpy.dynamics.environment_setup.radiation_pressure.predefined_spherical_harmonic_surface_property_
 
 
 

@@ -66,6 +66,10 @@ Functions
 
 
 
+
+   approximate_ground_stations_position
+
+   optical_telescope_stations
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.basic_station
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.dsn_station
@@ -81,6 +85,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.piecewise_constant_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.approximate_ground_stations_position
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.optical_telescope_stations
 
 
 
