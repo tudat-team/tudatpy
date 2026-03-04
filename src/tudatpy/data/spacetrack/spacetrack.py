@@ -234,6 +234,8 @@ class SpaceTrackQuery:
         req_start = datetime.strptime(start_date, "%Y-%m-%d")
         req_end = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1, microseconds=-1)
 
+        print(req_start, req_end)
+
         local_data: list[dict] = []
         last_hit: datetime | None = None
         if os.path.exists(filepath):
@@ -264,8 +266,8 @@ class SpaceTrackQuery:
         if needs_fetch:
             print(f"Fetching {norad_id} from API ({start_date} -- {end_date})...")
             url = self._build_url(
-                f"basicspacedata/query/class/gp/NORAD_CAT_ID/{norad_id}"
-                f"/EPOCH/>{start_date}<{end_date}/orderby/EPOCH asc/format/json"
+                f"basicspacedata/query/class/gp_history/NORAD_CAT_ID/{norad_id}"
+                f"/EPOCH/{start_date}--{end_date}/orderby/EPOCH asc/format/json"
             )
             fetched = self._fetch_json(url)
             self._save_unique_sorted(filepath, fetched or [])
