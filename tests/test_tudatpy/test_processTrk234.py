@@ -278,7 +278,7 @@ def test_reader():
         spacecraft_name="-202",
     )
     observationCollection = trkProcessor.process()
-    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalr type tudat::Time
+    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalar type tudat::Time
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
@@ -316,7 +316,7 @@ def test_reader():
     
     # Check observation times and values.
     obsTimes = obs_set.observation_times
-    # This requires tudatpy to be compiled with time scalr type tudat::Time
+    # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"

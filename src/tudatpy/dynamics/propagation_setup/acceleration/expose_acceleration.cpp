@@ -469,7 +469,7 @@ where:
 * :math:`G`: Newtonian gravitational constant
 * :math:`c`: speed of light
 
-Note that this acceleration *includes* the mutual point mass atrraction.
+Note that this acceleration *includes* the mutual point mass attraction.
 
 Technically, these equations are implicit, since  the terms :math:`\mathbf{a}_{a}`
 and :math:`\mathbf{a}_{b}` occur on the left- and right-hand sides of the equations (when evaluating the above for a set of bodies).
@@ -742,7 +742,7 @@ AccelerationSettings
 Creates settings for the polyhedron gravity acceleration.
 
 Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
-e.g. :cite:t:`wernerscheeres1996`, and the acceleration implememtation is from Eq. (16) of that reference.
+e.g. :cite:t:`wernerscheeres1996`, and the acceleration implementation is from Eq. (16) of that reference.
 
 Summarizing, it is computed from using combinations of geometric quantities associated with the polyhedron's edges and faces.
 

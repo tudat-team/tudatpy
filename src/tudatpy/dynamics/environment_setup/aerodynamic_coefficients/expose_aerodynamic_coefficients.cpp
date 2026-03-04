@@ -79,7 +79,7 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
 
 Enumeration of the independent variables that can be used to compute aerodynamic coefficients. Each aerodynamic
 coefficient model is a function of any number of independent variables (for some models: of zero independent variables, e.g. constant coefficients).
-During propagation, the value of the independent variables at the current epoch and state is automaticallt retrieved from
+During propagation, the value of the independent variables at the current epoch and state is automatically retrieved from
 the environment, and used to compute the aerodynamic coefficients. The user need not provide them manually. The user
 only needs to provide (for coefficient models that provide this freedom) the physical type of independent variables, from the present list of enums.
 
@@ -524,7 +524,7 @@ The body-fixed frame of the body itself.
  :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
  The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
 
- Using this model the aerodynamic coefficients are fixed and (in contradiction of typical convections) the reference
+ Using this model the aerodynamic coefficients are fixed and (in contradiction of typical conventions) the reference
  area is varied for time step to be equal to the projected area to the flow (e.g. the spacecraft area when projecting the macromodel onto
  a plane perpendicular to the relative wind vector). The projected area computation takes into account self-shadowing, the algorithm for which is described by
  :cite:t:`maistri2025`. Setting ``maximum_number_of_pixels`` to 0 turns the self-shadowing off.
@@ -1411,7 +1411,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
    aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant_force_and_moment( ... )
    # Define list of independent variables that control surface coefficients depend on (Mach number
    control_surface_independent_variable_names = [mach_number_dependent, angle_of_attack_dependent, control_surface_deflection_dependent]
-   # Define function that computes the control surface coefficient increments as a function of the independet variables
+   # Define function that computes the control surface coefficient increments as a function of the independent variables
    control_surface_increment_function = ...
    # Create coefficient settings for the elevon control surface
    elevon_aero_coefficient_settings = environment_setup.aerodynamic_coefficients.custom_control_surface(

@@ -306,7 +306,7 @@ void expose_time_representation( py::module& m )
                                   "TimeScales",
                                   R"doc(
 
- Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
+ Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automatically convert.
 
  )doc" )
             .value( "tai_scale", tba::tai_scale, R"doc(
@@ -1205,7 +1205,7 @@ datetime.datetime
            py::arg( "year" ),
            R"doc(
 
- Assess wether a year is a leap year or not.
+ Assess whether a year is a leap year or not.
 
 
  Parameters
@@ -1570,7 +1570,7 @@ datetime.datetime
  Parameters
  ----------
  TDB_time : astro.time_representation.Time
-    Timne object representing the epoch as seconds since J2000, in the TDB time scale.
+    Time object representing the epoch as seconds since J2000, in the TDB time scale.
  earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
      Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
  Returns
@@ -1594,7 +1594,7 @@ datetime.datetime
  * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
  * For epoch 01-01-1962 and later: linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
- * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use the values if for :math:\Delta T = UT1-TT` from `here <https://webspace.science.uu.nl/~gent0113/deltat/deltat.htm>`_ (back to year 1620). In this period, we set the approxomation UTC=UT1
+ * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use the values if for :math:\Delta T = UT1-TT` from `here <https://webspace.science.uu.nl/~gent0113/deltat/deltat.htm>`_ (back to year 1620). In this period, we set the approximation UTC=UT1
 
  See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
 

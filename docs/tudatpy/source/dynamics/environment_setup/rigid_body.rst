@@ -16,9 +16,9 @@ be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.rigid_body_prop
 
 The models defined here **do not** define a gravity field of a body. However, when a body is endowed with a
 gravity field (see :ref:`gravity_field`), compatible rigid body settings are automatically created, mapping the gravitational
-paramater of the gravity field to a mass here. For a :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
+parameter of the gravity field to a mass here. For a :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
 gravity field, the degree-one coefficients are used to set the body center of mass.
-In addition, when creating a spherica harmonic gravity field, and specifying a :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia`, an inertia tensor is created and defined in the rigid-body settings.
+In addition, when creating a spherical harmonic gravity field, and specifying a :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia`, an inertia tensor is created and defined in the rigid-body settings.
 
 Functions
 ---------
