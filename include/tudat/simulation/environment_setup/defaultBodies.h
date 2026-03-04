@@ -307,7 +307,6 @@ std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFr
         const std::vector< std::string >& domesIds,
         const std::string& sinexStateFile,
         const std::string& sinexEccentricityFile,
-        const double evaluationEpoch = TUDAT_NAN,
         const bool throwExceptionOnMissingData = false );
 
 }  // namespace simulation_setup

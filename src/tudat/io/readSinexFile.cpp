@@ -10,6 +10,7 @@
 
 #include "tudat/io/readSinexFile.h"
 
+#include <cctype>
 #include <cmath>
 #include <fstream>
 
@@ -290,6 +291,24 @@ bool parseApproximateCoordinatesFromTokens(
     return true;
 }
 
+bool isIntegerString( const std::string& input )
+{
+    if( input.empty( ) )
+    {
+        return false;
+    }
+
+    for( const char character : input )
+    {
+        if( !std::isdigit( static_cast< unsigned char >( character ) ) )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 std::string extractStationNameFromSiteIdLine( const std::string& line, const std::vector< std::string >& tokens )
 {
     std::string stationName;
@@ -493,19 +512,39 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
         }
     }
 
+    std::map< std::string, std::string > domesToSiteCode;
+    for( const auto& siteIdEntry : siteCodeToDomes )
+    {
+        const std::string& siteCode = siteIdEntry.first;
+        const std::string& domesId = siteIdEntry.second;
+        const auto existingEntry = domesToSiteCode.find( domesId );
+        if( existingEntry == domesToSiteCode.end( ) ||
+            ( isIntegerString( existingEntry->second ) && !isIntegerString( siteCode ) ) )
+        {
+            domesToSiteCode[ domesId ] = siteCode;
+        }
+    }
+
     std::map< std::string, SinexStationState > stationStates;
     for( const auto& stateEntry: siteStates )
     {
         SinexStationState currentState;
         currentState.domesId_ = stateEntry.first;
+        if( domesToSiteCode.count( stateEntry.first ) > 0 )
+        {
+            currentState.siteCode_ = domesToSiteCode.at( stateEntry.first );
+        }
         currentState.position_ = stateEntry.second.segment( 0, 3 );
         currentState.velocity_ = stateEntry.second.segment( 3, 3 );
         currentState.referenceEpoch_ =
                 ( siteReferenceEpochs.count( stateEntry.first ) > 0 ) ? siteReferenceEpochs.at( stateEntry.first ) : TUDAT_NAN;
 
-        if( currentState.velocity_( 0 ) == currentState.velocity_( 0 ) )
+        for( int i = 0; i < 3; i++ )
         {
-            currentState.velocity_ /= physical_constants::JULIAN_YEAR;
+            if( currentState.velocity_( i ) == currentState.velocity_( i ) )
+            {
+                currentState.velocity_( i ) /= physical_constants::JULIAN_YEAR;
+            }
         }
 
         stationStates[ stateEntry.first ] = currentState;

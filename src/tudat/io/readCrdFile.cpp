@@ -407,7 +407,10 @@ std::map< std::string, double > getStationWavelengths( const std::map< std::stri
         double firstWavelengthNm = stationData.second.at( 0 ).configuration_.transmitWavelengthNm_;
         for( unsigned int i = 1; i < stationData.second.size( ); i++ )
         {
-            if( stationData.second.at( i ).configuration_.transmitWavelengthNm_ != firstWavelengthNm )
+            const double currentWavelengthNm = stationData.second.at( i ).configuration_.transmitWavelengthNm_;
+            const bool firstIsNan = ( firstWavelengthNm != firstWavelengthNm );
+            const bool currentIsNan = ( currentWavelengthNm != currentWavelengthNm );
+            if( ( firstIsNan != currentIsNan ) || ( !firstIsNan && currentWavelengthNm != firstWavelengthNm ) )
             {
                 throw std::runtime_error( "Error when extracting station wavelength from CRD data for station " +
                                           stationData.first + ": wavelength is not consistent over passes." );

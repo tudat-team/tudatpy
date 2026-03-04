@@ -180,6 +180,7 @@ BOOST_AUTO_TEST_CASE( testSinexStateParsing )
     BOOST_CHECK( sinexData.count( "12345M001" ) > 0 );
 
     const input_output::SinexStationState state = sinexData.at( "12345M001" );
+    BOOST_CHECK_EQUAL( state.siteCode_, "ARCB" );
     BOOST_CHECK_CLOSE_FRACTION( state.position_( 0 ), 2390490.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( state.position_( 1 ), -5564763.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( state.position_( 2 ), 1994727.0, 1.0E-15 );

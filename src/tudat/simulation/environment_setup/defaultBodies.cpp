@@ -14,6 +14,7 @@
 #define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -793,8 +794,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStation
     return stations;
 }
 
-namespace
-{
+
 std::map< double, Eigen::Vector3d > getPiecewiseEccentricityDisplacementList(
         const std::vector< input_output::SinexStationEccentricity >& stationEccentricityHistory )
 {
@@ -804,28 +804,42 @@ std::map< double, Eigen::Vector3d > getPiecewiseEccentricityDisplacementList(
         return displacementList;
     }
 
-    // Add a lower-than-any-epoch key so the first eccentricity vector is active before the first SINEX arc start.
-    double firstStartEpoch = std::numeric_limits< double >::infinity( );
-    Eigen::Vector3d firstDisplacement = stationEccentricityHistory.at( 0 ).eccentricity_;
-    for( const input_output::SinexStationEccentricity& eccentricityEntry: stationEccentricityHistory )
-    {
-        const double startEpoch = ( eccentricityEntry.startEpoch_ == eccentricityEntry.startEpoch_ )
-                                          ? eccentricityEntry.startEpoch_
-                                          : -std::numeric_limits< double >::max( );
-        displacementList[ startEpoch ] = eccentricityEntry.eccentricity_;
+    std::vector< input_output::SinexStationEccentricity > sortedEccentricityHistory = stationEccentricityHistory;
+    std::sort( sortedEccentricityHistory.begin( ),
+               sortedEccentricityHistory.end( ),
+               [ ]( const input_output::SinexStationEccentricity& firstEntry,
+                    const input_output::SinexStationEccentricity& secondEntry )
+               {
+                   return firstEntry.startEpoch_ < secondEntry.startEpoch_;
+               } );
 
-        if( startEpoch < firstStartEpoch )
+    for( unsigned int i = 0; i + 1 < sortedEccentricityHistory.size( ); i++ )
+    {
+        if( sortedEccentricityHistory.at( i ).endEpoch_ > sortedEccentricityHistory.at( i + 1 ).startEpoch_ )
         {
-            firstStartEpoch = startEpoch;
-            firstDisplacement = eccentricityEntry.eccentricity_;
+            throw std::runtime_error( "Error when creating eccentricity displacement list from SINEX data: eccentricity arcs overlap." );
         }
     }
 
-    displacementList[ -std::numeric_limits< double >::max( ) ] = firstDisplacement;
+    const double minimumEpoch = -std::numeric_limits< double >::max( );
+    if( sortedEccentricityHistory.at( 0 ).hasOpenEnd_ )
+    {
+        displacementList[ minimumEpoch ] = sortedEccentricityHistory.at( 0 ).eccentricity_;
+    }
+
+    for( unsigned int i = 0; i < sortedEccentricityHistory.size( ); i++ )
+    {
+        const input_output::SinexStationEccentricity& eccentricityEntry = sortedEccentricityHistory.at( i );
+        displacementList[ eccentricityEntry.startEpoch_ ] = eccentricityEntry.eccentricity_;
+
+        if( !eccentricityEntry.hasOpenEnd_ )
+        {
+            displacementList[ eccentricityEntry.endEpoch_ ] = Eigen::Vector3d::Zero( );
+        }
+    }
+
     return displacementList;
 }
-
-}  // namespace
 
 std::string getDefaultIlrsSinexStateFilePath( )
 {
@@ -841,10 +855,8 @@ std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFr
         const std::vector< std::string >& domesIds,
         const std::string& sinexStateFile,
         const std::string& sinexEccentricityFile,
-        const double evaluationEpoch,
         const bool throwExceptionOnMissingData )
 {
-    static_cast< void >( evaluationEpoch );
     const std::map< std::string, input_output::SinexStationState > sinexStateData = input_output::readSinexStationData( sinexStateFile );
 
     std::map< std::string, std::vector< input_output::SinexStationEccentricity > > sinexEccentricityData;

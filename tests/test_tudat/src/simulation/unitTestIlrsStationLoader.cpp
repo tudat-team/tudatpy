@@ -13,6 +13,7 @@
 
 #include <cstdio>
 #include <fstream>
+#include <limits>
 
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
@@ -54,7 +55,14 @@ void writeSyntheticSinexFile( const std::string& fileName )
     file << "-SOLUTION/ESTIMATE\n";
 }
 
-void writeSyntheticSinexEccentricityFile( const std::string& fileName )
+struct SyntheticEccentricityArc
+{
+    std::string startEpoch_;
+    std::string endEpoch_;
+    Eigen::Vector3d eccentricity_ = Eigen::Vector3d::Zero( );
+};
+
+void writeSyntheticSinexEccentricityFile( const std::string& fileName, const std::vector< SyntheticEccentricityArc >& arcs )
 {
     std::ofstream file( fileName );
     file << "+SITE/ID\n";
@@ -63,9 +71,78 @@ void writeSyntheticSinexEccentricityFile( const std::string& fileName )
     file << "-SITE/ID\n";
     file << "+SITE/ECCENTRICITY\n";
     file << "*SITE PT SOLN T DATA_START__ DATA_END____ XYZ X_______ Y_______ Z_______        CDP-SOD_\n";
-    file << " 7110  A    1 L 24:001:00000 24:365:86399 XYZ   0.1000   0.2000   0.3000        71100901\n";
-    file << " 7110  A    1 L 25:001:00000 00:000:00000 XYZ   0.4000   0.5000   0.6000        71100901\n";
+    for( const SyntheticEccentricityArc& arc: arcs )
+    {
+        file << " 7110  A    1 L " << arc.startEpoch_ << " " << arc.endEpoch_ << " XYZ   " << arc.eccentricity_( 0 ) << "   "
+             << arc.eccentricity_( 1 ) << "   " << arc.eccentricity_( 2 ) << "        71100901\n";
+    }
     file << "-SITE/ECCENTRICITY\n";
+}
+
+void writeSyntheticSinexEccentricityFile( const std::string& fileName )
+{
+    writeSyntheticSinexEccentricityFile( fileName,
+                                         { { "24:001:00000", "24:365:86399", Eigen::Vector3d( 0.1, 0.2, 0.3 ) },
+                                           { "25:001:00000", "00:000:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } } );
+}
+
+std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > loadIlrsStationSettingsFromSyntheticFiles(
+        const std::vector< SyntheticEccentricityArc >& arcs,
+        const bool includeEccentricityFile = true )
+{
+    const std::string sinexFile = createTempPath( ".snx" );
+    writeSyntheticSinexFile( sinexFile );
+
+    std::string eccentricityFile = "";
+    if( includeEccentricityFile )
+    {
+        eccentricityFile = createTempPath( ".snx" );
+        writeSyntheticSinexEccentricityFile( eccentricityFile, arcs );
+    }
+
+    const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+            simulation_setup::getIlrsStationSettingsFromSinexDomes(
+                    { "12345M001" }, sinexFile, eccentricityFile, true );
+
+    std::remove( sinexFile.c_str( ) );
+    if( includeEccentricityFile )
+    {
+        std::remove( eccentricityFile.c_str( ) );
+    }
+
+    return stationSettings;
+}
+
+std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > getPiecewiseMotionSettings(
+        const std::shared_ptr< simulation_setup::GroundStationSettings >& stationSettings )
+{
+    for( const auto& motionSettings: stationSettings->getStationMotionSettings( ) )
+    {
+        const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+                std::dynamic_pointer_cast< simulation_setup::PiecewiseConstantGroundStationMotionSettings >( motionSettings );
+        if( piecewiseSettings != nullptr )
+        {
+            return piecewiseSettings;
+        }
+    }
+
+    return nullptr;
+}
+
+std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > getLinearMotionSettings(
+        const std::shared_ptr< simulation_setup::GroundStationSettings >& stationSettings )
+{
+    for( const auto& motionSettings: stationSettings->getStationMotionSettings( ) )
+    {
+        const std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > linearSettings =
+                std::dynamic_pointer_cast< simulation_setup::LinearGroundStationMotionSettings >( motionSettings );
+        if( linearSettings != nullptr )
+        {
+            return linearSettings;
+        }
+    }
+
+    return nullptr;
 }
 
 }  // namespace
@@ -81,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
 
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
             simulation_setup::getIlrsStationSettingsFromSinexDomes(
-                    { "12345M001" }, sinexFile, eccentricityFile, TUDAT_NAN, true );
+                    { "12345M001" }, sinexFile, eccentricityFile, true );
 
     BOOST_CHECK_EQUAL( stationSettings.size( ), 1 );
     BOOST_CHECK_EQUAL( stationSettings.at( 0 )->getStationName( ), "12345M001" );
@@ -111,11 +188,13 @@ BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
             BOOST_CHECK_EQUAL( piecewiseSettings->displacementList_.size( ), 3 );
 
             const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+            const double firstArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:365:86399" );
             const double secondArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "25:001:00000" );
 
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( firstArcEpoch )( 0 ), 0.1, 1.0E-15 );
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( firstArcEpoch )( 1 ), 0.2, 1.0E-15 );
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( firstArcEpoch )( 2 ), 0.3, 1.0E-15 );
+            BOOST_CHECK_SMALL( piecewiseSettings->displacementList_.at( firstArcEndEpoch ).norm( ), 1.0E-15 );
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( secondArcEpoch )( 0 ), 0.4, 1.0E-15 );
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( secondArcEpoch )( 1 ), 0.5, 1.0E-15 );
             BOOST_CHECK_CLOSE_FRACTION( piecewiseSettings->displacementList_.at( secondArcEpoch )( 2 ), 0.6, 1.0E-15 );
@@ -135,10 +214,9 @@ BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
     writeSyntheticSinexFile( sinexFile );
     writeSyntheticSinexEccentricityFile( eccentricityFile );
 
-    const double evaluationEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:200:00000" );
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
             simulation_setup::getIlrsStationSettingsFromSinexDomes(
-                    { "12345M001" }, sinexFile, eccentricityFile, evaluationEpoch, true );
+                    { "12345M001" }, sinexFile, eccentricityFile, true );
 
     BOOST_CHECK_EQUAL( stationSettings.size( ), 1 );
     BOOST_CHECK_CLOSE_FRACTION( stationSettings.at( 0 )->getGroundStationPosition( )( 0 ), 2390490.0, 1.0E-15 );
@@ -160,6 +238,139 @@ BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
 
     std::remove( sinexFile.c_str( ) );
     std::remove( eccentricityFile.c_str( ) );
+}
+
+BOOST_AUTO_TEST_CASE( testFirstOpenEndedEccentricityUsesMinimumEpoch )
+{
+    const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "00:000:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) },
+                                                           { "25:001:00000", "25:200:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } };
+    const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+            loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
+
+    BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+    const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+            getPiecewiseMotionSettings( stationSettings.at( 0 ) );
+    BOOST_REQUIRE( piecewiseSettings != nullptr );
+
+    const std::map< double, Eigen::Vector3d >& displacementList = piecewiseSettings->displacementList_;
+    const double minimumEpoch = -std::numeric_limits< double >::max( );
+    const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+    const double secondArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "25:001:00000" );
+    const double secondArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "25:200:00000" );
+
+    BOOST_CHECK_EQUAL( displacementList.count( minimumEpoch ), 1 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( minimumEpoch )( 0 ), 0.1, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( minimumEpoch )( 1 ), 0.2, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( minimumEpoch )( 2 ), 0.3, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( firstArcEpoch )( 0 ), 0.1, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( secondArcEpoch )( 0 ), 0.4, 1.0E-15 );
+    BOOST_CHECK_SMALL( displacementList.at( secondArcEndEpoch ).norm( ), 1.0E-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testClosedEccentricityArcsCreateZeroGaps )
+{
+    const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) },
+                                                           { "24:200:00000", "24:300:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } };
+    const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+            loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
+
+    BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+    const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+            getPiecewiseMotionSettings( stationSettings.at( 0 ) );
+    BOOST_REQUIRE( piecewiseSettings != nullptr );
+
+    const std::map< double, Eigen::Vector3d >& displacementList = piecewiseSettings->displacementList_;
+    const double minimumEpoch = -std::numeric_limits< double >::max( );
+    const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+    const double firstArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:100:00000" );
+    const double secondArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:200:00000" );
+    const double secondArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:300:00000" );
+
+    BOOST_CHECK_EQUAL( displacementList.count( minimumEpoch ), 0 );
+    BOOST_CHECK_EQUAL( displacementList.size( ), 4 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( firstArcEpoch )( 0 ), 0.1, 1.0E-15 );
+    BOOST_CHECK_SMALL( displacementList.at( firstArcEndEpoch ).norm( ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( secondArcEpoch )( 0 ), 0.4, 1.0E-15 );
+    BOOST_CHECK_SMALL( displacementList.at( secondArcEndEpoch ).norm( ), 1.0E-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testUnsortedEccentricityArcsAreSorted )
+{
+    const std::vector< SyntheticEccentricityArc > arcs = { { "24:200:00000", "24:300:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) },
+                                                           { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) } };
+    const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+            loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
+
+    BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+    const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+            getPiecewiseMotionSettings( stationSettings.at( 0 ) );
+    BOOST_REQUIRE( piecewiseSettings != nullptr );
+
+    const std::map< double, Eigen::Vector3d >& displacementList = piecewiseSettings->displacementList_;
+    const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+    const double firstArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:100:00000" );
+    const double secondArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:200:00000" );
+
+    BOOST_CHECK_EQUAL( displacementList.begin( )->first, firstArcEpoch );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( firstArcEpoch )( 0 ), 0.1, 1.0E-15 );
+    BOOST_CHECK_SMALL( displacementList.at( firstArcEndEpoch ).norm( ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( displacementList.at( secondArcEpoch )( 0 ), 0.4, 1.0E-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
+{
+    {
+        const std::vector< SyntheticEccentricityArc > arcs = {
+                { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) } };
+        const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+                loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
+
+        BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+        const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+                getPiecewiseMotionSettings( stationSettings.at( 0 ) );
+        BOOST_REQUIRE( piecewiseSettings != nullptr );
+
+        const std::map< double, Eigen::Vector3d >& displacementList = piecewiseSettings->displacementList_;
+        const double minimumEpoch = -std::numeric_limits< double >::max( );
+        const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+        const double firstArcEndEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:100:00000" );
+
+        BOOST_CHECK_EQUAL( displacementList.count( minimumEpoch ), 0 );
+        BOOST_CHECK_EQUAL( displacementList.size( ), 2 );
+        BOOST_CHECK_CLOSE_FRACTION( displacementList.at( firstArcEpoch )( 0 ), 0.1, 1.0E-15 );
+        BOOST_CHECK_SMALL( displacementList.at( firstArcEndEpoch ).norm( ), 1.0E-15 );
+    }
+
+    {
+        const std::vector< SyntheticEccentricityArc > arcs = {
+                { "24:001:00000", "00:000:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } };
+        const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+                loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
+
+        BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+        const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
+                getPiecewiseMotionSettings( stationSettings.at( 0 ) );
+        BOOST_REQUIRE( piecewiseSettings != nullptr );
+
+        const std::map< double, Eigen::Vector3d >& displacementList = piecewiseSettings->displacementList_;
+        const double minimumEpoch = -std::numeric_limits< double >::max( );
+        const double firstArcEpoch = input_output::convertSinexDateTimeToSecondsSinceEpoch( "24:001:00000" );
+
+        BOOST_CHECK_EQUAL( displacementList.count( minimumEpoch ), 1 );
+        BOOST_CHECK_EQUAL( displacementList.size( ), 2 );
+        BOOST_CHECK_CLOSE_FRACTION( displacementList.at( minimumEpoch )( 0 ), 0.4, 1.0E-15 );
+        BOOST_CHECK_CLOSE_FRACTION( displacementList.at( firstArcEpoch )( 0 ), 0.4, 1.0E-15 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testNoEccentricityDataSkipsPiecewiseMotion )
+{
+    const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
+            loadIlrsStationSettingsFromSyntheticFiles( { }, false );
+
+    BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
+    BOOST_CHECK_EQUAL( getPiecewiseMotionSettings( stationSettings.at( 0 ) ), nullptr );
+    BOOST_REQUIRE( getLinearMotionSettings( stationSettings.at( 0 ) ) != nullptr );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
