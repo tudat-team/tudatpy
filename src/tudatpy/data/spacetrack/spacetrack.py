@@ -383,13 +383,6 @@ class SpaceTrackQuery:
 
         json_data = self._get_json_and_save(self._build_url("/".join(parts)), json_name, merge=update_existing)
 
-        if json_data and (history or limit_per_object > 1):
-            filepath = os.path.join(self.tle_data_folder, json_name)
-            filtered = OMMUtils.filter_tles_keep_latest_creation_from_json(filepath)
-            with open(filepath, "w") as f:
-                json.dump(filtered, f, indent=4)
-            print(f"Filtered local file: {json_name}")
-
         return json_data
 
     def filtered_by_oe_dict(
