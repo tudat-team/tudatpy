@@ -67,8 +67,6 @@ Functions
 
    compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames
 
-   compute_rotation_quaternion_between_frames
-
    continue_after_errors
 
    convert_naif_id_to_body_name
@@ -115,13 +113,10 @@ Functions
 
 .. autofunction:: tudatpy.interface.spice.compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames
 
-.. autofunction:: tudatpy.interface.spice.compute_rotation_quaternion_between_frames
-
 .. autofunction:: tudatpy.interface.spice.continue_after_errors
 
 .. autofunction:: tudatpy.interface.spice.convert_naif_id_to_body_name
 
 
 .. autofunction:: tudatpy.interface.spice.suppress_error_output
-
 

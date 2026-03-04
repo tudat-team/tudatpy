@@ -115,8 +115,8 @@ class HorizonsQuery:
             - `@0` or `@SSB` - The solar system barycentre.
 
             - `0` - without the `@` symbol, this location is equivalent to `0@399`
-            which is the observatory with MPC code 0 on Earth and not the SSB.
-            In this case: Greenwich Observatory.
+              which is the observatory with MPC code 0 on Earth and not the SSB.
+              In this case: Greenwich Observatory.
 
             - `Greenwich` - Equivalent to `Greenwich@399`, Greenwich Observatory.
 

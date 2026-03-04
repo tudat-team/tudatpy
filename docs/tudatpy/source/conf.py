@@ -19,6 +19,7 @@
 
 import os
 import sys
+import importlib
 from datetime import datetime
 
 sys.path.insert(0, os.path.abspath("."))
@@ -43,6 +44,32 @@ if bool(os.getenv("READTHEDOCS")) is True:
 else:
     # when building locally, use the binaries generated with tudat-bundle
     sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+
+
+def has_mcd_support():
+    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+    try:
+        atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
+    except Exception:
+        return False
+    return hasattr(atmosphere, "mcd")
+
+
+HAS_MCD_SUPPORT = has_mcd_support()
+
+
+def filter_mcd_docs(app, docname, source):
+    """Hide MCD docs when the imported tudatpy build has no MCD support."""
+    if docname != "dynamics/environment_setup/atmosphere" or HAS_MCD_SUPPORT:
+        return
+
+    text = source[0]
+    text = text.replace("\n   mcd\n", "\n")
+    text = text.replace(
+        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
+        "\n",
+    )
+    source[0] = text
 
 # -- General configuration ------------------------------------------------
 
@@ -227,6 +254,7 @@ def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
     app.connect("autodoc-process-signature", simplify_signature_types)
     app.connect("autodoc-skip-member", skip_internal_pybind_members)
+    app.connect("source-read", filter_mcd_docs)
     
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

@@ -30,12 +30,6 @@ Functions
 
    iers_2010_solid_body_tidal
 
-   ocean_tide
-
-   pole_tide
-
-
-
    ocean_tidal
 
    pole_tidal
@@ -44,10 +38,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.degree_two_basic_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.iers_2010_solid_body_tidal
-
-.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tide
-
-.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tide
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
 
@@ -74,4 +64,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings
    :members:
-
