@@ -567,7 +567,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          This object is typically created by the :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` or
          :attr:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation` function of the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class.
-         The primary inputs used to create this object are (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html#covariance-analysis-settings>`_ for underlying models)
+         The primary inputs used to create this object are (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html#covariance-analysis-settings>`__ for underlying models)
 
          * The partials matrix :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}` of the observations w.r.t. the estimated parameters
          * The inverse covariance matrix :math:`\mathbf{P}^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable

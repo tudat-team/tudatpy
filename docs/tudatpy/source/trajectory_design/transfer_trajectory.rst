@@ -78,8 +78,6 @@ Functions
 
 
 
-   mga_settings_hodographic_shaping_legs_with_recommended_
-
    set_low_thrust_acceleration
 .. autofunction:: tudatpy.trajectory_design.transfer_trajectory.mga_settings_unpowered_unperturbed_legs
 
@@ -112,8 +110,6 @@ Functions
 .. autofunction:: tudatpy.trajectory_design.transfer_trajectory.print_parameter_definitions
 
 .. autofunction:: tudatpy.trajectory_design.transfer_trajectory.create_transfer_trajectory
-
-.. autofunction:: tudatpy.trajectory_design.transfer_trajectory.mga_settings_hodographic_shaping_legs_with_recommended_
 
 .. autofunction:: tudatpy.trajectory_design.transfer_trajectory.set_low_thrust_acceleration
 
@@ -188,6 +184,3 @@ Classes
 
 .. autoclass:: tudatpy.trajectory_design.transfer_trajectory.TransferTrajectory
    :members:
-
-
-

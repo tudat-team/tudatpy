@@ -610,7 +610,7 @@ numpy.ndarray
 
          Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
          this class is instantiated via a call to the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. More information is provided
-         on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_
+         on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__
 
 
 
@@ -633,7 +633,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
+         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__ for details on storage order
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
@@ -643,7 +643,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
+         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__ for details on storage order
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
@@ -662,7 +662,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Vector containing concatenated observable values. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
+         Vector containing concatenated observable values. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__ for details on storage order
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
@@ -673,7 +673,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         Vector containing concatenated indices identifying the link ends. Each set of link ends is assigned a unique integer identifier (for a given instance of this class). The definition of a given integer identifier with the link ends is given by this class' :func:`link_definition_ids` function. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order of the present vector.
+         Vector containing concatenated indices identifying the link ends. Each set of link ends is assigned a unique integer identifier (for a given instance of this class). The definition of a given integer identifier with the link ends is given by this class' :func:`link_definition_ids` function. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__ for details on storage order of the present vector.
 
          :type: numpy.ndarray[ int ]
       )doc" )
@@ -724,7 +724,7 @@ observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservatio
 
          **read-only**
 
-         The nested dictionary/list contains the list of `SingleObservationSet` objects, in the same method as they are stored internally in the present class. Specifics on the storage order are given in the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_
+         The nested dictionary/list contains the list of `SingleObservationSet` objects, in the same method as they are stored internally in the present class. Specifics on the storage order are given in the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__
 
          :type: dict[ ObservableType, dict[ int, list[ SingleObservationSet ] ] ]
       )doc" )

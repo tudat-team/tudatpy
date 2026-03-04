@@ -32,14 +32,16 @@ class HorizonsQuery:
     There are some notable differences:
 
     Time input has been simplified to reduce ambiguities:
+
     - List of times are given in seconds since J2000 TDB.
     - Start can be given in datetime format or seconds since J2000 TDB.
     - Timesteps like months and years are not permitted.
 
     And some additional features:
-    - Extended query allows data retrieval limits
-    to be broken by automatically splitting up a query into multiple subqueries
-    and combining the data.
+
+    - Extended query allows data retrieval limits to be broken by
+      automatically splitting up a query into multiple subqueries and
+      combining the data.
     - Ephemeris settings can automatically be generated using Vectors API.
 
 
@@ -79,15 +81,15 @@ class HorizonsQuery:
             Here are some examples for the default behaviour:
 
             - `Earth` - ambiguous, will
-            suggest 3 (Earth-Moon Barycentre) and 399 (Earth).
+              suggest 3 (Earth-Moon Barycentre) and 399 (Earth).
 
             - `3` - will retrieve Earth-Moon Barycentre.
 
-            - `3;` - semi-colon searches for minor planets.\
-            In this case it will search for the minor planet with MPC code 3: Juno.
+            - `3;` - semi-colon searches for minor planets.
+              In this case it will search for the minor planet with MPC code 3: Juno.
 
             - `-3` - A minus sign searches for spacecraft.
-            In this case the Mars Orbiter Mission.
+              In this case the Mars Orbiter Mission.
 
             See the Horizons System manual
             for an extensive explanation on this parameter and the timespans
@@ -108,13 +110,13 @@ class HorizonsQuery:
             - `@10` or `@Sun` - if no site is given, the geocenter will be taken.
 
             - `500@399` or `@399` or `500` - Geocentric. The site defaults to `500`.
-            The body defaults to `@399`.
+              The body defaults to `@399`.
 
             - `@0` or `@SSB` - The solar system barycentre.
 
             - `0` - without the `@` symbol, this location is equivalent to `0@399`
-            which is the observatory with MPC code 0 on Earth and not the SSB.
-            In this case: Greenwich Observatory.
+              which is the observatory with MPC code 0 on Earth and not the SSB.
+              In this case: Greenwich Observatory.
 
             - `Greenwich` - Equivalent to `Greenwich@399`, Greenwich Observatory.
 
