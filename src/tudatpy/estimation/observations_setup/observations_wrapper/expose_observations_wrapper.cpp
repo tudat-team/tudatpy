@@ -289,7 +289,7 @@ void expose_observations_wrapper( py::module &m )
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
         remove_invalid_lines : bool, optional
-            Boolean (default true) defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined
+            Boolean (default true) defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined
 
         Returns
         -------
@@ -332,7 +332,7 @@ void expose_observations_wrapper( py::module &m )
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
         remove_invalid_lines : bool, optional
-            Boolean (default true) defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined
+            Boolean (default true) defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined
 
         Returns
         -------

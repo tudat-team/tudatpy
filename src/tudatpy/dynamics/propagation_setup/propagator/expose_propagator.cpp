@@ -728,7 +728,7 @@ Enumeration of available integrated state types.
 
             Settings that determine how the multi-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
             data from each epoch is saved, etc.), and which data is printed to the console
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`__ for more details.
 
             :type: MultiArcPropagatorProcessingSettings
 
@@ -774,7 +774,7 @@ Enumeration of available integrated state types.
 
             Settings that determine how the hybrid-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
             data from each epoch is saved, etc.), and which data is printed to the console
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`__ for more details.
 
             :type: HybridArcPropagatorProcessingSettings
 
@@ -1709,7 +1709,7 @@ HybridArcPropagatorSettings
  Function to add dependent variables to existing propagator settings.
 
  Function to add dependent variables to existing :class:`~tudatpy.dynamics.propagation_setup.propagator.SingleArcPropagatorSettings`
- object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to
+ object. This function is added as an alternative to the regular manner in which to defined dependent variables (use of input to
  functions for single-arc propagator settings :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.mass`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). Typically, this function is used to modify

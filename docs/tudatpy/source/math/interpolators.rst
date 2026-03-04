@@ -44,6 +44,7 @@ Functions
    create_one_dimensional_matrix_interpolator_time_object
 
 
+
 .. autofunction:: tudatpy.math.interpolators.linear_interpolation
 
 .. autofunction:: tudatpy.math.interpolators.piecewise_constant_interpolation
@@ -65,8 +66,6 @@ Functions
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator
 
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object
-
-
 
 Enumerations
 ------------
@@ -140,5 +139,4 @@ Classes
 
 .. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject
    :members:
-
 

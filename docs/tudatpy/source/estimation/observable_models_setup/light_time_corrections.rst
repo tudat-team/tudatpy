@@ -11,7 +11,7 @@ which define settings for a type of light-time correction. The main interface wi
 as input to the observation model functions created in the :ref:`model_settings` module.
 
 When not applying any light-time corrections, a signal is assumed to travel in a straight line (in Euclidean space) with
-the speed of light :math:`c`. The ligh-time corrections defined through this module are used to compute corrections
+the speed of light :math:`c`. The light-time corrections defined through this module are used to compute corrections
 :math:`\Delta t` to the light time, such that:
 
 .. math::

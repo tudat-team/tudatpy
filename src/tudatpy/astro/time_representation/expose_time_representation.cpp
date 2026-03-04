@@ -306,7 +306,7 @@ void expose_time_representation( py::module& m )
                                   "TimeScales",
                                   R"doc(
 
- Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
+ Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automatically convert.
 
  )doc" )
             .value( "tai_scale", tba::tai_scale, R"doc(
@@ -1205,7 +1205,7 @@ datetime.datetime
            py::arg( "year" ),
            R"doc(
 
- Assess wether a year is a leap year or not.
+ Assess whether a year is a leap year or not.
 
 
  Parameters
@@ -1570,7 +1570,7 @@ datetime.datetime
  Parameters
  ----------
  TDB_time : astro.time_representation.Time
-    Timne object representing the epoch as seconds since J2000, in the TDB time scale.
+    Time object representing the epoch as seconds since J2000, in the TDB time scale.
  earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
      Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
  Returns
@@ -1594,7 +1594,7 @@ datetime.datetime
  * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
  * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
  * For epoch 01-01-1962 and later: linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
- * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use the values if for :math:\Delta T = UT1-TT` from `here <https://webspace.science.uu.nl/~gent0113/deltat/deltat.htm>`_ (back to year 1620). In this period, we set the approxomation UTC=UT1
+ * For epochs before 01-01-1962, where UTC-UT1 is not available from these files, we use the values if for :math:\Delta T = UT1-TT` from `here <https://webspace.science.uu.nl/~gent0113/deltat/deltat.htm>`_ (back to year 1620). In this period, we set the approximation UTC=UT1
 
  See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
 
@@ -1758,62 +1758,11 @@ datetime.datetime
 
     m.def( "date_time_from_epoch",
            &tba::DateTime::fromTime< TIME_TYPE >,
-           py::arg( "epoch" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_epoch` instead.
-
-
- Creates a Tudat-native :class:`DateTime` object from the seconds since J2000.
-
-
- Parameters
- ----------
- epoch : float
-     Seconds since J2000
-
- Returns
- -------
- DateTime
-     Tudat ``DateTime`` object.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "epoch" ) );
 
     m.def( "date_time_from_iso_string",
            &tba::DateTime::fromIsoString,
-           py::arg( "iso_string" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_iso_string` instead.
-
- Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
-
-
- Parameters
- ----------
- iso_datetime : str
-     Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
-
- Returns
- -------
- DateTime
-     Tudat ``DateTime`` object.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "iso_string" ) );
 
     m.def( "calendar_date_to_julian_day_since_epoch",
            &convertCalendarDateToJulianDaySinceEpochPy< double >,
@@ -1823,400 +1772,50 @@ datetime.datetime
     m.def( "calendar_date_to_days_since_epoch",
            &convertCalendarDateToJulianDaySinceEpochPy< double >,
            py::arg( "calendar_date" ),
-           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000,
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_python_datetime(...).to_days_since_reference_julian_day()` instead.
-
- Convert a calendar date to Julian days since a given epoch.
-
-
- Parameters
- ----------
- calendar_date : datetime.datetime
-     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified. Milliseconds are ignored.
- days_since_julian_day_zero : float, default = constants.JULIAN_DAY_ON_J2000
-     Reference epoch (in days) since when the Julian days have to be counted. By default, set to `constants.JULIAN_DAY_ON_J2000` (2451545.0) corresponding to the 1st of January 2000.
- Returns
- -------
- float
-     Date in Julian days since the given epoch.
-
-
-
-
-
- Examples
- --------
- In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days since J2000 (the 1st of January 2000).
-
- .. code-block:: python
-
-   # Define the calendar date using datetime
-   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
-   # Convert the calendar date to Julian days since J2000
-   julian_date = time_representation.calendar_date_to_days_since_epoch(calendar_date)
-   # Print the converted output
-   print(julian_date)  # prints 8176.07825231459
-
-
-     )doc" );
+           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
 
     m.def( "python_datetime_to_days_since_epoch",
            &convertCalendarDateToJulianDaySinceEpochPy< double >,
            py::arg( "datetime" ),
-           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000,
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_python_datetime(...).to_days_since_reference_julian_day()` instead.
-
-
- Convert a calendar date to Julian days since a given epoch.
-
-
- Parameters
- ----------
- datetime : datetime.datetime
-     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified. Milliseconds are ignored.
- days_since_julian_day_zero : float, default = constants.JULIAN_DAY_ON_J2000
-     Reference epoch (in days) since when the Julian days have to be counted. By default, set to `constants.JULIAN_DAY_ON_J2000` (2451545.0) corresponding to the 1st of January 2000.
- Returns
- -------
- float
-     Date in Julian days since the given epoch.
-
-
-
-
-
- Examples
- --------
- In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days since J2000 (the 1st of January 2000).
-
- .. code-block:: python
-
-   # Define the calendar date using datetime
-   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
-   # Convert the calendar date to Julian days since J2000
-   julian_date = time_representation.python_datetime_to_days_since_epoch(calendar_date)
-   # Print the converted output
-   print(julian_date)  # prints 8176.07825231459
-
-
-     )doc" );
+           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
 
     m.def( "julian_day_to_calendar_date",
            &convertJulianDayToCalendarDatePy,
-           py::arg( "julian_day" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_julian_day(...).to_python_datetime()` instead.
-
- Convert Julian days to a calendar date.
-
- Inverse function of :func:`calendar_date_to_julian_day`.
-
- Parameters
- ----------
- julian_day : float
-     Date in Julian days since January 1st 4713 BC.
- Returns
- -------
- datetime.datetime
-     Datetime object, using the Python datetime library, containing the date and time corresponding to the Julian date input.
-
-
-
-
-
- Examples
- --------
- In this example, the Julian date `2459721.0783` (in days since January 1st 4713 BC), is converted to a calendar date.
-
- .. code-block:: python
-
-   # Define the Julian date in days since January 1st 4713 BC
-   julian_date = 2459721.0783
-   # Convert the Julian date to a calendar date
-   calendar_date = time_representation.julian_day_to_calendar_date(julian_date)
-   # Print the converted output
-   print(calendar_date)  # prints datetime.datetime(2022, 5, 21, 13, 52, 45)
-
-
-     )doc" );
+           py::arg( "julian_day" ) );
 
     m.def( "julian_day_to_python_datetime",
            &convertJulianDayToCalendarDatePy,
-           py::arg( "julian_day" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_julian_day(...).to_python_datetime()` instead.
-
-
- Convert Julian days to a calendar date.
-
- Inverse function of :func:`python_datetime_to_julian_day`.
-
- Parameters
- ----------
- julian_day : float
-     Date in Julian days since January 1st 4713 BC.
- Returns
- -------
- datetime.datetime
-     Datetime object, using the Python datetime library, containing the date and time corresponding to the Julian date input.
-
-
-
-
-
- Examples
- --------
- In this example, the Julian date `2459721.0783` (in days since January 1st 4713 BC), is converted to a calendar date.
-
- .. code-block:: python
-
-   # Define the Julian date in days since January 1st 4713 BC
-   julian_date = 2459721.0783
-   # Convert the Julian date to a calendar date
-   calendar_date = time_representation.julian_day_to_python_datetime(julian_date)
-   # Print the converted output
-   print(calendar_date)  # prints datetime.datetime(2022, 5, 21, 13, 52, 45)
-
-
-     )doc" );
+           py::arg( "julian_day" ) );
 
     m.def( "calendar_date_to_julian_day",
            &convertCalendarDateToJulianDayPy< double >,
-           py::arg( "calendar_date" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_python_datetime(...).to_julian_day()` instead.
-
- Convert a calendar date to Julian days.
-
-
- Parameters
- ----------
- calendar_date : datetime.datetime
-     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
- Returns
- -------
- float
-     Julian day number (days since noon January 1st 4713 BC.)
-
-
-
-
-
- Examples
- --------
- In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days.
-
- .. code-block:: python
-
-   # Define the calendar date using datetime
-   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
-   # Convert the calendar date to Julian days since January 1st 4713 BC
-   julian_date = time_representation.calendar_date_to_julian_day(calendar_date)
-   # Print the converted output
-   print(julian_date)  # prints 2459721.0782523146
-
-
-     )doc" );
+           py::arg( "calendar_date" ) );
 
     m.def( "python_datetime_to_julian_day",
            &convertCalendarDateToJulianDayPy< double >,
-           py::arg( "datetime" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use `DateTime.from_python_datetime(...).to_julian_day()` instead.
-
- Convert a calendar date to Julian days.
-
-
- Parameters
- ----------
- datetime : datetime.datetime
-     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
- Returns
- -------
- float
-     Julian day number (days since noon January 1st 4713 BC.)
-
-
-
-
-
- Examples
- --------
- In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days.
-
- .. code-block:: python
-
-   # Define the calendar date using datetime
-   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
-   # Convert the calendar date to Julian days since January 1st 4713 BC
-   julian_date = time_representation.python_datetime_to_julian_day(calendar_date)
-   # Print the converted output
-   print(julian_date)  # prints 2459721.0782523146
-
-
-     )doc" );
+           py::arg( "datetime" ) );
     m.def( "datetime_to_tudat",
            &tba::DateTime::fromTimePoint,
-           py::arg( "datetime" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_python_datetime` instead.
-
- Function to convert a Python datetime.datetime object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version
-
-
- Parameters
- ----------
- datetime : datetime.datetime
-     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
- Returns
- -------
- DateTime
-     DateTime object defined in Tudat
-
-    )doc" );
+           py::arg( "datetime" ) );
 
     m.def( "year_and_days_in_year_to_calendar_date",
            &tba::DateTime::fromYearAndDaysInYear,
            py::arg( "year" ),
-           py::arg( "days_in_year" ),
-           R"doc(
-        
-.. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_year_and_day_of_year` instead.
-
-Create the Tudat :class:`DateTime` from the year and the number of days in the year.
-
-Parameters
-----------
-year : int
-    Calendar year.
-days_in_year : int
-    Number of days that have passed in the year.
-Returns
--------
-DateTime
-    Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
-
-Examples
---------
-In this example, the calendar date corresponding to when 122 days have passed in 2020 is computed.
-
-.. code-block:: python
-
-    # Compute the calendar date when 122 days have passed in 2020
-    currentDate = time_representation.year_and_days_in_year_to_calendar_date(2020, 122)
-    # Print the converted output
-    print(currentDate)  # prints (2020, 5, 2, 0, 0)
-
-     )doc" );
+           py::arg( "days_in_year" ) );
 
     m.def( "datetime_to_python",
            &dateTimeToTimePoint,
-           py::arg( "datetime" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
-
-
- Function to convert a Tudat :class:`DateTime` object to a Python datetime.datetime object. This is the inverse of the :func:`datetime_to_tudat` function
-
- Parameters
- ----------
- datetime : DateTime
-     Tudat-native Datetime object. Both the date and the time (hour, minutes, and seconds), can be specified, up to sub-femtosecond resolution.
- Returns
- -------
- datetime.datetime
-     Datetime object, using the Python datetime library
-     )doc" );
+           py::arg( "datetime" ) );
 
     m.def( "add_seconds_to_datetime",
            &tba::addSecondsToDateTime< TIME_TYPE >,
            py::arg( "datetime" ),
-           py::arg( "seconds_to_add" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.add_seconds()` instead.
-
- Function to create a new Tudat :class:`DateTime` object by adding a number of seconds to an existing Tudat :class:`DateTime` object
-
-
- Parameters
- ----------
- datetime : DateTime
-     Tudat-native Datetime object to which a number of seconds are to be added
- seconds_to_add : float
-     Number of seconds to add
- Returns
- -------
- DateTime
-     Tudat-native Datetime object created by adding the given number of seconds to the original DateTime
-
-
-
-
-
-
-     )doc" );
+           py::arg( "seconds_to_add" ) );
 
     m.def( "add_days_to_datetime",
            &tba::addDaysToDateTime< TIME_TYPE >,
            py::arg( "datetime" ),
-           py::arg( "days_to_add" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.add_days()` instead.
-
- Function to create a new Tudat :class:`DateTime` object by adding a number of days (86400 seconds) to an existing Tudat :class:`DateTime` object
-
-
- Parameters
- ----------
- datetime : DateTime
-     Tudat-native Datetime object to which a number of days are to be added
- days_to_add : float
-     Number of days to add
- Returns
- -------
- DateTime
-     Tudat-native Datetime object created by adding the given number of days to the original DateTime
-
-
-
-
-
-
-     )doc" );
+           py::arg( "days_to_add" ) );
 
     m.def( "epoch_from_date_time_components",
            &tba::timeFromDecomposedDateTime< TIME_TYPE >,
@@ -2225,73 +1824,11 @@ In this example, the calendar date corresponding to when 122 days have passed in
            py::arg( "day" ),
            py::arg( "hour" ),
            py::arg( "minute" ),
-           py::arg( "seconds" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`date_time_components_to_epoch` instead.
-
- Computes the epoch as seconds since J2000 from the entries of the current date and time.
-
- Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
-
- Parameters
- ----------
- year : int
-     Calendar year
-
- month : int
-     Calendar month (value must be 1-12)
-
- day : int
-     Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
-
- hour : int
-     Full hours into the current day (value must be 0-23)
-
- minute : int
-     Full minutes into the current hour (value must be 0-59)
-
- seconds : float
-     Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
-
- Returns
- -------
- float
-     Time in seconds since J2000.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "seconds" ) );
 
     m.def( "epoch_from_date_time_iso_string",
            &tba::timeFromIsoString< TIME_TYPE >,
-           py::arg( "iso_datetime" ),
-           R"doc(
-
- .. warning::
-
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`iso_string_to_epoch` instead.
-
- Computes the epoch as seconds since J2000 from an ISO datetime string.
-
- Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
-
- Parameters
- ----------
- iso_datetime : str
-     Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
-
- Returns
- -------
- float
-     Time in seconds since J2000.
-
-     )doc" );
+           py::arg( "iso_datetime" ) );
 }
 }  // namespace time_representation
 }  // namespace astro

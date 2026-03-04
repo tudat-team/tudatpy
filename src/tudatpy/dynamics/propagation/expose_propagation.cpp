@@ -488,7 +488,7 @@ void expose_propagation( py::module &m )
                     R"doc(
          **read-only**
 
-         Attrribute that allows for automatic interpolation and retrieval of dependent variables
+         Attribute that allows for automatic interpolation and retrieval of dependent variables
 
          :type: DependentVariablesInterface
 

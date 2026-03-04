@@ -60,6 +60,10 @@ Functions
 
 
 
+
+   rtg
+
+   thrust_and_isp_from_custom_function
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.point_mass_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity
@@ -93,6 +97,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.thrust_from_all_engines
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.yarkovsky
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.rtg
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.thrust_and_isp_from_custom_function
 
 
 

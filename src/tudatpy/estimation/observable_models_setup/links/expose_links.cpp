@@ -281,7 +281,7 @@ Examples
                                     R"doc(
          Function for setting a name for the reference point on a body.
 
-         Function for setting a name for the reference point on a body (tipically, the name of a ground station).
+         Function for setting a name for the reference point on a body (typically, the name of a ground station).
 
      Examples
      --------

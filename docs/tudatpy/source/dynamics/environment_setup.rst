@@ -76,6 +76,18 @@ Functions
 
 
 
+
+   add_empty_tabulated_ephemeris
+
+   add_gravity_field_model
+
+   add_ground_station
+
+   convert_ground_station_state_between_itrf_frames
+
+   create_aerodynamic_coefficient_interface
+
+   get_default_single_alternate_body_settings_time_limited
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings
 
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings_time_limited
@@ -107,6 +119,18 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.add_engine_model
 
 .. autofunction:: tudatpy.dynamics.environment_setup.add_variable_direction_engine_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.add_empty_tabulated_ephemeris
+
+.. autofunction:: tudatpy.dynamics.environment_setup.add_gravity_field_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.add_ground_station
+
+.. autofunction:: tudatpy.dynamics.environment_setup.convert_ground_station_state_between_itrf_frames
+
+.. autofunction:: tudatpy.dynamics.environment_setup.create_aerodynamic_coefficient_interface
+
+.. autofunction:: tudatpy.dynamics.environment_setup.get_default_single_alternate_body_settings_time_limited
 
 
 

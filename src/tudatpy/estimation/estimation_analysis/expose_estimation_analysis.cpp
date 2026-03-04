@@ -567,7 +567,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          This object is typically created by the :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` or
          :attr:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation` function of the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class.
-         The primary inputs used to create this object are (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html#covariance-analysis-settings>`_ for underlying models)
+         The primary inputs used to create this object are (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html#covariance-analysis-settings>`__ for underlying models)
 
          * The partials matrix :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}` of the observations w.r.t. the estimated parameters
          * The inverse covariance matrix :math:`\mathbf{P}^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable
@@ -995,114 +995,19 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                               const std::vector< double > >( &tp::propagateCovarianceVectors ),
            py::arg( "initial_covariance" ),
            py::arg( "state_transition_interface" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system covariance through time.
-
- Identical to :func:`~tudatpy.estimation.estimation_analysis.propagate_covariance`, but with two lists rather than a dictionary as output
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated covariances at each output time.
-
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system covariance through time and convert it to RSW frame.
-
- The covariance of a given system is propagated through time and afterwards converted to RSW frame.
- The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated covariances in RSW frame at each output time.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 
     m.def( "propagate_formal_errors_rsw_split_output",
            &tp::propagateFormalErrorVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system formal errors through time and convert to RSW frame.
-
- Function to propagate the formal errors of a given system through time.
- Note that in practice the entire covariance matrix is propagated and converted to RSW frame, but only the formal errors (variances) are reported at the output times.
- The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 
     m.def( "propagate_formal_errors_split_output",
            py::overload_cast< const Eigen::MatrixXd,
@@ -1110,118 +1015,19 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                               const std::vector< double > >( &tp::propagateFormalErrorVectors ),
            py::arg( "initial_covariance" ),
            py::arg( "state_transition_interface" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system formal errors through time.
-
- Identical to :func:`~tudatpy.estimation.estimation_analysis.propagate_formal_errors, but with two lists rather than a dictionary as output
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated formal errors at each output time.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system covariance through time and convert it to RSW frame.
-
- The covariance of a given system is propagated through time and afterwards converted to RSW frame.
- The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated covariances in RSW frame at each output time.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 
     m.def( "propagate_formal_errors_rsw_split_output",
            &tp::propagateFormalErrorVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ),
-           R"doc(
-
- Function to propagate system formal errors through time and convert to RSW frame.
-
- Function to propagate the formal errors of a given system through time.
- Note that in practice the entire covariance matrix is propagated and converted to RSW frame, but only the formal errors (variances) are reported at the output times.
- The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-
-
- Parameters
- ----------
- initial_covariance : numpy.ndarray[numpy.float64[m, n]]
-     System covariance matrix (symmetric and positive semi-definite) at initial time.
-     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-
- state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
-     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
-
-
- output_times : List[ astro.time_representation.Time ]
-    Times at which the propagated covariance matrix shall be reported.
-    Note that this argument has no impact on the integration time-steps of the variational equations,
-    which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
-    Output times which do not coincide with integration time steps are calculated via interpolation.
-
- Returns
- -------
- tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
-     Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
-
-
-     )doc" );
+           py::arg( "output_times" ) );
 }
 
 }  // namespace estimation_analysis
