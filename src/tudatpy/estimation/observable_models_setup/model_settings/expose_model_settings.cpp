@@ -1400,7 +1400,7 @@ Returns
  :math:`t_{T}` is computed from which :math:`t_{R,2}` is subsequently calculated, combining two light-time calculations (one from
  receiver to transmitter, and one from transmitter to receiver2).
 
- While the observation model performs all operations in TDB scale (including the time tag of teh observation), the model
+ While the observation model performs all operations in TDB scale (including the time tag of the observation), the model
  can convert :math:`t_{R,1}` and :math:`t_{R,2}` to a different time scale (typically UTC) to compute :math:`h` by using the ``time_difference_time_scale`` input.
 
 

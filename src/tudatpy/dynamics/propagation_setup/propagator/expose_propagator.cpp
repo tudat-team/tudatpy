@@ -1709,7 +1709,7 @@ HybridArcPropagatorSettings
  Function to add dependent variables to existing propagator settings.
 
  Function to add dependent variables to existing :class:`~tudatpy.dynamics.propagation_setup.propagator.SingleArcPropagatorSettings`
- object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to
+ object. This function is added as an alternative to the regular manner in which to defined dependent variables (use of input to
  functions for single-arc propagator settings :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.mass`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). Typically, this function is used to modify
