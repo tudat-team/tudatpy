@@ -104,7 +104,7 @@ option(
 option(
     TUDAT_BUILD_WITH_TEST_PCH
     "Enable precompiled headers for selected unit tests."
-    OFF
+    ON
 )
 option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
