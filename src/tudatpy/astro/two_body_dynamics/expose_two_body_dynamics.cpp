@@ -8,14 +8,22 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 
 #include "expose_two_body_dynamics.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/basic_astro.h>
-#include <tudat/astro/mission_segments.h>
+#include <tudat/astro/basic_astro/keplerPropagator.h>
+#include <tudat/astro/mission_segments/escapeAndCapture.h>
+#include <tudat/astro/mission_segments/gravityAssist.h>
+#include <tudat/astro/mission_segments/lambertTargeter.h>
+#include <tudat/astro/mission_segments/lambertTargeterGooding.h>
+#include <tudat/astro/mission_segments/lambertTargeterIzzo.h>
+#include <tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h>
+#include <tudat/astro/mission_segments/zeroRevolutionLambertTargeterIzzo.h>
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;

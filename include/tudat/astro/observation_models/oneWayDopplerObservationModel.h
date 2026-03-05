@@ -12,10 +12,7 @@
 #define TUDAT_ONEWAYDOPPLEROBSERVATIONMODEL_H
 
 #include <map>
-
 #include <functional>
-
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 

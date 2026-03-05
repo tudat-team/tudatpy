@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations.h"
 
 #include <pybind11/chrono.h>
@@ -19,6 +21,8 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "observations_processing/expose_observations_processing.h"
+#include "observations_geometry/expose_observations_geometry.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

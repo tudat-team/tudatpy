@@ -12,12 +12,17 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 
@@ -26,6 +31,19 @@ namespace tudat
 {
 namespace unit_tests
 {
+using namespace tudat::observation_models;
+using namespace tudat::orbit_determination;
+using namespace tudat::estimatable_parameters;
+using namespace tudat::interpolators;
+using namespace tudat::numerical_integrators;
+using namespace tudat::spice_interface;
+using namespace tudat::simulation_setup;
+using namespace tudat::orbital_element_conversions;
+using namespace tudat::ephemerides;
+using namespace tudat::propagators;
+using namespace tudat::basic_astrodynamics;
+using namespace tudat::coordinate_conversions;
+
 BOOST_AUTO_TEST_SUITE( test_covariance_propagation )
 
 BOOST_AUTO_TEST_CASE( test_CovariancePropagation )

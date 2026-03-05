@@ -11,8 +11,6 @@
 #ifndef TUDAT_VELOCITYOBSERVATIONMODEL_H
 #define TUDAT_VELOCITYOBSERVATIONMODEL_H
 
-#include <boost/function.hpp>
-
 #include "tudat/astro/ephemerides/ephemeris.h"
 
 #include "tudat/astro/observation_models/observationModel.h"

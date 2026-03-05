@@ -13,14 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "element_conversion/expose_element_conversion.h"
-#include "frame_conversion/expose_frame_conversion.h"
-#include "fundamentals/expose_fundamentals.h"
-#include "gravitation/expose_gravitation.h"
-#include "polyhedron_utilities/expose_polyhedron_utilities.h"
-#include "time_representation/expose_time_representation.h"
-#include "two_body_dynamics/expose_two_body_dynamics.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

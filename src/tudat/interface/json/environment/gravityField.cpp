@@ -10,6 +10,7 @@
  */
 
 #include "tudat/interface/json/environment/gravityField.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 
 namespace tudat
 {

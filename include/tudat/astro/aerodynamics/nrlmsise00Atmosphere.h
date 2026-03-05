@@ -21,7 +21,7 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/io/solarActivityData.h"

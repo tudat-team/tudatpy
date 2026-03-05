@@ -10,6 +10,7 @@
 
 #include "tudat/io/readViennaMappingFunctionData.h"
 #include "tudat/io/readIonexFile.h"
+#include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"

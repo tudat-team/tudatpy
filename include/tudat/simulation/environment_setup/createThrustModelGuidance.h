@@ -11,11 +11,15 @@
 #ifndef TUDAT_CREATETHRUSTMODELGUIDANCE_H
 #define TUDAT_CREATETHRUSTMODELGUIDANCE_H
 
+#include <functional>
+#include <map>
+#include <string>
+#include <vector>
+
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -26,6 +30,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //! Function to retrieve the effective thrust direction from a set of thrust sources.
 /*!

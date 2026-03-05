@@ -24,10 +24,10 @@
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 
 namespace tudat

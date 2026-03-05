@@ -12,7 +12,6 @@
 #ifndef TUDAT_CUSTOM_TORQUE_H
 #define TUDAT_CUSTOM_TORQUE_H
 
-#include <boost/function.hpp>
 #include "tudat/astro/basic_astro/torqueModel.h"
 
 namespace tudat
@@ -37,10 +36,10 @@ public:
      */
     CustomTorqueModel( const std::function< Eigen::Vector3d( const double ) >& customTorqueFunction ):
         customTorqueFunction_( customTorqueFunction )
-    { }
+    {}
 
     //! Destructor
-    ~CustomTorqueModel( ) { }
+    ~CustomTorqueModel( ) {}
 
     //! Function to retrieve the current value of the torque.
     /*!

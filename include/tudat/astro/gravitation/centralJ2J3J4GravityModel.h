@@ -13,8 +13,6 @@
 #define TUDAT_CENTRAL_J2_J3_J4_GRAVITY_MODEL_H
 
 #include <map>
-
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include <Eigen/Core>

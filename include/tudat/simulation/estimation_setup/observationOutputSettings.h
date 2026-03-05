@@ -11,7 +11,13 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include <memory>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
 
 namespace tudat
 {

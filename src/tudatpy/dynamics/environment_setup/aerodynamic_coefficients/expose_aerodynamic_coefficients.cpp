@@ -7,12 +7,16 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_aerodynamic_coefficients.h"
 
+#include <tudat/astro/aerodynamics/atmosphereModel.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
