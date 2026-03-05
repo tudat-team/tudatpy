@@ -7,11 +7,17 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_radiation_pressure.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createOccultationModel.h>
+#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
+#include <tudat/simulation/environment_setup/createRadiationPressureTargetModel.h>
+#include <tudat/simulation/environment_setup/createRadiationSourceModel.h>
+#include <tudat/simulation/environment_setup/createSurfacePropertyDistribution.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

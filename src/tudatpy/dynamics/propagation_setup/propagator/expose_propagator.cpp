@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_propagator.h"
 
 #include <pybind11/chrono.h>
@@ -17,9 +19,23 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
-#include <tudat/simulation/propagation_setup.h>
 
 #include "scalarTypes.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -728,7 +744,7 @@ Enumeration of available integrated state types.
 
             Settings that determine how the multi-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
             data from each epoch is saved, etc.), and which data is printed to the console
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`__ for more details.
 
             :type: MultiArcPropagatorProcessingSettings
 
@@ -774,7 +790,7 @@ Enumeration of available integrated state types.
 
             Settings that determine how the hybrid-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
             data from each epoch is saved, etc.), and which data is printed to the console
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`__ for more details.
 
             :type: HybridArcPropagatorProcessingSettings
 
@@ -1946,7 +1962,7 @@ HybridArcPropagatorSettings
  Function to add dependent variables to existing propagator settings.
 
  Function to add dependent variables to existing :class:`~tudatpy.dynamics.propagation_setup.propagator.SingleArcPropagatorSettings`
- object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to
+ object. This function is added as an alternative to the regular manner in which to defined dependent variables (use of input to
  functions for single-arc propagator settings :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.mass`,
  :func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). Typically, this function is used to modify

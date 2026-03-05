@@ -3,8 +3,6 @@
 #include <iomanip>
 #include <string>
 
-#include <boost/make_shared.hpp>
-
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/math/basic/linearAlgebra.h"

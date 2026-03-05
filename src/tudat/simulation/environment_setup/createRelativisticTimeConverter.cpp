@@ -12,7 +12,7 @@
 #include <cmath>
 
 #include "tudat/basics/utilities.h"
-#include "tudat/astro/propagators/integrateEquations.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
 

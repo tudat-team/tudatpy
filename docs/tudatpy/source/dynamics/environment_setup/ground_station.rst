@@ -24,7 +24,7 @@ is implemented by the user).
 Properties such as a transmitting frequency of the station is added after its creation (to the :class:`~tudatpy.dynamics.environment.GroundStation` object). When creating the settings for a ground stations (using the functions in this module)
 the body may be endowed with a list of :class:`~tudatpy.dynamics.environment_setup.ground_stations.GroundStationMotionSettings`
 settings, which define station dependent models to define the station-specific motion of a ground station (such as plate motion).
-Models for the deformation of the full body (such as tidal shape varitiations) are to be defined through the :ref:`shape_deformation`
+Models for the deformation of the full body (such as tidal shape variations) are to be defined through the :ref:`shape_deformation`
 module.
 
 For Earth, we provide several options to create default stations, such as the :func:`~tudatpy.dynamics.environment_setup.dsn_stations` and
@@ -66,6 +66,10 @@ Functions
 
 
 
+
+   approximate_ground_stations_position
+
+   optical_telescope_stations
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.basic_station
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.dsn_station
@@ -81,6 +85,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.piecewise_constant_station_motion
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.approximate_ground_stations_position
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.optical_telescope_stations
 
 
 

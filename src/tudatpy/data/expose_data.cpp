@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_data.h"
 
 #include <pybind11/eigen.h>
@@ -559,7 +561,7 @@ void expose_data( py::module& m )
 
            :param file_name: String representing the path to the file to be loaded
            :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
-           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined (Default: True)
+           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
 
            :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
            )doc" );

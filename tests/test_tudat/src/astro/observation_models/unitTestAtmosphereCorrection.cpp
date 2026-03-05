@@ -12,13 +12,14 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/basics/testMacros.h"
 
 #include <numeric>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models.h"
-#include "tudat/simulation/estimation_setup.h"
-#include "tudat/simulation/environment_setup.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
@@ -31,6 +32,8 @@ namespace unit_tests
 using namespace input_output;
 using namespace observation_models;
 using namespace ground_stations;
+using namespace physical_constants;
+using namespace basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_tabulated_media_corrections )
 

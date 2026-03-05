@@ -1051,7 +1051,7 @@ public:
     //! Function to get the full concatenated state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the full concatenated state transition and sensitivity matrix at a given time. The state transition
-     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of teh current
+     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of the current
      *  arc)
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Full concatenated state transition and sensitivity matrices.

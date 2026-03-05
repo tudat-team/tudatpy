@@ -18,7 +18,6 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
@@ -27,6 +26,13 @@
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+
+class SystemOfBodies;
+
+}  // namespace simulation_setup
 
 namespace observation_partials
 {

@@ -17,7 +17,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/system_models/selfShadowing.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 
 namespace tudat
 {

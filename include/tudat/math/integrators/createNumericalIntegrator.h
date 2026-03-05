@@ -12,7 +12,6 @@
 #define TUDAT_CREATENUMERICALINTEGRATOR_H
 
 #include <memory>
-#include <boost/lexical_cast.hpp>
 
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/timeType.h"
@@ -46,7 +45,7 @@ public:
             const bool acceptNanStep = false ):
         minimumStep_( minimumStep ), maximumStep_( maximumStep ), minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ),
         acceptInfinityStep_( acceptInfinityStep ), acceptNanStep_( acceptNanStep )
-    { }
+    {}
 
     double minimumStep_;
     double maximumStep_;
@@ -84,9 +83,9 @@ public:
         stepSizeControlType_( stepSizeControlType ), safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         maximumFactorDecreaseForNextStepSize_( maximumFactorDecreaseForNextStepSize )
-    { }
+    {}
 
-    virtual ~IntegratorStepSizeControlSettings( ) { }
+    virtual ~IntegratorStepSizeControlSettings( ) {}
 
     StepSizeControlTypes stepSizeControlType_;
     double safetyFactorForNextStepSize_;
@@ -116,7 +115,7 @@ public:
         }
     }
 
-    ~PerElementIntegratorStepSizeControlSettings( ) { }
+    ~PerElementIntegratorStepSizeControlSettings( ) {}
 
     const ToleranceType relativeErrorTolerance_;
     const ToleranceType absoluteErrorTolerance_;
@@ -148,7 +147,7 @@ public:
         }
     }
 
-    ~PerBlockIntegratorStepSizeControlSettings( ) { }
+    ~PerBlockIntegratorStepSizeControlSettings( ) {}
 
     std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction_;
     const ToleranceType relativeErrorTolerance_;
@@ -325,7 +324,7 @@ public:
                         const bool assessTerminationOnMinorSteps = false ):
         integratorType_( integratorType ), initialTimeDeprecated_( initialTime ), initialTimeStep_( initialTimeStep ),
         assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings > clone( ) const
     {
@@ -337,7 +336,7 @@ public:
     /*
      *  Virtual destructor.
      */
-    virtual ~IntegratorSettings( ) { }
+    virtual ~IntegratorSettings( ) {}
 
     // Type of numerical integrator
     /*
@@ -402,7 +401,7 @@ public:
                                                        initialTimeStep,
                                                        assessTerminationOnMinorSteps ),
         coefficientSet_( coefficientSet ), orderToUse_( orderToUse )
-    { }
+    {}
 
     RungeKuttaFixedStepSizeSettings(
             const IndependentVariableType initialTimeStep,
@@ -411,7 +410,7 @@ public:
             const bool assessTerminationOnMinorSteps = false ):
         IntegratorSettings< IndependentVariableType >( rungeKuttaFixedStepSize, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps ),
         coefficientSet_( coefficientSet ), orderToUse_( orderToUse )
-    { }
+    {}
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
@@ -422,7 +421,7 @@ public:
     /*
      *  Virtual destructor.
      */
-    virtual ~RungeKuttaFixedStepSizeSettings( ) { }
+    virtual ~RungeKuttaFixedStepSizeSettings( ) {}
 
     // Type of numerical integrator (must be an RK fixed step type).
     numerical_integrators::CoefficientSets coefficientSet_;
@@ -450,7 +449,7 @@ public:
                                                        assessTerminationOnMinorSteps ),
         coefficientSet_( coefficientSet ), stepSizeControlSettings_( stepSizeControlSettings ),
         stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
@@ -465,7 +464,7 @@ public:
     /*
      *  Destructor.
      */
-    ~MultiStageVariableStepSizeSettings( ) { }
+    ~MultiStageVariableStepSizeSettings( ) {}
 
     numerical_integrators::CoefficientSets coefficientSet_;
 
@@ -524,7 +523,7 @@ public:
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
@@ -545,7 +544,7 @@ public:
     /*
      *  Virtual destructor.
      */
-    virtual ~RungeKuttaVariableStepSizeBaseSettings( ) { }
+    virtual ~RungeKuttaVariableStepSizeBaseSettings( ) {}
 
     // Boolean denoting whether integration error tolerances are defined as a scalar (or vector).
     bool areTolerancesDefinedAsScalar_;
@@ -626,7 +625,7 @@ public:
                                                                            minimumFactorDecreaseForNextStepSize,
                                                                            exceptionIfMinimumStepExceeded ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
@@ -714,7 +713,7 @@ public:
     /*
      *  Destructor.
      */
-    ~RungeKuttaVariableStepSizeSettingsScalarTolerances( ) { }
+    ~RungeKuttaVariableStepSizeSettingsScalarTolerances( ) {}
 
     // Relative error tolerance for step size control.
     IndependentVariableType relativeErrorTolerance_;
@@ -780,7 +779,7 @@ public:
                                                                            minimumFactorDecreaseForNextStepSize,
                                                                            exceptionIfMinimumStepExceeded ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
@@ -803,7 +802,7 @@ public:
     /*
      *  Destructor.
      */
-    ~RungeKuttaVariableStepSizeSettingsVectorTolerances( ) { }
+    ~RungeKuttaVariableStepSizeSettingsVectorTolerances( ) {}
 
     // Relative error tolerance for step size control.
     DependentVariableType relativeErrorTolerance_;
@@ -825,7 +824,7 @@ public:
         IntegratorSettings< IndependentVariableType >( bulirschStoer, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps ),
         extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
         stepSizeControlSettings_( stepSizeControlSettings ), stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -887,7 +886,7 @@ public:
     /*
      *  Destructor.
      */
-    ~BulirschStoerIntegratorSettings( ) { }
+    ~BulirschStoerIntegratorSettings( ) {}
 
     // Type of sequence that is to be used for Bulirsch-Stoer integrator
     ExtrapolationMethodStepSequences extrapolationSequence_;
@@ -943,7 +942,7 @@ public:
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ), relativeErrorTolerance_( relativeErrorTolerance ),
         absoluteErrorTolerance_( absoluteErrorTolerance ), minimumOrder_( minimumOrder ), maximumOrder_( maximumOrder ),
         bandwidth_( bandwidth )
-    { }
+    {}
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
@@ -963,7 +962,7 @@ public:
     /*
      *  Destructor
      */
-    ~AdamsBashforthMoultonSettings( ) { }
+    ~AdamsBashforthMoultonSettings( ) {}
 
     // Minimum step size for integration.
     /*

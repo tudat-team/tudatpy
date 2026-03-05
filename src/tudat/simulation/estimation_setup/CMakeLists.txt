@@ -19,18 +19,33 @@ set(estimation_HEADERS
         createLightTimeCorrection.h
         createAtmosphericLightTimeCorrection.h
         createObservationManager.h
+        simulatePseudoObservations.h
         orbitDeterminationManager.h
+        estimationInterfacesForwardDeclarations.h
+        observationInterfacesForwardDeclarations.h
+        orbitDeterminationManagerForwardDeclarations.h
+        orbitDeterminationManagerHelpers.h
+        orbitDeterminationManagerConstructionImplementation.h
+        orbitDeterminationManagerUtilitiesImplementation.h
+        orbitDeterminationManagerCovarianceImplementation.h
+        orbitDeterminationManagerEstimationImplementation.h
         createLightTimeCorrectionPartials.h
         createEstimatableParameters.h
+        createEstimatableParametersInterface.h
+        createEstimatableParametersFactory.h
         createCartesianStatePartials.h
         createTorquePartials.h
         createStateDerivativePartials.h
         estimatableParameterSettings.h
-        orbitDeterminationTestCases.h
+        orbitDeterminationTestCaseUtilities.h
         createObservationPartials.h
         podProcessing.h
         determinePostFitParameterInfluence.h
         variationalEquationsSolver.h
+        variationalEquationsSolverBase.h
+        singleArcVariationalEquationsSolver.h
+        multiArcVariationalEquationsSolver.h
+        hybridArcVariationalEquationsSolver.h
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
         createDopplerPartials.h
@@ -73,6 +88,16 @@ set(estimation_SOURCES
         processOdfFile.cpp
         processTrackingTxtFile.cpp
         )
+
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    list(APPEND estimation_SOURCES
+            variationalEquationsSolverDoubleDoubleInstantiation.cpp
+            singleArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            multiArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            hybridArcVariationalEquationsSolverDoubleDoubleInstantiation.cpp
+            createObservationManagersBaseDoubleDoubleInstantiation.cpp
+            )
+endif ()
 
 # Add library.
 TUDAT_ADD_LIBRARY("estimation_setup"

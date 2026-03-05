@@ -24,7 +24,7 @@
 #include "tudat/basics/utilityMacros.h"
 
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 

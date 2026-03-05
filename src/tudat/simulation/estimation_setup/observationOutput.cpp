@@ -9,7 +9,10 @@
  */
 
 #include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/observationViabilityCalculator.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

@@ -12,9 +12,9 @@
 #define TUDAT_CREATEBODYSHAPEMODEL_H
 
 #include <memory>
+#include <string>
 
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

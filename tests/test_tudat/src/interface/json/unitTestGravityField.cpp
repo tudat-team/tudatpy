@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/interface/json/unitTestSupport.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/interface/json/environment/gravityField.h"
 
 namespace tudat

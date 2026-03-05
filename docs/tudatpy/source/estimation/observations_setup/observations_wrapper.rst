@@ -50,6 +50,8 @@ Functions
    single_type_observation_collection
 
 
+
+   create_pseudo_observations_and_models_from_observation_times
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.process_odf_data_single_file
    
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.process_odf_data_multiple_files
@@ -77,6 +79,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.single_type_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.create_pseudo_observations_and_models_from_observation_times
 
 Classes
 -------

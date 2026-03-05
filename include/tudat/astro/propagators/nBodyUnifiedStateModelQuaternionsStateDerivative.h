@@ -13,6 +13,7 @@
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {

@@ -33,7 +33,7 @@ References
 
 .. *  Chapter 2 of: Kaplan, G. `United States Naval Observatory Circular No. 179 <https://www.usno.navy.mil/USNO/astronomical-applications/publications/Circular_179.pdf/view>`_, The IAU Resolutions on Astronomical Reference Systems, Time Scales, and Earth Rotation Models.
 .. *  SOFA Documentation - `SOFA Time Scale and Calendar Tools <https://www.iausofa.org/sofa_ts_c.pdf>`_, disseminated by the International Astronomical Union
-.. *  Secions 5.5.3 and Chapter 10 of the `IERS 2010 Conventions <https://www.iers.org/SharedDocs/Publikationen/EN/IERS/Publications/tn/TechnNote36/tn36.pdf>`_, disseminated by the International Earth Rotation Service
+.. *  Sections 5.5.3 and Chapter 10 of the `IERS 2010 Conventions <https://www.iers.org/SharedDocs/Publikationen/EN/IERS/Publications/tn/TechnNote36/tn36.pdf>`_, disseminated by the International Earth Rotation Service
 
 
 
@@ -92,6 +92,9 @@ Functions
 
    iso_string_to_epoch_time_object
 
+
+
+
 .. autofunction:: tudatpy.astro.time_representation.date_time_components_to_epoch
 
 .. autofunction:: tudatpy.astro.time_representation.iso_string_to_epoch
@@ -138,6 +141,7 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_representation.iso_string_to_epoch_time_object
 
+
 Enumerations
 ------------
 .. currentmodule:: tudatpy.astro.time_representation
@@ -165,8 +169,6 @@ Classes
 
    DateTime
 
-   Time
-   
    TimeScaleConverter
 
 .. autoclass:: tudatpy.astro.time_representation.Time
@@ -178,14 +180,6 @@ Classes
    :special-members: __init__
    :exclude-members: iso_string, day_of_year, epoch, julian_day, modified_julian_day
 
-.. autoclass:: tudatpy.astro.time_representation.Time
-   :members:
-   :special-members: __init__
-   :exclude-members: iso_string, day_of_year, epoch, julian_day, modified_julian_day
-
 .. autoclass:: tudatpy.astro.time_representation.TimeScaleConverter
    :members:
-
-
-
 

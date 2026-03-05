@@ -19,10 +19,11 @@
 #include <string>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ground_stations/groundStationState.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {

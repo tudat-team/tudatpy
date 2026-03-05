@@ -15,7 +15,6 @@
 #include <iostream>
 #include <functional>
 #include <memory>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/basicTypedefs.h"
 
@@ -279,7 +278,7 @@ public:
     }
 
     //! Destructor
-    ~DirectTidalDissipationAcceleration( ) { }
+    ~DirectTidalDissipationAcceleration( ) {}
 
     //! Update member variables used by the acceleration model.
     /*!

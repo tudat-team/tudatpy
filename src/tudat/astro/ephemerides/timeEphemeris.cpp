@@ -235,6 +235,8 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
             }
             break;
         }
+            default:
+            throw std::runtime_error("Error, case not found in getTimeDifferenceFunctionFromExtendedTime.");
         }
     }
 

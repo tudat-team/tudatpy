@@ -13,19 +13,22 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <Eigen/Core>
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 // #include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 /*!
  * Types of radiation pressure target models.

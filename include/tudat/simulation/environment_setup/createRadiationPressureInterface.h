@@ -12,10 +12,12 @@
 #ifndef TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 #define TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 
-#include <memory>
 #include <functional>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 
 namespace tudat
@@ -23,6 +25,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //  Default values for radiation pressure.
 static const std::map< std::string, double > defaultRadiatedPowerValues = { { "Sun", 3.828E26 } };

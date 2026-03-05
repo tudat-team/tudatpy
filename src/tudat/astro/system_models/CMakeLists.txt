@@ -22,6 +22,7 @@ set(system_models_SOURCES
         "dummySystemModel.cpp"
         "timingSystem.cpp"
         "selfShadowing.cpp"
+        "panelGeometryUtils.cpp"
         )
 
 TUDAT_ADD_LIBRARY("system_models"
