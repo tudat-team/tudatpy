@@ -390,6 +390,11 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     {
         if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
         {
+            if( baseMetric == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when making proper-time updater direct from metric: baseMetric is nullptr." );
+            }
             evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ] = baseMetric->Clone( );
         }
         std::shared_ptr< Metric > metricToUse = evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ];

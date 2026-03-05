@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 
 namespace tudat
 {
@@ -174,7 +175,7 @@ void resetIntegratedDirectFromMetricTimeEphemeris< double, double >(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
-    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
     {
         std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisDirectFromMetric >(
                     referencePointIdentifier.first );
@@ -184,9 +185,10 @@ void resetIntegratedDirectFromMetricTimeEphemeris< double, double >(
     std::shared_ptr< TimeEphemerisDirectFromMetric > timeEphemeris =
             std::dynamic_pointer_cast< TimeEphemerisDirectFromMetric >(
                 bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
-    if( timeEphemeris == NULL )
+    if( timeEphemeris == nullptr )
     {
-        std::cerr<<"Error when resetting integrated direct from metric time ephemeris, no TimeEphemeris object found"<<std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated direct-from-metric time ephemeris, no TimeEphemerisDirectFromMetric object found." );
     }
 
     timeEphemeris->resetGlobalToProperTimeInterpolators(
@@ -214,7 +216,7 @@ void resetIntegratedDirectFromMetricTimeEphemeris< Time, double >(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
-    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
     {
         std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisDirectFromMetric >(
                     referencePointIdentifier.first );
@@ -224,10 +226,10 @@ void resetIntegratedDirectFromMetricTimeEphemeris< Time, double >(
     std::shared_ptr< TimeEphemerisDirectFromMetric > timeEphemeris =
             std::dynamic_pointer_cast< TimeEphemerisDirectFromMetric >(
                 bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
-    if( timeEphemeris == NULL )
+    if( timeEphemeris == nullptr )
     {
-        std::cerr << "Error when resetting integrated direct from metric time ephemeris, no TimeEphemeris object found" << std::endl;
-        return;
+        throw std::runtime_error(
+                    "Error when resetting integrated direct-from-metric time ephemeris, no TimeEphemerisDirectFromMetric object found." );
     }
 
     timeEphemeris->resetGlobalToProperTimeInterpolators(
@@ -277,7 +279,7 @@ void resetIntegratedPostNewtonianTimeEphemeris< double, double >(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
-    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
     {
 
         std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisWithFirstOrderDirectConversion >(
@@ -290,9 +292,10 @@ void resetIntegratedPostNewtonianTimeEphemeris< double, double >(
     std::shared_ptr< TimeEphemerisFromPostNewtonianExpansion > timeEphemeris =
             std::dynamic_pointer_cast< TimeEphemerisFromPostNewtonianExpansion >(
                 bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
-    if( timeEphemeris == NULL )
+    if( timeEphemeris == nullptr )
     {
-        std::cerr<<"Error when resetting integrated post newtonian time ephemeris, no TimeEphemeris object found"<<std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated post-Newtonian time ephemeris, no TimeEphemerisFromPostNewtonianExpansion object found." );
     }
 
     if( referencePointIdentifier.second == "" )
@@ -340,7 +343,7 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > > timeInterpolators =
             createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
 
-    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == NULL )
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
     {
         std::shared_ptr< TimeEphemeris > newTimeEphemeris = std::make_shared< TimeEphemerisWithFirstOrderDirectConversion >(
                     TimeEphemerisFromPostNewtonianExpansion::TimeDifferenceInterpolator( ),
@@ -355,10 +358,10 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
     std::shared_ptr< TimeEphemerisFromPostNewtonianExpansion > timeEphemeris =
             std::dynamic_pointer_cast< TimeEphemerisFromPostNewtonianExpansion >(
                 bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
-    if( timeEphemeris == NULL )
+    if( timeEphemeris == nullptr )
     {
-        std::cerr << "Error when resetting integrated post newtonian time ephemeris, no TimeEphemeris object found" << std::endl;
-        return;
+        throw std::runtime_error(
+                    "Error when resetting integrated post-Newtonian time ephemeris, no TimeEphemerisFromPostNewtonianExpansion object found." );
     }
 
     if( referencePointIdentifier.second == "" )

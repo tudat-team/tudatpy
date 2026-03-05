@@ -71,6 +71,7 @@ TUDAT_ADD_TEST_CASE(AerodynamicsNamespace
         PRIVATE_LINKS
         Tudat::tudat_aerodynamics
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         )
 
 TUDAT_ADD_TEST_CASE(CoefficientGenerator
@@ -79,18 +80,21 @@ TUDAT_ADD_TEST_CASE(CoefficientGenerator
         Tudat::tudat_geometric_shapes
         Tudat::tudat_interpolators
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         )
 
 TUDAT_ADD_TEST_CASE(ExponentialAtmosphere
         PRIVATE_LINKS
         Tudat::tudat_aerodynamics
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         )
 
 TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
         PRIVATE_LINKS
         Tudat::tudat_aerodynamics
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         )
 
  TUDAT_ADD_TEST_CASE(TabulatedAtmosphere
@@ -99,6 +103,7 @@ TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
          Tudat::tudat_input_output
          Tudat::tudat_interpolators
          Tudat::tudat_basic_mathematics
+         Tudat::tudat_statistics
          Tudat::tudat_basic_astrodynamics
          )
 
@@ -107,6 +112,7 @@ TUDAT_ADD_TEST_CASE(HeatTransfer
         Tudat::tudat_aerodynamics
         Tudat::tudat_root_finders
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         Tudat::tudat_basic_astrodynamics
         )
 

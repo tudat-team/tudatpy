@@ -38,6 +38,7 @@
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/astro/ephemerides/synchronousRotationalEphemeris.h>
 #include <tudat/astro/ephemerides/tabulatedEphemeris.h>
+#include <tudat/astro/ephemerides/timeEphemeris.h>
 #include <tudat/astro/ephemerides/tleEphemeris.h>
 #include <tudat/astro/gravitation/gravityFieldModel.h>
 #include <tudat/astro/gravitation/gravityFieldVariations.h>

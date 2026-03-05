@@ -45,7 +45,6 @@ BOOST_AUTO_TEST_SUITE( test_relativistic_time_propagation )
 
 
 // Temporarily disabled (currently failing).
-#if 0
 BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
 {
     loadStandardSpiceKernels( );
@@ -194,7 +193,6 @@ BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
     }
     BOOST_CHECK_SMALL( directFunction( finalEphemerisTime ) - combinedFunction( finalEphemerisTime ), 1.0E-3 );
 }
-#endif  // 0
 
 // Keep one no-op case so the Boost module remains runnable while the
 // full propagation test above is disabled.

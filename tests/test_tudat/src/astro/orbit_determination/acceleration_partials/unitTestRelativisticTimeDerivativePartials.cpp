@@ -78,9 +78,15 @@ BOOST_AUTO_TEST_CASE( testFirstOrderBarycentricToBodycentricPartials )
     auto earth = std::make_shared< Body >( );
     auto moon = std::make_shared< Body >( );
 
-    sun->setState( getBodyCartesianStateAtEpoch( "Sun", "SSB", "ECLIPJ2000", "NONE", evaluationTime ) );
-    earth->setState( getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", evaluationTime ) );
-    moon->setState( getBodyCartesianStateAtEpoch( "Moon", "SSB", "ECLIPJ2000", "NONE", evaluationTime ) );
+    sun->setEphemeris(
+        std::make_shared< ephemerides::ConstantEphemeris >( getBodyCartesianStateAtEpoch( "Sun", "SSB", "ECLIPJ2000", "NONE", evaluationTime ),
+            "SSB", "ECLIPJ2000" ) );
+    earth->setEphemeris(
+    std::make_shared< ephemerides::ConstantEphemeris >( getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", evaluationTime ),
+        "SSB", "ECLIPJ2000" ) );
+    moon->setEphemeris(
+    std::make_shared< ephemerides::ConstantEphemeris >( getBodyCartesianStateAtEpoch( "Moon", "SSB", "ECLIPJ2000", "NONE", evaluationTime ),
+        "SSB", "ECLIPJ2000" ) );
 
     auto sunGravityFieldModel =
             std::make_shared< gravitation::GravityFieldModel >( spice_interface::getBodyGravitationalParameter( "Sun" ) );
