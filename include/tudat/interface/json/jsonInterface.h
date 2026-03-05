@@ -11,7 +11,11 @@
 #ifndef TUDAT_JSONINTERFACE_H
 #define TUDAT_JSONINTERFACE_H
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodiesSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 #include "support/deserialization.h"
 #include "support/valueAccess.h"

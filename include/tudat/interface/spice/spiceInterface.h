@@ -40,7 +40,7 @@ extern "C" {
 }
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
-#include "tudat/interface/spice/spiceException.h"
+#include "tudat/interface/spice/spiceError.h"
 
 namespace tudat
 {

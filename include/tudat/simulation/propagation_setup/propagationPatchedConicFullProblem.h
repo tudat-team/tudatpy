@@ -11,8 +11,13 @@
 #ifndef TUDAT_PROPAGATION_PATCHED_CONIC_FULL
 #define TUDAT_PROPAGATION_PATCHED_CONIC_FULL
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/mission_segments/transferTrajectory.h"
+#include "tudat/basics/basicTypedefs.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudat
 {

@@ -7,8 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_environment_setup.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
@@ -16,7 +21,16 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/body.h>
+#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
+#include <tudat/simulation/environment_setup/createBodiesFactory.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
+#include <tudat/simulation/environment_setup/createFlightConditions.h>
+#include <tudat/simulation/environment_setup/createGroundStations.h>
+#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
+#include <tudat/simulation/environment_setup/createSystemModel.h>
+#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
+#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"
 #include "atmosphere/expose_atmosphere.h"

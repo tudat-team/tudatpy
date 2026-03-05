@@ -25,6 +25,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat

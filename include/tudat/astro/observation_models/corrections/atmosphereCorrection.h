@@ -29,7 +29,8 @@
 #include <cmath>
 #include <vector>
 
-#include "tudat/math/interpolators.h"
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"

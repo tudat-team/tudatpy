@@ -13,12 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "geometry/expose_geometry.h"
-#include "interpolators/expose_interpolators.h"
-#include "numerical_integrators/expose_numerical_integrators.h"
-#include "root_finders/expose_root_finders.h"
-#include "statistics/expose_statistics.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

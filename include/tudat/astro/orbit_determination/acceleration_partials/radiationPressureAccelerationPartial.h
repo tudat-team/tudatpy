@@ -14,7 +14,9 @@
 #include <memory>
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 
 namespace tudat

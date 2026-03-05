@@ -34,6 +34,7 @@ set(io_SOURCES
         "readOdfFile.cpp"
         "readCrdFile.cpp"
         "readSinexFile.cpp"
+        "mapTextFileReader.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"

@@ -14,18 +14,15 @@
  */
 
 #include <string>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
-
-#include <boost/pointer_cast.hpp>
 #include <memory>
 
+#include <boost/pointer_cast.hpp>
 #include <Eigen/Geometry>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "tudat/math/geometric/compositeSurfaceGeometry.h"
 #include "tudat/math/geometric/surfaceGeometry.h"

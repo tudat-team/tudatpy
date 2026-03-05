@@ -12,8 +12,9 @@
 #define TUDAT_JSONINTERFACEVARIATIONAL_H
 
 #include "tudat/interface/json/jsonInterface.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/interface/json/estimation/parameter.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {

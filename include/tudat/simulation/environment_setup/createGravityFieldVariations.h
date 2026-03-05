@@ -11,10 +11,12 @@
 #ifndef TUDAT_CREATEGRAVITYFIELDVARIATIONS_H
 #define TUDAT_CREATEGRAVITYFIELDVARIATIONS_H
 
+#include <complex>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 
@@ -23,6 +25,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //! Object to define settings to be used for interpolating time-variations computed by an
 //! environment model.

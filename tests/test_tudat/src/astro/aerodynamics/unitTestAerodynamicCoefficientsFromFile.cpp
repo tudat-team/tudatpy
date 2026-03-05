@@ -12,13 +12,17 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <tudat/basics/testMacros.h>
+#include <tudat/astro/basic_astro/sphericalStateConversions.h>
 
-#include <tudat/simulation/simulation.h>
 
 namespace tudat
 {

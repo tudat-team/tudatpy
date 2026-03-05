@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/executeEarthOrbiterBiasEstimationTestCase.h"
 
 namespace tudat
 {

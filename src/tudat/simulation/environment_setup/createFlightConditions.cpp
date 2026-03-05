@@ -12,11 +12,11 @@
 #include <string>
 #include <iostream>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/basics/deprecationWarnings.h"
 

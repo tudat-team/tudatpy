@@ -22,7 +22,6 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/simulation.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 

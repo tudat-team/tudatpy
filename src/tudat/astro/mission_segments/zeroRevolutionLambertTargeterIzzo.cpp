@@ -21,7 +21,6 @@
 #include <cmath>
 
 #include <boost/math/special_functions.hpp>  // For asinh and acosh
-#include <boost/exception/all.hpp>           // For exceptions in sanity checks
 #include <Eigen/Dense>                       // for cross product issues (can someone explain why, exactly?)
 
 #include "tudat/math/basic/mathematicalConstants.h"

@@ -11,6 +11,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
@@ -284,6 +285,14 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
 }
 
 //! Function to create a gravity field model.
+std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
+        const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+        const std::string& body,
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+{
+    return createGravityFieldModel( gravityFieldSettings, body, SystemOfBodies( ), gravityFieldVariationSettings );
+}
+
 std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,

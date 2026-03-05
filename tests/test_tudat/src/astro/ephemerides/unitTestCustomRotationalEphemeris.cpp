@@ -20,6 +20,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat

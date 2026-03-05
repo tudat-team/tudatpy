@@ -12,8 +12,9 @@
 #ifndef TUDAT_PROBABILITY_DISTRIBUTIONS_H
 #define TUDAT_PROBABILITY_DISTRIBUTIONS_H
 
+#include <stdexcept>
+
 #include <Eigen/Core>
-#include <Eigen/Dense>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/statistics/continuousProbabilityDistributions.h"
@@ -37,18 +38,7 @@ public:
      * \param mean Mean values of distribution
      * \param covarianceMatrix Covariance matrix of distribution
      */
-    GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix ):
-        mean_( mean ), covarianceMatrix_( covarianceMatrix )
-    {
-        if( covarianceMatrix.rows( ) != covarianceMatrix.cols( ) )
-        {
-            throw std::runtime_error( "Error, covarianceMatrix input to GaussianDistributionXd is not square" );
-        }
-
-        dimension_ = static_cast< double >( mean_.rows( ) );
-        determinant_ = covarianceMatrix_.determinant( );
-        inverseCovarianceMatrix_ = covarianceMatrix_.inverse( );
-    }
+    GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix );
 
     //! Function to evaluate pdf of multivariate Gaussian distribution
     /*!
@@ -57,14 +47,7 @@ public:
      *  \param independentVariables List of independent variable values
      *  \return Evaluated multivariate Gaussian pdf
      */
-    double evaluatePdf( const Eigen::VectorXd& independentVariables )
-    {
-        Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ );
-        Eigen::MatrixXd location = -0.5 * ( distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean );
-
-        return std::exp( location( 0, 0 ) ) /
-                ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) * std::sqrt( determinant_ ) );
-    }
+    double evaluatePdf( const Eigen::VectorXd& independentVariables );
 
     //! Function to evaluate cdf of multivariate Gaussian distribution (not yet implemented)
     /*!
@@ -114,18 +97,7 @@ public:
      * Constructor
      * \param correlationMatrix Correlation matrix of distribution
      */
-    GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ): correlationMatrix_( correlationMatrix )
-    {
-        if( correlationMatrix.rows( ) != correlationMatrix.cols( ) )
-        {
-            throw std::runtime_error( "Error, correlationMatrix input to GaussianCopulaDistributionXd is not square" );
-        }
-
-        dimension_ = correlationMatrix.rows( );
-
-        inverseCorrelationMatrix_ = correlationMatrix_.inverse( );
-        determinant_ = correlationMatrix_.determinant( );
-    }
+    GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix );
 
     //! Function to evaluate pdf of Gaussian cupola distribution
     /*!
