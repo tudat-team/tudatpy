@@ -20,6 +20,7 @@
 #include "tudat/astro/relativity/schwarzschildMetric.h"
 #include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/simulation/environment_setup/createMetric.h"
+#include <stdexcept>
 
 
 namespace tudat
@@ -418,7 +419,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                 }
                 else
                 {
-                    std::cerr<<"Error when making proper time updater direct from metric, sh index is too high"<<std::endl;
+                    throw std::runtime_error( "Error when making proper time updater direct from metric, sh index is too high" );
                 }
             }
         }
@@ -428,7 +429,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         }
         else
         {
-            std::cerr<<"Error when making proper time updater direct from metric, did not recognize metric type"<<std::endl;
+            throw std::runtime_error( "Error when making proper time updater direct from metric, did not recognize metric type" );
         }
 
         for( unsigned int i = 0; i < bodyList.size( ); i++ )
@@ -444,8 +445,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         break;
     }
     default:
-        std::cerr<<"Error when making proper time updater, did not recognize equation type: "<<
-                   stateDerivativeModel->getRelativisticStateDerivativeType( )<<std::endl;
+        throw std::runtime_error( "Error when making proper time updater, did not recognize equation type: " +
+                                  std::to_string( static_cast< int >( stateDerivativeModel->getRelativisticStateDerivativeType( ) ) ) );
     }
     checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
 

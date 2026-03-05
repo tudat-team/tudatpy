@@ -10,6 +10,7 @@
  */
 
 #include <tudat/astro/basic_astro/physicalConstants.h>
+#include <stdexcept>
 
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 
@@ -120,7 +121,9 @@ double evaluateProperTimeEquation(
             properTimeRate -= squareRootPerturbation  * squareRootPerturbation * squareRootPerturbation * 0.0625;
             break;
         default:
-            std::cerr<<"Error when calculating proper time equation, cannot expand square root at order "<<i<<std::endl;
+            throw std::runtime_error(
+                        "Error when calculating proper time equation, cannot expand square root at order " +
+                        std::to_string( i ) );
         }
     }
 

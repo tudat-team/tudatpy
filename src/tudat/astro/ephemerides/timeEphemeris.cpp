@@ -31,7 +31,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
 
     if( !isTimeScaleRelativistic( inputScale ) || !isTimeScaleRelativistic( outputScale ) )
     {
-        std::cerr<<"Error when getting relatvistic time conversion, scales are not both relativistic"<<std::endl;
+        throw std::runtime_error( "Error when getting relatvistic time conversion, scales are not both relativistic" );
     }
     else
     {
@@ -114,8 +114,9 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
                 if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
                     planetCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr << "Error, body-point " << pointIdentifier << " not found in time ephemeris for body "
-                              << centralBodyName_ << std::endl;
+                    throw std::runtime_error(
+                                "Error, body-point " + pointIdentifier +
+                                " not found in time ephemeris for body " + centralBodyName_ );
                 }
                 else
                 {
@@ -144,7 +145,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
             }
             else
             {
-                std::cerr<<"Error relativistic output scale not found"<<std::endl;
+                throw std::runtime_error( "Error relativistic output scale not found" );
             }
             break;
         }
@@ -163,7 +164,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
                 if( planetCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
                     planetCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
+                    throw std::runtime_error( "Error, body-point " + pointIdentifier + " not found" );
                 }
                 else
                 {
@@ -175,7 +176,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
             }
             else
             {
-                std::cerr<<"Error relativistic output scale not found"<<std::endl;
+                throw std::runtime_error( "Error relativistic output scale not found" );
             }
             break;
         }
@@ -187,7 +188,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
                 if( properTimeToPlanetCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
                     properTimeToPlanetCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
+                    throw std::runtime_error( "Error, body-point " + pointIdentifier + " not found" );
                 }
                 else
                 {
@@ -219,7 +220,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
                 if( properTimeToPlanetCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
                     properTimeToPlanetCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found"<<std::endl;
+                    throw std::runtime_error( "Error, body-point " + pointIdentifier + " not found" );
                 }
                 else
                 {
@@ -231,7 +232,7 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
             }
             else
             {
-                std::cerr<<"Error relativistic output scale not found"<<std::endl;
+                throw std::runtime_error( "Error relativistic output scale not found" );
             }
             break;
         }
@@ -251,18 +252,18 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDiffer
 
     if( !isTimeScaleRelativistic( inputScale ) || !isTimeScaleRelativistic( outputScale ) )
     {
-        std::cerr<<"Error when getting relatvistic time conversion, scales are not both relativistic"<<std::endl;
+        throw std::runtime_error( "Error when getting relatvistic time conversion, scales are not both relativistic" );
     }
     else
     {
         if( inputScale == body_centered_coordinate_time_scale )
         {
-            std::cerr<<"Cannot do body-centered input time scale for direct-from-metric time ephemeris"<<std::endl;
+            throw std::runtime_error( "Cannot do body-centered input time scale for direct-from-metric time ephemeris" );
         }
 
         if( outputScale == body_centered_coordinate_time_scale )
         {
-            std::cerr<<"Cannot do body-centered output time scale for direct-from-metric time ephemeris"<<std::endl;
+            throw std::runtime_error( "Cannot do body-centered output time scale for direct-from-metric time ephemeris" );
         }
 
         if( inputScale == barycentric_coordinate_time_scale )
@@ -272,7 +273,9 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDiffer
                 if( globalCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
                     globalCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found in direct-from-metric time ephemeris"<<std::endl;
+                    throw std::runtime_error(
+                                "Error, body-point " + pointIdentifier +
+                                " not found in direct-from-metric time ephemeris" );
                 }
                 else
                 {
@@ -291,7 +294,7 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDiffer
             }
             else
             {
-                std::cerr<<"Error A when using direct from metric time ephemeris"<<std::endl;
+                throw std::runtime_error( "Error A when using direct from metric time ephemeris" );
             }
         }
         else if( inputScale == local_proper_time_scale )
@@ -301,7 +304,9 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDiffer
                 if( properTimeToGlobalCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
                     properTimeToGlobalCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
                 {
-                    std::cerr<<"Error, body-point "<<pointIdentifier<<" not found in direct-from-metric time ephemeris"<<std::endl;
+                    throw std::runtime_error(
+                                "Error, body-point " + pointIdentifier +
+                                " not found in direct-from-metric time ephemeris" );
                 }
                 else
                 {
@@ -320,7 +325,7 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDiffer
             }
             else
             {
-                std::cerr<<"Error B when using direct from metric time ephemeris"<<std::endl;
+                throw std::runtime_error( "Error B when using direct from metric time ephemeris" );
             }
         }
     }

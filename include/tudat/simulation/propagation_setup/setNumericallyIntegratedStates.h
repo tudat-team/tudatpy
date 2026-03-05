@@ -11,6 +11,8 @@
 #ifndef TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 #define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
+#include <stdexcept>
+
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -1181,7 +1183,7 @@ public:
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
             const std::vector< std::pair< double, double > >& arcStartEndTimes )
     {
-        std::cerr<<"Error, cannot yet reset multiarc time ephemeris"<<std::endl;
+        throw std::runtime_error( "Error, cannot yet reset multiarc time ephemeris" );
     }
 
 private:

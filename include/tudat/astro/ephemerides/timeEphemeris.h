@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -317,8 +318,9 @@ public:
         {
             if( referencePointPositionFunction == nullptr )
             {
-                std::cerr << "Error when resetting bodycentric to topocentric time converter for point " << referencePoint
-                          << ", must also provide point position function; point not yet known in TimeEphemeris" << std::endl;
+                throw std::runtime_error(
+                            "Error when resetting bodycentric to topocentric time converter for point " + referencePoint +
+                            ", must also provide point position function; point not yet known in TimeEphemeris" );
             }
             else
             {
@@ -346,8 +348,9 @@ public:
         {
             if( referencePointPositionFunction == nullptr )
             {
-                std::cerr << "Error when resetting bodycentric to topocentric time converter for point " << referencePoint
-                          << ", must also provide point position function; point not yet known in TimeEphemeris" << std::endl;
+                throw std::runtime_error(
+                            "Error when resetting bodycentric to topocentric time converter for point " + referencePoint +
+                            ", must also provide point position function; point not yet known in TimeEphemeris" );
             }
             else
             {
@@ -519,7 +522,7 @@ public:
     double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint,
                                               const double currentTime ) override
     {
-        std::cerr << "Error, second order time ephemeris direct difference term not yet implemented" << std::endl;
+        throw std::runtime_error( "Error, second order time ephemeris direct difference term not yet implemented" );
         return 0.0;
     }
 

@@ -10,6 +10,7 @@
  */
 
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <stdexcept>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -37,7 +38,9 @@ bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
         isRelativistic = 1;
         break;
     default:
-        std::cerr<<"Error when getting relativistic time scale, input was "<<originalTimeScale<<std::endl;
+        throw std::runtime_error(
+                    "Error when getting relativistic time scale, input was " +
+                    std::to_string( static_cast< int >( originalTimeScale ) ) );
     }
     return isRelativistic;
 }

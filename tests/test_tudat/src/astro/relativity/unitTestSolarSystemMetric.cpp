@@ -13,6 +13,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -61,11 +62,8 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
     bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
     auto bodies = createSystemOfBodies( bodySettings );
-    std::cerr << "Bodies created" << std::endl;
     setGlobalFrameBodyEphemerides( bodies.getMap( ), "SSB", "ECLIPJ2000" );
-    std::cerr << "Frame set" << std::endl;
     bodies.getBody( "Earth" )->setStateFromEphemeris( evaluationTime );
-    std::cerr << "Earth initialized" << std::endl;
 
     auto firstOrderSchwarzschildSettings =
             std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", ppnParameterSet, false );

@@ -10,6 +10,7 @@
 
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/astro/ground_stations/groundStation.h"
+#include <stdexcept>
 
 namespace tudat
 {
@@ -161,7 +162,9 @@ void resetIntegratedDirectFromMetricTimeEphemeris< double, double >(
 {
     if( startIndexAndSize.second != 1 )
     {
-        std::cerr<<"Error when resetting integrated time ephemeris, found requested size "<<startIndexAndSize.second<<std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
     }
     std::map< double, double > floatingPointValueNumericalSolution;
 
@@ -203,7 +206,9 @@ void resetIntegratedDirectFromMetricTimeEphemeris< Time, double >(
 {
     if( startIndexAndSize.second != 1 )
     {
-        std::cerr << "Error when resetting integrated time ephemeris, found requested size " << startIndexAndSize.second << std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
     }
 
     std::map< Time, double > floatingPointValueNumericalSolution;
@@ -242,7 +247,7 @@ void resetIntegratedDirectFromMetricTimeEphemeris< double, long double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated direct from metric time ephemeris for (double, long double)"<<std::endl;
+    throw std::runtime_error( "Cannot reset integrated direct from metric time ephemeris for (double, long double)" );
 }
 
 template< >
@@ -251,7 +256,7 @@ void resetIntegratedDirectFromMetricTimeEphemeris< Time, long double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated direct from metric time ephemeris for (Time, long double)"<<std::endl;
+    throw std::runtime_error( "Cannot reset integrated direct from metric time ephemeris for (Time, long double)" );
 }
 
 
@@ -265,7 +270,9 @@ void resetIntegratedPostNewtonianTimeEphemeris< double, double >(
     // resetIntegratedPostNewtonianTimeEphemeris
     if( startIndexAndSize.second != 1 )
     {
-        std::cerr<<"Error when resetting integrated time ephemeris, found requested size "<<startIndexAndSize.second<<std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
     }
     std::map< double, double > floatingPointValueNumericalSolution;
 
@@ -330,7 +337,9 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, double >(
 {
     if( startIndexAndSize.second != 1 )
     {
-        std::cerr << "Error when resetting integrated time ephemeris, found requested size " << startIndexAndSize.second << std::endl;
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
     }
 
     std::map< Time, double > floatingPointValueNumericalSolution;
@@ -395,7 +404,7 @@ void resetIntegratedPostNewtonianTimeEphemeris< double, long double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated time ephemeris for (double, long double)"<<std::endl;
+    throw std::runtime_error( "Cannot reset integrated time ephemeris for (double, long double)" );
 }
 
 template< >
@@ -404,7 +413,7 @@ void resetIntegratedPostNewtonianTimeEphemeris< Time, long double >(
         const std::pair< std::string, std::string > referencePointIdentifier,
         const std::pair< int, int >& startIndexAndSize )
 {
-    std::cerr<<"Cannot reset integrated time ephemeris for (Time, long double)"<<std::endl;
+    throw std::runtime_error( "Cannot reset integrated time ephemeris for (Time, long double)" );
 }
 
 }  // namespace propagators

@@ -12,6 +12,7 @@
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
@@ -172,7 +173,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
         }
         else
         {
-            std::cerr<<"Error when making direct from metric proper time state derivative, no base metric is found"<<std::endl;
+            throw std::runtime_error( "Error when making direct from metric proper time state derivative, no base metric is found" );
         }
 
     }

@@ -12,7 +12,11 @@
 #define TUDAT_CREATESTATEDERIVATIVEPARTIALS_H
 
 #include <functional>
+#include <map>
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "tudat/basics/timeType.h"
@@ -157,10 +161,14 @@ std::shared_ptr< orbit_determination::partial_derivatives::MetricPartial > getMe
     using ::tudat::SphericalHarmonicPartialWrapper;
     using std::placeholders::_1;
 
-    static std::map< std::pair< std::string, std::string >, std::shared_ptr< MetricPartial > > metricPartialCache;
+    static std::map<
+            std::shared_ptr< relativity::Metric >,
+            std::map< std::pair< std::string, std::string >, std::shared_ptr< MetricPartial > > >
+            metricPartialCache;
 
-    auto cacheIterator = metricPartialCache.find( referencePoint );
-    if( cacheIterator == metricPartialCache.end( ) )
+    auto& metricSpecificPartialCache = metricPartialCache[ metric ];
+    auto cacheIterator = metricSpecificPartialCache.find( referencePoint );
+    if( cacheIterator == metricSpecificPartialCache.end( ) )
     {
         std::shared_ptr< MetricPartial > metricPartial;
 
@@ -225,7 +233,7 @@ std::shared_ptr< orbit_determination::partial_derivatives::MetricPartial > getMe
             throw std::runtime_error( "Error when creating metric partial, metric type not recognized." );
         }
 
-        cacheIterator = metricPartialCache.emplace( referencePoint, metricPartial ).first;
+        cacheIterator = metricSpecificPartialCache.emplace( referencePoint, metricPartial ).first;
     }
 
     return cacheIterator->second;

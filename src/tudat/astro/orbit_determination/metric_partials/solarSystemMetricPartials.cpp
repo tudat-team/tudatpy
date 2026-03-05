@@ -45,7 +45,7 @@ std::vector< Eigen::Matrix< double, 4, 4 > > calculateSolarSystemMetricPartialFr
 
     if( scalarPotentialPartials.rows( ) != vectorPotentialPartials.cols( ) )
     {
-        std::cerr << "Error when calculating solar system metric partial, sizes are inconsistent" << std::endl;
+        throw std::runtime_error( "Error when calculating solar system metric partial, sizes are inconsistent" );
         return metricPartials;
     }
 
@@ -140,8 +140,9 @@ calculateSolarSystemMetricPartialWrtSphericalHarmonicCoefficients(
 
     if( solarSystemMetric->getBodySphericalHarmonicGravityWrappers( ).count( bodyIndex ) == 0 )
     {
-        std::cerr << "Error cannot calculate metric partials wrt sh coefficients for body "
-                  << solarSystemMetric->getBodyList( ).at( bodyIndex ) << std::endl;
+        throw std::runtime_error(
+                    "Error cannot calculate metric partials wrt sh coefficients for body " +
+                    solarSystemMetric->getBodyList( ).at( bodyIndex ) );
         return std::make_pair( cosineCoefficientMetricPartials, sineCoefficientMetricPartials );
     }
 
@@ -322,8 +323,9 @@ SolarSystemMetricPartial::getDerivativeFunctionWrtStateOfIntegratedBody(
     {
         if( !stateReferencePoint.second.empty( ) )
         {
-            std::cerr << "Error when getting solar system metric partial function, cannot parse translational state of ("
-                      << stateReferencePoint.first << "," << stateReferencePoint.second << ")." << std::endl;
+            throw std::runtime_error(
+                        "Error when getting solar system metric partial function, cannot parse translational state of (" +
+                        stateReferencePoint.first + "," + stateReferencePoint.second + ")." );
         }
         else if( stateReferencePoint.first == evaluationPointName_.first )
         {
@@ -618,9 +620,11 @@ Eigen::Matrix< double, 4, 4 > SolarSystemMetricPartial::getDoubleParameterPartia
         return iterator->second;
     }
 
-    std::cerr << "Error, requested solar system metric partial " << parameterIdentifier.first << " "
-              << parameterIdentifier.second.first << " " << parameterIdentifier.second.second
-              << ", but partial not found." << std::endl;
+    throw std::runtime_error(
+                "Error, requested solar system metric partial " +
+                std::to_string( static_cast< int >( parameterIdentifier.first ) ) + " " +
+                parameterIdentifier.second.first + " " + parameterIdentifier.second.second +
+                ", but partial not found." );
     return Eigen::Matrix< double, 4, 4 >::Zero( );
 }
 
@@ -633,9 +637,11 @@ std::vector< Eigen::Matrix< double, 4, 4 > > SolarSystemMetricPartial::getVector
         return iterator->second;
     }
 
-    std::cerr << "Error, requested solar system metric partial " << parameterIdentifier.first << " "
-              << parameterIdentifier.second.first << " " << parameterIdentifier.second.second
-              << ", but partial not found." << std::endl;
+    throw std::runtime_error(
+                "Error, requested solar system metric partial " +
+                std::to_string( static_cast< int >( parameterIdentifier.first ) ) + " " +
+                parameterIdentifier.second.first + " " + parameterIdentifier.second.second +
+                ", but partial not found." );
     return std::vector< Eigen::Matrix< double, 4, 4 > >( );
 }
 

@@ -15,6 +15,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <iostream>
 
@@ -57,8 +58,10 @@ public:
         if( !( baryCentricToBodyCentricConversionSettings_->getRelativisticStateDerivativeType( ) == first_order_barycentric_to_bodycentric ||
                baryCentricToBodyCentricConversionSettings_->getRelativisticStateDerivativeType( ) == second_order_barycentric_to_bodycentric ) )
         {
-            std::cerr<<"[ERROR] Invalid type for barycentric-to-bodycentric conversion: "
-                     << baryCentricToBodyCentricConversionSettings_->getRelativisticStateDerivativeType( ) <<std::endl;
+            throw std::runtime_error(
+                        "[ERROR] Invalid type for barycentric-to-bodycentric conversion: " +
+                        std::to_string( static_cast< int >(
+                            baryCentricToBodyCentricConversionSettings_->getRelativisticStateDerivativeType( ) ) ) );
         }
 
         for( unsigned int i = 0; i < bodyCentricToTopocentricConversionSettings_.size( ); ++i )
@@ -66,21 +69,21 @@ public:
             auto topocentricSetting = bodyCentricToTopocentricConversionSettings_.at( i );
             if( topocentricSetting->getRelativisticStateDerivativeType( ) != first_order_bodycentric_to_topocentric )
             {
-                std::cerr<<"[ERROR] Invalid type for topocentric setting for station "
-                         << topocentricSetting->getReferencePointId( ).second << ": "
-                         << topocentricSetting->getRelativisticStateDerivativeType( ) <<std::endl;
+                throw std::runtime_error(
+                            "[ERROR] Invalid type for topocentric setting for station " +
+                            topocentricSetting->getReferencePointId( ).second + ": " +
+                            std::to_string( static_cast< int >(
+                                topocentricSetting->getRelativisticStateDerivativeType( ) ) ) );
             }
 
             if( topocentricSetting->getReferencePointId( ).first !=
                 baryCentricToBodyCentricConversionSettings_->getReferencePointId( ).first )
             {
-                std::cerr<<"[ERROR] Station "
-                         << topocentricSetting->getReferencePointId( ).second
-                         << " is on body "
-                         << topocentricSetting->getReferencePointId( ).first
-                         << ", but barycentric setting uses body "
-                         << baryCentricToBodyCentricConversionSettings_->getReferencePointId( ).first
-                         << std::endl;
+                throw std::runtime_error(
+                            "[ERROR] Station " + topocentricSetting->getReferencePointId( ).second +
+                            " is on body " + topocentricSetting->getReferencePointId( ).first +
+                            ", but barycentric setting uses body " +
+                            baryCentricToBodyCentricConversionSettings_->getReferencePointId( ).first );
             }
         }
 

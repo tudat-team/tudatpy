@@ -14,6 +14,7 @@
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/astro/relativity/schwarzschildMetric.h"
+#include <stdexcept>
 
 namespace tudat
 {
@@ -37,22 +38,19 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
         if (schwarzschildSettings == nullptr)
         {
-            std::cerr << "Error: Expected Schwarzschild metric settings.\n";
-            break;
+            throw std::runtime_error( "Error: Expected Schwarzschild metric settings." );
         }
 
         const std::string& bodyName = schwarzschildSettings->getBodyName( );
         if( !bodies.doesBodyExist( bodyName ) )
         {
-            std::cerr << "Error: Body " << bodyName << " not found in body map.\n";
-            break;
+            throw std::runtime_error( "Error: Body " + bodyName + " not found in body map." );
         }
 
         std::shared_ptr< Body > centralBody = bodies.getBody( bodyName );
         if (centralBody->getGravityFieldModel( ) == nullptr)
         {
-            std::cerr << "Error: Body " << bodyName << " has no gravity field model.\n";
-            break;
+            throw std::runtime_error( "Error: Body " + bodyName + " has no gravity field model." );
         }
 
         spaceTimeMetric = std::make_shared< relativity::HarmonicSchwarzschildMetric >(
@@ -72,8 +70,7 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
         if (solarSettings == nullptr)
         {
-            std::cerr << "Error: Expected solar system metric settings.\n";
-            break;
+            throw std::runtime_error( "Error: Expected solar system metric settings." );
         }
 
         std::vector< std::string > bodyList;
@@ -108,16 +105,14 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
             if (!bodies.doesBodyExist( currentBody ) )
             {
-                std::cerr << "Error: Body " << currentBody << " not found.\n";
-                continue;
+                throw std::runtime_error( "Error: Body " + currentBody + " not found." );
             }
 
             std::shared_ptr< Body > body = bodies.getBody( currentBody );
 
             if (body->getGravityFieldModel( ) == nullptr)
             {
-                std::cerr << "Error: Body " << currentBody << " has no gravity field.\n";
-                continue;
+                throw std::runtime_error( "Error: Body " + currentBody + " has no gravity field." );
             }
 
             bodyStateFunctions.push_back( std::bind( &Body::getState, body ) );
@@ -150,14 +145,12 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
                 if (harmonicField == nullptr)
                 {
-                    std::cerr << "Error: Body " << currentBody << " does not have SH gravity model.\n";
-                    continue;
+                    throw std::runtime_error( "Error: Body " + currentBody + " does not have SH gravity model." );
                 }
                 if( body->getRotationalEphemeris( ) == nullptr )
                 {
-                    std::cerr << "Error: Body " << currentBody
-                              << " has SH metric settings but no rotational ephemeris.\n";
-                    continue;
+                    throw std::runtime_error( "Error: Body " + currentBody +
+                                              " has SH metric settings but no rotational ephemeris." );
                 }
 
                 std::function< Eigen::Matrix3d( ) > rotationDerivativeFunction =
@@ -175,7 +168,7 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
                     harmonicField,
                     std::bind( &Body::getPosition, body ),
                     harmonicMap.at( currentBody ),
-                    new basic_mathematics::LegendreCache(
+                    std::make_shared< basic_mathematics::LegendreCache >(
                         harmonicMap.at( currentBody ).first + 1,
                         harmonicMap.at( currentBody ).second + 1 ),
                     rotationFunction,

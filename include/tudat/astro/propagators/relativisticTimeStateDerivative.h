@@ -201,7 +201,9 @@ public:
     {
         if( bodies.getBody( referencePointId.first ) == 0 )
         {
-            std::cerr<<"Error when making direct proper time state derivative, could not find body "<<referencePointId.first<<std::endl;
+            throw std::runtime_error(
+                        "Error when making direct proper time state derivative, could not find body " +
+                        referencePointId.first );
         }
         else
         {
@@ -209,8 +211,10 @@ public:
             {
                 if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointId.first  ) ) != NULL )
                 {
-                    std::cerr<<"Error when making direct proper time state derivative at center of body "<<referencePointId.first<<
-                               "body is a celestial body, this could result in singular behaviour of potential"<<std::endl;
+                    throw std::runtime_error(
+                                "Error when making direct proper time state derivative at center of body " +
+                                referencePointId.first +
+                                "body is a celestial body, this could result in singular behaviour of potential" );
                 }
                 referencePointStateFunction_ = std::bind( &simulation_setup::Body::getState, bodies.getBody( referencePointId.first ) );
 
@@ -317,7 +321,7 @@ public:
         }
         else if( !bodies.doesBodyExist( referencePoint.first ) )
         {
-            std::cerr<<"Error, could not find centeal body in body map when making 1st order relativistic time converter"<<std::endl;
+            throw std::runtime_error( "Error, could not find centeal body in body map when making 1st order relativistic time converter" );
         }
         else
         {
@@ -335,17 +339,23 @@ public:
             // Check if current body exists.
             if( !bodies.doesBodyExist( externalBodies.at( i ) ) )
             {
-                std::cerr<<"Error, could not find body "<<externalBodies.at( i )<<" in body map when making 1st order relativistic time converter"<<std::endl;
+                throw std::runtime_error(
+                            "Error, could not find body " + externalBodies.at( i ) +
+                            " in body map when making 1st order relativistic time converter" );
             }
             // Check if current body is a CelestialBody
             else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) ) == NULL )
             {
-                std::cerr<<"Error, could not find celestial body "<<externalBodies.at( i )<<" in body map when making 1st order relativistic time converter"<<std::endl;
+                throw std::runtime_error(
+                            "Error, could not find celestial body " + externalBodies.at( i ) +
+                            " in body map when making 1st order relativistic time converter" );
             }
             // Check if current body has a gravity field.
             else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) )->getGravityFieldModel( ) == NULL )
             {
-                std::cerr<<"Error, celestial body "<<externalBodies.at( i )<<" has no gravity field model when making 1st order relativistic time converter"<<std::endl;
+                throw std::runtime_error(
+                            "Error, celestial body " + externalBodies.at( i ) +
+                            " has no gravity field model when making 1st order relativistic time converter" );
             }
             else
             {
@@ -446,8 +456,9 @@ public:
                                 bodies.getBody( externalBodies.at( i ) ) );
                     if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( currentCelestialBody->getGravityFieldModel( ) ) == NULL )
                     {
-                        std::cerr<<"Error when making sh correction for relativistic time conversion, body "<<externalBodies.at( i )<<" has no"<<
-                                " sh gravity field."<<std::endl;
+                        throw std::runtime_error(
+                                    "Error when making sh correction for relativistic time conversion, body " +
+                                    externalBodies.at( i ) + " has no sh gravity field." );
                     }
                     else
                     {
@@ -649,15 +660,15 @@ public:
             {
                 for( unsigned int i = 0; i < angularMomentumBodies.size( ); i++ )
                 {
-                    if( externalBodies.at( i ) == "Sun" )
+                    if( angularMomentumBodies.at( i ) == "Sun" )
                     {
                         angularMomentumFunctions_[ i ] = []() { return ( Eigen::Vector3d() << 0.0, 0.0, 1.92E41 ).finished(); };
                     }
-                    else if( externalBodies.at( i ) == "Jupiter" )
+                    else if( angularMomentumBodies.at( i ) == "Jupiter" )
                     {
                         angularMomentumFunctions_[ i ] = []() { return ( Eigen::Vector3d() << 0.0, 0.0, 6.9E38 ).finished(); };
                     }
-                    else if( externalBodies.at( i ) == "Saturn" )
+                    else if( angularMomentumBodies.at( i ) == "Saturn" )
                     {
                         angularMomentumFunctions_[ i ] = []() { return ( Eigen::Vector3d() << 0.0, 0.0, 1.42E38 ).finished(); };
                     }
@@ -801,7 +812,8 @@ public:
         // Check if central body has a rotation to body-fixed frame.
         if( bodies.getBody( centralBody )->getRotationalEphemeris( ) == NULL )
         {
-            std::cerr<<"Error, could not find rotation model of central body when making PCRS to TPRS time transformation."<<std::endl;
+            throw std::runtime_error(
+                        "Error, could not find rotation model of central body when making PCRS to TPRS time transformation." );
         }
         else
         {
@@ -815,7 +827,9 @@ public:
         // Check if central body is a celestial body
         if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( centralBody ) ) == NULL )
         {
-            std::cerr<<"Error, central body "<<centralBody<<" is not a celestial body when making PCRS to TPRS time transformation."<<std::endl;
+            throw std::runtime_error(
+                        "Error, central body " + centralBody +
+                        " is not a celestial body when making PCRS to TPRS time transformation." );
         }
         else
         {
@@ -824,7 +838,9 @@ public:
 
             if( centralCelestialBody->getGroundStationMap( ).count( groundStation ) == 0 )
             {
-                std::cerr<<"Error, station "<<groundStation<<" not found on "<<centralBody<<" when making PCRS to TPRS time transformation."<<std::endl;
+                throw std::runtime_error(
+                            "Error, station " + groundStation + " not found on " + centralBody +
+                            " when making PCRS to TPRS time transformation." );
             }
             else
             {
@@ -843,7 +859,8 @@ public:
                 // Get central body potential function.
                 if( centralCelestialBody->getGravityFieldModel( ) == NULL )
                 {
-                    std::cerr<<"Error, could not find gravity field model of central body when making PCRS to TPRS time transformation."<<std::endl;
+                    throw std::runtime_error(
+                                "Error, could not find gravity field model of central body when making PCRS to TPRS time transformation." );
                 }
                 else
                 {
@@ -851,7 +868,8 @@ public:
                     if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( centralCelestialBody->getGravityFieldModel( ) ) == NULL
                             && maximumSphericalHarmonicDegree > 0 )
                     {
-                        std::cerr<<"Error, requested spherical harmonic terms when making PCRS to TPRS time transformation, but no such model found."<<std::endl;
+                        throw std::runtime_error(
+                                    "Error, requested spherical harmonic terms when making PCRS to TPRS time transformation, but no such model found." );
                     }
                     // If no spherical harmonic expansion is request, check if field is purely central, and set function.
                     else if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( centralCelestialBody->getGravityFieldModel( ) ) ==
@@ -886,7 +904,8 @@ public:
         // Add acceleration function, if requested.
         if( useAccelerationTerm )
         {
-            std::cerr<<"Error, acceleration term not yet implemented for PCRS to TPRS time transformation."<<std::endl;
+            throw std::runtime_error(
+                        "Error, acceleration term not yet implemented for PCRS to TPRS time transformation." );
         }
         else
         {

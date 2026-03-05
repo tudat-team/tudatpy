@@ -21,6 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 
 #include <functional>
+#include <stdexcept>
 #include <map>
 #include <memory>
 #include <vector>
@@ -46,7 +47,7 @@ public:
             const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
             const std::function< Eigen::Vector3d( ) > centralBodyPositionFunction,
             const std::pair< int, int >& maximumDegreeAndOrder,
-            basic_mathematics::LegendreCache* legendreCache,
+            const std::shared_ptr< basic_mathematics::LegendreCache >& legendreCache,
             const std::function< Eigen::Quaterniond( ) > currentRotationToBodyFixedFrameFunction,
             const std::function< Eigen::Matrix3d( ) > currentRotationToBodyFixedFrameDerivative ):
         sphericalHarmonicGravityField_( sphericalHarmonicGravityField ),
@@ -106,7 +107,7 @@ public:
                     currentEvaluationPosition_ - centralBodyPositionFunction_( ),
                     currentRotationToBodyFixedFrameFunction_( ),
                     maximumDegreeAndOrder_.first, maximumDegreeAndOrder_.second,
-                    legendreCache_ );
+                    legendreCache_.get( ) );
     }
 
     //! Compute potential gradient using spherical-harmonic acceleration model.
@@ -147,7 +148,7 @@ public:
      */
     basic_mathematics::LegendreCache* getLegendreCache( )
     {
-        return legendreCache_;
+        return legendreCache_.get( );
     }
 
     //! Get rotation from inertial frame to body-fixed frame.
@@ -193,7 +194,7 @@ private:
 
     std::pair< int, int > maximumDegreeAndOrder_;
 
-    basic_mathematics::LegendreCache* legendreCache_;
+    std::shared_ptr< basic_mathematics::LegendreCache > legendreCache_;
 };
 
 namespace relativity
