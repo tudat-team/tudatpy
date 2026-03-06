@@ -9,10 +9,11 @@
  */
 
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/readSinexFile.h"
+
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
@@ -269,6 +270,128 @@ std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStation
     std::vector< std::shared_ptr< GroundStationSettings > > dsnStations = getDsnStationSettings( );
     stations.insert( stations.begin( ), dsnStations.begin( ), dsnStations.end( ) );
     return stations;
+}
+
+
+std::map< double, Eigen::Vector3d > getPiecewiseEccentricityDisplacementList(
+        const std::vector< input_output::SinexStationEccentricity >& stationEccentricityHistory )
+{
+    std::map< double, Eigen::Vector3d > displacementList;
+    if( stationEccentricityHistory.empty( ) )
+    {
+        return displacementList;
+    }
+
+    std::vector< input_output::SinexStationEccentricity > sortedEccentricityHistory = stationEccentricityHistory;
+    std::sort( sortedEccentricityHistory.begin( ),
+               sortedEccentricityHistory.end( ),
+               [ ]( const input_output::SinexStationEccentricity& firstEntry,
+                    const input_output::SinexStationEccentricity& secondEntry )
+               {
+                   return firstEntry.startEpoch_ < secondEntry.startEpoch_;
+               } );
+
+    for( unsigned int i = 0; i + 1 < sortedEccentricityHistory.size( ); i++ )
+    {
+        if( sortedEccentricityHistory.at( i ).endEpoch_ > sortedEccentricityHistory.at( i + 1 ).startEpoch_ )
+        {
+            throw std::runtime_error( "Error when creating eccentricity displacement list from SINEX data: eccentricity arcs overlap." );
+        }
+    }
+
+    const double minimumEpoch = -std::numeric_limits< double >::max( );
+    if( sortedEccentricityHistory.at( 0 ).hasOpenEnd_ )
+    {
+        displacementList[ minimumEpoch ] = sortedEccentricityHistory.at( 0 ).eccentricity_;
+    }
+
+    for( unsigned int i = 0; i < sortedEccentricityHistory.size( ); i++ )
+    {
+        const input_output::SinexStationEccentricity& eccentricityEntry = sortedEccentricityHistory.at( i );
+        displacementList[ eccentricityEntry.startEpoch_ ] = eccentricityEntry.eccentricity_;
+
+        if( !eccentricityEntry.hasOpenEnd_ )
+        {
+            displacementList[ eccentricityEntry.endEpoch_ ] = Eigen::Vector3d::Zero( );
+        }
+    }
+
+    return displacementList;
+}
+
+std::string getDefaultIlrsSinexStateFilePath( )
+{
+    return paths::getStationLocationDataPath( ) + "/SLRF2020_POS+VEL_2025.05.13.snx";
+}
+
+std::string getDefaultIlrsSinexEccentricityFilePath( )
+{
+    return paths::getStationLocationDataPath( ) + "/slrecc.250513.ILRS.xyz.snx";
+}
+
+std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFromSinexDomes(
+        const std::vector< std::string >& domesIds,
+        const std::string& sinexStateFile,
+        const std::string& sinexEccentricityFile,
+        const bool throwExceptionOnMissingData )
+{
+    const std::map< std::string, input_output::SinexStationState > sinexStateData = input_output::readSinexStationData( sinexStateFile );
+
+    std::map< std::string, std::vector< input_output::SinexStationEccentricity > > sinexEccentricityData;
+    if( !sinexEccentricityFile.empty( ) )
+    {
+        sinexEccentricityData = input_output::readSinexStationEccentricities( sinexEccentricityFile );
+    }
+
+    std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
+    for( const std::string& domesId: domesIds )
+    {
+        if( sinexStateData.count( domesId ) == 0 )
+        {
+            if( throwExceptionOnMissingData )
+            {
+                throw std::runtime_error( "Error when creating ILRS station settings from SINEX: DOMES id " + domesId +
+                                          " is not in SINEX state file." );
+            }
+            continue;
+        }
+
+        const input_output::SinexStationState currentState = sinexStateData.at( domesId );
+        if( !( currentState.position_( 0 ) == currentState.position_( 0 ) ) )
+        {
+            if( throwExceptionOnMissingData )
+            {
+                throw std::runtime_error( "Error when creating ILRS station settings from SINEX: no Cartesian position for DOMES id " +
+                                          domesId + "." );
+            }
+            continue;
+        }
+
+        std::shared_ptr< GroundStationSettings > stationSettings =
+                std::make_shared< GroundStationSettings >( domesId, currentState.position_ );
+
+        if( sinexEccentricityData.count( domesId ) > 0 )
+        {
+            const std::map< double, Eigen::Vector3d > displacementList =
+                    getPiecewiseEccentricityDisplacementList( sinexEccentricityData.at( domesId ) );
+            if( !displacementList.empty( ) )
+            {
+                stationSettings->addStationMotionSettings(
+                        std::make_shared< PiecewiseConstantGroundStationMotionSettings >( displacementList ) );
+            }
+        }
+
+        if( currentState.velocity_( 0 ) == currentState.velocity_( 0 ) )
+        {
+            const double referenceEpoch = ( currentState.referenceEpoch_ == currentState.referenceEpoch_ ) ? currentState.referenceEpoch_ : 0.0;
+            stationSettings->addStationMotionSettings(
+                    std::make_shared< LinearGroundStationMotionSettings >( currentState.velocity_, referenceEpoch ) );
+        }
+
+        stationSettingsList.push_back( stationSettings );
+    }
+
+    return stationSettingsList;
 }
 
 }  // namespace simulation_setup

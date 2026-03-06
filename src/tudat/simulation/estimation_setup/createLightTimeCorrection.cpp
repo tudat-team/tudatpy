@@ -9,9 +9,11 @@
  */
 
 #include "tudat/io/readViennaMappingFunctionData.h"
+#include "tudat/io/readSinexFile.h"
 #include "tudat/io/readIonexFile.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
@@ -278,7 +280,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
-        case vmf3_tropospheric: {
+        case vmf3_tropospheric:
+        case vmf3o_tropospheric: {
             // Cast correction settings
             std::shared_ptr< VMF3TroposphericCorrectionSettings > vmf3Settings =
                     std::dynamic_pointer_cast< VMF3TroposphericCorrectionSettings >( correctionSettings );
@@ -314,7 +317,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 // Create elevation mapping (currently fixed to Niell)
                 std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping = createTroposphericElevationMapping(
-                        vmf3Settings->getTroposphericMappingModelType( ), bodies, transmitter, receiver, isUplinkCorrection );
+                        vmf3Settings->getTroposphericMappingModelType( ),
+                        bodies,
+                        transmitter,
+                        receiver,
+                        isUplinkCorrection,
+                        vmf3Settings->getCorrectionType( ) );
 
                 // Get geodetic position function
                 std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
@@ -348,7 +356,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 // Create the light-time correction object
                 lightTimeCorrection = std::make_shared< VMF3TroposphericCorrection >(
-                        troposphericElevationMapping, isUplinkCorrection, troposphereData, useGradientCorrection );
+                        troposphericElevationMapping,
+                        isUplinkCorrection,
+                        troposphereData,
+                        useGradientCorrection,
+                        vmf3Settings->getCorrectionType( ),
+                        vmf3Settings->getObservationWavelengthNm( ) );
             }
             else
             {
@@ -690,7 +703,8 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
         const LinkEndId& receiver,
-        const bool isUplinkCorrection )
+        const bool isUplinkCorrection,
+        const LightTimeCorrectionType vmfCorrectionType )
 {
     std::shared_ptr< TroposhericElevationMapping > troposphericMappingModel;
 
@@ -760,7 +774,11 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
                     bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getNominalStationState( ) );
 
             troposphericMappingModel = std::make_shared< VMF3MappingModel >(
-                    elevationFunction, azimuthFunction, groundStationGeodeticPositionFunction, isUplinkCorrection );
+                    elevationFunction,
+                    azimuthFunction,
+                    groundStationGeodeticPositionFunction,
+                    isUplinkCorrection,
+                    vmfCorrectionType );
 
             break;
         }
@@ -780,15 +798,94 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
                                    const simulation_setup::SystemOfBodies& bodies,
                                    const bool setTropospherData,
                                    const bool setMeteoData,
-                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                   const bool retrieveMappingInternally )
 {
     std::map< std::string, input_output::VMFData > vmfData;
     input_output::readVMFFiles( dataFiles, vmfData, fileHasMeteo, fileHasGradient );
 
+    const auto trimString = [ ]( const std::string& input ) -> std::string
+    {
+        const std::string whiteSpace = " \t\n\r\f\v";
+        const std::size_t first = input.find_first_not_of( whiteSpace );
+        if( first == std::string::npos )
+        {
+            return "";
+        }
+        const std::size_t last = input.find_last_not_of( whiteSpace );
+        return input.substr( first, last - first + 1 );
+    };
+
+    std::map< std::string, std::string > stationNameMapping;
+    if( retrieveMappingInternally )
+    {
+        const std::map< int, input_output::IlrsStationRegistryEntry > stationRegistry =
+                input_output::readIlrsStationRegistryFromSinexSiteId( simulation_setup::getDefaultIlrsSinexStateFilePath( ) );
+
+        for( const auto& stationEntry: stationRegistry )
+        {
+            const std::string stationCode = std::to_string( stationEntry.first );
+            const std::string domesId = trimString( stationEntry.second.domesId_ );
+
+            if( domesId.empty( ) || domesId == "---" )
+            {
+                continue;
+            }
+            stationNameMapping[ stationCode ] = domesId;
+            stationNameMapping[ domesId ] = stationCode;
+        }
+    }
+
+    const auto resolveStationName = [ & ]( const std::string& vmfStationName ) -> std::string
+    {
+        const std::string trimmedStationName = trimString( vmfStationName );
+        const auto& stationMap = bodies.at( "Earth" )->getGroundStationMap( );
+
+        if( stationMap.count( trimmedStationName ) > 0 )
+        {
+            return trimmedStationName;
+        }
+        if( !retrieveMappingInternally )
+        {
+            return "";
+        }
+
+        auto mappingIterator = stationNameMapping.find( trimmedStationName );
+        if( mappingIterator != stationNameMapping.end( ) && stationMap.count( mappingIterator->second ) > 0 )
+        {
+            return mappingIterator->second;
+        }
+
+        try
+        {
+            std::size_t parsedCharacters = 0;
+            const int stationCode = std::stoi( trimmedStationName, &parsedCharacters );
+            if( parsedCharacters == trimmedStationName.size( ) )
+            {
+                const std::string normalizedCode = std::to_string( stationCode );
+                if( stationMap.count( normalizedCode ) > 0 )
+                {
+                    return normalizedCode;
+                }
+                mappingIterator = stationNameMapping.find( normalizedCode );
+                if( mappingIterator != stationNameMapping.end( ) && stationMap.count( mappingIterator->second ) > 0 )
+                {
+                    return mappingIterator->second;
+                }
+            }
+        }
+        catch( ... )
+        {
+            // Non-integer station names are handled by direct/map-based lookup only.
+        }
+
+        return "";
+    };
+
     for( auto it: vmfData )
     {
-        std::string currentStationName = it.first;
-        if( bodies.at( "Earth" )->getGroundStationMap( ).count( currentStationName ) > 0 )
+        const std::string currentStationName = resolveStationName( it.first );
+        if( !currentStationName.empty( ) )
         {
             std::shared_ptr< ground_stations::GroundStation > currentStation =
                     bodies.at( "Earth" )->getGroundStationMap( ).at( currentStationName );

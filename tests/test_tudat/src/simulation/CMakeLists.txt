@@ -22,3 +22,8 @@ TUDAT_ADD_TEST_CASE(EnvironmentExceptions
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
 )
+
+TUDAT_ADD_TEST_CASE(IlrsStationLoader
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )

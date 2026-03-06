@@ -99,6 +99,17 @@ std::vector< std::shared_ptr< GroundStationSettings > > getMPCStationSettings( )
 
 std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( );
 
+
+std::string getDefaultIlrsSinexStateFilePath( );
+
+std::string getDefaultIlrsSinexEccentricityFilePath( );
+
+std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFromSinexDomes(
+        const std::vector< std::string >& domesIds,
+        const std::string& sinexStateFile,
+        const std::string& sinexEccentricityFile,
+        const bool throwExceptionOnMissingData = false );
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
