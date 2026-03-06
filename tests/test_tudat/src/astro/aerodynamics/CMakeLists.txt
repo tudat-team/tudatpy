@@ -105,6 +105,7 @@ TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
          Tudat::tudat_basic_mathematics
          Tudat::tudat_statistics
          Tudat::tudat_basic_astrodynamics
+         Tudat::tudat_statistics
          )
 
 TUDAT_ADD_TEST_CASE(HeatTransfer
@@ -114,6 +115,7 @@ TUDAT_ADD_TEST_CASE(HeatTransfer
         Tudat::tudat_basic_mathematics
         Tudat::tudat_statistics
         Tudat::tudat_basic_astrodynamics
+        Tudat::tudat_statistics
         )
 
 TUDAT_ADD_TEST_CASE(ControlSurfaceIncrements

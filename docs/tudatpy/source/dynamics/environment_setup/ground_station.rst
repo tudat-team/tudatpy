@@ -58,6 +58,12 @@ Functions
 
     evn_stations
 
+    default_ilrs_sinex_state_file
+
+    default_ilrs_sinex_eccentricity_file
+
+    ilrs_stations_from_sinex_domes
+
     linear_station_motion
 
     piecewise_constant_station_motion
@@ -79,6 +85,12 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.radio_telescope_stations
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.evn_stations
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.default_ilrs_sinex_state_file
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.default_ilrs_sinex_eccentricity_file
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.ilrs_stations_from_sinex_domes
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.linear_station_motion
 
@@ -127,6 +139,4 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.CustomGroundStationMotionSettings
    :members:
-
-
 

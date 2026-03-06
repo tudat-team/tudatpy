@@ -227,10 +227,18 @@ public:
      */
     VMF3TroposphericCorrectionSettings( const std::string& bodyWithAtmosphere = "Earth",
                                         const bool useGradientCorrection = true,
-                                        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3 ):
-        LightTimeCorrectionSettings( vmf3_tropospheric ), bodyWithAtmosphere_( bodyWithAtmosphere ),
-        useGradientCorrection_( useGradientCorrection ), troposphericMappingModelType_( troposphericMappingModel )
-    { }
+                                        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3,
+                                        const LightTimeCorrectionType correctionType = vmf3_tropospheric,
+                                        const double observationWavelengthNm = 532.0 ):
+        LightTimeCorrectionSettings( correctionType ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        useGradientCorrection_( useGradientCorrection ), troposphericMappingModelType_( troposphericMappingModel ),
+        observationWavelengthNm_( observationWavelengthNm )
+    {
+        if( correctionType == vmf3o_tropospheric && observationWavelengthNm_ <= 0.0 )
+        {
+            throw std::runtime_error( "Error when creating VMF3o correction settings: wavelength must be positive." );
+        }
+    }
 
     //! Get the body with atmosphere
     std::string getBodyWithAtmosphere( ) const
@@ -250,10 +258,16 @@ public:
         return troposphericMappingModelType_;
     }
 
+    double getObservationWavelengthNm( ) const
+    {
+        return observationWavelengthNm_;
+    }
+
 private:
     std::string bodyWithAtmosphere_;
     bool useGradientCorrection_;
     TroposphericMappingModel troposphericMappingModelType_;
+    double observationWavelengthNm_;
 };
 
 // Class defining settings for tabulated ionospheric corrections
@@ -525,7 +539,26 @@ inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrection
         const bool useGradientCorrection = true,
         const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3 )
 {
-    return std::make_shared< VMF3TroposphericCorrectionSettings >( bodyWithAtmosphere, useGradientCorrection, troposphericMappingModel );
+    return std::make_shared< VMF3TroposphericCorrectionSettings >(
+            bodyWithAtmosphere,
+            useGradientCorrection,
+            troposphericMappingModel,
+            vmf3_tropospheric,
+            532.0 );
+}
+
+inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectionSettings(
+        const std::string& bodyWithAtmosphere = "Earth",
+        const bool useGradientCorrection = true,
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3,
+        const double observationWavelengthNm = 532.0 )
+{
+    return std::make_shared< VMF3TroposphericCorrectionSettings >(
+            bodyWithAtmosphere,
+            useGradientCorrection,
+            troposphericMappingModel,
+            vmf3o_tropospheric,
+            observationWavelengthNm );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
@@ -571,7 +604,8 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
         const LinkEndId& receiver,
-        const bool isUplinkCorrection );
+        const bool isUplinkCorrection,
+        const LightTimeCorrectionType vmfCorrectionType = vmf3_tropospheric );
 
 void setVmfTroposphereCorrections(
         const std::vector< std::string >& dataFiles,
@@ -580,7 +614,8 @@ void setVmfTroposphereCorrections(
         const simulation_setup::SystemOfBodies& bodies,
         const bool setTropospherData = true,
         const bool setMeteoData = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ),
+        const bool retrieveMappingInternally = false );
 
 void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                                   const simulation_setup::SystemOfBodies& bodies,
