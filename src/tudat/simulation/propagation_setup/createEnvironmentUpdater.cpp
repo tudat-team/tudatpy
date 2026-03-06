@@ -403,7 +403,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         std::vector< std::string > bodyList;
         std::vector< std::string > shList;
 
-        if( std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse ) != NULL )
+        if( std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse ) != nullptr )
         {
             std::shared_ptr< SolarSystemMetric > solarSystemMetric =
                     std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse );
@@ -423,7 +423,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                 }
             }
         }
-        else if( std::dynamic_pointer_cast< HarmonicSchwarzschildMetric >( metricToUse ) != NULL )
+        else if( std::dynamic_pointer_cast< HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
         {
 
         }

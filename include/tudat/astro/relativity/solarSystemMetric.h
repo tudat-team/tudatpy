@@ -39,7 +39,7 @@ public:
      *  \param sphericalHarmonicGravityField Spherical-harmonic gravity field model.
      *  \param centralBodyPositionFunction Function returning central-body position.
      *  \param maximumDegreeAndOrder Maximum degree/order used in spherical-harmonic evaluations.
-     *  \param legendreCache Cache for Legendre polynomial evaluations.
+     *  \param sphericalHarmonicsCache Cache for spherical-harmonic evaluations.
      *  \param currentRotationToBodyFixedFrameFunction Function returning inertial-to-body-fixed rotation.
      *  \param currentRotationToBodyFixedFrameDerivative Function returning body-frame rotation derivative.
      */
@@ -47,7 +47,7 @@ public:
             const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
             const std::function< Eigen::Vector3d( ) > centralBodyPositionFunction,
             const std::pair< int, int >& maximumDegreeAndOrder,
-            const std::shared_ptr< basic_mathematics::LegendreCache >& legendreCache,
+            const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
             const std::function< Eigen::Quaterniond( ) > currentRotationToBodyFixedFrameFunction,
             const std::function< Eigen::Matrix3d( ) > currentRotationToBodyFixedFrameDerivative ):
         sphericalHarmonicGravityField_( sphericalHarmonicGravityField ),
@@ -55,7 +55,7 @@ public:
         currentRotationToBodyFixedFrameDerivative_( currentRotationToBodyFixedFrameDerivative ),
         centralBodyPositionFunction_( centralBodyPositionFunction ),
         maximumDegreeAndOrder_( maximumDegreeAndOrder ),
-        legendreCache_( legendreCache )
+        sphericalHarmonicsCache_( sphericalHarmonicsCache )
     {
         using namespace std::placeholders;
         
@@ -107,7 +107,7 @@ public:
                     currentEvaluationPosition_ - centralBodyPositionFunction_( ),
                     currentRotationToBodyFixedFrameFunction_( ),
                     maximumDegreeAndOrder_.first, maximumDegreeAndOrder_.second,
-                    legendreCache_.get( ) );
+                    sphericalHarmonicsCache_ );
     }
 
     //! Compute potential gradient using spherical-harmonic acceleration model.
@@ -148,7 +148,7 @@ public:
      */
     basic_mathematics::LegendreCache* getLegendreCache( )
     {
-        return legendreCache_.get( );
+        return ( sphericalHarmonicsCache_ == nullptr ) ? nullptr : &( sphericalHarmonicsCache_->getLegendreCache( ) );
     }
 
     //! Get rotation from inertial frame to body-fixed frame.
@@ -194,7 +194,7 @@ private:
 
     std::pair< int, int > maximumDegreeAndOrder_;
 
-    std::shared_ptr< basic_mathematics::LegendreCache > legendreCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
 
 namespace relativity

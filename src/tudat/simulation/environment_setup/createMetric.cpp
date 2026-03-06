@@ -168,7 +168,7 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
                     harmonicField,
                     std::bind( &Body::getPosition, body ),
                     harmonicMap.at( currentBody ),
-                    std::make_shared< basic_mathematics::LegendreCache >(
+                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
                         harmonicMap.at( currentBody ).first + 1,
                         harmonicMap.at( currentBody ).second + 1 ),
                     rotationFunction,

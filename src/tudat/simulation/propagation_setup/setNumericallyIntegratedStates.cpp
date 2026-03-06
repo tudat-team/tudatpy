@@ -10,6 +10,8 @@
 
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/ephemerides/timeEphemerisDirectFromMetric.h"
+#include "tudat/astro/ephemerides/timeEphemerisWithFirstOrderDirectConversion.h"
 #include <stdexcept>
 
 namespace tudat

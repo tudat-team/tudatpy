@@ -232,15 +232,15 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     truncatedMetric->update( testCartesianElements + bodies.getBody( "Earth" )->getState( ), 0.0, true, false );
     pointMassMetric->update( testCartesianElements + bodies.getBody( "Earth" )->getState( ), 0.0, true, false );
 
-    auto legendreCache = std::make_unique< basic_mathematics::LegendreCache >( fullDegree, fullOrder );
+    auto sphericalHarmonicsCache = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( fullDegree, fullOrder );
     const Eigen::Vector3d relativePosition = testCartesianElements.segment( 0, 3 );
 
     const double fullPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), fullDegree, fullOrder, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), fullDegree, fullOrder, sphericalHarmonicsCache );
     const double truncatedPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), truncatedDegree, truncatedOrder, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), truncatedDegree, truncatedOrder, sphericalHarmonicsCache );
     const double pointMassPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), 0, 0, legendreCache.get( ) );
+            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), 0, 0, sphericalHarmonicsCache );
 
     std::vector< double > metricTerms{
         2.0 * fullPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,

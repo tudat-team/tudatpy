@@ -18,6 +18,7 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <functional>
+#include <memory>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -652,11 +653,13 @@ public:
         const Eigen::Quaterniond& inertialToBodyFixedRotation,
         const double maximumDegree,
         const double maximumOrder,
-        basic_mathematics::LegendreCache* legendreCache = nullptr, // Legacy input, not used
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache = nullptr,
         const double minimumDegree = 0,
         const double minimumOrder = 0 )
     {
         const Eigen::Vector3d bodyFixedPosition = inertialToBodyFixedRotation * inertialPosition;
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheToUse =
+                ( sphericalHarmonicsCache == nullptr ) ? sphericalHarmonicsCache_ : *sphericalHarmonicsCache;
 
         return calculateSphericalHarmonicGravitationalPotential(
             bodyFixedPosition,
@@ -664,7 +667,7 @@ public:
             referenceRadius_,
             cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
             sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
-            sphericalHarmonicsCache_,  
+            sphericalHarmonicsCacheToUse,
             minimumDegree,
             minimumOrder );
     }

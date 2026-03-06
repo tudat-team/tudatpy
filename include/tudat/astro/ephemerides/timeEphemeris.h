@@ -13,21 +13,13 @@
 #define TUDAT_TIME_EPHEMERIS_H
 
 #include <functional>
-#include <iostream>
 #include <map>
-#include <memory>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <vector>
 
-#include <Eigen/Core>
-
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/relativity/relativisticPotentials.h"
-#include "tudat/astro/relativity/relativisticTimeConversion.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -59,6 +51,24 @@ double combineTimeDifferenceFunction( const std::vector< std::function< double( 
     }
     return timeDifference;
 }
+
+namespace detail
+{
+
+template< typename TimeType >
+inline TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifference )
+{
+    if constexpr ( std::is_same_v< TimeType, Time > )
+    {
+        return timeDifference;
+    }
+    else
+    {
+        return static_cast< TimeType >( timeDifference.getSeconds< long double >( ) );
+    }
+}
+
+}  // namespace detail
 
 class TimeEphemeris
 {
@@ -147,7 +157,7 @@ public:
                 getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
         return [=]( const TimeType inputTime )
         {
-            return convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
+            return detail::convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
         };
     }
 
@@ -200,433 +210,7 @@ public:
             const std::string& pointIdentifier = "" ) = 0;
 
 protected:
-
-    template< typename TimeType >
-    static TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifference )
-    {
-        return static_cast< TimeType >( timeDifference.getSeconds< long double >( ) );
-    }
-
     std::string centralBodyName_;
-};
-
-template<>
-inline Time TimeEphemeris::convertTimeDifferenceFromExtendedTime< Time >( const Time& timeDifference )
-{
-    return timeDifference;
-}
-
-//! Relativistic time ephemeris using post-Newtonian conversion terms and optional direct corrections.
-/*!
- *  This class combines pre-integrated coordinate-time differences with direct correction terms to build
- *  conversions between barycentric, body-centric, and topocentric proper time scales.
- *
- *  The barycentric/body-centric component follows the Soffel et al. (2003), Eq. (58)-type
- *  post-Newtonian model, including first-order and optional second-order terms.
- *
- *  The body-centric/topocentric component follows the Turyshev et al. (2013), Eq. (22)-type
- *  local proper-time model, including kinetic, central-potential, tidal, and acceleration terms.
- *
- *  In Tudat, the propagated variables are time differences (e.g. \f$\tau-t_C\f$), which are then
- *  interpolated and combined to provide conversions between requested scales.
- */
-class TimeEphemerisFromPostNewtonianExpansion : public TimeEphemeris
-{
-public:
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > TimeDifferenceInterpolator;
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > ExtendedTimeDifferenceInterpolator;
-
-    //! Constructor.
-    /*!
-     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
-     *  barycentric-to-bodycentric coordinate-time difference.
-     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
-     *  bodycentric-to-barycentric coordinate-time difference.
-     *  \param centralBodyName Name of the central body associated with this time ephemeris.
-     *  \param groundStationPositionFunctions Map from reference point identifier to position function.
-     *  \param planetCoordinateToProperTimeInterpolators Map from reference point identifier to
-     *  bodycentric-to-proper-time interpolator.
-     *  \param properTimeToPlanetCoordinateInterpolators Map from reference point identifier to
-     *  proper-time-to-bodycentric interpolator.
-     */
-    TimeEphemerisFromPostNewtonianExpansion(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
-            const std::string& centralBodyName,
-            const std::map< std::string, std::function< Eigen::Vector3d( const double ) > >& groundStationPositionFunctions =
-            ( std::map< std::string, std::function< Eigen::Vector3d( const double ) > >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
-        TimeEphemeris( centralBodyName ),
-        barycenterToPlanetCenterCoordinateTimeInterpolator_( barycenterToPlanetCenterCoordinateTimeInterpolator ),
-        planetCenterToBarycenterCoordinateTimeInterpolator_( planetCenterToBarycenterCoordinateTimeInterpolator ),
-        groundStationPositionFunctions_( groundStationPositionFunctions ),
-        planetCoordinateToProperTimeInterpolators_( planetCoordinateToProperTimeInterpolators ),
-        properTimeToPlanetCoordinateInterpolators_( properTimeToPlanetCoordinateInterpolators )
-    { }
-
-    virtual ~TimeEphemerisFromPostNewtonianExpansion( ) { }
-
-    //! Reset barycentric/bodycentric conversion interpolators.
-    /*!
-     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
-     *  barycentric-to-bodycentric conversion.
-     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
-     *  bodycentric-to-barycentric conversion.
-     */
-    void resetBarycentricToBodycentricInterpolators(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator )
-    {
-        barycenterToPlanetCenterCoordinateTimeInterpolator_ = barycenterToPlanetCenterCoordinateTimeInterpolator;
-        planetCenterToBarycenterCoordinateTimeInterpolator_ = planetCenterToBarycenterCoordinateTimeInterpolator;
-    }
-
-    //! Reset barycentric/bodycentric conversion interpolators in extended time.
-    /*!
-     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
-     *  barycentric-to-bodycentric conversion.
-     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
-     *  bodycentric-to-barycentric conversion.
-     */
-    void resetBarycentricToBodycentricInterpolators(
-            const ExtendedTimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const ExtendedTimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator )
-    {
-        barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_ = barycenterToPlanetCenterCoordinateTimeInterpolator;
-        planetCenterToBarycenterCoordinateTimeInterpolatorExtended_ = planetCenterToBarycenterCoordinateTimeInterpolator;
-    }
-
-    //! Reset bodycentric/topocentric conversion interpolators for a reference point.
-    /*!
-     *  \param planetCoordinateToProperTimeInterpolator Interpolator for bodycentric-to-proper conversion.
-     *  \param properTimeToPlanetCoordinateInterpolator Interpolator for proper-to-bodycentric conversion.
-     *  \param referencePoint Reference point identifier.
-     *  \param referencePointPositionFunction Optional position function for the reference point.
-     */
-    void resetBodycentricToTopocentricInterpolators(
-            const TimeDifferenceInterpolator planetCoordinateToProperTimeInterpolator,
-            const TimeDifferenceInterpolator properTimeToPlanetCoordinateInterpolator,
-            const std::string& referencePoint,
-            const std::function< Eigen::Vector3d( const double ) > referencePointPositionFunction = nullptr )
-    {
-        planetCoordinateToProperTimeInterpolators_[ referencePoint ] = planetCoordinateToProperTimeInterpolator;
-        properTimeToPlanetCoordinateInterpolators_[ referencePoint ] = properTimeToPlanetCoordinateInterpolator;
-        if( !doesReferencePointTopocentricConverterExist( referencePoint ) )
-        {
-            if( referencePointPositionFunction == nullptr )
-            {
-                throw std::runtime_error(
-                            "Error when resetting bodycentric to topocentric time converter for point " + referencePoint +
-                            ", must also provide point position function; point not yet known in TimeEphemeris" );
-            }
-            else
-            {
-                groundStationPositionFunctions_[ referencePoint ] = referencePointPositionFunction;
-            }
-        }
-    }
-
-    //! Reset bodycentric/topocentric conversion interpolators for a reference point in extended time.
-    /*!
-     *  \param planetCoordinateToProperTimeInterpolator Interpolator for bodycentric-to-proper conversion.
-     *  \param properTimeToPlanetCoordinateInterpolator Interpolator for proper-to-bodycentric conversion.
-     *  \param referencePoint Reference point identifier.
-     *  \param referencePointPositionFunction Optional position function for the reference point.
-     */
-    void resetBodycentricToTopocentricInterpolators(
-            const ExtendedTimeDifferenceInterpolator planetCoordinateToProperTimeInterpolator,
-            const ExtendedTimeDifferenceInterpolator properTimeToPlanetCoordinateInterpolator,
-            const std::string& referencePoint,
-            const std::function< Eigen::Vector3d( const double ) > referencePointPositionFunction = nullptr )
-    {
-        planetCoordinateToProperTimeInterpolatorsExtended_[ referencePoint ] = planetCoordinateToProperTimeInterpolator;
-        properTimeToPlanetCoordinateInterpolatorsExtended_[ referencePoint ] = properTimeToPlanetCoordinateInterpolator;
-        if( !doesReferencePointTopocentricConverterExist( referencePoint ) )
-        {
-            if( referencePointPositionFunction == nullptr )
-            {
-                throw std::runtime_error(
-                            "Error when resetting bodycentric to topocentric time converter for point " + referencePoint +
-                            ", must also provide point position function; point not yet known in TimeEphemeris" );
-            }
-            else
-            {
-                groundStationPositionFunctions_[ referencePoint ] = referencePointPositionFunction;
-            }
-        }
-    }
-
-    //! Retrieve conversion function for a requested pair of scales in extended time.
-    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
-            const basic_astrodynamics::TimeScales inputScale,
-            const basic_astrodynamics::TimeScales outputScale,
-            const std::string& pointIdentifier = "" ) override;
-
-    //! Compute direct correction term from a position function.
-    /*!
-     *  \param positionVectorFunctionFromReferencePoint Function returning point position at an epoch.
-     *  \param currentTime Evaluation epoch.
-     *  \param multiplier Optional multiplicative factor (used for inverse conversion chains).
-     *  \return Direct correction contribution.
-     */
-    double calculateDirectTimeDifferenceTermFromFunction(
-            const std::function< Eigen::Vector3d( const double ) > positionVectorFunctionFromReferencePoint,
-            const double currentTime,
-            const double multiplier = 1.0 )
-    {
-        return multiplier * calculateDirectTimeDifferenceTerm( positionVectorFunctionFromReferencePoint( currentTime ), currentTime );
-    }
-
-    //! Compute direct correction term for a point position.
-    /*!
-     *  \param positionVectorFromReferencePoint Point position relative to the body center.
-     *  \param currentTime Evaluation epoch.
-     *  \return Direct correction contribution.
-     */
-    virtual double calculateDirectTimeDifferenceTerm(
-            const Eigen::Vector3d positionVectorFromReferencePoint,
-            const double currentTime ) = 0;
-
-    //! Check if all topocentric converter components are available for a reference point.
-    /*!
-     *  \param referencePointName Name/identifier of the reference point.
-     *  \return True if position and both conversion interpolators are available.
-     */
-    bool doesReferencePointTopocentricConverterExist( const std::string& referencePointName )
-    {
-        const bool hasPosition = ( groundStationPositionFunctions_.count( referencePointName ) > 0 );
-        const bool hasDoubleInterpolators =
-                ( planetCoordinateToProperTimeInterpolators_.count( referencePointName ) > 0 ) &&
-                ( properTimeToPlanetCoordinateInterpolators_.count( referencePointName ) > 0 );
-        const bool hasExtendedInterpolators =
-                ( planetCoordinateToProperTimeInterpolatorsExtended_.count( referencePointName ) > 0 ) &&
-                ( properTimeToPlanetCoordinateInterpolatorsExtended_.count( referencePointName ) > 0 );
-        return hasPosition && ( hasDoubleInterpolators || hasExtendedInterpolators );
-    }
-
-protected:
-
-    TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator_;
-    TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator_;
-    ExtendedTimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolatorExtended_;
-    ExtendedTimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolatorExtended_;
-
-    std::map< std::string, std::function< Eigen::Vector3d( const double ) > > groundStationPositionFunctions_;
-    std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators_;
-    std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators_;
-    std::map< std::string, ExtendedTimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolatorsExtended_;
-    std::map< std::string, ExtendedTimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolatorsExtended_;
-};
-
-//! Post-Newtonian converter with first-order direct local term.
-/*!
- *  Adds the first-order direct correction term for body-centric <-> topocentric conversion on top of the
- *  interpolated integral terms, using the central-body barycentric velocity (Soffel/IAU first-order formulation).
- */
-class TimeEphemerisWithFirstOrderDirectConversion : public TimeEphemerisFromPostNewtonianExpansion
-{
-public:
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > TimeDifferenceInterpolator;
-
-    //! Constructor.
-    /*!
-     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
-     *  barycentric-to-bodycentric conversion.
-     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
-     *  bodycentric-to-barycentric conversion.
-     *  \param centralBodyName Name of the central body.
-     *  \param centralBodyStateFunction Function returning barycentric central-body state.
-     *  \param groundStationPositionFunctions Map from reference point identifier to position function.
-     *  \param planetCoordinateToProperTimeInterpolators Map of bodycentric-to-proper interpolators.
-     *  \param properTimeToPlanetCoordinateInterpolators Map of proper-to-bodycentric interpolators.
-     */
-    TimeEphemerisWithFirstOrderDirectConversion(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
-            const std::string& centralBodyName,
-            const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
-            const std::map< std::string, std::function< Eigen::Vector3d( const double ) > >& groundStationPositionFunctions =
-            ( std::map< std::string, std::function< Eigen::Vector3d( const double ) > >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
-        TimeEphemerisFromPostNewtonianExpansion(
-            barycenterToPlanetCenterCoordinateTimeInterpolator,
-            planetCenterToBarycenterCoordinateTimeInterpolator,
-            centralBodyName,
-            groundStationPositionFunctions,
-            planetCoordinateToProperTimeInterpolators,
-            properTimeToPlanetCoordinateInterpolators ),
-        centralBodyStateFunction_( centralBodyStateFunction )
-    { }
-
-    //! Evaluate first-order direct term.
-    double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint,
-                                              const double currentTime ) override
-    {
-        return relativity::calculateFirstOrderTcbToTcgDirectCorrection(
-                    positionVectorFromReferencePoint, centralBodyStateFunction_( currentTime ).segment( 3, 3 ) );
-    }
-
-private:
-
-    std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction_;
-};
-
-//! Post-Newtonian converter with placeholder for second-order direct local term.
-/*!
- *  This class is intended for an extension with second-order direct corrections in the body-centric <-> topocentric
- *  conversion chain. The direct term is currently not implemented and returns zero.
- */
-class TimeEphemerisWithSecondOrderDirectConversion : public TimeEphemerisFromPostNewtonianExpansion
-{
-public:
-    //! Constructor.
-    /*!
-     *  \param barycenterToPlanetCenterCoordinateTimeInterpolator Interpolator for
-     *  barycentric-to-bodycentric conversion.
-     *  \param planetCenterToBarycenterCoordinateTimeInterpolator Interpolator for
-     *  bodycentric-to-barycentric conversion.
-     *  \param centralBodyName Name of the central body.
-     *  \param centralBodyStateFunction Function returning barycentric central-body state.
-     *  \param groundStationPositionFunctions Map from reference point identifier to position function.
-     *  \param planetCoordinateToProperTimeInterpolators Map of bodycentric-to-proper interpolators.
-     *  \param properTimeToPlanetCoordinateInterpolators Map of proper-to-bodycentric interpolators.
-     */
-    TimeEphemerisWithSecondOrderDirectConversion(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
-            const std::string& centralBodyName,
-            const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
-            const std::map< std::string, std::function< Eigen::Vector3d( const double ) > >& groundStationPositionFunctions =
-            ( std::map< std::string, std::function< Eigen::Vector3d( const double ) > >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
-        TimeEphemerisFromPostNewtonianExpansion(
-            barycenterToPlanetCenterCoordinateTimeInterpolator,
-            planetCenterToBarycenterCoordinateTimeInterpolator,
-            centralBodyName,
-            groundStationPositionFunctions,
-            planetCoordinateToProperTimeInterpolators,
-            properTimeToPlanetCoordinateInterpolators ),
-        centralBodyStateFunction_( centralBodyStateFunction )
-    { }
-
-    //! Evaluate direct term (currently placeholder for future second-order implementation).
-    double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint,
-                                              const double currentTime ) override
-    {
-        throw std::runtime_error( "Error, second order time ephemeris direct difference term not yet implemented" );
-        return 0.0;
-    }
-
-private:
-    std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction_;
-};
-
-//! Time ephemeris using direct metric-based coordinate-time/proper-time interpolation.
-/*!
- *  Implements direct barycentric-coordinate <-> proper-time conversion by using interpolated values generated
- *  from metric-based propagation of \f$d(\tau-t)/dt\f$, without an intermediate body-centric scale.
- *
- *  The propagated rate is obtained from the metric perturbation and coordinate velocity
- *  (see `evaluateProperTimeEquation`), with configurable series-expansion order for the square-root term.
- */
-class TimeEphemerisDirectFromMetric : public TimeEphemeris
-{
-public:
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > TimeDifferenceInterpolator;
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > > ExtendedTimeDifferenceInterpolator;
-
-    //! Constructor.
-    /*!
-     *  \param centralBodyName Name of central body associated with this time ephemeris.
-     *  \param globalCoordinateToProperTimeInterpolators Map from point identifier to
-     *  global-coordinate-to-proper-time interpolator.
-     *  \param properTimeToGlobalCoordinateInterpolators Map from point identifier to
-     *  proper-time-to-global-coordinate interpolator.
-     */
-    TimeEphemerisDirectFromMetric(
-            const std::string& centralBodyName,
-            const std::map< std::string, TimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
-        TimeEphemeris( centralBodyName ),
-        globalCoordinateToProperTimeInterpolators_( globalCoordinateToProperTimeInterpolators ),
-        properTimeToGlobalCoordinateInterpolators_( properTimeToGlobalCoordinateInterpolators )
-    { }
-
-    //! Reset direct conversion interpolators for a specific reference point.
-    /*!
-     *  \param globalCoordinateToProperTimeInterpolator Interpolator for global-to-proper conversion.
-     *  \param properTimeToGlobalCoordinateInterpolator Interpolator for proper-to-global conversion.
-     *  \param referencePoint Reference point identifier.
-     */
-    void resetGlobalToProperTimeInterpolators(
-            const TimeDifferenceInterpolator globalCoordinateToProperTimeInterpolator,
-            const TimeDifferenceInterpolator properTimeToGlobalCoordinateInterpolator,
-            const std::string& referencePoint )
-    {
-        globalCoordinateToProperTimeInterpolators_[ referencePoint ] = globalCoordinateToProperTimeInterpolator;
-        properTimeToGlobalCoordinateInterpolators_[ referencePoint ] = properTimeToGlobalCoordinateInterpolator;
-    }
-
-    //! Reset direct conversion interpolators for a specific reference point in extended time.
-    /*!
-     *  \param globalCoordinateToProperTimeInterpolator Interpolator for global-to-proper conversion.
-     *  \param properTimeToGlobalCoordinateInterpolator Interpolator for proper-to-global conversion.
-     *  \param referencePoint Reference point identifier.
-     */
-    void resetGlobalToProperTimeInterpolators(
-            const ExtendedTimeDifferenceInterpolator globalCoordinateToProperTimeInterpolator,
-            const ExtendedTimeDifferenceInterpolator properTimeToGlobalCoordinateInterpolator,
-            const std::string& referencePoint )
-    {
-        globalCoordinateToProperTimeInterpolatorsExtended_[ referencePoint ] = globalCoordinateToProperTimeInterpolator;
-        properTimeToGlobalCoordinateInterpolatorsExtended_[ referencePoint ] = properTimeToGlobalCoordinateInterpolator;
-    }
-
-    //! Retrieve conversion function for a requested pair of scales in extended time.
-    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
-            const basic_astrodynamics::TimeScales inputScale,
-            const basic_astrodynamics::TimeScales outputScale,
-            const std::string& pointIdentifier = "" ) override;
-
-    //! Retrieve global-coordinate-to-proper-time difference from interpolator.
-    /*!
-     *  \param pointId Reference point identifier.
-     *  \param evaluationTime Epoch at which interpolator is evaluated.
-     *  \return Time difference \f$\tau - t\f$.
-     */
-    double getGlobalCoordinateToProperTimeDifference( const std::string& pointId, const double evaluationTime )
-    {
-        return globalCoordinateToProperTimeInterpolators_.at( pointId )->interpolate( evaluationTime );
-    }
-
-    //! Retrieve proper-time-to-global-coordinate difference from interpolator.
-    /*!
-     *  \param pointId Reference point identifier.
-     *  \param evaluationTime Epoch at which interpolator is evaluated.
-     *  \return Time difference \f$t - \tau\f$.
-     */
-    double getProperToGlobalCoordinateTimeDifference( const std::string& pointId, const double evaluationTime )
-    {
-        return properTimeToGlobalCoordinateInterpolators_.at( pointId )->interpolate( evaluationTime );
-    }
-
-protected:
-
-    std::map< std::string, TimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolators_;
-    std::map< std::string, TimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolators_;
-    std::map< std::string, ExtendedTimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolatorsExtended_;
-    std::map< std::string, ExtendedTimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolatorsExtended_;
 };
 
 }  // namespace tudat

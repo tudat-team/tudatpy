@@ -81,7 +81,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
     {
         std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings<StateScalarType, TimeType > > firstOrderConversionSettings =
                 std::dynamic_pointer_cast< FirstOrderBodycentricRelativisticTimePropagatorSettings<StateScalarType, TimeType > >( conversionSettings );
-        if( firstOrderConversionSettings == NULL )
+        if( firstOrderConversionSettings == nullptr )
         {
             throw std::runtime_error(
                 "Error, expected 1st order relativistic time conversion settings for " +
@@ -104,7 +104,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
     {
         std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings<StateScalarType, TimeType > > secondOrderConversionSettings =
                 std::dynamic_pointer_cast< SecondOrderBodyCenteredRelativisticTimeConverterSettings<StateScalarType, TimeType > >( conversionSettings );
-        if( secondOrderConversionSettings == NULL )
+        if( secondOrderConversionSettings == nullptr )
         {
             throw std::runtime_error(
                 "Error, expected 2nd order relativistic time conversion settings for " +
@@ -140,7 +140,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
 {
     std::shared_ptr< RelativisticTimeStateDerivative< StateScalarType, TimeType > > stateDerivativeModel;
     
-    if( conversionSettings != NULL )
+    if( conversionSettings != nullptr )
     {
         stateDerivativeModel = std::static_pointer_cast< RelativisticTimeStateDerivative< StateScalarType, TimeType > >(
             std::make_shared< FirstOrderBodyCentricToTopoCentricTimeCalculator< StateScalarType, TimeType > >(
@@ -167,7 +167,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
 {
     if( evaluatedMetricObjects.count( conversionSettings->getReferencePointId( ) ) == 0 )
     {
-        if( baseMetric != NULL )
+        if( baseMetric != nullptr )
         {
             evaluatedMetricObjects[ conversionSettings->getReferencePointId( ) ] = baseMetric->Clone( );
         }
@@ -204,7 +204,7 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
     {
         std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > toTopocentricPropagatorSettings =
                 std::dynamic_pointer_cast< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >( timePropagatorSettings );
-        if( toTopocentricPropagatorSettings == NULL )
+        if( toTopocentricPropagatorSettings == nullptr )
         {
             throw std::runtime_error(
                 "Error, expected to topocentric time propagation settings when making state derivative model" );
@@ -586,7 +586,7 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
         {
             std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > timePropagatorSettings =
                     std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
-            if( timePropagatorSettings == NULL )
+            if( timePropagatorSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected time propagation settings when making state derivative model" );
             }

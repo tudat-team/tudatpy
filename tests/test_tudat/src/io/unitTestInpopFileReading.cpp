@@ -12,18 +12,12 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <utility>
-#include "tudat/basics/testMacros.h"
-#include "tudat/io/basicInputOutput.h"
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/testMacros.h"
-
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
-
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/io/readInpopEphemerisFile.h"

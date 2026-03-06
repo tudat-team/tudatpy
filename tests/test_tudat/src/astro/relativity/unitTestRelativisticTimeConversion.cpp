@@ -27,7 +27,6 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 
-#include <tudat/simulation/simulation.h>
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
@@ -46,9 +45,9 @@
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 #include "tudat/simulation/environment_setup/createMetric.h"
 
-#include "tudat/simulation/simulation.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 
 
@@ -491,8 +490,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     std::shared_ptr< TimeEphemeris > earthTimeScaleConverter = earth->getTimeScaleConverter( );
     std::shared_ptr< TimeEphemeris > lroTimeScaleConverter = lro->getTimeScaleConverter( );
 
-    BOOST_CHECK_EQUAL( ( lroTimeScaleConverter == NULL ), 0 );
-    BOOST_CHECK_EQUAL( ( earthTimeScaleConverter == NULL ), 0 );
+    BOOST_CHECK_EQUAL( ( lroTimeScaleConverter == nullptr ), 0 );
+    BOOST_CHECK_EQUAL( ( earthTimeScaleConverter == nullptr ), 0 );
 
     BOOST_CHECK_SMALL( lroTimeScaleConverter->getTimeDifference(
                            body_centered_coordinate_time_scale, barycentric_coordinate_time_scale, initialEphemerisTime ),

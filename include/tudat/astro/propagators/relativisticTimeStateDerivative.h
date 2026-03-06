@@ -209,19 +209,12 @@ public:
         {
             if( referencePointId.second == "" )
             {
-                if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointId.first  ) ) != NULL )
-                {
-                    throw std::runtime_error(
-                                "Error when making direct proper time state derivative at center of body " +
-                                referencePointId.first +
-                                "body is a celestial body, this could result in singular behaviour of potential" );
-                }
                 referencePointStateFunction_ = std::bind( &simulation_setup::Body::getState, bodies.getBody( referencePointId.first ) );
 
             }
             else
             {
-                referencePointStateFunction_ = simulation_setup::getLinkEndCompleteCurrentStateFunction< double >(
+                referencePointStateFunction_ = simulation_setup::getLinkEndCompleteCurrentStateFunctionDuringPropagation< double >(
                             referencePointId, bodies );
             }
         }
@@ -344,14 +337,14 @@ public:
                             " in body map when making 1st order relativistic time converter" );
             }
             // Check if current body is a CelestialBody
-            else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) ) == NULL )
+            else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) ) == nullptr )
             {
                 throw std::runtime_error(
                             "Error, could not find celestial body " + externalBodies.at( i ) +
                             " in body map when making 1st order relativistic time converter" );
             }
             // Check if current body has a gravity field.
-            else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) )->getGravityFieldModel( ) == NULL )
+            else if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( externalBodies.at( i ) ) )->getGravityFieldModel( ) == nullptr )
             {
                 throw std::runtime_error(
                             "Error, celestial body " + externalBodies.at( i ) +
@@ -454,7 +447,7 @@ public:
                 {
                     std::shared_ptr< simulation_setup::Body > currentCelestialBody = std::dynamic_pointer_cast< simulation_setup::Body >(
                                 bodies.getBody( externalBodies.at( i ) ) );
-                    if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( currentCelestialBody->getGravityFieldModel( ) ) == NULL )
+                    if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( currentCelestialBody->getGravityFieldModel( ) ) == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making sh correction for relativistic time conversion, body " +
@@ -463,22 +456,20 @@ public:
                     else
                     {
 
-                        //basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache(
-                        //            sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).first,
-                        //            sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).second );
-                        auto legendreCache = std::make_shared< basic_mathematics::LegendreCache >(
+                        auto sphericalHarmonicsCache = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
                             sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).first,
                             sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).second );
-                    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > shGravityField =
+                        std::shared_ptr< gravitation::SphericalHarmonicsGravityField > shGravityField =
                             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( currentCelestialBody->getGravityFieldModel( ) );
                         this->sphericalHarmonicBodies_[ i ] = currentCelestialBody;
 
-                    higherOrderGravityFieldPotentialFunctions_[ i ] = [=]( const Eigen::Vector3d& position ) {
-                        return shGravityField->getGravitationalPotentialFromInertialPosition(
+                        higherOrderGravityFieldPotentialFunctions_[ i ] = [=]( const Eigen::Vector3d& position ) {
+                            return shGravityField->getGravitationalPotentialFromInertialPosition(
                                     position,
                                     currentCelestialBody->getCurrentRotationToLocalFrame( ),
                                     static_cast< double >( sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).first ),
-                                    static_cast< double >( sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).second ) );
+                                    static_cast< double >( sphericalHarmonicGravityExpansions.at( externalBodies.at( i ) ).second ),
+                                    sphericalHarmonicsCache );
                         };
                     }
                 }
@@ -810,7 +801,7 @@ public:
             bodies, std::make_pair( centralBody, groundStation ), externalBodies, propagators::first_order_bodycentric_to_topocentric )
     {
         // Check if central body has a rotation to body-fixed frame.
-        if( bodies.getBody( centralBody )->getRotationalEphemeris( ) == NULL )
+        if( bodies.getBody( centralBody )->getRotationalEphemeris( ) == nullptr )
         {
             throw std::runtime_error(
                         "Error, could not find rotation model of central body when making PCRS to TPRS time transformation." );
@@ -825,7 +816,7 @@ public:
         }
 
         // Check if central body is a celestial body
-        if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( centralBody ) ) == NULL )
+        if( std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( centralBody ) ) == nullptr )
         {
             throw std::runtime_error(
                         "Error, central body " + centralBody +
@@ -857,7 +848,7 @@ public:
                 }
 
                 // Get central body potential function.
-                if( centralCelestialBody->getGravityFieldModel( ) == NULL )
+                if( centralCelestialBody->getGravityFieldModel( ) == nullptr )
                 {
                     throw std::runtime_error(
                                 "Error, could not find gravity field model of central body when making PCRS to TPRS time transformation." );
@@ -865,7 +856,7 @@ public:
                 else
                 {
                     // If spherical harmonic expansion is requested, check if required field exists.
-                    if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( centralCelestialBody->getGravityFieldModel( ) ) == NULL
+                    if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( centralCelestialBody->getGravityFieldModel( ) ) == nullptr
                             && maximumSphericalHarmonicDegree > 0 )
                     {
                         throw std::runtime_error(
@@ -873,7 +864,7 @@ public:
                     }
                     // If no spherical harmonic expansion is request, check if field is purely central, and set function.
                     else if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( centralCelestialBody->getGravityFieldModel( ) ) ==
-                            NULL && maximumSphericalHarmonicDegree == 0 )
+                            nullptr && maximumSphericalHarmonicDegree == 0 )
                     {
                         localCentralBodyPotentialFunction_ = std::bind( &gravitation::GravityFieldModel::getGravitationalPotential,
                                                                         centralCelestialBody->getGravityFieldModel( ), std::placeholders::_1 );

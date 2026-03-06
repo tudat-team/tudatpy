@@ -9,13 +9,11 @@
  *
  */
 
-#include <functional>
-#include <vector>
-#include <iostream>
-#include <stdexcept>
-#include <Eigen/Core>
+#include "tudat/astro/ephemerides/timeEphemerisFromPostNewtonianExpansion.h"
 
-#include "tudat/astro/ephemerides/timeEphemeris.h"
+#include <vector>
+
+#include "tudat/astro/relativity/relativisticTimeConversion.h"
 
 namespace tudat
 {
@@ -236,97 +234,8 @@ std::function< Time( const Time ) > TimeEphemerisFromPostNewtonianExpansion::get
             }
             break;
         }
-            default:
-            throw std::runtime_error("Error, case not found in getTimeDifferenceFunctionFromExtendedTime.");
-        }
-    }
-
-    return timeDifferenceFunction;
-}
-
-
-std::function< Time( const Time ) > TimeEphemerisDirectFromMetric::getTimeDifferenceFunctionFromExtendedTime(
-        const TimeScales inputScale, const TimeScales outputScale, const std::string& pointIdentifier )
-{
-    std::function< Time( const Time ) > timeDifferenceFunction;
-
-    if( !isTimeScaleRelativistic( inputScale ) || !isTimeScaleRelativistic( outputScale ) )
-    {
-        throw std::runtime_error( "Error when getting relatvistic time conversion, scales are not both relativistic" );
-    }
-    else
-    {
-        if( inputScale == body_centered_coordinate_time_scale )
-        {
-            throw std::runtime_error( "Cannot do body-centered input time scale for direct-from-metric time ephemeris" );
-        }
-
-        if( outputScale == body_centered_coordinate_time_scale )
-        {
-            throw std::runtime_error( "Cannot do body-centered output time scale for direct-from-metric time ephemeris" );
-        }
-
-        if( inputScale == barycentric_coordinate_time_scale )
-        {
-            if( outputScale == local_proper_time_scale )
-            {
-                if( globalCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 &&
-                    globalCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) == 0 )
-                {
-                    throw std::runtime_error(
-                                "Error, body-point " + pointIdentifier +
-                                " not found in direct-from-metric time ephemeris" );
-                }
-                else
-                {
-                    timeDifferenceFunction = [=]( const Time currentTime )
-                    {
-                        if( globalCoordinateToProperTimeInterpolatorsExtended_.count( pointIdentifier ) > 0 )
-                        {
-                            return Time( globalCoordinateToProperTimeInterpolatorsExtended_.at( pointIdentifier )->interpolate( currentTime ) );
-                        }
-                        else
-                        {
-                            return Time( getGlobalCoordinateToProperTimeDifference( pointIdentifier, currentTime.getSeconds< double >( ) ) );
-                        }
-                    };
-                }
-            }
-            else
-            {
-                throw std::runtime_error( "Error A when using direct from metric time ephemeris" );
-            }
-        }
-        else if( inputScale == local_proper_time_scale )
-        {
-            if( outputScale == barycentric_coordinate_time_scale )
-            {
-                if( properTimeToGlobalCoordinateInterpolators_.count( pointIdentifier ) == 0 &&
-                    properTimeToGlobalCoordinateInterpolatorsExtended_.count( pointIdentifier ) == 0 )
-                {
-                    throw std::runtime_error(
-                                "Error, body-point " + pointIdentifier +
-                                " not found in direct-from-metric time ephemeris" );
-                }
-                else
-                {
-                    timeDifferenceFunction = [=]( const Time currentTime )
-                    {
-                        if( properTimeToGlobalCoordinateInterpolatorsExtended_.count( pointIdentifier ) > 0 )
-                        {
-                            return Time( properTimeToGlobalCoordinateInterpolatorsExtended_.at( pointIdentifier )->interpolate( currentTime ) );
-                        }
-                        else
-                        {
-                            return Time( getProperToGlobalCoordinateTimeDifference( pointIdentifier, currentTime.getSeconds< double >( ) ) );
-                        }
-                    };
-                }
-            }
-            else
-            {
-                throw std::runtime_error( "Error B when using direct from metric time ephemeris" );
-            }
+        default:
+            throw std::runtime_error( "Error, case not found in getTimeDifferenceFunctionFromExtendedTime." );
         }
     }
 
