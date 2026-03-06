@@ -28,14 +28,14 @@ namespace input_output
 namespace
 {
 
-std::string trimCopy( const std::string& value )
+std::string sinexTrimCopy( const std::string& value )
 {
     std::string trimmed = value;
     boost::algorithm::trim( trimmed );
     return trimmed;
 }
 
-bool tryParseInt( const std::string& value, int& output )
+bool sinexTryParseInt( const std::string& value, int& output )
 {
     try
     {
@@ -48,7 +48,7 @@ bool tryParseInt( const std::string& value, int& output )
     }
 }
 
-bool tryParseDouble( const std::string& value, double& output )
+bool sinexTryParseDouble( const std::string& value, double& output )
 {
     try
     {
@@ -64,7 +64,7 @@ bool tryParseDouble( const std::string& value, double& output )
 std::vector< std::string > splitTokens( const std::string& line )
 {
     std::vector< std::string > tokens;
-    boost::algorithm::split( tokens, trimCopy( line ), boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
+    boost::algorithm::split( tokens, sinexTrimCopy( line ), boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
     return tokens;
 }
 
@@ -80,7 +80,7 @@ bool parseSiteIdStyleEntry( const std::vector< std::string >& tokens, int& stati
         return false;
     }
 
-    if( !tryParseInt( tokens.at( 0 ), stationCode ) )
+    if( !sinexTryParseInt( tokens.at( 0 ), stationCode ) )
     {
         return false;
     }
@@ -128,7 +128,7 @@ std::string extractDomesIdFromSiteIdLine( const std::string& line )
     if( line.size( ) >= 16 )
     {
         // SINEX SITE/ID DOMES id starts at column 8 (1-based), i.e. index 7.
-        std::string domesId = trimCopy( line.substr( 7, 9 ) );
+        std::string domesId = sinexTrimCopy( line.substr( 7, 9 ) );
         if( !domesId.empty( ) )
         {
             return domesId;
@@ -144,7 +144,7 @@ void parseSiteIdBlockLine( const std::string& line, std::map< std::string, std::
 
     if( line.size( ) >= 17 )
     {
-        siteCode = trimCopy( line.substr( 0, 4 ) );
+        siteCode = sinexTrimCopy( line.substr( 0, 4 ) );
         domesId = extractDomesIdFromSiteIdLine( line );
     }
 
@@ -167,7 +167,7 @@ void parseSiteIdBlockLine( const std::string& line, std::map< std::string, std::
     if( !tokens.empty( ) )
     {
         int siteIndex = -1;
-        if( tryParseInt( tokens.at( 0 ), siteIndex ) && !domesId.empty( ) )
+        if( sinexTryParseInt( tokens.at( 0 ), siteIndex ) && !domesId.empty( ) )
         {
             siteIndexToDomes[ siteIndex ] = domesId;
         }
@@ -177,7 +177,7 @@ void parseSiteIdBlockLine( const std::string& line, std::map< std::string, std::
 double parseSinexEpochWithOpenEnd( const std::string& epochString, const double referenceJulianDay, bool& hasOpenEnd )
 {
     hasOpenEnd = false;
-    const std::string trimmedEpoch = trimCopy( epochString );
+    const std::string trimmedEpoch = sinexTrimCopy( epochString );
     if( trimmedEpoch.empty( ) )
     {
         return TUDAT_NAN;
@@ -214,8 +214,8 @@ bool parseDmsTriplet(
     {
         return false;
     }
-    return tryParseDouble( tokens.at( firstIndex ), degrees ) && tryParseDouble( tokens.at( firstIndex + 1 ), arcMinutes ) &&
-            tryParseDouble( tokens.at( firstIndex + 2 ), arcSeconds );
+    return sinexTryParseDouble( tokens.at( firstIndex ), degrees ) && sinexTryParseDouble( tokens.at( firstIndex + 1 ), arcMinutes ) &&
+            sinexTryParseDouble( tokens.at( firstIndex + 2 ), arcSeconds );
 }
 
 bool parseApproximateCoordinatesFromFixedWidth(
@@ -228,7 +228,7 @@ bool parseApproximateCoordinatesFromFixedWidth(
 
     const std::vector< std::string > longitudeTokens = splitTokens( line.substr( 43, 12 ) );
     const std::vector< std::string > latitudeTokens = splitTokens( line.substr( 56, 12 ) );
-    const std::string heightToken = trimCopy( line.substr( 69, 8 ) );
+    const std::string heightToken = sinexTrimCopy( line.substr( 69, 8 ) );
 
     double longitudeDegrees = TUDAT_NAN;
     double longitudeMinutes = TUDAT_NAN;
@@ -238,7 +238,7 @@ bool parseApproximateCoordinatesFromFixedWidth(
     double latitudeSeconds = TUDAT_NAN;
     if( !parseDmsTriplet( longitudeTokens, 0, longitudeDegrees, longitudeMinutes, longitudeSeconds ) ||
         !parseDmsTriplet( latitudeTokens, 0, latitudeDegrees, latitudeMinutes, latitudeSeconds ) ||
-        !tryParseDouble( heightToken, height ) )
+        !sinexTryParseDouble( heightToken, height ) )
     {
         return false;
     }
@@ -258,7 +258,7 @@ bool parseApproximateCoordinatesFromTokens(
 
     int tailShift = 0;
     double maybeSod = TUDAT_NAN;
-    if( tryParseDouble( tokens.back( ), maybeSod ) && std::fabs( maybeSod ) > 1.0E4 )
+    if( sinexTryParseDouble( tokens.back( ), maybeSod ) && std::fabs( maybeSod ) > 1.0E4 )
     {
         tailShift = 1;
     }
@@ -275,13 +275,13 @@ bool parseApproximateCoordinatesFromTokens(
     double latitudeDegrees = TUDAT_NAN;
     double latitudeMinutes = TUDAT_NAN;
     double latitudeSeconds = TUDAT_NAN;
-    if( !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex ) ), height ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 1 ) ), latitudeSeconds ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 2 ) ), latitudeMinutes ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 3 ) ), latitudeDegrees ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 4 ) ), longitudeSeconds ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 5 ) ), longitudeMinutes ) ||
-        !tryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 6 ) ), longitudeDegrees ) )
+    if( !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex ) ), height ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 1 ) ), latitudeSeconds ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 2 ) ), latitudeMinutes ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 3 ) ), latitudeDegrees ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 4 ) ), longitudeSeconds ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 5 ) ), longitudeMinutes ) ||
+        !sinexTryParseDouble( tokens.at( static_cast< unsigned int >( heightIndex - 6 ) ), longitudeDegrees ) )
     {
         return false;
     }
@@ -314,7 +314,7 @@ std::string extractStationNameFromSiteIdLine( const std::string& line, const std
     std::string stationName;
     if( line.size( ) >= 42 )
     {
-        stationName = trimCopy( line.substr( 20, 22 ) );
+        stationName = sinexTrimCopy( line.substr( 20, 22 ) );
     }
     if( stationName.empty( ) && tokens.size( ) > 4 )
     {
@@ -370,7 +370,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
     std::string line;
     while( std::getline( stream, line ) )
     {
-        std::string trimmedLine = trimCopy( line );
+        std::string trimmedLine = sinexTrimCopy( line );
         if( trimmedLine.empty( ) )
         {
             continue;
@@ -418,10 +418,10 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
 
             if( line.size( ) >= 68 )
             {
-                stateType = trimCopy( line.substr( 6, 6 ) );
-                siteIdentifier = trimCopy( line.substr( 13, 4 ) );
-                referenceEpoch = trimCopy( line.substr( 26, 12 ) );
-                hasParsedValue = tryParseDouble( trimCopy( line.substr( 47, 21 ) ), stateValue );
+                stateType = sinexTrimCopy( line.substr( 6, 6 ) );
+                siteIdentifier = sinexTrimCopy( line.substr( 13, 4 ) );
+                referenceEpoch = sinexTrimCopy( line.substr( 26, 12 ) );
+                hasParsedValue = sinexTryParseDouble( sinexTrimCopy( line.substr( 47, 21 ) ), stateValue );
             }
 
             if( !isStateEntry( stateType ) || !hasParsedValue )
@@ -457,7 +457,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
                 for( int i = static_cast< int >( tokens.size( ) ) - 1; i >= 0; i-- )
                 {
                     double parsedValue = TUDAT_NAN;
-                    if( tryParseDouble( tokens.at( static_cast< unsigned int >( i ) ), parsedValue ) )
+                    if( sinexTryParseDouble( tokens.at( static_cast< unsigned int >( i ) ), parsedValue ) )
                     {
                         parsedFromEnd++;
                         if( parsedFromEnd == 2 )
@@ -483,7 +483,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
             else
             {
                 int siteIndex = -1;
-                if( tryParseInt( siteIdentifier, siteIndex ) && siteIndexToDomes.count( siteIndex ) > 0 )
+                if( sinexTryParseInt( siteIdentifier, siteIndex ) && siteIndexToDomes.count( siteIndex ) > 0 )
                 {
                     domesId = siteIndexToDomes.at( siteIndex );
                 }
@@ -573,7 +573,7 @@ std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStatio
     std::string line;
     while( std::getline( stream, line ) )
     {
-        const std::string trimmedLine = trimCopy( line );
+        const std::string trimmedLine = sinexTrimCopy( line );
         if( trimmedLine.empty( ) )
         {
             continue;
@@ -622,7 +622,7 @@ std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStatio
         }
 
         int stationCode = -1;
-        if( !tryParseInt( tokens.at( 0 ), stationCode ) )
+        if( !sinexTryParseInt( tokens.at( 0 ), stationCode ) )
         {
             continue;
         }
@@ -636,8 +636,8 @@ std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStatio
         double xEccentricity = 0.0;
         double yEccentricity = 0.0;
         double zEccentricity = 0.0;
-        if( !tryParseDouble( tokens.at( 7 ), xEccentricity ) || !tryParseDouble( tokens.at( 8 ), yEccentricity ) ||
-            !tryParseDouble( tokens.at( 9 ), zEccentricity ) )
+        if( !sinexTryParseDouble( tokens.at( 7 ), xEccentricity ) || !sinexTryParseDouble( tokens.at( 8 ), yEccentricity ) ||
+            !sinexTryParseDouble( tokens.at( 9 ), zEccentricity ) )
         {
             continue;
         }
@@ -687,7 +687,7 @@ std::map< int, IlrsStationRegistryEntry > readIlrsStationRegistryFromSinexSiteId
     std::string line;
     while( std::getline( stream, line ) )
     {
-        const std::string trimmedLine = trimCopy( line );
+        const std::string trimmedLine = sinexTrimCopy( line );
         if( trimmedLine.empty( ) )
         {
             continue;
@@ -714,7 +714,7 @@ std::map< int, IlrsStationRegistryEntry > readIlrsStationRegistryFromSinexSiteId
         }
 
         int stationCode = -1;
-        if( !tryParseInt( tokens.at( 0 ), stationCode ) )
+        if( !sinexTryParseInt( tokens.at( 0 ), stationCode ) )
         {
             continue;
         }
@@ -756,7 +756,7 @@ std::map< std::string, std::string > readDomesIdNumbers( const std::string& file
     std::string line;
     while( std::getline( stream, line ) )
     {
-        std::string trimmed = trimCopy( line );
+        std::string trimmed = sinexTrimCopy( line );
         if( trimmed.empty( ) )
         {
             continue;
@@ -797,8 +797,8 @@ std::map< std::string, std::string > readDomesIdNumbers( const std::string& file
 
         if( line.size( ) >= 42 )
         {
-            stationName = trimCopy( line.substr( 0, 24 ) );
-            domesId = trimCopy( line.substr( 33, 9 ) );
+            stationName = sinexTrimCopy( line.substr( 0, 24 ) );
+            domesId = sinexTrimCopy( line.substr( 33, 9 ) );
         }
 
         if( stationName.empty( ) && !tokens.empty( ) )
@@ -833,7 +833,7 @@ std::map< int, std::string > readMonumentNumbers( const std::string& fileName )
     std::string line;
     while( std::getline( stream, line ) )
     {
-        std::string trimmed = trimCopy( line );
+        std::string trimmed = sinexTrimCopy( line );
         if( trimmed.empty( ) )
         {
             continue;
@@ -878,8 +878,8 @@ std::map< int, std::string > readMonumentNumbers( const std::string& fileName )
 
         if( line.size( ) >= 52 )
         {
-            stationName = trimCopy( line.substr( 0, 24 ) );
-            hasMonumentId = tryParseInt( trimCopy( line.substr( 48, 4 ) ), monumentId );
+            stationName = sinexTrimCopy( line.substr( 0, 24 ) );
+            hasMonumentId = sinexTryParseInt( sinexTrimCopy( line.substr( 48, 4 ) ), monumentId );
         }
 
         if( stationName.empty( ) || !hasMonumentId )
@@ -887,7 +887,7 @@ std::map< int, std::string > readMonumentNumbers( const std::string& fileName )
             if( tokens.size( ) >= 2 )
             {
                 stationName = tokens.at( 0 );
-                hasMonumentId = tryParseInt( tokens.back( ), monumentId );
+                hasMonumentId = sinexTryParseInt( tokens.back( ), monumentId );
             }
         }
 
