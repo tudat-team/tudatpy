@@ -36,7 +36,8 @@ enum ObservationDependentVariables {
     link_limb_distance,
     link_angle_with_orbital_plane,
     integration_time_dependent_variable,
-    retransmission_delays_dependent_variable
+    retransmission_delays_dependent_variable,
+    link_end_epochs_dependent_variable
 };
 
 //! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
@@ -543,6 +544,13 @@ inline std::shared_ptr< ObservationDependentVariableSettings > retransmissionDel
         const ObservableType observableType = undefined_observation_model )
 {
     return std::make_shared< AncillaryObservationDependentVariableSettings >( retransmission_delays_dependent_variable, observableType );
+}
+
+//! Function to create link-end epochs dependent variable
+inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDependentVariable(
+        const ObservableType observableType = undefined_observation_model )
+{
+    return std::make_shared< AncillaryObservationDependentVariableSettings >( link_end_epochs_dependent_variable, observableType );
 }
 
 }  // namespace simulation_setup

@@ -14,11 +14,16 @@
 #define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 namespace tudat
@@ -505,6 +510,7 @@ BodyListSettings getDefaultBodySettings( const std::vector< std::string >& bodie
     }
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
+
 
 }  // namespace simulation_setup
 
