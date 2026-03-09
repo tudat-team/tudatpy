@@ -66,6 +66,185 @@ std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned in
     return coefficientCombinationsToUse;
 }
 
+std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > createMutualExtendedBodyAccelerationModel(
+        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const Eigen::Vector3d& positionOfBody1,
+        const Eigen::Vector3d& positionOfBody2,
+        const double gravitationalParameter,
+        const double equatorialRadiusOfBody1,
+        const double equatorialRadiusOfBody2,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
+        const Eigen::MatrixXd& sineCoefficientsOfBody1,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody2,
+        const Eigen::MatrixXd& sineCoefficientsOfBody2,
+        const Eigen::Quaterniond& rotationToBody1,
+        const Eigen::Quaterniond& rotationToBody2 )
+{
+    return std::make_shared< MutualExtendedBodySphericalHarmonicAcceleration >(
+                [ = ]( ){ return positionOfBody1; },
+                [ = ]( ){ return positionOfBody2; },
+                [ = ]( ){ return gravitationalParameter; },
+                equatorialRadiusOfBody1,
+                equatorialRadiusOfBody2,
+                [ = ]( ){ return cosineCoefficientsOfBody1; },
+                [ = ]( ){ return sineCoefficientsOfBody1; },
+                [ = ]( ){ return cosineCoefficientsOfBody2; },
+                [ = ]( ){ return sineCoefficientsOfBody2; },
+                coefficientCombinationsToUse,
+                [ = ]( ){ return rotationToBody1; },
+                [ = ]( ){ return rotationToBody2; },
+                false,
+                true );
+}
+
+void runDegreeTwoCrossTermValidationCase(
+        const Eigen::Vector3d& positionOfBody1,
+        const Eigen::Quaterniond& rotationToBody1,
+        const Eigen::Quaterniond& rotationToBody2,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
+        const Eigen::MatrixXd& sineCoefficientsOfBody1,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody2,
+        const Eigen::MatrixXd& sineCoefficientsOfBody2,
+        const double currentTime,
+        const double gravitationalParameter,
+        const double equatorialRadiusOfBody1,
+        const double equatorialRadiusOfBody2 )
+{
+    const Eigen::Vector3d positionOfBody2 = Eigen::Vector3d::Zero( );
+
+    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > fullDegreeTwoInteractions =
+            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_;
+    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body1OnlyInteractions =
+            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_;
+    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2OnlyInteractions =
+            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 2, 2 ).coefficientCombinationsToUse_;
+    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > centralInteractions =
+            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 0, 0 ).coefficientCombinationsToUse_;
+    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > degreeTwoCrossInteractions =
+            getDegreeTwoDegreeTwoInteractions( );
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > fullDegreeTwoAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                fullDegreeTwoInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body1OnlyAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                body1OnlyInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body2OnlyAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                body2OnlyInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > centralAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                centralInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > degreeTwoCrossAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                degreeTwoCrossInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+
+    fullDegreeTwoAcceleration->updateMembers( currentTime );
+    body1OnlyAcceleration->updateMembers( currentTime );
+    body2OnlyAcceleration->updateMembers( currentTime );
+    centralAcceleration->updateMembers( currentTime );
+    degreeTwoCrossAcceleration->updateMembers( currentTime );
+
+    // Check 1: isolate l1=2,l2=2 terms from the full degree-2 model.
+    const Eigen::Vector3d isolatedCrossTermAcceleration =
+            fullDegreeTwoAcceleration->getAcceleration( ) -
+            body1OnlyAcceleration->getAcceleration( ) -
+            body2OnlyAcceleration->getAcceleration( ) +
+            centralAcceleration->getAcceleration( );
+    const Eigen::Vector3d directCrossTermAcceleration = degreeTwoCrossAcceleration->getAcceleration( );
+    const Eigen::Vector3d isolationDifference = isolatedCrossTermAcceleration - directCrossTermAcceleration;
+    const double isolationScale = std::max( 1.0, isolatedCrossTermAcceleration.norm( ) );
+    BOOST_CHECK_SMALL( isolationDifference.norm( ) / isolationScale, 5.0E-14 );
+
+    // Check 2: cross-term acceleration scales linearly with degree-2 coefficients of body 2.
+    const double scalingFactor = -1.35;
+    Eigen::MatrixXd scaledCosineCoefficientsOfBody2 = cosineCoefficientsOfBody2;
+    Eigen::MatrixXd scaledSineCoefficientsOfBody2 = sineCoefficientsOfBody2;
+    for( int m = 0; m <= 2; m++ )
+    {
+        scaledCosineCoefficientsOfBody2( 2, m ) *= scalingFactor;
+        if( m > 0 )
+        {
+            scaledSineCoefficientsOfBody2( 2, m ) *= scalingFactor;
+        }
+    }
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > scaledCrossAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                degreeTwoCrossInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                scaledCosineCoefficientsOfBody2, scaledSineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+    scaledCrossAcceleration->updateMembers( currentTime );
+
+    const Eigen::Vector3d scaledDifference =
+            scaledCrossAcceleration->getAcceleration( ) - scalingFactor * directCrossTermAcceleration;
+    const double scalingReference = std::max( 1.0, directCrossTermAcceleration.norm( ) );
+    BOOST_CHECK_SMALL( scaledDifference.norm( ) / scalingReference, 5.0E-14 );
+
+    // Check 3: zero degree-2 coefficients of body 2 must null the degree-2 cross-term acceleration.
+    Eigen::MatrixXd zeroedCosineCoefficientsOfBody2 = cosineCoefficientsOfBody2;
+    Eigen::MatrixXd zeroedSineCoefficientsOfBody2 = sineCoefficientsOfBody2;
+    for( int m = 0; m <= 2; m++ )
+    {
+        zeroedCosineCoefficientsOfBody2( 2, m ) = 0.0;
+        if( m > 0 )
+        {
+            zeroedSineCoefficientsOfBody2( 2, m ) = 0.0;
+        }
+    }
+
+    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > zeroedCrossAcceleration =
+            createMutualExtendedBodyAccelerationModel(
+                degreeTwoCrossInteractions,
+                positionOfBody1, positionOfBody2,
+                gravitationalParameter,
+                equatorialRadiusOfBody1, equatorialRadiusOfBody2,
+                cosineCoefficientsOfBody1, sineCoefficientsOfBody1,
+                zeroedCosineCoefficientsOfBody2, zeroedSineCoefficientsOfBody2,
+                rotationToBody1, rotationToBody2 );
+    zeroedCrossAcceleration->updateMembers( currentTime );
+
+    BOOST_CHECK_SMALL( zeroedCrossAcceleration->getAcceleration( ).norm( ), 1.0E-22 );
+}
+
 std::shared_ptr< tudat::simulation_setup::GravityFieldSettings > getDummyJovianSystemGravityField(
         const std::string& bodyName,
         const int isNormalized )
@@ -463,19 +642,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
 BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
 {
-    const Eigen::Vector3d positionOfBody1 = Eigen::Vector3d( 5100.0, -2200.0, 3600.0 );
-    const Eigen::Vector3d positionOfBody2 = Eigen::Vector3d::Zero( );
-
-    const Eigen::Quaterniond rotationToBody1 =
-            Eigen::Quaterniond(
-                Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
-                Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
-                Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) );
-    const Eigen::Quaterniond rotationToBody2 =
-            Eigen::Quaterniond(
-                Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
-                Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
-                Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) );
+    const double gravitationalParameter = 5.0E5;
+    const double equatorialRadiusOfBody1 = 1300.0;
+    const double equatorialRadiusOfBody2 = 1100.0;
 
     Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
     Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
@@ -497,72 +666,55 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
     cosineCoefficientsOfBody2( 2, 2 ) = 0.13;
     sineCoefficientsOfBody2( 2, 2 ) = 0.12;
 
-    const double gravitationalParameter = 5.0E5;
-    const double equatorialRadiusOfBody1 = 1300.0;
-    const double equatorialRadiusOfBody2 = 1100.0;
+    runDegreeTwoCrossTermValidationCase(
+                Eigen::Vector3d( 5100.0, -2200.0, 3600.0 ),
+                Eigen::Quaterniond(
+                    Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
+                    Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
+                    Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) ),
+                Eigen::Quaterniond(
+                    Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
+                    Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
+                    Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) ),
+                cosineCoefficientsOfBody1,
+                sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2,
+                sineCoefficientsOfBody2,
+                1234.0,
+                gravitationalParameter,
+                equatorialRadiusOfBody1,
+                equatorialRadiusOfBody2 );
 
-    auto createAccelerationModelFromCombinations =
-            [ & ]( const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
-                   coefficientCombinationsToUse )
-    {
-        return std::make_shared< MutualExtendedBodySphericalHarmonicAcceleration >(
-                    [ & ]( ){ return positionOfBody1; },
-                    [ & ]( ){ return positionOfBody2; },
-                    [ & ]( ){ return gravitationalParameter; },
-                    equatorialRadiusOfBody1,
-                    equatorialRadiusOfBody2,
-                    [ & ]( ){ return cosineCoefficientsOfBody1; },
-                    [ & ]( ){ return sineCoefficientsOfBody1; },
-                    [ & ]( ){ return cosineCoefficientsOfBody2; },
-                    [ & ]( ){ return sineCoefficientsOfBody2; },
-                    coefficientCombinationsToUse,
-                    [ & ]( ){ return rotationToBody1; },
-                    [ & ]( ){ return rotationToBody2; },
-                    false,
-                    true );
-    };
+    cosineCoefficientsOfBody1( 2, 0 ) = -0.17;
+    cosineCoefficientsOfBody1( 2, 1 ) = 0.13;
+    sineCoefficientsOfBody1( 2, 1 ) = -0.07;
+    cosineCoefficientsOfBody1( 2, 2 ) = 0.04;
+    sineCoefficientsOfBody1( 2, 2 ) = 0.15;
 
-    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > fullDegreeTwoInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_;
-    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body1OnlyInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_;
-    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2OnlyInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 2, 2 ).coefficientCombinationsToUse_;
-    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > centralInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 0, 0 ).coefficientCombinationsToUse_;
+    cosineCoefficientsOfBody2( 2, 0 ) = 0.12;
+    cosineCoefficientsOfBody2( 2, 1 ) = -0.18;
+    sineCoefficientsOfBody2( 2, 1 ) = 0.09;
+    cosineCoefficientsOfBody2( 2, 2 ) = -0.11;
+    sineCoefficientsOfBody2( 2, 2 ) = 0.05;
 
-    const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > degreeTwoCrossInteractions =
-            getDegreeTwoDegreeTwoInteractions( );
-
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > fullDegreeTwoAcceleration =
-            createAccelerationModelFromCombinations( fullDegreeTwoInteractions );
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body1OnlyAcceleration =
-            createAccelerationModelFromCombinations( body1OnlyInteractions );
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body2OnlyAcceleration =
-            createAccelerationModelFromCombinations( body2OnlyInteractions );
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > centralAcceleration =
-            createAccelerationModelFromCombinations( centralInteractions );
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > degreeTwoCrossAcceleration =
-            createAccelerationModelFromCombinations( degreeTwoCrossInteractions );
-
-    const double currentTime = 1234.0;
-    fullDegreeTwoAcceleration->updateMembers( currentTime );
-    body1OnlyAcceleration->updateMembers( currentTime );
-    body2OnlyAcceleration->updateMembers( currentTime );
-    centralAcceleration->updateMembers( currentTime );
-    degreeTwoCrossAcceleration->updateMembers( currentTime );
-
-    const Eigen::Vector3d isolatedCrossTermAcceleration =
-            fullDegreeTwoAcceleration->getAcceleration( ) -
-            body1OnlyAcceleration->getAcceleration( ) -
-            body2OnlyAcceleration->getAcceleration( ) +
-            centralAcceleration->getAcceleration( );
-
-    const Eigen::Vector3d directCrossTermAcceleration = degreeTwoCrossAcceleration->getAcceleration( );
-
-    const Eigen::Vector3d accelerationDifference = isolatedCrossTermAcceleration - directCrossTermAcceleration;
-    const double referenceScale = std::max( 1.0, isolatedCrossTermAcceleration.norm( ) );
-    BOOST_CHECK_SMALL( accelerationDifference.norm( ) / referenceScale, 5.0E-14 );
+    runDegreeTwoCrossTermValidationCase(
+                Eigen::Vector3d( -4300.0, 3100.0, 2800.0 ),
+                Eigen::Quaterniond(
+                    Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) *
+                    Eigen::AngleAxisd( 0.45, Eigen::Vector3d::UnitY( ) ) *
+                    Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ) ),
+                Eigen::Quaterniond(
+                    Eigen::AngleAxisd( 0.35, Eigen::Vector3d::UnitX( ) ) *
+                    Eigen::AngleAxisd( -0.6, Eigen::Vector3d::UnitZ( ) ) *
+                    Eigen::AngleAxisd( 0.15, Eigen::Vector3d::UnitY( ) ) ),
+                cosineCoefficientsOfBody1,
+                sineCoefficientsOfBody1,
+                cosineCoefficientsOfBody2,
+                sineCoefficientsOfBody2,
+                5678.0,
+                gravitationalParameter,
+                equatorialRadiusOfBody1,
+                equatorialRadiusOfBody2 );
 }
 BOOST_AUTO_TEST_SUITE_END( )
 
