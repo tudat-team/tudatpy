@@ -1,4 +1,4 @@
-#include "Tudat/Mathematics/BasicMathematics/cayleyKleinParameters.h"
+#include "tudat/math/basic/cayleyKleinParameters.h"
 
 namespace tudat
 {

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "Tudat/Astrodynamics/Gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
-#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/math/basic/basicMathematicsFunctions.h"
 
 namespace tudat
 {
@@ -11,18 +11,18 @@ namespace gravitation
 
 
 MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarmonicAcceleration(
-        const boost::function< Eigen::Vector3d( ) > positionOfBody1Function,
-        const boost::function< Eigen::Vector3d( ) > positionOfBody2Function,
-        const boost::function< double( ) > gravitationalParameterFunction,
+        const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
+        const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
+        const std::function< double( ) > gravitationalParameterFunction,
         const double equatorialRadiusOfBody1,
         const double equatorialRadiusOfBody2,
-        const boost::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody1Function,
-        const boost::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
-        const boost::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
-        const boost::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
+        const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody1Function,
+        const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
+        const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
+        const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        const boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
-        const boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
+        const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
+        const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
         const bool useCentraBodyFrame,
         const bool areCoefficientsNormalized ):
     positionOfBody1Function_( positionOfBody1Function ), positionOfBody2Function_( positionOfBody2Function ),
@@ -56,19 +56,27 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
         }
     }
 
-    sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >(
+    sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
                 maximumOrder_ + 1, maximumDegree_ + 1 );
-    effectiveMutualPotentialField_ =  boost::make_shared< EffectiveMutualSphericalHarmonicsField >(
+    effectiveMutualPotentialField_ =  std::make_shared< EffectiveMutualSphericalHarmonicsField >(
                 coefficientCombinationsToUse_,
                 cosineHarmonicCoefficientsOfBody1Function, sineHarmonicCoefficientsOfBody1Function,
                 cosineHarmonicCoefficientsOfBody2Function, sineHarmonicCoefficientsOfBody2Function,
                 gravitationalParameterFunction, equatorialRadiusOfBody1_, equatorialRadiusOfBody2_, areCoefficientsNormalized );
-    effectiveCosineCoefficientFunction_ = boost::bind(
+    effectiveCosineCoefficientFunction_ = std::bind(
                 &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
-                effectiveMutualPotentialField_, _1, _2, _3, _4 );
-    effectiveSineCoefficientFunction_ = boost::bind(
+                effectiveMutualPotentialField_,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::placeholders::_3,
+                std::placeholders::_4 );
+    effectiveSineCoefficientFunction_ = std::bind(
                 &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
-                effectiveMutualPotentialField_, _1, _2, _3, _4 );
+                effectiveMutualPotentialField_,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::placeholders::_3,
+                std::placeholders::_4 );
     radius1Powers_.resize( effectiveMutualPotentialField_->getMaximumDegree1( ) + 1 );
     radius2Powers_.resize( effectiveMutualPotentialField_->getMaximumDegree2( ) + 1 );
 
@@ -132,5 +140,4 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
 }
 
 }
-
 

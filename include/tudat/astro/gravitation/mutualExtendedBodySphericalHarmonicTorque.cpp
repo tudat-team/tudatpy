@@ -1,5 +1,5 @@
 
-#include "Tudat/Astrodynamics/Gravitation/mutualExtendedBodySphericalHarmonicTorque.h"
+#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicTorque.h"
 
 namespace tudat
 {

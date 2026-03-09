@@ -44,6 +44,7 @@ set(propagation_SOURCES
         propagationOutputSettings.cpp
         createMassRateModels.cpp
         createAccelerationModels.cpp
+        "${PROJECT_SOURCE_DIR}/include/tudat/simulation/propagation_setup/accelerationSettings.cpp"
         createEnvironmentUpdater.cpp
         propagationTermination.cpp
         propagationOutput.cpp

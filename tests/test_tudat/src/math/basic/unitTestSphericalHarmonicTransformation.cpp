@@ -19,16 +19,16 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <memory>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
 
-#include "Tudat/InputOutput/basicInputOutput.h"
+#include "tudat/io/basicInputOutput.h"
 
-#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonicTransformations.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
-#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -316,12 +316,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
 
     // Create body objects.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", TUDAT_NAN, TUDAT_NAN );
     bodySettings[ "Earth2" ] = getDefaultSingleBodySettings( "Earth", TUDAT_NAN, TUDAT_NAN );
 
     Eigen::Quaterniond rotationToEarthFixed = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-    bodySettings[ "Earth" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Earth", rotationToEarthFixed,
                     0.0, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY ) );
@@ -330,16 +330,16 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
                 Eigen::AngleAxisd( 0.1 , Eigen::Vector3d::UnitZ( ) ) *
                 Eigen::AngleAxisd( 0.4 , Eigen::Vector3d::UnitX( ) ) *
                 Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitZ( ) ) );
-    bodySettings[ "Earth2" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Earth2" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Mars", rotationToEarth2Fixed,
                     0.0, 1.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY ) );
 
     Eigen::MatrixXd nominalCosineCoefficientsFull =
-            boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings[ "Earth2" ]->gravityFieldSettings )->
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings[ "Earth2" ]->gravityFieldSettings )->
             getCosineCoefficients( );
     Eigen::MatrixXd nominalSineCoefficientsFull =
-            boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings[ "Earth2" ]->gravityFieldSettings )->
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings[ "Earth2" ]->gravityFieldSettings )->
             getSineCoefficients( );
 
     Eigen::MatrixXd nominalCosineCoefficients = nominalCosineCoefficientsFull.block( 0, 0, 7, 7 );
@@ -354,30 +354,27 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
 //    nominalSineCoefficients( 2, 2 ) = nominalSineCoefficientsFull( 2, 2 );
 
 
-    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 tudat::spice_interface::getBodyGravitationalParameter( "Earth" ),
                 tudat::spice_interface::getAverageRadius( "Earth" ), nominalCosineCoefficients, nominalSineCoefficients, "IAU_Earth" );
-    bodySettings[ "Earth2" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    bodySettings[ "Earth2" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 tudat::spice_interface::getBodyGravitationalParameter( "Earth" ),
                 tudat::spice_interface::getAverageRadius( "Earth" ), nominalCosineCoefficients, nominalSineCoefficients, "IAU_Mars" );
 
 
-    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
-    bodySettings[ "Earth2" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    bodySettings[ "Earth2" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodyMap = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    bodyMap.addBody( std::make_shared< simulation_setup::Body >( ), "Asterix" );
 
     bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
     bodyMap.at( "Earth2" )->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
@@ -400,8 +397,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
         std::vector< std::string > centralBodies;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
         accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
@@ -414,8 +411,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
         std::vector< std::string > centralBodies;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth2" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth2" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
         accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth2" );
@@ -423,9 +420,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
     }
 
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationFromEarth =
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationFromEarth =
             accelerationModelMap.at( "Asterix" ).at( "Earth" ).at( 0 );
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationFromEarth2 =
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationFromEarth2 =
             accelerationModelMap2.at( "Asterix" ).at( "Earth2" ).at( 0 );
 
     SphericalHarmonicTransformationCache sphericalHarmonicTransformationCacheEarth( 6, 6 );
@@ -452,14 +449,14 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicTransformationFromAcceleration )
     earthCosineCoefficients( 0, 0 ) = 0.0;
     earth2CosineCoefficients( 0, 0 ) = 0.0;
 
-    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                 bodyMap.at( "Earth" )->getGravityFieldModel( ) )->setCosineCoefficients( earthCosineCoefficients );
-    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                 bodyMap.at( "Earth" )->getGravityFieldModel( ) )->setSineCoefficients( earthSineCoefficients );
 
-    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                 bodyMap.at( "Earth2" )->getGravityFieldModel( ) )->setCosineCoefficients( earth2CosineCoefficients );
-    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                 bodyMap.at( "Earth2" )->getGravityFieldModel( ) )->setSineCoefficients( earth2SineCoefficients );
 
     bodyMap.at( "Earth" )->setStateFromEphemeris( 0.0 );
@@ -496,7 +493,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 } // namespace unit_tests
 
 } // namespace tudat
-
-
-
-

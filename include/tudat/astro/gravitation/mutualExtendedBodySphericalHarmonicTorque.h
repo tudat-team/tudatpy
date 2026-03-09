@@ -1,20 +1,19 @@
 #ifndef MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 #define MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <memory>
 
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-#include <Tudat/Mathematics/BasicMathematics/linearAlgebra.h>
-#include <Tudat/Mathematics/BasicMathematics/legendrePolynomials.h>
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
-#include "Tudat/Astrodynamics/Gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
+#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 
 namespace tudat
 {
@@ -28,7 +27,7 @@ class MutualExtendedBodySphericalHarmonicTorque: public basic_astrodynamics::Tor
 public:
 
     MutualExtendedBodySphericalHarmonicTorque(
-            const boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
+            const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
             const bool acceleratedBodyIsBody1 ):
         accelerationBetweenBodies_( accelerationBetweenBodies ),
         acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
@@ -59,7 +58,7 @@ private:
 
     Eigen::Vector3d currentTorque_;
 
-    boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
+    std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
 
     std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 

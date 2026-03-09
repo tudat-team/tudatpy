@@ -1,21 +1,21 @@
 #ifndef MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H
 #define MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <functional>
+#include <memory>
 
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-#include <Tudat/Basics/basicTypedefs.h>
-#include <Tudat/Mathematics/BasicMathematics/legendrePolynomials.h>
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/basics/basicTypedefs.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 
-#include "Tudat/Astrodynamics/Gravitation/mutualForcePotential.h"
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonicTransformations.h"
+#include "tudat/astro/gravitation/mutualForcePotential.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
 
 namespace tudat
 {
@@ -29,18 +29,18 @@ class MutualExtendedBodySphericalHarmonicAcceleration: public basic_astrodynamic
 public:
 
     MutualExtendedBodySphericalHarmonicAcceleration(
-            const boost::function< Eigen::Vector3d( ) > positionOfBody1Function,
-            const boost::function< Eigen::Vector3d( ) > positionOfBody2Function,
-            const boost::function< double( ) > gravitationalParameterFunction,
+            const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
+            const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
+            const std::function< double( ) > gravitationalParameterFunction,
             const double equatorialRadiusOfBody1,
             const double equatorialRadiusOfBody2,
-            const boost::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody1Function,
-            const boost::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
-            const boost::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
-            const boost::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
+            const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody1Function,
+            const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
+            const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
+            const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
             const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-            const boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
-            const boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
+            const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
+            const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
             const bool useCentraBodyFrame,
             const bool areCoefficientsNormalized = 1 );
 
@@ -72,12 +72,12 @@ public:
         return currentRotationFromBody2ToBody1_;
     }
 
-    boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > getEffectiveMutualPotentialField( )
+    std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > getEffectiveMutualPotentialField( )
     {
         return effectiveMutualPotentialField_;
     }
 
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
     {
         return sphericalHarmonicsCache_;
     }
@@ -115,13 +115,13 @@ public:
 private:
 
     //! Function returning the position of body 1
-    boost::function< Eigen::Vector3d( ) > positionOfBody1Function_;
+    std::function< Eigen::Vector3d( ) > positionOfBody1Function_;
 
     //! Function returning the position of body 2
-    boost::function< Eigen::Vector3d( ) > positionOfBody2Function_;
+    std::function< Eigen::Vector3d( ) > positionOfBody2Function_;
 
     //! Function returning the effective gravitational parameter
-    boost::function< double( ) > gravitationalParameterFunction_;
+    std::function< double( ) > gravitationalParameterFunction_;
 
     //! Equatorial radius of body 1.
     double equatorialRadiusOfBody1_;
@@ -141,20 +141,20 @@ private:
      *  Function that returns the effective one-body spherical harmonic cosine coefficient as a function of (degree of body 1,
      *  order of body 1, degree of body 2, order of body 2)
      */
-    boost::function< double( int, int, int, int ) > effectiveCosineCoefficientFunction_;
+    std::function< double( int, int, int, int ) > effectiveCosineCoefficientFunction_;
 
     //! Function that returns the effective one-body spherical harmonic sine coefficient
     /*!
      *  Function that returns the effective one-body spherical harmonic sine coefficient as a function of (degree of body 1,
      *  order of body 1, degree of body 2, order of body 2)
      */
-    boost::function< double( int, int, int, int ) > effectiveSineCoefficientFunction_;
+    std::function< double( int, int, int, int ) > effectiveSineCoefficientFunction_;
 
     //! Function that returns the rotation from the inertial to body-fixed frame of body 1
-    boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation_;
+    std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation_;
 
     //! Function that returns the rotation from the inertial to body-fixed frame of body 2
-    boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation_;
+    std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation_;
 
     //! Maximum degree of effective one-body spherical harmonic expansion
     unsigned int maximumDegree_;
@@ -163,10 +163,10 @@ private:
     unsigned int maximumOrder_;
 
     //! Object that computes the effect one-body coefficients from the two one-body gravoity fields and their relative orientation
-    boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
+    std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
 
     //! Function that computes the coefficients of body, in the body-fixed frame of body 1
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
     //! Acceleration, as computed by last call to updateMembers
     Eigen::Vector3d currentAcceleration_;

@@ -28,9 +28,9 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Basics/testMacros.h"
+#include "tudat/basics/testMacros.h"
 
-#include "Tudat/Mathematics/BasicMathematics/cayleyKleinParameters.h"
+#include "tudat/math/basic/cayleyKleinParameters.h"
 
 namespace tudat
 {

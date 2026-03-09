@@ -1,10 +1,10 @@
 #include <boost/math/special_functions/binomial.hpp>
 #include <iostream>
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/basic/basicMathematicsFunctions.h"
 
-#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonicTransformations.h"
-#include "Tudat/Mathematics/BasicMathematics/cayleyKleinParameters.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
+#include "tudat/math/basic/cayleyKleinParameters.h"
 
 namespace tudat
 {
@@ -122,5 +122,4 @@ void SphericalHarmonicTransformationCache::transformCoefficientsAtDegree(
 }
 
 }
-
 

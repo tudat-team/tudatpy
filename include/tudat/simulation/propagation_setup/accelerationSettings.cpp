@@ -1,4 +1,4 @@
-#include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
 {

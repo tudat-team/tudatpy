@@ -11,19 +11,19 @@
 #ifndef TUDAT_MUTUALFORCEPOTENTIAL_H
 #define TUDAT_MUTUALFORCEPOTENTIAL_H
 
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/function.hpp>
 #include <boost/math/special_functions/factorials.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <functional>
+#include <memory>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
-#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/math/basic/legendrePolynomials.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
 
-#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonicTransformations.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
 
 namespace tudat
 {
@@ -85,7 +85,7 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
 double computeSingleMutualForcePotentialTerm(
         const double effectiveCosineCoefficient,
         const double effectiveSineCoefficient,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int degreeOfBody1,
         const int orderOfBody1,
         const int degreeOfBody2,
@@ -98,10 +98,10 @@ double computeMutualForcePotential(
         const double equatorialRadiusOfBody2,
         const int maximumDegreeOfBody1,
         const int maximumDegreeOfBody2,
-        const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
-        const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
@@ -110,15 +110,15 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const double gravitationalParameterOfBody,
         const double equatorialRadiusOfBody1,
         const double equatorialRadiusOfBody2,
-        const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
-        const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const int maximumDegree1,
         const int maximumDegree2,
         const int maximumEvaluationDegree,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
@@ -127,10 +127,10 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const double gravitationalParameterOfBody,
         const double equatorialRadiusOfBody1,
         const double equatorialRadiusOfBody2,
-        const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
-        const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
+        const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
@@ -138,8 +138,8 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         const double distance,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const boost::function< int( const int, const int, const int, const int )> effectiveIndexFunction );
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const std::function< int( const int, const int, const int, const int )> effectiveIndexFunction );
 
 inline double getSigmaSignFunction( const int order )
 {
@@ -151,11 +151,11 @@ class EffectiveMutualSphericalHarmonicsField
 public:
     EffectiveMutualSphericalHarmonicsField(
             const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-            const boost::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1,
-            const boost::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1,
-            const boost::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2,
-            const boost::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody2,
-            const boost::function< double( ) > gravitationalParameterFunction,
+            const std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1,
+            const std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1,
+            const std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2,
+            const std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody2,
+            const std::function< double( ) > gravitationalParameterFunction,
             const double equatorialRadiusOfBody1,
             const double equatorialRadiusOfBody2,
             const bool areCoefficientsNormalized = 1 ):
@@ -180,7 +180,7 @@ public:
                     getTotalVectorSize( ) );
         multipliers_.resize(
                     getTotalVectorSize( ) );
-        transformationCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicTransformationCache >(
+        transformationCache_ = std::make_shared< basic_mathematics::SphericalHarmonicTransformationCache >(
                     cosineCoefficientFunctionOfBody1( ).rows( ) + cosineCoefficientFunctionOfBody2( ).rows( ),
                     cosineCoefficientFunctionOfBody1( ).cols( ) + cosineCoefficientFunctionOfBody2( ).cols( ) );
         initializeMultipliers( );
@@ -222,18 +222,27 @@ public:
 
     double getGravitationalPotential(
             const Eigen::Vector3d& bodyFixedPosition,
-            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
     {
 
         return computeMutualForcePotential(
                     bodyFixedPosition, gravitationalParameterFunction_( ), equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
                     maximumDegree1_, maximumDegree2_,
-                    boost::bind(
+                    std::bind(
                         &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
-                        this, _1, _2, _3, _4 ),
-                    boost::bind(
+                        this,
+                        std::placeholders::_1,
+                        std::placeholders::_2,
+                        std::placeholders::_3,
+                        std::placeholders::_4 ),
+                    std::bind(
                         &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
-                        this, _1, _2, _3, _4 ), coefficientCombinationsToUse_,
+                        this,
+                        std::placeholders::_1,
+                        std::placeholders::_2,
+                        std::placeholders::_3,
+                        std::placeholders::_4 ),
+                    coefficientCombinationsToUse_,
                     sphericalHarmonicsCache );
     }
 
@@ -250,7 +259,7 @@ public:
         return effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicTransformationCache > getTransformationCache( )
+    std::shared_ptr< basic_mathematics::SphericalHarmonicTransformationCache > getTransformationCache( )
     {
         return transformationCache_;
     }
@@ -308,10 +317,10 @@ private:
 
     std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
-    boost::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1_;
-    boost::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1_;
-    boost::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2_;
-    boost::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody2_;
+    std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1_;
+    std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1_;
+    std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2_;
+    std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody2_;
 
 
     Eigen::MatrixXd cosineCoefficientsOfBody1_;
@@ -330,9 +339,9 @@ private:
 
     std::vector< double > multipliers_;
 
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicTransformationCache > transformationCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicTransformationCache > transformationCache_;
 
-    boost::function< double( ) > gravitationalParameterFunction_;
+    std::function< double( ) > gravitationalParameterFunction_;
     double equatorialRadiusOfBody1_;
     double equatorialRadiusOfBody2_;
 

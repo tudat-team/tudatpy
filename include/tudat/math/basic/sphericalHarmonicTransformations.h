@@ -20,13 +20,11 @@
 #include <Eigen/Geometry>
 
 #include <map>
+#include <memory>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/function.hpp>
 #include <boost/math/special_functions/binomial.hpp>
 
-#include "Tudat/Mathematics/BasicMathematics/wignerDMatrices.h"
+#include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat
 {
@@ -50,7 +48,7 @@ public:
             const int maximumOrder ):
         maximumDegree_( maxiumDegree ), maximumOrder_( maximumOrder ), updatePartials_( false )
     {
-        wignerDMatricesCache_ = boost::make_shared< WignerDMatricesCache >( maxiumDegree );
+        wignerDMatricesCache_ = std::make_shared< WignerDMatricesCache >( maxiumDegree );
     }
 
     //! Function to update Wigner D-matrices for current orientation, parameterized by Cayley-Klein parameters
@@ -117,7 +115,7 @@ public:
 private:
 
     //! Object used to compute Wigner D-matrices
-    boost::shared_ptr< WignerDMatricesCache > wignerDMatricesCache_;
+    std::shared_ptr< WignerDMatricesCache > wignerDMatricesCache_;
 
     //! Maximum degree of spherical harmonic expansion that will be handled by object
     int maximumDegree_;

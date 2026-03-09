@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <Tudat/Mathematics/BasicMathematics/wignerDMatrices.h>
+#include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat
 {

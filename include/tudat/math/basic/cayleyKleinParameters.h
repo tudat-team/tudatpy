@@ -35,7 +35,7 @@
 
 #include <complex>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {

@@ -31,11 +31,11 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Basics/testMacros.h"
+#include "tudat/basics/testMacros.h"
 
-#include "Tudat/Mathematics/BasicMathematics/cayleyKleinParameters.h"
-#include "Tudat/Mathematics/BasicMathematics/wignerDMatrices.h"
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "tudat/math/basic/cayleyKleinParameters.h"
+#include "tudat/math/basic/wignerDMatrices.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
