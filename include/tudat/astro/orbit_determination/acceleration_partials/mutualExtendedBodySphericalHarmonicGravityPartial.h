@@ -11,7 +11,7 @@
 #ifndef TUDAT_MUTUALEXTENDEDBODYSPHERICALHARMONICGRAVITYPARTIAL_H
 #define TUDAT_MUTUALEXTENDEDBODYSPHERICALHARMONICGRAVITYPARTIAL_H
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
@@ -135,7 +135,7 @@ private:
 
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
     std::vector< int > effectiveIndicesForCoefficientCombinations_;
 

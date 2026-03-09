@@ -1,7 +1,7 @@
 #ifndef MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H
 #define MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include <functional>
 #include <memory>
 
@@ -38,7 +38,7 @@ public:
             const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
             const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
             const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
-            const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+            const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
             const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
             const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
             const bool useCentraBodyFrame,
@@ -154,7 +154,7 @@ private:
      * List of degrees/orders that are to be used for the series expansion. Each tuple contains: (degree of body 1, order of
      * body 1, degree of body 2, order of body 2)
      */
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
     //! Function that returns the effective one-body spherical harmonic cosine coefficient
     /*!

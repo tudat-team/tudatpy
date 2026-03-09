@@ -49,10 +49,10 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::MutualExtendedBodySphericalH
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
         effectiveIndicesForCoefficientCombinations_.at( i ) = effectiveMutualPotentialField_->getEffectiveIndex(
-                coefficientCombinationsToUse_.at( i ).get< 0 >( ),
-                coefficientCombinationsToUse_.at( i ).get< 1 >( ),
-                coefficientCombinationsToUse_.at( i ).get< 2 >( ),
-                coefficientCombinationsToUse_.at( i ).get< 3 >( ) );
+                std::get<0>(coefficientCombinationsToUse_.at( i )),
+                std::get<1>(coefficientCombinationsToUse_.at( i )),
+                std::get<2>(coefficientCombinationsToUse_.at( i )),
+                std::get<3>(coefficientCombinationsToUse_.at( i )) );
     }
 }
 
@@ -103,10 +103,10 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPositionPa
     bool computeTerm = false;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = coefficientCombinationsToUse_.at( i ).get< 0 >( );
-        const int orderOfBody1 = coefficientCombinationsToUse_.at( i ).get< 1 >( );
-        const int degreeOfBody2 = coefficientCombinationsToUse_.at( i ).get< 2 >( );
-        const int orderOfBody2 = coefficientCombinationsToUse_.at( i ).get< 3 >( );
+        const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
+        const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
+        const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
 
         const int totalDegree = degreeOfBody1 + degreeOfBody2;
         const double equatorialRadiusRatioPower = currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
@@ -192,10 +192,10 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWr
     bool computeTerm = false;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = coefficientCombinationsToUse_.at( i ).get< 0 >( );
-        const int orderOfBody1 = coefficientCombinationsToUse_.at( i ).get< 1 >( );
-        const int degreeOfBody2 = coefficientCombinationsToUse_.at( i ).get< 2 >( );
-        const int orderOfBody2 = coefficientCombinationsToUse_.at( i ).get< 3 >( );
+        const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
+        const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
+        const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
 
         const int totalDegree = degreeOfBody1 + degreeOfBody2;
         const int effectiveIndex = effectiveIndicesForCoefficientCombinations_.at( i );
@@ -333,10 +333,10 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlo
     {
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = coefficientCombinationsToUse_.at( j ).get< 0 >( );
-            const int orderOfBody1 = coefficientCombinationsToUse_.at( j ).get< 1 >( );
-            const int degreeOfBody2 = coefficientCombinationsToUse_.at( j ).get< 2 >( );
-            const int orderOfBody2 = coefficientCombinationsToUse_.at( j ).get< 3 >( );
+            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
 
             if( blockIndices.at( i ).first == degreeOfBody1 && blockIndices.at( i ).second == orderOfBody1 )
             {
@@ -374,10 +374,10 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlock
     {
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = coefficientCombinationsToUse_.at( j ).get< 0 >( );
-            const int orderOfBody1 = coefficientCombinationsToUse_.at( j ).get< 1 >( );
-            const int degreeOfBody2 = coefficientCombinationsToUse_.at( j ).get< 2 >( );
-            const int orderOfBody2 = coefficientCombinationsToUse_.at( j ).get< 3 >( );
+            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
 
             if( blockIndices.at( i ).first == degreeOfBody1 && blockIndices.at( i ).second == orderOfBody1 )
             {
@@ -421,8 +421,8 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlo
 
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody2 = coefficientCombinationsToUse_.at( j ).get< 2 >( );
-            const int orderOfBody2 = coefficientCombinationsToUse_.at( j ).get< 3 >( );
+            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
 
             if( degreeOfBody2 == degree && degreeOfBody2 < transformedCosinePartials.rows( ) &&
                 orderOfBody2 < transformedCosinePartials.cols( ) )
@@ -459,8 +459,8 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlock
 
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody2 = coefficientCombinationsToUse_.at( j ).get< 2 >( );
-            const int orderOfBody2 = coefficientCombinationsToUse_.at( j ).get< 3 >( );
+            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
+            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
 
             if( degreeOfBody2 == degree && degreeOfBody2 < transformedCosinePartials.rows( ) &&
                 orderOfBody2 < transformedCosinePartials.cols( ) )

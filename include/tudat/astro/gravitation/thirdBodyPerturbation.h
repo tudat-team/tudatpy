@@ -20,6 +20,7 @@
 
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
+#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
@@ -184,6 +185,10 @@ typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel 
 //! Typedef for third body mutual spherical harmonic gravity acceleration.
 typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
         ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
+
+//! Typedef for third body mutual extended-body spherical harmonic gravity acceleration.
+typedef ThirdBodyAcceleration< MutualExtendedBodySphericalHarmonicAcceleration >
+        ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel;
 
 //! Typedef for third body polyhedron gravity acceleration.
 typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel > ThirdBodyPolyhedronGravitationalAccelerationModel;

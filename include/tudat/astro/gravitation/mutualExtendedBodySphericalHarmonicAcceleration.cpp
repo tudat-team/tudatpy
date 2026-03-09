@@ -18,7 +18,7 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
         const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody1Function,
         const std::function< Eigen::MatrixXd( ) > cosineHarmonicCoefficientsOfBody2Function,
         const std::function< Eigen::MatrixXd( ) > sineHarmonicCoefficientsOfBody2Function,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
         const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
         const bool useCentraBodyFrame,
@@ -38,10 +38,10 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
     unsigned int degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
 
         if( degreeOfBody1 + degreeOfBody2 > maximumDegree_ )
         {

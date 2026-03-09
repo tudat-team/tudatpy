@@ -12,7 +12,7 @@ namespace gravitation
 
 //! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
 std::pair< int, int > getMaximumDegrees(
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
 {
     int maximumDegree1 = 0;
     int maximumDegree2 = 0;
@@ -20,8 +20,8 @@ std::pair< int, int > getMaximumDegrees(
     unsigned int degreeOfBody1, degreeOfBody2;
     for( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
 
         if( degreeOfBody1 > maximumDegree1 )
         {
@@ -109,7 +109,7 @@ double computeMutualForcePotential(
         const int maximumDegreeOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     
@@ -147,10 +147,10 @@ double computeMutualForcePotential(
     double currentTerm = 0;
     for(  unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
         
         currentTerm = 0;
         currentTerm += computeSingleMutualForcePotentialTerm(
@@ -187,7 +187,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const double equatorialRadiusOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const int maximumDegree1, const int maximumDegree2, const int maximumEvaluationDegree,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
@@ -274,10 +274,10 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     std::pair< double, double > currentTerms;
     for ( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
 
         totalDegree = degreeOfBody1 + degreeOfBody2;
 
@@ -355,7 +355,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const double equatorialRadiusOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
@@ -414,10 +414,10 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
     // Loop through all degrees.
     for ( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
         
         totalDegree = degreeOfBody1 + degreeOfBody2;
         
@@ -491,7 +491,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
 
 void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const double distance,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
@@ -505,10 +505,10 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
     Eigen::Matrix< double, 1, 2 > currentPotentialComponentWrtFullCoefficients;
     for( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
 
         equatorialRadiusRatioPower = radius1Powers.at( degreeOfBody1 ) * radius2Powers.at( degreeOfBody2 ) / distance;
 
@@ -615,10 +615,10 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
     int effectiveIndex;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse_.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse_.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse_.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse_.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
 
         effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
 
@@ -669,10 +669,10 @@ void EffectiveMutualSphericalHarmonicsField::computePartialsOfFullCoefficientsWr
     Eigen::Matrix2d currentPartial, fullCoefficientsWrtBody2Coefficients;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse_.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse_.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse_.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse_.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
 
         fullCoefficientsWrtBody2Coefficients( 0, 0 ) = cosineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
         fullCoefficientsWrtBody2Coefficients( 0, 1 ) = -sineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
@@ -736,10 +736,10 @@ void EffectiveMutualSphericalHarmonicsField::initializeMultipliers( )
     int effectiveIndex;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = coefficientCombinationsToUse_.at( i ).get< 0 >( );
-        orderOfBody1 = coefficientCombinationsToUse_.at( i ).get< 1 >( );
-        degreeOfBody2 = coefficientCombinationsToUse_.at( i ).get< 2 >( );
-        orderOfBody2 = coefficientCombinationsToUse_.at( i ).get< 3 >( );
+        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
+        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
+        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
 
         effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
         multipliers_[ effectiveIndex ] =

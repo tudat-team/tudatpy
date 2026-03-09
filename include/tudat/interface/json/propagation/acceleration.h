@@ -41,9 +41,11 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes = {
     { cannon_ball_radiation_pressure, "cannonBallRadiationPressure" },
     { spherical_harmonic_gravity, "sphericalHarmonicGravity" },
     { mutual_spherical_harmonic_gravity, "mutualSphericalHarmonicGravity" },
+    { mutual_extended_body_spherical_harmonic_gravity, "mutualExtendedBodySphericalHarmonicGravity" },
     { third_body_point_mass_gravity, "thirdBodyPointMassGravity" },
     { third_body_spherical_harmonic_gravity, "thirdBodySphericalHarmonicGravity" },
     { third_body_mutual_spherical_harmonic_gravity, "thirdBodyMutualSphericalHarmonicGravity" },
+    { third_body_mutual_extended_body_spherical_harmonic_gravity, "thirdBodyMutualExtendedBodySphericalHarmonicGravity" },
     { thrust_acceleration, "thrust" },
     { relativistic_correction_acceleration, "relativisticCorrection" },
     { empirical_acceleration, "empirical" },
@@ -51,9 +53,11 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes = {
 };
 
 //! `AvailableAcceleration`s not supported by `json_interface`.
-static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { third_body_point_mass_gravity,
+static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { mutual_extended_body_spherical_harmonic_gravity,
+                                                                             third_body_point_mass_gravity,
                                                                              third_body_spherical_harmonic_gravity,
-                                                                             third_body_mutual_spherical_harmonic_gravity };
+                                                                             third_body_mutual_spherical_harmonic_gravity,
+                                                                             third_body_mutual_extended_body_spherical_harmonic_gravity };
 
 static std::map< EmpiricalAccelerationComponents, std::string > empiricalAccelerationComponentTypes = {
     { radial_empirical_acceleration_component, "radial" },

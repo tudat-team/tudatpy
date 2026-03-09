@@ -18,6 +18,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/ringAccelerationPartial.h"
 
@@ -55,6 +56,10 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     else if( std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
+    else if( std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
+    {
+        accelerationType = third_body_mutual_extended_body_spherical_harmonic_gravity;
     }
     else if( std::dynamic_pointer_cast< PolyhedronGravityPartial >( directGravityPartial ) != nullptr )
     {
@@ -556,6 +561,13 @@ inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial( const std
             centralBody =
                     std::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >( accelerationPartial )
                             ->getCentralBodyName( );
+        }
+        else if( accelerationPartial->getAccelerationType( ) ==
+                 basic_astrodynamics::third_body_mutual_extended_body_spherical_harmonic_gravity )
+        {
+            centralBody = std::dynamic_pointer_cast<
+                    ThirdBodyGravityPartial< MutualExtendedBodySphericalHarmonicsGravityPartial > >( accelerationPartial )
+                                  ->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_polyhedron_gravity )
         {

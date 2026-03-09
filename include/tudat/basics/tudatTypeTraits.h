@@ -141,6 +141,16 @@ struct is_direct_gravity_partial< acceleration_partials::MutualSphericalHarmonic
 
 namespace acceleration_partials
 {
+class MutualExtendedBodySphericalHarmonicsGravityPartial;
+}
+
+template<>
+struct is_direct_gravity_partial< acceleration_partials::MutualExtendedBodySphericalHarmonicsGravityPartial > {
+    static const bool value = true;
+};
+
+namespace acceleration_partials
+{
 class PolyhedronGravityPartial;
 }
 
@@ -192,6 +202,16 @@ class MutualSphericalHarmonicsGravitationalAccelerationModel;
 
 template<>
 struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
+namespace gravitation
+{
+class MutualExtendedBodySphericalHarmonicAcceleration;
+}
+
+template<>
+struct is_direct_gravity_acceleration< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > {
     static const bool value = true;
 };
 

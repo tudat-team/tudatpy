@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
@@ -223,7 +223,7 @@ inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAccelerati
                                                                             maximumOrderOfCentralBody );
 }
 
-std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getExtendedSinglePointMassInteractions(
+std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getExtendedSinglePointMassInteractions(
         const int maximumDegreeOfBodyUndergoingAcceleration,
         const int maximumOrderOfBodyUndergoingAcceleration,
         const int maximumDegreeOfBodyExertingAcceleration,
@@ -236,10 +236,13 @@ public:
             const int maximumDegreeOfBodyUndergoingAcceleration,
             const int maximumOrderOfBodyUndergoingAcceleration,
             const int maximumDegreeOfBodyExertingAcceleration,
-            const int maximumOrderOfBodyExertingAcceleration ):
+            const int maximumOrderOfBodyExertingAcceleration,
+            const int maximumDegreeOfCentralBody = 0,
+            const int maximumOrderOfCentralBody = 0 ):
         AccelerationSettings( basic_astrodynamics::mutual_extended_body_spherical_harmonic_gravity ),
         maximumDegreeOfBody1_( maximumDegreeOfBodyUndergoingAcceleration ),
-        maximumDegreeOfBody2_( maximumDegreeOfBodyExertingAcceleration )
+        maximumDegreeOfBody2_( maximumDegreeOfBodyExertingAcceleration ),
+        maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody )
     {
         for( int i = 0; i <= maximumDegreeOfBodyUndergoingAcceleration; i++ )
         {
@@ -249,7 +252,21 @@ public:
                 {
                     for( int l = 0; ( l <= maximumOrderOfBodyExertingAcceleration && l <= k ); l++ )
                     {
-                        coefficientCombinationsToUse_.push_back( boost::make_tuple( i, j, k, l ) );
+                        coefficientCombinationsToUse_.push_back( std::make_tuple( i, j, k, l ) );
+                    }
+                }
+            }
+        }
+
+        for( int i = 0; i <= maximumDegreeOfCentralBody; i++ )
+        {
+            for( int j = 0; ( j <= maximumOrderOfCentralBody && j <= i ); j++ )
+            {
+                for( int k = 0; k <= maximumDegreeOfBodyExertingAcceleration; k++ )
+                {
+                    for( int l = 0; ( l <= maximumOrderOfBodyExertingAcceleration && l <= k ); l++ )
+                    {
+                        coefficientCombinationsToUseForCentralBody_.push_back( std::make_tuple( i, j, k, l ) );
                     }
                 }
             }
@@ -257,38 +274,49 @@ public:
     }
 
     MutualExtendedBodySphericalHarmonicAccelerationSettings(
-            const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+            const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
                     coefficientCombinationsToUse ):
         AccelerationSettings( basic_astrodynamics::mutual_extended_body_spherical_harmonic_gravity ),
         coefficientCombinationsToUse_( coefficientCombinationsToUse ),
         maximumDegreeOfBody1_( 0 ),
-        maximumDegreeOfBody2_( 0 )
+        maximumDegreeOfBody2_( 0 ),
+        maximumDegreeOfCentralBody_( 0 )
     {
         for( const auto& coefficientCombination : coefficientCombinationsToUse_ )
         {
-            maximumDegreeOfBody1_ = std::max( maximumDegreeOfBody1_, static_cast< int >( coefficientCombination.get< 0 >( ) ) );
-            maximumDegreeOfBody2_ = std::max( maximumDegreeOfBody2_, static_cast< int >( coefficientCombination.get< 2 >( ) ) );
+            maximumDegreeOfBody1_ = std::max( maximumDegreeOfBody1_, static_cast< int >( std::get<0>(coefficientCombination) ) );
+            maximumDegreeOfBody2_ = std::max( maximumDegreeOfBody2_, static_cast< int >( std::get<2>(coefficientCombination) ) );
         }
+        coefficientCombinationsToUseForCentralBody_ = coefficientCombinationsToUse_;
+        maximumDegreeOfCentralBody_ = maximumDegreeOfBody1_;
     }
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >
+            coefficientCombinationsToUseForCentralBody_;
 
     int maximumDegreeOfBody1_;
 
     int maximumDegreeOfBody2_;
+
+    int maximumDegreeOfCentralBody_;
 };
 
 inline std::shared_ptr< AccelerationSettings > mutualExtendedBodySphericalHarmonicAcceleration(
         const int maximumDegreeOfBodyUndergoingAcceleration,
         const int maximumOrderOfBodyUndergoingAcceleration,
         const int maximumDegreeOfBodyExertingAcceleration,
-        const int maximumOrderOfBodyExertingAcceleration )
+        const int maximumOrderOfBodyExertingAcceleration,
+        const int maximumDegreeOfCentralBody = 0,
+        const int maximumOrderOfCentralBody = 0 )
 {
     return std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
             maximumDegreeOfBodyUndergoingAcceleration,
             maximumOrderOfBodyUndergoingAcceleration,
             maximumDegreeOfBodyExertingAcceleration,
-            maximumOrderOfBodyExertingAcceleration );
+            maximumOrderOfBodyExertingAcceleration,
+            maximumDegreeOfCentralBody,
+            maximumOrderOfCentralBody );
 }
 
 inline std::shared_ptr< AccelerationSettings > polyhedronAcceleration( )

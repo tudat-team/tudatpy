@@ -110,7 +110,8 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration,
                     accelerationSettings,
-                    sumGravitationalParameters );
+                    sumGravitationalParameters,
+                    isCentralBody );
             break;
         case polyhedron_gravity:
             accelerationModel = createPolyhedronGravityAcceleration( bodyUndergoingAcceleration,
@@ -200,6 +201,27 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                    "",
                                                                    0 ) ),
                     std::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
+                            createDirectGravitationalAcceleration( centralBody,
+                                                                   bodyExertingAcceleration,
+                                                                   nameOfCentralBody,
+                                                                   nameOfBodyExertingAcceleration,
+                                                                   accelerationSettings,
+                                                                   "",
+                                                                   1 ) ),
+                    nameOfCentralBody );
+            break;
+        case mutual_extended_body_spherical_harmonic_gravity:
+            accelerationModel = std::make_shared<
+                    ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+                            createDirectGravitationalAcceleration( bodyUndergoingAcceleration,
+                                                                   bodyExertingAcceleration,
+                                                                   nameOfBodyUndergoingAcceleration,
+                                                                   nameOfBodyExertingAcceleration,
+                                                                   accelerationSettings,
+                                                                   "",
+                                                                   0 ) ),
+                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                             createDirectGravitationalAcceleration( centralBody,
                                                                    bodyExertingAcceleration,
                                                                    nameOfCentralBody,
@@ -967,7 +989,8 @@ createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
-        const bool useCentralBodyFixedFrame )
+        const bool useCentralBodyFixedFrame,
+        const bool acceleratedBodyIsCentralBody )
 {
     std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel;
 
@@ -1027,8 +1050,18 @@ createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
                 "normalizations." );
     }
 
-    const int maximumDegreeOfUndergoingBody = mutualSphericalHarmonicsSettings->maximumDegreeOfBody1_;
+    int maximumDegreeOfUndergoingBody = mutualSphericalHarmonicsSettings->maximumDegreeOfBody1_;
+    if( acceleratedBodyIsCentralBody )
+    {
+        maximumDegreeOfUndergoingBody = mutualSphericalHarmonicsSettings->maximumDegreeOfCentralBody_;
+    }
     const int maximumDegreeOfExertingBody = mutualSphericalHarmonicsSettings->maximumDegreeOfBody2_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse =
+            mutualSphericalHarmonicsSettings->coefficientCombinationsToUse_;
+    if( acceleratedBodyIsCentralBody )
+    {
+        coefficientCombinationsToUse = mutualSphericalHarmonicsSettings->coefficientCombinationsToUseForCentralBody_;
+    }
 
     accelerationModel = std::make_shared< MutualExtendedBodySphericalHarmonicAcceleration >(
             std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
@@ -1060,7 +1093,7 @@ createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getSineCoefficientsBlock(
                                 maximumDegreeOfExertingBody, maximumDegreeOfExertingBody ) );
             },
-            mutualSphericalHarmonicsSettings->coefficientCombinationsToUse_,
+            coefficientCombinationsToUse,
             std::bind( &Body::getCurrentRotationToLocalFrame, bodyUndergoingAcceleration ),
             std::bind( &Body::getCurrentRotationToLocalFrame, bodyExertingAcceleration ),
             useCentralBodyFixedFrame,

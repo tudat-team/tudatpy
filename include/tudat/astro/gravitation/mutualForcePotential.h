@@ -12,7 +12,7 @@
 #define TUDAT_MUTUALFORCEPOTENTIAL_H
 
 #include <boost/math/special_functions/factorials.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -39,7 +39,7 @@ namespace gravitation
  *  \return Maximum degree of body 1 and body 2 (as a pair)
  */
 std::pair< int, int > getMaximumDegrees(
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse );
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse );
 
 //! Function to compute cross-body normalization terms for mutual two-body potential
 /*!
@@ -100,7 +100,7 @@ double computeMutualForcePotential(
         const int maximumDegreeOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
@@ -112,7 +112,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const double equatorialRadiusOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const int maximumDegree1,
         const int maximumDegree2,
         const int maximumEvaluationDegree,
@@ -129,12 +129,12 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const double equatorialRadiusOfBody2,
         const std::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const std::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
-        const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const double distance,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
@@ -150,7 +150,7 @@ class EffectiveMutualSphericalHarmonicsField
 {
 public:
     EffectiveMutualSphericalHarmonicsField(
-            const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
+            const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
             const std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1,
             const std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1,
             const std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2,
@@ -274,7 +274,7 @@ public:
         calculatePartials_ = true;
     }
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
     {
         return coefficientCombinationsToUse_;
     }
@@ -315,7 +315,7 @@ private:
 
     void initializeMultipliers( );
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
     std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody1_;
     std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1_;

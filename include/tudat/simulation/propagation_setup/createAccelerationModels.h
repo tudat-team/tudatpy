@@ -445,7 +445,8 @@ std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > 
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
-        const bool useCentralBodyFixedFrame );
+        const bool useCentralBodyFixedFrame,
+        const bool acceleratedBodyIsCentralBody = false );
 
 //! Function to create an aerodynamic acceleration model.
 /*!

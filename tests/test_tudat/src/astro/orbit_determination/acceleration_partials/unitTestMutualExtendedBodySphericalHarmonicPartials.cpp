@@ -26,10 +26,13 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 
@@ -64,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
     struct CaseDefinition
     {
         std::string name;
-        std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
+        std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
         bool hasBody2ShapeTerms;
         bool hasFigureFigureTerms;
     };
@@ -166,7 +169,6 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
 
         for( const CaseDefinition& testCase : testCases )
         {
-            std::cout<<"Test case" <<rotationCase<<" "<<testCase.name<<" "<<testCase.hasBody2ShapeTerms<<" "<<testCase.hasFigureFigureTerms<<std::endl;
             body1GravityField->setCosineCoefficients( cosineCoefficientsOfBody1Base );
             body1GravityField->setSineCoefficients( sineCoefficientsOfBody1Base );
             body2GravityField->setCosineCoefficients( cosineCoefficientsOfBody2Base );
@@ -323,9 +325,6 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
             const Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateVectorParameterPartial(
                     body2SineCoefficientsParameter,
                     Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
-
-            std::cout<<"Body partials 1 "<<numericalPartialWrtBody1Position<<std::endl;
-            std::cout<<"Body partials 2 "<<numericalPartialWrtBody1Position<<std::endl;
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
@@ -708,6 +707,265 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicPartialsAgainstEqui
             }
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartialsThirdBody )
+{
+    const double gravitationalParameterBody1 = 5.0E5;
+    const double gravitationalParameterBody2 = 6.0E5;
+    const double gravitationalParameterCentralBody = 7.0E5;
+    const double equatorialRadiusBody1 = 1300.0;
+    const double equatorialRadiusBody2 = 1100.0;
+    const double equatorialRadiusCentralBody = 1700.0;
+
+    Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd cosineCoefficientsOfCentralBody = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficientsOfCentralBody = Eigen::MatrixXd::Zero( 3, 3 );
+
+    cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
+    cosineCoefficientsOfBody2( 0, 0 ) = 1.0;
+    cosineCoefficientsOfCentralBody( 0, 0 ) = 1.0;
+
+    cosineCoefficientsOfBody1( 2, 0 ) = 0.23;
+    cosineCoefficientsOfBody1( 2, 1 ) = -0.11;
+    sineCoefficientsOfBody1( 2, 1 ) = 0.14;
+    cosineCoefficientsOfBody1( 2, 2 ) = 0.09;
+    sineCoefficientsOfBody1( 2, 2 ) = -0.06;
+
+    cosineCoefficientsOfBody2( 2, 0 ) = -0.19;
+    cosineCoefficientsOfBody2( 2, 1 ) = 0.16;
+    sineCoefficientsOfBody2( 2, 1 ) = -0.08;
+    cosineCoefficientsOfBody2( 2, 2 ) = 0.13;
+    sineCoefficientsOfBody2( 2, 2 ) = 0.12;
+
+    cosineCoefficientsOfCentralBody( 2, 0 ) = 0.21;
+    cosineCoefficientsOfCentralBody( 2, 1 ) = -0.05;
+    sineCoefficientsOfCentralBody( 2, 1 ) = 0.07;
+    cosineCoefficientsOfCentralBody( 2, 2 ) = -0.09;
+    sineCoefficientsOfCentralBody( 2, 2 ) = 0.11;
+
+    std::shared_ptr< Body > body1 = std::make_shared< Body >( );
+    std::shared_ptr< Body > body2 = std::make_shared< Body >( );
+    std::shared_ptr< Body > centralBody = std::make_shared< Body >( );
+
+    body1->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
+            gravitationalParameterBody1,
+            equatorialRadiusBody1,
+            cosineCoefficientsOfBody1,
+            sineCoefficientsOfBody1,
+            "IAU_Body1" ) );
+    body2->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
+            gravitationalParameterBody2,
+            equatorialRadiusBody2,
+            cosineCoefficientsOfBody2,
+            sineCoefficientsOfBody2,
+            "IAU_Body2" ) );
+    centralBody->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
+            gravitationalParameterCentralBody,
+            equatorialRadiusCentralBody,
+            cosineCoefficientsOfCentralBody,
+            sineCoefficientsOfCentralBody,
+            "IAU_CentralBody" ) );
+
+    const double evaluationTime = 1000.0;
+    body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+            Eigen::Quaterniond::Identity( ), 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body1" ) );
+    body2->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+            Eigen::Quaterniond(
+                    Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) *
+                    Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) ),
+            0.0,
+            evaluationTime,
+            "ECLIPJ2000",
+            "IAU_Body2" ) );
+    centralBody->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+            Eigen::Quaterniond(
+                    Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitY( ) ) *
+                    Eigen::AngleAxisd( 0.15, Eigen::Vector3d::UnitZ( ) ) ),
+            0.0,
+            evaluationTime,
+            "ECLIPJ2000",
+            "IAU_CentralBody" ) );
+
+    body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+    body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+    centralBody->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+
+    Eigen::Vector6d body1State = Eigen::Vector6d::Zero( );
+    body1State.segment( 0, 3 ) = ( Eigen::Vector3d( ) << 5100.0, -2200.0, 3600.0 ).finished( );
+    body1->setState( body1State );
+
+    Eigen::Vector6d body2State = Eigen::Vector6d::Zero( );
+    body2State.segment( 0, 3 ) = ( Eigen::Vector3d( ) << -700.0, 1300.0, 900.0 ).finished( );
+    body2->setState( body2State );
+
+    Eigen::Vector6d centralBodyState = Eigen::Vector6d::Zero( );
+    centralBodyState.segment( 0, 3 ) = ( Eigen::Vector3d( ) << 4200.0, -3600.0, 2500.0 ).finished( );
+    centralBody->setState( centralBodyState );
+
+    SystemOfBodies bodies;
+    bodies.addBody( body1, "Body1" );
+    bodies.addBody( body2, "Body2" );
+    bodies.addBody( centralBody, "CentralBody" );
+
+    std::shared_ptr< AccelerationSettings > mutualExtendedSettings =
+            std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+                    getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) );
+    std::shared_ptr< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
+            std::dynamic_pointer_cast< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                    createAccelerationModel(
+                            body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );
+    BOOST_REQUIRE( mutualExtendedModel != nullptr );
+
+    mutualExtendedModel->updateMembers( evaluationTime );
+    BOOST_CHECK_GT( mutualExtendedModel->getAcceleration( ).norm( ), 1.0E-16 );
+
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters;
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters;
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+            std::make_shared< EstimatableParameterSet< double > >( doubleParameters, vectorParameters );
+
+    std::shared_ptr< AccelerationPartial > mutualExtendedPartial = createAnalyticalAccelerationPartial(
+            mutualExtendedModel, std::make_pair( "Body1", body1 ), std::make_pair( "Body2", body2 ), bodies, parameterSet );
+
+    BOOST_REQUIRE( mutualExtendedPartial != nullptr );
+
+    mutualExtendedPartial->update( evaluationTime );
+
+    Eigen::MatrixXd partialWrtBody1PositionExtended = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd partialWrtBody2PositionExtended = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd partialWrtCentralBodyPositionExtended = Eigen::MatrixXd::Zero( 3, 3 );
+
+    mutualExtendedPartial->wrtPositionOfAcceleratedBody( partialWrtBody1PositionExtended.block( 0, 0, 3, 3 ) );
+    mutualExtendedPartial->wrtPositionOfAcceleratingBody( partialWrtBody2PositionExtended.block( 0, 0, 3, 3 ) );
+    mutualExtendedPartial->wrtPositionOfAdditionalBody(
+            "CentralBody", partialWrtCentralBodyPositionExtended.block( 0, 0, 3, 3 ) );
+
+    BOOST_CHECK_GT( partialWrtBody1PositionExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtBody2PositionExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtCentralBodyPositionExtended.norm( ), 1.0E-16 );
+
+    std::shared_ptr< SphericalHarmonicsCosineCoefficients > body1CosineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsCosineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body1->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body1->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 0 }, { 2, 1 }, { 2, 2 } } ),
+                    "Body1" );
+    std::shared_ptr< SphericalHarmonicsSineCoefficients > body1SineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsSineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body1->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body1->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 1 }, { 2, 2 } } ),
+                    "Body1" );
+
+    std::shared_ptr< SphericalHarmonicsCosineCoefficients > body2CosineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsCosineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body2->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body2->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 0 }, { 2, 1 }, { 2, 2 } } ),
+                    "Body2" );
+    std::shared_ptr< SphericalHarmonicsSineCoefficients > body2SineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsSineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body2->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body2->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 1 }, { 2, 2 } } ),
+                    "Body2" );
+
+    std::shared_ptr< SphericalHarmonicsCosineCoefficients > centralCosineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsCosineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( centralBody->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( centralBody->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 0 }, { 2, 1 }, { 2, 2 } } ),
+                    "CentralBody" );
+    std::shared_ptr< SphericalHarmonicsSineCoefficients > centralSineCoefficientsParameter =
+            std::make_shared< SphericalHarmonicsSineCoefficients >(
+                    std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( centralBody->getGravityFieldModel( ) ) ),
+                    std::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
+                               std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( centralBody->getGravityFieldModel( ) ),
+                               std::placeholders::_1 ),
+                    std::vector< std::pair< int, int > >( { { 2, 1 }, { 2, 2 } } ),
+                    "CentralBody" );
+
+    const Eigen::MatrixXd partialWrtBody1CosineExtended = mutualExtendedPartial->wrtParameter( body1CosineCoefficientsParameter );
+    const Eigen::MatrixXd partialWrtBody1SineExtended = mutualExtendedPartial->wrtParameter( body1SineCoefficientsParameter );
+    const Eigen::MatrixXd partialWrtBody2CosineExtended = mutualExtendedPartial->wrtParameter( body2CosineCoefficientsParameter );
+    const Eigen::MatrixXd partialWrtBody2SineExtended = mutualExtendedPartial->wrtParameter( body2SineCoefficientsParameter );
+    const Eigen::MatrixXd partialWrtCentralCosineExtended = mutualExtendedPartial->wrtParameter( centralCosineCoefficientsParameter );
+    const Eigen::MatrixXd partialWrtCentralSineExtended = mutualExtendedPartial->wrtParameter( centralSineCoefficientsParameter );
+
+    BOOST_CHECK_GT( partialWrtBody1CosineExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtBody1SineExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtBody2CosineExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtBody2SineExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtCentralCosineExtended.norm( ), 1.0E-16 );
+    BOOST_CHECK_GT( partialWrtCentralSineExtended.norm( ), 1.0E-16 );
+
+    const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 10.0 );
+    std::function< void( Eigen::Vector6d ) > body1StateSetFunction = std::bind( &Body::setState, body1, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > body2StateSetFunction = std::bind( &Body::setState, body2, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > centralStateSetFunction = std::bind( &Body::setState, centralBody, std::placeholders::_1 );
+
+    Eigen::Matrix3d numericalPartialWrtBody1Position = calculateAccelerationWrtStatePartials(
+            body1StateSetFunction, mutualExtendedModel, body1->getState( ), positionPerturbation, 0 );
+    Eigen::Matrix3d numericalPartialWrtBody2Position = calculateAccelerationWrtStatePartials(
+            body2StateSetFunction, mutualExtendedModel, body2->getState( ), positionPerturbation, 0 );
+    Eigen::Matrix3d numericalPartialWrtCentralPosition = calculateAccelerationWrtStatePartials(
+            centralStateSetFunction, mutualExtendedModel, centralBody->getState( ), positionPerturbation, 0 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, partialWrtBody1PositionExtended, 5.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Position, partialWrtBody2PositionExtended, 5.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralPosition, partialWrtCentralBodyPositionExtended, 5.0E-5 );
+
+    Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateAccelerationWrtParameterPartials(
+            body1CosineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+    Eigen::MatrixXd numericalPartialWrtBody1Sine = calculateAccelerationWrtParameterPartials(
+            body1SineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+    Eigen::MatrixXd numericalPartialWrtBody2Cosine = calculateAccelerationWrtParameterPartials(
+            body2CosineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+    Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateAccelerationWrtParameterPartials(
+            body2SineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+    Eigen::MatrixXd numericalPartialWrtCentralCosine = calculateAccelerationWrtParameterPartials(
+            centralCosineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( centralCosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+    Eigen::MatrixXd numericalPartialWrtCentralSine = calculateAccelerationWrtParameterPartials(
+            centralSineCoefficientsParameter,
+            mutualExtendedModel,
+            Eigen::VectorXd::Constant( centralSineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, partialWrtBody1CosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, partialWrtBody1SineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, partialWrtBody2CosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, partialWrtBody2SineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralCosine, partialWrtCentralCosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralSine, partialWrtCentralSineExtended, 1.0E-3 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -1,7 +1,7 @@
 #ifndef MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 #define MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include <memory>
 
 
@@ -44,7 +44,7 @@ public:
 
 
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
     {
         return coefficientCombinationsToUse_;
     }
@@ -60,7 +60,7 @@ private:
 
     std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
     bool acceleratedBodyIsBody1_;
 

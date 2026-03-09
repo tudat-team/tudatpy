@@ -594,6 +594,49 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
+        case third_body_mutual_extended_body_spherical_harmonic_gravity: {
+            if( std::dynamic_pointer_cast< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                        accelerationModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type "
+                        "(third_body_mutual_extended_body_spherical_harmonic_gravity) enum set when making acceleration partial." );
+            }
+            else
+            {
+                std::shared_ptr< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >
+                        thirdBodyAccelerationModel = std::dynamic_pointer_cast<
+                                ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                accelerationModel );
+
+                std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial >
+                        accelerationPartialForBodyUndergoingAcceleration = std::dynamic_pointer_cast<
+                                MutualExtendedBodySphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
+                                acceleratedBody,
+                                acceleratingBody,
+                                bodies,
+                                parametersToEstimate ) );
+                std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
+                        std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+                                createAnalyticalAccelerationPartial(
+                                        thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
+                                        std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
+                                                        bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                                        acceleratingBody,
+                                        bodies,
+                                        parametersToEstimate ) );
+                accelerationPartial = std::make_shared<
+                        ThirdBodyGravityPartial< MutualExtendedBodySphericalHarmonicsGravityPartial > >(
+                        accelerationPartialForBodyUndergoingAcceleration,
+                        accelerationPartialForCentralBody,
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        thirdBodyAccelerationModel,
+                        thirdBodyAccelerationModel->getCentralBodyName( ) );
+            }
+            break;
+        }
         case polyhedron_gravity: {
             // Check if identifier is consistent with type.
             std::shared_ptr< PolyhedronGravitationalAccelerationModel > polyhedronAcceleration =

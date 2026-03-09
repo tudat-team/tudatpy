@@ -165,7 +165,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationS
         }
         default: {
             if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
-                accelerationType == third_body_mutual_spherical_harmonic_gravity )
+                accelerationType == third_body_mutual_spherical_harmonic_gravity ||
+                accelerationType == third_body_mutual_extended_body_spherical_harmonic_gravity )
             {
                 std::cerr << "Whether a body will cause a third-body acceleration is determined internally "
                           << "by Tudat based on the propagation settings." << std::endl;

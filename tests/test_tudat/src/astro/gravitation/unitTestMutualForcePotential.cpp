@@ -157,21 +157,21 @@ BOOST_AUTO_TEST_CASE( testEffectiveMutualCoefficientsForRequestedDegreeOrderComb
     cosineBody2Coefficients( 2, 2 ) = 0.07;
     sineBody2Coefficients( 2, 2 ) = 0.19;
 
-    std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
 
     for( int m = 0; m <= 2; m++ )
     {
-        coefficientCombinations.push_back( boost::make_tuple( 0, 0, 2, m ) );
+        coefficientCombinations.push_back( std::make_tuple( 0, 0, 2, m ) );
     }
     for( int m = 0; m <= 2; m++ )
     {
-        coefficientCombinations.push_back( boost::make_tuple( 2, m, 0, 0 ) );
+        coefficientCombinations.push_back( std::make_tuple( 2, m, 0, 0 ) );
     }
     for( int m1 = 0; m1 <= 2; m1++ )
     {
         for( int m2 = 0; m2 <= 2; m2++ )
         {
-            coefficientCombinations.push_back( boost::make_tuple( 2, m1, 2, m2 ) );
+            coefficientCombinations.push_back( std::make_tuple( 2, m1, 2, m2 ) );
         }
     }
 
