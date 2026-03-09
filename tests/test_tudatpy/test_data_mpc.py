@@ -1,3 +1,4 @@
+from pyarrow.lib import table
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
@@ -66,7 +67,6 @@ weights_test_combinations = [
     (None, False),  # all data
 ]
 
-
 #@pytest.mark.parametrize("inp,expected", get_observations_input)
 #def test_BatchMPC_getobservations(inp, expected):
 #    query = BatchMPC()
@@ -82,6 +82,42 @@ weights_test_combinations = [
 #
 #    assert exc_info.type is errtype
 #    assert str(exc_info.value) == errvalue
+
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
+def test_create_observations_from_astropy_table(mpc_code):
+    """Check if observatory table matches observation_collection"""
+    query = BatchMPC()
+    query.get_observations([mpc_code])
+    query.filter(observatories=["T05", "T08"])
+    # table values are sorted for easier comparison
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
+
+    RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
+    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
+    times = np.array([times, times])  # concat times are doubled due to RA + DEC
+
+    #we created a table by using get_observations.
+    # This yields observations in radians, so we have to set
+    # in_degrees = False
+    observation_collection = query.create_observations_from_astropy_table(
+        query._table,
+        apply_weights_VFCC17 = True,
+        apply_star_catalog_debias = False,
+        in_degrees=False
+    )
+
+    # reshape to [2, ...] where 2 is RA + DEC
+    obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
+        2, -1, order="F"
+    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
+        2, -1, order="F"
+    )
+
+    # max error between the two should be zero
+    assert (np.max(obscol_times - times)) == pytest.approx(0.00)
+    assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -126,7 +162,6 @@ def test_BatchMPC_to_tudat(mpc_code):
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
-
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat_with_satelite(mpc_code):
