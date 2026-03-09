@@ -25,6 +25,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/einsteinInfeldHoffmannPartials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
@@ -533,6 +534,24 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         acceleratedBody.first,
                         acceleratingBody.first,
                         mutualSphericalHarmonicAcceleration );
+            }
+            break;
+        }
+        case mutual_extended_body_spherical_harmonic_gravity: {
+            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > mutualExtendedBodySphericalHarmonicAcceleration =
+                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >( accelerationModel );
+            if( mutualExtendedBodySphericalHarmonicAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (mutual extended-body spherical harmonic gravity) "
+                        "set when making acceleration partial." );
+            }
+            else
+            {
+                accelerationPartial = std::make_shared< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        mutualExtendedBodySphericalHarmonicAcceleration );
             }
             break;
         }

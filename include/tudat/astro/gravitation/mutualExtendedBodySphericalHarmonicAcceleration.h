@@ -62,9 +62,19 @@ public:
         return currentRelativePosition_;
     }
 
+    Eigen::Vector3d getCurrentBodyFixedRelativePosition( )
+    {
+        return currentBodyFixedRelativePosition_;
+    }
+
     Eigen::Vector3d getMutualPotentialGradient( )
     {
         return mutualPotentialGradient_;
+    }
+
+    Eigen::Quaterniond getCurrentRotationFromInertialToBody1( )
+    {
+        return currentRotationFromInertialToBody1_;
     }
 
     Eigen::Quaterniond getCurrentRotationFromBody2ToBody1( )
@@ -90,6 +100,16 @@ public:
     double getEquatorialRadiusOfBody2( )
     {
         return equatorialRadiusOfBody2_;
+    }
+
+    bool getAreCoefficientsNormalized( )
+    {
+        return areCoefficientsNormalized_;
+    }
+
+    double getCurrentGravitationalParameter( )
+    {
+        return gravitationalParameterFunction_( );
     }
 
     double getRadius1Power( const int index )
@@ -182,6 +202,9 @@ private:
 
     //! Current rotation from body-fixed frame of body 2 to that of body 1, as computed by last call to updateMembers
     Eigen::Quaterniond currentRotationFromBody2ToBody1_;
+
+    //! Current rotation from inertial frame to body-fixed frame of body 1, as computed by last call to updateMembers
+    Eigen::Quaterniond currentRotationFromInertialToBody1_;
 
     //! Variable denoting whether acceleration is expressed in body-fixed frame of body 1, or in inertial frame.
     bool useCentraBodyFrame_;

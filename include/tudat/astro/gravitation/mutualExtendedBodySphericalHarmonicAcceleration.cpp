@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
@@ -57,7 +55,7 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
     }
 
     sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
-                maximumOrder_ + 1, maximumDegree_ + 1 );
+                maximumDegree_ + 1, maximumOrder_ + 1 );
     effectiveMutualPotentialField_ =  std::make_shared< EffectiveMutualSphericalHarmonicsField >(
                 coefficientCombinationsToUse_,
                 cosineHarmonicCoefficientsOfBody1Function, sineHarmonicCoefficientsOfBody1Function,
@@ -86,12 +84,13 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
 {
     if( !( currentTime == currentTime_ ) )
     {
-        Eigen::Quaterniond currentRotationFromInertialToBody1 = toLocalFrameOfBody1Transformation_( );
-        currentRotationFromBody2ToBody1_ = currentRotationFromInertialToBody1 * toLocalFrameOfBody2Transformation_( ).inverse( );
+        currentRotationFromInertialToBody1_ = toLocalFrameOfBody1Transformation_( );
+        currentRotationFromBody2ToBody1_ =
+                currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
 
         currentRelativePosition_ = positionOfBody1Function_( ) - positionOfBody2Function_( );
         currentBodyFixedRelativePosition_ =
-                currentRotationFromInertialToBody1 * ( currentRelativePosition_ );
+                currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
 
         effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
 
@@ -132,7 +131,14 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
                         coefficientCombinationsToUse_, sphericalHarmonicsCache_ );
         }
 
-        currentAcceleration_ = currentRotationFromInertialToBody1.inverse( ) * mutualPotentialGradient_;
+        if( useCentraBodyFrame_ )
+        {
+            currentAcceleration_ = mutualPotentialGradient_;
+        }
+        else
+        {
+            currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
+        }
         currentTime_ = currentTime;
     }
 }
@@ -140,4 +146,3 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
 }
 
 }
-

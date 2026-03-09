@@ -17,6 +17,7 @@ set(acceleration_partials_SOURCES
   "sphericalHarmonicPartialFunctions.cpp"
   "sphericalHarmonicAccelerationPartial.cpp"
   "mutualSphericalHarmonicGravityPartial.cpp"
+  "mutualExtendedBodySphericalHarmonicGravityPartial.cpp"
   "empiricalAccelerationPartial.cpp"
   "tidalLoveNumberPartialInterface.cpp"
   "directTidalDissipationAccelerationPartial.cpp"
@@ -42,6 +43,7 @@ set(acceleration_partials_HEADERS
   "sphericalHarmonicPartialFunctions.h"
   "sphericalHarmonicAccelerationPartial.h"
   "mutualSphericalHarmonicGravityPartial.h"
+  "mutualExtendedBodySphericalHarmonicGravityPartial.h"
   "empiricalAccelerationPartial.h"
   "tidalLoveNumberPartialInterface.h"
   "directTidalDissipationAccelerationPartial.h"
@@ -58,4 +60,3 @@ TUDAT_ADD_LIBRARY("acceleration_partials"
         "${acceleration_partials_SOURCES}"
         "${acceleration_partials_HEADERS}"
         )
-
