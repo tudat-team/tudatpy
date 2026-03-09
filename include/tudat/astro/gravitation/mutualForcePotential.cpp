@@ -232,6 +232,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     // Compute longitude coordinate.
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
+    double cosineOfAngle = std::cos( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
 
     sphericalHarmonicsCache->update( TUDAT_NAN, sineOfAngle, sphericalpositionOfBodySubjectToAcceleration( 2 ), TUDAT_NAN );
 
@@ -320,15 +321,18 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 
                 // Compute the potential gradient of a single spherical harmonic term.
                 sphericalGradient += basic_mathematics::computePotentialGradient(
-                            sphericalpositionOfBodySubjectToAcceleration,
-                            preMultiplier * equatorialRadiusRatioPower,
+                            sphericalpositionOfBodySubjectToAcceleration( 0 ),
+                            equatorialRadiusRatioPower,
+                            sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
+                            sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
+                            cosineOfAngle,
+                            preMultiplier,
                             totalDegree,
                             totalOrder,
                             effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             currentTerms.first,
-                            currentTerms.second,
-                            *sphericalHarmonicsCache );
+                            currentTerms.second );
             }
         }
 
@@ -460,15 +464,18 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
 
                 // Compute the potential gradient of a single spherical harmonic term.
                 sphericalGradient += basic_mathematics::computePotentialGradient(
-                            sphericalpositionOfBodySubjectToAcceleration,
-                            preMultiplier * equatorialRadiusRatioPower,
+                            sphericalpositionOfBodySubjectToAcceleration( 0 ),
+                            equatorialRadiusRatioPower,
+                            sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
+                            sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
+                            cosineOfAngle,
+                            preMultiplier,
                             totalDegree,
                             totalOrder,
                             effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             legendrePolynomial,
-                            legendrePolynomialDerivative,
-                            *sphericalHarmonicsCache );
+                            legendrePolynomialDerivative );
             }
         }
 
@@ -756,4 +763,3 @@ void EffectiveMutualSphericalHarmonicsField::initializeMultipliers( )
 }
 
 }
-
