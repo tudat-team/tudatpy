@@ -1353,6 +1353,8 @@ class BatchMPC:
             apply_weights_VFCC17: bool = False,
             apply_star_catalog_debias: bool = False,
             debias_kwargs: dict = dict(),
+            in_degrees: bool = False,
+
     ) -> observations.ObservationCollection:
         """
         Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
@@ -1386,9 +1388,9 @@ class BatchMPC:
         # We temporarily use a BatchMPC instance to leverage existing logic
         temp_batch = BatchMPC()
         if isinstance(table, Table):
-            temp_batch.from_astropy(table)
+            temp_batch.from_astropy(table, in_degrees=in_degrees)
         else:
-            temp_batch.from_pandas(table)
+            temp_batch.from_pandas(table, in_degrees=in_degrees)
 
         # 2. Apply Star Catalog Debias (EFCC18)
         # Matches logic in to_tudat()
