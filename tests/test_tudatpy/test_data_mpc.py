@@ -1,4 +1,3 @@
-from pyarrow.lib import table
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
@@ -6,7 +5,6 @@ from tudatpy.interface import spice
 import numpy as np
 import datetime
 import pytest
-from tudatpy.astro.time_representation import DateTime
 
 spice.load_standard_kernels()
 
@@ -104,7 +102,7 @@ def test_create_observations_from_astropy_table(mpc_code):
         query._table,
         apply_weights_VFCC17 = True,
         apply_star_catalog_debias = False,
-        in_degrees=False
+        in_degrees = False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
