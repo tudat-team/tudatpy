@@ -12,12 +12,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.dates as mdates
 import datetime
 from astroquery.mpc import MPC
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
-from astropy.time import Time
 import astropy.units as u
 import astropy
 import copy
@@ -27,7 +25,6 @@ from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
-from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -1353,7 +1350,7 @@ class BatchMPC:
             apply_weights_VFCC17: bool = False,
             apply_star_catalog_debias: bool = False,
             debias_kwargs: dict = dict(),
-            in_degrees: bool = False,
+            in_degrees: bool = True,
 
     ) -> observations.ObservationCollection:
         """
