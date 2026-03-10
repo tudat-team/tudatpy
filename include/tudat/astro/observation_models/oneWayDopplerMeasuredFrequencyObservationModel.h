@@ -85,8 +85,8 @@ public:
      *
      * @throws std::runtime_error If the number of link ends is not exactly 2.
      *
-     * @note The light time calculators are extracted from the underlying Doppler model and combined
-     *       into a MultiLegLightTimeCalculator for handling multi-leg light time propagation.
+     * @note The light-time calculator is obtained directly from the underlying one-way Doppler model
+     *       and stored as a single LightTimeCalculator instance for use in this observation model.
      */
     OneWayDopplerMeasuredFrequencyObservationModel(
             const LinkEnds& linkEnds,
