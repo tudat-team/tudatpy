@@ -68,7 +68,7 @@ std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int 
     return coefficientCombinationsToUse;
 }
 
-std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > createMutualExtendedBodyAccelerationModel(
+std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > createMutualExtendedBodyAccelerationModel(
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const Eigen::Vector3d& positionOfBody1,
         const Eigen::Vector3d& positionOfBody2,
@@ -82,7 +82,7 @@ std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > createMutualE
         const Eigen::Quaterniond& rotationToBody1,
         const Eigen::Quaterniond& rotationToBody2 )
 {
-    return std::make_shared< MutualExtendedBodySphericalHarmonicAcceleration >(
+    return std::make_shared< FullTwoBodySphericalHarmonicAcceleration >(
                 [ = ]( ){ return positionOfBody1; },
                 [ = ]( ){ return positionOfBody2; },
                 [ = ]( ){ return gravitationalParameter; },
@@ -115,17 +115,17 @@ void runDegreeTwoCrossTermValidationCase(
     const Eigen::Vector3d positionOfBody2 = Eigen::Vector3d::Zero( );
 
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > fullDegreeTwoInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_;
+            FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_;
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body1OnlyInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_;
+            FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_;
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2OnlyInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 2, 2 ).coefficientCombinationsToUse_;
+            FullTwoBodySphericalHarmonicAccelerationSettings( 0, 0, 2, 2 ).coefficientCombinationsToUse_;
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > centralInteractions =
-            MutualExtendedBodySphericalHarmonicAccelerationSettings( 0, 0, 0, 0 ).coefficientCombinationsToUse_;
+            FullTwoBodySphericalHarmonicAccelerationSettings( 0, 0, 0, 0 ).coefficientCombinationsToUse_;
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > degreeTwoCrossInteractions =
             getDegreeTwoDegreeTwoInteractions( );
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > fullDegreeTwoAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > fullDegreeTwoAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 fullDegreeTwoInteractions,
                 positionOfBody1, positionOfBody2,
@@ -135,7 +135,7 @@ void runDegreeTwoCrossTermValidationCase(
                 cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
                 rotationToBody1, rotationToBody2 );
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body1OnlyAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > body1OnlyAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 body1OnlyInteractions,
                 positionOfBody1, positionOfBody2,
@@ -145,7 +145,7 @@ void runDegreeTwoCrossTermValidationCase(
                 cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
                 rotationToBody1, rotationToBody2 );
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > body2OnlyAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > body2OnlyAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 body2OnlyInteractions,
                 positionOfBody1, positionOfBody2,
@@ -155,7 +155,7 @@ void runDegreeTwoCrossTermValidationCase(
                 cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
                 rotationToBody1, rotationToBody2 );
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > centralAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > centralAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 centralInteractions,
                 positionOfBody1, positionOfBody2,
@@ -165,7 +165,7 @@ void runDegreeTwoCrossTermValidationCase(
                 cosineCoefficientsOfBody2, sineCoefficientsOfBody2,
                 rotationToBody1, rotationToBody2 );
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > degreeTwoCrossAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > degreeTwoCrossAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 degreeTwoCrossInteractions,
                 positionOfBody1, positionOfBody2,
@@ -205,7 +205,7 @@ void runDegreeTwoCrossTermValidationCase(
         }
     }
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > scaledCrossAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > scaledCrossAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 degreeTwoCrossInteractions,
                 positionOfBody1, positionOfBody2,
@@ -233,7 +233,7 @@ void runDegreeTwoCrossTermValidationCase(
         }
     }
 
-    const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > zeroedCrossAcceleration =
+    const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > zeroedCrossAcceleration =
             createMutualExtendedBodyAccelerationModel(
                 degreeTwoCrossInteractions,
                 positionOfBody1, positionOfBody2,
@@ -522,10 +522,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         expansionDegree, expansionDegree, 0, 0 );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
@@ -544,10 +544,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         0, 0, expansionDegree, expansionDegree );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );;
@@ -562,10 +562,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         0, 0, expansionDegree, expansionDegree );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), extendedBodySettings, "Jupiter", "Io" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
@@ -580,10 +580,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         expansionDegree, expansionDegree, 0, 0 );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), extendedBodySettings, "Jupiter", "Io" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
@@ -601,10 +601,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ),  extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
@@ -619,10 +619,10 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ),  extendedBodySettings, "Jupiter", "Io" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
@@ -645,7 +645,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             const int maximumDegreeOfCentralBody = 6;
 
             std::shared_ptr< AccelerationSettings > mutualThirdBodyExtendedSettings =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                             maximumDegreeOfBodyUndergoingAcceleration,
                             maximumDegreeOfBodyUndergoingAcceleration,
                             maximumDegreeOfBodyExertingAcceleration,
@@ -653,9 +653,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                             maximumDegreeOfCentralBody,
                             maximumDegreeOfCentralBody );
 
-            std::shared_ptr< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >
+            std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >
                     thirdBodyMutualExtendedModel = std::dynamic_pointer_cast<
-                            ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                            ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                             createAccelerationModel( bodyMap.at( "Europa" ),
                                                      bodyMap.at( "Io" ),
                                                      mutualThirdBodyExtendedSettings,
@@ -668,14 +668,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             const Eigen::Vector3d thirdBodyMutualExtendedAcceleration = thirdBodyMutualExtendedModel->getAcceleration( );
 
             std::shared_ptr< AccelerationSettings > directUndergoingSettings =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                             maximumDegreeOfBodyUndergoingAcceleration,
                             maximumDegreeOfBodyUndergoingAcceleration,
                             maximumDegreeOfBodyExertingAcceleration,
                             maximumDegreeOfBodyExertingAcceleration );
 
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > directAccelerationOnUndergoingBody =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > directAccelerationOnUndergoingBody =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( bodyMap.at( "Europa" ),
                                                      bodyMap.at( "Io" ),
                                                      directUndergoingSettings,
@@ -686,14 +686,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             const Eigen::Vector3d directUndergoingAcceleration = directAccelerationOnUndergoingBody->getAcceleration( );
 
             std::shared_ptr< AccelerationSettings > directCentralSettings =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                             maximumDegreeOfCentralBody,
                             maximumDegreeOfCentralBody,
                             maximumDegreeOfBodyExertingAcceleration,
                             maximumDegreeOfBodyExertingAcceleration );
 
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > directAccelerationOnCentralBody =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > directAccelerationOnCentralBody =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( bodyMap.at( "Jupiter" ),
                                                      bodyMap.at( "Io" ),
                                                      directCentralSettings,

@@ -24,7 +24,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
@@ -50,7 +50,7 @@ using namespace tudat::simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_mutual_extended_sh_acceleration_partials )
 
-BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
+BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 {
     struct PartialSet
     {
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
 
     const std::vector< CaseDefinition > testCases = {
         { "regular",
-          MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_,
+          FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_,
           false,
           false },
         { "mutualSinglePoint",
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
           true,
           false },
         { "mutual",
-          MutualExtendedBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_,
+          FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_,
           true,
           true } };
 
@@ -180,16 +180,16 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
                     std::bind( &Body::setState, body2, std::placeholders::_1 );
 
             std::shared_ptr< AccelerationSettings > accelerationSettings =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                             testCase.coefficientCombinations );
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationModel =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( body1, body2, accelerationSettings, "Body1", "Body2" ) );
 
             BOOST_REQUIRE( accelerationModel != nullptr );
 
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial > accelerationPartial =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial =
+                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
                             "Body1", "Body2", accelerationModel );
 
             std::shared_ptr< SphericalHarmonicsCosineCoefficients > body1CosineCoefficientsParameter =
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartials )
     }
 }
 
-BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicPartialsAgainstEquivalentSimplerModels )
+BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentSimplerModels )
 {
     enum EquivalentModelType
     {
@@ -435,22 +435,22 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicPartialsAgainstEqui
 
     const std::vector< EquivalentCaseDefinition > testCases = {
         { "pointMassOnPointMass",
-          std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >( 0, 0, 0, 0 ),
+          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 0, 0, 0, 0 ),
           pointMassEquivalent,
           false,
           false },
         { "extendedBody1OnPointMass",
-          std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >( 2, 2, 0, 0 ),
+          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 2, 2, 0, 0 ),
           sphericalBody1OnBody2Equivalent,
           true,
           false },
         { "pointMassOnExtendedBody2",
-          std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >( 0, 0, 2, 2 ),
+          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 0, 0, 2, 2 ),
           sphericalBody2OnBody1Equivalent,
           false,
           true },
         { "mutualSinglePointInteractions",
-          std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                   getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) ),
           mutualSphericalEquivalent,
           true,
@@ -526,13 +526,13 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicPartialsAgainstEqui
                             sineIndices,
                             "Body2" );
 
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > mutualExtendedModel =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > mutualExtendedModel =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( body1, body2, testCase.mutualExtendedSettings, "Body1", "Body2" ) );
             BOOST_REQUIRE( mutualExtendedModel != nullptr );
 
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial > mutualExtendedPartial =
-                    std::make_shared< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+            std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > mutualExtendedPartial =
+                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
                             "Body1", "Body2", mutualExtendedModel );
 
             mutualExtendedModel->updateMembers( evaluationTime );
@@ -709,7 +709,7 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicPartialsAgainstEqui
     }
 }
 
-BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartialsThirdBody )
+BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
 {
     const double gravitationalParameterBody1 = 5.0E5;
     const double gravitationalParameterBody2 = 6.0E5;
@@ -812,10 +812,10 @@ BOOST_AUTO_TEST_CASE( testMutualExtendedBodySphericalHarmonicGravityPartialsThir
     bodies.addBody( centralBody, "CentralBody" );
 
     std::shared_ptr< AccelerationSettings > mutualExtendedSettings =
-            std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                     getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) );
-    std::shared_ptr< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
-            std::dynamic_pointer_cast< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+    std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
+            std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel(
                             body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );
     BOOST_REQUIRE( mutualExtendedModel != nullptr );

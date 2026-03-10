@@ -229,17 +229,17 @@ std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int 
         const int maximumDegreeOfBodyExertingAcceleration,
         const int maximumOrderOfBodyExertingAcceleration );
 
-class MutualExtendedBodySphericalHarmonicAccelerationSettings : public AccelerationSettings
+class FullTwoBodySphericalHarmonicAccelerationSettings : public AccelerationSettings
 {
 public:
-    MutualExtendedBodySphericalHarmonicAccelerationSettings(
+    FullTwoBodySphericalHarmonicAccelerationSettings(
             const int maximumDegreeOfBodyUndergoingAcceleration,
             const int maximumOrderOfBodyUndergoingAcceleration,
             const int maximumDegreeOfBodyExertingAcceleration,
             const int maximumOrderOfBodyExertingAcceleration,
             const int maximumDegreeOfCentralBody = 0,
             const int maximumOrderOfCentralBody = 0 ):
-        AccelerationSettings( basic_astrodynamics::mutual_extended_body_spherical_harmonic_gravity ),
+        AccelerationSettings( basic_astrodynamics::full_two_body_spherical_harmonic_gravity ),
         maximumDegreeOfBody1_( maximumDegreeOfBodyUndergoingAcceleration ),
         maximumDegreeOfBody2_( maximumDegreeOfBodyExertingAcceleration ),
         maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody )
@@ -273,10 +273,10 @@ public:
         }
     }
 
-    MutualExtendedBodySphericalHarmonicAccelerationSettings(
+    FullTwoBodySphericalHarmonicAccelerationSettings(
             const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
                     coefficientCombinationsToUse ):
-        AccelerationSettings( basic_astrodynamics::mutual_extended_body_spherical_harmonic_gravity ),
+        AccelerationSettings( basic_astrodynamics::full_two_body_spherical_harmonic_gravity ),
         coefficientCombinationsToUse_( coefficientCombinationsToUse ),
         maximumDegreeOfBody1_( 0 ),
         maximumDegreeOfBody2_( 0 ),
@@ -302,7 +302,7 @@ public:
     int maximumDegreeOfCentralBody_;
 };
 
-inline std::shared_ptr< AccelerationSettings > mutualExtendedBodySphericalHarmonicAcceleration(
+inline std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAcceleration(
         const int maximumDegreeOfBodyUndergoingAcceleration,
         const int maximumOrderOfBodyUndergoingAcceleration,
         const int maximumDegreeOfBodyExertingAcceleration,
@@ -310,7 +310,7 @@ inline std::shared_ptr< AccelerationSettings > mutualExtendedBodySphericalHarmon
         const int maximumDegreeOfCentralBody = 0,
         const int maximumOrderOfCentralBody = 0 )
 {
-    return std::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
+    return std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
             maximumDegreeOfBodyUndergoingAcceleration,
             maximumOrderOfBodyUndergoingAcceleration,
             maximumDegreeOfBodyExertingAcceleration,

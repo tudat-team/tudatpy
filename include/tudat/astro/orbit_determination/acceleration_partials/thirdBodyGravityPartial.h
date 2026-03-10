@@ -18,7 +18,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
-#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/ringAccelerationPartial.h"
 
@@ -57,9 +57,9 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
+    else if( std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {
-        accelerationType = third_body_mutual_extended_body_spherical_harmonic_gravity;
+        accelerationType = third_body_full_two_body_spherical_harmonic_gravity;
     }
     else if( std::dynamic_pointer_cast< PolyhedronGravityPartial >( directGravityPartial ) != nullptr )
     {
@@ -563,10 +563,10 @@ inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial( const std
                             ->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) ==
-                 basic_astrodynamics::third_body_mutual_extended_body_spherical_harmonic_gravity )
+                 basic_astrodynamics::third_body_full_two_body_spherical_harmonic_gravity )
         {
             centralBody = std::dynamic_pointer_cast<
-                    ThirdBodyGravityPartial< MutualExtendedBodySphericalHarmonicsGravityPartial > >( accelerationPartial )
+                    ThirdBodyGravityPartial< FullTwoBodySphericalHarmonicsGravityPartial > >( accelerationPartial )
                                   ->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_polyhedron_gravity )

@@ -1,5 +1,5 @@
 
-#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicTorque.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
 
 namespace tudat
 {
@@ -7,7 +7,7 @@ namespace tudat
 namespace gravitation
 {
 
-void MutualExtendedBodySphericalHarmonicTorque::updateMembers( const double currentTime )
+void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime )
 {
 
 

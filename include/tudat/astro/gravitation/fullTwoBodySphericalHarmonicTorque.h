@@ -13,7 +13,7 @@
 #include "tudat/math/basic/legendrePolynomials.h"
 
 #include "tudat/astro/basic_astro/torqueModel.h"
-#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 
 namespace tudat
 {
@@ -21,13 +21,13 @@ namespace tudat
 namespace gravitation
 {
 
-class MutualExtendedBodySphericalHarmonicTorque: public basic_astrodynamics::TorqueModel
+class FullTwoBodySphericalHarmonicTorque: public basic_astrodynamics::TorqueModel
 {
 
 public:
 
-    MutualExtendedBodySphericalHarmonicTorque(
-            const std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
+    FullTwoBodySphericalHarmonicTorque(
+            const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
             const bool acceleratedBodyIsBody1 ):
         accelerationBetweenBodies_( accelerationBetweenBodies ),
         acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
@@ -58,7 +58,7 @@ private:
 
     Eigen::Vector3d currentTorque_;
 
-    std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
+    std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 

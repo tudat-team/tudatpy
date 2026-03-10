@@ -103,8 +103,8 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                                    sumGravitationalParameters,
                                                                                    isCentralBody );
             break;
-        case mutual_extended_body_spherical_harmonic_gravity:
-            accelerationModel = createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
+        case full_two_body_spherical_harmonic_gravity:
+            accelerationModel = createFullTwoBodySphericalHarmonicsGravityAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
@@ -210,10 +210,10 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                    1 ) ),
                     nameOfCentralBody );
             break;
-        case mutual_extended_body_spherical_harmonic_gravity:
+        case full_two_body_spherical_harmonic_gravity:
             accelerationModel = std::make_shared<
-                    ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+                    ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createDirectGravitationalAcceleration( bodyUndergoingAcceleration,
                                                                    bodyExertingAcceleration,
                                                                    nameOfBodyUndergoingAcceleration,
@@ -221,7 +221,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                                                                    accelerationSettings,
                                                                    "",
                                                                    0 ) ),
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createDirectGravitationalAcceleration( centralBody,
                                                                    bodyExertingAcceleration,
                                                                    nameOfCentralBody,
@@ -294,7 +294,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
     if( accelerationSettings->accelerationType_ != point_mass_gravity &&
         accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
         accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity &&
-        accelerationSettings->accelerationType_ != mutual_extended_body_spherical_harmonic_gravity &&
+        accelerationSettings->accelerationType_ != full_two_body_spherical_harmonic_gravity &&
         accelerationSettings->accelerationType_ != polyhedron_gravity && accelerationSettings->accelerationType_ != ring_gravity )
     {
         throw std::runtime_error( "Error when making gravitational acceleration, type is inconsistent" );
@@ -982,8 +982,8 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel( const std::share
     return accelerationModel;
 }
 
-std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration >
-createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration >
+createFullTwoBodySphericalHarmonicsGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -992,10 +992,10 @@ createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
         const bool useCentralBodyFixedFrame,
         const bool acceleratedBodyIsCentralBody )
 {
-    std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel;
+    std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel;
 
-    std::shared_ptr< MutualExtendedBodySphericalHarmonicAccelerationSettings > mutualSphericalHarmonicsSettings =
-            std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAccelerationSettings >( accelerationSettings );
+    std::shared_ptr< FullTwoBodySphericalHarmonicAccelerationSettings > mutualSphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAccelerationSettings >( accelerationSettings );
     if( mutualSphericalHarmonicsSettings == nullptr )
     {
         throw std::runtime_error(
@@ -1063,7 +1063,7 @@ createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
         coefficientCombinationsToUse = mutualSphericalHarmonicsSettings->coefficientCombinationsToUseForCentralBody_;
     }
 
-    accelerationModel = std::make_shared< MutualExtendedBodySphericalHarmonicAcceleration >(
+    accelerationModel = std::make_shared< FullTwoBodySphericalHarmonicAcceleration >(
             std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
             std::bind( &Body::getPosition, bodyExertingAcceleration ),
             gravitationalParameterFunction,
@@ -1950,7 +1950,7 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         case point_mass_gravity:
         case spherical_harmonic_gravity:
         case mutual_spherical_harmonic_gravity:
-        case mutual_extended_body_spherical_harmonic_gravity:
+        case full_two_body_spherical_harmonic_gravity:
         case polyhedron_gravity:
         case ring_gravity:
             accelerationModelPointer = createGravitationalAccelerationModel( bodyUndergoingAcceleration,

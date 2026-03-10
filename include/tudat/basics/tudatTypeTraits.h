@@ -141,11 +141,11 @@ struct is_direct_gravity_partial< acceleration_partials::MutualSphericalHarmonic
 
 namespace acceleration_partials
 {
-class MutualExtendedBodySphericalHarmonicsGravityPartial;
+class FullTwoBodySphericalHarmonicsGravityPartial;
 }
 
 template<>
-struct is_direct_gravity_partial< acceleration_partials::MutualExtendedBodySphericalHarmonicsGravityPartial > {
+struct is_direct_gravity_partial< acceleration_partials::FullTwoBodySphericalHarmonicsGravityPartial > {
     static const bool value = true;
 };
 
@@ -207,11 +207,11 @@ struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGrav
 
 namespace gravitation
 {
-class MutualExtendedBodySphericalHarmonicAcceleration;
+class FullTwoBodySphericalHarmonicAcceleration;
 }
 
 template<>
-struct is_direct_gravity_acceleration< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > {
+struct is_direct_gravity_acceleration< gravitation::FullTwoBodySphericalHarmonicAcceleration > {
     static const bool value = true;
 };
 

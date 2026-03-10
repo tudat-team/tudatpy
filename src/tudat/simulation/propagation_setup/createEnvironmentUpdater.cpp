@@ -487,7 +487,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
                         break;
-                    case mutual_extended_body_spherical_harmonic_gravity:
+                    case full_two_body_spherical_harmonic_gravity:
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 accelerationModelIterator->first );
@@ -555,7 +555,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         }
                         break;
                     }
-                    case third_body_mutual_extended_body_spherical_harmonic_gravity: {
+                    case third_body_full_two_body_spherical_harmonic_gravity: {
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 accelerationModelIterator->first );
@@ -563,9 +563,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
 
-                        std::shared_ptr< gravitation::ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >
+                        std::shared_ptr< gravitation::ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >
                                 thirdBodyAcceleration = std::dynamic_pointer_cast<
-                                        gravitation::ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                        gravitation::ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                                         accelerationModelIterator->second.at( i ) );
                         if( thirdBodyAcceleration != nullptr &&
                             translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
@@ -580,7 +580,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         else if( thirdBodyAcceleration == nullptr )
                         {
                             throw std::runtime_error(
-                                    std::string( "Error, incompatible input (ThirdBodyMutualExtendedBodySphericalHarmonicsGravitational" ) +
+                                    std::string( "Error, incompatible input (ThirdBodyFullTwoBodySphericalHarmonicsGravitational" ) +
                                     std::string( "AccelerationModel) to createTranslationalEquationsOfMotion " ) +
                                     std::string( "EnvironmentUpdaterSettings" ) );
                         }

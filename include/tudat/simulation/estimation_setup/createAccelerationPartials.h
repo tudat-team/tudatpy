@@ -25,7 +25,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
-#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/einsteinInfeldHoffmannPartials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
@@ -537,10 +537,10 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
-        case mutual_extended_body_spherical_harmonic_gravity: {
-            std::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > mutualExtendedBodySphericalHarmonicAcceleration =
-                    std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >( accelerationModel );
-            if( mutualExtendedBodySphericalHarmonicAcceleration == nullptr )
+        case full_two_body_spherical_harmonic_gravity: {
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > fullTwoBodySphericalHarmonicAcceleration =
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >( accelerationModel );
+            if( fullTwoBodySphericalHarmonicAcceleration == nullptr )
             {
                 throw std::runtime_error(
                         "Acceleration class type does not match acceleration type enum (mutual extended-body spherical harmonic gravity) "
@@ -548,10 +548,10 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             else
             {
-                accelerationPartial = std::make_shared< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+                accelerationPartial = std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
                         acceleratedBody.first,
                         acceleratingBody.first,
-                        mutualExtendedBodySphericalHarmonicAcceleration );
+                        fullTwoBodySphericalHarmonicAcceleration );
             }
             break;
         }
@@ -594,31 +594,31 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             break;
         }
-        case third_body_mutual_extended_body_spherical_harmonic_gravity: {
-            if( std::dynamic_pointer_cast< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+        case third_body_full_two_body_spherical_harmonic_gravity: {
+            if( std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                         accelerationModel ) == nullptr )
             {
                 throw std::runtime_error(
                         "Acceleration class type does not match acceleration type "
-                        "(third_body_mutual_extended_body_spherical_harmonic_gravity) enum set when making acceleration partial." );
+                        "(third_body_full_two_body_spherical_harmonic_gravity) enum set when making acceleration partial." );
             }
             else
             {
-                std::shared_ptr< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >
+                std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >
                         thirdBodyAccelerationModel = std::dynamic_pointer_cast<
-                                ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModel );
 
-                std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial >
+                std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial >
                         accelerationPartialForBodyUndergoingAcceleration = std::dynamic_pointer_cast<
-                                MutualExtendedBodySphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                FullTwoBodySphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
                                 thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
                                 acceleratedBody,
                                 acceleratingBody,
                                 bodies,
                                 parametersToEstimate ) );
-                std::shared_ptr< MutualExtendedBodySphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
-                        std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicsGravityPartial >(
+                std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
+                        std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicsGravityPartial >(
                                 createAnalyticalAccelerationPartial(
                                         thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
                                         std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
@@ -627,7 +627,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                                         bodies,
                                         parametersToEstimate ) );
                 accelerationPartial = std::make_shared<
-                        ThirdBodyGravityPartial< MutualExtendedBodySphericalHarmonicsGravityPartial > >(
+                        ThirdBodyGravityPartial< FullTwoBodySphericalHarmonicsGravityPartial > >(
                         accelerationPartialForBodyUndergoingAcceleration,
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,

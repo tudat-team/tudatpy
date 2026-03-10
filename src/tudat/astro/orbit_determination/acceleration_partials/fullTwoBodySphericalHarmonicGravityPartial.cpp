@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/acceleration_partials/mutualExtendedBodySphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 
 #include "tudat/math/basic/coordinateConversions.h"
 
@@ -23,15 +23,15 @@ namespace tudat
 namespace acceleration_partials
 {
 
-MutualExtendedBodySphericalHarmonicsGravityPartial::MutualExtendedBodySphericalHarmonicsGravityPartial(
+FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
-        const std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel ):
+        const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel ):
     AccelerationPartial(
             acceleratedBody,
             acceleratingBody,
             accelerationModel,
-            basic_astrodynamics::mutual_extended_body_spherical_harmonic_gravity ),
+            basic_astrodynamics::full_two_body_spherical_harmonic_gravity ),
     accelerationModel_( accelerationModel ),
     effectiveMutualPotentialField_( accelerationModel_->getEffectiveMutualPotentialField( ) ),
     sphericalHarmonicsCache_( std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
@@ -56,7 +56,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::MutualExtendedBodySphericalH
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::update( const double currentTime )
+void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
     {
@@ -89,7 +89,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::update( const double cu
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( )
+void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( )
 {
     const double sineOfLatitude = std::sin( currentSphericalPosition_( 1 ) );
     const double cosineOfLatitude = std::cos( currentSphericalPosition_( 1 ) );
@@ -176,7 +176,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPositionPa
             currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffectiveCoefficients( )
+void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffectiveCoefficients( )
 {
     for( unsigned int i = 0; i < currentPartialsWrtEffectiveCoefficients_.size( ); i++ )
     {
@@ -285,7 +285,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWr
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentTransformedBody2CoefficientPartials(
+void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentTransformedBody2CoefficientPartials(
         const int degree,
         const int order,
         const bool wrtCosineCoefficient,
@@ -320,7 +320,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::updateCurrentTransforme
             accelerationModel_->getAreCoefficientsNormalized( ) );
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1(
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1(
         const std::vector< std::pair< int, int > >& blockIndices,
         Eigen::MatrixXd& partialMatrix )
 {
@@ -361,7 +361,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlo
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1(
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1(
         const std::vector< std::pair< int, int > >& blockIndices,
         Eigen::MatrixXd& partialMatrix )
 {
@@ -402,7 +402,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlock
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2(
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2(
         const std::vector< std::pair< int, int > >& blockIndices,
         Eigen::MatrixXd& partialMatrix )
 {
@@ -440,7 +440,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlo
     }
 }
 
-void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2(
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2(
         const std::vector< std::pair< int, int > >& blockIndices,
         Eigen::MatrixXd& partialMatrix )
 {
@@ -479,7 +479,7 @@ void MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlock
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -487,7 +487,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionD
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -506,7 +506,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionD
         if( parameter->getParameterName( ).second.first == acceleratedBody_ )
         {
             partialFunction = std::bind(
-                    &MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1,
+                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1,
                     this,
                     coefficientsParameter->getBlockIndices( ),
                     std::placeholders::_1 );
@@ -515,7 +515,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionD
         else if( parameter->getParameterName( ).second.first == acceleratingBody_ )
         {
             partialFunction = std::bind(
-                    &MutualExtendedBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2,
+                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2,
                     this,
                     coefficientsParameter->getBlockIndices( ),
                     std::placeholders::_1 );
@@ -535,7 +535,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionD
         if( parameter->getParameterName( ).second.first == acceleratedBody_ )
         {
             partialFunction = std::bind(
-                    &MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1,
+                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1,
                     this,
                     coefficientsParameter->getBlockIndices( ),
                     std::placeholders::_1 );
@@ -544,7 +544,7 @@ MutualExtendedBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionD
         else if( parameter->getParameterName( ).second.first == acceleratingBody_ )
         {
             partialFunction = std::bind(
-                    &MutualExtendedBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2,
+                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2,
                     this,
                     coefficientsParameter->getBlockIndices( ),
                     std::placeholders::_1 );

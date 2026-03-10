@@ -19,7 +19,7 @@
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
-#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
 #include "tudat/astro/gravitation/ringGravityModel.h"
@@ -57,8 +57,8 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case mutual_spherical_harmonic_gravity:
             accelerationName = "mutual spherical harmonic gravity ";
             break;
-        case mutual_extended_body_spherical_harmonic_gravity:
-            accelerationName = "mutual extended-body spherical harmonic gravity ";
+        case full_two_body_spherical_harmonic_gravity:
+            accelerationName = "full two-body spherical harmonic gravity ";
             break;
         case polyhedron_gravity:
             accelerationName = "polyhedron gravity ";
@@ -75,8 +75,8 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case third_body_mutual_spherical_harmonic_gravity:
             accelerationName = "third-body mutual spherical harmonic gravity ";
             break;
-        case third_body_mutual_extended_body_spherical_harmonic_gravity:
-            accelerationName = "third-body mutual extended-body spherical harmonic gravity ";
+        case third_body_full_two_body_spherical_harmonic_gravity:
+            accelerationName = "third-body full two-body spherical harmonic gravity ";
             break;
         case third_body_polyhedron_gravity:
             accelerationName = "third-body polyhedron gravity ";
@@ -153,10 +153,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< ThirdBodyMutualExtendedBodySphericalHarmonicsGravitationalAccelerationModel >(
+    else if( std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                      accelerationModel ) != nullptr )
     {
-        accelerationType = third_body_mutual_extended_body_spherical_harmonic_gravity;
+        accelerationType = third_body_full_two_body_spherical_harmonic_gravity;
     }
     else if( std::dynamic_pointer_cast< ThirdBodyPolyhedronGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
@@ -174,9 +174,9 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = mutual_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >( accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >( accelerationModel ) != nullptr )
     {
-        accelerationType = mutual_extended_body_spherical_harmonic_gravity;
+        accelerationType = full_two_body_spherical_harmonic_gravity;
     }
     else if( std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
@@ -256,13 +256,13 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case point_mass_gravity:
         case spherical_harmonic_gravity:
         case mutual_spherical_harmonic_gravity:
-        case mutual_extended_body_spherical_harmonic_gravity:
+        case full_two_body_spherical_harmonic_gravity:
         case polyhedron_gravity:
         case ring_gravity:
         case third_body_point_mass_gravity:
         case third_body_spherical_harmonic_gravity:
         case third_body_mutual_spherical_harmonic_gravity:
-        case third_body_mutual_extended_body_spherical_harmonic_gravity:
+        case third_body_full_two_body_spherical_harmonic_gravity:
         case third_body_polyhedron_gravity:
         case third_body_ring_gravity:
         case thrust_acceleration:
@@ -342,7 +342,7 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
     bool accelerationIsDirectGravity = 0;
     if( accelerationType == point_mass_gravity || accelerationType == spherical_harmonic_gravity ||
         accelerationType == mutual_spherical_harmonic_gravity ||
-        accelerationType == mutual_extended_body_spherical_harmonic_gravity || accelerationType == polyhedron_gravity ||
+        accelerationType == full_two_body_spherical_harmonic_gravity || accelerationType == polyhedron_gravity ||
         accelerationType == ring_gravity )
     {
         accelerationIsDirectGravity = 1;
@@ -357,7 +357,7 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
     bool accelerationIsFromThirdBody = false;
     if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
         accelerationType == third_body_mutual_spherical_harmonic_gravity ||
-        accelerationType == third_body_mutual_extended_body_spherical_harmonic_gravity ||
+        accelerationType == third_body_full_two_body_spherical_harmonic_gravity ||
         accelerationType == third_body_polyhedron_gravity || accelerationType == third_body_ring_gravity )
     {
         accelerationIsFromThirdBody = true;
@@ -388,9 +388,9 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
     {
         thirdBodyAccelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
-    else if( accelerationType == mutual_extended_body_spherical_harmonic_gravity )
+    else if( accelerationType == full_two_body_spherical_harmonic_gravity )
     {
-        thirdBodyAccelerationType = third_body_mutual_extended_body_spherical_harmonic_gravity;
+        thirdBodyAccelerationType = third_body_full_two_body_spherical_harmonic_gravity;
     }
     else if( accelerationType == polyhedron_gravity )
     {

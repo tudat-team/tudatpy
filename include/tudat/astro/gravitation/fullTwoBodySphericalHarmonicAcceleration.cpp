@@ -1,4 +1,4 @@
-#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
 namespace tudat
@@ -8,7 +8,7 @@ namespace gravitation
 {
 
 
-MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarmonicAcceleration(
+FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAcceleration(
         const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
         const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
         const std::function< double( ) > gravitationalParameterFunction,
@@ -80,7 +80,7 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
 
 }
 
-void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const double currentTime )
+void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double currentTime )
 {
     if( !( currentTime == currentTime_ ) )
     {

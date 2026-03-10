@@ -23,12 +23,12 @@ namespace tudat
 namespace gravitation
 {
 
-class MutualExtendedBodySphericalHarmonicAcceleration: public basic_astrodynamics::AccelerationModel3d
+class FullTwoBodySphericalHarmonicAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 
 public:
 
-    MutualExtendedBodySphericalHarmonicAcceleration(
+    FullTwoBodySphericalHarmonicAcceleration(
             const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
             const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
             const std::function< double( ) > gravitationalParameterFunction,

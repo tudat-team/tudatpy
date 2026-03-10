@@ -13,7 +13,7 @@
 
 #include <tuple>
 
-#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
@@ -23,15 +23,15 @@ namespace acceleration_partials
 {
 
 //! Class for calculating partial derivatives of a mutual extended-body spherical harmonic acceleration.
-class MutualExtendedBodySphericalHarmonicsGravityPartial : public AccelerationPartial
+class FullTwoBodySphericalHarmonicsGravityPartial : public AccelerationPartial
 {
 public:
-    MutualExtendedBodySphericalHarmonicsGravityPartial(
+    FullTwoBodySphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
-            const std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel );
+            const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel );
 
-    ~MutualExtendedBodySphericalHarmonicsGravityPartial( ) { }
+    ~FullTwoBodySphericalHarmonicsGravityPartial( ) { }
 
     void update( const double currentTime = TUDAT_NAN ) override;
 
@@ -129,7 +129,7 @@ private:
             const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialMatrix );
 
-    std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > accelerationModel_;
+    std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 
     std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
 
