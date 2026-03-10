@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_transfer_trajectory.h"
 
 #include <pybind11/eigen.h>
@@ -15,10 +17,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
+#include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
-#include "tudat/math/root_finders.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
@@ -214,7 +217,7 @@ void expose_transfer_trajectory( py::module &m )
            py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS,
            R"doc(
 
- Function to get the legs and nodes settings of a transfer with just upowered legs.
+ Function to get the legs and nodes settings of a transfer with just unpowered legs.
 
 
  Function determines the legs and nodes settings of a multi-gravity assist transfer trajectory consisting of:
@@ -572,7 +575,7 @@ void expose_transfer_trajectory( py::module &m )
 
          Class defining a transfer trajectory constituted by transfer legs and nodes.
 
-         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is tipically created using the `create_transfer_trajectory` function.
+         Class defining a transfer trajectory constituted by transfer legs and nodes. The object is typically created using the `create_transfer_trajectory` function.
 
 
 

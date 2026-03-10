@@ -9,7 +9,6 @@
  *
  */
 
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/support/numericalObservationPartial.h"
 
 namespace tudat

@@ -19,7 +19,13 @@
 #include "tudat/interface/json/support/valueConversions.h"
 #include "tudat/interface/json/jsonInterfaceVariational.h"
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/math/statistics/basicStatistics.h"
+#include "tudat/math/statistics/randomVariableGenerator.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {

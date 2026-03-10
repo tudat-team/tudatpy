@@ -12,12 +12,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.dates as mdates
 import datetime
 from astroquery.mpc import MPC
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
-from astropy.time import Time
 import astropy.units as u
 import astropy
 import copy
@@ -27,7 +25,6 @@ from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
-from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -71,9 +68,9 @@ DEFAULT_CATALOG_FLAGS = [
 
 
 def load_bias_file(
-        filepath: str,
-        Nside: int | None = None,
-        catalog_flags: list = DEFAULT_CATALOG_FLAGS,
+    filepath: str,
+    Nside: int | None = None,
+    catalog_flags: list = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[pd.DataFrame, int]:
     """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
 
@@ -142,24 +139,24 @@ def load_bias_file(
     # apply the multi_index
     bias_dataframe.columns = m_index
     # stack it so it goes from a Npix x (Ncat x Nvals) to (Npix x Ncat) x Nvals shape
-    bias_dataframe = bias_dataframe.stack(level=0, future_stack = True)
+    bias_dataframe = bias_dataframe.stack(level=0, future_stack=True)
 
     return bias_dataframe, Nside
 
 
 def get_biases_EFCC18(
-        RA: float | np.ndarray | list,
-        DEC: float | np.ndarray | list,
-        epoch_seconds_TDB: float | np.ndarray | list,
-        catalog: str | np.ndarray | list,
-        bias_file: str | None = BIAS_LOWRES_FILE,
-        Nside: int | None = None,
-        catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
+    RA: float | np.ndarray | list,
+    DEC: float | np.ndarray | list,
+    epoch_seconds_TDB: float | np.ndarray | list,
+    catalog: str | np.ndarray | list,
+    bias_file: str | None = BIAS_LOWRES_FILE,
+    Nside: int | None = None,
+    catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Calculate and return star catalog bias values as described in:
     "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
     Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
-    This can then be selected using the bias_file paramater.
+    This can then be selected using the bias_file parameter.
 
     Parameters
     ----------
@@ -181,7 +178,7 @@ def get_biases_EFCC18(
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Right Ascencion Corrections, Declination corrections
+        Right Ascension Corrections, Declination corrections
 
     Raises
     ------
@@ -232,7 +229,10 @@ def get_biases_EFCC18(
 
     # same as find_orb -> bias.cpp
     # https://github.com/Bill-Gray/find_orb/blob/master/bias.cpp#L213
-    epochs_years = [time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb) for epoch_tdb in epoch_seconds_TDB]
+    epochs_years = [
+        time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb)
+        for epoch_tdb in epoch_seconds_TDB
+    ]
 
     # from the bias file readme.txt:
     RA_correction = biases[:, 0] + (epochs_years * (biases[:, 2] / 1000))
@@ -247,13 +247,13 @@ def get_biases_EFCC18(
 
 
 def get_weights_VFCC17(
-        MPC_codes: pd.Series | list | np.ndarray | None = None,
-        epoch: pd.Series | list | np.ndarray | None = None,
-        observation_type: pd.Series | list | np.ndarray | None = None,
-        observatory: pd.Series | list | np.ndarray | None = None,
-        star_catalog: pd.Series | list | np.ndarray | None = None,
-        mpc_table: pd.DataFrame | None = None,
-        return_full_table=False,
+    MPC_codes: pd.Series | list | np.ndarray | None = None,
+    epoch: pd.Series | list | np.ndarray | None = None,
+    observation_type: pd.Series | list | np.ndarray | None = None,
+    observatory: pd.Series | list | np.ndarray | None = None,
+    star_catalog: pd.Series | list | np.ndarray | None = None,
+    mpc_table: pd.DataFrame | None = None,
+    return_full_table=False,
 ) -> np.ndarray | pd.DataFrame:
     """Retrieves observation weights using the weighting scheme presented in
     "Statistical analysis of astrometric errors for the most productive
@@ -310,34 +310,31 @@ def get_weights_VFCC17(
 
     # Input handling
     if (
-            (mpc_table is None)
-            and (epoch is not None)
-            and (observation_type is not None)
-            and (observatory is not None)
-            and (star_catalog is not None)
+        (mpc_table is None)
+        and (epoch is not None)
+        and (observation_type is not None)
+        and (observatory is not None)
+        and (star_catalog is not None)
     ):
         if not (
-                len(epoch)
-                == len(observation_type)
-                == len(observatory)
-                == len(star_catalog)
+            len(epoch) == len(observation_type) == len(observatory) == len(star_catalog)
         ):
             raise ValueError("All inputs must have same size")
 
         table_dict = {
             "number": MPC_codes,
-            "epoch": epoch, # This is expressed in Julian Days
+            "epoch": epoch,  # This is expressed in Julian Days
             "note2": observation_type,
             "observatory": observatory,
             "catalog": star_catalog,
         }
         table = pd.DataFrame.from_dict(table_dict)
     elif (
-            (mpc_table is not None)
-            and (epoch is None)
-            and (observation_type is None)
-            and (observatory is None)
-            and (star_catalog is None)
+        (mpc_table is not None)
+        and (epoch is None)
+        and (observation_type is None)
+        and (observatory is None)
+        and (star_catalog is None)
     ):
         table = mpc_table.copy()
     else:
@@ -377,7 +374,9 @@ def get_weights_VFCC17(
     # create column that modifies the JD with an approximate timezone.
     # the time JD.50 will then be the approximate midnight at that timezone.
     # if we then take the int, we can group by this number to get all observations that night.
-    table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz)) # epoch is in Julian Days.
+    table = table.assign(
+        epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz)
+    )  # epoch is in Julian Days.
     # table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
 
     # Below are the weights applied as described per table in:
@@ -388,7 +387,7 @@ def get_weights_VFCC17(
     # TABLE 5: Non-CCD residuals
     # Conditions for Table 5
     # 1890-1-1 and 1950-1-1
-    pre_1890 = table.epoch <= 2411368.0 # check on Julian Period
+    pre_1890 = table.epoch <= 2411368.0  # check on Julian Period
     between_1890_1950 = (table.epoch > 2411368.0) & (table.epoch <= 2433282.0)
     after_1950 = table.epoch > 2433282.0
 
@@ -417,7 +416,7 @@ def get_weights_VFCC17(
 
     # CCD
     # ###################
-    # TABLE 3: astroid observers
+    # TABLE 3: asteroid observers
     # Table 3 conditions:
     # NOTE for now CCD will receive the same base weighting as CCD.
     # CMOS sensors for astronomy is a new development.
@@ -485,7 +484,7 @@ def get_weights_VFCC17(
         "F65",
     ]
     # NOTE these are additional LCO observatories, mostly online after publication
-    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omssion in the paper.
+    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omission in the paper.
     # Those thus assume the default inv_weight of 1.0
     # Since remaining 1m telescopes are duplicates of existing observatories, they are included.
     # Dates retrieved from: https://sbnmpc.astro.umd.edu/mpecwatch/obs.html
@@ -515,20 +514,20 @@ def get_weights_VFCC17(
     tab4_Catalog_GAIA = table.catalog.isin(["U", "V", "W", "X", "3", "6"])
     tab4_Catalog_USNOB12 = table.catalog.isin(["o", "s"])
 
-    tab4_G83_UCAC4_PPMXL = (
-            (table.observatory == "G83") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
+    tab4_G83_UCAC4_PPMXL = (table.observatory == "G83") & (
+        tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL
     )
     tab4_G83_GAIA = (table.observatory == "G83") & tab4_Catalog_GAIA
 
-    tab4_Y28_GAIA_PPMXL = (
-            (table.observatory == "Y28") & (tab4_Catalog_PPMXL & tab4_Catalog_GAIA)
+    tab4_Y28_GAIA_PPMXL = (table.observatory == "Y28") & (
+        tab4_Catalog_PPMXL & tab4_Catalog_GAIA
     )
     tab4_568_USNOB = (table.observatory == "568") & tab4_Catalog_USNOB12
     tab4_568_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
     tab4_568_PPMXL = (table.observatory == "568") & tab4_Catalog_PPMXL
     tab4_T09_T12_T14_GAIA = (table.observatory.isin(MAUNAKEA_obs)) & tab4_Catalog_GAIA
-    tab4_309_UCAC4_PPMXL = (
-            (table.observatory == "309") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
+    tab4_309_UCAC4_PPMXL = (table.observatory == "309") & (
+        tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL
     )
     tab4_309_GAIA = (table.observatory == "309") & tab4_Catalog_GAIA
 
@@ -556,7 +555,7 @@ def get_weights_VFCC17(
     # Transform residual into weight:
     table = table.assign(
         weight_pre=lambda x: 1
-                             / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
+        / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
     )
 
     # Reduce weight if there are more than 4 observations that night:
@@ -574,9 +573,7 @@ def get_weights_VFCC17(
     # Since we want the weight to be 1 when N = 4, we end up dividing by 4.
     # How this is done in practice: we divide the weight by N if N > 4, else 1.
     table = table.assign(
-        mult_obs_deweight=lambda x: np.maximum(
-            x.observations_on_epoch / 4, 1.0
-        )
+        mult_obs_deweight=lambda x: np.maximum(x.observations_on_epoch / 4, 1.0)
     )
 
     table = table.assign(weight=lambda x: x.weight_pre / x.mult_obs_deweight)
@@ -711,7 +708,7 @@ class BatchMPC:
 
         temp._table = (
             pd.concat([self._table, other._table])
-            .sort_values("epoch") # this is expressed in Julian Days
+            .sort_values("epoch")  # this is expressed in Julian Days
             .drop_duplicates()
         )
 
@@ -740,18 +737,18 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
-            # This query checks if Longitude is Nan: non-terretrial telescopes
+            # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
             self._MPC_space_telescopes = sats
         except Exception as e:
-            print("An error occured while retrieving observatory data")
+            print("An error occurred while retrieving observatory data")
             print(e)
 
     def _add_observatory_positions(
-            self, bodies: environment.SystemOfBodies, earth_name
+        self, bodies: environment.SystemOfBodies, earth_name
     ) -> None:
-        """Internal. Add observatory cartesian postions to station data"""
+        """Internal. Add observatory cartesian positions to station data"""
         temp = self._observatory_info
 
         if temp is None:
@@ -771,10 +768,10 @@ class BatchMPC:
         self._observatory_info = temp
 
     def _apply_EFCC18(
-            self,
-            bias_file=None,
-            Nside=None,
-            catalog_flags=None,
+        self,
+        bias_file=None,
+        Nside=None,
+        catalog_flags=None,
     ):
         """Internal, applies star catalog biases based on
         Internal, applies star catalog biases based on
@@ -819,28 +816,30 @@ class BatchMPC:
         """
 
         # Create DateTime objects from the Julian Day 'epoch' column
-        dt_objects = [DateTime.from_julian_day(jd) for jd in table['epoch']]
+        dt_objects = [DateTime.from_julian_day(jd) for jd in table["epoch"]]
 
         # Get the default time scale converter
         time_scale_converter = time_representation.default_time_scale_converter()
 
         # Add 'epoch_seconds_UTC' column by converting DateTime Objects to epoch
-        table['epoch_seconds_UTC'] = [dt_obj.epoch() for dt_obj in dt_objects]
+        table["epoch_seconds_UTC"] = [dt_obj.epoch() for dt_obj in dt_objects]
 
         # Add 'epoch_seconds_TDB' column by converting from UTC to TDB
-        table['epoch_seconds_TDB'] = [
+        table["epoch_seconds_TDB"] = [
             time_scale_converter.convert_time(
                 input_scale=time_representation.utc_scale,
                 output_scale=time_representation.tdb_scale,
-                input_value=t_utc
-            ) for t_utc in table['epoch_seconds_UTC']
+                input_value=t_utc,
+            )
+            for t_utc in table["epoch_seconds_UTC"]
         ]
 
         return table
 
-
     # data retrieval options: from_file: allows external observations to be added
-    def from_file(self, filename: str, in_degrees: bool = False, frame: str = "J2000") -> None:
+    def from_file(
+        self, filename: str, frame: str = "J2000"
+    ) -> None:
         """
         Loads observations from a local MPC 80-column text file.
 
@@ -891,15 +890,15 @@ class BatchMPC:
         astropy_table = parse_80cols_file(filename)
 
         # Use the from_astropy method to validate and add the data.
-        # in_degrees is False because the parser has already converted to radians.
-        self.from_astropy(astropy_table, in_degrees=in_degrees, frame=frame)
+        # we set in_degrees to False because the parser outputs data in radians.
+        self.from_astropy(astropy_table, in_degrees=False, frame=frame)
 
     # data retrieval options: get_observations: retrieves data from mpc through astroquery.
     def get_observations(
-            self,
-            MPCcodes: list[str | int],
-            id_types: list[str | None] | None = None,
-            drop_misc_observations: bool = True,
+        self,
+        MPCcodes: list[str | int],
+        id_types: list[str | None] | None = None,
+        drop_misc_observations: bool = True,
     ) -> None:
         """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
@@ -908,7 +907,7 @@ class BatchMPC:
 
         Parameters
         ----------
-        MPCcodes : list[str | int] 
+        MPCcodes : list[str | int]
             List of integer or str MPC object codes for minor planets or comets.
         id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
@@ -929,7 +928,9 @@ class BatchMPC:
 
         # 2. Ensure the lists have the same length for a 1-to-1 mapping
         if len(MPCcodes) != len(id_types):
-            raise ValueError("MPCcodes and id_types must have the same number of elements.")
+            raise ValueError(
+                "MPCcodes and id_types must have the same number of elements."
+            )
 
         for code, id_type in zip(MPCcodes, id_types):
             if not (isinstance(code, int) or isinstance(code, str)):
@@ -943,13 +944,13 @@ class BatchMPC:
             else:
                 obs = MPC.get_observations(code).to_pandas()
 
-            obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
+            obs["number"] = obs["number"].astype(str)  # to avoid pandas FutureWarning
 
             # convert JD to J2000 and UTC, convert deg to rad
             obs = self._add_time_columns(obs)
             obs = obs.assign(
                 RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
-                DEC=lambda x: np.radians(x.DEC)
+                DEC=lambda x: np.radians(x.DEC),
             )
 
             identifier = None
@@ -959,24 +960,40 @@ class BatchMPC:
                 # Check for Comets/Interstellars (Astroquery returns 'comet_type' or 'comettype')
                 # If we have a number and a type, combine them (e.g., 3 + I = 3I)
                 type_col = None
-                if 'comet_type' in obs.columns: type_col = 'comet_type'
-                elif 'comettype' in obs.columns: type_col = 'comettype'
+                if "comet_type" in obs.columns:
+                    type_col = "comet_type"
+                elif "comettype" in obs.columns:
+                    type_col = "comettype"
 
-                if type_col and pd.notna(obs[type_col].iloc[0]): # checks first digit is not NA
+                if type_col and pd.notna(
+                    obs[type_col].iloc[0]
+                ):  # checks first digit is not NA
                     # It is a comet or interstellar object
-                    number_part = str(obs['number'].iloc[0])
+                    number_part = str(obs["number"].iloc[0])
                     type_part = str(obs[type_col].iloc[0])
-                    identifier = f"{number_part}{type_part}" # Result: "3I"
+                    identifier = f"{number_part}{type_part}"  # Result: "3I"
 
-                elif 'number' in obs.columns:
-                    pd.set_option('future.no_silent_downcasting', True)
-                    valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                elif "number" in obs.columns:
+                    pd.set_option("future.no_silent_downcasting", True)
+                    valid_numbers = (
+                        obs["number"]
+                        .dropna()
+                        .astype(str)
+                        .replace("<NA>", np.nan)
+                        .dropna()
+                    )
 
                     if not valid_numbers.empty:
                         potential_id = valid_numbers.iloc[0]
                     else:
                         # fallback to designation if no number has been assigned yet
-                        valid_designations = obs['desig'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                        valid_designations = (
+                            obs["desig"]
+                            .dropna()
+                            .astype(str)
+                            .replace("<NA>", np.nan)
+                            .dropna()
+                        )
                         potential_id = valid_designations.iloc[0]
 
                     # We allow alphanumeric strings now (to support packed numbers like D4341)
@@ -987,17 +1004,25 @@ class BatchMPC:
 
                     try:
                         # Try to unpack it. This handles '00001' and 'D4341'.
-                        identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                        identifier = unpackers.unpack_permanent_minor_planet(
+                            potential_id
+                        )
                     except Exception:
                         # If unpacking fails (e.g. it was already unpacked or invalid),
                         # we keep the potential_id as is.
                         identifier = potential_id
 
-            if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
-                identifier = str(obs['desig'].iloc[0])
+            if (
+                identifier is None
+                and "desig" in obs.columns
+                and pd.notna(obs["desig"].iloc[0])
+            ):
+                identifier = str(obs["desig"].iloc[0])
 
             if identifier is None:
-                print(f"Warning: Could not find a valid identifier for object code {code}. Skipping.")
+                print(
+                    f"Warning: Could not find a valid identifier for object code {code}. Skipping."
+                )
                 continue
 
             # Assign the identifier to the 'number' column for the entire DataFrame.
@@ -1007,31 +1032,37 @@ class BatchMPC:
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas. """
+        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
         obs = table
         obs = self._add_time_columns(obs)
         if in_degrees:
-            obs = obs.assign(RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi).assign(
-                DEC=lambda x: np.radians(x.DEC)
-            )
+            obs = obs.assign(
+                RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi
+            ).assign(DEC=lambda x: np.radians(x.DEC))
 
         # convert object mpc code to string
         obs["number"] = obs.number.astype(str)
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
-    def _validate_table(self, table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str) -> None:
+    def _validate_table(
+        self,
+        table: astropy.table.QTable | astropy.table.Table | pd.DataFrame,
+        frame: str,
+    ) -> None:
         """Internal helper to validate the frame and required columns of a table.
 
-         Parameters
-         ----------
-         table : astropy.table.QTable | astropy.table.Table | pd.DataFrame
-             The table to validate.
-         frame : str
-             The reference frame to check.
-         """
+        Parameters
+        ----------
+        table : astropy.table.QTable | astropy.table.Table | pd.DataFrame
+            The table to validate.
+        frame : str
+            The reference frame to check.
+        """
         if frame != "J2000":
-            raise NotImplementedError("Only observations in J2000 are supported currently")
+            raise NotImplementedError(
+                "Only observations in J2000 are supported currently"
+            )
 
         # Get column names depending on table type
         if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -1044,12 +1075,21 @@ class BatchMPC:
             raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
         if not set(self._req_cols).issubset(set(colnames)):
-            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+            raise ValueError(
+                f"Table must include a set of mandatory columns: {self._req_cols}"
+            )
 
         if nrows == 0:
-            raise ValueError("Table contains zero rows: no valid observations were parsed.")
+            raise ValueError(
+                "Table contains zero rows: no valid observations were parsed."
+            )
 
-    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000") -> None:
+    def from_astropy(
+        self,
+        table: astropy.table.QTable | astropy.table.Table,
+        in_degrees: bool = True,
+        frame: str = "J2000",
+    ) -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
 
         This method provides a convenient way to import observation data that has been
@@ -1075,12 +1115,16 @@ class BatchMPC:
             NotImplementedError: If a `frame` other than 'J2000' is provided.
         """
         if not isinstance(table, (astropy.table.QTable, astropy.table.Table)):
-            raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
+            raise ValueError(
+                "Table must be of type astropy.table.QTable or astropy.table.Table"
+            )
 
         self._validate_table(table, frame)
         self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
 
-    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000") -> None:
+    def from_pandas(
+        self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
+    ) -> None:
         """
         Loads observations from a pandas DataFrame into the BatchMPC object.
 
@@ -1110,8 +1154,8 @@ class BatchMPC:
         self._add_table(table=table, in_degrees=in_degrees)
 
     def set_weights(
-            self,
-            weights: list | np.ndarray | pd.Series,
+        self,
+        weights: list | np.ndarray | pd.Series,
     ):
         """Manually set weights per observation. Weights are passed to
         observation collection when `.to_tudat()` is called. Set the
@@ -1142,15 +1186,15 @@ class BatchMPC:
         self._custom_weights_set = True
 
     def filter(
-            self,
-            bands: list[str] | None = None,
-            catalogs: list[str] | None = None,
-            observation_types: list[str] | None = None,
-            observatories: list[str] | None = None,
-            observatories_exclude: list[str] | None = None,
-            epoch_start: float | datetime.datetime | None = None,
-            epoch_end: float | datetime.datetime | None = None,
-            in_place: bool = True,
+        self,
+        bands: list[str] | None = None,
+        catalogs: list[str] | None = None,
+        observation_types: list[str] | None = None,
+        observatories: list[str] | None = None,
+        observatories_exclude: list[str] | None = None,
+        epoch_start: float | datetime.datetime | None = None,
+        epoch_end: float | datetime.datetime | None = None,
+        in_place: bool = True,
     ) -> "None | BatchMPC":
         """Filter out observations from the batch.
 
@@ -1182,7 +1226,7 @@ class BatchMPC:
         in_place : bool, optional
             If true, modify the current batch object.\
                   If false returns a new object that is\
-                      filtered, currect batch remains unmodified, by default True
+                      filtered, correct batch remains unmodified, by default True
 
         Raises
         ------
@@ -1215,7 +1259,7 @@ class BatchMPC:
             )
 
         if not (
-                isinstance(observatories_exclude, list) or (observatories_exclude is None)
+            isinstance(observatories_exclude, list) or (observatories_exclude is None)
         ):
             raise ValueError(
                 "observatories_exclude parameter must be list of strings or None"
@@ -1240,40 +1284,49 @@ class BatchMPC:
             if observatories_exclude is not None:
                 self._table = self._table.query("observatory != @observatories_exclude")
 
-            timescale_converter_needed = isinstance(epoch_start, datetime.datetime) or \
-                               isinstance(epoch_end, datetime.datetime)
+            timescale_converter_needed = isinstance(
+                epoch_start, datetime.datetime
+            ) or isinstance(epoch_end, datetime.datetime)
 
             if timescale_converter_needed:
                 # This loads necessary kernels/tables
-                time_scale_converter = time_representation.default_time_scale_converter()
+                time_scale_converter = (
+                    time_representation.default_time_scale_converter()
+                )
             else:
                 time_scale_converter = None
             if epoch_start is not None:
                 if isinstance(epoch_start, float) or isinstance(epoch_start, int):
-                    self._table = self._table.query(
-                        "epoch_seconds_TDB >= @epoch_start"
-                    )
+                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start")
                 elif isinstance(epoch_start, datetime.datetime):
-                    epoch_start_iso_string = epoch_start.isoformat(sep=' ')
-                    epoch_start_utc = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
+                    epoch_start_iso_string = epoch_start.isoformat(sep=" ")
+                    epoch_start_utc = DateTime.from_iso_string(
+                        epoch_start_iso_string
+                    ).to_epoch()
                     epoch_start_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
-                        input_value=epoch_start_utc)
-                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
+                        input_value=epoch_start_utc,
+                    )
+                    self._table = self._table.query(
+                        "epoch_seconds_TDB >= @epoch_start_tdb"
+                    )
             if epoch_end is not None:
                 if isinstance(epoch_end, float) or isinstance(epoch_end, int):
-                    self._table = self._table.query(
-                        "epoch_seconds_TDB <= @epoch_end"
-                    )
+                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end")
                 elif isinstance(epoch_end, datetime.datetime):
-                    epoch_end_iso_string = epoch_end.isoformat(sep=' ')
-                    epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
+                    epoch_end_iso_string = epoch_end.isoformat(sep=" ")
+                    epoch_end_utc = DateTime.from_iso_string(
+                        epoch_end_iso_string
+                    ).to_epoch()
                     epoch_end_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
-                        input_value=epoch_end_utc)
-                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
+                        input_value=epoch_end_utc,
+                    )
+                    self._table = self._table.query(
+                        "epoch_seconds_TDB <= @epoch_end_tdb"
+                    )
 
             self._refresh_metadata()
             return None
@@ -1290,16 +1343,120 @@ class BatchMPC:
                 in_place=True,
             )
             return new
+    def create_observations_from_astropy_table(
+            self,
+            table,
+            station_body: str = "Earth",
+            apply_weights_VFCC17: bool = False,
+            apply_star_catalog_debias: bool = False,
+            debias_kwargs: dict = dict(),
+            in_degrees: bool = True,
+
+    ) -> observations.ObservationCollection:
+        """
+        Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
+        Unlike to_tudat(), it does not require a SystemOfBodies object as input.
+        Unlike to_tudat(), apply_weights_VFCC17 and apply_star_catalog_debias flags are set to False by default,
+        as users might have minimal tables available, which do not necessary contain all the fields required
+        by the batchMPC class (e.g. note1,note2, catalog, etc...)
+
+        This method is useful for creating observation collections when the environment
+        is not defined. Note that, when performing a simulation,
+        you must manually ensure that the ground stations (observatory codes)
+        and bodies (MPC numbers) referenced in this
+        collection are added to your simulation environment.
+
+        Parameters
+        ----------
+        table : astropy.table.Table | pd.DataFrame
+            The input table containing observations. Must include 'number',
+            'observatory', 'epoch', 'RA', and 'DEC' columns.
+        station_body : str, optional
+            The name of the body to which the ground stations (observatories)
+            are attached, by default "Earth".
+
+        Returns
+        -------
+        observations.ObservationCollection
+            A collection of observation sets grouped by link.
+        """
+
+        # 1. Initialize internal table handling
+        # We temporarily use a BatchMPC instance to leverage existing logic
+        temp_batch = BatchMPC()
+        if isinstance(table, Table):
+            temp_batch.from_astropy(table, in_degrees=in_degrees)
+        else:
+            temp_batch.from_pandas(table, in_degrees=in_degrees)
+
+        # 2. Apply Star Catalog Debias (EFCC18)
+        # Matches logic in to_tudat()
+        if apply_star_catalog_debias:
+            temp_batch._apply_EFCC18(**debias_kwargs)
+            RA_col = "RA_EFCC18"
+            DEC_col = "DEC_EFCC18"
+        else:
+            RA_col = "RA"
+            DEC_col = "DEC"
+
+        # 3. Apply Weighting (VFCC17)
+        # Matches logic in to_tudat()
+        if apply_weights_VFCC17:
+            weights_table = get_weights_VFCC17(
+                mpc_table=temp_batch.table,
+                return_full_table=True,
+            )
+            df = weights_table # Work with the table containing weights
+        else:
+            df = temp_batch.table.copy()
+
+        # 4. Group by unique Link (Target Body + Observatory)
+        unique_links = df.groupby(["number", "observatory"])
+        observation_set_list = []
+
+        for (mpc_code, observatory_code), group in unique_links:
+            # --- A. Define Link Ends ---
+            link_ends = dict()
+            link_ends[links.transmitter] = links.body_origin_link_end_id(str(mpc_code))
+            link_ends[links.receiver] = links.body_reference_point_link_end_id(
+                station_body, str(observatory_code)
+            )
+            link_definition = links.link_definition(link_ends)
+
+            # --- B. Extract Data ---
+            # Use the pre-calculated TDB seconds from the internal processing
+            times = group["epoch_seconds_TDB"].to_numpy()
+            observables = group[[RA_col, DEC_col]].to_numpy()
+
+            # --- C. Create SingleObservationSet ---
+            observation_set = observations.create_single_observation_set(
+                model_settings.angular_position_type,
+                link_definition.link_ends,
+                observables,
+                times,
+                links.receiver
+            )
+
+            # --- D. Apply Weights ---
+            # Extract weights and flatten for Tudat (RA1, DEC1, RA2, DEC2...)
+            if "weight" in group.columns:
+                weights = group["weight"].to_numpy()
+                weights_flat = np.ravel([weights, weights], "F")
+                observation_set.weights_vector = weights_flat
+
+            observation_set_list.append(observation_set)
+
+        return observations.ObservationCollection(observation_set_list)
 
     def to_tudat(
-            self,
-            bodies: environment.SystemOfBodies,
-            included_satellites: dict[str, str] | None,
-            station_body: str = "Earth",
-            add_sbdb_gravity_model: bool = False,
-            apply_weights_VFCC17: bool = True,
-            apply_star_catalog_debias: bool = True,
-            debias_kwargs: dict = dict(),
+        self,
+        bodies: environment.SystemOfBodies,
+        included_satellites: dict[str, str] | None,
+        station_body: str = "Earth",
+        add_sbdb_gravity_model: bool = False,
+        apply_weights_VFCC17: bool = True,
+        apply_star_catalog_debias: bool = True,
+        debias_kwargs: dict = dict(),
     ) -> observations.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
@@ -1429,8 +1586,8 @@ class BatchMPC:
 
         # get relevant stations positions
         tempStations = self._observatory_info.query("Code == @self.observatories").loc[
-                       :, ["Code", "X", "Y", "Z"]
-                       ]
+            :, ["Code", "X", "Y", "Z"]
+        ]
 
         # add station positions to the observations
         observations_table = pd.merge(
@@ -1462,7 +1619,6 @@ class BatchMPC:
             if station_name in self._space_telescopes:
                 continue
 
-
             ground_station_settings = environment_setup.ground_station.basic_station(
                 station_name=station_name,
                 station_nominal_position=[
@@ -1483,7 +1639,6 @@ class BatchMPC:
         unique_link_combos = (
             observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
-
 
         observation_set_list = []
         for combo in unique_link_combos:
@@ -1514,12 +1669,12 @@ class BatchMPC:
             ).query("observatory == @station_name")
 
             observation_angles = observations_for_this_link.loc[
-                                 :, [RA_col, DEC_col]
-                                 ].to_numpy()
+                :, [RA_col, DEC_col]
+            ].to_numpy()
 
             observation_times = observations_for_this_link.loc[
-                                :, ["epoch_seconds_TDB"]
-                                ].to_numpy()[:, 0]
+                :, ["epoch_seconds_TDB"]
+            ].to_numpy()[:, 0]
 
             # create a set of obs for this link
             observation_set = observations.create_single_observation_set(
@@ -1533,8 +1688,8 @@ class BatchMPC:
             # apply weights if apply_weights is True or set_weights() has been used.
             if apply_weights_VFCC17 or self._custom_weights_set:
                 observation_weights = observations_for_this_link.loc[
-                                      :, ["weight"]
-                                      ].to_numpy()[:, 0]
+                    :, ["weight"]
+                ].to_numpy()[:, 0]
                 # this is to make sure the order is RA1, DEC1, 2, 2, 3, 3 etc.
                 observation_weights = np.ravel(
                     [observation_weights, observation_weights], "F"
@@ -1550,9 +1705,9 @@ class BatchMPC:
         return observation_collection
 
     def plot_observations_temporal(
-            self,
-            objects: list[str] | None = None,
-            figsize: tuple[float] = (9.0, 6.0),
+        self,
+        objects: list[str] | None = None,
+        figsize: tuple[float] = (9.0, 6.0),
     ):
         """Generates a matplotlib figure with the declination and right ascension
         over time.
@@ -1618,10 +1773,10 @@ class BatchMPC:
         return fig
 
     def plot_observations_sky(
-            self,
-            objects: list[str] | None = None,
-            projection: str | None = None,
-            figsize: tuple[float] = (14.0, 7.0),
+        self,
+        objects: list[str] | None = None,
+        projection: str | None = None,
+        figsize: tuple[float] = (14.0, 7.0),
     ):
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
@@ -1645,10 +1800,13 @@ class BatchMPC:
 
         # Convert TDB Seconds -> UTC seconds
         time_scale_converter = time_representation.default_time_scale_converter()
-        utc_epochs = [time_scale_converter.convert_time(
-            input_scale=time_representation.tdb_scale,
-            output_scale=time_representation.utc_scale,
-            input_value=t) for t in  all_obj_data.epoch_seconds_TDB
+        utc_epochs = [
+            time_scale_converter.convert_time(
+                input_scale=time_representation.tdb_scale,
+                output_scale=time_representation.utc_scale,
+                input_value=t,
+            )
+            for t in all_obj_data.epoch_seconds_TDB
         ]
 
         # Prepare Data for Plotting
@@ -1663,10 +1821,13 @@ class BatchMPC:
         plot_handle = None
         for idx, obj in enumerate(objs):
             tab = plot_data.query("number == @obj")
-            utc_epochs_object = [time_scale_converter.convert_time(
-                input_scale=time_representation.tdb_scale,
-                output_scale=time_representation.utc_scale,
-                input_value=t) for t in  tab.epoch_seconds_TDB.values
+            utc_epochs_object = [
+                time_scale_converter.convert_time(
+                    input_scale=time_representation.tdb_scale,
+                    output_scale=time_representation.utc_scale,
+                    input_value=t,
+                )
+                for t in tab.epoch_seconds_TDB.values
             ]
 
             if tab.empty:
@@ -1693,11 +1854,15 @@ class BatchMPC:
                 # Matplotlib projections can sometimes return non-standard ticks
                 yticks = [
                     f"{x}°"
-                    for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
+                    for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(
+                        int
+                    )
                 ]
                 xticks = [
                     f"{x}°"
-                    for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
+                    for x in (
+                        np.degrees(np.array(ax.get_xticks().tolist())) + 180
+                    ).astype(int)
                 ]
                 if projection in ["aitoff", "hammer", "mollweide"]:
                     ax.set_yticklabels(yticks)
@@ -1712,13 +1877,17 @@ class BatchMPC:
             ticks = np.linspace(vmin, vmax, 7)
             cbar = plt.colorbar(mappable=plot_handle, ax=ax, label="Time", ticks=ticks)
             # Convert numeric ticks back to readable date strings using Tudatpy's DateTime
-            cbar.ax.set_yticklabels([DateTime.from_epoch(t).to_iso_string().split(' ')[0] for t in ticks])
+            cbar.ax.set_yticklabels(
+                [DateTime.from_epoch(t).to_iso_string().split(" ")[0] for t in ticks]
+            )
 
         start_date_str = DateTime.from_epoch(vmin).to_iso_string()
         end_date_str = DateTime.from_epoch(vmax).to_iso_string()
 
         ax.grid()
-        fig.suptitle(f"{len(plot_data)} observations between {start_date_str} and {end_date_str}")
+        fig.suptitle(
+            f"{len(plot_data)} observations between {start_date_str} and {end_date_str}"
+        )
         fig.set_layout_engine("tight")
 
         return fig
@@ -1751,14 +1920,14 @@ class BatchMPC:
         print()
 
     def observatories_table(
-            self,
-            only_in_batch: bool = True,
-            only_space_telescopes: bool = False,
-            exclude_space_telescopes: bool = False,
-            include_positions: bool = False,
+        self,
+        only_in_batch: bool = True,
+        only_space_telescopes: bool = False,
+        exclude_space_telescopes: bool = False,
+        include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
-        Carthesian positions are only available after running the `to_tudat()` method.
+        Cartesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------

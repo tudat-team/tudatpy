@@ -15,7 +15,10 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
 namespace tudat
 {
 namespace unit_tests

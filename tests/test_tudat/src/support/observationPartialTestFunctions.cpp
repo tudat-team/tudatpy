@@ -9,10 +9,11 @@
  */
 
 #include <algorithm>
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/support/observationPartialTestFunctions.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"

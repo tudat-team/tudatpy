@@ -11,6 +11,27 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
+#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
+#include "tudat/astro/basic_astro/customAccelerationModel.h"
+#include "tudat/astro/basic_astro/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
+#include "tudat/astro/gravitation/centralGravityModel.h"
+#include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
+#include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityModel.h"
+#include "tudat/astro/gravitation/ringGravityModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
+#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
+#include "tudat/astro/propulsion/massRateFromThrust.h"
+#include "tudat/astro/propulsion/thrustAccelerationModel.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
+
+#include <stdexcept>
+
 namespace tudat
 {
 
@@ -270,11 +291,11 @@ AvailableMassRateModels getMassRateModelType( const std::shared_ptr< MassRateMod
 }
 
 //! Function to get all acceleration models of a given type from a list of models
-std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
-        const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
+std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > getAccelerationModelsOfType(
+        const std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > >& fullList,
         const AvailableAcceleration modelType )
 {
-    std::vector< std::shared_ptr< AccelerationModel3d > > accelerationList;
+    std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > accelerationList;
     for( unsigned int i = 0; i < fullList.size( ); i++ )
     {
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )

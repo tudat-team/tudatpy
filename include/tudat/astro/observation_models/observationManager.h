@@ -17,7 +17,6 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
-#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 namespace tudat
 {
@@ -172,14 +171,11 @@ public:
                     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >
                     observationPartials,
             const std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling > > observationPartialScalers,
-            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
-            const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
-                    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) ):
+            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface ):
         ObservationManagerBase< ObservationScalarType, TimeType >( observableType,
                                                                    stateTransitionMatrixInterface,
                                                                    observationPartialScalers ),
-        observationSimulator_( observationSimulator ), observationPartials_( observationPartials ),
-        dependentVariablesInterface_( dependentVariablesInterface )
+        observationSimulator_( observationSimulator ), observationPartials_( observationPartials )
     {}
 
     //! Virtual destructor
@@ -496,7 +492,6 @@ protected:
     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
             currentLinkEndPartials;
 
-    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
 };
 
 //

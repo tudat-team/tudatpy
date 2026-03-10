@@ -7,12 +7,25 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_dynamics.h"
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/chrono.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 
+#include "environment/expose_environment.h"
+#include "environment_setup/expose_environment_setup.h"
+#include "propagation/expose_propagation.h"
+#include "propagation_setup/expose_propagation_setup.h"
+#include "simulator/expose_simulator.h"
+#include "parameters_setup/expose_parameters_setup.h"
+#include "parameters/expose_parameters.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;

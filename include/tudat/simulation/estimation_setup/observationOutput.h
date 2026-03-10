@@ -11,7 +11,19 @@
 #ifndef TUDAT_OBSERVATIONOUTPUT
 #define TUDAT_OBSERVATIONOUTPUT
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include <functional>
+#include <map>
+#include <memory>
+#include <vector>
+
+#include <Eigen/Core>
+
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat

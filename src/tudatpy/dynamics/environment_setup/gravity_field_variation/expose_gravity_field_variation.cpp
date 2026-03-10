@@ -7,11 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_gravity_field_variation.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -682,7 +684,7 @@ GravityFieldVariationSettings
 Function for creating polynomial gravity field variations at a single variation period.
 
 Function for creating polynomial gravity field variations at a single variation period, same as :math:`~polynomial`, but with a single
-polynmial power :math:`p`.
+polynomial power :math:`p`.
 
 Parameters
 ----------

@@ -32,10 +32,15 @@
 #include "tudat/astro/mission_segments/transferTrajectory.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 #include "tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+class SystemOfBodies;
+}
+
 namespace mission_segments
 {
 

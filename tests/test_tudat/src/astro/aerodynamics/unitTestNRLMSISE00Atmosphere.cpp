@@ -18,8 +18,11 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <vector>
 #include <utility>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -30,7 +33,6 @@
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {

@@ -14,6 +14,7 @@
 #include <string>
 #include <thread>
 #include <limits>
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -28,9 +29,9 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 
 namespace tudat

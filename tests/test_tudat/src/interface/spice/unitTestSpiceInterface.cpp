@@ -112,6 +112,20 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
             ephemerisTimeOneYearAfterJ2000Spice, ephemerisTimeOneYearAfterJ2000, std::numeric_limits< double >::epsilon( ) );
 }
 
+BOOST_AUTO_TEST_CASE( testStandardKernelLoadIsIdempotent )
+{
+    using namespace spice_interface;
+
+    clearSpiceKernels( );
+    loadStandardSpiceKernels( );
+    const int kernelCountAfterFirstLoad = getTotalCountOfKernelsLoaded( );
+
+    loadStandardSpiceKernels( );
+    const int kernelCountAfterSecondLoad = getTotalCountOfKernelsLoaded( );
+
+    BOOST_CHECK_EQUAL( kernelCountAfterSecondLoad, kernelCountAfterFirstLoad );
+}
+
 // Test 2: Test retrieval position and state of bodies.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
 {

@@ -17,7 +17,6 @@
 #include <iostream>
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Geometry>
 #include <Eigen/Core>
@@ -71,7 +70,7 @@ public:
         occultingBodyPositions_( occultingBodyPositions ), occultingBodyRadii_( occultingBodyRadii ), sourceRadius_( sourceRadius ),
         occultingBodies_( occultingBodies ), currentRadiationPressure_( TUDAT_NAN ), currentSolarVector_( Eigen::Vector3d::Zero( ) ),
         currentTime_( TUDAT_NAN )
-    { }
+    {}
 
     RadiationPressureInterface( const std::function< double( ) > sourcePower,
                                 const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
@@ -88,10 +87,10 @@ public:
         area_( area ), occultingBodyPositions_( occultingBodyPositions ), occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ), occultingBodies_( occultingBodies ), currentRadiationPressure_( TUDAT_NAN ),
         currentSolarVector_( Eigen::Vector3d::Zero( ) ), currentTime_( TUDAT_NAN )
-    { }
+    {}
 
     //! Destructor
-    virtual ~RadiationPressureInterface( ) { }
+    virtual ~RadiationPressureInterface( ) {}
 
     //! Function to return the function returning the current position of the source body.
     /*!

@@ -11,6 +11,8 @@
 #ifndef TUDAT_POSITIONPARTIALSCALING_H
 #define TUDAT_POSITIONPARTIALSCALING_H
 
+#include <iostream>
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -25,6 +27,13 @@
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+
+class SystemOfBodies;
+
+}  // namespace simulation_setup
 
 namespace observation_partials
 {

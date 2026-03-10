@@ -51,6 +51,7 @@ namespace observation_models
  *  Base class to define settings for creation of an observation bias model. For each specific bias
  * type, a derived class is to be implemented, in which the specific properties of the bias model
  * are given
+ asdf
  */
 class ObservationBiasSettings
 {

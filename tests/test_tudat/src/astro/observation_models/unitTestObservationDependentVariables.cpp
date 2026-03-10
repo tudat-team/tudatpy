@@ -12,6 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -19,7 +21,7 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -28,10 +30,8 @@ namespace unit_tests
 
 using namespace tudat;
 using namespace tudat::observation_models;
-using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::interpolators;
-using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
@@ -1327,6 +1327,73 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                 }
             }
         }
+    }
+}
+
+//! Test whether link-end epochs dependent variable returns the internally computed n-way link-end times.
+BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames = { "Earth", "Moon" };
+    const double initialEphemerisTime = 1.0E7;
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = LinkEndId( "Earth", "Station1" );
+    twoWayLinkEnds[ reflector1 ] = LinkEndId( "MoonOrbiter", "" );
+    twoWayLinkEnds[ receiver ] = LinkEndId( "Earth", "Station1" );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( n_way_range, twoWayLinkEnds ) );
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+            createObservationSimulators( observationSettingsList, bodies );
+
+    std::vector< double > observationTimes = { initialEphemerisTime + 1000.0, initialEphemerisTime + 2000.0,
+                                               initialEphemerisTime + 3000.0 };
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
+            n_way_range, twoWayLinkEnds, observationTimes, receiver ) );
+
+    std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsSettings = linkEndEpochsDependentVariable( n_way_range );
+    addDependentVariablesToObservationSimulationSettings(
+            measurementSimulationInput,
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > >( { linkEndEpochsSettings } ),
+            bodies );
+
+    std::shared_ptr< ObservationCollection<> > simulatedObservations =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+
+    std::map< double, Eigen::VectorXd > linkEndEpochsHistory =
+            simulatedObservations->getDependentVariableHistory( linkEndEpochsSettings );
+    BOOST_CHECK_EQUAL( linkEndEpochsHistory.size( ), observationTimes.size( ) );
+
+    std::shared_ptr< ObservationSimulator< 1, double, double > > nWayRangeObservationSimulator =
+            std::dynamic_pointer_cast< ObservationSimulator< 1, double, double > >( observationSimulators.at( 0 ) );
+    std::shared_ptr< ObservationModel< 1, double, double > > nWayRangeObservationModel =
+            nWayRangeObservationSimulator->getObservationModel( twoWayLinkEnds );
+
+    for( const auto& epochsEntry : linkEndEpochsHistory )
+    {
+        std::vector< double > manualLinkEndTimes;
+        std::vector< Eigen::Vector6d > manualLinkEndStates;
+        nWayRangeObservationModel->computeIdealObservationsWithLinkEndData(
+                epochsEntry.first, receiver, manualLinkEndTimes, manualLinkEndStates );
+
+        BOOST_CHECK_EQUAL( manualLinkEndTimes.size( ), 4 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                epochsEntry.second, utilities::convertStlVectorToEigenVector( manualLinkEndTimes ), 1.0e-14 );
     }
 }
 

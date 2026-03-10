@@ -13,6 +13,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/io/matrixTextFileReader.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 
 namespace tudat
@@ -470,6 +471,72 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
 //     Eigen::Vector4d gradientParameters = troposphereData_->getGradient( stationTime );
 // }
 
+VMF3TroposphericCorrection::VMF3TroposphericCorrection(
+        const std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+        const bool isUplinkCorrection,
+        const std::shared_ptr< ground_stations::StationTroposphereData > troposphereData,
+        const bool useGradient,
+        const LightTimeCorrectionType correctionType,
+        const double observationWavelengthNm ):
+    MappedTroposphericCorrection( correctionType, elevationMapping, isUplinkCorrection ), troposphereData_( troposphereData ),
+    useGradient_( useGradient ), correctionType_( correctionType ), observationWavelengthNm_( observationWavelengthNm ),
+    hasWavelengthCorrectionParameters_( false )
+{
+    if( correctionType_ != vmf3_tropospheric && correctionType_ != vmf3o_tropospheric )
+    {
+        throw std::runtime_error( "Error when creating VMF3 correction: correction type is not VMF3/VMF3o." );
+    }
+
+    if( correctionType_ == vmf3o_tropospheric )
+    {
+        loadWavelengthCorrectionParameters( );
+    }
+}
+
+void VMF3TroposphericCorrection::loadWavelengthCorrectionParameters( )
+{
+    const std::string basePath = paths::getAtmosphereTablesPath( ) + "/vmf3o/";
+    const std::string correctionPath = basePath + "CF_ABC.txt";
+    Eigen::MatrixXd correctionMatrix = input_output::readMatrixFromFile( correctionPath, " \t", "%", 0 );
+
+    if( correctionMatrix.rows( ) < 2 || correctionMatrix.cols( ) < 3 )
+    {
+        throw std::runtime_error(
+                "Error when loading VMF3o wavelength correction coefficients from " + correctionPath +
+                ": expected at least 2x3 table for a_h and a_w." );
+    }
+
+    for( int i = 0; i < 2; ++i )
+    {
+        wavelengthCorrectionParameters_[ i ] = correctionMatrix.row( i ).head( 3 );
+    }
+    hasWavelengthCorrectionParameters_ = true;
+}
+
+double VMF3TroposphericCorrection::getWavelengthCorrectionFactor( const int parameterIndex ) const
+{
+    if( !hasWavelengthCorrectionParameters_ )
+    {
+        return 1.0;
+    }
+
+    if( parameterIndex < 0 || parameterIndex >= static_cast< int >( wavelengthCorrectionParameters_.size( ) ) )
+    {
+        throw std::runtime_error( "Error when retrieving VMF3o wavelength correction factor: parameter index out of range." );
+    }
+
+    if( observationWavelengthNm_ <= 0.0 )
+    {
+        throw std::runtime_error( "Error when computing VMF3o wavelength correction factor: wavelength must be positive." );
+    }
+
+    const double A = wavelengthCorrectionParameters_[ parameterIndex ]( 0 );
+    const double B = wavelengthCorrectionParameters_[ parameterIndex ]( 1 );
+    const double C = wavelengthCorrectionParameters_[ parameterIndex ]( 2 );
+
+    return A / std::pow( observationWavelengthNm_, B ) + C;
+}
+
 double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
@@ -492,6 +559,14 @@ double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkE
 
     // Extract mapping coefficients from station data
     Eigen::Vector2d mappingCoefficients = troposphereData_->getMappingFunction( stationTime );
+
+    // Apply wavelength scaling for optical VMF3o if requested (reference is 532 nm).
+    // By definition, this scaling applies to the a-coefficients only.
+    if( correctionType_ == vmf3o_tropospheric && hasWavelengthCorrectionParameters_ )
+    {
+        mappingCoefficients( 0 ) *= getWavelengthCorrectionFactor( 0 );  // a_h
+        mappingCoefficients( 1 ) *= getWavelengthCorrectionFactor( 1 );  // a_w
+    }
 
     // Downcast to VMF3MappingModel and update coefficients
     std::shared_ptr< VMF3MappingModel > vmf3Mapping = std::dynamic_pointer_cast< VMF3MappingModel >( elevationMapping_ );
@@ -589,22 +664,17 @@ void VMF3MappingModel::computeCurrentVMFdata( const Eigen::Vector6d& transmitter
 double VMF3MappingModel::computeMappingFunction( const double mappingCoefficient, const bool isHydrostatic ) const
 {
     const double a = mappingCoefficient;
-    const double bh = evaluateSeasonalCoefficient( isHydrostatic ? anm_bh_.A0 : anm_bw_.A0,
-                                                   isHydrostatic ? anm_bh_.A1 : anm_bw_.A1,
-                                                   isHydrostatic ? anm_bh_.B1 : anm_bw_.B1,
-                                                   isHydrostatic ? anm_bh_.A2 : anm_bw_.A2,
-                                                   isHydrostatic ? anm_bh_.B2 : anm_bw_.B2,
-                                                   computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ ).V,
-                                                   computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ ).W,
+    const VnmWnmMatrix vnmWnm = computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ );
+    const double bh = evaluateSeasonalCoefficient( isHydrostatic ? anm_bh_ : anm_bw_,
+                                                   isHydrostatic ? bnm_bh_ : bnm_bw_,
+                                                   vnmWnm.V,
+                                                   vnmWnm.W,
                                                    currentDayOfYear_ );
 
-    const double ch = evaluateSeasonalCoefficient( isHydrostatic ? anm_ch_.A0 : anm_cw_.A0,
-                                                   isHydrostatic ? anm_ch_.A1 : anm_cw_.A1,
-                                                   isHydrostatic ? anm_ch_.B1 : anm_cw_.B1,
-                                                   isHydrostatic ? anm_ch_.A2 : anm_cw_.A2,
-                                                   isHydrostatic ? anm_ch_.B2 : anm_cw_.B2,
-                                                   computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ ).V,
-                                                   computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ ).W,
+    const double ch = evaluateSeasonalCoefficient( isHydrostatic ? anm_ch_ : anm_cw_,
+                                                   isHydrostatic ? bnm_ch_ : bnm_cw_,
+                                                   vnmWnm.V,
+                                                   vnmWnm.W,
                                                    currentDayOfYear_ );
 
     return ( 1.0 + a / ( 1.0 + bh / ( 1.0 + ch ) ) ) /
@@ -655,6 +725,27 @@ VMF3MappingModel::Vmf3SphericalHarmonicComponentSet VMF3MappingModel::loadCoeffi
 void VMF3MappingModel::loadLegendreCoefficientTables( )
 {
     std::string path = paths::getAtmosphereTablesPath( ) + "/vmf3/";
+    if( correctionType_ == vmf3o_tropospheric )
+    {
+        try
+        {
+            std::string vmf3oPath = paths::getAtmosphereTablesPath( ) + "/vmf3o/vmf3o_SH/";
+            anm_bh_ = loadCoefficientSet( vmf3oPath + "anm_bh.txt" );
+            bnm_bh_ = loadCoefficientSet( vmf3oPath + "bnm_bh.txt" );
+            anm_bw_ = loadCoefficientSet( vmf3oPath + "anm_bw.txt" );
+            bnm_bw_ = loadCoefficientSet( vmf3oPath + "bnm_bw.txt" );
+            anm_ch_ = loadCoefficientSet( vmf3oPath + "anm_ch.txt" );
+            bnm_ch_ = loadCoefficientSet( vmf3oPath + "bnm_ch.txt" );
+            anm_cw_ = loadCoefficientSet( vmf3oPath + "anm_cw.txt" );
+            bnm_cw_ = loadCoefficientSet( vmf3oPath + "bnm_cw.txt" );
+            return;
+        }
+        catch( const std::exception& )
+        {
+            path = paths::getAtmosphereTablesPath( ) + "/vmf3o/";
+        }
+    }
+
     anm_bh_ = loadCoefficientSet( path + "anm_bh.txt" );
     bnm_bh_ = loadCoefficientSet( path + "bnm_bh.txt" );
     anm_bw_ = loadCoefficientSet( path + "anm_bw.txt" );
@@ -673,17 +764,24 @@ VMF3MappingModel::VnmWnmMatrix VMF3MappingModel::computeVnmWnmMatrix( int nMax, 
     double z = std::cos( theta );
     std::vector< std::vector< double > > V( nMax + 2, std::vector< double >( nMax + 2, 0.0 ) );
     std::vector< std::vector< double > > W( nMax + 2, std::vector< double >( nMax + 2, 0.0 ) );
-    // Base cases
+
+    // Base cases (0-based translation of MATLAB's 1-based recurrence).
     V[ 0 ][ 0 ] = 1.0;
-    V[ 1 ][ 0 ] = z * V[ 0 ][ 0 ];  // V[1][0] = z
-    // Fix: manually set V[2][0] = z^2
-    V[ 2 ][ 0 ] = z * V[ 1 ][ 0 ];
-    // Now apply recurrence for n >= 2, m = 0
+    W[ 0 ][ 0 ] = 0.0;
+    if( nMax >= 1 )
+    {
+        V[ 1 ][ 0 ] = z * V[ 0 ][ 0 ];
+        W[ 1 ][ 0 ] = 0.0;
+    }
+
+    // m = 0 branch: V(n,0) = ((2n-1) z V(n-1,0) - (n-1) V(n-2,0))/n, W(n,0)=0
     for( int n = 2; n <= nMax; ++n )
     {
-        V[ n + 1 ][ 0 ] = ( ( 2 * n - 1 ) * z * V[ n ][ 0 ] - ( n - 1 ) * V[ n - 1 ][ 0 ] ) / n;
+        V[ n ][ 0 ] = ( ( 2 * n - 1 ) * z * V[ n - 1 ][ 0 ] - ( n - 1 ) * V[ n - 2 ][ 0 ] ) / n;
+        W[ n ][ 0 ] = 0.0;
     }
-    // Loop over orders m > 0
+
+    // m > 0 branches.
     for( int m = 1; m <= nMax; ++m )
     {
         V[ m ][ m ] = ( 2 * m - 1 ) * ( x * V[ m - 1 ][ m - 1 ] - y * W[ m - 1 ][ m - 1 ] );
@@ -695,8 +793,8 @@ VMF3MappingModel::VnmWnmMatrix VMF3MappingModel::computeVnmWnmMatrix( int nMax, 
         }
         for( int n = m + 2; n <= nMax; ++n )
         {
-            V[ n + 1 ][ m ] = ( ( 2 * n - 1 ) * z * V[ n ][ m ] - ( n + m - 1 ) * V[ n - 1 ][ m ] ) / ( n - m );
-            W[ n + 1 ][ m ] = ( ( 2 * n - 1 ) * z * W[ n ][ m ] - ( n + m - 1 ) * W[ n - 1 ][ m ] ) / ( n - m );
+            V[ n ][ m ] = ( ( 2 * n - 1 ) * z * V[ n - 1 ][ m ] - ( n + m - 1 ) * V[ n - 2 ][ m ] ) / ( n - m );
+            W[ n ][ m ] = ( ( 2 * n - 1 ) * z * W[ n - 1 ][ m ] - ( n + m - 1 ) * W[ n - 2 ][ m ] ) / ( n - m );
         }
     }
     return { V, W };
@@ -720,21 +818,21 @@ double VMF3MappingModel::evaluateSphericalExpansion( const Eigen::VectorXd& anm_
     return result;
 }
 
-double VMF3MappingModel::evaluateSeasonalCoefficient( const Eigen::VectorXd& A0,
-                                                      const Eigen::VectorXd& A1,
-                                                      const Eigen::VectorXd& B1,
-                                                      const Eigen::VectorXd& A2,
-                                                      const Eigen::VectorXd& B2,
+double VMF3MappingModel::evaluateSeasonalCoefficient( const Vmf3SphericalHarmonicComponentSet& anmSet,
+                                                      const Vmf3SphericalHarmonicComponentSet& bnmSet,
                                                       const std::vector< std::vector< double > >& V,
                                                       const std::vector< std::vector< double > >& W,
                                                       const double dayOfYear ) const
 {
     const double omega1 = 2.0 * mathematical_constants::PI * dayOfYear / 365.25;
     const double omega2 = 2.0 * omega1;
-    double sumA0 = evaluateSphericalExpansion( A0, B2, V, W );
-    double sumA1 = evaluateSphericalExpansion( A1, B1, V, W );
-    double sumA2 = evaluateSphericalExpansion( A2, B2, V, W );
-    return sumA0 + sumA1 * std::cos( omega1 ) + sumA1 * std::sin( omega1 ) + sumA2 * std::cos( omega2 ) + sumA2 * std::sin( omega2 );
+    const double sumA0 = evaluateSphericalExpansion( anmSet.A0, bnmSet.A0, V, W );
+    const double sumA1 = evaluateSphericalExpansion( anmSet.A1, bnmSet.A1, V, W );
+    const double sumB1 = evaluateSphericalExpansion( anmSet.B1, bnmSet.B1, V, W );
+    const double sumA2 = evaluateSphericalExpansion( anmSet.A2, bnmSet.A2, V, W );
+    const double sumB2 = evaluateSphericalExpansion( anmSet.B2, bnmSet.B2, V, W );
+    return sumA0 + sumA1 * std::cos( omega1 ) + sumB1 * std::sin( omega1 ) + sumA2 * std::cos( omega2 ) +
+            sumB2 * std::sin( omega2 );
 }
 
 double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( const double stationTime )

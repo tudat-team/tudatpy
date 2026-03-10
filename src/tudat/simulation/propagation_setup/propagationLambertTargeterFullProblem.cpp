@@ -13,6 +13,7 @@
 // #include "tudat/astro/mission_segments/lambertTargeterIzzo.h"
 // #include "tudat/astro/mission_segments/lambertRoutines.h"
 // #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 // #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 // #include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 // #include <tudat/simulation/estimation.h>

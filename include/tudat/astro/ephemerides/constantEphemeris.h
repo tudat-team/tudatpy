@@ -11,7 +11,6 @@
 #define TUDAT_CONSTANTEPHEMERIS_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
@@ -38,7 +37,7 @@ public:
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), constantStateFunction_( constantStateFunction )
-    { }
+    {}
 
     //! Constructor of a constant Ephemeris object
     /*!

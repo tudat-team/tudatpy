@@ -12,7 +12,7 @@
 
 #include <functional>
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {

@@ -39,10 +39,11 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat

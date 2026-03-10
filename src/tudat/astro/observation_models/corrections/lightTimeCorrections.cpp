@@ -25,6 +25,7 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         case tabulated_tropospheric:
         case saastamoinen_tropospheric:
         case vmf3_tropospheric:
+        case vmf3o_tropospheric:
             requiresMultiLegIterations = false;
             break;
         case tabulated_ionospheric:
@@ -63,6 +64,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
             break;
         case vmf3_tropospheric:
             name = "VMF3 tropospheric";
+            break;
+        case vmf3o_tropospheric:
+            name = "VMF3o tropospheric";
             break;
         case jakowski_vtec_ionospheric:
             name = "Jakowski VTEC ionospheric";

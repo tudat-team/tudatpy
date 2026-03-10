@@ -7,7 +7,7 @@ from tudatpy.constants import GRAVITATIONAL_CONSTANT
 
 class SBDBquery:
     """Small-Body Database Query for retrieving various properties of a small body.
-    Usefull for retrieving names and masses in conjunction with the MPC module.
+    Useful for retrieving names and masses in conjunction with the MPC module.
     """
 
     def __init__(self, MPCcode: Union[str, int], *args, **kwargs) -> None:

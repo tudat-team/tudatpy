@@ -6,7 +6,6 @@
 #define TUDATPY_EXPOSE_IO_H
 
 #include <pybind11/pybind11.h>
-#include <tudat/io/basicInputOutput.h>
 
 namespace py = pybind11;
 

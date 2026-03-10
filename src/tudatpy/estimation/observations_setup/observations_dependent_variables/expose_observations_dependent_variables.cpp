@@ -7,9 +7,17 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations_dependent_variables.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
@@ -464,6 +472,27 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         observable_type : tudatpy.astro.ObservableType, optional
             Observable type for which to retrieve the retransmission delays.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "link_end_epochs_dependent_variable",
+           &tss::linkEndEpochsDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           R"doc(
+        Function to create a dependent variable for the link-end epochs of an n-way range observable.
+
+        The returned vector contains the internally computed link-end epochs for each leg in chronological solution order.
+        This setting is currently available for :class:`~tudatpy.estimation.observable_models.n_way_range`
+        and :class:`~tudatpy.estimation.observable_models.dsn_n_way_range`.
+
+        Parameters
+        ----------
+        observable_type : tudatpy.astro.ObservableType, optional
+            Observable type for which to retrieve the link-end epochs.
 
         Returns
         -------

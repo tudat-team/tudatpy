@@ -16,6 +16,7 @@
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 
 namespace tudat
