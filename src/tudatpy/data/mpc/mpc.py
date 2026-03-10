@@ -838,7 +838,7 @@ class BatchMPC:
 
     # data retrieval options: from_file: allows external observations to be added
     def from_file(
-        self, filename: str, in_degrees: bool = False, frame: str = "J2000"
+        self, filename: str, frame: str = "J2000"
     ) -> None:
         """
         Loads observations from a local MPC 80-column text file.
@@ -890,8 +890,8 @@ class BatchMPC:
         astropy_table = parse_80cols_file(filename)
 
         # Use the from_astropy method to validate and add the data.
-        # in_degrees is False because the parser has already converted to radians.
-        self.from_astropy(astropy_table, in_degrees=in_degrees, frame=frame)
+        # we set in_degrees to False because the parser outputs data in radians.
+        self.from_astropy(astropy_table, in_degrees=False, frame=frame)
 
     # data retrieval options: get_observations: retrieves data from mpc through astroquery.
     def get_observations(
