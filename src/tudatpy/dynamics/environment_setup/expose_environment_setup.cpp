@@ -726,6 +726,10 @@ void expose_environment_setup( py::module &m )
  ephemeris_model : Ephemeris
     Ephemeris object, retrieved as get.body('BODY_NAME').ephemeris
 
+Returns
+---------
+Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
+
     )doc");
 
     m.def( "add_aerodynamic_coefficient_interface",
