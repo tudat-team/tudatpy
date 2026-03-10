@@ -1072,7 +1072,14 @@ public:
                                   biasSettings,
                                   lightTimeConvergenceCriteria ),
         differencedTimeScale_( differencedTimeScale ), dopplerModelSettings_( dopplerModelSettings )
-    {}
+    {
+        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale )
+        {
+            throw std::runtime_error(
+                    "Error when creating one-way Doppler measured frequency observation settings, "
+                    "only TDB time scale is currently supported" );
+        }
+    }
 
     [[nodiscard]] std::shared_ptr< OneWayDopplerObservationModelSettings > getDopplerModelSettings( )
     {
@@ -1112,7 +1119,14 @@ public:
                                   lightTimeConvergenceCriteria ),
         differencedTimeScale_( differencedTimeScale ), firstDopplerModelSettings_( firstDopplerModelSettings ),
         secondDopplerModelSettings_( secondDopplerModelSettings )
-    {}
+    {
+        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale )
+        {
+            throw std::runtime_error(
+                    "Error when creating differenced frequency of arrival observation settings, "
+                    "only TDB time scale is currently supported" );
+        }
+    }
 
     [[nodiscard]] std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > getFirstDopplerModelSettings( ) const
     {
