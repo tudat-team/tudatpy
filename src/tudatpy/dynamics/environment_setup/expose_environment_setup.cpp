@@ -7,13 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
-#endif
 #include "expose_environment_setup.h"
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
@@ -21,16 +16,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup/body.h>
-#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
-#include <tudat/simulation/environment_setup/createBodiesFactory.h>
-#include <tudat/simulation/environment_setup/createEphemeris.h>
-#include <tudat/simulation/environment_setup/createFlightConditions.h>
-#include <tudat/simulation/environment_setup/createGroundStations.h>
-#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
-#include <tudat/simulation/environment_setup/createSystemModel.h>
-#include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
-#include <tudat/simulation/environment_setup/defaultBodies.h>
+#include <tudat/simulation/environment_setup.h>
 
 #include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"
 #include "atmosphere/expose_atmosphere.h"
@@ -282,9 +268,9 @@ void expose_environment_setup( py::module &m )
          Parameters
          ----------
          frame_origin : str
-             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
+             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
          frame_orientation : str
-             Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
+             Definition of the global frame orientation for the bodies. See the `user guide https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
 
 
       )doc" )
@@ -318,7 +304,7 @@ void expose_environment_setup( py::module &m )
 
              This method is rarely called by the user, as :class:`BodySettings` objects cannot be created directly but only be extracted from a BodyListSettings instance.
              Instead, users are recommended to use the :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.dynamics.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
-             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
+             See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
 
 
          Parameters
@@ -340,7 +326,7 @@ void expose_environment_setup( py::module &m )
          This method adds empty settings to the :class:`BodyListSettings` instance.
 
          Adds empty settings to the :class:`BodyListSettings` instance. This is typically used to add settings for custom bodies, for which no default settings are available.
-         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`__ for more information.
+         See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
 
          Parameters
          ----------
@@ -357,7 +343,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`__ for more information.
+         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
 
          :type: str
       )doc" )
@@ -365,7 +351,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`__ for more information.
+         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
 
          :type: str
       )doc" );
@@ -712,7 +698,14 @@ void expose_environment_setup( py::module &m )
            "body_with_ground_station",
            "station_name" );
 
-    m.def( "get_safe_interpolation_interval", &tudat::ephemerides::getSafeEphemerisEvaluationInterval, py::arg( "ephemeris_model" ) );
+    m.def( "get_safe_interpolation_interval",
+           &tudat::ephemerides::getSafeEphemerisEvaluationInterval,
+           py::arg( "ephemeris_model" ),
+           R"doc(
+ Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ on which the interpolator inside this object is valid is checked and returned.
+    )doc");
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,
