@@ -289,6 +289,16 @@ public:
         return sineCoefficientsOfBody1_;
     }
 
+    Eigen::MatrixXd getCosineCoefficientsOfBody2( )
+    {
+        return cosineCoefficientsOfBody2_;
+    }
+
+    Eigen::MatrixXd getSineCoefficientsOfBody2( )
+    {
+        return sineCoefficientsOfBody2_;
+    }
+
     double getMultiplier( const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
         return multipliers_[ getEffectiveIndex(

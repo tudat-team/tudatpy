@@ -111,6 +111,12 @@ public:
         updatePartials_ = updatePartials;
     }
 
+    //! Function to retrieve Wigner D-matrix cache used internally
+    std::shared_ptr< WignerDMatricesCache > getWignerDMatricesCache( )
+    {
+        return wignerDMatricesCache_;
+    }
+
 
 private:
 

@@ -12,6 +12,7 @@
 #define TUDAT_TORQUESETTINGS_H
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
 {
@@ -72,6 +73,26 @@ public:
     int maximumOrder_;
 };
 
+class FullTwoBodySphericalHarmonicTorqueSettings : public TorqueSettings
+{
+public:
+    FullTwoBodySphericalHarmonicTorqueSettings(
+            const std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAccelerationSettings ):
+        TorqueSettings( basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque ),
+        fullTwoBodySphericalHarmonicAccelerationSettings_( fullTwoBodySphericalHarmonicAccelerationSettings )
+    { }
+
+    std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAccelerationSettings_;
+};
+
+class FourthDegreeFullTwoBodyGravitationalTorqueSettings : public TorqueSettings
+{
+public:
+    FourthDegreeFullTwoBodyGravitationalTorqueSettings( ):
+        TorqueSettings( basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque )
+    { }
+};
+
 inline Eigen::Vector3d applyTorqueScalingFunction( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
                                                    const std::function< double( const double ) > scalingFunction,
                                                    const double time )
@@ -117,6 +138,32 @@ inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
 inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque( const int maximumDegree, const int maximumOrder )
 {
     return std::make_shared< SphericalHarmonicTorqueSettings >( maximumDegree, maximumOrder );
+}
+
+inline std::shared_ptr< TorqueSettings > fullTwoBodySphericalHarmonicGravitationalTorque(
+        const int maximumDegreeOfBodyUndergoingTorque,
+        const int maximumOrderOfBodyUndergoingTorque,
+        const int maximumDegreeOfBodyExertingTorque,
+        const int maximumOrderOfBodyExertingTorque )
+{
+    return std::make_shared< FullTwoBodySphericalHarmonicTorqueSettings >(
+            fullTwoBodySphericalHarmonicAcceleration(
+                    maximumDegreeOfBodyUndergoingTorque,
+                    maximumOrderOfBodyUndergoingTorque,
+                    maximumDegreeOfBodyExertingTorque,
+                    maximumOrderOfBodyExertingTorque ) );
+}
+
+inline std::shared_ptr< TorqueSettings > fullTwoBodySphericalHarmonicGravitationalTorque(
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
+{
+    return std::make_shared< FullTwoBodySphericalHarmonicTorqueSettings >(
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( coefficientCombinationsToUse ) );
+}
+
+inline std::shared_ptr< TorqueSettings > fourthDegreeFullTwoBodyGravitationalTorque( )
+{
+    return std::make_shared< FourthDegreeFullTwoBodyGravitationalTorqueSettings >( );
 }
 
 inline std::shared_ptr< TorqueSettings > dissipativeTorque( const int maximumDegree, const int maximumOrder )

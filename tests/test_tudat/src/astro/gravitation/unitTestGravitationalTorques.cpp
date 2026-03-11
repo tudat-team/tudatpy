@@ -17,6 +17,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -26,10 +27,17 @@
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
+#include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 
@@ -37,6 +45,236 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+std::shared_ptr< simulation_setup::Body > createBodyForFullTwoBodyTorqueTest(
+        const double gravitationalParameter,
+        const double referenceRadius,
+        const Eigen::MatrixXd& cosineCoefficients,
+        const Eigen::MatrixXd& sineCoefficients,
+        const Eigen::Vector3d& position,
+        const Eigen::Quaterniond& rotationToBodyFixedFrame,
+        const double scaledMeanMomentOfInertia = TUDAT_NAN )
+{
+    std::shared_ptr< simulation_setup::Body > body = std::make_shared< simulation_setup::Body >( );
+    body->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >(
+            gravitationalParameter,
+            referenceRadius,
+            cosineCoefficients,
+            sineCoefficients,
+            "BodyFixed",
+            scaledMeanMomentOfInertia ) );
+
+    Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
+    bodyState.segment( 0, 3 ) = position;
+    body->setState( bodyState );
+
+    body->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
+            rotationToBodyFixedFrame.inverse( ), "ECLIPJ2000", "BodyFixed" ) );
+
+    return body;
+}
+
+simulation_setup::SystemOfBodies createSystemOfBodiesForFullTwoBodyTorqueTest(
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName,
+        const double gravitationalParameter,
+        const double referenceRadiusBody1,
+        const double referenceRadiusBody2,
+        const Eigen::Vector3d& positionOfBody1,
+        const Eigen::Vector3d& positionOfBody2,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
+        const Eigen::MatrixXd& sineCoefficientsOfBody1,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody2,
+        const Eigen::MatrixXd& sineCoefficientsOfBody2,
+        const Eigen::Quaterniond& rotationToBody1,
+        const Eigen::Quaterniond& rotationToBody2,
+        const double scaledMeanMomentOfInertiaBody1 = TUDAT_NAN,
+        const double scaledMeanMomentOfInertiaBody2 = TUDAT_NAN )
+{
+    simulation_setup::SystemOfBodies bodies;
+    bodies.addBody(
+            createBodyForFullTwoBodyTorqueTest( gravitationalParameter,
+                                                referenceRadiusBody1,
+                                                cosineCoefficientsOfBody1,
+                                                sineCoefficientsOfBody1,
+                                                positionOfBody1,
+                                                rotationToBody1,
+                                                scaledMeanMomentOfInertiaBody1 ),
+            bodyUndergoingTorqueName,
+            false );
+    bodies.addBody(
+            createBodyForFullTwoBodyTorqueTest( gravitationalParameter,
+                                                referenceRadiusBody2,
+                                                cosineCoefficientsOfBody2,
+                                                sineCoefficientsOfBody2,
+                                                positionOfBody2,
+                                                rotationToBody2,
+                                                scaledMeanMomentOfInertiaBody2 ),
+            bodyExertingTorqueName,
+            false );
+    bodies.processBodyFrameDefinitions< >( );
+    return bodies;
+}
+
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFactoryFullTwoBodySphericalHarmonicTorqueModel(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName )
+{
+    simulation_setup::SelectedTorqueMap selectedTorqueModelMap;
+    selectedTorqueModelMap[ bodyUndergoingTorqueName ][ bodyExertingTorqueName ].push_back(
+            simulation_setup::fullTwoBodySphericalHarmonicGravitationalTorque( 2, 2, 0, 0 ) );
+
+    basic_astrodynamics::TorqueModelMap torqueModelMap = simulation_setup::createTorqueModelsMap(
+            bodies, selectedTorqueModelMap, { bodyUndergoingTorqueName } );
+    return std::dynamic_pointer_cast< gravitation::FullTwoBodySphericalHarmonicTorque >(
+            torqueModelMap.at( bodyUndergoingTorqueName ).at( bodyExertingTorqueName ).at( 0 ) );
+}
+
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > createReferenceFullTwoBodySphericalHarmonicAccelerationModel(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName )
+{
+    return std::dynamic_pointer_cast< gravitation::FullTwoBodySphericalHarmonicAcceleration >(
+            simulation_setup::createAccelerationModel(
+                    bodies.at( bodyUndergoingTorqueName ),
+                    bodies.at( bodyExertingTorqueName ),
+                    simulation_setup::fullTwoBodySphericalHarmonicAcceleration( 2, 2, 0, 0 ),
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName ) );
+}
+
+std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > createFactorySphericalHarmonicTorqueModel(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    simulation_setup::SelectedTorqueMap selectedTorqueModelMap;
+    selectedTorqueModelMap[ bodyUndergoingTorqueName ][ bodyExertingTorqueName ].push_back(
+            simulation_setup::sphericalHarmonicGravitationalTorque( maximumDegree, maximumOrder ) );
+
+    basic_astrodynamics::TorqueModelMap torqueModelMap = simulation_setup::createTorqueModelsMap(
+            bodies, selectedTorqueModelMap, { bodyUndergoingTorqueName } );
+    return std::dynamic_pointer_cast< gravitation::SphericalHarmonicGravitationalTorqueModel >(
+            torqueModelMap.at( bodyUndergoingTorqueName ).at( bodyExertingTorqueName ).at( 0 ) );
+}
+
+std::shared_ptr< simulation_setup::Body > createBodyForFourthDegreeTwoBodyTorqueTest(
+        const double bodyMass,
+        const Eigen::Matrix3d& inertiaTensorInBodyFixedFrame,
+        const Eigen::Vector3d& position,
+        const Eigen::Quaterniond& rotationToBodyFixedFrame )
+{
+    std::shared_ptr< simulation_setup::Body > body = std::make_shared< simulation_setup::Body >( );
+    body->setConstantBodyMass( bodyMass );
+    body->setBodyInertiaTensor( inertiaTensorInBodyFixedFrame );
+    body->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
+            physical_constants::GRAVITATIONAL_CONSTANT * bodyMass ) );
+
+    Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
+    bodyState.segment( 0, 3 ) = position;
+    body->setState( bodyState );
+
+    body->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
+            rotationToBodyFixedFrame.inverse( ), "ECLIPJ2000", "BodyFixed" ) );
+    return body;
+}
+
+simulation_setup::SystemOfBodies createSystemOfBodiesForFourthDegreeTwoBodyTorqueTest(
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName,
+        const double massOfBodyUndergoingTorque,
+        const double massOfBodyExertingTorque,
+        const Eigen::Matrix3d& inertiaTensorOfBodyUndergoingTorque,
+        const Eigen::Matrix3d& inertiaTensorOfBodyExertingTorque,
+        const Eigen::Vector3d& positionOfBodyUndergoingTorque,
+        const Eigen::Vector3d& positionOfBodyExertingTorque,
+        const Eigen::Quaterniond& rotationToBodyUndergoingTorque,
+        const Eigen::Quaterniond& rotationToBodyExertingTorque )
+{
+    simulation_setup::SystemOfBodies bodies;
+    bodies.addBody(
+            createBodyForFourthDegreeTwoBodyTorqueTest( massOfBodyUndergoingTorque,
+                                                        inertiaTensorOfBodyUndergoingTorque,
+                                                        positionOfBodyUndergoingTorque,
+                                                        rotationToBodyUndergoingTorque ),
+            bodyUndergoingTorqueName,
+            false );
+    bodies.addBody(
+            createBodyForFourthDegreeTwoBodyTorqueTest( massOfBodyExertingTorque,
+                                                        inertiaTensorOfBodyExertingTorque,
+                                                        positionOfBodyExertingTorque,
+                                                        rotationToBodyExertingTorque ),
+            bodyExertingTorqueName,
+            false );
+    bodies.processBodyFrameDefinitions< >( );
+    return bodies;
+}
+
+std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >
+createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName )
+{
+    simulation_setup::SelectedTorqueMap selectedTorqueModelMap;
+    selectedTorqueModelMap[ bodyUndergoingTorqueName ][ bodyExertingTorqueName ].push_back(
+            simulation_setup::fourthDegreeFullTwoBodyGravitationalTorque( ) );
+
+    basic_astrodynamics::TorqueModelMap torqueModelMap = simulation_setup::createTorqueModelsMap(
+            bodies, selectedTorqueModelMap, { bodyUndergoingTorqueName } );
+    return std::dynamic_pointer_cast< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >(
+            torqueModelMap.at( bodyUndergoingTorqueName ).at( bodyExertingTorqueName ).at( 0 ) );
+}
+
+std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createFactorySecondDegreeGravitationalTorqueModel(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyUndergoingTorqueName,
+        const std::string& bodyExertingTorqueName )
+{
+    simulation_setup::SelectedTorqueMap selectedTorqueModelMap;
+    selectedTorqueModelMap[ bodyUndergoingTorqueName ][ bodyExertingTorqueName ].push_back(
+            simulation_setup::secondDegreeGravitationalTorque( ) );
+
+    basic_astrodynamics::TorqueModelMap torqueModelMap = simulation_setup::createTorqueModelsMap(
+            bodies, selectedTorqueModelMap, { bodyUndergoingTorqueName } );
+    return std::dynamic_pointer_cast< gravitation::SecondDegreeGravitationalTorqueModel >(
+            torqueModelMap.at( bodyUndergoingTorqueName ).at( bodyExertingTorqueName ).at( 0 ) );
+}
+
+Eigen::Matrix3d transformBodyExertingInertiaTensorToBodyUndergoingFrame(
+        const Eigen::Matrix3d& inertiaTensorOfBodyExertingTorque,
+        const Eigen::Quaterniond& rotationToBodyUndergoingTorque,
+        const Eigen::Quaterniond& rotationToBodyExertingTorque )
+{
+    const Eigen::Matrix3d rotationFromBodyExertingToBodyUndergoing =
+            rotationToBodyUndergoingTorque.toRotationMatrix( ) *
+            rotationToBodyExertingTorque.toRotationMatrix( ).transpose( );
+    return rotationFromBodyExertingToBodyUndergoing * inertiaTensorOfBodyExertingTorque *
+            rotationFromBodyExertingToBodyUndergoing.transpose( );
+}
+
+Eigen::Vector3d computeManualFourthDegreeTwoBodyTorqueFromBodyStates(
+        const std::shared_ptr< simulation_setup::Body >& bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body >& bodyExertingTorque )
+{
+    const Eigen::Vector3d relativePositionInBodyUndergoingFrame = bodyUndergoingTorque->getCurrentRotationToLocalFrame( ) *
+            ( bodyExertingTorque->getPosition( ) - bodyUndergoingTorque->getPosition( ) );
+    const Eigen::Matrix3d inertiaTensorOfBodyExertingInBodyUndergoingFrame =
+            transformBodyExertingInertiaTensorToBodyUndergoingFrame(
+                    bodyExertingTorque->getBodyInertiaTensor( ),
+                    bodyUndergoingTorque->getCurrentRotationToLocalFrame( ),
+                    bodyExertingTorque->getCurrentRotationToLocalFrame( ) );
+
+    return gravitation::calculateFourthDegreeFullTwoBodyGravitationalTorque(
+            relativePositionInBodyUndergoingFrame,
+            bodyExertingTorque->getBodyMass( ),
+            bodyUndergoingTorque->getBodyInertiaTensor( ),
+            inertiaTensorOfBodyExertingInBodyUndergoingFrame );
+}
 
 BOOST_AUTO_TEST_SUITE( test_gravitational_torque )
 
@@ -332,6 +570,382 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         {
             BOOST_CHECK_SMALL( std::fabs( torqueError( i ) ), 1.0E-14 * currentExplicitTorque.norm( ) );
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
+{
+    using namespace tudat::simulation_setup;
+    using namespace tudat::gravitation;
+    using namespace tudat::basic_astrodynamics;
+
+    const std::string bodyUndergoingTorqueName = "Body1";
+    const std::string bodyExertingTorqueName = "Body2";
+
+    const double gravitationalParameter = 4.0E14;
+    const double referenceRadiusBody1 = 2.1E6;
+    const double referenceRadiusBody2 = 9.5E5;
+
+    const Eigen::Vector3d positionOfBody1( 7.2E6, -1.4E6, 2.6E6 );
+    const Eigen::Vector3d positionOfBody2( 1.8E6, 2.2E6, -1.1E6 );
+    const double evaluationTime = 86400.0;
+
+    // Case 1: all coefficients are zero -> zero torque.
+    {
+        const Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+        const Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+        const Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 1, 1 );
+        const Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 1, 1 );
+
+        const SystemOfBodies bodies = createSystemOfBodiesForFullTwoBodyTorqueTest( bodyUndergoingTorqueName,
+                                                                                     bodyExertingTorqueName,
+                                                                                     gravitationalParameter,
+                                                                                     referenceRadiusBody1,
+                                                                                     referenceRadiusBody2,
+                                                                                     positionOfBody1,
+                                                                                     positionOfBody2,
+                                                                                     cosineCoefficientsOfBody1,
+                                                                                     sineCoefficientsOfBody1,
+                                                                                     cosineCoefficientsOfBody2,
+                                                                                     sineCoefficientsOfBody2,
+                                                                                     Eigen::Quaterniond::Identity( ),
+                                                                                     Eigen::Quaterniond::Identity( ) );
+        bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+        bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+
+        std::shared_ptr< FullTwoBodySphericalHarmonicTorque > torqueModel =
+                createFactoryFullTwoBodySphericalHarmonicTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+        BOOST_REQUIRE( torqueModel != nullptr );
+        torqueModel->updateMembers( evaluationTime );
+
+        BOOST_CHECK_SMALL( torqueModel->getTorque( ).norm( ), 1.0E-30 );
+    }
+
+    // Case 2a/2b: degree-2 undergoing body with point-mass perturber, compare against acceleration model reference.
+    {
+        Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
+        cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
+        cosineCoefficientsOfBody1( 2, 0 ) = 1.3E-3;
+        cosineCoefficientsOfBody1( 2, 1 ) = -2.0E-4;
+        cosineCoefficientsOfBody1( 2, 2 ) = 3.2E-4;
+        sineCoefficientsOfBody1( 2, 1 ) = 1.7E-4;
+        sineCoefficientsOfBody1( 2, 2 ) = -4.4E-4;
+
+        Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 1, 1 );
+        Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 1, 1 );
+        cosineCoefficientsOfBody2( 0, 0 ) = 1.0;
+
+        std::vector< std::pair< Eigen::Quaterniond, Eigen::Quaterniond > > orientationCases;
+        orientationCases.push_back( std::make_pair( Eigen::Quaterniond::Identity( ), Eigen::Quaterniond::Identity( ) ) );
+        orientationCases.push_back( std::make_pair(
+                Eigen::Quaterniond( Eigen::AngleAxisd( 1.11, Eigen::Vector3d::UnitZ( ) ) *
+                                    Eigen::AngleAxisd( -0.33, Eigen::Vector3d::UnitY( ) ) *
+                                    Eigen::AngleAxisd( 0.71, Eigen::Vector3d::UnitX( ) ) ),
+                Eigen::Quaterniond( Eigen::AngleAxisd( -0.58, Eigen::Vector3d::UnitX( ) ) *
+                                    Eigen::AngleAxisd( 0.43, Eigen::Vector3d::UnitZ( ) ) *
+                                    Eigen::AngleAxisd( 0.92, Eigen::Vector3d::UnitY( ) ) ) ) );
+        std::vector< Eigen::Vector3d > computedTorques;
+
+        for( const auto& orientationCase : orientationCases )
+        {
+            const SystemOfBodies bodies = createSystemOfBodiesForFullTwoBodyTorqueTest( bodyUndergoingTorqueName,
+                                                                                         bodyExertingTorqueName,
+                                                                                         gravitationalParameter,
+                                                                                         referenceRadiusBody1,
+                                                                                         referenceRadiusBody2,
+                                                                                         positionOfBody1,
+                                                                                         positionOfBody2,
+                                                                                         cosineCoefficientsOfBody1,
+                                                                                         sineCoefficientsOfBody1,
+                                                                                         cosineCoefficientsOfBody2,
+                                                                                         sineCoefficientsOfBody2,
+                                                                                         orientationCase.first,
+                                                                                         orientationCase.second );
+
+            bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+            bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+
+            std::shared_ptr< FullTwoBodySphericalHarmonicTorque > torqueModel =
+                    createFactoryFullTwoBodySphericalHarmonicTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+            BOOST_REQUIRE( torqueModel != nullptr );
+            std::shared_ptr< SphericalHarmonicGravitationalTorqueModel > sphericalHarmonicTorqueModel =
+                    createFactorySphericalHarmonicTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName, 2, 2 );
+            BOOST_REQUIRE( sphericalHarmonicTorqueModel != nullptr );
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > referenceAcceleration =
+                    createReferenceFullTwoBodySphericalHarmonicAccelerationModel(
+                            bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+            BOOST_REQUIRE( referenceAcceleration != nullptr );
+
+            torqueModel->updateMembers( evaluationTime );
+            sphericalHarmonicTorqueModel->updateMembers( evaluationTime );
+            referenceAcceleration->updateMembers( evaluationTime );
+
+            const Eigen::Vector3d referenceTorqueFromAcceleration =
+                    referenceAcceleration->getCurrentBodyFixedRelativePosition( ).cross(
+                            referenceAcceleration->getMutualPotentialGradient( ) );
+            const Eigen::Vector3d computedFullTwoBodyTorque = torqueModel->getTorque( );
+            const Eigen::Vector3d computedSphericalHarmonicTorque = sphericalHarmonicTorqueModel->getTorque( );
+            const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
+            const Eigen::Vector3d specificSphericalHarmonicTorque =
+                    computedSphericalHarmonicTorque / bodyExertingTorqueMass;
+            computedTorques.push_back( computedFullTwoBodyTorque );
+            const Eigen::Vector3d accelerationConsistencyDifference =
+                    computedFullTwoBodyTorque - referenceTorqueFromAcceleration;
+            const Eigen::Vector3d modelToModelDifference =
+                    computedFullTwoBodyTorque - specificSphericalHarmonicTorque;
+            const Eigen::Vector3d modelToModelSignedDifference =
+                    computedFullTwoBodyTorque + specificSphericalHarmonicTorque;
+            const double referenceScale = std::max( 1.0, referenceTorqueFromAcceleration.norm( ) );
+
+            BOOST_CHECK_SMALL( accelerationConsistencyDifference.norm( ) / referenceScale, 5.0E-13 );
+            BOOST_CHECK_SMALL( modelToModelSignedDifference.norm( ) / referenceScale, 5.0E-13 );
+            BOOST_CHECK_GT( modelToModelDifference.norm( ) / referenceScale, 1.0 );
+        }
+
+        BOOST_CHECK_GT( ( computedTorques.at( 0 ) - computedTorques.at( 1 ) ).norm( ), 1.0E-16 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorque )
+{
+    using namespace tudat::simulation_setup;
+    using namespace tudat::gravitation;
+
+    const std::string bodyUndergoingTorqueName = "Body1";
+    const std::string bodyExertingTorqueName = "Body2";
+    const Eigen::Vector3d positionOfBodyUndergoingTorque( 1.5E6, -2.4E6, 3.2E6 );
+    const Eigen::Vector3d positionOfBodyExertingTorque( -4.1E6, 2.7E6, 1.1E6 );
+    const double evaluationTime = 43200.0;
+
+    const double massOfBodyUndergoingTorque = 5.8E21;
+    const double massOfBodyExertingTorque = 7.1E21;
+
+    const Eigen::Matrix3d inertiaTensorOfBodyUndergoingTorque = ( Eigen::Matrix3d( ) << 3.7E29, -1.2E27, 2.0E27,
+                                                                   -1.2E27, 4.4E29, -0.8E27,
+                                                                   2.0E27, -0.8E27, 5.1E29 )
+                                                                          .finished( );
+    const Eigen::Quaterniond rotationToBodyUndergoingTorque(
+            Eigen::AngleAxisd( 0.42, Eigen::Vector3d::UnitX( ) ) *
+            Eigen::AngleAxisd( -0.35, Eigen::Vector3d::UnitY( ) ) *
+            Eigen::AngleAxisd( 0.71, Eigen::Vector3d::UnitZ( ) ) );
+
+    // Case 0: point-mass-equivalent body A (isotropic inertia tensor); verify Case 1 and Eq. (14) Case 2.
+    {
+        const double gravitationalParameterPointMassEquivalentBody =
+                physical_constants::GRAVITATIONAL_CONSTANT * massOfBodyExertingTorque;
+        const double referenceRadiusBodyUndergoingTorque = 2.3E6;
+        const double referenceRadiusBodyExertingTorque = 1.4E6;
+
+        const double isotropicInertiaValueOfBodyExertingTorque = 1.0E20;
+        const double scaledMeanMomentOfInertiaBodyExertingTorque =
+                isotropicInertiaValueOfBodyExertingTorque /
+                ( ( gravitationalParameterPointMassEquivalentBody / physical_constants::GRAVITATIONAL_CONSTANT ) *
+                  referenceRadiusBodyExertingTorque * referenceRadiusBodyExertingTorque );
+
+        const std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > degreeTwoCoefficientsOfBodyUndergoingTorque =
+                gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                        inertiaTensorOfBodyUndergoingTorque,
+                        gravitationalParameterPointMassEquivalentBody,
+                        referenceRadiusBodyUndergoingTorque,
+                        2,
+                        true );
+        const Eigen::MatrixXd cosineCoefficientsOfBodyUndergoingTorque = std::get< 0 >( degreeTwoCoefficientsOfBodyUndergoingTorque );
+        const Eigen::MatrixXd sineCoefficientsOfBodyUndergoingTorque = std::get< 1 >( degreeTwoCoefficientsOfBodyUndergoingTorque );
+        const double scaledMeanMomentOfInertiaBodyUndergoingTorque = std::get< 2 >( degreeTwoCoefficientsOfBodyUndergoingTorque );
+
+        Eigen::MatrixXd cosineCoefficientsOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd sineCoefficientsOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 3 );
+        cosineCoefficientsOfBodyExertingTorque( 0, 0 ) = 1.0;
+
+        std::vector< Eigen::Quaterniond > orientationOfPointMassEquivalentBodyCases;
+        orientationOfPointMassEquivalentBodyCases.push_back( Eigen::Quaterniond::Identity( ) );
+        orientationOfPointMassEquivalentBodyCases.push_back(
+                Eigen::Quaterniond( Eigen::AngleAxisd( 0.62, Eigen::Vector3d::UnitY( ) ) *
+                                    Eigen::AngleAxisd( -0.48, Eigen::Vector3d::UnitX( ) ) *
+                                    Eigen::AngleAxisd( 0.29, Eigen::Vector3d::UnitZ( ) ) ) );
+
+        std::vector< Eigen::Vector3d > case1Torques;
+        for( unsigned int i = 0; i < orientationOfPointMassEquivalentBodyCases.size( ); i++ )
+        {
+            const SystemOfBodies bodies = createSystemOfBodiesForFullTwoBodyTorqueTest(
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName,
+                    gravitationalParameterPointMassEquivalentBody,
+                    referenceRadiusBodyUndergoingTorque,
+                    referenceRadiusBodyExertingTorque,
+                    positionOfBodyUndergoingTorque,
+                    positionOfBodyExertingTorque,
+                    cosineCoefficientsOfBodyUndergoingTorque,
+                    sineCoefficientsOfBodyUndergoingTorque,
+                    cosineCoefficientsOfBodyExertingTorque,
+                    sineCoefficientsOfBodyExertingTorque,
+                    rotationToBodyUndergoingTorque,
+                    orientationOfPointMassEquivalentBodyCases.at( i ),
+                    scaledMeanMomentOfInertiaBodyUndergoingTorque,
+                    scaledMeanMomentOfInertiaBodyExertingTorque );
+            bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+            bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+
+            std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModel =
+                    createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
+                            bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+            std::shared_ptr< SecondDegreeGravitationalTorqueModel > secondDegreeTorqueModel =
+                    createFactorySecondDegreeGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+            std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > referenceAcceleration =
+                    createReferenceFullTwoBodySphericalHarmonicAccelerationModel(
+                            bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+
+            // This check ensures the fourth-degree torque model is available for Case 1 and Case 2 checks.
+            BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
+            // This check ensures the second-degree reference model exists for Case 1 verification.
+            BOOST_REQUIRE( secondDegreeTorqueModel != nullptr );
+            // This check ensures the mutual-potential gradient model exists for Eq. (14) evaluation.
+            BOOST_REQUIRE( referenceAcceleration != nullptr );
+
+            fourthDegreeTorqueModel->updateMembers( evaluationTime );
+            secondDegreeTorqueModel->updateMembers( evaluationTime );
+            referenceAcceleration->updateMembers( evaluationTime );
+
+            const Eigen::Vector3d case1TorqueFromFourthDegree = fourthDegreeTorqueModel->getTorque( );
+            const Eigen::Vector3d case1TorqueFromSecondDegree = secondDegreeTorqueModel->getTorque( );
+            const double massOfBodyExertingTorqueInCurrentCase = bodies.at( bodyExertingTorqueName )->getBodyMass( );
+            const Eigen::Vector3d case1SpecificTorqueFromFourthDegree =
+                    case1TorqueFromFourthDegree / massOfBodyExertingTorqueInCurrentCase;
+            const Eigen::Vector3d totalTorqueFromMutualPotential =
+                    referenceAcceleration->getCurrentBodyFixedRelativePosition( ).cross(
+                            referenceAcceleration->getMutualPotentialGradient( ) );
+            const Eigen::Vector3d case2TorqueOnPointMassEquivalentBodyFromEq14 =
+                    totalTorqueFromMutualPotential + case1SpecificTorqueFromFourthDegree;
+            const double case1Scale = std::max( 1.0, case1TorqueFromSecondDegree.norm( ) );
+            const double case2Scale = std::max( 1.0, totalTorqueFromMutualPotential.norm( ) );
+
+            // This check verifies Case 1: torque of point-mass-equivalent A on extended B equals second-degree torque.
+            BOOST_CHECK_SMALL(
+                    ( case1TorqueFromFourthDegree - case1TorqueFromSecondDegree ).norm( ) / case1Scale,
+                    5.0E-13 );
+            // This check verifies Case 2 (Eq. 14): torque of extended B on point-mass-equivalent A is zero.
+            BOOST_CHECK_SMALL( case2TorqueOnPointMassEquivalentBodyFromEq14.norm( ) / case2Scale, 5.0E-12 );
+
+            case1Torques.push_back( case1TorqueFromFourthDegree );
+        }
+
+        const double orientationInvariantScale = std::max( 1.0, case1Torques.at( 0 ).norm( ) );
+        // This check confirms isotropic inertia makes Case 1 torque invariant to body-A orientation.
+        BOOST_CHECK_SMALL( ( case1Torques.at( 0 ) - case1Torques.at( 1 ) ).norm( ) / orientationInvariantScale, 5.0E-13 );
+    }
+
+    // Case 1: body 2 is a point-mass equivalent; Eq. (11) must reduce to second-degree torque.
+    {
+        const Eigen::Matrix3d inertiaTensorOfBodyExertingTorque = Eigen::Matrix3d::Zero( );
+        const Eigen::Quaterniond rotationToBodyExertingTorque = Eigen::Quaterniond::Identity( );
+
+        const SystemOfBodies bodies = createSystemOfBodiesForFourthDegreeTwoBodyTorqueTest(
+                bodyUndergoingTorqueName,
+                bodyExertingTorqueName,
+                massOfBodyUndergoingTorque,
+                massOfBodyExertingTorque,
+                inertiaTensorOfBodyUndergoingTorque,
+                inertiaTensorOfBodyExertingTorque,
+                positionOfBodyUndergoingTorque,
+                positionOfBodyExertingTorque,
+                rotationToBodyUndergoingTorque,
+                rotationToBodyExertingTorque );
+        bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+        bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+
+        std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModel =
+                createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
+                        bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+        std::shared_ptr< SecondDegreeGravitationalTorqueModel > secondDegreeTorqueModel =
+                createFactorySecondDegreeGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+
+        // This check ensures both torque models were created by the factory as expected.
+        BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
+        // This check ensures the reference second-degree model was created for the comparison.
+        BOOST_REQUIRE( secondDegreeTorqueModel != nullptr );
+
+        fourthDegreeTorqueModel->updateMembers( evaluationTime );
+        secondDegreeTorqueModel->updateMembers( evaluationTime );
+
+        const Eigen::Vector3d fourthDegreeTorque = fourthDegreeTorqueModel->getTorque( );
+        const Eigen::Vector3d secondDegreeTorque = secondDegreeTorqueModel->getTorque( );
+        const double referenceScale = std::max( 1.0, secondDegreeTorque.norm( ) );
+
+        // This check confirms the setup is non-degenerate and produces a non-zero torque signal.
+        BOOST_CHECK_GT( secondDegreeTorque.norm( ), 1.0E-12 );
+        // This check validates the expected point-mass limit: Eq. (11) matches second-degree torque.
+        BOOST_CHECK_SMALL( ( fourthDegreeTorque - secondDegreeTorque ).norm( ) / referenceScale, 5.0E-14 );
+        // This check confirms that a zero body-2 inertia remains zero after frame transformation.
+        BOOST_CHECK_SMALL(
+                fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ).norm( ),
+                1.0E-20 );
+    }
+
+    // Case 2: body-2 has finite inertia; torque must match Eq. (11) with transformed inertia and vary with orientation.
+    {
+        const Eigen::Matrix3d inertiaTensorOfBodyExertingTorque = ( Eigen::Matrix3d( ) << 2.1E29, -0.6E27, 1.1E27,
+                                                                     -0.6E27, 2.5E29, -1.4E27,
+                                                                     1.1E27, -1.4E27, 3.0E29 )
+                                                                            .finished( );
+        std::vector< Eigen::Quaterniond > bodyExertingTorqueRotations;
+        bodyExertingTorqueRotations.push_back( Eigen::Quaterniond::Identity( ) );
+        bodyExertingTorqueRotations.push_back(
+                Eigen::Quaterniond( Eigen::AngleAxisd( -0.53, Eigen::Vector3d::UnitY( ) ) *
+                                    Eigen::AngleAxisd( 0.67, Eigen::Vector3d::UnitZ( ) ) *
+                                    Eigen::AngleAxisd( 0.21, Eigen::Vector3d::UnitX( ) ) ) );
+
+        std::vector< Eigen::Vector3d > evaluatedTorques;
+        for( unsigned int i = 0; i < bodyExertingTorqueRotations.size( ); i++ )
+        {
+            const SystemOfBodies bodies = createSystemOfBodiesForFourthDegreeTwoBodyTorqueTest(
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName,
+                    massOfBodyUndergoingTorque,
+                    massOfBodyExertingTorque,
+                    inertiaTensorOfBodyUndergoingTorque,
+                    inertiaTensorOfBodyExertingTorque,
+                    positionOfBodyUndergoingTorque,
+                    positionOfBodyExertingTorque,
+                    rotationToBodyUndergoingTorque,
+                    bodyExertingTorqueRotations.at( i ) );
+            bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+            bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
+
+            std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModel =
+                    createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
+                            bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
+
+            // This check ensures the fourth-degree model is available in each orientation case.
+            BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
+
+            fourthDegreeTorqueModel->updateMembers( evaluationTime );
+
+            const Eigen::Matrix3d manualTransformedInertiaTensorOfBodyExertingTorque =
+                    transformBodyExertingInertiaTensorToBodyUndergoingFrame(
+                            inertiaTensorOfBodyExertingTorque,
+                            rotationToBodyUndergoingTorque,
+                            bodyExertingTorqueRotations.at( i ) );
+            const Eigen::Vector3d manualTorque = computeManualFourthDegreeTwoBodyTorqueFromBodyStates(
+                    bodies.at( bodyUndergoingTorqueName ), bodies.at( bodyExertingTorqueName ) );
+            const Eigen::Vector3d modelTorque = fourthDegreeTorqueModel->getTorque( );
+            const double referenceScale = std::max( 1.0, manualTorque.norm( ) );
+
+            // This check verifies the frame transformation of body-2 inertia used internally by the model.
+            BOOST_CHECK_SMALL(
+                    ( fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) -
+                      manualTransformedInertiaTensorOfBodyExertingTorque )
+                            .norm( ) /
+                            std::max( 1.0, manualTransformedInertiaTensorOfBodyExertingTorque.norm( ) ),
+                    1.0E-14 );
+            // This check validates the model output against a direct Eq. (11) evaluation from current body states.
+            BOOST_CHECK_SMALL( ( modelTorque - manualTorque ).norm( ) / referenceScale, 5.0E-14 );
+
+            evaluatedTorques.push_back( modelTorque );
+        }
+
+        // This check confirms body-2 orientation changes the torque when body-2 inertia is non-zero.
+        BOOST_CHECK_GT( ( evaluatedTorques.at( 0 ) - evaluatedTorques.at( 1 ) ).norm( ), 1.0E-6 );
     }
 }
 

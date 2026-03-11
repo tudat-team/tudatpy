@@ -284,6 +284,24 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
                         break;
+                    case full_two_body_spherical_harmonic_gravitational_torque:
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
+                        break;
+                    case fourth_degree_full_two_body_gravitational_torque:
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( acceleratedBodyIterator->first );
+                        break;
                     case radiation_pressure_torque:
                         throw std::runtime_error( "Error, environment updates for radiation pressure torque not yet implemented" );
                         break;

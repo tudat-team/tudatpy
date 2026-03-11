@@ -19,6 +19,8 @@
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
+#include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
@@ -84,6 +86,21 @@ std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecon
  *  \return Direct gravitational torque model of requested settings.
  */
 std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > createSphericalHarmonicGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque );
+
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwoBodySphericalHarmonicGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque );
+
+std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >
+createFourthDegreeFullTwoBodyGravitationalTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,

@@ -1,19 +1,17 @@
 #ifndef MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 #define MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
 
+#include <array>
+#include <complex>
 #include <tuple>
 #include <memory>
-
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/math/basic/legendrePolynomials.h"
-
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
+#include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat
 {
@@ -50,11 +48,21 @@ public:
     }
 
 private:
+    //! Compute \hat{J} D_{m,k}^l in Cartesian basis of frame F1.
+    Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficient(
+            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+            const int degree,
+            const int orderM,
+            const int orderK );
 
-    void calculateDirectTorque( )
-    {
-
-    }
+    //! Compute \hat{J}\bar{C}_{l,m}^{2,F1} and \hat{J}\bar{S}_{l,m}^{2,F1} from body-2 coefficients and current Wigner D-matrices.
+    void computeTransformedAngularMomentumCoefficients(
+            const Eigen::MatrixXd& cosineCoefficientsBody2,
+            const Eigen::MatrixXd& sineCoefficientsBody2,
+            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+            const bool areCoefficientsNormalized,
+            std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+            std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
 
     Eigen::Vector3d currentTorque_;
 
