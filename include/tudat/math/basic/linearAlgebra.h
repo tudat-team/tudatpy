@@ -20,7 +20,6 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/SVD>
 #include <Eigen/Geometry>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -213,6 +212,8 @@ double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
  */
 void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4d quaternionVector,
                                                             std::vector< Eigen::Matrix3d >& partialDerivatives );
+
+double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual );
 
 }  // namespace linear_algebra
 

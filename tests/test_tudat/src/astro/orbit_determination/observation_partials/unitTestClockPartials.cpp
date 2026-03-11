@@ -4,7 +4,6 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
@@ -13,11 +12,12 @@
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/clockParameterPartials.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createClockPartials.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 BOOST_CHECK_EQUAL( timingPartialsWrtArcWiseSatelliteClockParameters.size( ), numberOfPartialObjects );
 
                 int counter = 0;
-                for( auto it: timingPartialsWrtGlobalSatelliteClockParameters )
+                for( auto it : timingPartialsWrtGlobalSatelliteClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, satelliteLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 }
 
                 counter = 0;
-                for( auto it: timingPartialsWrtArcWiseSatelliteClockParameters )
+                for( auto it : timingPartialsWrtArcWiseSatelliteClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, satelliteLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 BOOST_CHECK_EQUAL( timingPartialsWrtArcWiseStationClockParameters.size( ), numberOfPartialObjects );
 
                 int counter = 0;
-                for( auto it: timingPartialsWrtGlobalStationClockParameters )
+                for( auto it : timingPartialsWrtGlobalStationClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, stationLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 }
 
                 counter = 0;
-                for( auto it: timingPartialsWrtArcWiseStationClockParameters )
+                for( auto it : timingPartialsWrtArcWiseStationClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, stationLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),

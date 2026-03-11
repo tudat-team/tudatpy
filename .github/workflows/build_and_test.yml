@@ -39,15 +39,17 @@ jobs:
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
             build_jobs: 3
+            build_type: Release
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
-            build_jobs: 3
+            build_jobs: 2
+            build_type: Release
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
             build_jobs: 2
-        build_type: [Release]
+            build_type: Release
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
         exclude:
           - platform: {os: windows-latest}
@@ -59,6 +61,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Resolve build type
+      id: resolve_build_type
+      shell: bash -l {0}
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          echo "value=Release" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=${{ matrix.platform.build_type }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Resolve CI ccache mode
+      id: resolve_ci_ccache_mode
+      shell: bash -l {0}
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          # Avoid MSVC + ccache wrapper path: can crash cl.exe with missing entrypoint errors.
+          echo "value=OFF" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=ON" >> "$GITHUB_OUTPUT"
+        fi
 
 
     - name: Setup conda environment
@@ -130,15 +153,17 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
-      run: >
-        cmake -B "${{ github.workspace }}/build"
-        -S "${{ github.workspace }}"
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
-        #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
-        #-DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DTUDAT_BUILD_GITHUB_ACTIONS=ON
+      run: |
+        cmake -B "${{ github.workspace }}/build" \
+          -S "${{ github.workspace }}" \
+          -DCMAKE_BUILD_TYPE=${{ steps.resolve_build_type.outputs.value }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
+          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
+          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ steps.resolve_ci_ccache_mode.outputs.value }} \
+          -DTUDAT_BUILD_WITH_TEST_PCH=ON \
+          -DTUDAT_BUILD_WITH_PCH=ON \
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
+          -DCMAKE_UNITY_BUILD=ON
 
     - name: Debug
       run: |
@@ -148,11 +173,11 @@ jobs:
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+      run: cmake --build "${{ github.workspace }}/build" --config "${{ steps.resolve_build_type.outputs.value }}" -j${{ matrix.platform.build_jobs }}
 
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
+      run: ctest --build-config ${{ steps.resolve_build_type.outputs.value }} --output-on-failure -j4

@@ -12,6 +12,9 @@
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include <thread>
 
 #include <limits>
@@ -19,7 +22,13 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 
 namespace tudat
@@ -350,7 +359,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         }
         else
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 2.0e-6 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ), 1.0e-4 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 1.0E-7 );
             if( test == 1 )

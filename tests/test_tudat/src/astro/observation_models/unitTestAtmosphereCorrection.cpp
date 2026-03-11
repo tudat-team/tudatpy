@@ -12,13 +12,14 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/basics/testMacros.h"
 
 #include <numeric>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models.h"
-#include "tudat/simulation/estimation_setup.h"
-#include "tudat/simulation/environment_setup.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
@@ -31,6 +32,8 @@ namespace unit_tests
 using namespace input_output;
 using namespace observation_models;
 using namespace ground_stations;
+using namespace physical_constants;
+using namespace basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_tabulated_media_corrections )
 
@@ -842,6 +845,30 @@ BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
     BOOST_CHECK_CLOSE_FRACTION( slantDry, 6.3605, 1.0e-1 );
     BOOST_CHECK_CLOSE_FRACTION( slantWet, 0.6100, 1.0e-1 );
     BOOST_CHECK_CLOSE_FRACTION( totalSlantDelay, 6.9705, 1.0e-1 );
+}
+
+BOOST_AUTO_TEST_CASE( testVmf3oCorrectionType )
+{
+    std::shared_ptr< observation_models::LightTimeCorrectionSettings > settings =
+            observation_models::vmf3oTroposphericCorrectionSettings( "Earth", true, observation_models::TroposphericMappingModel::vmf3, 1064.0 );
+
+    BOOST_CHECK_EQUAL( settings->getCorrectionType( ), observation_models::vmf3o_tropospheric );
+    BOOST_CHECK_EQUAL(
+            observation_models::requiresMultiLegIterations( observation_models::vmf3o_tropospheric ), false );
+    BOOST_CHECK_EQUAL( observation_models::getLightTimeCorrectionName( observation_models::vmf3o_tropospheric ),
+                       "VMF3o tropospheric" );
+
+    std::shared_ptr< observation_models::VMF3TroposphericCorrectionSettings > vmf3oSettings =
+            std::dynamic_pointer_cast< observation_models::VMF3TroposphericCorrectionSettings >( settings );
+    BOOST_REQUIRE( vmf3oSettings != nullptr );
+    BOOST_CHECK_CLOSE_FRACTION( vmf3oSettings->getObservationWavelengthNm( ), 1064.0, 1.0e-15 );
+
+    BOOST_CHECK_THROW( observation_models::vmf3oTroposphericCorrectionSettings(
+                               "Earth",
+                               true,
+                               observation_models::TroposphericMappingModel::vmf3,
+                               0.0 ),
+                       std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

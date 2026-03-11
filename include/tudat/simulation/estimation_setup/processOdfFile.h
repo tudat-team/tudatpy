@@ -24,6 +24,7 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
@@ -346,6 +347,7 @@ public:
         {
             extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
         }
+        printExtractionWarnings( );
         // Compute the processed observation times (i.e. TDB time from J2000)
         updateProcessedObservationTimes( );
     }
@@ -625,8 +627,8 @@ private:
             {
                 if( verbose_ )
                 {
-                    std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by ramp table of station " << transmittingStation << ", ignoring it." << std::endl;
+                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back(
+                            rawDataBlock->getCommonDataBlock( )->getObservableTime( ) );
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
@@ -755,6 +757,20 @@ private:
 
                 addOdfRawDataBlockToProcessedData(
                         rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
+        }
+    }
+
+    void printExtractionWarnings( )
+    {
+        for( auto it : noRampDataItems_ )
+        {
+            for( auto it2 : it.second )
+            {
+                std::cerr << "Warning: observation of ODF type " << it.first << ", " << it2.second.size( )
+                          << " observations with transmitting station " << it2.first
+                          << " not covered by ramp table of station. These observations are ignored and not processed further."
+                          << std::endl;
             }
         }
     }
@@ -1004,6 +1020,8 @@ private:
     // Flag indicating whether to print warnings
     bool verbose_;
 
+    std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
+
     // TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way
     // Doppler) is implemented
     friend class ProcessedOdfFileContentsPrivateFunctionTest;
@@ -1234,7 +1252,8 @@ template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
         std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
-        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ) )
+        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
+        const bool allowDuplicateObservationsWithinSingleObservationSet = true)
 {
     // Set observables to process
     if( observableTypesToProcess.empty( ) )
@@ -1323,7 +1342,11 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                 std::vector< Eigen::VectorXd >( ),
                                 nullptr,
                                 std::make_shared< observation_models::ObservationAncillarySimulationSettings >(
-                                        ancillarySettings.at( i ) ) ) );
+                                        ancillarySettings.at( i ) ),
+                                std::vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(),                // weights
+                                std::vector<Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1>>(), // residuals
+                                !allowDuplicateObservationsWithinSingleObservationSet) );
+
             }
         }
     }
@@ -1357,7 +1380,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
     for( unsigned int i = 0; i < originalObservations.size( ); i += compressionRatio )
     {
-        if( originalObservations.size( ) - i > compressionRatio )
+        if( originalObservations.size( ) - i >= compressionRatio )
         {
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( i );
             TimeType newTime = originalObservationTimesUtc.at( i );
@@ -1365,8 +1388,9 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             bool skipObservation = false;
             for( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
             {
-                if( ( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) - currentCompressionTime ) <
-                    10.0 * std::numeric_limits< double >::epsilon( ) * static_cast< double >( originalObservationTimesUtc.at( i + j ) ) )
+                if( std::fabs(
+                            static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) -
+                            currentCompressionTime ) < 0.01 )
                 {
                     newObservable += originalObservations.at( i + j );
                     newTime += originalObservationTimesUtc.at( i + j );
@@ -1424,13 +1448,13 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10 )
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
 {
     // Split Doppler observation sets into arcs
-    double compressionRatioFloat = mathematical_constants::getFloatingInteger< double >( compressionRatio );
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
             splitObservationSets( originalDopplerData,
-                                  observationSetSplitter( time_interval_splitter, compressionRatioFloat, minNumberObservations ),
+                                  observationSetSplitter( time_interval_splitter, maxArcGap, minNumberObservations ),
                                   observationParser( dsn_n_way_averaged_doppler ) );
 
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > >
@@ -1547,7 +1571,8 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
                                                 const std::string& targetName,
                                                 const bool verboseOutput = true,
                                                 const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                        simulation_setup::getApproximateDsnGroundStationPositions( ) )
+                                                        simulation_setup::getApproximateDsnGroundStationPositions( ),
+                                                const bool allowDuplicateObservationsWithinSingleObservationSet = true)
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFileName : odfFileNames )
@@ -1561,7 +1586,10 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create observed observation collection
-    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >( processedOdfFileContents );
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
+        processedOdfFileContents, std::vector< observation_models::ObservableType >(),
+        std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
+        allowDuplicateObservationsWithinSingleObservationSet);
 }
 
 }  // namespace observation_models

@@ -9,6 +9,8 @@
  */
 
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 
 namespace tudat

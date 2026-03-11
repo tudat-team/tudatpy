@@ -18,7 +18,7 @@
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -511,8 +511,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                                                                                                        observationSimulator,
                                                                                                        observationPartials,
                                                                                                        observationPartialScalers,
-                                                                                                       stateTransitionMatrixInterface,
-                                                                                                       dependentVariablesInterface );
+                                                                                                       stateTransitionMatrixInterface );
 }
 
 //! Function to create an object to simulate observations of a given type and associated partials
@@ -615,6 +614,25 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     }
     return observationManagers;
 }
+
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
+        const ObservableType observableType,
+        const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
+        const simulation_setup::SystemOfBodies &bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+
+extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > > createObservationManagersBase<
+        double,
+        double >(
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > &observationSettingsList,
+        const simulation_setup::SystemOfBodies &bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+#endif
 
 }  // namespace observation_models
 

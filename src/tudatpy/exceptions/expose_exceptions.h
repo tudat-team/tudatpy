@@ -11,7 +11,7 @@
 #ifndef TUDATPY_EXPOSE_EXCEPTIONS_H
 #define TUDATPY_EXPOSE_EXCEPTIONS_H
 
-#include "spice_exceptions/expose_spice_exceptions.h"
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 

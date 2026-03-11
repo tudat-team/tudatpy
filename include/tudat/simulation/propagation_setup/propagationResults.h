@@ -38,9 +38,9 @@ template< typename StateScalarType = double, typename TimeType = double >
 class SimulationResults
 {
 public:
-    SimulationResults( ) { }
+    SimulationResults( ) {}
 
-    virtual ~SimulationResults( ) { }
+    virtual ~SimulationResults( ) {}
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
@@ -83,9 +83,9 @@ public:
         rawSolutionConversionFunction_( rawSolutionConversionFunction ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
         onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
-    { }
+    {}
 
-    ~SingleArcSimulationResults( ) { }
+    ~SingleArcSimulationResults( ) {}
 
     std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
@@ -222,14 +222,15 @@ public:
     template< typename OutputTimeType >
     std::map< OutputTimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionTemplated( )
     {
-        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
-            getEquationsOfMotionNumericalSolution( ) );
+        return utilities::staticCastMapKeys< OutputTimeType, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
+                getEquationsOfMotionNumericalSolution( ) );
     }
 
     std::pair< std::vector< double >, std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
     getEquationsOfMotionNumericalSolutionDoubleSplit( )
     {
-        std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap = getEquationsOfMotionNumericalSolutionTemplated< double >( );
+        std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap =
+                getEquationsOfMotionNumericalSolutionTemplated< double >( );
         return std::make_pair( utilities::createVectorFromMapKeys( stateMap ), utilities::createVectorFromMapValues( stateMap ) );
     }
 
@@ -242,8 +243,8 @@ public:
     template< typename OutputTimeType >
     std::map< OutputTimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionRawTemplated( )
     {
-        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
-            getEquationsOfMotionNumericalSolutionRaw( ) );
+        return utilities::staticCastMapKeys< OutputTimeType, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
+                getEquationsOfMotionNumericalSolutionRaw( ) );
     }
 
     std::map< TimeType, Eigen::VectorXd >& getDependentVariableHistory( )
@@ -255,8 +256,7 @@ public:
     template< typename OutputTimeType >
     std::map< OutputTimeType, Eigen::VectorXd > getDependentVariableHistoryTemplated( )
     {
-        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
-            getDependentVariableHistory( ) );
+        return utilities::staticCastMapKeys< OutputTimeType, TimeType, Eigen::VectorXd >( getDependentVariableHistory( ) );
     }
 
     std::map< double, Eigen::VectorXd > getDependentVariableHistoryDouble( )
@@ -273,8 +273,7 @@ public:
 
     std::map< double, double > getCumulativeComputationTimeHistory( )
     {
-        return utilities::staticCastMapKeys<double, TimeType, double >(
-            cumulativeComputationTimeHistory_ );
+        return utilities::staticCastMapKeys< double, TimeType, double >( cumulativeComputationTimeHistory_ );
     }
 
     double getTotalComputationRuntime( )
@@ -283,7 +282,6 @@ public:
         return std::max( cumulativeComputationTimeHistory_.begin( )->second, cumulativeComputationTimeHistory_.rbegin( )->second );
     }
 
-
     std::map< TimeType, unsigned int > getCumulativeNumberOfFunctionEvaluationsTimeType( )
     {
         return cumulativeNumberOfFunctionEvaluations_;
@@ -291,8 +289,7 @@ public:
 
     std::map< double, unsigned int > getCumulativeNumberOfFunctionEvaluations( )
     {
-        return utilities::staticCastMapKeys<double, TimeType, unsigned int >(
-            cumulativeNumberOfFunctionEvaluations_ );
+        return utilities::staticCastMapKeys< double, TimeType, unsigned int >( cumulativeNumberOfFunctionEvaluations_ );
     }
 
     double getTotalNumberOfFunctionEvaluations( )
@@ -381,7 +378,7 @@ public:
     bool isPropagatedAndProcessedStateEqual( )
     {
         bool areEqual = true;
-        for( auto it: integratedStateAndBodyList_ )
+        for( auto it : integratedStateAndBodyList_ )
         {
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {
@@ -497,16 +494,16 @@ public:
             const int sensitivityMatrixSize ):
         singleArcDynamicsResults_( singleArcDynamicsResults ), stateTransitionMatrixSize_( stateTransitionMatrixSize ),
         sensitivityMatrixSize_( sensitivityMatrixSize )
-    { }
+    {}
 
     SingleArcVariationalSimulationResults( const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
         singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
         stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
         sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ), stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
         sensitivitySolution_( resultsToCopy.sensitivitySolution_ )
-    { }
+    {}
 
-    ~SingleArcVariationalSimulationResults( ) { }
+    ~SingleArcVariationalSimulationResults( ) {}
 
     std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
@@ -549,7 +546,7 @@ public:
     void splitSolution( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& fullSolution,
                         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolutionRaw )
     {
-        for( auto it: fullSolution )
+        for( auto it : fullSolution )
         {
             stateTransitionSolution_[ static_cast< double >( it.first ) ] =
                     it.second.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ).template cast< double >( );
@@ -679,7 +676,7 @@ public:
         }
     }
 
-    ~MultiArcSimulationResults( ) { }
+    ~MultiArcSimulationResults( ) {}
 
     std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > cloneDerived( ) const
     {
@@ -948,7 +945,7 @@ public:
                 multiArcResults_->getMultiArcDependentVariablesInterface( ) );
     }
 
-    ~HybridArcSimulationResults( ) { }
+    ~HybridArcSimulationResults( ) {}
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {

@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observable_models_setup.h"
 
 #include <pybind11/chrono.h>
@@ -18,6 +20,10 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "biases/expose_biases.h"
+#include "links/expose_links.h"
+#include "light_time_corrections/expose_light_time_corrections.h"
+#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 

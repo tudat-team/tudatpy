@@ -13,7 +13,7 @@
 #define TUDAT_TLEEPHEMERIS_H
 
 #include "tudat/astro/ephemerides/ephemeris.h"
-
+#include "tudat/astro/basic_astro/dateTime.h"
 namespace tudat
 {
 
@@ -82,7 +82,7 @@ public:
          const double meanAnomaly,
          const double meanMotion ):
         epoch_( epoch ), bStar_( bStar ), inclination_( inclination ), rightAscension_( rightAscension ), eccentricity_( eccentricity ),
-        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ) { };
+        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ){ };
 
     double getEpoch( ) const
     {
@@ -124,7 +124,53 @@ public:
         return meanMotion_;
     }
 
+    int getNoradCatalogNumber( ) const
+    {
+        return noradCatalogNumber_;
+    }
+
+    char getClassification( ) const
+    {
+        return classification_;
+    }
+
+    int getElementSetNumber( ) const
+    {
+        return elementSetNumber_;
+    }
+
+    int getRevolutionNumberAtEpoch( ) const
+    {
+        return revolutionNumberAtEpoch_;
+    }
+
+    double getMeanMotionFirstDerivative( ) const
+    {
+        return meanMotionFirstDerivative_;
+    }
+
+    double getMeanMotionSecondDerivative( ) const
+    {
+        return meanMotionSecondDerivative_;
+    }
+
+    int getEphemerisType( ) const
+    {
+        return ephemerisType_;
+    }
+
+    std::string getRawLine1( ) const
+    {
+        return rawLine1_;
+    }
+
+    std::string getRawLine2( ) const
+    {
+        return rawLine2_;
+    }
+
 private:
+    basic_astrodynamics::DateTime referenceDate_;
     double epoch_;
     double bStar_;
     double inclination_;
@@ -133,6 +179,27 @@ private:
     double argOfPerigee_;
     double meanAnomaly_;
     double meanMotion_;
+
+    // Identification
+    int noradCatalogNumber_;
+    char classification_;
+
+    // International designator
+    int internationalDesignatorLaunchYear_;
+    int internationalDesignatorLaunchNumber_;
+    std::string internationalDesignatorPiece_;
+
+    // Mean motion derivatives (TLE units)
+    double meanMotionFirstDerivative_;   // n_dot (rev/day^2)
+    double meanMotionSecondDerivative_;  // n_ddot (rev/day^3)
+
+    int ephemerisType_;
+    int elementSetNumber_;
+    int revolutionNumberAtEpoch_;
+
+    // Optional provenance
+    std::string rawLine1_;
+    std::string rawLine2_;
 
     // Declare two-line elements array that is compatible with CSpice
     // I.e. in units and order
@@ -174,6 +241,11 @@ public:
      *  \return TLE-derived orbit Cartesian state at given time.
      */
     Eigen::Vector6d getCartesianState( const double secondsSinceEpoch ) override;
+
+    std::shared_ptr< Tle > getTle( )
+    {
+        return tle_;
+    }
 
 private:
     std::shared_ptr< Tle > tle_;

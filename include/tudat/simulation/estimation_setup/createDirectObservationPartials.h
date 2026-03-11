@@ -16,7 +16,6 @@
 #include <memory>
 #include <vector>
 
-#include "tudat/astro/observation_models.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -33,7 +32,7 @@
 #include "tudat/simulation/estimation_setup/createClockPartials.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/simulation/estimation_setup/createObservationBiasPartial.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
 
 namespace tudat

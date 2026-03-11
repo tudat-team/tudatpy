@@ -7,11 +7,21 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_model_settings.h"
+
 #include <pybind11/functional.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
@@ -177,6 +187,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a one-way range observable.
@@ -185,12 +196,24 @@ Examples
  a single-valued observable :math:`h_{_{\text{1-range}}}` as follows (in the unbiased case):
 
  .. math::
-    h_{_{\text{1-range}}}(t_{R},t_{T})=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
+    h_{_{\text{1-range}}}(t_{R},t_{T})&=c\left(t_{R}-t_{T}\right)\\
+                                      &=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
 
  where :math:`\mathbf{r}_{R}`, :math:`\mathbf{r}_{T}`, :math:`t_{R}` and :math:`t_{T}` denote the position function of receiver and transmitter, and evaluation time
  of receiver and transmitter. The term :math:`\Delta s` denotes light-time corrections due to e.g relativistic, atmospheric effects (as defined by the ``light_time_correction_settings`` input).
- The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`, which is in turn related to the one-way range as :math:`T=h/c`
- As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the light-time equation (see :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings` for details)
+ The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`
+ As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the light-time equation (see :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings` for details).
+
+ If the observable is computed in a different time scale (that is, if the ``time_scale_for_observable`` is set to something other than TDB), the observable is computed from:
+
+ .. math::
+      \bar{h}_{_{\text{1-range}}}(t_{R},t_{T})=h_{_{\text{1-range}}}(t_{R},t_{T})+\left(\bar{t}_{R}-t_{R}\right)-\left(\bar{t}_{t}-t_{t}\right)
+
+ Here, :math:`t` denotes the epoch in TDB and :math:`\bar{t}` the epoch on the time scale defined by ``time_scale_for_observable`` (typically UTC),
+ ;math:`h_{_{\text{1-range}}}` is the observable as defined above (as computed from the TDB light time) and :math:`\bar{h}_{_{\text{1-range}}}` is the
+ corrected observable as computed from the light time as measured in the correct time scale. It is important to note that the time tag of the observation
+ wil always be in TDB.
+
 
 
  Parameters
@@ -208,6 +231,9 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -247,6 +273,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -271,6 +298,10 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
+
 
  Returns
  -------
@@ -309,6 +340,7 @@ Examples
            &tom::twoWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -328,6 +360,9 @@ Examples
  bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -366,6 +401,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
@@ -377,7 +413,7 @@ Examples
  By default, the reception time of the :math:`i^{th}` one-way range in this n-way range is set as the
  transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancillary settings
  (see :func:`~func.estimation.observations_setup.ancillary_settings.n_way_range_ancillary_settings`) when creating observation
- simulation setings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_).
+ simulation settings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`__).
 
  For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
 
@@ -400,6 +436,9 @@ Examples
 
  light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -440,6 +479,7 @@ Examples
            &tom::nWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
@@ -459,6 +499,9 @@ Examples
  bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
+
+ time_scale_for_observable : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
+     Time scale in which the light time is to be computed (TDB by default)
 
  Returns
  -------
@@ -722,7 +765,7 @@ Examples
  The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`.
 
  The observable may be non-dimensionalized by the speed of light :math:`c` (using the ``normalized_with_speed_of_light`` input), which results in the observable being equal to the
- received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`. For the observation model provding a model for the received
+ received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`. For the observation model providing a model for the received
  frequency, use :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency`.
 
  This observable represents the 'instantaneous (non-integrated)' Doppler observable, such as those obtained from open-loop observations.
@@ -834,7 +877,7 @@ a scalar observable :math:`h_{_{\text{2-Dopp.}}}`
 
 with the link end :math:`T` and :math:`R` denoting the transmitter and receiver of a two-way link. The observable is computed
 from a concatenation of a one-way Doppler uplink observation
-:math:`h_{_{\text{1-Dopp.}\uparrow}}` and a one-way Doppler downlink obervation :math:`h_{_{\text{1-Dopp.}\downarrow}}` (see
+:math:`h_{_{\text{1-Dopp.}\uparrow}}` and a one-way Doppler downlink observation :math:`h_{_{\text{1-Dopp.}\downarrow}}` (see
 :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous`) as (with the term :math:`c` omitted in the 1-way computations):
 
 .. math::
@@ -938,7 +981,7 @@ normalized_with_speed_of_light : bool, default = false
  with the reference time shifted by :math:`\Delta t` (in TDB time, with the time tag in the center of this interval). As such, it is sensitive to numerical errors for small :math:`\Delta t`
 
  The integration time :math:`\Delta t` is defined in the ancillary settings (see
- `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
+ `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`__)
  when simulating the observations (with 60 s as default).
 
  Note that this observation model is a simplified version of the Doppler data as generated by the DSN/ESTRACK, which is suitable for simulation
@@ -991,7 +1034,7 @@ normalized_with_speed_of_light : bool, default = false
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
  The integration time :math:`\Delta t` is defined in the ancillary settings (see
- `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
+ `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`__)
  when simulating the observations (with 60 s as default).
 
  Note that this observation model is a simplified version of the Doppler data as generated by the DSN/ESTRACK, which is suitable for simulation
@@ -1035,7 +1078,7 @@ normalized_with_speed_of_light : bool, default = false
 
  Function for creating settings for an n-way averaged Doppler observable.
 
- Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
  analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
@@ -1367,7 +1410,7 @@ Returns
  :math:`t_{T}` is computed from which :math:`t_{R,2}` is subsequently calculated, combining two light-time calculations (one from
  receiver to transmitter, and one from transmitter to receiver2).
 
- While the observation model performs all operations in TDB scale (including the time tag of teh observation), the model
+ While the observation model performs all operations in TDB scale (including the time tag of the observation), the model
  can convert :math:`t_{R,1}` and :math:`t_{R,2}` to a different time scale (typically UTC) to compute :math:`h` by using the ``time_difference_time_scale`` input.
 
 

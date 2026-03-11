@@ -12,6 +12,7 @@
 #define TUDAT_JSONINTERFACE_BODY_H
 
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/interface/json/environment/spice.h"
 

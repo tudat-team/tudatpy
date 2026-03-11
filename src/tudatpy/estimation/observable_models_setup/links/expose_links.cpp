@@ -7,11 +7,19 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_links.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
 namespace tom = tudat::observation_models;
 
@@ -281,7 +289,7 @@ Examples
                                     R"doc(
          Function for setting a name for the reference point on a body.
 
-         Function for setting a name for the reference point on a body (tipically, the name of a ground station).
+         Function for setting a name for the reference point on a body (typically, the name of a ground station).
 
      Examples
      --------
@@ -466,11 +474,14 @@ Examples
 
 
 
-      )doc" );
-    //            .def_property( "link_ends",
-    //            &tom::LinkDefinition::linkEnds_,
-    //                           get_docstring("LinkDefinition.link_ends").c_str()
-    //                           );
+      )doc" )
+            .def_property_readonly( "link_ends",
+                                    &tom::LinkDefinition::getLinkEnds,
+                                    R"doc(
+
+             Attribute that contains the dictionary with link end type (as key) and link end if (as value).
+
+          )doc" );
 
     m.def( "link_definition",
            &tom::linkDefinition,

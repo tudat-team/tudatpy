@@ -8,11 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
@@ -446,9 +447,9 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
             break;
         }
         case panelled_coefficients: {
-            if ( bodies.count( body ) == 0 )
+            if( bodies.count( body ) == 0 )
             {
-                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body + " not found ");
+                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body + " not found " );
             }
             // Check consistency of type.
             std::shared_ptr< PanelledAerodynamicCoefficientSettings > panelledCoefficientSettings =
@@ -457,39 +458,42 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynam
             {
                 throw std::runtime_error( "Error, expected panelled coefficients for body " + body );
             }
-            std::shared_ptr< system_models::VehicleSystems > vehicle = 
-                std::dynamic_pointer_cast< system_models::VehicleSystems >( bodies.at( body )->getVehicleSystems( ) );
-            if ( vehicle == nullptr )
+            std::shared_ptr< system_models::VehicleSystems > vehicle =
+                    std::dynamic_pointer_cast< system_models::VehicleSystems >( bodies.at( body )->getVehicleSystems( ) );
+            if( vehicle == nullptr )
             {
-                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body + " has no vehicle system assigned" );
+                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body +
+                                          " has no vehicle system assigned" );
             }
-            if ( !vehicle->isPanelGeometryDefined( ) )
+            if( !vehicle->isPanelGeometryDefined( ) )
             {
-                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body + " has no panelled geometry defined" );
+                throw std::runtime_error( "Error, trying to set panelled coefficients but body " + body +
+                                          " has no panelled geometry defined" );
             }
-            if ( vehicle->isPanelGeometryDefined( ) && panelledCoefficientSettings->getMaximumNumberOfPixels( ) < 2 && 
-                 panelledCoefficientSettings->getMaximumNumberOfPixels( ) != 0 )
+            if( vehicle->isPanelGeometryDefined( ) && panelledCoefficientSettings->getMaximumNumberOfPixels( ) < 2 &&
+                panelledCoefficientSettings->getMaximumNumberOfPixels( ) != 0 )
             {
                 throw std::runtime_error( "Error, trying to set panelled coefficients but assigned number of pixels must be > 2" );
             }
-            coefficientInterface = std::make_shared< PanelledAerodynamicCoefficientInterface >( 
-                createGasSurfaceInteractionModel( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ),
-                                                  bodies.at( body )->getVehicleSystems( )->getAllPanels( ),
-                                                  panelledCoefficientSettings->getReferenceArea( ),
-                                                  panelledCoefficientSettings->getMaximumNumberOfPixels( ),
-                                                  panelledCoefficientSettings->getOnlyDrag( ) ),
-                createIndependentVariablesNamesForGasSurfaceInteractionModel( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ) ),
-                panelledCoefficientSettings->getReferenceArea( ),
-                panelledCoefficientSettings->getForceCoefficientsFrame( ) );
+            coefficientInterface = std::make_shared< PanelledAerodynamicCoefficientInterface >(
+                    createGasSurfaceInteractionModel( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ),
+                                                      bodies.at( body )->getVehicleSystems( )->getAllPanels( ),
+                                                      panelledCoefficientSettings->getReferenceArea( ),
+                                                      panelledCoefficientSettings->getMaximumNumberOfPixels( ),
+                                                      panelledCoefficientSettings->getOnlyDrag( ) ),
+                    createIndependentVariablesNamesForGasSurfaceInteractionModel(
+                            panelledCoefficientSettings->getGasSurfaceInteractionModelType( ) ),
+                    panelledCoefficientSettings->getReferenceArea( ),
+                    panelledCoefficientSettings->getForceCoefficientsFrame( ) );
             // specific case of constant aerodynamic coeffs but variable cross-section
-            if ( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ) == constantCoefficients )
+            if( panelledCoefficientSettings->getGasSurfaceInteractionModelType( ) == constantCoefficients )
             {
-                std::dynamic_pointer_cast< PanelledAerodynamicCoefficientInterface >( coefficientInterface )->getGasSurfaceInteractionModel( )->setConstantAerodynamicCoefficients( 
-                    panelledCoefficientSettings->getConstantForceCoefficient( ) );
-            }             
+                std::dynamic_pointer_cast< PanelledAerodynamicCoefficientInterface >( coefficientInterface )
+                        ->getGasSurfaceInteractionModel( )
+                        ->setConstantAerodynamicCoefficients( panelledCoefficientSettings->getConstantForceCoefficient( ) );
+            }
 
             break;
-
         }
         default:
             throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );

@@ -4,9 +4,13 @@ cmake_minimum_required(VERSION 3.20)
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
-# Remove caches if present [Trick to recompile changes for BUILD-TREE]
-# From tudat cmake, might not be needed.
-if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
+# Optional cache reset toggle (kept OFF by default for incremental configure/build stability).
+option(
+    TUDAT_FORCE_CMAKE_CACHE_RESET
+    "Remove CMakeCache.txt from CMAKE_BINARY_DIR during configure."
+    OFF
+)
+if (TUDAT_FORCE_CMAKE_CACHE_RESET AND EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
 
@@ -26,6 +30,16 @@ string(
 # Project declaration.
 project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# Enable ccache if available (dramatically speeds up rebuilds)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache: ${CCACHE_PROGRAM} — enabling compiler caching")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message(STATUS "ccache not found — install it for faster rebuilds")
+endif()
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -56,8 +70,6 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
 
 # +============================================================================
@@ -70,9 +82,29 @@ option(
     ON
 )
 option(
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    "Downloads and builds boost"
+    TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
+    ON
+)
+option(
+    TUDAT_BUILD_WITH_PCH
+    "Enable precompiled headers for supported targets."
+    ON
+)
+option(
+    TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS
+    "Enable PYBIND11_DETAILED_ERROR_MESSAGES for TudatPy bindings."
     OFF
+)
+option(
+    TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
+    "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1); OFF uses -O3 (/O2) with -Og (/Od) for Debug."
+    OFF
+)
+option(
+    TUDAT_BUILD_WITH_TEST_PCH
+    "Enable precompiled headers for selected unit tests."
+    ON
 )
 option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
@@ -163,8 +195,6 @@ if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
     endif()
 endif()
 
-include(show_build_configuration)
-
 # +============================================================================
 # TUDAT DEFINITIONS (Based on user configuration)
 # +============================================================================
@@ -204,6 +234,11 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
+if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
+endif ()
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
@@ -231,31 +266,6 @@ set(
 #     # Add the unit test framework, if needed.
 #     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
 # endif ()
-
-# Download boost if option is used.
-if (
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-)
-    set(TUDAT_DOWNLOAD_AND_BUILD_BOOST ON)
-    # Set the required boost components (for tudat)
-    set(BoostComponents ${_TUDAT_REQUIRED_BOOST_LIBS})
-    # Pick a boost version
-    if (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-        set(BoostVersion ${TUDAT_BOOST_VERSION})
-        set(BoostSHA1 ${TUDAT_BOOST_SHA1})
-    else ()
-        set(BoostVersion 1.67.0)
-        set(BoostSHA1 694ae3f4f899d1a80eb7a3b31b33be73c423c1ae)
-    endif ()
-    message(STATUS "Downloading Boost Version ${BoostVersion}")
-    include(cmake_modules/add_boost.cmake)
-    message(STATUS "Downloading Boost Version ${BoostVersion} - done")
-    #    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
-    #    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-endif ()
 
 # Set cmake build-type.
 # If not supplied by the user (either directly as an argument of through
@@ -392,6 +402,34 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
+
+if(TUDAT_BUILD_WITH_MCD)
+    # Enable Fortran language
+    enable_language(Fortran)
+    
+    # Find NetCDF (required for MCD)
+    find_package(NetCDF REQUIRED COMPONENTS Fortran C)
+    
+    if(NOT NetCDF_FOUND)
+        message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
+                           "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
+    endif()
+    
+    message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
+    message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
+    message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
+    
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+else()
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+endif()
+
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -405,6 +443,49 @@ include(YOLOProjectAddExternalData)
 
 # Define list of libraries in tudat and run setup for submodules
 include(TudatLinkLibraries)
+
+# Build MCD library if enabled (must be AFTER TudatLinkLibraries)
+if(TUDAT_BUILD_WITH_MCD)
+    set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
+    add_subdirectory(${MCD_SOURCE_DIR})
+    
+    # Set MCD data directory path
+    set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
+    target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
+    
+    message(STATUS "MCD: Library configured successfully")
+    message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
+endif()
+
+# Set up config.hpp file BEFORE building subdirectories
+file(
+    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
+    "${CMAKE_INSTALL_PREFIX}"
+    "${INSTALL_DATA_DIR}/tudat"
+)
+
+configure_file(
+    "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
+    "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
+)
+
+include_directories("${PROJECT_BINARY_DIR}/include")
+
+# +============================================================================
+# Unity build for C++ libraries (reduces header re-parsing across TUs).
+# Respect user/cache values from -DCMAKE_UNITY_BUILD=... and only set defaults
+# when these variables are not provided.
+# +============================================================================
+if (NOT DEFINED CMAKE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD OFF)
+endif ()
+if (NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+endif ()
+
+include(show_build_configuration)
+
+# Add Tudat subdirectories (libraries — built with unity)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -412,6 +493,7 @@ add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
+
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()
@@ -422,18 +504,6 @@ endif()
 
 # Additional contents from original tudat cmake
 # ========================================================================
-
-file(
-    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    "${INSTALL_DATA_DIR}/tudat"
-)
-
-# Set up config.hpp file of tudat for current version
-configure_file(
-        "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-)
 
 # Installation of the header files.
 install(

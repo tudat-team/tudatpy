@@ -11,9 +11,13 @@
 #ifndef TUDAT_CREATETORQUEMODEL_H
 #define TUDAT_CREATETORQUEMODEL_H
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
@@ -26,6 +30,9 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 

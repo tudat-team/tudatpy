@@ -21,7 +21,7 @@ The next steps outline how to get to a working version of Tudatpy. First we list
   - At the opposite, please follow [this guide](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk) to access Windows file trough WSL.
   - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
   - In the Ubuntu terminal environment under WSL, run the command `sudo apt-get install build-essential` to install the necessary compilation tools
-- Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
+- Anaconda/Miniconda installation ([Installing Anaconda](https://docs.tudat.space/en/latest/getting-started/use-of-tools/conda.html))
 - CMake installation
   - Inside the Ubuntu terminal, install CMake by calling `sudo apt install cmake`.
 

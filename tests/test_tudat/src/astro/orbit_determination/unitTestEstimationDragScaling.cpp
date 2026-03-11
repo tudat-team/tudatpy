@@ -12,14 +12,18 @@
 #define BOOST_TEST_MAIN
 
 #include <iostream>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <ctime>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
-#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
@@ -299,7 +303,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
 
         std::vector< double > integrationArcStartTimes = arcStartTimes;
         std::vector< double > integrationArcEndTimes( arcStartTimes.begin( ) + 1, arcStartTimes.end( ) );
-        for( int i = 0; i < integrationArcEndTimes.size( ); ++i )
+        for( unsigned int i = 0; i < integrationArcEndTimes.size( ); ++i )
         {
             integrationArcEndTimes.at( i ) = integrationArcEndTimes.at( i ) - 200 * ( i + 1 );
         }

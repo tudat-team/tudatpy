@@ -14,12 +14,10 @@
 #include <vector>
 #include <map>
 
-#include <boost/function.hpp>
-
 #include "tudat/interface/spice/spiceInterface.h"
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/reference_frames.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
 namespace tudat

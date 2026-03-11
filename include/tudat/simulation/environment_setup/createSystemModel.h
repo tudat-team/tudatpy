@@ -11,10 +11,17 @@
 #ifndef TUDAT_CREATESSYTEMMODEL_H
 #define TUDAT_CREATESSYTEMMODEL_H
 
-#include <memory>
+#include <fstream>
+#include <functional>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
@@ -24,6 +31,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 class MaterialProperties
 {

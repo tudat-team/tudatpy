@@ -11,6 +11,8 @@
 #ifndef TUDAT_POSITIONPARTIALSCALING_H
 #define TUDAT_POSITIONPARTIALSCALING_H
 
+#include <iostream>
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -20,10 +22,16 @@
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+
+class SystemOfBodies;
+
+}  // namespace simulation_setup
 
 namespace observation_partials
 {

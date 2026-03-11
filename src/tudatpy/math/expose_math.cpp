@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_math.h"
 
 #include <pybind11/eigen.h>
@@ -15,6 +17,12 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "geometry/expose_geometry.h"
+#include "interpolators/expose_interpolators.h"
+#include "numerical_integrators/expose_numerical_integrators.h"
+#include "root_finders/expose_root_finders.h"
+#include "statistics/expose_statistics.h"
 
 namespace py = pybind11;
 

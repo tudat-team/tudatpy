@@ -21,7 +21,8 @@
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"  // Include this header
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"  // Include this header
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/ground_stations/groundStationState.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 namespace tudat
 {

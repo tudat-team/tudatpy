@@ -19,8 +19,6 @@
 #define BOOST_TEST_MAIN
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
-
 #include <memory>
 #include <boost/test/unit_test.hpp>
 

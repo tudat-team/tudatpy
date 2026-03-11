@@ -20,8 +20,6 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
-#include <boost/function.hpp>
-
 namespace tudat
 {
 

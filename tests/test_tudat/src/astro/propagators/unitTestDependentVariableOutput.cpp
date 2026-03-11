@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <memory>
 
@@ -20,14 +21,19 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>
@@ -564,6 +570,52 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 // Check 3rd body gravitational potential - not sure why the tolerance needs to be so large
                 BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ), 1e-8 );
+            }
+
+            // Repropagate dynamics to make sure that any cached data is not consistent with previous run
+            systemInitialState.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
+            systemInitialState.segment( 3, 3 ) += Eigen::Vector3d::Constant( 1.0E-3 );
+            dynamicsSimulator.integrateEquationsOfMotion( systemInitialState );
+
+            std::cout << "Pre-comp" << std::endl;
+            std::map< double, Eigen::VectorXd > recomputedDependentVariableSolution =
+                    dynamicsSimulator.evaluateDependentVariablesAlongTrajectory< double, double >( numericalSolution );
+            std::cout << "Post-comp" << std::endl;
+
+            BOOST_CHECK_EQUAL( recomputedDependentVariableSolution.size( ), dependentVariableSolution.size( ) );
+
+            auto it1 = recomputedDependentVariableSolution.begin( );
+            auto it2 = dependentVariableSolution.begin( );
+
+            for( ; it1 != recomputedDependentVariableSolution.end( ); ++it1, ++it2 )
+            {
+                // Check keys
+                BOOST_CHECK_EQUAL( it1->first, it2->first );
+
+                // Check vector sizes
+                BOOST_CHECK_EQUAL( it1->second.size( ), it2->second.size( ) );
+
+                // Check vector contents element-wise
+
+                for( int i = 0; i < it1->second.size( ); ++i )
+                {
+                    // Correspondence is not perfect due to state/time conversions, high tolerance to match cases with values close to 0
+                    if( propagatorType > 0 )
+                    {
+                        if( i != 28 )
+                        {
+                            BOOST_CHECK_CLOSE_FRACTION( it1->second( i ), it2->second( i ), 1.0E-6 );
+                        }
+                        else
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( it1->second( i ) - it2->second( i ) ), 1.0E-17 );
+                        }
+                    }
+                    else
+                    {
+                        BOOST_CHECK_EQUAL( it1->second( i ), it2->second( i ) );
+                    }
+                }
             }
         }
     }
@@ -1299,7 +1351,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    for( unsigned int gravityModelsId: { 0, 1 } )
+    for( unsigned int gravityModelsId : { 0, 1 } )
     {
         // Create body objects.
         std::vector< std::string > bodiesToCreate;
@@ -1683,7 +1735,7 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
     std::map< double, Eigen::VectorXd > dependentVariableResults = dynamicsSimulator.getDependentVariableHistory( );
     std::pair< int, double > testPair;
     std::tuple< int, double, double > testTuple;
-    for( auto it: dependentVariableResults )
+    for( auto it : dependentVariableResults )
     {
         testPair = getClosestSatelliteDistance(
                 bodies, "Satellite1", std::vector< std::string >( { "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ), it.first );

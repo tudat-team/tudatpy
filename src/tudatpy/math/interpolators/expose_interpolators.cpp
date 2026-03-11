@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_interpolators.h"
 
 #include <pybind11/eigen.h>
@@ -16,6 +18,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
+
+#include "tudat/math/interpolators/createInterpolator.h"
 
 #include "scalarTypes.h"
 
@@ -229,16 +233,14 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "time_step" ) );
 
     m.def( "interpolator_generation_settings",
            &ti::interpolatorGenerationSettings< double >,
            py::arg( "interpolator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
-           py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "time_step" ) );
 
     m.def( "linear_interpolation",
            &ti::linearInterpolation,

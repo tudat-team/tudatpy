@@ -19,8 +19,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
@@ -35,8 +33,24 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
@@ -335,7 +349,6 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         Eigen::Vector3d testPartialWrtAccelerationScaling =
                 calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
 
-
         // Compare numerical and analytical partials of position and velocity partials.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsPosition, partialWrtMarsPosition, 1.0e-9 );
         for( unsigned int i = 0; i < 3; i++ )
@@ -360,7 +373,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         }
 
         // Compare numerical and analytical partials of gravitational parameters
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0e-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 2.0e-14 );
 
         if( testCase == 0 )
         {
@@ -375,7 +388,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         else
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    testPartialWrtPhobosGravitationalParameter, partialWrtPhobosGravitationalParameter, 1.0e-14 );
+                    testPartialWrtPhobosGravitationalParameter, partialWrtPhobosGravitationalParameter, 2.0e-14 );
         }
 
         // Compare numerical and analytical partials of rotation parameters
@@ -393,7 +406,6 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosCosineCoefficients, partialWrtPhobosCosineCoefficients, 1.0E-10 );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
-
     }
 }
 

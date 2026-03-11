@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the TudatPy. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -12,12 +12,6 @@
 #define TUDATPY_EXPOSE_MATH_H
 
 #include <pybind11/pybind11.h>
-
-#include "geometry/expose_geometry.h"
-#include "interpolators/expose_interpolators.h"
-#include "numerical_integrators/expose_numerical_integrators.h"
-#include "root_finders/expose_root_finders.h"
-#include "statistics/expose_statistics.h"
 
 namespace py = pybind11;
 

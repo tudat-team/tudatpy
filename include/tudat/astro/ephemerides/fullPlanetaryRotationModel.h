@@ -14,8 +14,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/function.hpp>
-
 #include "tudat/interface/spice/spiceInterface.h"
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
@@ -30,7 +28,7 @@ namespace ephemerides
 class PlanetaryOrientationAngleCalculator
 {
 public:
-    PlanetaryOrientationAngleCalculator( ) { }
+    PlanetaryOrientationAngleCalculator( ) {}
 
     PlanetaryOrientationAngleCalculator(
             const double anglePsiAtEpoch,
@@ -71,7 +69,7 @@ public:
         meanMotionTimeDependentPhaseNutationCorrections_( meanMotionTimeDependentPhaseNutationCorrections ),
         phaseAngleCorrectionFunctions_( phaseAngleCorrectionFunctions ), rotationRateCorrections_( rotationRateCorrections ),
         xPolarMotionCoefficients_( xPolarMotionCoefficients ), yPolarMotionCoefficients_( yPolarMotionCoefficients )
-    { }
+    {}
 
     Eigen::Vector3d updateAndGetRotationAngles( const double ephemerisTime )
     {

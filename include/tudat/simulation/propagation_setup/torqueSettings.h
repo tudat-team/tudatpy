@@ -11,8 +11,6 @@
 #ifndef TUDAT_TORQUESETTINGS_H
 #define TUDAT_TORQUESETTINGS_H
 
-#include <boost/tuple/tuple.hpp>
-
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
 namespace tudat
@@ -42,10 +40,10 @@ public:
      *  Constructor, sets type of torque.
      *  \param torqueType Type of torque from AvailableTorque enum.
      */
-    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ): torqueType_( torqueType ) { }
+    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ): torqueType_( torqueType ) {}
 
     // Destructor
-    virtual ~TorqueSettings( ) { }
+    virtual ~TorqueSettings( ) {}
 
     // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
@@ -65,7 +63,7 @@ public:
     SphericalHarmonicTorqueSettings( const int maximumDegree, const int maximumOrder ):
         TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ), maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder )
-    { }
+    {}
 
     // Maximum degree to which gravity field of body undergoing torque is to be exerted
     int maximumDegree_;
@@ -87,13 +85,13 @@ class CustomTorqueSettings : public TorqueSettings
 public:
     CustomTorqueSettings( const std::function< Eigen::Vector3d( const double ) > torqueFunction ):
         TorqueSettings( basic_astrodynamics::custom_torque ), torqueFunction_( torqueFunction )
-    { }
+    {}
 
     CustomTorqueSettings( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
                           std::function< double( const double ) > scalingFunction ):
         TorqueSettings( basic_astrodynamics::custom_torque ),
         torqueFunction_( std::bind( &applyTorqueScalingFunction, torqueFunction, scalingFunction, std::placeholders::_1 ) )
-    { }
+    {}
 
     std::function< Eigen::Vector3d( const double ) > torqueFunction_;
 };

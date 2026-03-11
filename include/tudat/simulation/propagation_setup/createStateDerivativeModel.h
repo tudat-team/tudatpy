@@ -14,6 +14,7 @@
 #include <string>
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"

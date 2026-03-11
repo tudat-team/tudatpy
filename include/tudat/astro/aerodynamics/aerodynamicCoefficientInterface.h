@@ -23,7 +23,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/utilities.h"
 

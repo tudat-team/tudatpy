@@ -12,10 +12,10 @@
 #define TUDAT_CREATERADIATIONSOURCEMODEL_H
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/luminosityModel.h"
 #include "tudat/simulation/environment_setup/createSurfacePropertyDistribution.h"
@@ -24,6 +24,8 @@ namespace tudat
 {
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 /*!
  * Types of radiation source models.
