@@ -748,18 +748,27 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorque )
             const double case2Scale = std::max( 1.0, totalTorqueFromMutualPotential.norm( ) );
 
             // This check verifies Case 1: torque of point-mass-equivalent A on extended B equals second-degree torque.
-            BOOST_CHECK_SMALL(
-                    ( case1TorqueFromFourthDegree - case1TorqueFromSecondDegree ).norm( ) / case1Scale,
-                    5.0E-13 );
+            const Eigen::Vector3d case1TorqueDifference = case1TorqueFromFourthDegree - case1TorqueFromSecondDegree;
+            for( int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( case1TorqueDifference( i ) ) / case1Scale, 5.0E-14 );
+            }
             // This check verifies Case 2 (Eq. 14): torque of extended B on point-mass-equivalent A is zero.
-            BOOST_CHECK_SMALL( case2TorqueOnPointMassEquivalentBodyFromEq14.norm( ) / case2Scale, 5.0E-12 );
+            for( int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( case2TorqueOnPointMassEquivalentBodyFromEq14( i ) ) / case2Scale, 5.0E-12 );
+            }
 
             case1Torques.push_back( case1TorqueFromFourthDegree );
         }
 
         const double orientationInvariantScale = std::max( 1.0, case1Torques.at( 0 ).norm( ) );
         // This check confirms isotropic inertia makes Case 1 torque invariant to body-A orientation.
-        BOOST_CHECK_SMALL( ( case1Torques.at( 0 ) - case1Torques.at( 1 ) ).norm( ) / orientationInvariantScale, 5.0E-13 );
+        const Eigen::Vector3d orientationInvarianceDifference = case1Torques.at( 0 ) - case1Torques.at( 1 );
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( orientationInvarianceDifference( i ) ) / orientationInvariantScale, 5.0E-14 );
+        }
     }
 
     // Case 1: body 2 is a point-mass equivalent; Eq. (11) must reduce to second-degree torque.
@@ -802,7 +811,10 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorque )
         // This check confirms the setup is non-degenerate and produces a non-zero torque signal.
         BOOST_CHECK_GT( secondDegreeTorque.norm( ), 1.0E-12 );
         // This check validates the expected point-mass limit: Eq. (11) matches second-degree torque.
-        BOOST_CHECK_SMALL( ( fourthDegreeTorque - secondDegreeTorque ).norm( ) / referenceScale, 5.0E-14 );
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( fourthDegreeTorque( i ) - secondDegreeTorque( i ) ) / referenceScale, 5.0E-14 );
+        }
         // This check confirms that a zero body-2 inertia remains zero after frame transformation.
         BOOST_CHECK_SMALL(
                 fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ).norm( ),
@@ -857,16 +869,28 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorque )
                     bodies.at( bodyUndergoingTorqueName ), bodies.at( bodyExertingTorqueName ) );
             const Eigen::Vector3d modelTorque = fourthDegreeTorqueModel->getTorque( );
             const double referenceScale = std::max( 1.0, manualTorque.norm( ) );
+            const double inertiaTransformationScale =
+                    std::max( 1.0, manualTransformedInertiaTensorOfBodyExertingTorque.norm( ) );
+            const Eigen::Matrix3d inertiaTransformationDifference =
+                    fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) -
+                    manualTransformedInertiaTensorOfBodyExertingTorque;
+            const Eigen::Vector3d torqueDifference = modelTorque - manualTorque;
 
-            // This check verifies the frame transformation of body-2 inertia used internally by the model.
-            BOOST_CHECK_SMALL(
-                    ( fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) -
-                      manualTransformedInertiaTensorOfBodyExertingTorque )
-                            .norm( ) /
-                            std::max( 1.0, manualTransformedInertiaTensorOfBodyExertingTorque.norm( ) ),
-                    1.0E-14 );
-            // This check validates the model output against a direct Eq. (11) evaluation from current body states.
-            BOOST_CHECK_SMALL( ( modelTorque - manualTorque ).norm( ) / referenceScale, 5.0E-14 );
+            // This check verifies, per matrix element, the frame transformation of body-2 inertia used internally by the model.
+            for( int row = 0; row < 3; row++ )
+            {
+                for( int column = 0; column < 3; column++ )
+                {
+                    BOOST_CHECK_SMALL(
+                            std::fabs( inertiaTransformationDifference( row, column ) ) / inertiaTransformationScale,
+                            1.0E-14 );
+                }
+            }
+            // This check validates, per torque component, the model output against a direct Eq. (11) evaluation from current body states.
+            for( int component = 0; component < 3; component++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( torqueDifference( component ) ) / referenceScale, 5.0E-14 );
+            }
 
             evaluatedTorques.push_back( modelTorque );
         }
@@ -996,18 +1020,17 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                     computedSphericalHarmonicTorque / bodyExertingTorqueMass;
             computedTorques.push_back( computedFullTwoBodyTorque );
 
-            // Consistency of the full two-body torque with the independent acceleration-based torque reference
-            // r x (dU/dr), all expressed in body-1-fixed coordinates.
+            // Consistency of the full two-body torque with the independent acceleration-based torque reference.
+            // With Tudat torque sign convention, the torque from acceleration contributes with opposite sign.
             const Eigen::Vector3d accelerationConsistencyDifference =
-                    computedFullTwoBodyTorque - referenceTorqueFromAcceleration;
+                    computedFullTwoBodyTorque + referenceTorqueFromAcceleration;
 
             // Direct subtraction between full two-body torque and spherical-harmonic torque (specific form):
-            // this should stay large because the two models use opposite sign conventions.
+            // this should be near zero because both models are expected to use the same sign convention.
             const Eigen::Vector3d modelToModelDifference =
                     computedFullTwoBodyTorque - specificSphericalHarmonicTorque;
 
-            // Signed consistency check for the sign convention: the two models should match after adding
-            // (i.e. full-two-body torque ≈ - specific spherical-harmonic torque).
+            // Signed consistency check: this should stay large because the two models should not match after adding.
             const Eigen::Vector3d modelToModelSignedDifference =
                     computedFullTwoBodyTorque + specificSphericalHarmonicTorque;
             const double referenceScale = std::max( 1.0, referenceTorqueFromAcceleration.norm( ) );
@@ -1018,9 +1041,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             }
             for( int i = 0; i < 3; i++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( modelToModelSignedDifference( i ) ) / referenceScale, 5.0E-13 );
+                BOOST_CHECK_SMALL( std::fabs( modelToModelDifference( i ) ) / referenceScale, 5.0E-13 );
             }
-            BOOST_CHECK_GT( modelToModelDifference.norm( ) / referenceScale, 1.0 );
+            BOOST_CHECK_GT( modelToModelSignedDifference.norm( ) / referenceScale, 1.0 );
         }
 
         BOOST_CHECK_GT( ( computedTorques.at( 0 ) - computedTorques.at( 1 ) ).norm( ), 1.0E-16 );
@@ -1166,15 +1189,15 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
             // Model type: [Full two-body]. Body exerting: [l=0,2]. Body undergoing: [l=2].
             const Eigen::Vector3d fullTwoBodyFullDegree2Torque =
-                    -bodyExertingTorqueMass * fullTwoBodyTorqueModelWithFullDegree2Terms->getTorque( );
+                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithFullDegree2Terms->getTorque( );
 
             // Model type: [Full two-body]. Body exerting: [l=0]. Body undergoing: [l=2].
             const Eigen::Vector3d fullTwoBodyPointMassDegree2Torque =
-                    -bodyExertingTorqueMass * fullTwoBodyTorqueModelWithPointMassDegree2Terms->getTorque( );
+                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithPointMassDegree2Terms->getTorque( );
 
             // Model type: [Full two-body]. Body exerting: [l=2]. Body undergoing: [l=2].
             const Eigen::Vector3d fullTwoBodyDegree2Degree2Torque =
-                    -bodyExertingTorqueMass * fullTwoBodyTorqueModelWithDegree2Degree2Terms->getTorque( );
+                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithDegree2Degree2Terms->getTorque( );
 
             // Model type: [Fourth degree model]. Body exerting: [l=0,2]. Body undergoing: [l=2].
             const Eigen::Vector3d fourthDegreeFullDegree2Torque = fourthDegreeTorqueModelWithFullDegree2Terms->getTorque( );

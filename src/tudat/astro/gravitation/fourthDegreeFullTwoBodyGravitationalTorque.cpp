@@ -109,7 +109,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorque(
     FullTwoBodySphericalHarmonicTorque degreeTwoMutualTorque( degreeTwoMutualAcceleration, true );
     degreeTwoMutualTorque.updateMembers( 0.0 );
 
-    return -massOfBodyExertingTorque * degreeTwoMutualTorque.getTorque( );
+    return massOfBodyExertingTorque * degreeTwoMutualTorque.getTorque( );
 }
 
 FourthDegreeFullTwoBodyGravitationalTorqueModel::FourthDegreeFullTwoBodyGravitationalTorqueModel(
