@@ -15,6 +15,8 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/fourthDegreeFullTwoBodyGravitationalTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/fullTwoBodySphericalHarmonicGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
@@ -123,6 +125,46 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                         acceleratedBody.first,
                         acceleratingBody.first );
             }
+            break;
+        case full_two_body_spherical_harmonic_gravitational_torque:
+            if( std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Torque class type does not match torque type (full_two_body_spherical_harmonic_gravitational_torque) "
+                        "when making torque partial" );
+            }
+            if( acceleratingBody.second == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating full two-body spherical harmonic torque partial: accelerating body is nullptr." );
+            }
+            torquePartial = std::make_shared< FullTwoBodySphericalHarmonicGravitationalTorquePartial >(
+                    std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel ),
+                    acceleratedBody.second,
+                    acceleratingBody.second,
+                    acceleratedBody.first,
+                    acceleratingBody.first );
+            break;
+        case fourth_degree_full_two_body_gravitational_torque:
+            if( std::dynamic_pointer_cast< FourthDegreeFullTwoBodyGravitationalTorqueModel >( torqueModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Torque class type does not match torque type (fourth_degree_full_two_body_gravitational_torque) "
+                        "when making torque partial" );
+            }
+            if( acceleratingBody.second == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating fourth-degree full two-body torque partial: accelerating body is nullptr." );
+            }
+            torquePartial = std::make_shared< FourthDegreeFullTwoBodyGravitationalTorquePartial >(
+                    std::dynamic_pointer_cast< FourthDegreeFullTwoBodyGravitationalTorqueModel >( torqueModel ),
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            acceleratedBody.second->getGravityFieldModel( ) ),
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            acceleratingBody.second->getGravityFieldModel( ) ),
+                    acceleratedBody.first,
+                    acceleratingBody.first );
             break;
         case radiation_pressure_torque:
             throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );

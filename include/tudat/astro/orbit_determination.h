@@ -64,6 +64,8 @@
 #include "orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "orbit_determination/observation_partials/twoWayDopplerPartial.h"
 #include "orbit_determination/rotational_dynamics_partials/constantTorquePartial.h"
+#include "orbit_determination/rotational_dynamics_partials/fourthDegreeFullTwoBodyGravitationalTorquePartial.h"
+#include "orbit_determination/rotational_dynamics_partials/fullTwoBodySphericalHarmonicGravitationalTorquePartial.h"
 #include "orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
 #include "orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
 #include "orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
