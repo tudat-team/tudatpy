@@ -40,6 +40,12 @@ public:
         return currentTorque_;
     }
 
+    virtual void resetCurrentTime( ) override
+    {
+        accelerationBetweenBodies_->resetCurrentTime( );
+        currentTime_ = TUDAT_NAN;
+    }
+
 
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )

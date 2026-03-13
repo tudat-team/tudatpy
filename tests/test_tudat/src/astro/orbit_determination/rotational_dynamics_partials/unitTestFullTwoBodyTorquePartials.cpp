@@ -43,7 +43,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem(
         const double testTime,
         const std::string& bodyUndergoingTorqueName,
         const std::string& bodyExertingTorqueName,
-        const bool useArbitraryRotationStates )
+        const bool useArbitraryRotationStates,
+        const bool useZeroScaledMeanMomentOfInertia = false )
 {
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     bodies.createEmptyBody( bodyUndergoingTorqueName );
@@ -52,8 +53,8 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem(
     std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
     std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
 
-    double scaledMeanMomentOfInertiaBodyUndergoingTorque = 0.3;
-    double scaledMeanMomentOfInertiaBodyExertingTorque = 0.26;
+    double scaledMeanMomentOfInertiaBodyUndergoingTorque = useZeroScaledMeanMomentOfInertia ? 0.0 : 0.3;
+    double scaledMeanMomentOfInertiaBodyExertingTorque = useZeroScaledMeanMomentOfInertia ? 0.0 : 0.26;
     const double massBodyUndergoingTorque = 6.0E11;
     const double massBodyExertingTorque = 4.0E11;
     const double gravitationalParameterBodyUndergoingTorque =
@@ -319,6 +320,352 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
             5.0E-5 );
 }
 
+BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
+{
+    const std::string bodyUndergoingTorqueName = "BodyA";
+    const std::string bodyExertingTorqueName = "BodyB";
+    const double testTime = 1250.0;
+    const double quaternionPerturbationValue = 1.0E-9;
+    const double positionPerturbationValue = 5.0E-3;
+    const double coefficientPerturbationValue = 2.0E-7;
+
+    const Eigen::Vector4d quaternionPerturbation = Eigen::Vector4d::Constant( quaternionPerturbationValue );
+
+    for( const bool useZeroScaledMeanMomentOfInertia : { false, true } )
+    {
+        for( const bool useArbitraryRotationStates : { false, true } )
+        {
+            SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
+                    testTime,
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName,
+                    useArbitraryRotationStates,
+                    useZeroScaledMeanMomentOfInertia );
+            std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
+            std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
+
+            std::shared_ptr< TorqueModel > torqueModel = createFourthDegreeFullTwoBodyGravitationalTorqueModel(
+                    bodyUndergoingTorque,
+                    bodyExertingTorque,
+                    fourthDegreeFullTwoBodyGravitationalTorque( ),
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName );
+
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings;
+            parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 0, 2, 2, bodyUndergoingTorqueName, spherical_harmonics_cosine_coefficient_block ) );
+            parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 1, 2, 2, bodyUndergoingTorqueName, spherical_harmonics_sine_coefficient_block ) );
+            parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 0, 2, 2, bodyExertingTorqueName, spherical_harmonics_cosine_coefficient_block ) );
+            parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 1, 2, 2, bodyExertingTorqueName, spherical_harmonics_sine_coefficient_block ) );
+            std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterSettings, bodies );
+
+            std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > cosineCoefficientsOfBodyUndergoingTorqueParameter =
+                    parameterSet->getEstimatedVectorParameters( ).at( 0 );
+            std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > sineCoefficientsOfBodyUndergoingTorqueParameter =
+                    parameterSet->getEstimatedVectorParameters( ).at( 1 );
+            std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > cosineCoefficientsOfBodyExertingTorqueParameter =
+                    parameterSet->getEstimatedVectorParameters( ).at( 2 );
+            std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > sineCoefficientsOfBodyExertingTorqueParameter =
+                    parameterSet->getEstimatedVectorParameters( ).at( 3 );
+
+            std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
+                    torqueModel,
+                    std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
+                    std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
+                    basic_astrodynamics::SingleBodyTorqueModelMap( ),
+                    bodies,
+                    parameterSet );
+            torquePartial->update( testTime );
+
+            Eigen::MatrixXd analyticalPartialWrtOrientationOfBodyUndergoingTorque = Eigen::MatrixXd::Zero( 3, 4 );
+            torquePartial->wrtOrientationOfAcceleratedBody(
+                    analyticalPartialWrtOrientationOfBodyUndergoingTorque.block( 0, 0, 3, 4 ) );
+            Eigen::MatrixXd analyticalPartialWrtOrientationOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 4 );
+            torquePartial->wrtOrientationOfAcceleratingBody(
+                    analyticalPartialWrtOrientationOfBodyExertingTorque.block( 0, 0, 3, 4 ) );
+
+            Eigen::MatrixXd analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque = Eigen::MatrixXd::Zero( 3, 6 );
+            torquePartial->wrtNonRotationalStateOfAdditionalBody(
+                    analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 6 ),
+                    std::make_pair( bodyUndergoingTorqueName, "" ),
+                    propagators::translational_state );
+            Eigen::MatrixXd analyticalPartialWrtTranslationalStateOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 6 );
+            torquePartial->wrtNonRotationalStateOfAdditionalBody(
+                    analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 6 ),
+                    std::make_pair( bodyExertingTorqueName, "" ),
+                    propagators::translational_state );
+
+            const Eigen::MatrixXd analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque =
+                    torquePartial->wrtParameter( cosineCoefficientsOfBodyUndergoingTorqueParameter );
+            const Eigen::MatrixXd analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque =
+                    torquePartial->wrtParameter( sineCoefficientsOfBodyUndergoingTorqueParameter );
+            const Eigen::MatrixXd analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque =
+                    torquePartial->wrtParameter( cosineCoefficientsOfBodyExertingTorqueParameter );
+            const Eigen::MatrixXd analyticalPartialWrtSineCoefficientsOfBodyExertingTorque =
+                    torquePartial->wrtParameter( sineCoefficientsOfBodyExertingTorqueParameter );
+
+            const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( positionPerturbationValue );
+            const Eigen::VectorXd cosineCoefficientPerturbationBodyUndergoingTorque =
+                    Eigen::VectorXd::Constant(
+                            cosineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ),
+                            coefficientPerturbationValue );
+            const Eigen::VectorXd sineCoefficientPerturbationBodyUndergoingTorque =
+                    Eigen::VectorXd::Constant(
+                            sineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ),
+                            coefficientPerturbationValue );
+            const Eigen::VectorXd cosineCoefficientPerturbationBodyExertingTorque =
+                    Eigen::VectorXd::Constant(
+                            cosineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ),
+                            coefficientPerturbationValue );
+            const Eigen::VectorXd sineCoefficientPerturbationBodyExertingTorque =
+                    Eigen::VectorXd::Constant(
+                            sineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ),
+                            coefficientPerturbationValue );
+
+            const std::function< void( Eigen::Vector7d ) > setRotationalStateOfBodyUndergoingTorque =
+                    std::bind( &Body::setCurrentRotationalStateToLocalFrame, bodyUndergoingTorque, std::placeholders::_1 );
+            const std::function< void( Eigen::Vector7d ) > setRotationalStateOfBodyExertingTorque =
+                    std::bind( &Body::setCurrentRotationalStateToLocalFrame, bodyExertingTorque, std::placeholders::_1 );
+            const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyUndergoingTorque =
+                    std::bind( &Body::setState, bodyUndergoingTorque, std::placeholders::_1 );
+            const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyExertingTorque =
+                    std::bind( &Body::setState, bodyExertingTorque, std::placeholders::_1 );
+
+            std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyUndergoingTorque;
+            const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque =
+                    calculateTorqueDeviationDueToOrientationChange(
+                            setRotationalStateOfBodyUndergoingTorque,
+                            torqueModel,
+                            bodyUndergoingTorque->getRotationalStateVector( ),
+                            quaternionPerturbation,
+                            appliedQuaternionPerturbationOfBodyUndergoingTorque,
+                            emptyFunction,
+                            testTime );
+
+            std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyExertingTorque;
+            const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyExertingTorque =
+                    calculateTorqueDeviationDueToOrientationChange(
+                            setRotationalStateOfBodyExertingTorque,
+                            torqueModel,
+                            bodyExertingTorque->getRotationalStateVector( ),
+                            quaternionPerturbation,
+                            appliedQuaternionPerturbationOfBodyExertingTorque,
+                            emptyFunction,
+                            testTime );
+
+            const Eigen::MatrixXd numericalPartialWrtPositionOfBodyUndergoingTorque = calculateTorqueWrtTranslationalStatePartials(
+                    setTranslationalStateOfBodyUndergoingTorque,
+                    torqueModel,
+                    bodyUndergoingTorque->getState( ),
+                    positionPerturbation,
+                    0,
+                    emptyFunction,
+                    testTime );
+            const Eigen::MatrixXd numericalPartialWrtPositionOfBodyExertingTorque = calculateTorqueWrtTranslationalStatePartials(
+                    setTranslationalStateOfBodyExertingTorque,
+                    torqueModel,
+                    bodyExertingTorque->getState( ),
+                    positionPerturbation,
+                    0,
+                    emptyFunction,
+                    testTime );
+            const std::function< void( ) > updateFunction =
+                    std::bind( &updateBodyMassDistributions, bodyUndergoingTorque, bodyExertingTorque, testTime );
+
+            const Eigen::MatrixXd numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque = calculateTorqueWrtParameterPartials(
+                    cosineCoefficientsOfBodyUndergoingTorqueParameter,
+                    torqueModel,
+                    cosineCoefficientPerturbationBodyUndergoingTorque,
+                    updateFunction,
+                    testTime );
+            const Eigen::MatrixXd numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque = calculateTorqueWrtParameterPartials(
+                    sineCoefficientsOfBodyUndergoingTorqueParameter,
+                    torqueModel,
+                    sineCoefficientPerturbationBodyUndergoingTorque,
+                    updateFunction,
+                    testTime );
+            const Eigen::MatrixXd numericalPartialWrtCosineCoefficientsOfBodyExertingTorque = calculateTorqueWrtParameterPartials(
+                    cosineCoefficientsOfBodyExertingTorqueParameter,
+                    torqueModel,
+                    cosineCoefficientPerturbationBodyExertingTorque,
+                    updateFunction,
+                    testTime );
+            const Eigen::MatrixXd numericalPartialWrtSineCoefficientsOfBodyExertingTorque = calculateTorqueWrtParameterPartials(
+                    sineCoefficientsOfBodyExertingTorqueParameter,
+                    torqueModel,
+                    sineCoefficientPerturbationBodyExertingTorque,
+                    updateFunction,
+                    testTime );
+
+            for( int index = 1; index < 4; index++ )
+            {
+                const Eigen::Vector3d analyticalTorqueDeviationOfBodyUndergoingTorque =
+                        analyticalPartialWrtOrientationOfBodyUndergoingTorque *
+                        appliedQuaternionPerturbationOfBodyUndergoingTorque.at( index );
+                const Eigen::Vector3d numericalTorqueDeviationOfBodyUndergoingTorque =
+                        torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 );
+                std::cout << "Fourth-degree quaternion test, body undergoing torque, rotation case "
+                          << useArbitraryRotationStates << ", zero mean moment case "
+                          << useZeroScaledMeanMomentOfInertia << ", perturbation index " << index << '\n'
+                          << "Analytical torque deviation:\n"
+                          << analyticalTorqueDeviationOfBodyUndergoingTorque << '\n'
+                          << "Numerical torque deviation:\n"
+                          << numericalTorqueDeviationOfBodyUndergoingTorque << std::endl;
+                checkMatrixClosePerElement(
+                        analyticalTorqueDeviationOfBodyUndergoingTorque,
+                        numericalTorqueDeviationOfBodyUndergoingTorque,
+                        5.0E-9 );
+
+                const Eigen::Vector3d analyticalTorqueDeviationOfBodyExertingTorque =
+                        analyticalPartialWrtOrientationOfBodyExertingTorque *
+                        appliedQuaternionPerturbationOfBodyExertingTorque.at( index );
+                const Eigen::Vector3d numericalTorqueDeviationOfBodyExertingTorque =
+                        torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 );
+                std::cout << "Fourth-degree quaternion test, body exerting torque, rotation case "
+                          << useArbitraryRotationStates << ", zero mean moment case "
+                          << useZeroScaledMeanMomentOfInertia << ", perturbation index " << index << '\n'
+                          << "Analytical torque deviation:\n"
+                          << analyticalTorqueDeviationOfBodyExertingTorque << '\n'
+                          << "Numerical torque deviation:\n"
+                          << numericalTorqueDeviationOfBodyExertingTorque << std::endl;
+                checkMatrixClosePerElement(
+                        analyticalTorqueDeviationOfBodyExertingTorque,
+                        numericalTorqueDeviationOfBodyExertingTorque,
+                        5.0E-9 );
+            }
+
+            const double analyticalPositionPartialNorm =
+                    analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ).norm( ) +
+                    analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ).norm( );
+            const double numericalPositionPartialNorm =
+                    numericalPartialWrtPositionOfBodyUndergoingTorque.norm( ) +
+                    numericalPartialWrtPositionOfBodyExertingTorque.norm( );
+
+            BOOST_CHECK_GT( analyticalPositionPartialNorm, 1.0E-20 );
+            BOOST_CHECK_GT( numericalPositionPartialNorm, 1.0E-20 );
+
+            std::cout << "Fourth-degree position partial test, body undergoing torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical position partial:\n"
+                      << analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ) << '\n'
+                      << "Numerical position partial:\n"
+                      << numericalPartialWrtPositionOfBodyUndergoingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
+                                        numericalPartialWrtPositionOfBodyUndergoingTorque,
+                                        5.0E-9 );
+            std::cout << "Fourth-degree position partial test, body exerting torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical position partial:\n"
+                      << analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ) << '\n'
+                      << "Numerical position partial:\n"
+                      << numericalPartialWrtPositionOfBodyExertingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ),
+                                        numericalPartialWrtPositionOfBodyExertingTorque,
+                                        5.0E-9 );
+            std::cout << "Fourth-degree velocity partial test, body undergoing torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical velocity partial:\n"
+                      << analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ) << std::endl;
+            BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
+            std::cout << "Fourth-degree velocity partial test, body exerting torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical velocity partial:\n"
+                      << analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 3, 3, 3 ) << std::endl;
+            BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
+
+            const Eigen::MatrixXd numericalPartialWrtVelocityOfBodyUndergoingTorque = calculateTorqueWrtTranslationalStatePartials(
+                    setTranslationalStateOfBodyUndergoingTorque,
+                    torqueModel,
+                    bodyUndergoingTorque->getState( ),
+                    positionPerturbation,
+                    3,
+                    emptyFunction,
+                    testTime );
+            const Eigen::MatrixXd numericalPartialWrtVelocityOfBodyExertingTorque = calculateTorqueWrtTranslationalStatePartials(
+                    setTranslationalStateOfBodyExertingTorque,
+                    torqueModel,
+                    bodyExertingTorque->getState( ),
+                    positionPerturbation,
+                    3,
+                    emptyFunction,
+                    testTime );
+            std::cout << "Fourth-degree velocity partial test, body undergoing torque, numerical reference, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << numericalPartialWrtVelocityOfBodyUndergoingTorque << std::endl;
+            BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyUndergoingTorque.norm( ), 1.0E-18 );
+            std::cout << "Fourth-degree velocity partial test, body exerting torque, numerical reference, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << numericalPartialWrtVelocityOfBodyExertingTorque << std::endl;
+            BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyExertingTorque.norm( ), 1.0E-18 );
+
+            const double analyticalCoefficientPartialNorm =
+                    analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
+                    analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
+                    analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
+                    analyticalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
+            const double numericalCoefficientPartialNorm =
+                    numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
+                    numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
+                    numericalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
+                    numericalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
+
+            BOOST_CHECK_GT( analyticalCoefficientPartialNorm, 1.0E-20 );
+            BOOST_CHECK_GT( numericalCoefficientPartialNorm, 1.0E-20 );
+
+            std::cout << "Fourth-degree coefficient partial test, cosine, body undergoing torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical coefficient partial:\n"
+                      << analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque << '\n'
+                      << "Numerical coefficient partial:\n"
+                      << numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
+                                        numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
+                                        2.0E-7 );
+            std::cout << "Fourth-degree coefficient partial test, sine, body undergoing torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical coefficient partial:\n"
+                      << analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque << '\n'
+                      << "Numerical coefficient partial:\n"
+                      << numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
+                                        numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
+                                        2.0E-7 );
+            std::cout << "Fourth-degree coefficient partial test, cosine, body exerting torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical coefficient partial:\n"
+                      << analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque << '\n'
+                      << "Numerical coefficient partial:\n"
+                      << numericalPartialWrtCosineCoefficientsOfBodyExertingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
+                                        numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
+                                        2.0E-7 );
+            std::cout << "Fourth-degree coefficient partial test, sine, body exerting torque, rotation case "
+                      << useArbitraryRotationStates << ", zero mean moment case "
+                      << useZeroScaledMeanMomentOfInertia << '\n'
+                      << "Analytical coefficient partial:\n"
+                      << analyticalPartialWrtSineCoefficientsOfBodyExertingTorque << '\n'
+                      << "Numerical coefficient partial:\n"
+                      << numericalPartialWrtSineCoefficientsOfBodyExertingTorque << std::endl;
+            checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
+                                        numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
+                                        2.0E-7 );
+        }
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartials )
 {
     const std::string bodyUndergoingTorqueName = "BodyA";
@@ -523,318 +870,6 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
         checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                     numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                     5.0E-10 );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePositionPartials )
-{
-    const std::string bodyUndergoingTorqueName = "BodyA";
-    const std::string bodyExertingTorqueName = "BodyB";
-    const double testTime = 1250.0;
-
-    for( const bool useArbitraryRotationStates : { false, true } )
-    {
-        SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
-                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates );
-        std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
-        std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
-
-        std::shared_ptr< TorqueModel > torqueModel = createFourthDegreeFullTwoBodyGravitationalTorqueModel(
-                bodyUndergoingTorque,
-                bodyExertingTorque,
-                fourthDegreeFullTwoBodyGravitationalTorque( ),
-                bodyUndergoingTorqueName,
-                bodyExertingTorqueName );
-
-        std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
-                torqueModel,
-                std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
-                std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
-                basic_astrodynamics::SingleBodyTorqueModelMap( ),
-                bodies );
-        torquePartial->update( testTime );
-
-        Eigen::MatrixXd analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque = Eigen::MatrixXd::Zero( 3, 6 );
-        torquePartial->wrtNonRotationalStateOfAdditionalBody(
-                analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 6 ),
-                std::make_pair( bodyUndergoingTorqueName, "" ),
-                propagators::translational_state );
-        Eigen::MatrixXd analyticalPartialWrtTranslationalStateOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 6 );
-        torquePartial->wrtNonRotationalStateOfAdditionalBody(
-                analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 6 ),
-                std::make_pair( bodyExertingTorqueName, "" ),
-                propagators::translational_state );
-
-        const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 5.0E-1 );
-        const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyUndergoingTorque =
-                std::bind( &Body::setState, bodyUndergoingTorque, std::placeholders::_1 );
-        const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyExertingTorque =
-                std::bind( &Body::setState, bodyExertingTorque, std::placeholders::_1 );
-
-        const Eigen::MatrixXd numericalPartialWrtPositionOfBodyUndergoingTorque = calculateTorqueWrtTranslationalStatePartials(
-                setTranslationalStateOfBodyUndergoingTorque,
-                torqueModel,
-                bodyUndergoingTorque->getState( ),
-                positionPerturbation,
-                0,
-                emptyFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtPositionOfBodyExertingTorque = calculateTorqueWrtTranslationalStatePartials(
-                setTranslationalStateOfBodyExertingTorque,
-                torqueModel,
-                bodyExertingTorque->getState( ),
-                positionPerturbation,
-                0,
-                emptyFunction,
-                testTime );
-
-        const double analyticalPositionPartialNorm =
-                analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ).norm( ) +
-                analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ).norm( );
-        const double numericalPositionPartialNorm =
-                numericalPartialWrtPositionOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtPositionOfBodyExertingTorque.norm( );
-
-        BOOST_CHECK_GT( analyticalPositionPartialNorm, 1.0E-20 );
-        BOOST_CHECK_GT( numericalPositionPartialNorm, 1.0E-20 );
-
-        checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
-                                    numericalPartialWrtPositionOfBodyUndergoingTorque,
-                                    5.0E-6 );
-        checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ),
-                                    numericalPartialWrtPositionOfBodyExertingTorque,
-                                    5.0E-6 );
-        BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
-        BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
-
-        const Eigen::MatrixXd numericalPartialWrtVelocityOfBodyUndergoingTorque = calculateTorqueWrtTranslationalStatePartials(
-                setTranslationalStateOfBodyUndergoingTorque,
-                torqueModel,
-                bodyUndergoingTorque->getState( ),
-                positionPerturbation,
-                3,
-                emptyFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtVelocityOfBodyExertingTorque = calculateTorqueWrtTranslationalStatePartials(
-                setTranslationalStateOfBodyExertingTorque,
-                torqueModel,
-                bodyExertingTorque->getState( ),
-                positionPerturbation,
-                3,
-                emptyFunction,
-                testTime );
-        BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyUndergoingTorque.norm( ), 1.0E-18 );
-        BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyExertingTorque.norm( ), 1.0E-18 );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorqueQuaternionPartials )
-{
-    const std::string bodyUndergoingTorqueName = "BodyA";
-    const std::string bodyExertingTorqueName = "BodyB";
-    const double testTime = 1250.0;
-    const Eigen::Vector4d quaternionPerturbation = Eigen::Vector4d::Constant( 1.0E-9 );
-
-    for( const bool useArbitraryRotationStates : { false, true } )
-    {
-        SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
-                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates );
-        std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
-        std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
-
-        std::shared_ptr< TorqueModel > torqueModel = createFourthDegreeFullTwoBodyGravitationalTorqueModel(
-                bodyUndergoingTorque,
-                bodyExertingTorque,
-                fourthDegreeFullTwoBodyGravitationalTorque( ),
-                bodyUndergoingTorqueName,
-                bodyExertingTorqueName );
-
-        std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
-                torqueModel,
-                std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
-                std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
-                basic_astrodynamics::SingleBodyTorqueModelMap( ),
-                bodies );
-        torquePartial->update( testTime );
-
-        Eigen::MatrixXd analyticalPartialWrtOrientationOfBodyUndergoingTorque = Eigen::MatrixXd::Zero( 3, 4 );
-        torquePartial->wrtOrientationOfAcceleratedBody( analyticalPartialWrtOrientationOfBodyUndergoingTorque.block( 0, 0, 3, 4 ) );
-        Eigen::MatrixXd analyticalPartialWrtOrientationOfBodyExertingTorque = Eigen::MatrixXd::Zero( 3, 4 );
-        torquePartial->wrtOrientationOfAcceleratingBody( analyticalPartialWrtOrientationOfBodyExertingTorque.block( 0, 0, 3, 4 ) );
-
-        const std::function< void( Eigen::Vector7d ) > setRotationalStateOfBodyUndergoingTorque =
-                std::bind( &Body::setCurrentRotationalStateToLocalFrame, bodyUndergoingTorque, std::placeholders::_1 );
-        const std::function< void( Eigen::Vector7d ) > setRotationalStateOfBodyExertingTorque =
-                std::bind( &Body::setCurrentRotationalStateToLocalFrame, bodyExertingTorque, std::placeholders::_1 );
-
-        std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyUndergoingTorque;
-        const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque =
-                calculateTorqueDeviationDueToOrientationChange(
-                        setRotationalStateOfBodyUndergoingTorque,
-                        torqueModel,
-                        bodyUndergoingTorque->getRotationalStateVector( ),
-                        quaternionPerturbation,
-                        appliedQuaternionPerturbationOfBodyUndergoingTorque,
-                        emptyFunction,
-                        testTime );
-
-        std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyExertingTorque;
-        const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyExertingTorque =
-                calculateTorqueDeviationDueToOrientationChange(
-                        setRotationalStateOfBodyExertingTorque,
-                        torqueModel,
-                        bodyExertingTorque->getRotationalStateVector( ),
-                        quaternionPerturbation,
-                        appliedQuaternionPerturbationOfBodyExertingTorque,
-                        emptyFunction,
-                        testTime );
-
-        for( int index = 1; index < 4; index++ )
-        {
-            const Eigen::Vector3d analyticalTorqueDeviationOfBodyUndergoingTorque =
-                    analyticalPartialWrtOrientationOfBodyUndergoingTorque *
-                    appliedQuaternionPerturbationOfBodyUndergoingTorque.at( index );
-            const Eigen::Vector3d numericalTorqueDeviationOfBodyUndergoingTorque =
-                    torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 );
-            checkMatrixClosePerElement(
-                    analyticalTorqueDeviationOfBodyUndergoingTorque,
-                    numericalTorqueDeviationOfBodyUndergoingTorque,
-                    5.0E-6 );
-
-            const Eigen::Vector3d analyticalTorqueDeviationOfBodyExertingTorque =
-                    analyticalPartialWrtOrientationOfBodyExertingTorque *
-                    appliedQuaternionPerturbationOfBodyExertingTorque.at( index );
-            const Eigen::Vector3d numericalTorqueDeviationOfBodyExertingTorque =
-                    torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 );
-            checkMatrixClosePerElement(
-                    analyticalTorqueDeviationOfBodyExertingTorque,
-                    numericalTorqueDeviationOfBodyExertingTorque,
-                    5.0E-6 );
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorqueCoefficientPartials )
-{
-    const std::string bodyUndergoingTorqueName = "BodyA";
-    const std::string bodyExertingTorqueName = "BodyB";
-    const double testTime = 1250.0;
-
-    for( const bool useArbitraryRotationStates : { false, true } )
-    {
-        SystemOfBodies bodies = createTwoBodyTorquePartialTestSystem(
-                testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, useArbitraryRotationStates );
-        std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
-        std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
-
-        std::shared_ptr< TorqueModel > torqueModel = createFourthDegreeFullTwoBodyGravitationalTorqueModel(
-                bodyUndergoingTorque,
-                bodyExertingTorque,
-                fourthDegreeFullTwoBodyGravitationalTorque( ),
-                bodyUndergoingTorqueName,
-                bodyExertingTorqueName );
-
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings;
-        parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                2, 0, 2, 2, bodyUndergoingTorqueName, spherical_harmonics_cosine_coefficient_block ) );
-        parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                2, 1, 2, 2, bodyUndergoingTorqueName, spherical_harmonics_sine_coefficient_block ) );
-        parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                2, 0, 2, 2, bodyExertingTorqueName, spherical_harmonics_cosine_coefficient_block ) );
-        parameterSettings.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                2, 1, 2, 2, bodyExertingTorqueName, spherical_harmonics_sine_coefficient_block ) );
-        std::shared_ptr< EstimatableParameterSet< double > > parameterSet = createParametersToEstimate( parameterSettings, bodies );
-
-        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > cosineCoefficientsOfBodyUndergoingTorqueParameter =
-                parameterSet->getEstimatedVectorParameters( ).at( 0 );
-        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > sineCoefficientsOfBodyUndergoingTorqueParameter =
-                parameterSet->getEstimatedVectorParameters( ).at( 1 );
-        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > cosineCoefficientsOfBodyExertingTorqueParameter =
-                parameterSet->getEstimatedVectorParameters( ).at( 2 );
-        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > sineCoefficientsOfBodyExertingTorqueParameter =
-                parameterSet->getEstimatedVectorParameters( ).at( 3 );
-
-        std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial(
-                torqueModel,
-                std::make_pair( bodyUndergoingTorqueName, bodyUndergoingTorque ),
-                std::make_pair( bodyExertingTorqueName, bodyExertingTorque ),
-                basic_astrodynamics::SingleBodyTorqueModelMap( ),
-                bodies,
-                parameterSet );
-        torquePartial->update( testTime );
-
-        const Eigen::MatrixXd analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque =
-                torquePartial->wrtParameter( cosineCoefficientsOfBodyUndergoingTorqueParameter );
-        const Eigen::MatrixXd analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque =
-                torquePartial->wrtParameter( sineCoefficientsOfBodyUndergoingTorqueParameter );
-        const Eigen::MatrixXd analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque =
-                torquePartial->wrtParameter( cosineCoefficientsOfBodyExertingTorqueParameter );
-        const Eigen::MatrixXd analyticalPartialWrtSineCoefficientsOfBodyExertingTorque =
-                torquePartial->wrtParameter( sineCoefficientsOfBodyExertingTorqueParameter );
-
-        const Eigen::VectorXd cosineCoefficientPerturbationBodyUndergoingTorque =
-                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 2.0E-8 );
-        const Eigen::VectorXd sineCoefficientPerturbationBodyUndergoingTorque =
-                Eigen::VectorXd::Constant( sineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 2.0E-8 );
-        const Eigen::VectorXd cosineCoefficientPerturbationBodyExertingTorque =
-                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 2.0E-8 );
-        const Eigen::VectorXd sineCoefficientPerturbationBodyExertingTorque =
-                Eigen::VectorXd::Constant( sineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 2.0E-8 );
-
-        const std::function< void( ) > updateFunction =
-                std::bind( &updateBodyMassDistributions, bodyUndergoingTorque, bodyExertingTorque, testTime );
-
-        const Eigen::MatrixXd numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque = calculateTorqueWrtParameterPartials(
-                cosineCoefficientsOfBodyUndergoingTorqueParameter,
-                torqueModel,
-                cosineCoefficientPerturbationBodyUndergoingTorque,
-                updateFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque = calculateTorqueWrtParameterPartials(
-                sineCoefficientsOfBodyUndergoingTorqueParameter,
-                torqueModel,
-                sineCoefficientPerturbationBodyUndergoingTorque,
-                updateFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtCosineCoefficientsOfBodyExertingTorque = calculateTorqueWrtParameterPartials(
-                cosineCoefficientsOfBodyExertingTorqueParameter,
-                torqueModel,
-                cosineCoefficientPerturbationBodyExertingTorque,
-                updateFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtSineCoefficientsOfBodyExertingTorque = calculateTorqueWrtParameterPartials(
-                sineCoefficientsOfBodyExertingTorqueParameter,
-                torqueModel,
-                sineCoefficientPerturbationBodyExertingTorque,
-                updateFunction,
-                testTime );
-
-        const double analyticalCoefficientPartialNorm =
-                analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
-                analyticalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
-        const double numericalCoefficientPartialNorm =
-                numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
-                numericalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
-
-        BOOST_CHECK_GT( analyticalCoefficientPartialNorm, 1.0E-20 );
-        BOOST_CHECK_GT( numericalCoefficientPartialNorm, 1.0E-20 );
-
-        checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
-                                    numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
-                                    2.0E-5 );
-        checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
-                                    numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
-                                    2.0E-5 );
-        checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
-                                    numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
-                                    2.0E-5 );
-        checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
-                                    numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
-                                    2.0E-5 );
     }
 }
 
