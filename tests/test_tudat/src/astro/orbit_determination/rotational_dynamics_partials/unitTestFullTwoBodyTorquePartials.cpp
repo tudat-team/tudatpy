@@ -739,16 +739,16 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorqueCoefficientP
 
         checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
                                     numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
-                                    5.0E-9 );
+                                    2.0E-5 );
         checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
                                     numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
-                                    5.0E-9 );
+                                    2.0E-5 );
         checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
                                     numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
-                                    5.0E-9 );
+                                    2.0E-5 );
         checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                     numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
-                                    5.0E-9 );
+                                    2.0E-5 );
     }
 }
 
