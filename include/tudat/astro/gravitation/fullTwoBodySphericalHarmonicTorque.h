@@ -53,15 +53,17 @@ public:
         return coefficientCombinationsToUse_;
     }
 
-private:
-    //! Compute \hat{J} D_{m,k}^l in Cartesian basis of frame F1.
-    Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficient(
-            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
-            const int degree,
-            const int orderM,
-            const int orderK );
+    std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > getAccelerationBetweenBodies( ) const
+    {
+        return accelerationBetweenBodies_;
+    }
 
-    //! Compute \hat{J}\bar{C}_{l,m}^{2,F1} and \hat{J}\bar{S}_{l,m}^{2,F1} from body-2 coefficients and current Wigner D-matrices.
+    bool getAcceleratedBodyIsBody1( ) const
+    {
+        return acceleratedBodyIsBody1_;
+    }
+
+    //! Compute \hat{J}\bar{C}_{l,m}^{2,F1} and \hat{J}\bar{S}_{l,m}^{2,F1} from body-2 coefficients and supplied Wigner D-matrices.
     void computeTransformedAngularMomentumCoefficients(
             const Eigen::MatrixXd& cosineCoefficientsBody2,
             const Eigen::MatrixXd& sineCoefficientsBody2,
@@ -69,6 +71,14 @@ private:
             const bool areCoefficientsNormalized,
             std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
             std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
+
+private:
+    //! Compute \hat{J} D_{m,k}^l in Cartesian basis of frame F1.
+    Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficient(
+            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+            const int degree,
+            const int orderM,
+            const int orderK );
 
     Eigen::Vector3d currentTorque_;
 

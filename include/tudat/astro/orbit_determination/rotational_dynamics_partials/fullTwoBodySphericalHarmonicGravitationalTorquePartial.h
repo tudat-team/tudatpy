@@ -12,8 +12,8 @@
 #define TUDAT_FULLTWOBODYSPHERICALHARMONICGRAVITATIONALTORQUEPARTIAL_H
 
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -27,8 +27,7 @@ class FullTwoBodySphericalHarmonicGravitationalTorquePartial : public TorquePart
 public:
     FullTwoBodySphericalHarmonicGravitationalTorquePartial(
             const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
-            const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-            const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+            const std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody );
 
@@ -61,24 +60,62 @@ public:
     void update( const double currentTime = TUDAT_NAN ) override;
 
 private:
-    void wrtSphericalHarmonicCoefficientParameter(
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
             Eigen::MatrixXd& partialMatrix,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >& parameter,
-            const Eigen::VectorXd& perturbation );
+            const std::vector< std::pair< int, int > >& blockIndices );
+
+    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
+            Eigen::MatrixXd& partialMatrix,
+            const std::vector< std::pair< int, int > >& blockIndices );
+
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque(
+            Eigen::MatrixXd& partialMatrix,
+            const std::vector< std::pair< int, int > >& blockIndices );
+
+    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque(
+            Eigen::MatrixXd& partialMatrix,
+            const std::vector< std::pair< int, int > >& blockIndices );
+
+    void addBody2SpinTorquePartialWrtBody1Coefficient(
+            Eigen::Vector3d& partial,
+            const int degree,
+            const int order,
+            const bool wrtCosineCoefficient ) const;
+
+    void addBody2SpinTorquePartialWrtBody2Coefficient(
+            Eigen::Vector3d& partial,
+            const int degree,
+            const int order,
+            const bool wrtCosineCoefficient ) const;
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel_;
+    std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial_;
+    std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
+    std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
 
-    std::shared_ptr< simulation_setup::Body > bodyUndergoingTorqueObject_;
-    std::shared_ptr< simulation_setup::Body > bodyExertingTorqueObject_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< int > effectiveIndicesForCoefficientCombinations_;
 
     Eigen::Matrix< double, 3, 4 > currentPartialWrtQuaternionOfBodyUndergoingTorque_;
     Eigen::Matrix< double, 3, 4 > currentPartialWrtQuaternionOfBodyExertingTorque_;
     Eigen::Matrix3d currentPartialWrtPositionOfBodyUndergoingTorque_;
     Eigen::Matrix3d currentPartialWrtPositionOfBodyExertingTorque_;
-
-    Eigen::Vector4d quaternionPerturbation_;
-    Eigen::Vector3d positionPerturbation_;
-    double sphericalHarmonicCoefficientPerturbation_;
+    Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_;
+    Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrameOfBodyExertingTorque_;
+    Eigen::Matrix3d currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_;
+    Eigen::Vector3d currentRelativePositionInInertialFrame_;
+    Eigen::Vector3d currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_;
+    Eigen::Vector3d currentMutualPotentialGradientInBodyFixedFrameOfBodyUndergoingTorque_;
+    Eigen::Matrix3d currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_;
+    Eigen::MatrixXd currentTransformedCosineCoefficientsBody2_;
+    Eigen::MatrixXd currentTransformedSineCoefficientsBody2_;
+    std::array< Eigen::MatrixXd, 3 > currentTransformedCosineCoefficientsBody2AngularMomentum_;
+    std::array< Eigen::MatrixXd, 3 > currentTransformedSineCoefficientsBody2AngularMomentum_;
+    double currentDistance_;
+    double currentCosineOfLatitude_;
+    double currentPreMultiplier_;
+    std::vector< double > currentRadius1Powers_;
+    std::vector< double > currentRadius2Powers_;
 };
 
 }  // namespace acceleration_partials

@@ -43,6 +43,8 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     const int numberOfEffectiveCoefficients = effectiveMutualPotentialField_->getTotalVectorSize( );
     currentPartialsWrtEffectiveCoefficients_.resize(
             numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
+    currentBodyFixedPartialsWrtEffectiveCoefficients_.resize(
+            numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
     currentEffectiveCoefficientsWrtTransformedBody2Coefficients_.resize( numberOfEffectiveCoefficients, Eigen::Matrix2d::Zero( ) );
 
     effectiveIndicesForCoefficientCombinations_.resize( coefficientCombinationsToUse_.size( ) );
@@ -279,8 +281,14 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
                     coordinate_conversions::convertSphericalToCartesianGradient(
                             currentPartialsWrtEffectiveCoefficients_.at( i ).block( 0, 1, 3, 1 ),
                             currentBodyFixedRelativePosition_ );
+            currentBodyFixedPartialsWrtEffectiveCoefficients_.at( i ) =
+                    currentBodyFixedPartialsWrtEffectiveCoefficients;
             currentPartialsWrtEffectiveCoefficients_.at( i ) =
                     currentRotationToInertialFrame_ * currentBodyFixedPartialsWrtEffectiveCoefficients;
+        }
+        else
+        {
+            currentBodyFixedPartialsWrtEffectiveCoefficients_.at( i ).setZero( );
         }
     }
 }

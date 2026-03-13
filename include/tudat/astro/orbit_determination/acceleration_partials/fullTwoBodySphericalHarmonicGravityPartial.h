@@ -101,6 +101,48 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter ) override;
 
+    const Eigen::Matrix3d& getCurrentBodyFixedPartialWrtPosition( ) const
+    {
+        return currentBodyFixedPartialWrtPosition_;
+    }
+
+    const std::vector< Eigen::Matrix< double, 3, 2 > >& getCurrentBodyFixedPartialsWrtEffectiveCoefficients( ) const
+    {
+        return currentBodyFixedPartialsWrtEffectiveCoefficients_;
+    }
+
+    const std::vector< Eigen::Matrix< double, 3, 2 > >& getCurrentPartialsWrtEffectiveCoefficients( ) const
+    {
+        return currentPartialsWrtEffectiveCoefficients_;
+    }
+
+    const std::vector< Eigen::Matrix2d >& getCurrentEffectiveCoefficientsWrtTransformedBody2Coefficients( ) const
+    {
+        return currentEffectiveCoefficientsWrtTransformedBody2Coefficients_;
+    }
+
+    const std::vector< int >& getEffectiveIndicesForCoefficientCombinations( ) const
+    {
+        return effectiveIndicesForCoefficientCombinations_;
+    }
+
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+    getCoefficientCombinationsToUse( ) const
+    {
+        return coefficientCombinationsToUse_;
+    }
+
+    void calculateCurrentTransformedBody2CoefficientPartials(
+            const int degree,
+            const int order,
+            const bool wrtCosineCoefficient,
+            Eigen::MatrixXd& transformedCosinePartials,
+            Eigen::MatrixXd& transformedSinePartials )
+    {
+        updateCurrentTransformedBody2CoefficientPartials(
+                degree, order, wrtCosineCoefficient, transformedCosinePartials, transformedSinePartials );
+    }
+
 private:
     void updateCurrentPositionPartial( );
 
@@ -140,6 +182,8 @@ private:
     std::vector< int > effectiveIndicesForCoefficientCombinations_;
 
     std::vector< Eigen::Matrix< double, 3, 2 > > currentPartialsWrtEffectiveCoefficients_;
+
+    std::vector< Eigen::Matrix< double, 3, 2 > > currentBodyFixedPartialsWrtEffectiveCoefficients_;
 
     std::vector< Eigen::Matrix2d > currentEffectiveCoefficientsWrtTransformedBody2Coefficients_;
 

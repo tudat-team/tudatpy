@@ -760,24 +760,26 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
         const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyExertingTorque =
                 std::bind( &Body::setState, bodyExertingTorque, std::placeholders::_1 );
 
-        const Eigen::MatrixXd numericalPartialWrtOrientationOfBodyUndergoingTorque = calculateTorqueWrtRotationalStatePartials(
-                setRotationalStateOfBodyUndergoingTorque,
-                torqueModel,
-                bodyUndergoingTorque->getRotationalStateVector( ),
-                orientationPerturbation,
-                0,
-                4,
-                emptyFunction,
-                testTime );
-        const Eigen::MatrixXd numericalPartialWrtOrientationOfBodyExertingTorque = calculateTorqueWrtRotationalStatePartials(
-                setRotationalStateOfBodyExertingTorque,
-                torqueModel,
-                bodyExertingTorque->getRotationalStateVector( ),
-                orientationPerturbation,
-                0,
-                4,
-                emptyFunction,
-                testTime );
+        std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyUndergoingTorque;
+        const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque =
+                calculateTorqueDeviationDueToOrientationChange(
+                        setRotationalStateOfBodyUndergoingTorque,
+                        torqueModel,
+                        bodyUndergoingTorque->getRotationalStateVector( ),
+                        orientationPerturbation,
+                        appliedQuaternionPerturbationOfBodyUndergoingTorque,
+                        emptyFunction,
+                        testTime );
+        std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyExertingTorque;
+        const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyExertingTorque =
+                calculateTorqueDeviationDueToOrientationChange(
+                        setRotationalStateOfBodyExertingTorque,
+                        torqueModel,
+                        bodyExertingTorque->getRotationalStateVector( ),
+                        orientationPerturbation,
+                        appliedQuaternionPerturbationOfBodyExertingTorque,
+                        emptyFunction,
+                        testTime );
         const Eigen::MatrixXd numericalPartialWrtPositionOfBodyUndergoingTorque = calculateTorqueWrtTranslationalStatePartials(
                 setTranslationalStateOfBodyUndergoingTorque,
                 torqueModel,
@@ -820,38 +822,57 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
                 emptyFunction,
                 testTime );
 
-        const double analyticalStatePartialNorm =
-                analyticalPartialWrtOrientationOfBodyUndergoingTorque.norm( ) +
-                analyticalPartialWrtOrientationOfBodyExertingTorque.norm( ) +
-                analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ).norm( ) +
-                analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ).norm( );
-        const double numericalStatePartialNorm =
-                numericalPartialWrtOrientationOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtOrientationOfBodyExertingTorque.norm( ) +
-                numericalPartialWrtPositionOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtPositionOfBodyExertingTorque.norm( );
-        const double analyticalCoefficientPartialNorm =
-                analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
-                analyticalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
-        const double numericalCoefficientPartialNorm =
-                numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ) +
-                numericalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ) +
-                numericalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( );
+        // This check verifies that the analytical quaternion partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtOrientationOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical quaternion partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtOrientationOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical position partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ).norm( ), 1.0E-20 );
+        // This check verifies that the analytical position partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ).norm( ), 1.0E-20 );
+        // This check verifies that the numerical quaternion reference for the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical quaternion reference for the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( torqueDeviationDueToOrientationChangeOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical position partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtPositionOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical position partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtPositionOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical cosine-coefficient partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical sine-coefficient partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical cosine-coefficient partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the analytical sine-coefficient partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical cosine-coefficient partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical sine-coefficient partial of the body undergoing torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical cosine-coefficient partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtCosineCoefficientsOfBodyExertingTorque.norm( ), 1.0E-20 );
+        // This check verifies that the numerical sine-coefficient partial of the body exerting torque is not identically zero.
+        BOOST_CHECK_GT( numericalPartialWrtSineCoefficientsOfBodyExertingTorque.norm( ), 1.0E-20 );
 
-        BOOST_CHECK_GT( analyticalStatePartialNorm, 1.0E-20 );
-        BOOST_CHECK_GT( numericalStatePartialNorm, 1.0E-20 );
-        BOOST_CHECK_GT( analyticalCoefficientPartialNorm, 1.0E-20 );
-        BOOST_CHECK_GT( numericalCoefficientPartialNorm, 1.0E-20 );
+        for( int index = 1; index < 4; index++ )
+        {
+            const Eigen::Vector3d analyticalTorqueDeviationOfBodyUndergoingTorque =
+                    analyticalPartialWrtOrientationOfBodyUndergoingTorque *
+                    appliedQuaternionPerturbationOfBodyUndergoingTorque.at( index );
+            const Eigen::Vector3d analyticalTorqueDeviationOfBodyExertingTorque =
+                    analyticalPartialWrtOrientationOfBodyExertingTorque *
+                    appliedQuaternionPerturbationOfBodyExertingTorque.at( index );
 
-        checkMatrixClosePerElement( analyticalPartialWrtOrientationOfBodyUndergoingTorque,
-                                    numericalPartialWrtOrientationOfBodyUndergoingTorque,
-                                    5.0E-10 );
-        checkMatrixClosePerElement( analyticalPartialWrtOrientationOfBodyExertingTorque,
-                                    numericalPartialWrtOrientationOfBodyExertingTorque,
-                                    5.0E-10 );
+            checkMatrixClosePerElement(
+                    analyticalTorqueDeviationOfBodyUndergoingTorque,
+                    torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 ),
+                    5.0E-10 );
+            checkMatrixClosePerElement(
+                    analyticalTorqueDeviationOfBodyExertingTorque,
+                    torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 ),
+                    5.0E-10 );
+        }
         checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
                                     numericalPartialWrtPositionOfBodyUndergoingTorque,
                                     5.0E-10 );
