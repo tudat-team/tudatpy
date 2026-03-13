@@ -81,7 +81,8 @@ public:
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
                    const bool includeCorotation = true,
-                   const bool useRadius = true );
+                   const bool useRadius = true,
+                   const bool isLog2Data = false );
 
     /*!
      * \brief Constructor for Stokes coefficient datasets.
@@ -109,7 +110,8 @@ public:
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
                    const bool includeCorotation = true,
-                   const bool useRadius = true );
+                   const bool useRadius = true,
+                   const bool isLog2Data = false );
 
     //! Destructor
     ~ComaWindModel( ) = default;
@@ -141,6 +143,16 @@ private:
 
     //! Maximum spherical harmonic order used for computation (-1 for auto-detect)
     int maximumOrder_;
+
+    //! Flag indicating whether the wind data is log2-transformed (apply exp2 on output)
+    bool isLog2Data_;
+
+    //! Per-component flags: true when all coefficients for that component are zero
+    //! (zero-component datasets are returned as-is even when isLog2Data_ is true,
+    //!  because log2(0) is undefined and exp2(0)=1 would be physically wrong)
+    bool xIsZeroComponent_;
+    bool yIsZeroComponent_;
+    bool zIsZeroComponent_;
 
     //! Polynomial coefficient dataset for X-component wind (meridional/North, used when dataType_ == 0)
     std::shared_ptr<simulation_setup::ComaPolyDataset> xPolyDataset_;

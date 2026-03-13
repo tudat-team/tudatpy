@@ -43,11 +43,16 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame,
                    const bool includeCorotation,
-                   const bool useRadius ) :
+                   const bool useRadius,
+                   const bool isLog2Data ) :
         WindModel( associatedFrame, includeCorotation, useRadius ),
         dataType_( 0 ), // POLYNOMIAL_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),
+        isLog2Data_( isLog2Data ),
+        xIsZeroComponent_( false ),
+        yIsZeroComponent_( false ),
+        zIsZeroComponent_( false ),
         xPolyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( xPolyDataset ) ),
         yPolyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( yPolyDataset ) ),
         zPolyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( zPolyDataset ) ),
@@ -116,6 +121,21 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         cachedYSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         cachedZCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         cachedZSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+
+        // Detect all-zero component datasets: exp2(SH=0)=1 would be physically wrong for a
+        // genuinely zero component (e.g. one wind direction absent from the data).
+        if ( isLog2Data_ )
+        {
+            auto polyAllZero = []( const simulation_setup::ComaPolyDataset& ds ) -> bool {
+                for ( std::size_t f = 0; f < ds.getNumFiles(); ++f )
+                    if ( ds.getPolyCoefficients( f ).any() )
+                        return false;
+                return true;
+            };
+            xIsZeroComponent_ = polyAllZero( *xPolyDataset_ );
+            yIsZeroComponent_ = polyAllZero( *yPolyDataset_ );
+            zIsZeroComponent_ = polyAllZero( *zPolyDataset_ );
+        }
     }
 
 /*!
@@ -146,11 +166,16 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame,
                    const bool includeCorotation,
-                   const bool useRadius ) :
+                   const bool useRadius,
+                   const bool isLog2Data ) :
         WindModel( associatedFrame, includeCorotation, useRadius ),
         dataType_( 1 ), // STOKES_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),
+        isLog2Data_( isLog2Data ),
+        xIsZeroComponent_( false ),
+        yIsZeroComponent_( false ),
+        zIsZeroComponent_( false ),
         xPolyDataset_( nullptr ),
         yPolyDataset_( nullptr ),
         zPolyDataset_( nullptr ),
@@ -222,6 +247,22 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
 
         // Initialize interpolators for Stokes coefficients
         initializeStokesInterpolators();
+
+        // Detect all-zero component datasets (same logic as poly constructor)
+        if ( isLog2Data_ )
+        {
+            auto stokesAllZero = []( const simulation_setup::ComaStokesDataset& ds ) -> bool {
+                for ( std::size_t f = 0; f < ds.nFiles(); ++f )
+                    for ( std::size_t r = 0; r < ds.nRadii(); ++r )
+                        for ( std::size_t l = 0; l < ds.nLongitudes(); ++l )
+                            if ( ds.block( f, r, l ).any() )
+                                return false;
+                return true;
+            };
+            xIsZeroComponent_ = stokesAllZero( *xStokesDataset_ );
+            yIsZeroComponent_ = stokesAllZero( *yStokesDataset_ );
+            zIsZeroComponent_ = stokesAllZero( *zStokesDataset_ );
+        }
     }
 
 /*!
@@ -494,7 +535,10 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
         effectiveMaxDegree, effectiveMaxOrder
     );
 
-    return Eigen::Vector3d( windX, windY, windZ );
+    return Eigen::Vector3d(
+        (isLog2Data_ && !xIsZeroComponent_) ? std::exp2( windX ) : windX,
+        (isLog2Data_ && !yIsZeroComponent_) ? std::exp2( windY ) : windY,
+        (isLog2Data_ && !zIsZeroComponent_) ? std::exp2( windZ ) : windZ );
 }
 
 /*!
@@ -564,7 +608,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
         xPolyCoefficients, xShIndices,
         xFileMeta.powersInvRadius, xFileMeta.referenceRadius,
         cachedXCosineCoefficients_, cachedXSineCoefficients_,
-        maximumDegree_, maximumOrder_ );
+        maximumDegree_, maximumOrder_, isLog2Data_ );
 
     const auto& yPolyCoefficients = yPolyDataset_->getPolyCoefficients( fileIndex );
     const auto& yShIndices = yPolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
@@ -574,7 +618,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
         yPolyCoefficients, yShIndices,
         yFileMeta.powersInvRadius, yFileMeta.referenceRadius,
         cachedYCosineCoefficients_, cachedYSineCoefficients_,
-        maximumDegree_, maximumOrder_ );
+        maximumDegree_, maximumOrder_, isLog2Data_ );
 
     const auto& zPolyCoefficients = zPolyDataset_->getPolyCoefficients( fileIndex );
     const auto& zShIndices = zPolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
@@ -584,7 +628,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
         zPolyCoefficients, zShIndices,
         zFileMeta.powersInvRadius, zFileMeta.referenceRadius,
         cachedZCosineCoefficients_, cachedZSineCoefficients_,
-        maximumDegree_, maximumOrder_ );
+        maximumDegree_, maximumOrder_, isLog2Data_ );
 
     // Compute wind components using spherical harmonics (shared calculator benefits from cache)
     auto* shCalc = getActiveSphericalHarmonicsCalculator();
@@ -607,7 +651,10 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
         maximumDegree_ > 0 ? maximumDegree_ : cachedZCosineCoefficients_.rows() - 1,
         maximumOrder_ > 0 ? maximumOrder_ : cachedZCosineCoefficients_.cols() - 1 );
 
-    return Eigen::Vector3d( windX, windY, windZ );
+    return Eigen::Vector3d(
+        (isLog2Data_ && !xIsZeroComponent_) ? std::exp2( windX ) : windX,
+        (isLog2Data_ && !yIsZeroComponent_) ? std::exp2( windY ) : windY,
+        (isLog2Data_ && !zIsZeroComponent_) ? std::exp2( windZ ) : windZ );
 }
 
 /*!

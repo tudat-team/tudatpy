@@ -413,8 +413,9 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                         std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
                 std::function< Eigen::Vector6d( ) > bodyStateFunction =
                         std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
+                auto bodyPtr = bodies.at( body );
                 std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
-                        std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
+                        [bodyPtr]( ) { return bodyPtr->getCurrentRotationMatrixToLocalFrame( ).transpose( ); };
 
                 // Get degree and order parameters
                 const int maximumDegree = comaSettings->getRequestedDegree( );
