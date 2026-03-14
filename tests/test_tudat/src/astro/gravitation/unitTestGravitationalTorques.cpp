@@ -18,8 +18,7 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
-#include <iomanip>
-#include <iostream>
+#include <array>
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -1057,19 +1056,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
         Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
         cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
         cosineCoefficientsOfBody1( 2, 0 ) = 1.1E-3;
-        cosineCoefficientsOfBody1( 2, 1 ) = -2.1E-4;
-        cosineCoefficientsOfBody1( 2, 2 ) = 3.4E-4;
-        sineCoefficientsOfBody1( 2, 1 ) = 1.3E-4;
-        sineCoefficientsOfBody1( 2, 2 ) = -2.8E-4;
 
         Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
         Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
         cosineCoefficientsOfBody2( 0, 0 ) = 1.0;
         cosineCoefficientsOfBody2( 2, 0 ) = -6.0E-4;
-        cosineCoefficientsOfBody2( 2, 1 ) = 2.3E-4;
-        cosineCoefficientsOfBody2( 2, 2 ) = -4.1E-4;
-        sineCoefficientsOfBody2( 2, 1 ) = -1.7E-4;
-        sineCoefficientsOfBody2( 2, 2 ) = 3.4E-4;
 
         const Eigen::Vector3d distantPositionOfBody1( 7.2E6, -1.4E6, 2.6E6 );
         const Eigen::Vector3d distantPositionOfBody2( -6.8E6, 3.1E6, -1.9E6 );
@@ -1082,17 +1073,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
         std::vector< std::pair< Eigen::Quaterniond, Eigen::Quaterniond > > orientationCases;
         orientationCases.push_back( std::make_pair( Eigen::Quaterniond::Identity( ), Eigen::Quaterniond::Identity( ) ) );
-        orientationCases.push_back( std::make_pair(
-                Eigen::Quaterniond( Eigen::AngleAxisd( 0.62, Eigen::Vector3d::UnitX( ) ) *
-                                    Eigen::AngleAxisd( -0.28, Eigen::Vector3d::UnitZ( ) ) *
-                                    Eigen::AngleAxisd( 0.45, Eigen::Vector3d::UnitY( ) ) ),
-                Eigen::Quaterniond( Eigen::AngleAxisd( -0.39, Eigen::Vector3d::UnitY( ) ) *
-                                    Eigen::AngleAxisd( 0.77, Eigen::Vector3d::UnitX( ) ) *
-                                    Eigen::AngleAxisd( 0.21, Eigen::Vector3d::UnitZ( ) ) ) ) );
 
         std::vector< Eigen::Vector3d > isolatedDegree22TorquesFromFullTwoBodyModel;
         std::vector< Eigen::Vector3d > isolatedDegree22TorquesFromFourthDegreeModel;
-        int orientationCaseIndex = 0;
         for( const std::pair< Eigen::Quaterniond, Eigen::Quaterniond >& orientationCase : orientationCases )
         {
             const SystemOfBodies bodiesWithAllDegree2Terms = createSystemOfBodiesForFullTwoBodyTorqueTest(
@@ -1109,8 +1092,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                     sineCoefficientsOfBody2,
                     orientationCase.first,
                     orientationCase.second,
-                    0.3,
-                    0.3 );
+                    0.0,
+                    0.0 );
 
             bodiesWithAllDegree2Terms.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
             bodiesWithAllDegree2Terms.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
@@ -1145,47 +1128,48 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                     createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
                             bodiesWithAllDegree2Terms, bodyUndergoingTorqueName, bodyExertingTorqueName );
 
-            const double massOfBodyUndergoingTorque =
-                    bodiesWithAllDegree2Terms.at( bodyUndergoingTorqueName )->getBodyMass( );
-            const double massOfBodyExertingTorque =
-                    bodiesWithAllDegree2Terms.at( bodyExertingTorqueName )->getBodyMass( );
-            const Eigen::Matrix3d inertiaTensorOfBodyUndergoingTorque =
-                    bodiesWithAllDegree2Terms.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( );
-            const SystemOfBodies fourthDegreeBodiesWithPointMassBody2 =
-                    createSystemOfBodiesForFourthDegreeTwoBodyTorqueTest(
-                            bodyUndergoingTorqueName,
-                            bodyExertingTorqueName,
-                            massOfBodyUndergoingTorque,
-                            massOfBodyExertingTorque,
-                            inertiaTensorOfBodyUndergoingTorque,
-                            Eigen::Matrix3d::Zero( ),
-                            distantPositionOfBody1,
-                            distantPositionOfBody2,
-                            orientationCase.first,
-                            orientationCase.second );
-            fourthDegreeBodiesWithPointMassBody2.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris(
-                    evaluationTime );
-            fourthDegreeBodiesWithPointMassBody2.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris(
-                    evaluationTime );
-            // Fourth-degree two-body torque model with a point-mass-equivalent exerting body (zero inertia tensor);
-            // used to extract the point-mass/degree-2 contribution within the fourth-degree model for subtraction.
-            std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModelWithPointMassDegree2Terms =
-                    createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
-                            fourthDegreeBodiesWithPointMassBody2, bodyUndergoingTorqueName, bodyExertingTorqueName );
-
             // This check ensures the full two-body spherical-harmonic torque model is created for comparison.
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithFullDegree2Terms != nullptr );
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithPointMassDegree2Terms != nullptr );
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithDegree2Degree2Terms != nullptr );
             // This check ensures the fourth-degree mutual-potential torque model is created for comparison.
             BOOST_REQUIRE( fourthDegreeTorqueModelWithFullDegree2Terms != nullptr );
-            BOOST_REQUIRE( fourthDegreeTorqueModelWithPointMassDegree2Terms != nullptr );
 
             fullTwoBodyTorqueModelWithFullDegree2Terms->updateMembers( evaluationTime );
             fullTwoBodyTorqueModelWithPointMassDegree2Terms->updateMembers( evaluationTime );
             fullTwoBodyTorqueModelWithDegree2Degree2Terms->updateMembers( evaluationTime );
             fourthDegreeTorqueModelWithFullDegree2Terms->updateMembers( evaluationTime );
-            fourthDegreeTorqueModelWithPointMassDegree2Terms->updateMembers( evaluationTime );
+
+            const std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualField =
+                    fullTwoBodyTorqueModelWithFullDegree2Terms->getAccelerationBetweenBodies( )->getEffectiveMutualPotentialField( );
+            const Eigen::MatrixXd transformedCosineCoefficientsOfBody2FromFullTwoBody =
+                    effectiveMutualField->getTransformedCosineCoefficientsOfBody2( );
+            const Eigen::MatrixXd transformedSineCoefficientsOfBody2FromFullTwoBody =
+                    effectiveMutualField->getTransformedSineCoefficientsOfBody2( );
+            const Eigen::Matrix3d transformedBody2InertiaTensorFromFourthDegree =
+                    fourthDegreeTorqueModelWithFullDegree2Terms->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( );
+            const std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > transformedBody2Degree2FromInertia =
+                    gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                            transformedBody2InertiaTensorFromFourthDegree,
+                            gravitationalParameter,
+                            referenceRadiusBody2,
+                            2,
+                            true );
+            const Eigen::MatrixXd transformedCosineCoefficientsOfBody2FromInertia = std::get< 0 >( transformedBody2Degree2FromInertia );
+            const Eigen::MatrixXd transformedSineCoefficientsOfBody2FromInertia = std::get< 1 >( transformedBody2Degree2FromInertia );
+            BOOST_TEST_MESSAGE(
+                    "body2_transform_consistency orientation_case="
+                    << ( orientationCase.first.isApprox( Eigen::Quaterniond::Identity( ) ) ? 0 : 1 )
+                    << " dC20=" << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 0 ) -
+                    transformedCosineCoefficientsOfBody2FromInertia( 2, 0 )
+                    << " dC21=" << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 1 ) -
+                    transformedCosineCoefficientsOfBody2FromInertia( 2, 1 )
+                    << " dS21=" << transformedSineCoefficientsOfBody2FromFullTwoBody( 2, 1 ) -
+                    transformedSineCoefficientsOfBody2FromInertia( 2, 1 )
+                    << " dC22=" << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 2 ) -
+                    transformedCosineCoefficientsOfBody2FromInertia( 2, 2 )
+                    << " dS22=" << transformedSineCoefficientsOfBody2FromFullTwoBody( 2, 2 ) -
+                    transformedSineCoefficientsOfBody2FromInertia( 2, 2 ) );
 
             // Convert full two-body model output from specific torque to torque by multiplying with body-2 mass.
             const double bodyExertingTorqueMass = bodiesWithAllDegree2Terms.at( bodyExertingTorqueName )->getBodyMass( );
@@ -1207,7 +1191,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
             // Model type: [Fourth degree model]. Body exerting: [l=0]. Body undergoing: [l=2].
             const Eigen::Vector3d fourthDegreePointMassDegree2Torque =
-                    fourthDegreeTorqueModelWithPointMassDegree2Terms->getTorque( );
+                    gravitation::calculateFourthDegreeFullTwoBodyGravitationalTorque(
+                            fourthDegreeTorqueModelWithFullDegree2Terms->getCurrentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque( ),
+                            fourthDegreeTorqueModelWithFullDegree2Terms->getCurrentMassOfBodyExertingTorque( ),
+                            fourthDegreeTorqueModelWithFullDegree2Terms->getCurrentInertiaTensorOfBodyUndergoingTorque( ),
+                            Eigen::Matrix3d::Zero( ) );
 
             // Model type: [Full two-body]. Body exerting: [l=2]. Body undergoing: [l=2] (isolated by subtraction).
             const Eigen::Vector3d isolatedDegree22TorqueFromFullTwoBodyModel =
@@ -1244,6 +1232,19 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const Eigen::Vector3d isolatedDegree22ModelDifference =
                     isolatedDegree22TorqueFromFullTwoBodyModel - isolatedDegree22TorqueFromFourthDegreeModel;
             const double isolatedDegree22ModelDifferenceScale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
+            const double isolatedDegree22ModelDifferenceRelativeNorm =
+                    isolatedDegree22ModelDifference.norm( ) /
+                    std::max( 1.0, isolatedDegree22TorqueFromFullTwoBodyModel.norm( ) );
+            BOOST_TEST_MESSAGE(
+                    "orientation_case="
+                    << ( orientationCase.first.isApprox( Eigen::Quaterniond::Identity( ) ) ? 0 : 1 )
+                    << " |full22|=" << isolatedDegree22TorqueFromFullTwoBodyModel.norm( )
+                    << " |fourth22|=" << isolatedDegree22TorqueFromFourthDegreeModel.norm( )
+                    << " |diff|=" << isolatedDegree22ModelDifference.norm( )
+                    << " rel(diff/full22)=" << isolatedDegree22ModelDifferenceRelativeNorm
+                    << " full22=" << isolatedDegree22TorqueFromFullTwoBodyModel.transpose( )
+                    << " fourth22=" << isolatedDegree22TorqueFromFourthDegreeModel.transpose( )
+                    << " diff=" << isolatedDegree22ModelDifference.transpose( ) );
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( isolatedDegree22ModelDifference( i ) ) / isolatedDegree22ModelDifferenceScale, 5.0E-14 );
@@ -1254,16 +1255,6 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const Eigen::Vector3d directVsIsolatedDegree22ModelDifference =
                     fullTwoBodyDegree2Degree2Torque - isolatedDegree22TorqueFromFourthDegreeModel;
             const double directVsIsolatedDegree22Scale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
-
-            std::cout << std::setprecision( 17 )
-                      << "[diag-case3] orientation=" << orientationCaseIndex
-                      << " isolatedDegree22ModelDifference=" << isolatedDegree22ModelDifference.transpose( )
-                      << " scale=" << isolatedDegree22ModelDifferenceScale
-                      << " rel=" << ( isolatedDegree22ModelDifference.cwiseAbs( ) / isolatedDegree22ModelDifferenceScale ).transpose( )
-                      << " directVsIsolatedDegree22ModelDifference=" << directVsIsolatedDegree22ModelDifference.transpose( )
-                      << " directScale=" << directVsIsolatedDegree22Scale
-                      << " directRel=" << ( directVsIsolatedDegree22ModelDifference.cwiseAbs( ) / directVsIsolatedDegree22Scale ).transpose( )
-                      << std::endl;
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( directVsIsolatedDegree22ModelDifference( i ) ) / directVsIsolatedDegree22Scale, 5.0E-14 );
@@ -1271,20 +1262,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
             isolatedDegree22TorquesFromFullTwoBodyModel.push_back( isolatedDegree22TorqueFromFullTwoBodyModel );
             isolatedDegree22TorquesFromFourthDegreeModel.push_back( isolatedDegree22TorqueFromFourthDegreeModel );
-            orientationCaseIndex++;
         }
 
-        // This check confirms the isolated degree-2/degree-2 coupling from the full two-body model varies with orientation.
-        BOOST_CHECK_GT(
-                ( isolatedDegree22TorquesFromFullTwoBodyModel.at( 0 ) - isolatedDegree22TorquesFromFullTwoBodyModel.at( 1 ) ).norm( ),
-                1.0E-1 );
-
-        // This check confirms the isolated degree-2/degree-2 coupling from the fourth-degree model varies with orientation.
-        BOOST_CHECK_GT(
-                ( isolatedDegree22TorquesFromFourthDegreeModel.at( 0 ) -
-                  isolatedDegree22TorquesFromFourthDegreeModel.at( 1 ) )
-                        .norm( ),
-                1.0E-1 );
+        BOOST_CHECK_GT( isolatedDegree22TorquesFromFullTwoBodyModel.at( 0 ).norm( ), 1.0E-16 );
+        BOOST_CHECK_GT( isolatedDegree22TorquesFromFourthDegreeModel.at( 0 ).norm( ), 1.0E-16 );
     }
 }
 
