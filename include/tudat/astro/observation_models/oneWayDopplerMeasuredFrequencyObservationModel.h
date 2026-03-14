@@ -167,15 +167,6 @@ public:
             linkEndTimes[ 1 ] = static_cast< double >( time + lightTime );
         }
 
-        // Assume transmitter time is in TDB as there is no way good way to convert timescale to utc for a transmitter in interplanetary
-        // space Get the time when the signal left the transmitter Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count(
-        // transmitter ) == 0 )
-        //         ? Eigen::Vector3d::Zero( )
-        //         : stationStates_.at( transmitter )->getNominalCartesianPosition( );
-
-        // TimeType transmitterUtcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
-        //         basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
-
         // Get the frequency of the transmitter
         TimeType transmitterTime = time - lightTime;
         ObservationScalarType transmittedFrequency =

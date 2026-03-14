@@ -66,17 +66,6 @@ inline double getDifferencedFrequencyOfArrivalScalingFactor(
     return -1.0;
 }
 
-inline double getFrequencyOfArrivalScalingFactor(
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< Eigen::Vector6d >& linkEndStates,
-        const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
-        const bool isFirstPartial )
-{
-    return -1.0 / physical_constants::SPEED_OF_LIGHT;
-}
-
-
 //! Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable
 /*!
  *  Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable. The observable is obtained by

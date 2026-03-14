@@ -640,6 +640,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = differenced_frequency_of_arrival;
     }
+    else if( observableName == "OneWayDopplerMeasuredFrequency" )
+    {
+        observableType = one_way_doppler_measured_frequency;
+    }
     else if( observableName == "EulerAngle313" )
     {
         observableType = euler_angle_313_observable;

@@ -1272,8 +1272,17 @@ inline std::shared_ptr< ObservationModelSettings > oneWayDopplerMeasuredFrequenc
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-    return std::make_shared< ObservationModelSettings >(
-            one_way_doppler_measured_frequency, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+    auto oneWayDopplerModelSettings =
+            std::make_shared< OneWayDopplerObservationModelSettings >( linkEnds,
+                                                                       lightTimeCorrectionsList,
+                                                                       nullptr,
+                                                                       nullptr,
+                                                                       nullptr,
+                                                                       lightTimeConvergenceCriteria,
+                                                                       true );
+
+    return std::make_shared< OneWayDopplerMeasuredFrequencyObservationSettings >(
+            linkEnds, oneWayDopplerModelSettings, lightTimeCorrectionsList, basic_astrodynamics::tdb_scale, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > dopplerMeasuredFrequencyObservationSettings(
