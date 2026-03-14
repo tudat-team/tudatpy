@@ -104,12 +104,11 @@ Eigen::Matrix< ScalarType, 3, 1 > calculateFourthDegreeFullTwoBodyGravitationalT
     return torque;
 }
 
-//! Compute the fourth-degree full two-body gravitational torque equivalent to Schutz (1981), Eq. (11).
+//! Compute the fourth-degree full two-body gravitational torque from Schutz (1981), Eq. (11).
 /*!
  * Computes the torque on body 1 (the body undergoing torque), in body-1-fixed coordinates.
  * The input inertia tensor of body 2 must be expressed in body-1-fixed coordinates.
- * Internally, the torque is evaluated through the equivalent degree-2 mutual spherical-harmonic interaction
- * (point-mass/degree-2 plus degree-2/degree-2 terms), to keep the implementation consistent with the full two-body model.
+ * The torque is evaluated directly from tensor components as given by the fourth-degree two-body formulation.
  * \param relativePositionOfBodyExertingTorqueInBodyFixedFrame Position of body 2 w.r.t. body 1, in body-1-fixed frame.
  * \param massOfBodyExertingTorque Mass of body 2.
  * \param inertiaTensorOfBodyUndergoingTorque Inertia tensor of body 1, in body-1-fixed frame.
@@ -122,7 +121,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorque(
         const Eigen::Matrix3d& inertiaTensorOfBodyUndergoingTorque,
         const Eigen::Matrix3d& inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque );
 
-//! Torque model implementing the degree-2 mutual interaction equivalent of Schutz (1981), Eq. (11), for two finite-sized rigid bodies.
+//! Torque model implementing the direct fourth-degree two-body tensor formulation for two finite-sized rigid bodies.
 class FourthDegreeFullTwoBodyGravitationalTorqueModel : public basic_astrodynamics::TorqueModel
 {
 public:

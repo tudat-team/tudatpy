@@ -18,6 +18,8 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -1090,6 +1092,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
         std::vector< Eigen::Vector3d > isolatedDegree22TorquesFromFullTwoBodyModel;
         std::vector< Eigen::Vector3d > isolatedDegree22TorquesFromFourthDegreeModel;
+        int orientationCaseIndex = 0;
         for( const std::pair< Eigen::Quaterniond, Eigen::Quaterniond >& orientationCase : orientationCases )
         {
             const SystemOfBodies bodiesWithAllDegree2Terms = createSystemOfBodiesForFullTwoBodyTorqueTest(
@@ -1251,6 +1254,16 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const Eigen::Vector3d directVsIsolatedDegree22ModelDifference =
                     fullTwoBodyDegree2Degree2Torque - isolatedDegree22TorqueFromFourthDegreeModel;
             const double directVsIsolatedDegree22Scale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
+
+            std::cout << std::setprecision( 17 )
+                      << "[diag-case3] orientation=" << orientationCaseIndex
+                      << " isolatedDegree22ModelDifference=" << isolatedDegree22ModelDifference.transpose( )
+                      << " scale=" << isolatedDegree22ModelDifferenceScale
+                      << " rel=" << ( isolatedDegree22ModelDifference.cwiseAbs( ) / isolatedDegree22ModelDifferenceScale ).transpose( )
+                      << " directVsIsolatedDegree22ModelDifference=" << directVsIsolatedDegree22ModelDifference.transpose( )
+                      << " directScale=" << directVsIsolatedDegree22Scale
+                      << " directRel=" << ( directVsIsolatedDegree22ModelDifference.cwiseAbs( ) / directVsIsolatedDegree22Scale ).transpose( )
+                      << std::endl;
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( directVsIsolatedDegree22ModelDifference( i ) ) / directVsIsolatedDegree22Scale, 5.0E-14 );
@@ -1258,6 +1271,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
             isolatedDegree22TorquesFromFullTwoBodyModel.push_back( isolatedDegree22TorqueFromFullTwoBodyModel );
             isolatedDegree22TorquesFromFourthDegreeModel.push_back( isolatedDegree22TorqueFromFourthDegreeModel );
+            orientationCaseIndex++;
         }
 
         // This check confirms the isolated degree-2/degree-2 coupling from the full two-body model varies with orientation.

@@ -19,6 +19,7 @@ namespace tudat
 namespace gravitation
 {
 
+//! Full two-body mutual spherical-harmonic torque model (independent of the fourth-degree tensor torque model).
 class FullTwoBodySphericalHarmonicTorque: public basic_astrodynamics::TorqueModel
 {
 
