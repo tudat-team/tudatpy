@@ -54,6 +54,10 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
         }
     }
 
+    // The geodesy-normalized acceleration evaluation precomputes P_lm up to m=l+1 for all l<=maximumDegree_.
+    // Ensure the Legendre cache order budget covers this, even when selected interaction orders are low (e.g. C20-only).
+    maximumOrder_ = std::max( maximumOrder_, maximumDegree_ );
+
     sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
                 maximumDegree_ + 1, maximumOrder_ + 1 );
     effectiveMutualPotentialField_ =  std::make_shared< EffectiveMutualSphericalHarmonicsField >(
