@@ -689,69 +689,46 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
 void EffectiveMutualSphericalHarmonicsField::computePartialsOfFullCoefficientsWrtTransformedCoefficients(
         std::vector< Eigen::Matrix2d >& fullCoefficientsWrtBody2CoefficientsList )
 {
-    int degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2;
-
-    int effectiveIndex;
-
-    Eigen::Matrix2d currentPartial, fullCoefficientsWrtBody2Coefficients;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
-        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody1 = std::get<0>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get<1>( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get<2>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get<3>( coefficientCombinationsToUse_.at( i ) );
 
-        fullCoefficientsWrtBody2Coefficients( 0, 0 ) = cosineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
-        fullCoefficientsWrtBody2Coefficients( 0, 1 ) = -sineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
-        fullCoefficientsWrtBody2Coefficients( 1, 0 ) = sineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
-        fullCoefficientsWrtBody2Coefficients( 1, 1 ) = cosineCoefficientsOfBody1_( degreeOfBody1, orderOfBody1 );
-
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
+        const auto setPartialForSignedOrders = [ & ]( const int signedOrderOfBody1, const int signedOrderOfBody2 )
         {
-            currentPartial = fullCoefficientsWrtBody2Coefficients * multipliers_[ effectiveIndex ];
-            fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
-        }
+            const int effectiveIndex =
+                    getEffectiveIndex( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+            const double signOrderOfBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
+            const double signOrderOfBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+            const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+            const double cosineCoefficientOfBody1 =
+                    cosineCoefficientsOfBody1_( degreeOfBody1, std::abs( signedOrderOfBody1 ) );
+            const double sineCoefficientOfBody1 =
+                    sineCoefficientsOfBody1_( degreeOfBody1, std::abs( signedOrderOfBody1 ) );
+            const double multiplier = multipliers_[ effectiveIndex ];
 
+            Eigen::Matrix2d currentPartial = Eigen::Matrix2d::Zero( );
+            currentPartial( 0, 0 ) = cosineCoefficientOfBody1 * multiplier;
+            currentPartial( 0, 1 ) = -signOrderOfBody1 * signOrderOfBody2 * sineCoefficientOfBody1 * multiplier;
+            currentPartial( 1, 0 ) = signOrderOfBody1 * signTotalOrder * sineCoefficientOfBody1 * multiplier;
+            currentPartial( 1, 1 ) = signOrderOfBody2 * signTotalOrder * cosineCoefficientOfBody1 * multiplier;
+            fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
+        };
+
+        setPartialForSignedOrders( orderOfBody1, orderOfBody2 );
         if( orderOfBody1 != 0 )
         {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
-
-            currentPartial = fullCoefficientsWrtBody2Coefficients * multipliers_[ effectiveIndex ];
-            currentPartial( 1, 0 ) *= -1.0;
-            currentPartial( 0, 1 ) *= -1.0;
-
-            if( orderOfBody1 > orderOfBody2 )
-            {
-                currentPartial( 1, 0 ) *= -1.0;
-                currentPartial( 1, 0 ) *= -1.0;
-            }
-            currentPartial( 1, 0 ) *= ( ( ( -orderOfBody1 +  orderOfBody2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) );
-            currentPartial( 1, 1 ) *= ( ( ( -orderOfBody1 +  orderOfBody2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) );
-
-            fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
+            setPartialForSignedOrders( -orderOfBody1, orderOfBody2 );
         }
-
         if( orderOfBody2 != 0 )
         {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
-
-            currentPartial = fullCoefficientsWrtBody2Coefficients * multipliers_[ effectiveIndex ];
-            currentPartial( 0, 1 ) *= -1.0;
-            currentPartial( 1, 1 ) *= -1.0;
-
-            currentPartial( 1, 0 ) *= ( ( ( orderOfBody1 - orderOfBody2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) );
-            currentPartial( 1, 1 ) *= ( ( ( orderOfBody1 - orderOfBody2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) );
-
-            fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
+            setPartialForSignedOrders( orderOfBody1, -orderOfBody2 );
         }
-
         if( orderOfBody1 != 0 && orderOfBody2 != 0 )
         {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
-
-            currentPartial = fullCoefficientsWrtBody2Coefficients * multipliers_[ effectiveIndex ];
-
-            fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
+            setPartialForSignedOrders( -orderOfBody1, -orderOfBody2 );
         }
     }
 }
