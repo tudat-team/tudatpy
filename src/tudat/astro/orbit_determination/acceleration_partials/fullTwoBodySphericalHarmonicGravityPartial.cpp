@@ -23,41 +23,6 @@ namespace tudat
 namespace acceleration_partials
 {
 
-namespace
-{
-
-bool getSignedOrdersForCombinationCase(
-        const int combinationCase,
-        const int orderOfBody1,
-        const int orderOfBody2,
-        int& signedOrderOfBody1,
-        int& signedOrderOfBody2 )
-{
-    switch( combinationCase )
-    {
-    case 0:
-        signedOrderOfBody1 = orderOfBody1;
-        signedOrderOfBody2 = orderOfBody2;
-        return true;
-    case 1:
-        signedOrderOfBody1 = -orderOfBody1;
-        signedOrderOfBody2 = orderOfBody2;
-        return ( orderOfBody1 != 0 );
-    case 2:
-        signedOrderOfBody1 = orderOfBody1;
-        signedOrderOfBody2 = -orderOfBody2;
-        return ( orderOfBody2 != 0 );
-    case 3:
-        signedOrderOfBody1 = -orderOfBody1;
-        signedOrderOfBody2 = -orderOfBody2;
-        return ( orderOfBody1 != 0 && orderOfBody2 != 0 );
-    default:
-        return false;
-    }
-}
-
-}
-
 FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
@@ -81,16 +46,6 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     currentBodyFixedPartialsWrtEffectiveCoefficients_.resize(
             numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
     currentEffectiveCoefficientsWrtTransformedBody2Coefficients_.resize( numberOfEffectiveCoefficients, Eigen::Matrix2d::Zero( ) );
-
-    effectiveIndicesForCoefficientCombinations_.resize( coefficientCombinationsToUse_.size( ) );
-    for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
-    {
-        effectiveIndicesForCoefficientCombinations_.at( i ) = effectiveMutualPotentialField_->getEffectiveIndex(
-                std::get<0>(coefficientCombinationsToUse_.at( i )),
-                std::get<1>(coefficientCombinationsToUse_.at( i )),
-                std::get<2>(coefficientCombinationsToUse_.at( i )),
-                std::get<3>(coefficientCombinationsToUse_.at( i )) );
-    }
 }
 
 void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTime )
@@ -150,7 +105,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
         {
             int signedOrderOfBody1 = 0;
             int signedOrderOfBody2 = 0;
-            const bool computeTerm = getSignedOrdersForCombinationCase(
+            const bool computeTerm = gravitation::getSignedOrdersForCombinationCase(
                     j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             if( computeTerm )
             {
@@ -220,7 +175,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
         {
             int signedOrderOfBody1 = 0;
             int signedOrderOfBody2 = 0;
-            const bool computeTerm = getSignedOrdersForCombinationCase(
+            const bool computeTerm = gravitation::getSignedOrdersForCombinationCase(
                     j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             if( computeTerm )
             {
@@ -352,7 +307,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
             {
                 int signedOrderOfBody1 = 0;
                 int signedOrderOfBody2 = 0;
-                if( !getSignedOrdersForCombinationCase( k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                if( !gravitation::getSignedOrdersForCombinationCase(
+                            k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
                     continue;
                 }
@@ -417,7 +373,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1
             {
                 int signedOrderOfBody1 = 0;
                 int signedOrderOfBody2 = 0;
-                if( !getSignedOrdersForCombinationCase( k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                if( !gravitation::getSignedOrdersForCombinationCase(
+                            k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
                     continue;
                 }
@@ -490,7 +447,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
             {
                 int signedOrderOfBody1 = 0;
                 int signedOrderOfBody2 = 0;
-                if( !getSignedOrdersForCombinationCase( k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                if( !gravitation::getSignedOrdersForCombinationCase(
+                            k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
                     continue;
                 }
@@ -549,7 +507,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2
             {
                 int signedOrderOfBody1 = 0;
                 int signedOrderOfBody2 = 0;
-                if( !getSignedOrdersForCombinationCase( k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                if( !gravitation::getSignedOrdersForCombinationCase(
+                            k, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
                     continue;
                 }

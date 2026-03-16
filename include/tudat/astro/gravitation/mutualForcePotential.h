@@ -146,6 +146,36 @@ inline double getSigmaSignFunction( const int order )
     return ( ( order >= 0 ) ? ( 1.0 ) : ( ( std::abs( order ) % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) ) );
 }
 
+inline bool getSignedOrdersForCombinationCase(
+        const int combinationCase,
+        const int orderOfBody1,
+        const int orderOfBody2,
+        int& signedOrderOfBody1,
+        int& signedOrderOfBody2 )
+{
+    switch( combinationCase )
+    {
+    case 0:
+        signedOrderOfBody1 = orderOfBody1;
+        signedOrderOfBody2 = orderOfBody2;
+        return true;
+    case 1:
+        signedOrderOfBody1 = -orderOfBody1;
+        signedOrderOfBody2 = orderOfBody2;
+        return ( orderOfBody1 != 0 );
+    case 2:
+        signedOrderOfBody1 = orderOfBody1;
+        signedOrderOfBody2 = -orderOfBody2;
+        return ( orderOfBody2 != 0 );
+    case 3:
+        signedOrderOfBody1 = -orderOfBody1;
+        signedOrderOfBody2 = -orderOfBody2;
+        return ( orderOfBody1 != 0 && orderOfBody2 != 0 );
+    default:
+        return false;
+    }
+}
+
 class EffectiveMutualSphericalHarmonicsField
 {
 public:

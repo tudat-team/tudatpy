@@ -242,13 +242,10 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
-    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree, totalOrder;
-    int signedOrderOfBody1, signedOrderOfBody2;
+    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree;
     double equatorialRadiusRatioPower;
     double preMultiplier = gravitationalParameterOfBody /
             (  sphericalpositionOfBodySubjectToAcceleration( 0 ) );
-
-    bool computeTerm;
 
     std::vector< std::pair< double, double > > legendreTerms;
 
@@ -287,39 +284,15 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 
         equatorialRadiusRatioPower = radius1Powers[ degreeOfBody1 ] * radius2Powers[ degreeOfBody2 ];
 
-        for( unsigned j = 0; j < 4; j++ )
+        for( int j = 0; j < 4; j++ )
         {
-            switch( j )
-            {
-            case 0:
-                signedOrderOfBody1 = orderOfBody1;
-                signedOrderOfBody2 = orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                computeTerm = 1;
-                break;
-            case 1:
-                signedOrderOfBody1 = -orderOfBody1;
-                signedOrderOfBody2 = orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody1 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-                break;
-            case 2:
-                signedOrderOfBody1 = orderOfBody1;
-                signedOrderOfBody2 = -orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-
-                break;
-            case 3:
-                signedOrderOfBody1 = -orderOfBody1;
-                signedOrderOfBody2 = -orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody1 == 0 || orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-                break;
-            }
-
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            const bool computeTerm = getSignedOrdersForCombinationCase(
+                    j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             if( computeTerm )
             {
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
 //                std::cout<<"Computing  "<<j<<" "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<" "<<
 //                           sphericalGradient.transpose( )<<" "<<
 //                           sphericalpositionOfBodySubjectToAcceleration.transpose( )<<" "<<preMultiplier<<" "<<
@@ -421,13 +394,10 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
     
-    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree, totalOrder;
-    int signedOrderOfBody1, signedOrderOfBody2;
+    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree;
     double equatorialRadiusRatioPower;
     double preMultiplier = gravitationalParameterOfBody /
             (  sphericalpositionOfBodySubjectToAcceleration( 0 ) );
-    
-    bool computeTerm;
 
     // Loop through all degrees.
     for ( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
@@ -443,39 +413,16 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
                 basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody1 ) *
                 basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody2 );
         
-        for( unsigned j = 0; j < 4; j++ )
+        for( int j = 0; j < 4; j++ )
         {
-            switch( j )
-            {
-            case 0:
-                signedOrderOfBody1 = orderOfBody1;
-                signedOrderOfBody2 = orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                computeTerm = 1;
-                break;
-            case 1:
-                signedOrderOfBody1 = -orderOfBody1;
-                signedOrderOfBody2 = orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody1 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-                break;
-            case 2:
-                signedOrderOfBody1 = orderOfBody1;
-                signedOrderOfBody2 = -orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-
-                break;
-            case 3:
-                signedOrderOfBody1 = -orderOfBody1;
-                signedOrderOfBody2 = -orderOfBody2;
-                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                ( orderOfBody1 == 0 || orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-                break;
-            }
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            const bool computeTerm = getSignedOrdersForCombinationCase(
+                    j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             
             if( computeTerm )
             {
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 // Compute geodesy-normalized Legendre polynomials.
                 const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial(
                             totalDegree, totalOrder );
@@ -638,48 +585,26 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
 void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
 {
 
-    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2;
-    int effectiveIndex;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
-        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody1 = std::get<0>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get<1>( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get<2>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get<3>( coefficientCombinationsToUse_.at( i ) );
 
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
-
-        getCurrentEffectiveCoefficients(
-                    degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2, effectiveIndex,
-                    effectiveCosineCoefficients_[ effectiveIndex ],
-                    effectiveSineCoefficients_[ effectiveIndex ] );
-
-        if( orderOfBody1 != 0 )
+        for( int j = 0; j < 4; j++ )
         {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
-
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            if( !getSignedOrdersForCombinationCase(
+                        j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+            {
+                continue;
+            }
+            const int effectiveIndex = getEffectiveIndex(
+                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
             getCurrentEffectiveCoefficients(
-                        degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2, effectiveIndex,
-                        effectiveCosineCoefficients_[ effectiveIndex ],
-                        effectiveSineCoefficients_[ effectiveIndex ] );
-        }
-
-        if( orderOfBody2 != 0 )
-        {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
-
-            getCurrentEffectiveCoefficients(
-                        degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2, effectiveIndex,
-                        effectiveCosineCoefficients_[ effectiveIndex ],
-                        effectiveSineCoefficients_[ effectiveIndex ] );
-        }
-
-        if( !( orderOfBody1 == 0 || orderOfBody2 == 0 ) )
-        {
-            effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
-
-            getCurrentEffectiveCoefficients(
-                        degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2, effectiveIndex,
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2, effectiveIndex,
                         effectiveCosineCoefficients_[ effectiveIndex ],
                         effectiveSineCoefficients_[ effectiveIndex ] );
         }
@@ -696,8 +621,16 @@ void EffectiveMutualSphericalHarmonicsField::computePartialsOfFullCoefficientsWr
         const int degreeOfBody2 = std::get<2>( coefficientCombinationsToUse_.at( i ) );
         const int orderOfBody2 = std::get<3>( coefficientCombinationsToUse_.at( i ) );
 
-        const auto setPartialForSignedOrders = [ & ]( const int signedOrderOfBody1, const int signedOrderOfBody2 )
+        for( int j = 0; j < 4; j++ )
         {
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            if( !getSignedOrdersForCombinationCase(
+                        j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+            {
+                continue;
+            }
+
             const int effectiveIndex =
                     getEffectiveIndex( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
             const double signOrderOfBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
@@ -715,51 +648,34 @@ void EffectiveMutualSphericalHarmonicsField::computePartialsOfFullCoefficientsWr
             currentPartial( 1, 0 ) = signOrderOfBody1 * signTotalOrder * sineCoefficientOfBody1 * multiplier;
             currentPartial( 1, 1 ) = signOrderOfBody2 * signTotalOrder * cosineCoefficientOfBody1 * multiplier;
             fullCoefficientsWrtBody2CoefficientsList[ effectiveIndex ] = currentPartial;
-        };
-
-        setPartialForSignedOrders( orderOfBody1, orderOfBody2 );
-        if( orderOfBody1 != 0 )
-        {
-            setPartialForSignedOrders( -orderOfBody1, orderOfBody2 );
-        }
-        if( orderOfBody2 != 0 )
-        {
-            setPartialForSignedOrders( orderOfBody1, -orderOfBody2 );
-        }
-        if( orderOfBody1 != 0 && orderOfBody2 != 0 )
-        {
-            setPartialForSignedOrders( -orderOfBody1, -orderOfBody2 );
         }
     }
 }
 
 void EffectiveMutualSphericalHarmonicsField::initializeMultipliers( )
 {
-    int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2;
-
-    int effectiveIndex;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
-        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
-        orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody1 = std::get<0>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get<1>( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get<2>( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get<3>( coefficientCombinationsToUse_.at( i ) );
 
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
-        multipliers_[ effectiveIndex ] =
-                getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2, areCoefficientsNormalized_ );
+        for( int j = 0; j < 4; j++ )
+        {
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            if( !getSignedOrdersForCombinationCase(
+                        j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+            {
+                continue;
+            }
 
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
-        multipliers_[ effectiveIndex ] =
-                getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2, areCoefficientsNormalized_ );
-
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
-        multipliers_[ effectiveIndex ] =
-                getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2, areCoefficientsNormalized_ );
-
-        effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
-        multipliers_[ effectiveIndex ]  =
-                getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2, areCoefficientsNormalized_ );
+            const int effectiveIndex =
+                    getEffectiveIndex( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+            multipliers_[ effectiveIndex ] = getMutualPotentialEffectiveCoefficientMultiplier(
+                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2, areCoefficientsNormalized_ );
+        }
     }
 }
 

@@ -121,11 +121,6 @@ public:
         return currentEffectiveCoefficientsWrtTransformedBody2Coefficients_;
     }
 
-    const std::vector< int >& getEffectiveIndicesForCoefficientCombinations( ) const
-    {
-        return effectiveIndicesForCoefficientCombinations_;
-    }
-
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
     getCoefficientCombinationsToUse( ) const
     {
@@ -178,8 +173,6 @@ private:
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
-
-    std::vector< int > effectiveIndicesForCoefficientCombinations_;
 
     std::vector< Eigen::Matrix< double, 3, 2 > > currentPartialsWrtEffectiveCoefficients_;
 
