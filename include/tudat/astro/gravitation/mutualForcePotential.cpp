@@ -1,4 +1,6 @@
+#include <cstdlib>
 #include <iostream>
+#include <string>
 
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -9,6 +11,98 @@ namespace tudat
 
 namespace gravitation
 {
+
+namespace
+{
+
+bool isFullTwoBodyTorqueDebugEnabled( )
+{
+    static const bool isEnabled = [ ]( )
+    {
+        const char* flag = std::getenv( "TUDAT_DEBUG_FULL_TWO_BODY_TORQUE" );
+        return ( flag != nullptr && std::string( flag ) != "0" );
+    }( );
+    return isEnabled;
+}
+
+double getExpectedC20DegreeTwoMultiplierFromDocument( const int absoluteOrder )
+{
+    switch( absoluteOrder )
+    {
+    case 0:
+        return 10.0;
+    case 1:
+        return std::sqrt( 125.0 / 6.0 );
+    case 2:
+        return std::sqrt( 125.0 / 12.0 );
+    default:
+        return TUDAT_NAN;
+    }
+}
+
+std::string debugStatusFromDifference( const double difference, const double tolerance )
+{
+    return ( std::fabs( difference ) <= tolerance ? "OK" : "MISMATCH" );
+}
+
+std::string debugStatusFromVectorDifference(
+        const Eigen::Vector3d& difference, const double tolerance )
+{
+    return ( difference.norm( ) <= tolerance ? "OK" : "MISMATCH" );
+}
+
+bool isApproximatelyIdentityQuaternion( const Eigen::Quaterniond& quaternion, const double tolerance )
+{
+    const Eigen::Quaterniond identityQuaternion = Eigen::Quaterniond::Identity( );
+    const double positiveDifferenceNorm = ( quaternion.coeffs( ) - identityQuaternion.coeffs( ) ).norm( );
+    const double negativeDifferenceNorm = ( quaternion.coeffs( ) + identityQuaternion.coeffs( ) ).norm( );
+    return ( std::min( positiveDifferenceNorm, negativeDifferenceNorm ) <= tolerance );
+}
+
+bool isBody1C20Only(
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
+        const Eigen::MatrixXd& sineCoefficientsOfBody1,
+        const double tolerance = 1.0E-30 )
+{
+    if( cosineCoefficientsOfBody1.rows( ) <= 2 || cosineCoefficientsOfBody1.cols( ) <= 0 ||
+        sineCoefficientsOfBody1.rows( ) <= 2 || sineCoefficientsOfBody1.cols( ) <= 0 )
+    {
+        return false;
+    }
+
+    for( int row = 0; row < cosineCoefficientsOfBody1.rows( ); row++ )
+    {
+        for( int col = 0; col < cosineCoefficientsOfBody1.cols( ); col++ )
+        {
+            if( row == 0 && col == 0 )
+            {
+                continue;
+            }
+            if( row == 2 && col == 0 )
+            {
+                continue;
+            }
+            if( std::fabs( cosineCoefficientsOfBody1( row, col ) ) > tolerance )
+            {
+                return false;
+            }
+        }
+    }
+
+    for( int row = 0; row < sineCoefficientsOfBody1.rows( ); row++ )
+    {
+        for( int col = 0; col < sineCoefficientsOfBody1.cols( ); col++ )
+        {
+            if( std::fabs( sineCoefficientsOfBody1( row, col ) ) > tolerance )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+}
 
 //! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
 std::pair< int, int > getMaximumDegrees(
@@ -63,9 +157,11 @@ double getGammaCoefficientForMutualForcePotential(
 double getMutualPotentialEffectiveCoefficientMultiplier(
         const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized )
 {
+    double multiplier;
     if( areCoefficientsNormalized )
     {
-        return getGammaCoefficientForMutualForcePotential( degree1, order1, degree2, order2 ) *
+        multiplier =
+                getGammaCoefficientForMutualForcePotential( degree1, order1, degree2, order2 ) *
                 std::sqrt( 4.0 * mathematical_constants::PI * ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 )  ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 )  ) /
                            ( ( order1 == 0 && order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) ) *
                 getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) * getSigmaSignFunction( order1 + order2 ) *
@@ -74,13 +170,30 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
     }
     else
     {
-        return boost::math::factorial< double >( degree1 + degree2 - std::abs( order1 + order2 ) ) /
+        multiplier =
+                boost::math::factorial< double >( degree1 + degree2 - std::abs( order1 + order2 ) ) /
                 ( boost::math::factorial< double >( degree2 - std::abs( order2 ) ) *
                   boost::math::factorial< double >( degree1 - std::abs( order1 ) ) ) *
                 getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) * getSigmaSignFunction( order1 + order2 ) *
                 ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) *
                 ( ( degree1 % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) );
     }
+
+    if( isFullTwoBodyTorqueDebugEnabled( ) && degree1 == 2 && std::abs( order1 ) == 0 && degree2 == 2 &&
+        std::abs( order2 ) <= 2 && areCoefficientsNormalized )
+    {
+        const double expectedMultiplier = getExpectedC20DegreeTwoMultiplierFromDocument( std::abs( order2 ) );
+        const double difference = multiplier - expectedMultiplier;
+        std::cout << "[FTB-DBG][STEP multiplier]"
+                  << " (l1,m1,l2,m2)=(" << degree1 << "," << order1 << "," << degree2 << "," << order2 << ")"
+                  << " actual=" << multiplier
+                  << " expected=" << expectedMultiplier
+                  << " diff=" << difference
+                  << " status=" << debugStatusFromDifference( difference, 1.0E-14 )
+                  << std::endl;
+    }
+
+    return multiplier;
 }
 
 double computeSingleMutualForcePotentialTerm(
@@ -130,7 +243,7 @@ double computeMutualForcePotential(
     std::vector< double > radiusRatioOfBody1List;
     double radiusRatioOfBody1 = equatorialRadiusOfBody1 / radius;
     radiusRatioOfBody1List.push_back( 1 );
-    for( unsigned int i = 1; i < maximumDegreeOfBody1; i++ )
+    for( unsigned int i = 1; i <= static_cast< unsigned int >( maximumDegreeOfBody1 ); i++ )
     {
         radiusRatioOfBody1List.push_back( radiusRatioOfBody1List.at( i - 1 ) * radiusRatioOfBody1 );
     }
@@ -138,7 +251,7 @@ double computeMutualForcePotential(
     std::vector< double > radiusRatioOfBody2List;
     radiusRatioOfBody2List.push_back( 1 );
     double radiusRatioOfBody2 = equatorialRadiusOfBody2 / radius;
-    for( unsigned int i = 1; i < maximumDegreeOfBody2; i++ )
+    for( unsigned int i = 1; i <= static_cast< unsigned int >( maximumDegreeOfBody2 ); i++ )
     {
         radiusRatioOfBody2List.push_back( radiusRatioOfBody2List.at( i - 1 ) * radiusRatioOfBody2 );
     }
@@ -171,7 +284,7 @@ double computeMutualForcePotential(
                     sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
         currentTerm *= radiusRatioOfBody1List.at( degreeOfBody1 );
         currentTerm *= radiusRatioOfBody2List.at( degreeOfBody2 );
-        
+        potential += currentTerm;
     }
     
     // Multiply by central term and return
@@ -327,9 +440,13 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 //                        <<std::endl;
 
                 currentTerms = legendreTerms.at( totalDegree + ( maximumEvaluationDegree + 1 ) * totalOrder );
+                const double effectiveCosineCoefficient = effectiveCosineCoefficientFunction(
+                            degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double effectiveSineCoefficient = effectiveSineCoefficientFunction(
+                            degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
 
                 // Compute the potential gradient of a single spherical harmonic term.
-                sphericalGradient += basic_mathematics::computePotentialGradient(
+                const Eigen::Vector3d termContribution = basic_mathematics::computePotentialGradient(
                             sphericalpositionOfBodySubjectToAcceleration( 0 ),
                             equatorialRadiusRatioPower,
                             sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
@@ -338,12 +455,37 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                             preMultiplier,
                             totalDegree,
                             totalOrder,
-                            effectiveCosineCoefficientFunction(
-                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
-                            effectiveSineCoefficientFunction(
-                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
+                            effectiveCosineCoefficient,
+                            effectiveSineCoefficient,
                             currentTerms.first,
                             currentTerms.second );
+                sphericalGradient += termContribution;
+
+                if( isFullTwoBodyTorqueDebugEnabled( ) &&
+                    degreeOfBody1 == 2 && orderOfBody1 == 0 && degreeOfBody2 == 2 && std::abs( orderOfBody2 ) <= 2 )
+                {
+                    const bool expectedZeroContribution =
+                            ( std::fabs( effectiveCosineCoefficient ) <= 1.0E-30 &&
+                              std::fabs( effectiveSineCoefficient ) <= 1.0E-30 );
+                    const std::string status = expectedZeroContribution ?
+                                debugStatusFromVectorDifference( termContribution, 1.0E-30 ) :
+                                "N/A";
+
+                    std::cout << "[FTB-DBG][STEP grad_term]"
+                              << " base=(l1,m1,l2,m2)=(" << degreeOfBody1 << "," << orderOfBody1
+                              << "," << degreeOfBody2 << "," << orderOfBody2 << ")"
+                              << " signedOrders=(" << signedOrderOfBody1 << "," << signedOrderOfBody2 << ")"
+                              << " j_case=" << j
+                              << " totalOrder=" << totalOrder
+                              << " Ceff=" << effectiveCosineCoefficient
+                              << " Seff=" << effectiveSineCoefficient
+                              << " P=" << currentTerms.first
+                              << " dP=" << currentTerms.second
+                              << " dU=" << termContribution.transpose( )
+                              << " expectedZero=" << expectedZeroContribution
+                              << " status=" << status
+                              << std::endl;
+                }
             }
         }
 
@@ -599,6 +741,31 @@ void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients(
     cosineCoefficient *= currentMultiplier;
     sineCoefficient *= ( ( ( order1 +  order2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) ) * currentMultiplier;
 
+    if( isFullTwoBodyTorqueDebugEnabled( ) &&
+        degree1 == 2 && std::abs( order1 ) == 0 && degree2 == 2 && std::abs( order2 ) <= 2 &&
+        areCoefficientsNormalized_ && isBody1C20Only( cosineCoefficientsOfBody1_, sineCoefficientsOfBody1_ ) )
+    {
+        const double c20Body1 = cosineCoefficientsOfBody1_( 2, 0 );
+        const double expectedCosineCoefficient =
+                currentMultiplier * c20Body1 * transformedCosineCoefficientsOfBody2_( degree2, std::abs( order2 ) );
+        const double expectedSineCoefficient =
+                currentMultiplier * c20Body1 * transformedSineCoefficientsOfBody2_( degree2, std::abs( order2 ) );
+        const double cosineDifference = cosineCoefficient - expectedCosineCoefficient;
+        const double sineDifference = sineCoefficient - expectedSineCoefficient;
+
+        std::cout << "[FTB-DBG][STEP effective_coeff]"
+                  << " (l1,m1,l2,m2)=(" << degree1 << "," << order1 << "," << degree2 << "," << order2 << ")"
+                  << " Ceff=" << cosineCoefficient
+                  << " Ceff_expected=" << expectedCosineCoefficient
+                  << " Ceff_diff=" << cosineDifference
+                  << " Ceff_status=" << debugStatusFromDifference( cosineDifference, 1.0E-15 )
+                  << " Seff=" << sineCoefficient
+                  << " Seff_expected=" << expectedSineCoefficient
+                  << " Seff_diff=" << sineDifference
+                  << " Seff_status=" << debugStatusFromDifference( sineDifference, 1.0E-15 )
+                  << std::endl;
+    }
+
 }
 
 void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients(
@@ -616,6 +783,39 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
                 transformedCosineCoefficientsOfBody2_,
                 transformedSineCoefficientsOfBody2_,
                 areCoefficientsNormalized_ );
+
+    if( isFullTwoBodyTorqueDebugEnabled( ) )
+    {
+        const bool isIdentityRotation = isApproximatelyIdentityQuaternion( coefficientRotationQuaterion, 1.0E-15 );
+        if( isIdentityRotation && cosineCoefficientsOfBody2_.rows( ) > 2 && cosineCoefficientsOfBody2_.cols( ) > 2 &&
+            sineCoefficientsOfBody2_.rows( ) > 2 && sineCoefficientsOfBody2_.cols( ) > 2 )
+        {
+            for( int order = 0; order <= 2; order++ )
+            {
+                const double cosineDifference =
+                        transformedCosineCoefficientsOfBody2_( 2, order ) - cosineCoefficientsOfBody2_( 2, order );
+                const double sineDifference =
+                        transformedSineCoefficientsOfBody2_( 2, order ) - sineCoefficientsOfBody2_( 2, order );
+
+                std::cout << "[FTB-DBG][STEP transformed_coeff]"
+                          << " (l,m)=(2," << order << ")"
+                          << " C_actual=" << transformedCosineCoefficientsOfBody2_( 2, order )
+                          << " C_expected=" << cosineCoefficientsOfBody2_( 2, order )
+                          << " C_diff=" << cosineDifference
+                          << " C_status=" << debugStatusFromDifference( cosineDifference, 1.0E-15 )
+                          << " S_actual=" << transformedSineCoefficientsOfBody2_( 2, order )
+                          << " S_expected=" << sineCoefficientsOfBody2_( 2, order )
+                          << " S_diff=" << sineDifference
+                          << " S_status=" << debugStatusFromDifference( sineDifference, 1.0E-15 )
+                          << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "[FTB-DBG][STEP transformed_coeff] identity_check_skipped="
+                      << ( isIdentityRotation ? 0 : 1 ) << std::endl;
+        }
+    }
 
     updateEffectiveMutualPotential( );
 }

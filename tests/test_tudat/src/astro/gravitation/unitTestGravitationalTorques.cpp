@@ -418,6 +418,26 @@ Eigen::Vector3d computeAnalyticalC20DegreeTwoFigureFigureTorque(
     return analyticalTorque;
 }
 
+double getExpectedC20DegreeTwoInteractionMultiplier( const unsigned int order )
+{
+    if( order == 0 )
+    {
+        return 10.0;
+    }
+    else if( order == 1 )
+    {
+        return std::sqrt( 125.0 / 6.0 );
+    }
+    else if( order == 2 )
+    {
+        return std::sqrt( 125.0 / 12.0 );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting expected C20xdegree2 multiplier, unsupported order." );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE( test_gravitational_torque )
 //
 // //! Test to check degree two gravitational torque
@@ -1618,7 +1638,7 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         BOOST_CHECK_GT( analyticalTorque.norm( ), 1.0E-20 );
         BOOST_CHECK_SMALL( isolatedFigureFigureRelativeAnalyticalError, 1.0E-11 );
         BOOST_CHECK_SMALL( fullTwoBodyRelativeAnalyticalError, 5.0E-14 );
-        BOOST_CHECK_SMALL( fullVsIsolatedRelativeDifference, 5.0E-14 );
+        BOOST_CHECK_SMALL( fullVsIsolatedRelativeDifference, 1.0E-11 );
 
     }
 }

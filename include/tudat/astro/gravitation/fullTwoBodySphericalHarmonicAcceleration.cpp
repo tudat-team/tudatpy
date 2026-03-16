@@ -1,11 +1,44 @@
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+
 namespace tudat
 {
 
 namespace gravitation
 {
+
+namespace
+{
+
+bool isFullTwoBodyTorqueDebugEnabled( )
+{
+    static const bool isEnabled = [ ]( )
+    {
+        const char* flag = std::getenv( "TUDAT_DEBUG_FULL_TWO_BODY_TORQUE" );
+        return ( flag != nullptr && std::string( flag ) != "0" );
+    }( );
+    return isEnabled;
+}
+
+std::string debugStatusFromDifference( const double difference, const double tolerance )
+{
+    return ( std::fabs( difference ) <= tolerance ? "OK" : "MISMATCH" );
+}
+
+bool isApproximatelyIdentityQuaternion( const Eigen::Quaterniond& quaternion, const double tolerance )
+{
+    const Eigen::Quaterniond identityQuaternion = Eigen::Quaterniond::Identity( );
+    const double positiveDifferenceNorm = ( quaternion.coeffs( ) - identityQuaternion.coeffs( ) ).norm( );
+    const double negativeDifferenceNorm = ( quaternion.coeffs( ) + identityQuaternion.coeffs( ) ).norm( );
+    return ( std::min( positiveDifferenceNorm, negativeDifferenceNorm ) <= tolerance );
+}
+
+}
 
 
 FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAcceleration(
@@ -96,6 +129,34 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         currentBodyFixedRelativePosition_ =
                 currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
 
+        if( isFullTwoBodyTorqueDebugEnabled( ) )
+        {
+            std::cout << "[FTB-DBG][STEP acceleration_state]"
+                      << " t=" << currentTime
+                      << " mu=" << gravitationalParameterFunction_( )
+                      << " r_inertial=" << currentRelativePosition_.transpose( )
+                      << " r_body1=" << currentBodyFixedRelativePosition_.transpose( )
+                      << " q_I_to_B1=(" << currentRotationFromInertialToBody1_.w( ) << ","
+                      << currentRotationFromInertialToBody1_.x( ) << ","
+                      << currentRotationFromInertialToBody1_.y( ) << ","
+                      << currentRotationFromInertialToBody1_.z( ) << ")"
+                      << " q_B2_to_B1=(" << currentRotationFromBody2ToBody1_.w( ) << ","
+                      << currentRotationFromBody2ToBody1_.x( ) << ","
+                      << currentRotationFromBody2ToBody1_.y( ) << ","
+                      << currentRotationFromBody2ToBody1_.z( ) << ")"
+                      << std::endl;
+
+            if( isApproximatelyIdentityQuaternion( currentRotationFromInertialToBody1_, 1.0E-15 ) )
+            {
+                const Eigen::Vector3d frameDifference = currentBodyFixedRelativePosition_ - currentRelativePosition_;
+                std::cout << "[FTB-DBG][STEP acceleration_state_expected]"
+                          << " identity_rotation_expected_r_body1=r_inertial"
+                          << " diff=" << frameDifference.transpose( )
+                          << " status=" << debugStatusFromDifference( frameDifference.norm( ), 1.0E-15 )
+                          << std::endl;
+            }
+        }
+
         effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
 
         double currentDistance = currentRelativePosition_.norm( );
@@ -109,6 +170,21 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         {
             radius2Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
 
+        }
+
+        if( isFullTwoBodyTorqueDebugEnabled( ) )
+        {
+            std::cout << "[FTB-DBG][STEP radius_powers]"
+                      << " distance=" << currentDistance
+                      << " (R1/r)^0..2="
+                      << radius1Powers_.at( 0 ) << " "
+                      << ( radius1Powers_.size( ) > 1 ? radius1Powers_.at( 1 ) : TUDAT_NAN ) << " "
+                      << ( radius1Powers_.size( ) > 2 ? radius1Powers_.at( 2 ) : TUDAT_NAN )
+                      << " (R2/r)^0..2="
+                      << radius2Powers_.at( 0 ) << " "
+                      << ( radius2Powers_.size( ) > 1 ? radius2Powers_.at( 1 ) : TUDAT_NAN ) << " "
+                      << ( radius2Powers_.size( ) > 2 ? radius2Powers_.at( 2 ) : TUDAT_NAN )
+                      << std::endl;
         }
 
 
@@ -142,6 +218,17 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         else
         {
             currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
+        }
+
+        if( isFullTwoBodyTorqueDebugEnabled( ) )
+        {
+            const Eigen::Vector3d totalSpecificTorqueFromGradient =
+                    currentBodyFixedRelativePosition_.cross( mutualPotentialGradient_ );
+            std::cout << "[FTB-DBG][STEP acceleration_gradient]"
+                      << " gradU=" << mutualPotentialGradient_.transpose( )
+                      << " total_specific_torque=rXgradU=" << totalSpecificTorqueFromGradient.transpose( )
+                      << " acceleration_output=" << currentAcceleration_.transpose( )
+                      << std::endl;
         }
         currentTime_ = currentTime;
     }
