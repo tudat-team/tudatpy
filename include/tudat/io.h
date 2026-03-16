@@ -37,6 +37,7 @@
 #include "io/readCrdFile.h"
 #include "io/readOdfFile.h"
 #include "io/readPsfFile.h"
+#include "io/readSp3File.h"
 #include "io/readSinexFile.h"
 #include "io/readTabulatedMediaCorrections.h"
 #include "io/separatedParser.h"
