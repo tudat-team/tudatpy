@@ -1449,6 +1449,24 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                         bodyUndergoingTorqueName,
                         bodyExertingTorqueName,
                         singleInteractionTerm );
+        std::shared_ptr< FullTwoBodySphericalHarmonicTorque > fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel =
+                createFactoryFullTwoBodySphericalHarmonicTorqueModel(
+                        bodies,
+                        bodyUndergoingTorqueName,
+                        bodyExertingTorqueName,
+                        getDegreeTwoDegreeTwoInteractionCombinations( ) );
+        std::shared_ptr< FullTwoBodySphericalHarmonicTorque > fullTwoBodyFullDegreeTwoTorqueModel =
+                createFactoryFullTwoBodySphericalHarmonicTorqueModel(
+                        bodies,
+                        bodyUndergoingTorqueName,
+                        bodyExertingTorqueName,
+                        getFullDegreeTwoInteractionCombinations( ) );
+        std::shared_ptr< FullTwoBodySphericalHarmonicTorque > fullTwoBodyPointMassDegreeTwoTorqueModel =
+                createFactoryFullTwoBodySphericalHarmonicTorqueModel(
+                        bodies,
+                        bodyUndergoingTorqueName,
+                        bodyExertingTorqueName,
+                        getPointMassDegreeTwoInteractionCombinations( ) );
         std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModel =
                 createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel(
                         bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
@@ -1456,10 +1474,16 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                 createFactorySecondDegreeGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
 
         BOOST_REQUIRE( fullTwoBodySingleInteractionTorqueModel != nullptr );
+        BOOST_REQUIRE( fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel != nullptr );
+        BOOST_REQUIRE( fullTwoBodyFullDegreeTwoTorqueModel != nullptr );
+        BOOST_REQUIRE( fullTwoBodyPointMassDegreeTwoTorqueModel != nullptr );
         BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
         BOOST_REQUIRE( secondDegreeTorqueModel != nullptr );
 
         fullTwoBodySingleInteractionTorqueModel->updateMembers( evaluationTime );
+        fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel->updateMembers( evaluationTime );
+        fullTwoBodyFullDegreeTwoTorqueModel->updateMembers( evaluationTime );
+        fullTwoBodyPointMassDegreeTwoTorqueModel->updateMembers( evaluationTime );
         fourthDegreeTorqueModel->updateMembers( evaluationTime );
         secondDegreeTorqueModel->updateMembers( evaluationTime );
 
@@ -1467,6 +1491,12 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
         const Eigen::Vector3d singleInteractionTorqueFromFullTwoBody =
                 bodyExertingTorqueMass * fullTwoBodySingleInteractionTorqueModel->getTorque( );
+        const Eigen::Vector3d allDegreeTwoDegreeTwoTorqueFromFullTwoBody =
+                bodyExertingTorqueMass * fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel->getTorque( );
+        const Eigen::Vector3d isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction =
+                bodyExertingTorqueMass *
+                ( fullTwoBodyFullDegreeTwoTorqueModel->getTorque( ) -
+                  fullTwoBodyPointMassDegreeTwoTorqueModel->getTorque( ) );
         const Eigen::Vector3d isolatedFigureFigureTorqueFromFourthMinusSecond =
                 fourthDegreeTorqueModel->getTorque( ) - secondDegreeTorqueModel->getTorque( );
 
@@ -1499,9 +1529,79 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
 
         std::cout<<"Torque "<<coefficientCase.coefficientName<<std::endl;
         std::cout<<singleInteractionTorqueFromFullTwoBody.transpose(  )<<std::endl;
+        std::cout<<allDegreeTwoDegreeTwoTorqueFromFullTwoBody.transpose(  )<<std::endl;
+        std::cout<<isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction.transpose(  )<<std::endl;
         std::cout<<isolatedFigureFigureTorqueFromFourthMinusSecond.transpose(  )<<std::endl;
         std::cout<<analyticalTorque.transpose(  )<<std::endl;
         std::cout<<secondDegreeTorqueModel->getTorque( ).norm(  )<<std::endl;
+
+        const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > fullTwoBodyAcceleration =
+                fullTwoBodySingleInteractionTorqueModel->getAccelerationBetweenBodies( );
+        const std::shared_ptr< EffectiveMutualSphericalHarmonicsField > effectiveField =
+                fullTwoBodyAcceleration->getEffectiveMutualPotentialField( );
+        const Eigen::Vector3d totalSpecificTorqueFromMutualPotential =
+                fullTwoBodyAcceleration->getCurrentBodyFixedRelativePosition( ).cross(
+                        fullTwoBodyAcceleration->getMutualPotentialGradient( ) );
+        const Eigen::Vector3d reconstructedBody2SpecificTorque =
+                fullTwoBodySingleInteractionTorqueModel->getTorque( ) + totalSpecificTorqueFromMutualPotential;
+        std::cout<<"Ceff(2,0,2,m)="
+                 <<effectiveField->getEffectiveCosineCoefficient( 2, 0, 2, static_cast< int >( coefficientCase.order ) )
+                 <<" Seff(2,0,2,m)="
+                 <<effectiveField->getEffectiveSineCoefficient( 2, 0, 2, static_cast< int >( coefficientCase.order ) )
+                 <<" mult(2,0,2,m)="
+                 <<effectiveField->getMultiplier( 2, 0, 2, static_cast< int >( coefficientCase.order ) )<<std::endl;
+        if( coefficientCase.order > 0 )
+        {
+            std::cout<<"Ceff(2,0,2,-m)="
+                     <<effectiveField->getEffectiveCosineCoefficient( 2, 0, 2, -static_cast< int >( coefficientCase.order ) )
+                     <<" Seff(2,0,2,-m)="
+                     <<effectiveField->getEffectiveSineCoefficient( 2, 0, 2, -static_cast< int >( coefficientCase.order ) )
+                     <<" mult(2,0,2,-m)="
+                     <<effectiveField->getMultiplier( 2, 0, 2, -static_cast< int >( coefficientCase.order ) )<<std::endl;
+        }
+        std::cout<<"total_specific_torque="<<totalSpecificTorqueFromMutualPotential.transpose(  )
+                 <<" current_specific="<<fullTwoBodySingleInteractionTorqueModel->getTorque( ).transpose(  )
+                 <<" reconstructed_body2_specific="<<reconstructedBody2SpecificTorque.transpose(  )<<std::endl;
+        std::cout<<"transformed_body2_degree2(C20,C21,S21,C22,S22)="
+                 <<effectiveField->getTransformedCosineCoefficientsOfBody2( )( 2, 0 )<<" "
+                 <<effectiveField->getTransformedCosineCoefficientsOfBody2( )( 2, 1 )<<" "
+                 <<effectiveField->getTransformedSineCoefficientsOfBody2( )( 2, 1 )<<" "
+                 <<effectiveField->getTransformedCosineCoefficientsOfBody2( )( 2, 2 )<<" "
+                 <<effectiveField->getTransformedSineCoefficientsOfBody2( )( 2, 2 )<<std::endl;
+
+        std::array< Eigen::MatrixXd, 3 > transformedCosineCoefficientsBody2AngularMomentum;
+        std::array< Eigen::MatrixXd, 3 > transformedSineCoefficientsBody2AngularMomentum;
+        fullTwoBodySingleInteractionTorqueModel->computeTransformedAngularMomentumCoefficients(
+                effectiveField->getCosineCoefficientsOfBody2( ),
+                effectiveField->getSineCoefficientsOfBody2( ),
+                effectiveField->getTransformationCache( )->getWignerDMatricesCache( ),
+                fullTwoBodyAcceleration->getAreCoefficientsNormalized( ),
+                transformedCosineCoefficientsBody2AngularMomentum,
+                transformedSineCoefficientsBody2AngularMomentum );
+        std::cout<<"JC2_x(m=0,1,2)="
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 0 )( 2, 0 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 0 )( 2, 1 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 0 )( 2, 2 )<<" "
+                 <<" JS2_x(m=0,1,2)="
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 0 )( 2, 0 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 0 )( 2, 1 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 0 )( 2, 2 )<<std::endl;
+        std::cout<<"JC2_y(m=0,1,2)="
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 1 )( 2, 0 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 1 )( 2, 1 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 1 )( 2, 2 )<<" "
+                 <<" JS2_y(m=0,1,2)="
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 1 )( 2, 0 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 1 )( 2, 1 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 1 )( 2, 2 )<<std::endl;
+        std::cout<<"JC2_z(m=0,1,2)="
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 2 )( 2, 0 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 2 )( 2, 1 )<<" "
+                 <<transformedCosineCoefficientsBody2AngularMomentum.at( 2 )( 2, 2 )<<" "
+                 <<" JS2_z(m=0,1,2)="
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 2 )( 2, 0 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 2 )( 2, 1 )<<" "
+                 <<transformedSineCoefficientsBody2AngularMomentum.at( 2 )( 2, 2 )<<std::endl;
 
         BOOST_TEST_MESSAGE( "single_term_case=" << coefficientCase.coefficientName
                                                  << " full=" << singleInteractionTorqueFromFullTwoBody.transpose( )

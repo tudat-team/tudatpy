@@ -31,17 +31,17 @@ Eigen::Vector3cd FullTwoBodySphericalHarmonicTorque::computeAngularMomentumOpera
 
     const double plusScaling = std::sqrt(
                 std::max( 0.0, static_cast< double >(
-                              degree * ( degree + 1 ) - orderM * ( orderM - 1 ) ) ) ) / 2.0;
+                              degree * ( degree + 1 ) - orderK * ( orderK - 1 ) ) ) ) / 2.0;
     const double minusScaling = std::sqrt(
                 std::max( 0.0, static_cast< double >(
-                              degree * ( degree + 1 ) - orderM * ( orderM + 1 ) ) ) ) / 2.0;
+                              degree * ( degree + 1 ) - orderK * ( orderK + 1 ) ) ) ) / 2.0;
 
     const std::complex< double > angularMomentumPlus =
-            imaginaryUnit * plusScaling * getWignerCoefficient( orderM - 1, orderK );
+            imaginaryUnit * plusScaling * getWignerCoefficient( orderM, orderK - 1 );
     const std::complex< double > angularMomentumMinus =
-            imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( orderM + 1, orderK );
+            imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( orderM, orderK + 1 );
     const std::complex< double > angularMomentumZero =
-            imaginaryUnit * static_cast< double >( -orderM ) * getWignerCoefficient( orderM, orderK );
+            imaginaryUnit * static_cast< double >( -orderK ) * getWignerCoefficient( orderM, orderK );
 
     Eigen::Vector3cd angularMomentumInCartesianBasis;
     angularMomentumInCartesianBasis( 0 ) = ( angularMomentumMinus - angularMomentumPlus ) * inverseSquareRootTwo;

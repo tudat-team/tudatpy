@@ -240,6 +240,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
     int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree, totalOrder;
+    int signedOrderOfBody1, signedOrderOfBody2;
     double equatorialRadiusRatioPower;
     double preMultiplier = gravitationalParameterOfBody /
             (  sphericalpositionOfBodySubjectToAcceleration( 0 ) );
@@ -288,20 +289,28 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
             switch( j )
             {
             case 0:
-                totalOrder = std::abs( orderOfBody1 + orderOfBody2 );
+                signedOrderOfBody1 = orderOfBody1;
+                signedOrderOfBody2 = orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 computeTerm = 1;
                 break;
             case 1:
-                totalOrder = std::abs( -orderOfBody1 + orderOfBody2 );
+                signedOrderOfBody1 = -orderOfBody1;
+                signedOrderOfBody2 = orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody1 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
                 break;
             case 2:
-                totalOrder = std::abs( orderOfBody1 - orderOfBody2 );
+                signedOrderOfBody1 = orderOfBody1;
+                signedOrderOfBody2 = -orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
 
                 break;
             case 3:
-                totalOrder = std::abs( -orderOfBody1 - orderOfBody2 );
+                signedOrderOfBody1 = -orderOfBody1;
+                signedOrderOfBody2 = -orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody1 == 0 || orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
                 break;
             }
@@ -329,8 +338,10 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                             preMultiplier,
                             totalDegree,
                             totalOrder,
-                            effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                            effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
+                            effectiveCosineCoefficientFunction(
+                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
+                            effectiveSineCoefficientFunction(
+                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
                             currentTerms.first,
                             currentTerms.second );
             }
@@ -405,6 +416,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
     
     int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2, totalDegree, totalOrder;
+    int signedOrderOfBody1, signedOrderOfBody2;
     double equatorialRadiusRatioPower;
     double preMultiplier = gravitationalParameterOfBody /
             (  sphericalpositionOfBodySubjectToAcceleration( 0 ) );
@@ -430,20 +442,28 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
             switch( j )
             {
             case 0:
-                totalOrder = std::abs( orderOfBody1 + orderOfBody2 );
+                signedOrderOfBody1 = orderOfBody1;
+                signedOrderOfBody2 = orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 computeTerm = 1;
                 break;
             case 1:
-                totalOrder = std::abs( -orderOfBody1 + orderOfBody2 );
+                signedOrderOfBody1 = -orderOfBody1;
+                signedOrderOfBody2 = orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody1 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
                 break;
             case 2:
-                totalOrder = std::abs( orderOfBody1 - orderOfBody2 );
+                signedOrderOfBody1 = orderOfBody1;
+                signedOrderOfBody2 = -orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
-                
+
                 break;
             case 3:
-                totalOrder = std::abs( -orderOfBody1 - orderOfBody2 );
+                signedOrderOfBody1 = -orderOfBody1;
+                signedOrderOfBody2 = -orderOfBody2;
+                totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                 ( orderOfBody1 == 0 || orderOfBody2 == 0  ) ? ( computeTerm = 0 ) : ( computeTerm = 1 );
                 break;
             }
@@ -472,8 +492,10 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
                             preMultiplier,
                             totalDegree,
                             totalOrder,
-                            effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                            effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
+                            effectiveCosineCoefficientFunction(
+                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
+                            effectiveSineCoefficientFunction(
+                                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
                             legendrePolynomial,
                             legendrePolynomialDerivative );
             }
