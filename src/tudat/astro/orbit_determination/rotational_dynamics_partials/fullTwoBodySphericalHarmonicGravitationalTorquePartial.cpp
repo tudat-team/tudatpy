@@ -11,6 +11,7 @@
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/fullTwoBodySphericalHarmonicGravitationalTorquePartial.h"
 
 #include <complex>
+#include <set>
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
@@ -532,6 +533,31 @@ bool getSignedOrdersForVariant(
     return computeTerm;
 }
 
+std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getBody2TorqueCombinationsToUse(
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+                coefficientCombinationsToUse )
+{
+    std::set< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationSet;
+    for( const auto& combination : coefficientCombinationsToUse )
+    {
+        const unsigned int degreeOfBody1ForCombination = std::get< 0 >( combination );
+        const unsigned int orderOfBody1ForCombination = std::get< 1 >( combination );
+        const unsigned int degreeOfBody2ForCombination = std::get< 2 >( combination );
+        for( unsigned int orderOfBody2ForTorque = 0; orderOfBody2ForTorque <= degreeOfBody2ForCombination;
+             orderOfBody2ForTorque++ )
+        {
+            body2TorqueCombinationSet.insert( std::make_tuple(
+                    degreeOfBody1ForCombination,
+                    orderOfBody1ForCombination,
+                    degreeOfBody2ForCombination,
+                    orderOfBody2ForTorque ) );
+        }
+    }
+
+    return std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >(
+            body2TorqueCombinationSet.begin( ), body2TorqueCombinationSet.end( ) );
+}
+
 Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
         const double preMultiplier,
@@ -649,9 +675,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
                 "implemented analytically." );
     }
 
-    const std::vector< int >& accelerationEffectiveIndices =
-            accelerationPartial_->getEffectiveIndicesForCoefficientCombinations( );
-    effectiveIndicesForCoefficientCombinations_ = accelerationEffectiveIndices;
+    body2TorqueCombinationsToUse_ = detail::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
@@ -810,17 +834,18 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
         const int order,
         const bool wrtCosineCoefficient ) const
 {
+    const double body2SpinPreMultiplier = -currentPreMultiplier_;
     const Eigen::MatrixXd cosineCoefficientsOfBody1 = effectiveMutualPotentialField_->getCosineCoefficientsOfBody1( );
     const Eigen::MatrixXd sineCoefficientsOfBody1 = effectiveMutualPotentialField_->getSineCoefficientsOfBody1( );
     const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
             accelerationModel_->getSphericalHarmonicsCache( );
 
-    for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
+    for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
-        const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
-        const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
-        const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
 
         if( degreeOfBody1 != degree || orderOfBody1 != order )
         {
@@ -843,13 +868,17 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
             const Eigen::Vector2d scalarBasisFunctionValues = detail::computeCurrentScalarBasisFunctionValues(
-                    sphericalHarmonicsCache, currentPreMultiplier_, equatorialRadiusRatioPower, totalDegree, totalOrder );
+                    sphericalHarmonicsCache, body2SpinPreMultiplier, equatorialRadiusRatioPower, totalDegree, totalOrder );
 
             const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
             const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
             const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
-            const double multiplier = effectiveMutualPotentialField_->getMultiplier(
-                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+            const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                    degreeOfBody1,
+                    signedOrderOfBody1,
+                    degreeOfBody2,
+                    signedOrderOfBody2,
+                    accelerationModel_->getAreCoefficientsNormalized( ) );
 
             Eigen::Vector3d transformedAngularMomentumCosineCoefficientsBody2;
             Eigen::Vector3d transformedAngularMomentumSineCoefficientsBody2;
@@ -895,6 +924,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
         const int order,
         const bool wrtCosineCoefficient ) const
 {
+    const double body2SpinPreMultiplier = -currentPreMultiplier_;
     Eigen::MatrixXd basisCosineCoefficients = Eigen::MatrixXd::Zero(
             currentTransformedCosineCoefficientsBody2_.rows( ), currentTransformedCosineCoefficientsBody2_.cols( ) );
     Eigen::MatrixXd basisSineCoefficients = Eigen::MatrixXd::Zero(
@@ -923,12 +953,12 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
     const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
             accelerationModel_->getSphericalHarmonicsCache( );
 
-    for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
+    for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
-        const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
-        const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
-        const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
 
         if( degreeOfBody2 != degree )
         {
@@ -953,13 +983,17 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
             const Eigen::Vector2d scalarBasisFunctionValues = detail::computeCurrentScalarBasisFunctionValues(
-                    sphericalHarmonicsCache, currentPreMultiplier_, equatorialRadiusRatioPower, totalDegree, totalOrder );
+                    sphericalHarmonicsCache, body2SpinPreMultiplier, equatorialRadiusRatioPower, totalDegree, totalOrder );
 
             const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
             const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
             const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
-            const double multiplier = effectiveMutualPotentialField_->getMultiplier(
-                    degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+            const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                    degreeOfBody1,
+                    signedOrderOfBody1,
+                    degreeOfBody2,
+                    signedOrderOfBody2,
+                    accelerationModel_->getAreCoefficientsNormalized( ) );
 
             Eigen::Vector3d partialOfTransformedAngularMomentumCosineCoefficientsBody2 = Eigen::Vector3d::Zero( );
             Eigen::Vector3d partialOfTransformedAngularMomentumSineCoefficientsBody2 = Eigen::Vector3d::Zero( );
@@ -999,8 +1033,8 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
 
     const Eigen::Matrix3d bodyFixedCrossProductMatrix =
             linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ );
-    const std::vector< Eigen::Matrix< double, 3, 2 > >& bodyFixedPartialsWrtEffectiveCoefficients =
-            accelerationPartial_->getCurrentBodyFixedPartialsWrtEffectiveCoefficients( );
+    const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            accelerationModel_->getSphericalHarmonicsCache( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
@@ -1008,6 +1042,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
         addBody2SpinTorquePartialWrtBody1Coefficient(
                 partial, blockIndices.at( i ).first, blockIndices.at( i ).second, true );
 
+        Eigen::Vector3d partialOfMutualPotentialGradient = Eigen::Vector3d::Zero( );
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
             const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
@@ -1015,26 +1050,60 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
             const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
             const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
-            if( blockIndices.at( i ).first == degreeOfBody1 && blockIndices.at( i ).second == orderOfBody1 )
+            if( blockIndices.at( i ).first != degreeOfBody1 || blockIndices.at( i ).second != orderOfBody1 )
             {
-                const int effectiveIndex = effectiveIndicesForCoefficientCombinations_.at( j );
-                const double coefficientMultiplier = effectiveMutualPotentialField_->getMultiplier(
-                        degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
-                if( degreeOfBody2 < currentTransformedCosineCoefficientsBody2_.rows( ) &&
-                    orderOfBody2 < currentTransformedCosineCoefficientsBody2_.cols( ) )
+                continue;
+            }
+
+            const double equatorialRadiusRatioPower =
+                    currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+            const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+            for( int variant = 0; variant < 4; variant++ )
+            {
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                if( !detail::getSignedOrdersForVariant(
+                            variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
-                    const Eigen::Vector2d effectiveCoefficientsPartial =
-                            coefficientMultiplier *
-                            ( Eigen::Vector2d( ) << currentTransformedCosineCoefficientsBody2_( degreeOfBody2, orderOfBody2 ),
-                              currentTransformedSineCoefficientsBody2_( degreeOfBody2, orderOfBody2 ) )
-                                    .finished( );
-                    partial -= bodyFixedCrossProductMatrix *
-                            bodyFixedPartialsWrtEffectiveCoefficients.at( effectiveIndex ) *
-                            effectiveCoefficientsPartial;
+                    continue;
                 }
+
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
+                        detail::computeCurrentBodyFixedBasisFunctionGradients(
+                                currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                                sphericalHarmonicsCache,
+                                currentCosineOfLatitude_,
+                                currentPreMultiplier_,
+                                equatorialRadiusRatioPower,
+                                totalDegree,
+                                totalOrder );
+
+                const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+                const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+                const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2,
+                        accelerationModel_->getAreCoefficientsNormalized( ) );
+
+                const double partialOfEffectiveCosineCoefficient =
+                        multiplier * currentTransformedCosineCoefficientsBody2_(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfEffectiveSineCoefficient =
+                        signOrderBody2 * signTotalOrder * multiplier *
+                        currentTransformedSineCoefficientsBody2_(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+
+                partialOfMutualPotentialGradient +=
+                        bodyFixedBasisFunctionGradients.col( 0 ) * partialOfEffectiveCosineCoefficient +
+                        bodyFixedBasisFunctionGradients.col( 1 ) * partialOfEffectiveSineCoefficient;
             }
         }
 
+        partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
 }
@@ -1047,8 +1116,8 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
 
     const Eigen::Matrix3d bodyFixedCrossProductMatrix =
             linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ );
-    const std::vector< Eigen::Matrix< double, 3, 2 > >& bodyFixedPartialsWrtEffectiveCoefficients =
-            accelerationPartial_->getCurrentBodyFixedPartialsWrtEffectiveCoefficients( );
+    const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            accelerationModel_->getSphericalHarmonicsCache( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
@@ -1056,6 +1125,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
         addBody2SpinTorquePartialWrtBody1Coefficient(
                 partial, blockIndices.at( i ).first, blockIndices.at( i ).second, false );
 
+        Eigen::Vector3d partialOfMutualPotentialGradient = Eigen::Vector3d::Zero( );
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
             const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
@@ -1063,26 +1133,62 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
             const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
             const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
-            if( blockIndices.at( i ).first == degreeOfBody1 && blockIndices.at( i ).second == orderOfBody1 )
+            if( blockIndices.at( i ).first != degreeOfBody1 || blockIndices.at( i ).second != orderOfBody1 )
             {
-                const int effectiveIndex = effectiveIndicesForCoefficientCombinations_.at( j );
-                const double coefficientMultiplier = effectiveMutualPotentialField_->getMultiplier(
-                        degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
-                if( degreeOfBody2 < currentTransformedCosineCoefficientsBody2_.rows( ) &&
-                    orderOfBody2 < currentTransformedCosineCoefficientsBody2_.cols( ) )
+                continue;
+            }
+
+            const double equatorialRadiusRatioPower =
+                    currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+            const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+            for( int variant = 0; variant < 4; variant++ )
+            {
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                if( !detail::getSignedOrdersForVariant(
+                            variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
                 {
-                    const Eigen::Vector2d effectiveCoefficientsPartial =
-                            coefficientMultiplier *
-                            ( Eigen::Vector2d( ) << -currentTransformedSineCoefficientsBody2_( degreeOfBody2, orderOfBody2 ),
-                              currentTransformedCosineCoefficientsBody2_( degreeOfBody2, orderOfBody2 ) )
-                                    .finished( );
-                    partial -= bodyFixedCrossProductMatrix *
-                            bodyFixedPartialsWrtEffectiveCoefficients.at( effectiveIndex ) *
-                            effectiveCoefficientsPartial;
+                    continue;
                 }
+
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
+                        detail::computeCurrentBodyFixedBasisFunctionGradients(
+                                currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                                sphericalHarmonicsCache,
+                                currentCosineOfLatitude_,
+                                currentPreMultiplier_,
+                                equatorialRadiusRatioPower,
+                                totalDegree,
+                                totalOrder );
+
+                const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
+                const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+                const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+                const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2,
+                        accelerationModel_->getAreCoefficientsNormalized( ) );
+
+                const double partialOfEffectiveCosineCoefficient =
+                        -signOrderBody1 * signOrderBody2 * multiplier *
+                        currentTransformedSineCoefficientsBody2_(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfEffectiveSineCoefficient =
+                        signOrderBody1 * signTotalOrder * multiplier *
+                        currentTransformedCosineCoefficientsBody2_(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+
+                partialOfMutualPotentialGradient +=
+                        bodyFixedBasisFunctionGradients.col( 0 ) * partialOfEffectiveCosineCoefficient +
+                        bodyFixedBasisFunctionGradients.col( 1 ) * partialOfEffectiveSineCoefficient;
             }
         }
 
+        partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
 }
@@ -1095,10 +1201,10 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
 
     const Eigen::Matrix3d bodyFixedCrossProductMatrix =
             linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ );
-    const std::vector< Eigen::Matrix< double, 3, 2 > >& bodyFixedPartialsWrtEffectiveCoefficients =
-            accelerationPartial_->getCurrentBodyFixedPartialsWrtEffectiveCoefficients( );
-    const std::vector< Eigen::Matrix2d >& effectiveCoefficientsWrtTransformedBody2Coefficients =
-            accelerationPartial_->getCurrentEffectiveCoefficientsWrtTransformedBody2Coefficients( );
+    const Eigen::MatrixXd cosineCoefficientsOfBody1 = effectiveMutualPotentialField_->getCosineCoefficientsOfBody1( );
+    const Eigen::MatrixXd sineCoefficientsOfBody1 = effectiveMutualPotentialField_->getSineCoefficientsOfBody1( );
+    const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            accelerationModel_->getSphericalHarmonicsCache( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
@@ -1111,27 +1217,76 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
         accelerationPartial_->calculateCurrentTransformedBody2CoefficientPartials(
                 blockIndices.at( i ).first, blockIndices.at( i ).second, true, transformedCosinePartials, transformedSinePartials );
 
+        Eigen::Vector3d partialOfMutualPotentialGradient = Eigen::Vector3d::Zero( );
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
             const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
             const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
-            if( degreeOfBody2 == blockIndices.at( i ).first &&
-                degreeOfBody2 < transformedCosinePartials.rows( ) &&
-                orderOfBody2 < transformedCosinePartials.cols( ) )
+            if( degreeOfBody2 != blockIndices.at( i ).first )
             {
-                const int effectiveIndex = effectiveIndicesForCoefficientCombinations_.at( j );
-                const Eigen::Vector2d transformedCoefficientPartials =
-                        ( Eigen::Vector2d( ) << transformedCosinePartials( degreeOfBody2, orderOfBody2 ),
-                          transformedSinePartials( degreeOfBody2, orderOfBody2 ) )
-                                .finished( );
-                partial -= bodyFixedCrossProductMatrix *
-                        bodyFixedPartialsWrtEffectiveCoefficients.at( effectiveIndex ) *
-                        ( effectiveCoefficientsWrtTransformedBody2Coefficients.at( effectiveIndex ) *
-                          transformedCoefficientPartials );
+                continue;
+            }
+
+            const double body1CosineCoefficient = cosineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
+            const double body1SineCoefficient = sineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
+            const double equatorialRadiusRatioPower =
+                    currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+            const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+            for( int variant = 0; variant < 4; variant++ )
+            {
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                if( !detail::getSignedOrdersForVariant(
+                            variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                {
+                    continue;
+                }
+
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
+                        detail::computeCurrentBodyFixedBasisFunctionGradients(
+                                currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                                sphericalHarmonicsCache,
+                                currentCosineOfLatitude_,
+                                currentPreMultiplier_,
+                                equatorialRadiusRatioPower,
+                                totalDegree,
+                                totalOrder );
+
+                const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
+                const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+                const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+                const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2,
+                        accelerationModel_->getAreCoefficientsNormalized( ) );
+
+                const double partialOfTransformedCosineCoefficient =
+                        transformedCosinePartials( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfTransformedSineCoefficient =
+                        transformedSinePartials( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfEffectiveCosineCoefficient =
+                        ( body1CosineCoefficient * partialOfTransformedCosineCoefficient -
+                          signOrderBody1 * signOrderBody2 * body1SineCoefficient * partialOfTransformedSineCoefficient ) *
+                        multiplier;
+                const double partialOfEffectiveSineCoefficient =
+                        ( signOrderBody2 * body1CosineCoefficient * partialOfTransformedSineCoefficient +
+                          signOrderBody1 * body1SineCoefficient * partialOfTransformedCosineCoefficient ) *
+                        signTotalOrder * multiplier;
+
+                partialOfMutualPotentialGradient +=
+                        bodyFixedBasisFunctionGradients.col( 0 ) * partialOfEffectiveCosineCoefficient +
+                        bodyFixedBasisFunctionGradients.col( 1 ) * partialOfEffectiveSineCoefficient;
             }
         }
 
+        partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
 }
@@ -1144,10 +1299,10 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
 
     const Eigen::Matrix3d bodyFixedCrossProductMatrix =
             linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ );
-    const std::vector< Eigen::Matrix< double, 3, 2 > >& bodyFixedPartialsWrtEffectiveCoefficients =
-            accelerationPartial_->getCurrentBodyFixedPartialsWrtEffectiveCoefficients( );
-    const std::vector< Eigen::Matrix2d >& effectiveCoefficientsWrtTransformedBody2Coefficients =
-            accelerationPartial_->getCurrentEffectiveCoefficientsWrtTransformedBody2Coefficients( );
+    const Eigen::MatrixXd cosineCoefficientsOfBody1 = effectiveMutualPotentialField_->getCosineCoefficientsOfBody1( );
+    const Eigen::MatrixXd sineCoefficientsOfBody1 = effectiveMutualPotentialField_->getSineCoefficientsOfBody1( );
+    const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            accelerationModel_->getSphericalHarmonicsCache( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
@@ -1160,27 +1315,76 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
         accelerationPartial_->calculateCurrentTransformedBody2CoefficientPartials(
                 blockIndices.at( i ).first, blockIndices.at( i ).second, false, transformedCosinePartials, transformedSinePartials );
 
+        Eigen::Vector3d partialOfMutualPotentialGradient = Eigen::Vector3d::Zero( );
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
             const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
             const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
-            if( degreeOfBody2 == blockIndices.at( i ).first &&
-                degreeOfBody2 < transformedCosinePartials.rows( ) &&
-                orderOfBody2 < transformedCosinePartials.cols( ) )
+            if( degreeOfBody2 != blockIndices.at( i ).first )
             {
-                const int effectiveIndex = effectiveIndicesForCoefficientCombinations_.at( j );
-                const Eigen::Vector2d transformedCoefficientPartials =
-                        ( Eigen::Vector2d( ) << transformedCosinePartials( degreeOfBody2, orderOfBody2 ),
-                          transformedSinePartials( degreeOfBody2, orderOfBody2 ) )
-                                .finished( );
-                partial -= bodyFixedCrossProductMatrix *
-                        bodyFixedPartialsWrtEffectiveCoefficients.at( effectiveIndex ) *
-                        ( effectiveCoefficientsWrtTransformedBody2Coefficients.at( effectiveIndex ) *
-                          transformedCoefficientPartials );
+                continue;
+            }
+
+            const double body1CosineCoefficient = cosineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
+            const double body1SineCoefficient = sineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
+            const double equatorialRadiusRatioPower =
+                    currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+            const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+            for( int variant = 0; variant < 4; variant++ )
+            {
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                if( !detail::getSignedOrdersForVariant(
+                            variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                {
+                    continue;
+                }
+
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
+                        detail::computeCurrentBodyFixedBasisFunctionGradients(
+                                currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                                sphericalHarmonicsCache,
+                                currentCosineOfLatitude_,
+                                currentPreMultiplier_,
+                                equatorialRadiusRatioPower,
+                                totalDegree,
+                                totalOrder );
+
+                const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
+                const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+                const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+                const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2,
+                        accelerationModel_->getAreCoefficientsNormalized( ) );
+
+                const double partialOfTransformedCosineCoefficient =
+                        transformedCosinePartials( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfTransformedSineCoefficient =
+                        transformedSinePartials( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                const double partialOfEffectiveCosineCoefficient =
+                        ( body1CosineCoefficient * partialOfTransformedCosineCoefficient -
+                          signOrderBody1 * signOrderBody2 * body1SineCoefficient * partialOfTransformedSineCoefficient ) *
+                        multiplier;
+                const double partialOfEffectiveSineCoefficient =
+                        ( signOrderBody2 * body1CosineCoefficient * partialOfTransformedSineCoefficient +
+                          signOrderBody1 * body1SineCoefficient * partialOfTransformedCosineCoefficient ) *
+                        signTotalOrder * multiplier;
+
+                partialOfMutualPotentialGradient +=
+                        bodyFixedBasisFunctionGradients.col( 0 ) * partialOfEffectiveCosineCoefficient +
+                        bodyFixedBasisFunctionGradients.col( 1 ) * partialOfEffectiveSineCoefficient;
             }
         }
 
+        partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
 }
@@ -1230,15 +1434,16 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
         const Eigen::MatrixXd sineCoefficientsOfBody1 = effectiveMutualPotentialField_->getSineCoefficientsOfBody1( );
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
                 accelerationModel_->getSphericalHarmonicsCache( );
+        const double body2SpinPreMultiplier = -currentPreMultiplier_;
 
         currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_.setZero( );
 
-        for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
+        for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
         {
-            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
-            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
-            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
-            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
+            const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
 
             const double body1CosineCoefficient = cosineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
             const double body1SineCoefficient = sineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
@@ -1262,7 +1467,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                                 currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
                                 sphericalHarmonicsCache,
                                 currentCosineOfLatitude_,
-                                currentPreMultiplier_,
+                                body2SpinPreMultiplier,
                                 equatorialRadiusRatioPower,
                                 totalDegree,
                                 totalOrder );
@@ -1270,8 +1475,12 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                 const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
                 const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
                 const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
-                const double multiplier = effectiveMutualPotentialField_->getMultiplier(
-                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2,
+                        accelerationModel_->getAreCoefficientsNormalized( ) );
 
                 Eigen::Vector3d transformedAngularMomentumCosineCoefficientsBody2 = Eigen::Vector3d::Zero( );
                 Eigen::Vector3d transformedAngularMomentumSineCoefficientsBody2 = Eigen::Vector3d::Zero( );
@@ -1377,6 +1586,52 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                 const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
                 const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
                 const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
+                const double equatorialRadiusRatioPower =
+                        currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+                const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+                for( int variant = 0; variant < 4; variant++ )
+                {
+                    int signedOrderOfBody1 = 0;
+                    int signedOrderOfBody2 = 0;
+                    if( !detail::getSignedOrdersForVariant(
+                                variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                    {
+                        continue;
+                    }
+
+                    const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                    const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
+                            detail::computeCurrentBodyFixedBasisFunctionGradients(
+                                    currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                                    sphericalHarmonicsCache,
+                                    currentCosineOfLatitude_,
+                                    currentPreMultiplier_,
+                                    equatorialRadiusRatioPower,
+                                    totalDegree,
+                                    totalOrder );
+
+                    const int signedEffectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
+                            degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                    const Eigen::Vector2d partialOfTransformedCoefficients =
+                            ( Eigen::Vector2d( ) <<
+                              partialOfTransformedCosineCoefficientsBody2( degreeOfBody2, std::abs( signedOrderOfBody2 ) ),
+                              partialOfTransformedSineCoefficientsBody2( degreeOfBody2, std::abs( signedOrderOfBody2 ) ) )
+                                    .finished( );
+                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( quaternionIndex ) +=
+                            bodyFixedBasisFunctionGradients *
+                            ( accelerationPartial_->getCurrentEffectiveCoefficientsWrtTransformedBody2Coefficients( ).at(
+                                      signedEffectiveIndex ) *
+                              partialOfTransformedCoefficients );
+                }
+            }
+
+            for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
+            {
+                const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
 
                 const double body1CosineCoefficient = cosineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
                 const double body1SineCoefficient = sineCoefficientsOfBody1( degreeOfBody1, orderOfBody1 );
@@ -1396,35 +1651,17 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
 
                     const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
                     const Eigen::Vector2d scalarBasisFunctionValues = detail::computeCurrentScalarBasisFunctionValues(
-                            sphericalHarmonicsCache, currentPreMultiplier_, equatorialRadiusRatioPower, totalDegree, totalOrder );
-                    const Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients =
-                            detail::computeCurrentBodyFixedBasisFunctionGradients(
-                                    currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
-                                    sphericalHarmonicsCache,
-                                    currentCosineOfLatitude_,
-                                    currentPreMultiplier_,
-                                    equatorialRadiusRatioPower,
-                                    totalDegree,
-                                    totalOrder );
+                            sphericalHarmonicsCache, body2SpinPreMultiplier, equatorialRadiusRatioPower, totalDegree, totalOrder );
 
                     const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
                     const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
                     const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
-                    const double multiplier = effectiveMutualPotentialField_->getMultiplier(
-                            degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
-
-                    const int signedEffectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
-                            degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
-                    const Eigen::Vector2d partialOfTransformedCoefficients =
-                            ( Eigen::Vector2d( ) <<
-                              partialOfTransformedCosineCoefficientsBody2( degreeOfBody2, std::abs( signedOrderOfBody2 ) ),
-                              partialOfTransformedSineCoefficientsBody2( degreeOfBody2, std::abs( signedOrderOfBody2 ) ) )
-                                    .finished( );
-                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( quaternionIndex ) +=
-                            bodyFixedBasisFunctionGradients *
-                            ( accelerationPartial_->getCurrentEffectiveCoefficientsWrtTransformedBody2Coefficients( ).at(
-                                      signedEffectiveIndex ) *
-                              partialOfTransformedCoefficients );
+                    const double multiplier = gravitation::getMutualPotentialEffectiveCoefficientMultiplier(
+                            degreeOfBody1,
+                            signedOrderOfBody1,
+                            degreeOfBody2,
+                            signedOrderOfBody2,
+                            accelerationModel_->getAreCoefficientsNormalized( ) );
 
                     Eigen::Vector3d partialOfTransformedAngularMomentumCosineCoefficientsBody2 = Eigen::Vector3d::Zero( );
                     Eigen::Vector3d partialOfTransformedAngularMomentumSineCoefficientsBody2 = Eigen::Vector3d::Zero( );
