@@ -91,14 +91,12 @@ jobs:
            activate-environment: tudat
            auto-activate-base: false
 
-
-    - name: Get date
-      # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
-      # GitHub cache action doucmentation recommends refreshing the cache every 24 hours to avoid inconsistencies of package versions between the CI pipeline and local installations. This is ensured by appending the date to the cache key.See https://github.com/marketplace/actions/setup-miniconda#caching-environments for more detail.
-      id: get-date
-      run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
-      shell: bash
-
+    # - name: Get date
+    #   # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
+    #   # GitHub cache action doucmentation recommends refreshing the cache every 24 hours to avoid inconsistencies of package versions between the CI pipeline and local installations. This is ensured by appending the date to the cache key.See https://github.com/marketplace/actions/setup-miniconda#caching-environments for more detail.
+    #   id: get-date
+    #   shell: bash
+    #   run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
 
     # - name: Cache conda environment
     #   # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
@@ -141,13 +139,11 @@ jobs:
     #   if: runner.os == 'Windows' && steps.cache.outputs.cache-hit == 'true'
     #   run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
-
-    #- name: Restore cached compilation results
-    #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
-    #  uses: hendrikmuhs/ccache-action@v1.2.12
-    #  with:
-    #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
-
+    # - name: Restore cached compilation results
+    #   # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
+    #   uses: hendrikmuhs/ccache-action@v1.2.12
+    #   with:
+    #     key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
