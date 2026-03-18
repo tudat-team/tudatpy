@@ -29,6 +29,7 @@ namespace acceleration_partials
 namespace detail
 {
 
+//! Derivative of body-fixed-to-inertial rotation matrix w.r.t quaternion components.
 std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
         const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame )
 {
@@ -45,6 +46,7 @@ std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatri
     return derivativeArray;
 }
 
+//! Left quaternion multiplication matrix.
 Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
 {
     Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
@@ -56,6 +58,7 @@ Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& qu
     return multiplicationMatrix;
 }
 
+//! Right quaternion multiplication matrix.
 Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
 {
     Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
@@ -67,6 +70,10 @@ Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& q
     return multiplicationMatrix;
 }
 
+//! Derivatives of l=1 Wigner D-matrix entries w.r.t relative quaternion.
+/*!
+ * Uses the Cayley-Klein representation from Dirkx et al. (2019), Sect. 2.3.
+ */
 std::array< Eigen::MatrixXcd, 4 > computeDerivativeOfDegreeOneWignerDMatrixWrtRelativeQuaternion(
         const Eigen::Vector4d& relativeQuaternionVector )
 {
@@ -135,6 +142,7 @@ std::array< Eigen::MatrixXcd, 4 > computeDerivativeOfDegreeOneWignerDMatrixWrtRe
     return derivatives;
 }
 
+//! Wigner-D recursion coefficient for k-1 term.
 double getWignerRecursionCoefficientMinusOne( const int degree, const int rowIndex, const int columnIndex )
 {
     const int orderM = rowIndex - degree;
@@ -144,6 +152,7 @@ double getWignerRecursionCoefficientMinusOne( const int degree, const int rowInd
             static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
 }
 
+//! Wigner-D recursion coefficient for k term.
 double getWignerRecursionCoefficientZero( const int degree, const int rowIndex, const int columnIndex )
 {
     const int orderM = rowIndex - degree;
@@ -153,6 +162,7 @@ double getWignerRecursionCoefficientZero( const int degree, const int rowIndex, 
             static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
 }
 
+//! Wigner-D recursion coefficient for k+1 term.
 double getWignerRecursionCoefficientOne( const int degree, const int rowIndex, const int columnIndex )
 {
     const int orderM = rowIndex - degree;
@@ -162,6 +172,11 @@ double getWignerRecursionCoefficientOne( const int degree, const int rowIndex, c
             static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
 }
 
+//! Compute derivatives of all required Wigner D matrices w.r.t relative quaternion components.
+/*!
+ * Provides linearized rotation terms used to differentiate transformed coefficients in the torque model
+ * (Dirkx et al. (2019), coefficient transformation path for Eqs. (47)-(49)).
+ */
 void computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
         const Eigen::Quaterniond& relativeRotationFromBody2ToBody1,
         const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
@@ -270,6 +285,11 @@ void computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
 
 }
 
+//! Evaluate scalar basis values multiplying coefficient terms in torque summations.
+/*!
+ * Returns the cosine/sine scalar factors corresponding to one Eq. (49)-style basis term,
+ * used in Eq. (67) torque accumulation.
+ */
 Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
         const double preMultiplier,
@@ -280,15 +300,21 @@ Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
     Eigen::Vector2d scalarBasisFunctionValues = Eigen::Vector2d::Zero( );
     const double legendrePolynomial =
             sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, totalOrder );
+    // Eq. (49): cosine/sine scalar basis terms for one (l,m) contribution.
     scalarBasisFunctionValues( 0 ) =
             preMultiplier * equatorialRadiusRatioPower * legendrePolynomial *
             sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder );
     scalarBasisFunctionValues( 1 ) =
             preMultiplier * equatorialRadiusRatioPower * legendrePolynomial *
             sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder );
+    // Eq. (67): these scalar terms multiply effective angular-momentum coefficients in torque accumulation.
     return scalarBasisFunctionValues;
 }
 
+//! Evaluate Cartesian gradients of cosine/sine basis functions for one (l,m) term.
+/*!
+ * Computes \partial/\partial r of Eq. (49) basis terms, used in Eq. (68)-based torque partials.
+ */
 Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
         const Eigen::Vector3d& bodyFixedRelativePosition,
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
@@ -304,6 +330,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
             sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder );
 
     Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients = Eigen::Matrix< double, 3, 2 >::Zero( );
+    // Eq. (49): gradient of cosine basis channel.
     bodyFixedBasisFunctionGradients.col( 0 ) =
             coordinate_conversions::convertSphericalToCartesianGradient(
                     basic_mathematics::computePotentialGradient(
@@ -320,6 +347,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
                             legendrePolynomial,
                             legendrePolynomialDerivative ),
                     bodyFixedRelativePosition );
+    // Eq. (49): gradient of sine basis channel.
     bodyFixedBasisFunctionGradients.col( 1 ) =
             coordinate_conversions::convertSphericalToCartesianGradient(
                     basic_mathematics::computePotentialGradient(
@@ -336,11 +364,17 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
                             legendrePolynomial,
                             legendrePolynomialDerivative ),
                     bodyFixedRelativePosition );
+    // Eq. (68): these basis gradients provide \partial V/\partial r terms entering torque partials.
     return bodyFixedBasisFunctionGradients;
 }
 
 }  // namespace detail
 
+//! Constructor.
+/*!
+ * Initializes analytical dependencies and scratch buffers for full two-body torque partials
+ * consistent with the full model path (Eqs. (60), (67), (68)-(69)).
+ */
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarmonicGravitationalTorquePartial(
         const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
         const std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial,
@@ -388,6 +422,9 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     }
 
     body2TorqueCombinationsToUse_ = gravitation::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
+    // Eq. (67): precompute the combination set used in body-2 spin torque summations.
+    // Eqs. (60), (68), and (69): this object stores the dependencies used later in update( )
+    // to evaluate body-2 spin torque, total torque coupling, and frame/body mapping derivatives.
 
     const Eigen::MatrixXd& transformedCosineCoefficients =
             effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
@@ -409,6 +446,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
             transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
 }
 
+//! No scalar parameter partials are implemented for this model.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > )
@@ -416,6 +454,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
     return std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 }
 
+//! Return vector-parameter partial functions for SH coefficient blocks of either body.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
@@ -501,6 +540,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
     return partialFunction;
 }
 
+//! Insert cached torque partial w.r.t. quaternion of body undergoing torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtOrientationOfAcceleratedBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const bool addContribution,
@@ -517,6 +557,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtOrientationOfAcc
     }
 }
 
+//! Insert cached torque partial w.r.t. quaternion of body exerting torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtOrientationOfAcceleratingBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const bool addContribution,
@@ -533,6 +574,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtOrientationOfAcc
     }
 }
 
+//! Check whether this torque partial depends on an additional translational state.
 bool FullTwoBodySphericalHarmonicGravitationalTorquePartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
         const std::pair< std::string, std::string >& stateReferencePoint,
         const propagators::IntegratedStateType integratedStateType )
@@ -541,6 +583,7 @@ bool FullTwoBodySphericalHarmonicGravitationalTorquePartial::isStateDerivativeDe
              ( stateReferencePoint.first == bodyUndergoingTorque_ || stateReferencePoint.first == bodyExertingTorque_ ) );
 }
 
+//! Insert cached partial w.r.t. additional translational state.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const std::pair< std::string, std::string >& stateReferencePoint,
@@ -559,6 +602,10 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtNonRotationalSta
     }
 }
 
+//! Accumulate partial of body-2 spin torque w.r.t. one body-1 coefficient.
+/*!
+ * Differentiates the Eq. (67) coefficient factors while keeping transformed body-2 terms fixed.
+ */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorquePartialWrtBody1Coefficient(
         Eigen::Vector3d& partial,
         const int degree,
@@ -645,10 +692,15 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             partial += partialOfEffectiveAngularMomentumCosineCoefficients * scalarBasisFunctionValues( 0 ) +
                     partialOfEffectiveAngularMomentumSineCoefficients * scalarBasisFunctionValues( 1 );
+            // Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-1 coefficient.
         }
     }
 }
 
+//! Accumulate partial of body-2 spin torque w.r.t. one body-2 coefficient.
+/*!
+ * Applies chain rule through coefficient transformation and \hat{J}-mapped coefficients in Eq. (67).
+ */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorquePartialWrtBody2Coefficient(
         Eigen::Vector3d& partial,
         const int degree,
@@ -754,10 +806,12 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             partial += partialOfEffectiveAngularMomentumCosineCoefficients * scalarBasisFunctionValues( 0 ) +
                     partialOfEffectiveAngularMomentumSineCoefficients * scalarBasisFunctionValues( 1 );
+            // Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-2 coefficient.
         }
     }
 }
 
+//! Partial w.r.t. cosine coefficient block of body undergoing torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
         Eigen::MatrixXd& partialMatrix,
         const std::vector< std::pair< int, int > >& blockIndices )
@@ -841,6 +895,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
     }
 }
 
+//! Partial w.r.t. sine coefficient block of body undergoing torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
         Eigen::MatrixXd& partialMatrix,
         const std::vector< std::pair< int, int > >& blockIndices )
@@ -926,6 +981,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
     }
 }
 
+//! Partial w.r.t. cosine coefficient block of body exerting torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque(
         Eigen::MatrixXd& partialMatrix,
         const std::vector< std::pair< int, int > >& blockIndices )
@@ -1028,6 +1084,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
     }
 }
 
+//! Partial w.r.t. sine coefficient block of body exerting torque.
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque(
         Eigen::MatrixXd& partialMatrix,
         const std::vector< std::pair< int, int > >& blockIndices )
@@ -1130,13 +1187,20 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
     }
 }
 
+//! Update all analytical partial blocks for the current epoch.
+/*!
+ * Computes derivatives of torque assembled from Eq. (67) and Eq. (68), including dependence on relative
+ * position and relative orientation (through transformed coefficients and Wigner-D derivatives).
+ */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
     {
+        // Step 1: synchronize nominal torque/acceleration states.
         torqueModel_->updateMembers( currentTime );
         accelerationPartial_->update( currentTime );
 
+        // Step 2: cache current frames, relative geometry, transformed coefficients and \hat{J}-mapped terms.
         currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_ =
                 accelerationModel_->getCurrentRotationFromInertialToBody1( ).toRotationMatrix( );
         currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_ =
@@ -1181,6 +1245,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
 
         currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_.setZero( );
 
+        // Step 3: compute \partial M_{2,spin}/\partial r in body-1 frame from Eq. (67).
         for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
         {
             const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
@@ -1259,10 +1324,12 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                 linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ ) *
                         accelerationPartial_->getCurrentBodyFixedPartialWrtPosition( ) -
                 linear_algebra::getCrossProductMatrix( currentMutualPotentialGradientInBodyFixedFrameOfBodyUndergoingTorque_ );
+        // Eq. (68): \partial (r x \nabla V) / \partial r contribution to the torque position Jacobian.
         const Eigen::Matrix3d totalTorquePartialWrtBodyFixedRelativePosition =
                 currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_ -
                 bodyFixedMutualPotentialTorquePartialWrtBodyFixedRelativePosition;
 
+        // Step 4: map position partials to inertial translational states.
         currentPartialWrtPositionOfBodyUndergoingTorque_ =
                 totalTorquePartialWrtBodyFixedRelativePosition *
                 currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_;
@@ -1296,6 +1363,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                 effectiveMutualPotentialField_->getTransformationCache( )->getWignerDMatricesCache( ),
                 derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_ );
 
+        // Step 5: compute derivatives of body-2 spin torque and potential gradient w.r.t relative quaternion.
         std::array< Eigen::Vector3d, 4 > partialOfBody2SpinTorqueWrtRelativeQuaternion;
         std::array< Eigen::Vector3d, 4 > partialOfMutualPotentialGradientWrtRelativeQuaternion;
         for( int quaternionIndex = 0; quaternionIndex < 4; quaternionIndex++ )

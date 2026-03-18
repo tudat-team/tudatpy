@@ -61,6 +61,8 @@ double getGammaCoefficientForMutualForcePotential(
 double getMutualPotentialEffectiveCoefficientMultiplier(
         const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized )
 {
+    // Implements the cross-body scaling in the effective coefficients of Dirkx et al. (2019), Eqs. (47)-(48),
+    // including sigma_m sign factors from Eq. (22).
     double multiplier;
     if( areCoefficientsNormalized )
     {
@@ -181,8 +183,13 @@ double computeMutualForcePotential(
     return potential * effectiveGravitationalParameterOfBody1 / radius;
 }
 
-//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
-//! geodesy-normalization.
+//! Compute full two-body mutual acceleration for normalized coefficients.
+/*!
+ * Evaluates the gradient of the effective potential in the body-1 frame by combining:
+ * - effective coefficients from Dirkx et al. (2019), Eqs. (47)-(48);
+ * - one-body-like potential summation form, Eq. (49);
+ * - translational equation usage as Cartesian potential gradient, Eq. (55).
+ */
 Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBody,
@@ -196,7 +203,6 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const std::vector< double > radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
-//    std::cout<<"Computing acceleration: "<<std::endl;
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
 
@@ -247,8 +253,8 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     double preMultiplier = gravitationalParameterOfBody /
             (  sphericalpositionOfBodySubjectToAcceleration( 0 ) );
 
+    // Cache P_lm and dP_lm/dphi up to the requested evaluation degree for efficient Eq. (55) accumulation.
     std::vector< std::pair< double, double > > legendreTerms;
-
     legendreTerms.resize( ( maximumEvaluationDegree + 1 ) * ( maximumEvaluationDegree + 1 ) );
     for( unsigned int i = 0; i <= maximumEvaluationDegree; i++ )
     {
@@ -271,7 +277,8 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     }
 
 
-    // Loop through all degrees.
+    // Sum contributions of each selected (l1,m1,l2,m2) pair.
+    // For each pair, expand to the required signed-order combinations entering Eq. (49).
     std::pair< double, double > currentTerms;
     for ( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
@@ -284,6 +291,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 
         equatorialRadiusRatioPower = radius1Powers[ degreeOfBody1 ] * radius2Powers[ degreeOfBody2 ];
 
+        // Radius factors correspond to the (R1/r)^l1 (R2/r)^l2 scaling in Dirkx Eq. (49), substitution Eq. (44).
         for( int j = 0; j < 4; j++ )
         {
             int signedOrderOfBody1 = 0;
@@ -293,14 +301,6 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
             if( computeTerm )
             {
                 const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-//                std::cout<<"Computing  "<<j<<" "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<" "<<
-//                           sphericalGradient.transpose( )<<" "<<
-//                           sphericalpositionOfBodySubjectToAcceleration.transpose( )<<" "<<preMultiplier<<" "<<
-//                           totalDegree<<" "<<totalOrder<<" "<<
-//                           effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-//                           effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-//                           currentTerms.first<<" "<<currentTerms.second
-//                        <<std::endl;
 
                 currentTerms = legendreTerms.at( totalDegree + ( maximumEvaluationDegree + 1 ) * totalOrder );
                 const double effectiveCosineCoefficient = effectiveCosineCoefficientFunction(
@@ -308,7 +308,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                 const double effectiveSineCoefficient = effectiveSineCoefficientFunction(
                             degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
 
-                // Compute the potential gradient of a single spherical harmonic term.
+                // Compute and accumulate one term of the Eq. (55) gradient using effective coefficients from Eqs. (47)-(48).
                 const Eigen::Vector3d termContribution = basic_mathematics::computePotentialGradient(
                             sphericalpositionOfBodySubjectToAcceleration( 0 ),
                             equatorialRadiusRatioPower,
@@ -336,8 +336,11 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                 sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
-//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
-//! geodesy-normalization.
+//! Compute full two-body mutual acceleration for unnormalized coefficients.
+/*!
+ * Same flow as computeGeodesyNormalizedMutualGravitationalAccelerationSum, but using unnormalized Legendre
+ * polynomials/derivatives.
+ */
 Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBody,
@@ -531,16 +534,23 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
 }
 
 
+//! Compute one effective coefficient pair (C_eff,S_eff) for a signed (m1,m2) combination.
+/*!
+ * Implements the algebraic combinations used in Dirkx et al. (2019), Eqs. (47)-(48), including signed-order
+ * handling and precomputed multipliers.
+ */
 void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients(
         const int degree1, const int order1, const int degree2, const int order2,
         const int effectiveIndex,
         double& cosineCoefficient, double& sineCoefficient )
 {
+    // Eq. (47): effective cosine coefficient combination in terms of body-1 and transformed body-2 coefficients.
     cosineCoefficient = ( cosineCoefficientsOfBody1_( degree1, std::abs( order1 ) ) *
                           transformedCosineCoefficientsOfBody2_( degree2, std::abs( order2 ) ) -
                           ( ( order1 < 0 ) ? ( -1.0 ) : ( 1.0 ) ) * ( ( order2 < 0 ) ? ( -1.0 ) : ( 1.0 ) )  *
                           sineCoefficientsOfBody1_( degree1, std::abs( order1 ) ) *
                           transformedSineCoefficientsOfBody2_( degree2, std::abs( order2 ) ) );
+    // Eq. (48): effective sine coefficient combination with signed-order terms.
     sineCoefficient = ( ( ( order2 < 0 ) ? ( -1.0 ) : ( 1.0 ) ) *
                         cosineCoefficientsOfBody1_( degree1, std::abs( order1 ) ) *
                         transformedSineCoefficientsOfBody2_( degree2, std::abs( order2 ) ) +
@@ -548,14 +558,22 @@ void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients(
                         sineCoefficientsOfBody1_( degree1, std::abs( order1 ) ) *
                         transformedCosineCoefficientsOfBody2_( degree2, std::abs( order2 ) ) );
 
+    // Eqs. (47)-(48) with Eq. (22) sign conventions captured in cached multipliers_.
     double currentMultiplier = multipliers_.at( effectiveIndex );
     cosineCoefficient *= currentMultiplier;
     sineCoefficient *= ( ( ( order1 +  order2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) ) * currentMultiplier;
 }
 
+//! Update transformed body-2 coefficients and rebuild effective coefficients for current relative orientation.
+/*!
+ * Applies the F2->F1 spherical-harmonic rotation and then evaluates effective coefficients used by the
+ * full two-body potential/acceleration evaluation (Dirkx et al. (2019), Eqs. (47)-(49)).
+ */
 void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients(
         const Eigen::Quaterniond coefficientRotationQuaterion )
 {
+    // Refresh current body-fixed fields and transform body-2 coefficients from F2 to F1.
+    // This is the frame transformation used before combining terms into effective coefficients (Dirkx Eq. (47)-(48)).
     cosineCoefficientsOfBody1_ = cosineCoefficientFunctionOfBody1_( );
     sineCoefficientsOfBody1_ = sineCoefficientFunctionOfBody1_( );
     cosineCoefficientsOfBody2_ = cosineCoefficientFunctionOfBody2_( );
@@ -569,6 +587,7 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
                 transformedSineCoefficientsOfBody2_,
                 areCoefficientsNormalized_ );
 
+    // Populate the effective coefficients entering the Eq. (49) potential/acceleration summation.
     updateEffectiveMutualPotential( );
 }
 
@@ -582,6 +601,11 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
     updateEffectiveMutualPotential( );
 }
 
+//! Update all effective coefficient entries used by the full two-body potential/acceleration.
+/*!
+ * Iterates over selected (l1,m1,l2,m2) combinations and populates all valid signed-order cases that contribute
+ * to the Eq. (49) potential summation in Dirkx et al. (2019).
+ */
 void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
 {
 
@@ -592,6 +616,7 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
         const int degreeOfBody2 = std::get<2>( coefficientCombinationsToUse_.at( i ) );
         const int orderOfBody2 = std::get<3>( coefficientCombinationsToUse_.at( i ) );
 
+        // Expand to signed-order combinations using centralized helper to keep acceleration/potential logic consistent.
         for( int j = 0; j < 4; j++ )
         {
             int signedOrderOfBody1 = 0;
@@ -652,6 +677,11 @@ void EffectiveMutualSphericalHarmonicsField::computePartialsOfFullCoefficientsWr
     }
 }
 
+//! Precompute constant scaling multipliers for each effective coefficient entry.
+/*!
+ * Stores the degree/order dependent scalar factors of Dirkx et al. (2019), Eqs. (47)-(48), including Eq. (22)
+ * sign conventions. These factors are independent of current orientation and can be cached.
+ */
 void EffectiveMutualSphericalHarmonicsField::initializeMultipliers( )
 {
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
@@ -673,6 +703,7 @@ void EffectiveMutualSphericalHarmonicsField::initializeMultipliers( )
 
             const int effectiveIndex =
                     getEffectiveIndex( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+            // Cache Eq. (47)-(48) prefactors (including Eq. (22) sign behavior) per signed-order combination.
             multipliers_[ effectiveIndex ] = getMutualPotentialEffectiveCoefficientMultiplier(
                     degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2, areCoefficientsNormalized_ );
         }

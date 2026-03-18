@@ -23,11 +23,18 @@ namespace tudat
 namespace gravitation
 {
 
+//! Full two-body mutual spherical-harmonic acceleration model.
+/*!
+ * Computes the translational acceleration from the mutual potential using the effective one-body formulation
+ * of Dirkx et al. (2019), in particular the effective coefficient mapping (Eqs. (47)-(48)) and potential
+ * summation (Eq. (49)), evaluated as a Cartesian gradient for the translational equations (Eq. (55)).
+ */
 class FullTwoBodySphericalHarmonicAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 
 public:
 
+    //! Constructor for the full two-body mutual spherical-harmonic acceleration model.
     FullTwoBodySphericalHarmonicAcceleration(
             const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
             const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
@@ -44,89 +51,107 @@ public:
             const bool useCentraBodyFrame,
             const bool areCoefficientsNormalized = 1 );
 
+    //! Update current acceleration and intermediate states for the provided epoch.
     void updateMembers( const double currentTime = TUDAT_NAN );
 
+    //! Return the most recently computed acceleration.
     Eigen::Vector3d getAcceleration( )
     {
         return currentAcceleration_;
     }
 
 
+    //! Return whether the output acceleration is provided in body-1-fixed coordinates.
     bool getUseCentraBodyFrame( )
     {
         return useCentraBodyFrame_;
     }
 
+    //! Return the current relative position (body 1 minus body 2) in inertial coordinates.
     Eigen::Vector3d getCurrentRelativePosition( )
     {
         return currentRelativePosition_;
     }
 
+    //! Return the current relative position expressed in the body-1-fixed frame.
     Eigen::Vector3d getCurrentBodyFixedRelativePosition( )
     {
         return currentBodyFixedRelativePosition_;
     }
 
+    //! Return the current mutual potential gradient in body-1-fixed Cartesian coordinates.
     Eigen::Vector3d getMutualPotentialGradient( )
     {
         return mutualPotentialGradient_;
     }
 
+    //! Return the current inertial-to-body-1 quaternion.
     Eigen::Quaterniond getCurrentRotationFromInertialToBody1( )
     {
         return currentRotationFromInertialToBody1_;
     }
 
+    //! Return the current body-2-to-body-1 quaternion.
     Eigen::Quaterniond getCurrentRotationFromBody2ToBody1( )
     {
         return currentRotationFromBody2ToBody1_;
     }
 
+    //! Return the effective mutual potential field object used by this model.
     std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > getEffectiveMutualPotentialField( )
     {
         return effectiveMutualPotentialField_;
     }
 
+    //! Return the spherical harmonics cache used during acceleration evaluation.
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
     {
         return sphericalHarmonicsCache_;
     }
 
+    //! Return the reference radius of body 1.
     double getEquatorialRadiusOfBody1( )
     {
         return equatorialRadiusOfBody1_;
     }
 
+    //! Return the reference radius of body 2.
     double getEquatorialRadiusOfBody2( )
     {
         return equatorialRadiusOfBody2_;
     }
 
+    //! Return whether input/output coefficients are geodesy normalized.
     bool getAreCoefficientsNormalized( )
     {
         return areCoefficientsNormalized_;
     }
 
+    //! Return the current effective gravitational parameter.
     double getCurrentGravitationalParameter( )
     {
         return gravitationalParameterFunction_( );
     }
 
+    //! Return precomputed power (R1/r)^index for the current state.
     double getRadius1Power( const int index )
     {
         return radius1Powers_.at( index );
     }
 
+    //! Return precomputed power (R2/r)^index for the current state.
     double getRadius2Power( const int index )
     {
         return radius2Powers_.at( index );
     }
 
+    //! Return full list of precomputed powers (R1/r)^l.
     const std::vector< double >& getRadius1Powers( ) const
     {
         return radius1Powers_;
     }
 
+    //! Return full list of precomputed powers (R2/r)^l.
     const std::vector< double >& getRadius2Powers( ) const
     {
         return radius2Powers_;

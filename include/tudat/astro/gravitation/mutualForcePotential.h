@@ -103,8 +103,12 @@ double computeMutualForcePotential(
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
-//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
-//! geodesy-normalization.
+//! Compute full two-body mutual acceleration for normalized coefficients.
+/*!
+ * Evaluates the mutual-potential gradient using the effective one-body mapping from Dirkx et al. (2019),
+ * combining effective coefficients (Eqs. (47)-(48)) in the potential form of Eq. (49), as used in the
+ * translational equation Eq. (55).
+ */
 Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBody,
@@ -120,8 +124,10 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const std::vector< double > radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
-//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
-//! geodesy-normalization.
+//! Compute full two-body mutual acceleration for unnormalized coefficients.
+/*!
+ * Unnormalized counterpart of computeGeodesyNormalizedMutualGravitationalAccelerationSum.
+ */
 Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBody,
@@ -143,9 +149,17 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
 
 inline double getSigmaSignFunction( const int order )
 {
+    // Implements sigma_m from Dirkx et al. (2019), Eq. (22), for signed-order handling.
     return ( ( order >= 0 ) ? ( 1.0 ) : ( ( std::abs( order ) % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) ) );
 }
 
+//! Map a compact sign-combination case index to the signed (m1,m2) pair.
+/*!
+ * Generates the four signed-order combinations needed when the coefficient combination list stores non-negative
+ * orders only: (+m1,+m2), (-m1,+m2), (+m1,-m2), (-m1,-m2). Terms that are not distinct for m=0 are skipped.
+ * This centralizes the signed-order branching used by the full two-body acceleration/potential evaluation in the
+ * Eq. (49) summation and the Eq. (47)-(48) effective-coefficient construction.
+ */
 inline bool getSignedOrdersForCombinationCase(
         const int combinationCase,
         const int orderOfBody1,
@@ -153,6 +167,8 @@ inline bool getSignedOrdersForCombinationCase(
         int& signedOrderOfBody1,
         int& signedOrderOfBody2 )
 {
+    // This switch enumerates the signed-order variants needed by the Eq. (49) summation
+    // and the effective-coefficient combinations in Eqs. (47)-(48).
     switch( combinationCase )
     {
     case 0:

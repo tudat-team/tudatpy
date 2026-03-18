@@ -22,10 +22,15 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Class for calculating partial derivatives of a mutual extended-body spherical harmonic acceleration.
+//! Class for analytical partial derivatives of the full two-body spherical-harmonic acceleration.
+/*!
+ * Evaluates derivatives of the acceleration model based on Dirkx et al. (2019) effective-coefficient
+ * formulation (Eqs. (47)-(49)) and translational dynamics expression (Eq. (55)).
+ */
 class FullTwoBodySphericalHarmonicsGravityPartial : public AccelerationPartial
 {
 public:
+    //! Constructor.
     FullTwoBodySphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
@@ -33,8 +38,10 @@ public:
 
     ~FullTwoBodySphericalHarmonicsGravityPartial( ) { }
 
+    //! Update all cached partial terms to the current model state.
     void update( const double currentTime = TUDAT_NAN ) override;
 
+    //! Insert partial w.r.t. position of body undergoing acceleration.
     void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1,
                                        const int startRow = 0,
@@ -50,6 +57,7 @@ public:
         }
     }
 
+    //! Insert partial w.r.t. velocity of body undergoing acceleration (zero for this conservative model).
     void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1,
                                        const int startRow = 0,
@@ -65,6 +73,7 @@ public:
         }
     }
 
+    //! Insert partial w.r.t. position of body exerting acceleration.
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1,
                                         const int startRow = 0,
@@ -80,6 +89,7 @@ public:
         }
     }
 
+    //! Insert partial w.r.t. velocity of body exerting acceleration (zero for this conservative model).
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1,
                                         const int startRow = 0,
@@ -95,9 +105,11 @@ public:
         }
     }
 
+    //! Retrieve partial function for scalar parameters (none implemented for this model).
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter ) override;
 
+    //! Retrieve partial function for vector parameters (spherical-harmonic blocks).
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter ) override;
 
@@ -127,6 +139,7 @@ public:
         return coefficientCombinationsToUse_;
     }
 
+    //! Convenience wrapper used by torque partials to get transformed body-2 coefficient derivatives.
     void calculateCurrentTransformedBody2CoefficientPartials(
             const int degree,
             const int order,
@@ -139,10 +152,13 @@ public:
     }
 
 private:
+    //! Update partial of acceleration w.r.t. Cartesian relative position.
     void updateCurrentPositionPartial( );
 
+    //! Update partials of acceleration w.r.t. effective coefficients.
     void updateCurrentPartialsWrtEffectiveCoefficients( );
 
+    //! Update derivatives of transformed body-2 coefficients w.r.t. a single original body-2 coefficient.
     void updateCurrentTransformedBody2CoefficientPartials(
             const int degree,
             const int order,
@@ -150,18 +166,22 @@ private:
             Eigen::MatrixXd& transformedCosinePartials,
             Eigen::MatrixXd& transformedSinePartials );
 
+    //! Partial w.r.t. cosine coefficient block of body 1.
     void wrtCosineCoefficientBlockOfBody1(
             const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. sine coefficient block of body 1.
     void wrtSineCoefficientBlockOfBody1(
             const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. cosine coefficient block of body 2.
     void wrtCosineCoefficientBlockOfBody2(
             const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. sine coefficient block of body 2.
     void wrtSineCoefficientBlockOfBody2(
             const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialMatrix );

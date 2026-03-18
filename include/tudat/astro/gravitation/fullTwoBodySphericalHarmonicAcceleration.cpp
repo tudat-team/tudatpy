@@ -34,6 +34,8 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
     useCentraBodyFrame_( useCentraBodyFrame ),
     areCoefficientsNormalized_( areCoefficientsNormalized )
 {
+    // Determine the maximum effective degree/order l,m used in the Eq. (49) summation of Dirkx et al. (2019),
+    // with l=l1+l2 and m=|m1+m2| for each selected (l1,m1,l2,m2) interaction tuple.
     maximumDegree_ = 0;
     maximumOrder_ = 0;
 
@@ -56,10 +58,12 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
         }
     }
 
-    // The geodesy-normalized acceleration evaluation precomputes P_lm up to m=l+1 for all l<=maximumDegree_.
-    // Ensure the Legendre cache order budget covers this, even when selected interaction orders are low (e.g. C20-only).
+    // The geodesy-normalized acceleration evaluation precomputes P_lm and dP_lm/dphi terms used in Eq. (55),
+    // and requires access up to m=l+1 for each l due to derivative evaluation.
     maximumOrder_ = std::max( maximumOrder_, maximumDegree_ );
 
+    // Initialize cache and effective-field object that converts two-body coefficients to effective one-body
+    // coefficients (Dirkx et al. (2019), Eqs. (47)-(48)).
     sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
                 maximumDegree_ + 1, maximumOrder_ + 1 );
     effectiveMutualPotentialField_ =  std::make_shared< EffectiveMutualSphericalHarmonicsField >(
@@ -90,16 +94,21 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
 {
     if( !( currentTime == currentTime_ ) )
     {
+        // Step 1: update current frame rotations.
         currentRotationFromInertialToBody1_ = toLocalFrameOfBody1Transformation_( );
         currentRotationFromBody2ToBody1_ =
                 currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
 
+        // Step 2: compute relative state and express it in body-1 frame, in which Eq. (49) is evaluated.
         currentRelativePosition_ = positionOfBody1Function_( ) - positionOfBody2Function_( );
         currentBodyFixedRelativePosition_ =
                 currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
 
+        // Step 3: transform body-2 coefficients to frame F1 and build effective coefficients used in Eq. (49)
+        // through the Eq. (47)-(48) mapping.
         effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
 
+        // Step 4: precompute (R1/r)^l1 and (R2/r)^l2 factors from the radius substitutions in Dirkx Eq. (44).
         double currentDistance = currentRelativePosition_.norm( );
         for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
         {
@@ -116,6 +125,8 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
 
         if( areCoefficientsNormalized_ )
         {
+            // Step 5a: evaluate the Cartesian gradient of the effective potential in F1 for normalized coefficients.
+            // This applies Eq. (55) with potential terms from Eq. (49).
             mutualPotentialGradient_ = computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                         currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
                         equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
@@ -129,7 +140,8 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
                         sphericalHarmonicsCache_ );
         }
         else
-        {            
+        {
+            // Step 5b: same as above, but for unnormalized coefficients.
             mutualPotentialGradient_ = computeUnnormalizedMutualGravitationalAccelerationSum(
                         currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
                         equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
@@ -137,6 +149,7 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
                         coefficientCombinationsToUse_, sphericalHarmonicsCache_ );
         }
 
+        // Step 6: return acceleration in requested frame.
         if( useCentraBodyFrame_ )
         {
             currentAcceleration_ = mutualPotentialGradient_;
