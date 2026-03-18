@@ -122,12 +122,12 @@ public:
         return radius2Powers_.at( index );
     }
 
-    std::vector< double > getRadius1Powers( )
+    const std::vector< double >& getRadius1Powers( ) const
     {
         return radius1Powers_;
     }
 
-    std::vector< double > getRadius2Powers( )
+    const std::vector< double >& getRadius2Powers( ) const
     {
         return radius2Powers_;
     }

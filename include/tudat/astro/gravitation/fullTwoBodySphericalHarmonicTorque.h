@@ -5,6 +5,7 @@
 #include <complex>
 #include <tuple>
 #include <memory>
+#include <vector>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -19,6 +20,26 @@ namespace tudat
 namespace gravitation
 {
 
+std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getBody2TorqueCombinationsToUse(
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+                coefficientCombinationsToUse );
+
+void computeTransformedAngularMomentumCoefficientsFromWignerMatrices(
+        const Eigen::MatrixXd& cosineCoefficientsBody2,
+        const Eigen::MatrixXd& sineCoefficientsBody2,
+        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
+        const bool areCoefficientsNormalized,
+        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
+
+void computeTransformedAngularMomentumCoefficientsFromWignerCache(
+        const Eigen::MatrixXd& cosineCoefficientsBody2,
+        const Eigen::MatrixXd& sineCoefficientsBody2,
+        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+        const bool areCoefficientsNormalized,
+        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
+
 //! Full two-body mutual spherical-harmonic torque model (independent of the fourth-degree tensor torque model).
 class FullTwoBodySphericalHarmonicTorque: public basic_astrodynamics::TorqueModel
 {
@@ -32,6 +53,7 @@ public:
         acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
     {
         coefficientCombinationsToUse_ = accelerationBetweenBodies_->getEffectiveMutualPotentialField( )->getCoefficientCombinationsToUse( );
+        body2TorqueCombinationsToUse_ = gravitation::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
     }
 
     void updateMembers( const double currentTime = TUDAT_NAN );
@@ -49,7 +71,8 @@ public:
 
 
 
-    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+    getCoefficientCombinationsToUse( ) const
     {
         return coefficientCombinationsToUse_;
     }
@@ -74,18 +97,15 @@ public:
             std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
 
 private:
-    //! Compute \hat{J} D_{m,k}^l in Cartesian basis of frame F1.
-    Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficient(
-            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
-            const int degree,
-            const int orderM,
-            const int orderK );
-
     Eigen::Vector3d currentTorque_;
 
     std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationsToUse_;
+
+    std::array< Eigen::MatrixXd, 3 > transformedCosineCoefficientsBody2AngularMomentum_;
+    std::array< Eigen::MatrixXd, 3 > transformedSineCoefficientsBody2AngularMomentum_;
 
     bool acceleratedBodyIsBody1_;
 

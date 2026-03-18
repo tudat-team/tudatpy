@@ -86,7 +86,7 @@ private:
             Eigen::Vector3d& partial,
             const int degree,
             const int order,
-            const bool wrtCosineCoefficient ) const;
+            const bool wrtCosineCoefficient );
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel_;
     std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial_;
@@ -111,6 +111,20 @@ private:
     Eigen::MatrixXd currentTransformedSineCoefficientsBody2_;
     std::array< Eigen::MatrixXd, 3 > currentTransformedCosineCoefficientsBody2AngularMomentum_;
     std::array< Eigen::MatrixXd, 3 > currentTransformedSineCoefficientsBody2AngularMomentum_;
+
+    Eigen::MatrixXd body2CoefficientBasisCosineScratch_;
+    Eigen::MatrixXd body2CoefficientBasisSineScratch_;
+    Eigen::MatrixXd transformedCosineBody2CoefficientPartialsScratch_;
+    Eigen::MatrixXd transformedSineBody2CoefficientPartialsScratch_;
+    std::array< Eigen::MatrixXd, 3 > transformedCosineCoefficientsBody2AngularMomentumPartialsScratch_;
+    std::array< Eigen::MatrixXd, 3 > transformedSineCoefficientsBody2AngularMomentumPartialsScratch_;
+
+    Eigen::MatrixXd partialOfTransformedCosineCoefficientsBody2Scratch_;
+    Eigen::MatrixXd partialOfTransformedSineCoefficientsBody2Scratch_;
+    std::array< Eigen::MatrixXd, 3 > partialOfTransformedCosineCoefficientsBody2AngularMomentumScratch_;
+    std::array< Eigen::MatrixXd, 3 > partialOfTransformedSineCoefficientsBody2AngularMomentumScratch_;
+    std::array< std::vector< Eigen::MatrixXcd >, 4 > derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_;
+
     double currentDistance_;
     double currentCosineOfLatitude_;
     double currentPreMultiplier_;

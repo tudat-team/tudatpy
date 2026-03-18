@@ -203,6 +203,11 @@ private:
     std::vector< double > currentRadius1Powers_;
 
     std::vector< double > currentRadius2Powers_;
+
+    Eigen::MatrixXd body2BasisCosineCoefficients_;
+    Eigen::MatrixXd body2BasisSineCoefficients_;
+    Eigen::MatrixXd transformedCosineBody2CoefficientPartialsScratch_;
+    Eigen::MatrixXd transformedSineBody2CoefficientPartialsScratch_;
 };
 
 }  // namespace acceleration_partials

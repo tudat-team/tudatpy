@@ -13,11 +13,14 @@ namespace tudat
 namespace gravitation
 {
 
-Eigen::Vector3cd FullTwoBodySphericalHarmonicTorque::computeAngularMomentumOperatorOnWignerCoefficient(
-        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+namespace
+{
+
+Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatrices(
+        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
         const int degree,
-        const int orderM,
-        const int orderK )
+        const int originalOrder,
+        const int newOrder )
 {
     const std::complex< double > imaginaryUnit( 0.0, 1.0 );
     const double inverseSquareRootTwo = 1.0 / std::sqrt( 2.0 );
@@ -28,35 +31,36 @@ Eigen::Vector3cd FullTwoBodySphericalHarmonicTorque::computeAngularMomentumOpera
         {
             return std::complex< double >( 0.0, 0.0 );
         }
-        return wignerCache->getWignerDCoefficient( degree, requestedOrderM, requestedOrderK );
+        return wignerMatrices.at( degree )( requestedOrderM + degree, requestedOrderK + degree );
     };
 
     const double plusScaling = std::sqrt(
-                std::max( 0.0, static_cast< double >(
-                              degree * ( degree + 1 ) - orderM * ( orderM - 1 ) ) ) ) / std::sqrt( 2.0 );
+            std::max( 0.0, static_cast< double >(
+                    degree * ( degree + 1 ) - originalOrder * ( originalOrder - 1 ) ) ) ) / 2.0;
     const double minusScaling = std::sqrt(
-                std::max( 0.0, static_cast< double >(
-                              degree * ( degree + 1 ) - orderM * ( orderM + 1 ) ) ) ) / std::sqrt( 2.0 );
+            std::max( 0.0, static_cast< double >(
+                    degree * ( degree + 1 ) - originalOrder * ( originalOrder + 1 ) ) ) ) / 2.0;
 
     const std::complex< double > angularMomentumPlus =
-            imaginaryUnit * plusScaling * getWignerCoefficient( orderM - 1, orderK );
+            imaginaryUnit * plusScaling * getWignerCoefficient( originalOrder - 1, newOrder );
     const std::complex< double > angularMomentumMinus =
-            imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( orderM + 1, orderK );
+            imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( originalOrder + 1, newOrder );
     const std::complex< double > angularMomentumZero =
-            imaginaryUnit * static_cast< double >( -orderM ) * getWignerCoefficient( orderM, orderK );
+            imaginaryUnit * static_cast< double >( -originalOrder ) * getWignerCoefficient( originalOrder, newOrder );
 
     Eigen::Vector3cd angularMomentumInCartesianBasis;
     angularMomentumInCartesianBasis( 0 ) = ( angularMomentumMinus - angularMomentumPlus ) * inverseSquareRootTwo;
-    angularMomentumInCartesianBasis( 1 ) = imaginaryUnit * ( angularMomentumMinus + angularMomentumPlus ) * inverseSquareRootTwo;
+    angularMomentumInCartesianBasis( 1 ) =
+            imaginaryUnit * ( angularMomentumMinus + angularMomentumPlus ) * inverseSquareRootTwo;
     angularMomentumInCartesianBasis( 2 ) = angularMomentumZero;
-
     return angularMomentumInCartesianBasis;
 }
 
-void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoefficients(
+template< typename AngularMomentumOperatorGetter >
+void computeTransformedAngularMomentumCoefficientsImpl(
         const Eigen::MatrixXd& cosineCoefficientsBody2,
         const Eigen::MatrixXd& sineCoefficientsBody2,
-        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+        AngularMomentumOperatorGetter getAngularMomentumOperator,
         const bool areCoefficientsNormalized,
         std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
         std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
@@ -85,8 +89,7 @@ void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoeffi
                 orderMMultiplier = ( orderM == 0 ? 1.0 : 1.0 / std::sqrt( 2.0 ) );
             }
 
-            const Eigen::Vector3cd orderZeroAngularMomentumD = computeAngularMomentumOperatorOnWignerCoefficient(
-                        wignerCache, degree, orderM, 0 );
+            const Eigen::Vector3cd orderZeroAngularMomentumD = getAngularMomentumOperator( degree, orderM, 0 );
             for( int i = 0; i < 3; i++ )
             {
                 transformedCosineCoefficientsBody2AngularMomentum.at( i )( degree, orderM ) +=
@@ -111,10 +114,8 @@ void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoeffi
                 }
 
                 const double signMultiplier = ( ( ( orderK % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) );
-                const Eigen::Vector3cd positiveOrderAngularMomentumD = computeAngularMomentumOperatorOnWignerCoefficient(
-                            wignerCache, degree, orderM, orderK );
-                const Eigen::Vector3cd negativeOrderAngularMomentumD = computeAngularMomentumOperatorOnWignerCoefficient(
-                            wignerCache, degree, orderM, -orderK );
+                const Eigen::Vector3cd positiveOrderAngularMomentumD = getAngularMomentumOperator( degree, orderM, orderK );
+                const Eigen::Vector3cd negativeOrderAngularMomentumD = getAngularMomentumOperator( degree, orderM, -orderK );
 
                 for( int i = 0; i < 3; i++ )
                 {
@@ -152,6 +153,91 @@ void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoeffi
 
 }
 
+}  // namespace
+
+std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getBody2TorqueCombinationsToUse(
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+                coefficientCombinationsToUse )
+{
+    std::set< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationSet;
+    for( const auto& combination : coefficientCombinationsToUse )
+    {
+        const unsigned int degreeOfBody1ForCombination = std::get< 0 >( combination );
+        const unsigned int orderOfBody1ForCombination = std::get< 1 >( combination );
+        const unsigned int degreeOfBody2ForCombination = std::get< 2 >( combination );
+        for( unsigned int orderOfBody2ForTorque = 0; orderOfBody2ForTorque <= degreeOfBody2ForCombination;
+             orderOfBody2ForTorque++ )
+        {
+            body2TorqueCombinationSet.insert( std::make_tuple(
+                    degreeOfBody1ForCombination,
+                    orderOfBody1ForCombination,
+                    degreeOfBody2ForCombination,
+                    orderOfBody2ForTorque ) );
+        }
+    }
+
+    return std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >(
+            body2TorqueCombinationSet.begin( ), body2TorqueCombinationSet.end( ) );
+}
+
+void computeTransformedAngularMomentumCoefficientsFromWignerMatrices(
+        const Eigen::MatrixXd& cosineCoefficientsBody2,
+        const Eigen::MatrixXd& sineCoefficientsBody2,
+        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
+        const bool areCoefficientsNormalized,
+        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
+{
+    computeTransformedAngularMomentumCoefficientsImpl(
+            cosineCoefficientsBody2,
+            sineCoefficientsBody2,
+            [ &wignerMatrices ]( const int degree, const int originalOrder, const int newOrder )
+            {
+                return computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatrices(
+                        wignerMatrices, degree, originalOrder, newOrder );
+            },
+            areCoefficientsNormalized,
+            transformedCosineCoefficientsBody2AngularMomentum,
+            transformedSineCoefficientsBody2AngularMomentum );
+}
+
+void computeTransformedAngularMomentumCoefficientsFromWignerCache(
+        const Eigen::MatrixXd& cosineCoefficientsBody2,
+        const Eigen::MatrixXd& sineCoefficientsBody2,
+        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+        const bool areCoefficientsNormalized,
+        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
+{
+    computeTransformedAngularMomentumCoefficientsImpl(
+            cosineCoefficientsBody2,
+            sineCoefficientsBody2,
+            [ &wignerCache ]( const int degree, const int originalOrder, const int newOrder )
+            {
+                return wignerCache->getAngularMomentumOperatorOnWignerCoefficient( degree, originalOrder, newOrder );
+            },
+            areCoefficientsNormalized,
+            transformedCosineCoefficientsBody2AngularMomentum,
+            transformedSineCoefficientsBody2AngularMomentum );
+}
+
+void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoefficients(
+        const Eigen::MatrixXd& cosineCoefficientsBody2,
+        const Eigen::MatrixXd& sineCoefficientsBody2,
+        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+        const bool areCoefficientsNormalized,
+        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
+{
+    computeTransformedAngularMomentumCoefficientsFromWignerCache(
+            cosineCoefficientsBody2,
+            sineCoefficientsBody2,
+            wignerCache,
+            areCoefficientsNormalized,
+            transformedCosineCoefficientsBody2AngularMomentum,
+            transformedSineCoefficientsBody2AngularMomentum );
+}
+
 void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
@@ -163,92 +249,45 @@ void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime
         const std::shared_ptr< basic_mathematics::WignerDMatricesCache > wignerCache =
                 effectiveMutualPotentialField->getTransformationCache( )->getWignerDMatricesCache( );
 
-        const Eigen::MatrixXd cosineCoefficientsOfBody1 = effectiveMutualPotentialField->getCosineCoefficientsOfBody1( );
-        const Eigen::MatrixXd sineCoefficientsOfBody1 = effectiveMutualPotentialField->getSineCoefficientsOfBody1( );
-        const Eigen::MatrixXd cosineCoefficientsOfBody2 = effectiveMutualPotentialField->getCosineCoefficientsOfBody2( );
-        const Eigen::MatrixXd sineCoefficientsOfBody2 = effectiveMutualPotentialField->getSineCoefficientsOfBody2( );
-        std::array< Eigen::MatrixXd, 3 > transformedCosineCoefficientsBody2AngularMomentum;
-        std::array< Eigen::MatrixXd, 3 > transformedSineCoefficientsBody2AngularMomentum;
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1 = effectiveMutualPotentialField->getCosineCoefficientsOfBody1( );
+        const Eigen::MatrixXd& sineCoefficientsOfBody1 = effectiveMutualPotentialField->getSineCoefficientsOfBody1( );
+        const Eigen::MatrixXd& cosineCoefficientsOfBody2 = effectiveMutualPotentialField->getCosineCoefficientsOfBody2( );
+        const Eigen::MatrixXd& sineCoefficientsOfBody2 = effectiveMutualPotentialField->getSineCoefficientsOfBody2( );
         computeTransformedAngularMomentumCoefficients(
                     cosineCoefficientsOfBody2,
                     sineCoefficientsOfBody2,
                     wignerCache,
                     accelerationBetweenBodies_->getAreCoefficientsNormalized( ),
-                    transformedCosineCoefficientsBody2AngularMomentum,
-                    transformedSineCoefficientsBody2AngularMomentum );
+                    transformedCosineCoefficientsBody2AngularMomentum_,
+                    transformedSineCoefficientsBody2AngularMomentum_ );
 
         const Eigen::Vector3d bodyFixedRelativePosition = accelerationBetweenBodies_->getCurrentBodyFixedRelativePosition( );
         const double currentDistance = bodyFixedRelativePosition.norm( );
         const double preMultiplier = accelerationBetweenBodies_->getCurrentGravitationalParameter( ) / currentDistance;
 
-        const std::vector< double > radius1Powers = accelerationBetweenBodies_->getRadius1Powers( );
-        const std::vector< double > radius2Powers = accelerationBetweenBodies_->getRadius2Powers( );
+        const std::vector< double >& radius1Powers = accelerationBetweenBodies_->getRadius1Powers( );
+        const std::vector< double >& radius2Powers = accelerationBetweenBodies_->getRadius2Powers( );
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
                 accelerationBetweenBodies_->getSphericalHarmonicsCache( );
 
-        std::set< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationSet;
-        for( const auto& combination : coefficientCombinationsToUse_ )
-        {
-            const unsigned int degreeOfBody1ForCombination = std::get< 0 >( combination );
-            const unsigned int orderOfBody1ForCombination = std::get< 1 >( combination );
-            const unsigned int degreeOfBody2ForCombination = std::get< 2 >( combination );
-            for( unsigned int orderOfBody2ForTorque = 0; orderOfBody2ForTorque <= degreeOfBody2ForCombination; orderOfBody2ForTorque++ )
-            {
-                body2TorqueCombinationSet.insert( std::make_tuple(
-                        degreeOfBody1ForCombination,
-                        orderOfBody1ForCombination,
-                        degreeOfBody2ForCombination,
-                        orderOfBody2ForTorque ) );
-            }
-        }
-        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >
-                body2TorqueCombinationsToUse(
-                    body2TorqueCombinationSet.begin( ),
-                    body2TorqueCombinationSet.end( ) );
-
         Eigen::Vector3d body2TorqueInBodyFixedFrameOfBody1 = Eigen::Vector3d::Zero( );
-        for( unsigned int i = 0; i < body2TorqueCombinationsToUse.size( ); i++ )
+        for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
         {
-            const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse.at( i ) );
-            const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse.at( i ) );
-            const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse.at( i ) );
-            const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse.at( i ) );
+            const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+            const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
 
             const double equatorialRadiusRatioPower =
                     radius1Powers.at( degreeOfBody1 ) * radius2Powers.at( degreeOfBody2 );
             const int totalDegree = degreeOfBody1 + degreeOfBody2;
 
-            for( unsigned int j = 0; j < 4; j++ )
+            for( int j = 0; j < 4; j++ )
             {
-                int signedOrderOfBody1 = orderOfBody1;
-                int signedOrderOfBody2 = orderOfBody2;
-                bool computeTerm = true;
-
-                switch( j )
-                {
-                case 0:
-                    signedOrderOfBody1 = orderOfBody1;
-                    signedOrderOfBody2 = orderOfBody2;
-                    break;
-                case 1:
-                    signedOrderOfBody1 = -orderOfBody1;
-                    signedOrderOfBody2 = orderOfBody2;
-                    computeTerm = ( orderOfBody1 != 0 );
-                    break;
-                case 2:
-                    signedOrderOfBody1 = orderOfBody1;
-                    signedOrderOfBody2 = -orderOfBody2;
-                    computeTerm = ( orderOfBody2 != 0 );
-                    break;
-                case 3:
-                    signedOrderOfBody1 = -orderOfBody1;
-                    signedOrderOfBody2 = -orderOfBody2;
-                    computeTerm = ( orderOfBody1 != 0 && orderOfBody2 != 0 );
-                    break;
-                default:
-                    break;
-                }
-
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                const bool computeTerm = getSignedOrdersForCombinationCase(
+                        j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
                 if( !computeTerm )
                 {
                     continue;
@@ -277,9 +316,11 @@ void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime
                 for( int k = 0; k < 3; k++ )
                 {
                     angularMomentumTransformedCosineCoefficientsBody2( k ) =
-                            transformedCosineCoefficientsBody2AngularMomentum.at( k )( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                            transformedCosineCoefficientsBody2AngularMomentum_.at( k )(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
                     angularMomentumTransformedSineCoefficientsBody2( k ) =
-                            transformedSineCoefficientsBody2AngularMomentum.at( k )( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                            transformedSineCoefficientsBody2AngularMomentum_.at( k )(
+                                degreeOfBody2, std::abs( signedOrderOfBody2 ) );
                 }
 
                 const Eigen::Vector3d effectiveAngularMomentumCosineCoefficients =

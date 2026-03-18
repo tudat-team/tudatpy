@@ -17,7 +17,6 @@
 #include <type_traits>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"

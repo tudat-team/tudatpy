@@ -32,6 +32,15 @@ namespace tudat
 namespace basic_mathematics
 {
 
+//! Transform real-valued spherical harmonic coefficients with a provided set of Wigner D matrices.
+void transformSphericalHarmonicCoefficientsWithWignerD(
+        const Eigen::MatrixXd& originalCosineCoefficients,
+        const Eigen::MatrixXd& originalSineCoefficients,
+        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
+        Eigen::MatrixXd& transformedCosineCoefficients,
+        Eigen::MatrixXd& transformedSineCoefficients,
+        const bool areCoefficientsNormalized = 1 );
+
 //! Class to compute the transformation of spherical harmonic coefficients under a change of reference frame orientation
 class SphericalHarmonicTransformationCache
 {

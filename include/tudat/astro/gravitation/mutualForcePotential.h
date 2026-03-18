@@ -304,27 +304,28 @@ public:
         calculatePartials_ = true;
     }
 
-    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getCoefficientCombinationsToUse( )
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
+    getCoefficientCombinationsToUse( ) const
     {
         return coefficientCombinationsToUse_;
     }
 
-    Eigen::MatrixXd getCosineCoefficientsOfBody1( )
+    const Eigen::MatrixXd& getCosineCoefficientsOfBody1( ) const
     {
         return cosineCoefficientsOfBody1_;
     }
 
-    Eigen::MatrixXd getSineCoefficientsOfBody1( )
+    const Eigen::MatrixXd& getSineCoefficientsOfBody1( ) const
     {
         return sineCoefficientsOfBody1_;
     }
 
-    Eigen::MatrixXd getCosineCoefficientsOfBody2( )
+    const Eigen::MatrixXd& getCosineCoefficientsOfBody2( ) const
     {
         return cosineCoefficientsOfBody2_;
     }
 
-    Eigen::MatrixXd getSineCoefficientsOfBody2( )
+    const Eigen::MatrixXd& getSineCoefficientsOfBody2( ) const
     {
         return sineCoefficientsOfBody2_;
     }
@@ -338,12 +339,12 @@ public:
     void computePartialsOfFullCoefficientsWrtTransformedCoefficients(
             std::vector< Eigen::Matrix2d >& fullCoefficientsWrtBody2CoefficientsList );
 
-    Eigen::MatrixXd getTransformedCosineCoefficientsOfBody2( )
+    const Eigen::MatrixXd& getTransformedCosineCoefficientsOfBody2( ) const
     {
         return transformedCosineCoefficientsOfBody2_;
     }
 
-    Eigen::MatrixXd getTransformedSineCoefficientsOfBody2( )
+    const Eigen::MatrixXd& getTransformedSineCoefficientsOfBody2( ) const
     {
         return transformedSineCoefficientsOfBody2_;
     }

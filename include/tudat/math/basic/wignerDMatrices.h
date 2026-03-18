@@ -17,6 +17,9 @@
 #define TUDAT_WIGNER_D_MATRIXRES_H
 
 #include <Eigen/Core>
+#include <cmath>
+#include <complex>
+#include <vector>
 
 namespace tudat
 {
@@ -88,7 +91,36 @@ public:
         return wignerDMatrices_;
     }
 
+    //! Function to retrieve \hat{J}D^l_{m,k} in Cartesian basis.
+    Eigen::Vector3cd getAngularMomentumOperatorOnWignerCoefficient(
+            const int degree,
+            const int originalOrder,
+            const int newOrder )
+    {
+        if( std::abs( originalOrder ) > degree || std::abs( newOrder ) > degree )
+        {
+            return Eigen::Vector3cd::Zero( );
+        }
+
+        updateAngularMomentumOperators( );
+
+        Eigen::Vector3cd angularMomentumCoefficient;
+        angularMomentumCoefficient( 0 ) = angularMomentumOperatorsX_[ degree ]( originalOrder + degree, newOrder + degree );
+        angularMomentumCoefficient( 1 ) = angularMomentumOperatorsY_[ degree ]( originalOrder + degree, newOrder + degree );
+        angularMomentumCoefficient( 2 ) = angularMomentumOperatorsZ_[ degree ]( originalOrder + degree, newOrder + degree );
+        return angularMomentumCoefficient;
+    }
+
 private:
+
+    void updateAngularMomentumOperators( )
+    {
+        if( !areAngularMomentumOperatorsUpdated_ )
+        {
+            computeAngularMomentumOperators( );
+            areAngularMomentumOperatorsUpdated_ = true;
+        }
+    }
 
     void computeAngularMomentumOperators( );
 
@@ -103,12 +135,6 @@ private:
 
     //! Coefficients used in the recursive formulation for Wigner D-matrices
     std::vector< Eigen::MatrixXd > coefficientsIndexOne_;
-
-
-    Eigen::MatrixXd angularMomentumScalingEntry0_;
-
-    Eigen::MatrixXd angularMomentumScalingEntry2_;
-
 
     //! Maximum degree for which Wigner-D matrix is to be computed
     int maximumDegree_;
@@ -134,9 +160,7 @@ private:
     //! Conjugate of Cayley-Klein parameter b for current orientation.
     std::complex< double > currentCayleyKleinBConjugate_;
 
-    const bool computeAngularMomentumOperators_;
-
-    Eigen::Matrix3cd transformationMatrixToCartesianBasis_;
+    bool areAngularMomentumOperatorsUpdated_;
 };
 
 } // namespace basic_mathematics

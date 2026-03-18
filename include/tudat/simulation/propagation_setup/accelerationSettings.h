@@ -292,8 +292,7 @@ public:
     }
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
-    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >
-            coefficientCombinationsToUseForCentralBody_;
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUseForCentralBody_;
 
     int maximumDegreeOfBody1_;
 
