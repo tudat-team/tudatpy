@@ -219,6 +219,11 @@ BOOST_AUTO_TEST_SUITE( test_full_two_body_torque_partials )
 
 BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
 {
+    // Test rationale:
+    // Verify partial derivatives of the fourth-degree torque auxiliary functions (f/g terms and contracted
+    // inertia tensor contributions used in Schutz-style closed-form torque expressions) against central
+    // finite differences. This is a low-level unit check that isolates the algebraic building blocks
+    // before they are used inside the full torque-partial model.
     const Eigen::Vector3d relativePositionInBodyFixedFrame( 3275.0, -1840.0, 2510.0 );
     const double massOfBodyExertingTorque = 4.0E11;
     const Eigen::Matrix3d inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque =
@@ -322,6 +327,12 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
 
 BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
 {
+    // Test rationale:
+    // Validate analytical partials of the fourth-degree full-two-body torque model against numerical
+    // finite differences for orientation, translational state, and degree-2 coefficient blocks of both bodies.
+    //
+    // This test covers both arbitrary and aligned attitude configurations, and both non-zero and zero
+    // scaled mean moments of inertia, ensuring robustness of the closed-form partial implementation.
     const std::string bodyUndergoingTorqueName = "BodyA";
     const std::string bodyExertingTorqueName = "BodyB";
     const double testTime = 1250.0;
@@ -668,6 +679,16 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartials )
 {
+    // Test rationale:
+    // Validate analytical partial derivatives of the full two-body spherical-harmonic torque model
+    // against independent finite-difference references for:
+    // 1) both body orientations (quaternion perturbations),
+    // 2) both body translational states (position blocks),
+    // 3) degree-2 spherical-harmonic coefficients of both bodies (cosine/sine).
+    //
+    // The torque model is based on the mutual-potential coupling expansion (Dirkx et al., 2019). This test
+    // verifies that the implemented Jacobians are consistent with the implemented torque itself for both aligned
+    // and arbitrary body-frame orientations.
     const std::string bodyUndergoingTorqueName = "BodyA";
     const std::string bodyExertingTorqueName = "BodyB";
     const double testTime = 1250.0;
@@ -760,6 +781,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
         const std::function< void( Eigen::Vector6d ) > setTranslationalStateOfBodyExertingTorque =
                 std::bind( &Body::setState, bodyExertingTorque, std::placeholders::_1 );
 
+        // Numerical references are computed with central finite differences and compared against analytical
+        // partials from FullTwoBodySphericalHarmonicGravitationalTorquePartial. Agreement here confirms that
+        // coefficient/attitude/state sensitivities are implemented correctly and consistently with the model output.
         std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBodyUndergoingTorque;
         const Eigen::MatrixXd torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque =
                 calculateTorqueDeviationDueToOrientationChange(
@@ -857,6 +881,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
 
         for( int index = 1; index < 4; index++ )
         {
+            // Quaternion-element perturbation mapping:
+            // analytical delta_tau = (d tau / d q) * delta_q must reproduce the directly perturbed torque delta.
             const Eigen::Vector3d analyticalTorqueDeviationOfBodyUndergoingTorque =
                     analyticalPartialWrtOrientationOfBodyUndergoingTorque *
                     appliedQuaternionPerturbationOfBodyUndergoingTorque.at( index );

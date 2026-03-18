@@ -138,6 +138,19 @@ BOOST_AUTO_TEST_SUITE( test_MutualForcePotential )
 
 BOOST_AUTO_TEST_CASE( testEffectiveMutualCoefficientsForRequestedDegreeOrderCombinations )
 {
+    // Test rationale:
+    // Validate the effective mutual coefficients C_eff and S_eff produced by
+    // EffectiveMutualSphericalHarmonicsField against closed-form literature expressions:
+    // 1) cross-body normalization term gamma (Compere & Lemaître, 2014),
+    // 2) effective mutual coefficient combination/scaling in normalized form (Dirkx et al., 2019).
+    //
+    // What is tested:
+    // - (0,0)x(2,m), (2,m)x(0,0), and (2,m1)x(2,m2) combinations.
+    // - identity and arbitrary relative orientations (through transformed body-2 coefficients).
+    //
+    // Why this matters:
+    // the full-two-body acceleration/torque models depend directly on these effective coefficients;
+    // a mismatch here propagates into all figure-figure interaction terms.
     Eigen::MatrixXd cosineBody1Coefficients = Eigen::MatrixXd::Zero( 3, 3 );
     Eigen::MatrixXd sineBody1Coefficients = Eigen::MatrixXd::Zero( 3, 3 );
     Eigen::MatrixXd cosineBody2Coefficients = Eigen::MatrixXd::Zero( 3, 3 );

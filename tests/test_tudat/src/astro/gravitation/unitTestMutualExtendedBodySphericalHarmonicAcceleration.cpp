@@ -112,6 +112,9 @@ void runDegreeTwoCrossTermValidationCase(
         const double equatorialRadiusOfBody1,
         const double equatorialRadiusOfBody2 )
 {
+    // Helper validation for a single geometry/orientation case:
+    // Isolate and verify l1=2,l2=2 figure-figure acceleration terms from the full interaction summation
+    // (Dirkx et al., 2019 mutual-potential interaction decomposition).
     const Eigen::Vector3d positionOfBody2 = Eigen::Vector3d::Zero( );
 
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > fullDegreeTwoInteractions =
@@ -408,6 +411,15 @@ BOOST_AUTO_TEST_SUITE( test_mutual_spherical_harmonic_gravity )
 
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 {
+    // Test rationale:
+    // Cross-validate the full-two-body spherical-harmonic acceleration model against independent model families:
+    // 1) one-way spherical harmonics,
+    // 2) legacy mutual spherical harmonics (single-point interactions),
+    // 3) third-body mutual-extended model decomposition.
+    //
+    // Why this matters:
+    // these equivalence checks confirm that specific interaction subsets selected in
+    // FullTwoBodySphericalHarmonicAccelerationSettings collapse to known reference formulations.
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -521,7 +533,8 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Full-two-body settings [l1<=N, l2=0] should match the one-way Io-on-Jupiter SH model after
+            // converting accelerated-body convention with the gravitational-parameter scale factor.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         expansionDegree, expansionDegree, 0, 0 );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -543,7 +556,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Full-two-body settings [l1=0, l2<=N] should match Jupiter-on-Io one-way SH acceleration directly.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         0, 0, expansionDegree, expansionDegree );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -561,7 +574,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         }
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Same [l1=0, l2<=N] check, now swapping accelerated/accelerating bodies.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         0, 0, expansionDegree, expansionDegree );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -579,7 +592,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         }
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Same [l1<=N, l2=0] check with swapped body roles and corresponding scale/sign conversion.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         expansionDegree, expansionDegree, 0, 0 );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -600,7 +613,8 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         }
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Full-two-body settings restricted to extended-single-point interactions should reproduce
+            // the legacy mutual SH acceleration model.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -618,7 +632,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         }
 
         {
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
+            // Same extended-single-point equivalence check for swapped body roles.
             std::shared_ptr< AccelerationSettings > extendedBodySettings = std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                         getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
@@ -640,6 +654,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         }
 
         {
+            // Third-body mutual-extended consistency:
+            // a_third-body = a(undergoing wrt exerting) - a(central wrt exerting),
+            // where each direct term comes from a matching full-two-body model.
             const int maximumDegreeOfBodyUndergoingAcceleration = 4;
             const int maximumDegreeOfBodyExertingAcceleration = 3;
             const int maximumDegreeOfCentralBody = 6;
@@ -737,6 +754,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
 BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
 {
+    // Test rationale:
+    // Validate explicit isolation of degree-2/degree-2 figure-figure acceleration terms by two independent paths:
+    // 1) subtraction from the full degree-2 interaction model,
+    // 2) direct model containing only (l1=2,l2=2) combinations.
+    //
+    // Additional linearity/zero-response checks verify expected dependence on body-2 degree-2 coefficients.
     const double gravitationalParameter = 5.0E5;
     const double equatorialRadiusOfBody1 = 1300.0;
     const double equatorialRadiusOfBody2 = 1100.0;

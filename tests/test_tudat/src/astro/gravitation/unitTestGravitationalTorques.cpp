@@ -740,6 +740,13 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorque )
     using namespace tudat::simulation_setup;
     using namespace tudat::gravitation;
 
+    // Test rationale:
+    // Validate the fourth-degree closed-form two-body torque implementation against known limits and
+    // independent evaluations based on the same body states:
+    // 1) point-mass-equivalent limits (Schutz et al., 1981 Eq. (11)/(14) checks),
+    // 2) direct analytical torque reconstruction from transformed inertia tensors,
+    // 3) orientation dependence only when body-2 inertia is non-isotropic.
+
     const std::string bodyUndergoingTorqueName = "Body1";
     const std::string bodyExertingTorqueName = "Body2";
     const Eigen::Vector3d positionOfBodyUndergoingTorque( 1.5E6, -2.4E6, 3.2E6 );
@@ -1007,6 +1014,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
     using namespace tudat::gravitation;
     using namespace tudat::basic_astrodynamics;
 
+    // Test rationale:
+    // This test validates the full two-body spherical-harmonic torque implementation (Dirkx et al., 2019,
+    // mutual-potential expansion in coupled degree/order terms) against two independent references:
+    // 1. Torque reconstructed from the mutual-potential gradient, using tau = r_B x (dU/dr_B) in body-1 frame.
+    // 2. The fourth-degree closed-form two-body torque model (Schutz et al., 1981; Eq. (11)/(14) notation used
+    //    throughout this file), in the degree-2 truncation where both formulations are expected to coincide.
+
     const std::string bodyUndergoingTorqueName = "Body1";
     const std::string bodyExertingTorqueName = "Body2";
 
@@ -1049,7 +1063,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
         BOOST_CHECK_SMALL( torqueModel->getTorque( ).norm( ), 1.0E-30 );
     }
 
-    // Case 2a/2b: degree-2 undergoing body with point-mass perturber, compare against acceleration model reference.
+    // Case 2a/2b:
+    // Body 1 is degree-2, body 2 is point-mass. In this limit, only (l,m,p,q) = (2,m,0,0) interactions remain.
+    // We validate the full-two-body torque through an independent path: mutual-potential gradient from the
+    // acceleration model. This directly verifies that the implemented torque is consistent with the same U used
+    // by the dynamics model, including sign convention and frame mapping.
     {
         Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
         Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
@@ -1119,8 +1137,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                     computedSphericalHarmonicTorque / bodyExertingTorqueMass;
             computedTorques.push_back( computedFullTwoBodyTorque );
 
-            // Consistency of the full two-body torque with the independent acceleration-based torque reference.
-            // With Tudat torque sign convention, the torque from acceleration contributes with opposite sign.
+            // Consistency with tau = r_B x (dU/dr_B):
+            // the full-two-body torque is specific torque on body 2 in body-1 frame, while the gradient-based
+            // reference is assembled from the potential-gradient path. The sign here follows Tudat's convention.
             const Eigen::Vector3d accelerationConsistencyDifference =
                     computedFullTwoBodyTorque + referenceTorqueFromAcceleration;
 
@@ -1148,7 +1167,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
         BOOST_CHECK_GT( ( computedTorques.at( 0 ) - computedTorques.at( 1 ) ).norm( ), 1.0E-16 );
     }
 
-    // Case 3: both bodies degree-2; isolate the degree-2/degree-2 coupling and compare both independent models.
+    // Case 3:
+    // Both bodies have degree-2 gravity. We decompose the coupled model into:
+    // full( l2 = {0,2} ) - point-mass( l2 = 0 ) = isolated figure-figure (l2 = 2) term.
+    // This decomposition is the same separation used in the derivation and should match the direct
+    // degree-2/degree-2 coefficient selection. The isolated term is then compared to the independent
+    // fourth-degree model evaluation on the same states (Schutz Eq. (11) for full degree-2 interaction,
+    // with the point-mass contribution removed by the second-degree torque model).
     {
         Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
         Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
@@ -1394,6 +1419,19 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
     using namespace tudat::gravitation;
     using namespace tudat::basic_astrodynamics;
 
+    // Test rationale:
+    // Isolate one single figure-figure interaction at a time: (l,m,p,q) = (2,0,2,m), with m in {0,1,2}
+    // for cosine/sine sets {C20,C21,S21,C22,S22}. Body 1 keeps only C20 non-zero, body 2 keeps only one
+    // degree-2 coefficient non-zero per loop iteration.
+    //
+    // Why this matters:
+    // 1. It removes cancellation between different degree-2 terms and yields a one-term diagnostic.
+    // 2. It checks two independent isolation paths:
+    //    a) Full-two-body direct single-term model.
+    //    b) Fourth-degree minus second-degree torque (Schutz Eq. (11) minus point-mass part).
+    // 3. It compares both against closed-form analytical expressions from the derivation document
+    //    (Eq. (6)-(10), implemented in computeAnalyticalC20DegreeTwoFigureFigureTorque()).
+
     const std::string bodyUndergoingTorqueName = "Body1";
     const std::string bodyExertingTorqueName = "Body2";
 
@@ -1422,6 +1460,8 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
 
     for( const DegreeTwoCoefficientCase& coefficientCase : body2DegreeTwoCoefficientCases )
     {
+        // Per loop: rebuild a fresh two-body system with exactly one active body-2 degree-2 coefficient.
+        // This guarantees that each run corresponds to a single analytical equation branch.
         Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
         Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
         cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
@@ -1505,7 +1545,8 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         fourthDegreeTorqueModel->updateMembers( evaluationTime );
         secondDegreeTorqueModel->updateMembers( evaluationTime );
 
-        // Convert from specific torque to torque for direct comparison with the fourth- and second-degree models.
+        // Convert from specific torque to physical torque (multiply by body-2 mass) before comparing against
+        // fourth-degree and second-degree torque models, which natively output torque.
         const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
         const Eigen::Vector3d singleInteractionTorqueFromFullTwoBody =
                 bodyExertingTorqueMass * fullTwoBodySingleInteractionTorqueModel->getTorque( );
@@ -1518,6 +1559,9 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         const Eigen::Vector3d isolatedFigureFigureTorqueFromFourthMinusSecond =
                 fourthDegreeTorqueModel->getTorque( ) - secondDegreeTorqueModel->getTorque( );
 
+        // Analytical reference for this isolated term:
+        // Eqs. (6)-(10) from the provided derivation (C20 of body 1 interacting with one body-2 degree-2 term,
+        // expressed in body-1-fixed frame).
         const Eigen::Vector3d interactionDifference =
                 singleInteractionTorqueFromFullTwoBody - isolatedFigureFigureTorqueFromFourthMinusSecond;
         const Eigen::Vector3d relativePositionInBody1Frame =
@@ -1632,8 +1676,13 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                                                  << isolatedFigureFigureAnalyticalDifference.transpose( )
                                                  << " full_minus_isolated=" << interactionDifference.transpose( ) );
 
+        // Non-zero guards: each selected coefficient must induce a measurable figure-figure torque.
         BOOST_CHECK_GT( isolatedFigureFigureTorqueFromFourthMinusSecond.norm( ), 1.0E-20 );
         BOOST_CHECK_GT( analyticalTorque.norm( ), 1.0E-20 );
+        // Main validations:
+        // 1) isolated fourth-minus-second torque matches analytical expression;
+        // 2) full-two-body single-term torque matches analytical expression;
+        // 3) both independent model paths match each other.
         BOOST_CHECK_SMALL( isolatedFigureFigureRelativeAnalyticalError, 1.0E-11 );
         BOOST_CHECK_SMALL( fullTwoBodyRelativeAnalyticalError, 5.0E-14 );
         BOOST_CHECK_SMALL( fullVsIsolatedRelativeDifference, 1.0E-11 );

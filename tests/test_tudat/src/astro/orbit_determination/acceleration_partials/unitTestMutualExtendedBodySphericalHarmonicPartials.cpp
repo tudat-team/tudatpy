@@ -52,6 +52,16 @@ BOOST_AUTO_TEST_SUITE( test_mutual_extended_sh_acceleration_partials )
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 {
+    // Test rationale:
+    // This test validates analytical partials of the full two-body spherical-harmonic acceleration model
+    // (Dirkx et al., 2019 mutual-potential interaction summation) against central finite differences.
+    //
+    // We run three interaction subsets:
+    // 1) "regular": body-1 harmonics acting on point-mass body 2,
+    // 2) "mutualSinglePoint": mutual interactions where one side contributes only degree 0,
+    // 3) "mutual": full degree-2 mutual interactions.
+    // This structure checks both correctness of each subset and that enabling figure-figure terms changes
+    // the partials in physically expected directions.
     struct PartialSet
     {
         Eigen::MatrixXd wrtBody1Position;
@@ -238,6 +248,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             analyticalPartials.wrtBody2Cosine = accelerationPartial->wrtParameter( body2CosineCoefficientsParameter );
             analyticalPartials.wrtBody2Sine = accelerationPartial->wrtParameter( body2SineCoefficientsParameter );
 
+            // Finite-difference reference:
+            // each acceleration evaluation advances the time tag by 1 second so the bodies refresh their current
+            // rotational states through the ephemeris interface before model evaluation.
             double finiteDifferenceTimeTag = evaluationTime;
             auto evaluateAcceleration = [ & ]( )
             {
@@ -326,16 +339,19 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     body2SineCoefficientsParameter,
                     Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
 
+            // State Jacobians: analytical partial blocks should match numerical references.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalPartialWrtBody2Position, analyticalPartials.wrtBody2Position, 5.0E-5 );
 
+            // Gravitational acceleration has no explicit velocity dependence in this model.
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( numericalPartialWrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( numericalPartialWrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
 
+            // Coefficient Jacobians: active coefficient sets must match finite-difference references.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-3 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -378,6 +394,15 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentSimplerModels )
 {
+    // Test rationale:
+    // Verify that full-two-body partials reduce exactly to simpler known models when interaction sets are
+    // constrained. This is a model-equivalence test (not only analytical-vs-numerical):
+    // 1) point-mass <-> central gravity,
+    // 2) extended body-1 on point-mass body-2 <-> one-way spherical harmonics,
+    // 3) point-mass body-1 on extended body-2 <-> opposite one-way spherical harmonics,
+    // 4) mutual single-point interactions <-> legacy mutual spherical-harmonic model.
+    //
+    // The equivalences follow directly from selecting subsets of the Dirkx interaction sum over coefficient pairs.
     enum EquivalentModelType
     {
         pointMassEquivalent = 0,
@@ -579,6 +604,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 equivalentModel = sphericalHarmonicModel;
                 equivalentPartial =
                         std::make_shared< SphericalHarmonicsGravityPartial >( "Body2", "Body1", sphericalHarmonicModel );
+                // Sign/scale conversion: this equivalent model computes acceleration of body 2 due to body 1.
+                // The mutual model here is defined for body 1 due to body 2, hence the factor below.
                 scaleToMutual = -body2GravityField->getGravitationalParameter( ) /
                         body1GravityField->getGravitationalParameter( );
             }
@@ -655,6 +682,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             BOOST_CHECK_GT( equivalentPartialWrtBody1Position.norm( ), 1.0E-12 );
             BOOST_CHECK_GT( equivalentPartialWrtBody2Position.norm( ), 1.0E-12 );
 
+            // Position Jacobians from the full-two-body model must collapse to the equivalent model Jacobians.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     mutualPartialWrtBody1Position, equivalentPartialWrtBody1Position, 2.0E-14 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -711,6 +739,14 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
 {
+    // Test rationale:
+    // Validate third-body partials for the full-two-body acceleration model in a non-trivial geometry where all
+    // three bodies have degree-2 terms. This checks:
+    // 1) partials w.r.t. accelerated, accelerating, and central-body positions;
+    // 2) partials w.r.t. degree-2 coefficients of all three bodies.
+    //
+    // The formulation corresponds to third-body application of the same mutual-potential interaction framework
+    // used in Dirkx et al. (2019), now with central-body state dependence included.
     const double gravitationalParameterBody1 = 5.0E5;
     const double gravitationalParameterBody2 = 6.0E5;
     const double gravitationalParameterCentralBody = 7.0E5;
