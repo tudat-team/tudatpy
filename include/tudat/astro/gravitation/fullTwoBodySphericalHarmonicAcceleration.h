@@ -48,7 +48,7 @@ public:
             const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
             const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
             const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
-            const bool useCentraBodyFrame,
+            const bool isMutualAttractionUsed,
             const bool areCoefficientsNormalized = 1 );
 
     //! Update current acceleration and intermediate states for the provided epoch.
@@ -61,10 +61,14 @@ public:
     }
 
 
-    //! Return whether the output acceleration is provided in body-1-fixed coordinates.
-    bool getUseCentraBodyFrame( )
+    //! Return whether mutual attraction is included in the gravitational parameter.
+    /*!
+     *  If true, the effective gravitational parameter is the sum of both bodies' gravitational parameters.
+     *  If false, only the accelerating body's parameter is used.
+     */
+    bool getIsMutualAttractionUsed( )
     {
-        return useCentraBodyFrame_;
+        return isMutualAttractionUsed_;
     }
 
     //! Return the current relative position (body 1 minus body 2) in inertial coordinates.
@@ -231,8 +235,8 @@ private:
     //! Current rotation from inertial frame to body-fixed frame of body 1, as computed by last call to updateMembers
     Eigen::Quaterniond currentRotationFromInertialToBody1_;
 
-    //! Variable denoting whether acceleration is expressed in body-fixed frame of body 1, or in inertial frame.
-    bool useCentraBodyFrame_;
+    //! Boolean denoting whether mutual attraction is used in the effective gravitational parameter.
+    bool isMutualAttractionUsed_;
 
     //! Boolean denoting whether spherical harmonic coefficients are normalized
     bool areCoefficientsNormalized_;

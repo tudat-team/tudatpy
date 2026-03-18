@@ -1071,30 +1071,22 @@ createFullTwoBodySphericalHarmonicsGravityAcceleration(
             gravitationalParameterFunction,
             sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),
             sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
-            [sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration, maximumDegreeOfUndergoingBody]( )
-            {
-                return Eigen::MatrixXd(
-                        sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getCosineCoefficientsBlock(
-                                maximumDegreeOfUndergoingBody, maximumDegreeOfUndergoingBody ) );
-            },
-            [sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration, maximumDegreeOfUndergoingBody]( )
-            {
-                return Eigen::MatrixXd(
-                        sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getSineCoefficientsBlock(
-                                maximumDegreeOfUndergoingBody, maximumDegreeOfUndergoingBody ) );
-            },
-            [sphericalHarmonicsGravityFieldOfBodyExertingAcceleration, maximumDegreeOfExertingBody]( )
-            {
-                return Eigen::MatrixXd(
-                        sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getCosineCoefficientsBlock(
-                                maximumDegreeOfExertingBody, maximumDegreeOfExertingBody ) );
-            },
-            [sphericalHarmonicsGravityFieldOfBodyExertingAcceleration, maximumDegreeOfExertingBody]( )
-            {
-                return Eigen::MatrixXd(
-                        sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getSineCoefficientsBlock(
-                                maximumDegreeOfExertingBody, maximumDegreeOfExertingBody ) );
-            },
+            std::bind( &gravitation::SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
+                       sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
+                       maximumDegreeOfUndergoingBody,
+                       maximumDegreeOfUndergoingBody ),
+            std::bind( &gravitation::SphericalHarmonicsGravityField::getSineCoefficientsBlock,
+                       sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
+                       maximumDegreeOfUndergoingBody,
+                       maximumDegreeOfUndergoingBody ),
+            std::bind( &gravitation::SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
+                       sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
+                       maximumDegreeOfExertingBody,
+                       maximumDegreeOfExertingBody ),
+            std::bind( &gravitation::SphericalHarmonicsGravityField::getSineCoefficientsBlock,
+                       sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
+                       maximumDegreeOfExertingBody,
+                       maximumDegreeOfExertingBody ),
             coefficientCombinationsToUse,
             std::bind( &Body::getCurrentRotationToLocalFrame, bodyUndergoingAcceleration ),
             std::bind( &Body::getCurrentRotationToLocalFrame, bodyExertingAcceleration ),

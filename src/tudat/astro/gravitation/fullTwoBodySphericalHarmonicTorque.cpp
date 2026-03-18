@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <set>
 #include <vector>
 
@@ -214,11 +215,12 @@ void computeTransformedAngularMomentumCoefficientsFromWignerMatrices(
     computeTransformedAngularMomentumCoefficientsImpl(
             cosineCoefficientsBody2,
             sineCoefficientsBody2,
-            [ &wignerMatrices ]( const int degree, const int originalOrder, const int newOrder )
-            {
-                return computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatrices(
-                        wignerMatrices, degree, originalOrder, newOrder );
-            },
+            std::bind(
+                    &computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatrices,
+                    std::cref( wignerMatrices ),
+                    std::placeholders::_1,
+                    std::placeholders::_2,
+                    std::placeholders::_3 ),
             areCoefficientsNormalized,
             transformedCosineCoefficientsBody2AngularMomentum,
             transformedSineCoefficientsBody2AngularMomentum );
@@ -237,10 +239,12 @@ void computeTransformedAngularMomentumCoefficientsFromWignerCache(
     computeTransformedAngularMomentumCoefficientsImpl(
             cosineCoefficientsBody2,
             sineCoefficientsBody2,
-            [ &wignerCache ]( const int degree, const int originalOrder, const int newOrder )
-            {
-                return wignerCache->getAngularMomentumOperatorOnWignerCoefficient( degree, originalOrder, newOrder );
-            },
+            std::bind(
+                    &basic_mathematics::WignerDMatricesCache::getAngularMomentumOperatorOnWignerCoefficient,
+                    wignerCache,
+                    std::placeholders::_1,
+                    std::placeholders::_2,
+                    std::placeholders::_3 ),
             areCoefficientsNormalized,
             transformedCosineCoefficientsBody2AngularMomentum,
             transformedSineCoefficientsBody2AngularMomentum );

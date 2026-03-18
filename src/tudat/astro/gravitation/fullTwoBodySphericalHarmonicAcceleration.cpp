@@ -23,7 +23,7 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation,
         const std::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation,
-        const bool useCentraBodyFrame,
+        const bool isMutualAttractionUsed,
         const bool areCoefficientsNormalized ):
     positionOfBody1Function_( positionOfBody1Function ), positionOfBody2Function_( positionOfBody2Function ),
     gravitationalParameterFunction_( gravitationalParameterFunction ),
@@ -31,7 +31,7 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
     coefficientCombinationsToUse_( coefficientCombinationsToUse ),
     toLocalFrameOfBody1Transformation_( toLocalFrameOfBody1Transformation ),
     toLocalFrameOfBody2Transformation_( toLocalFrameOfBody2Transformation ),
-    useCentraBodyFrame_( useCentraBodyFrame ),
+    isMutualAttractionUsed_( isMutualAttractionUsed ),
     areCoefficientsNormalized_( areCoefficientsNormalized )
 {
     // Determine the maximum effective degree/order l,m used in the Eq. (49) summation of Dirkx et al. (2019),
@@ -149,15 +149,10 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
                         coefficientCombinationsToUse_, sphericalHarmonicsCache_ );
         }
 
-        // Step 6: return acceleration in requested frame.
-        if( useCentraBodyFrame_ )
-        {
-            currentAcceleration_ = mutualPotentialGradient_;
-        }
-        else
-        {
-            currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
-        }
+        // Step 6: output acceleration in inertial orientation.
+        // The mutual potential gradient is assembled in body-1-fixed coordinates, so we always rotate it back
+        // to inertial orientation for translational propagation consistency.
+        currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
         currentTime_ = currentTime;
     }
 }
