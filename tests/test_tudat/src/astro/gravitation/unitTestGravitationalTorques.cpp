@@ -495,6 +495,89 @@ Eigen::Vector3d computeAnalyticalC21DegreeTwoFigureFigureTorque(
     return analyticalTorque * commonPrefactor;
 }
 
+struct SchutzEq11TermDiagnostics
+{
+    double prefactor = TUDAT_NAN;
+    double Ixy = TUDAT_NAN;
+    double Ixz = TUDAT_NAN;
+    double Iyz = TUDAT_NAN;
+    double fyz = TUDAT_NAN;
+    double fxz = TUDAT_NAN;
+    double fxy = TUDAT_NAN;
+    double gyz = TUDAT_NAN;
+    double gxz = TUDAT_NAN;
+    double gxy = TUDAT_NAN;
+};
+
+SchutzEq11TermDiagnostics computeSchutzEq11TermDiagnostics(
+        const Eigen::Vector3d& relativePositionInBody1Frame,
+        const double massOfBody2,
+        const Eigen::Matrix3d& inertiaTensorOfBody1,
+        const Eigen::Matrix3d& inertiaTensorOfBody2InBody1Frame )
+{
+    SchutzEq11TermDiagnostics diagnostics;
+
+    const double x = relativePositionInBody1Frame( 0 );
+    const double y = relativePositionInBody1Frame( 1 );
+    const double z = relativePositionInBody1Frame( 2 );
+    const double x2 = x * x;
+    const double y2 = y * y;
+    const double z2 = z * z;
+    const double xy = x * y;
+    const double xz = x * z;
+    const double yz = y * z;
+    const double r2 = x2 + y2 + z2;
+    const double inverseR2 = 1.0 / r2;
+    const double r5 = r2 * r2 * std::sqrt( r2 );
+
+    const double Aprime = inertiaTensorOfBody2InBody1Frame( 0, 0 );
+    const double Bprime = inertiaTensorOfBody2InBody1Frame( 1, 1 );
+    const double Cprime = inertiaTensorOfBody2InBody1Frame( 2, 2 );
+    const double IxyPrime = -inertiaTensorOfBody2InBody1Frame( 0, 1 );
+    const double IxzPrime = -inertiaTensorOfBody2InBody1Frame( 0, 2 );
+    const double IyzPrime = -inertiaTensorOfBody2InBody1Frame( 1, 2 );
+
+    diagnostics.Ixy = -inertiaTensorOfBody1( 0, 1 );
+    diagnostics.Ixz = -inertiaTensorOfBody1( 0, 2 );
+    diagnostics.Iyz = -inertiaTensorOfBody1( 1, 2 );
+
+    const double Qprime = Aprime + Bprime + Cprime;
+    const double IellPrime =
+            ( Aprime * x2 + Bprime * y2 + Cprime * z2
+              - 2.0 * IxyPrime * xy - 2.0 * IxzPrime * xz - 2.0 * IyzPrime * yz ) * inverseR2;
+    const double Wprime = massOfBody2 + 7.5 * Qprime * inverseR2 - 17.5 * IellPrime * inverseR2;
+
+    diagnostics.fyz = yz * ( Wprime - 5.0 * Aprime * inverseR2 ) -
+            5.0 * IxzPrime * xy * inverseR2 - 5.0 * IxyPrime * xz * inverseR2 +
+            IyzPrime * ( 1.0 - 5.0 * ( y2 + z2 ) * inverseR2 );
+    diagnostics.fxz = xz * ( Wprime - 5.0 * Bprime * inverseR2 ) +
+            IxzPrime * ( 1.0 - 5.0 * ( x2 + z2 ) * inverseR2 ) -
+            5.0 * IyzPrime * xy * inverseR2 - 5.0 * IxyPrime * yz * inverseR2;
+    diagnostics.fxy = xy * ( Wprime - 5.0 * Cprime * inverseR2 ) -
+            5.0 * IyzPrime * xz * inverseR2 +
+            IxyPrime * ( 1.0 - 5.0 * ( x2 + y2 ) * inverseR2 ) -
+            5.0 * IxzPrime * yz * inverseR2;
+
+    diagnostics.gyz = ( z2 - y2 ) * Wprime + Bprime - Cprime -
+            10.0 * IxzPrime * xz * inverseR2 - 10.0 * IxyPrime * xy * inverseR2 -
+            20.0 * IyzPrime * yz * inverseR2 -
+            5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2 -
+            5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
+    diagnostics.gxz = ( x2 - z2 ) * Wprime + Cprime - Aprime -
+            20.0 * IxzPrime * xz * inverseR2 - 10.0 * IxyPrime * xy * inverseR2 -
+            10.0 * IyzPrime * yz * inverseR2 -
+            5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2 -
+            5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
+    diagnostics.gxy = ( y2 - x2 ) * Wprime + Aprime - Bprime -
+            10.0 * IxzPrime * xz * inverseR2 - 20.0 * IxyPrime * xy * inverseR2 -
+            10.0 * IyzPrime * yz * inverseR2 -
+            5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2 -
+            5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
+
+    diagnostics.prefactor = 3.0 * physical_constants::GRAVITATIONAL_CONSTANT / r5;
+    return diagnostics;
+}
+
 double getExpectedC20DegreeTwoInteractionMultiplier( const unsigned int order )
 {
     if( order == 0 )
@@ -1518,7 +1601,13 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
     const double referenceRadiusBody1 = 1.0;
     const double referenceRadiusBody2 = 1.0;
     const std::vector< Eigen::Vector3d > relativePositionCases = {
-            Eigen::Vector3d( 1.0, 0.0, 0.0 ) };
+            Eigen::Vector3d( 1.0, 0.0, 0.0 ),
+            Eigen::Vector3d( 0.0, 1.0, 0.0 ),
+            Eigen::Vector3d( 0.7071067811865475, 0.7071067811865475, 0.0 ),
+            Eigen::Vector3d( 0.5000377542757255, -0.5000377542757255, 0.7070533845458759 ),
+            Eigen::Vector3d( 0.0, 0.1, 0.99 ),
+            Eigen::Vector3d( -0.2506273535585429, 0.6015056485405029, 0.7585691427722472 ),
+            Eigen::Vector3d( 0.3030457633656632, 0.4040610178208843, 0.8636808257456412 ) };
     const Eigen::Vector3d basePosition = Eigen::Vector3d::Zero( );
     const double evaluationTime = 86400.0;
 
@@ -1673,7 +1762,7 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         // fourth-minus-second isolation (independent model path).
         const bool hasAnalyticalReference =
                 body1CoefficientCase.useCosineCoefficient &&
-                ( body1CoefficientCase.order == 0 );
+                ( body1CoefficientCase.order == 0 || body1CoefficientCase.order == 1 );
         Eigen::Vector3d analyticalTorque = Eigen::Vector3d::Zero( );
         Eigen::Vector3d fullTwoBodyAnalyticalDifference = Eigen::Vector3d::Zero( );
         Eigen::Vector3d isolatedFigureFigureAnalyticalDifference = Eigen::Vector3d::Zero( );
@@ -1694,9 +1783,22 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                         coefficientCase.order,
                         coefficientCase.coefficientValue );
             }
+            else if( body1CoefficientCase.order == 1 )
+            {
+                analyticalTorque = computeAnalyticalC21DegreeTwoFigureFigureTorque(
+                        relativePositionInBody1Frame,
+                        bodies.at( bodyUndergoingTorqueName )->getBodyMass( ),
+                        bodies.at( bodyExertingTorqueName )->getBodyMass( ),
+                        referenceRadiusBody1,
+                        referenceRadiusBody2,
+                        cosineCoefficientsOfBody1( 2, 1 ),
+                        coefficientCase.useCosineCoefficient,
+                        coefficientCase.order,
+                        coefficientCase.coefficientValue );
+            }
             else
             {
-                throw std::runtime_error( "Unexpected analytical reference branch in C20 test." );
+                throw std::runtime_error( "Unexpected analytical reference branch in C20/C21 test." );
             }
             fullTwoBodyAnalyticalDifference = singleInteractionTorqueFromFullTwoBody - analyticalTorque;
             isolatedFigureFigureAnalyticalDifference =
@@ -1807,8 +1909,27 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
             // For body-1 C20, validate against the closed-form analytical result.
             if( analyticalTorque.norm( ) > 1.0E-20 )
             {
-                BOOST_CHECK_SMALL( isolatedFigureFigureRelativeAnalyticalError, 1.0E-11 );
-                BOOST_CHECK_SMALL( fullTwoBodyRelativeAnalyticalError, 5.0E-14 );
+                if( body1CoefficientCase.order == 0 )
+                {
+                    BOOST_CHECK_SMALL( isolatedFigureFigureRelativeAnalyticalError, 1.0E-11 );
+                    BOOST_CHECK_SMALL( fullTwoBodyRelativeAnalyticalError, 5.0E-14 );
+                }
+                else if( body1CoefficientCase.order == 1 &&
+                         fullVsIsolatedRelativeDifference > 1.0E-11 )
+                {
+                    BOOST_TEST_MESSAGE(
+                            "C21_theory_compare case="
+                            << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
+                            << " r=" << relativePositionCase.transpose( )
+                            << " analytical=" << analyticalTorque.transpose( )
+                            << " full=" << singleInteractionTorqueFromFullTwoBody.transpose( )
+                            << " fourth_minus_second=" << isolatedFigureFigureTorqueFromFourthMinusSecond.transpose( )
+                            << " full_minus_analytical=" << fullTwoBodyAnalyticalDifference.transpose( )
+                            << " fourth_minus_analytical="
+                            << isolatedFigureFigureAnalyticalDifference.transpose( )
+                            << " full_rel_err=" << fullTwoBodyRelativeAnalyticalError
+                            << " fourth_rel_err=" << isolatedFigureFigureRelativeAnalyticalError );
+                }
             }
             else
             {
@@ -1819,13 +1940,100 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         // Always compare the two independent model paths.
         if( fullVsIsolatedRelativeDifference > 1.0E-11 )
         {
+            const Eigen::Vector3d fourthDegreeOnlyTorque =
+                    inverseGravitationalScaling * fourthDegreeTorqueModel->getTorque( );
+            const Eigen::Vector3d secondDegreeOnlyTorque =
+                    inverseGravitationalScaling * secondDegreeTorqueModel->getTorque( );
+            const Eigen::Vector3d expectedFourthDegreeOnlyTorqueFromFullPath =
+                    isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction + secondDegreeOnlyTorque;
+            const Eigen::Vector3d fourthOnlyMinusExpectedFourthOnly =
+                    fourthDegreeOnlyTorque - expectedFourthDegreeOnlyTorqueFromFullPath;
+            const Eigen::Vector3d fullSingleMinusFullSubtraction =
+                    singleInteractionTorqueFromFullTwoBody - isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction;
+            const Eigen::Vector3d fullSubtractionMinusFourthMinusSecond =
+                    isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction - isolatedFigureFigureTorqueFromFourthMinusSecond;
+
+            const Eigen::Matrix3d body1Inertia = bodies.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( );
+            const Eigen::Matrix3d body2InertiaInBody1Frame =
+                    fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( );
+            const SchutzEq11TermDiagnostics eq11Diagnostics =
+                    computeSchutzEq11TermDiagnostics(
+                            relativePositionInBody1Frame,
+                            bodies.at( bodyExertingTorqueName )->getBodyMass( ),
+                            body1Inertia,
+                            body2InertiaInBody1Frame );
+            const double scaledPrefactor = eq11Diagnostics.prefactor * inverseGravitationalScaling;
             BOOST_TEST_MESSAGE(
                     "single_term_case="
                     << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
+                    << " r=" << relativePositionCase.transpose( )
                     << " full=" << singleInteractionTorqueFromFullTwoBody.transpose( )
+                    << " full_subtraction="
+                    << isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction.transpose( )
                     << " fourth_minus_second=" << isolatedFigureFigureTorqueFromFourthMinusSecond.transpose( )
+                    << " fourth_only=" << fourthDegreeOnlyTorque.transpose( )
+                    << " expected_fourth_only_from_full_path="
+                    << expectedFourthDegreeOnlyTorqueFromFullPath.transpose( )
+                    << " fourth_only_minus_expected_fourth_only="
+                    << fourthOnlyMinusExpectedFourthOnly.transpose( )
+                    << " second_only=" << secondDegreeOnlyTorque.transpose( )
+                    << " full_minus_full_subtraction="
+                    << fullSingleMinusFullSubtraction.transpose( )
+                    << " full_subtraction_minus_fourth_minus_second="
+                    << fullSubtractionMinusFourthMinusSecond.transpose( )
+                    << " body1_inertia=" << bodies.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( )
+                    << " body2_inertia=" << bodies.at( bodyExertingTorqueName )->getBodyInertiaTensor( )
                     << " diff=" << interactionDifference.transpose( )
                     << " rel=" << fullVsIsolatedRelativeDifference );
+
+            if( body1CoefficientCase.coefficientName == "C21" &&
+                std::fabs( scaledPrefactor * eq11Diagnostics.Ixz ) > 1.0E-20 )
+            {
+                const double requiredFxyFromExpected = -expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixz );
+                const double requiredGxzFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixz );
+                const double requiredFyzFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixz );
+                BOOST_TEST_MESSAGE(
+                        "Eq11_C21_debug case=" << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
+                        << " r=" << relativePositionCase.transpose( )
+                        << " fxy(computed,required_from_expected)=(" << eq11Diagnostics.fxy << ", " << requiredFxyFromExpected << ")"
+                        << " gxz(computed,required_from_expected)=(" << eq11Diagnostics.gxz << ", " << requiredGxzFromExpected << ")"
+                        << " fyz(computed,required_from_expected)=(" << eq11Diagnostics.fyz << ", " << requiredFyzFromExpected << ")" );
+            }
+            else if( body1CoefficientCase.coefficientName == "S21" &&
+                     std::fabs( scaledPrefactor * eq11Diagnostics.Iyz ) > 1.0E-20 )
+            {
+                const double requiredGyzFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Iyz );
+                const double requiredFxyFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Iyz );
+                const double requiredFxzFromExpected = -expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Iyz );
+                BOOST_TEST_MESSAGE(
+                        "Eq11_S21_debug case=" << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
+                        << " r=" << relativePositionCase.transpose( )
+                        << " gyz(computed,required_from_expected)=(" << eq11Diagnostics.gyz << ", " << requiredGyzFromExpected << ")"
+                        << " fxy(computed,required_from_expected)=(" << eq11Diagnostics.fxy << ", " << requiredFxyFromExpected << ")"
+                        << " fxz(computed,required_from_expected)=(" << eq11Diagnostics.fxz << ", " << requiredFxzFromExpected << ")" );
+            }
+            else if( body1CoefficientCase.coefficientName == "S22" &&
+                     std::fabs( scaledPrefactor * eq11Diagnostics.Ixy ) > 1.0E-20 )
+            {
+                const double requiredFxzFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixy );
+                const double requiredFyzFromExpected = -expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixy );
+                const double requiredGxyFromExpected = expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) /
+                        ( scaledPrefactor * eq11Diagnostics.Ixy );
+                BOOST_TEST_MESSAGE(
+                        "Eq11_S22_debug case=" << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
+                        << " r=" << relativePositionCase.transpose( )
+                        << " fxz(computed,required_from_expected)=(" << eq11Diagnostics.fxz << ", " << requiredFxzFromExpected << ")"
+                        << " fyz(computed,required_from_expected)=(" << eq11Diagnostics.fyz << ", " << requiredFyzFromExpected << ")"
+                        << " gxy(computed,required_from_expected)=(" << eq11Diagnostics.gxy << ", " << requiredGxyFromExpected << ")" );
+            }
         }
         BOOST_CHECK_SMALL( fullVsIsolatedRelativeDifference, 1.0E-11 );
             }

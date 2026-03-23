@@ -10,6 +10,8 @@
 
 #include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
 
+#include <iostream>
+
 namespace tudat
 {
 
@@ -68,22 +70,130 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
     const double fxy = xy * ( Wprime - 5.0 * Cprime * inverseR2 ) - 5.0 * IyzPrime * xz * inverseR2 +
             IxyPrime * ( 1.0 - 5.0 * ( x2 + y2 ) * inverseR2 ) - 5.0 * IxzPrime * yz * inverseR2;
 
-    const double gyz = ( z2 - y2 ) * Wprime + Bprime - Cprime - 10.0 * IxzPrime * xz * inverseR2 -
-            10.0 * IxyPrime * xy * inverseR2 - 20.0 * IyzPrime * yz * inverseR2 -
-            5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2 - 5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
-    const double gxz = ( x2 - z2 ) * Wprime + Cprime - Aprime - 20.0 * IxzPrime * xz * inverseR2 -
-            10.0 * IxyPrime * xy * inverseR2 - 10.0 * IyzPrime * yz * inverseR2 -
-            5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2 - 5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
-    const double gxy = ( y2 - x2 ) * Wprime + Aprime - Bprime - 10.0 * IxzPrime * xz * inverseR2 -
-            20.0 * IxyPrime * xy * inverseR2 - 10.0 * IyzPrime * yz * inverseR2 -
-            5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2 - 5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
+    const double gyzWprimeTerm = ( z2 - y2 ) * Wprime;
+    const double gyzDiagonalTerm = Bprime - Cprime;
+    const double gyzIxzPrimeTerm = -10.0 * IxzPrime * xz * inverseR2;
+    const double gyzIxyPrimeTerm = -10.0 * IxyPrime * xy * inverseR2;
+    const double gyzIyzPrimeTerm = -20.0 * IyzPrime * yz * inverseR2;
+    const double gyzQuadraticZTerm = -5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
+    const double gyzQuadraticYTerm = -5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
+    const double gyz = gyzWprimeTerm + gyzDiagonalTerm + gyzIxzPrimeTerm + gyzIxyPrimeTerm +
+            gyzIyzPrimeTerm + gyzQuadraticZTerm + gyzQuadraticYTerm;
+
+    const double gxzWprimeTerm = ( x2 - z2 ) * Wprime;
+    const double gxzDiagonalTerm = Cprime - Aprime;
+    const double gxzIxzPrimeTerm = -20.0 * IxzPrime * xz * inverseR2;
+    const double gxzIxyPrimeTerm = -10.0 * IxyPrime * xy * inverseR2;
+    const double gxzIyzPrimeTerm = -10.0 * IyzPrime * yz * inverseR2;
+    const double gxzQuadraticXTerm = -5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
+    const double gxzQuadraticZTerm = -5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
+    const double gxz = gxzWprimeTerm + gxzDiagonalTerm + gxzIxzPrimeTerm + gxzIxyPrimeTerm +
+            gxzIyzPrimeTerm + gxzQuadraticXTerm + gxzQuadraticZTerm;
+
+    const double gxyWprimeTerm = ( y2 - x2 ) * Wprime;
+    const double gxyDiagonalTerm = Aprime - Bprime;
+    const double gxyIxzPrimeTerm = -10.0 * IxzPrime * xz * inverseR2;
+    const double gxyIxyPrimeTerm = -20.0 * IxyPrime * xy * inverseR2;
+    const double gxyIyzPrimeTerm = -10.0 * IyzPrime * yz * inverseR2;
+    const double gxyQuadraticYTerm = -5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
+    const double gxyQuadraticXTerm = -5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
+    const double gxy = gxyWprimeTerm + gxyDiagonalTerm + gxyIxzPrimeTerm + gxyIxyPrimeTerm +
+            gxyIyzPrimeTerm + gxyQuadraticYTerm + gxyQuadraticXTerm;
 
     // Eq. (11): torque components in body-1-fixed frame.
     const double prefactor = ( 3.0 * physical_constants::GRAVITATIONAL_CONSTANT ) / r5;
     Eigen::Vector3d torque;
-    torque( 0 ) = prefactor * ( ( C - B ) * fyz - Ixz * fxy + Ixy * fxz + Iyz * gyz );
-    torque( 1 ) = prefactor * ( ( A - C ) * fxz + Ixz * gxz - Ixy * fyz + Iyz * fxy );
-    torque( 2 ) = prefactor * ( ( B - A ) * fxy + Ixz * fyz + Ixy * gxy - Iyz * fxz );
+    const double torqueXFromDiagonalTerm = ( C - B ) * fyz;
+    const double torqueXFromIxzTerm = -Ixz * fxy;
+    const double torqueXFromIxyTerm = Ixy * fxz;
+    const double torqueXFromIyzTerm = Iyz * gyz;
+
+    const double torqueYFromDiagonalTerm = ( A - C ) * fxz;
+    const double torqueYFromIxzTerm = Ixz * gxz;
+    const double torqueYFromIxyTerm = -Ixy * fyz;
+    const double torqueYFromIyzTerm = Iyz * fxy;
+
+    const double torqueZFromDiagonalTerm = ( B - A ) * fxy;
+    const double torqueZFromIxzTerm = Ixz * fyz;
+    const double torqueZFromIxyTerm = Ixy * gxy;
+    const double torqueZFromIyzTerm = -Iyz * fxz;
+
+    torque( 0 ) = prefactor * ( torqueXFromDiagonalTerm + torqueXFromIxzTerm + torqueXFromIxyTerm + torqueXFromIyzTerm );
+    torque( 1 ) = prefactor * ( torqueYFromDiagonalTerm + torqueYFromIxzTerm + torqueYFromIxyTerm + torqueYFromIyzTerm );
+    torque( 2 ) = prefactor * ( torqueZFromDiagonalTerm + torqueZFromIxzTerm + torqueZFromIxyTerm + torqueZFromIyzTerm );
+
+    const double inertiaTolerance = 1.0E-14;
+    const int nonZeroOffDiagonalBody1Count =
+            static_cast< int >( std::fabs( Ixy ) > inertiaTolerance ) +
+            static_cast< int >( std::fabs( Ixz ) > inertiaTolerance ) +
+            static_cast< int >( std::fabs( Iyz ) > inertiaTolerance );
+    const bool isSingleOffDiagonalBody1Case =
+            std::fabs( A ) < inertiaTolerance &&
+            std::fabs( B ) < inertiaTolerance &&
+            std::fabs( C ) < inertiaTolerance &&
+            nonZeroOffDiagonalBody1Count == 1;
+    if( isSingleOffDiagonalBody1Case )
+    {
+        const double gyzWithFlippedSecondQuadraticTerm =
+                ( z2 - y2 ) * Wprime + Bprime - Cprime - 10.0 * IxzPrime * xz * inverseR2 -
+                10.0 * IxyPrime * xy * inverseR2 - 20.0 * IyzPrime * yz * inverseR2 -
+                5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2 +
+                5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
+        const double gxzWithFlippedSecondQuadraticTerm =
+                ( x2 - z2 ) * Wprime + Cprime - Aprime - 20.0 * IxzPrime * xz * inverseR2 -
+                10.0 * IxyPrime * xy * inverseR2 - 10.0 * IyzPrime * yz * inverseR2 -
+                5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2 +
+                5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
+        const double gxyWithFlippedSecondQuadraticTerm =
+                ( y2 - x2 ) * Wprime + Aprime - Bprime - 10.0 * IxzPrime * xz * inverseR2 -
+                20.0 * IxyPrime * xy * inverseR2 - 10.0 * IyzPrime * yz * inverseR2 -
+                5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2 +
+                5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
+
+        const Eigen::Vector3d torqueWithFlippedSecondQuadraticGTerm = prefactor * Eigen::Vector3d(
+                ( C - B ) * fyz - Ixz * fxy + Ixy * fxz + Iyz * gyzWithFlippedSecondQuadraticTerm,
+                ( A - C ) * fxz + Ixz * gxzWithFlippedSecondQuadraticTerm - Ixy * fyz + Iyz * fxy,
+                ( B - A ) * fxy + Ixz * fyz + Ixy * gxyWithFlippedSecondQuadraticTerm - Iyz * fxz );
+
+        std::cout << "[DBG Eq11 decomposition single-offdiag-body1] r="
+                  << relativePositionOfBodyExertingTorqueInBodyFixedFrame.transpose( ) << std::endl;
+        std::cout << "  body1(A,B,C,Ixy,Ixz,Iyz)=(" << A << ", " << B << ", " << C << ", "
+                  << Ixy << ", " << Ixz << ", " << Iyz << ")" << std::endl;
+        std::cout << "  body2(A',B',C',Ixy',Ixz',Iyz')=(" << Aprime << ", " << Bprime << ", " << Cprime << ", "
+                  << IxyPrime << ", " << IxzPrime << ", " << IyzPrime << ")" << std::endl;
+        std::cout << "  Eq11 invariants: Q'=" << Qprime << " Iell'=" << IellPrime << " W'=" << Wprime << std::endl;
+        std::cout << "  Eq11 f-terms: fyz=" << fyz << " fxz=" << fxz << " fxy=" << fxy << std::endl;
+        std::cout << "  Eq11 g-terms: gyz=" << gyz << " gxz=" << gxz << " gxy=" << gxy << std::endl;
+        std::cout << "  Eq11 gyz terms(W,diag,Ixz',Ixy',Iyz',quadZ,quadY)=("
+                  << gyzWprimeTerm << ", " << gyzDiagonalTerm << ", " << gyzIxzPrimeTerm << ", "
+                  << gyzIxyPrimeTerm << ", " << gyzIyzPrimeTerm << ", "
+                  << gyzQuadraticZTerm << ", " << gyzQuadraticYTerm << ")" << std::endl;
+        std::cout << "  Eq11 gxz terms(W,diag,Ixz',Ixy',Iyz',quadX,quadZ)=("
+                  << gxzWprimeTerm << ", " << gxzDiagonalTerm << ", " << gxzIxzPrimeTerm << ", "
+                  << gxzIxyPrimeTerm << ", " << gxzIyzPrimeTerm << ", "
+                  << gxzQuadraticXTerm << ", " << gxzQuadraticZTerm << ")" << std::endl;
+        std::cout << "  Eq11 gxy terms(W,diag,Ixz',Ixy',Iyz',quadY,quadX)=("
+                  << gxyWprimeTerm << ", " << gxyDiagonalTerm << ", " << gxyIxzPrimeTerm << ", "
+                  << gxyIxyPrimeTerm << ", " << gxyIyzPrimeTerm << ", "
+                  << gxyQuadraticYTerm << ", " << gxyQuadraticXTerm << ")" << std::endl;
+        std::cout << "  Eq11 g-terms (alt second quadratic sign): gyz=" << gyzWithFlippedSecondQuadraticTerm
+                  << " gxz=" << gxzWithFlippedSecondQuadraticTerm
+                  << " gxy=" << gxyWithFlippedSecondQuadraticTerm << std::endl;
+        std::cout << "  torque_x_terms(diag,ixz,ixy,iyz)=("
+                  << torqueXFromDiagonalTerm << ", " << torqueXFromIxzTerm << ", "
+                  << torqueXFromIxyTerm << ", " << torqueXFromIyzTerm << ")" << std::endl;
+        std::cout << "  torque_y_terms(diag,ixz,ixy,iyz)=("
+                  << torqueYFromDiagonalTerm << ", " << torqueYFromIxzTerm << ", "
+                  << torqueYFromIxyTerm << ", " << torqueYFromIyzTerm << ")" << std::endl;
+        std::cout << "  torque_z_terms(diag,ixz,ixy,iyz)=("
+                  << torqueZFromDiagonalTerm << ", " << torqueZFromIxzTerm << ", "
+                  << torqueZFromIxyTerm << ", " << torqueZFromIyzTerm << ")" << std::endl;
+        std::cout << "  prefactor=" << prefactor
+                  << " torque=" << torque.transpose( ) << std::endl;
+        std::cout << "  torque (alt second quadratic g-sign)="
+                  << torqueWithFlippedSecondQuadraticGTerm.transpose( ) << std::endl;
+    }
+
     return torque;
 }
 

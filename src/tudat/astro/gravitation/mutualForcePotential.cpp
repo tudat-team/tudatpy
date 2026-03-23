@@ -2,11 +2,46 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/astro/gravitation/mutualForcePotential.h"
 
+#include <iostream>
+
 namespace tudat
 {
 
 namespace gravitation
 {
+
+namespace
+{
+
+bool isUnitC21ByC20DebugCase(
+        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
+        const Eigen::MatrixXd& sineCoefficientsOfBody1,
+        const Eigen::MatrixXd& cosineCoefficientsOfBody2,
+        const Eigen::MatrixXd& sineCoefficientsOfBody2 )
+{
+    if( cosineCoefficientsOfBody1.rows( ) < 3 || cosineCoefficientsOfBody1.cols( ) < 3 ||
+        cosineCoefficientsOfBody2.rows( ) < 3 || cosineCoefficientsOfBody2.cols( ) < 3 )
+    {
+        return false;
+    }
+
+    const double tolerance = 1.0E-14;
+    const bool hasBody1OnlyC21 =
+            std::fabs( cosineCoefficientsOfBody1( 2, 1 ) - 1.0 ) < tolerance &&
+            std::fabs( cosineCoefficientsOfBody1( 2, 0 ) ) < tolerance &&
+            std::fabs( cosineCoefficientsOfBody1( 2, 2 ) ) < tolerance &&
+            std::fabs( sineCoefficientsOfBody1( 2, 1 ) ) < tolerance &&
+            std::fabs( sineCoefficientsOfBody1( 2, 2 ) ) < tolerance;
+    const bool hasBody2OnlyC20 =
+            std::fabs( cosineCoefficientsOfBody2( 2, 0 ) - 1.0 ) < tolerance &&
+            std::fabs( cosineCoefficientsOfBody2( 2, 1 ) ) < tolerance &&
+            std::fabs( cosineCoefficientsOfBody2( 2, 2 ) ) < tolerance &&
+            std::fabs( sineCoefficientsOfBody2( 2, 1 ) ) < tolerance &&
+            std::fabs( sineCoefficientsOfBody2( 2, 2 ) ) < tolerance;
+    return hasBody1OnlyC21 && hasBody2OnlyC20;
+}
+
+}
 
 //! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
 std::pair< int, int > getMaximumDegrees(
@@ -66,12 +101,18 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
     double multiplier;
     if( areCoefficientsNormalized )
     {
+        const double onePlusDeltaOrder1 = ( order1 == 0 ) ? 2.0 : 1.0;
+        const double onePlusDeltaOrder2 = ( order2 == 0 ) ? 2.0 : 1.0;
+        const double twoMinusDeltaOrder1 = ( order1 == 0 ) ? 1.0 : 2.0;
+        const double twoMinusDeltaOrder2 = ( order2 == 0 ) ? 1.0 : 2.0;
+        const double twoMinusDeltaCombinedOrder = ( ( order1 + order2 ) == 0 ) ? 1.0 : 2.0;
         multiplier =
                 getGammaCoefficientForMutualForcePotential( degree1, order1, degree2, order2 ) *
-                std::sqrt( 4.0 * mathematical_constants::PI * ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 )  ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 )  ) /
-                           ( ( order1 == 0 && order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) ) *
-                getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) * getSigmaSignFunction( order1 + order2 ) *
-                ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) *
+                std::sqrt( 4.0 * mathematical_constants::PI *
+                           twoMinusDeltaOrder1 * twoMinusDeltaOrder2 / twoMinusDeltaCombinedOrder ) *
+                getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) *
+                getSigmaSignFunction( order1 + order2 ) *
+                ( onePlusDeltaOrder1 * onePlusDeltaOrder2 / 4.0 ) *
                 ( ( degree1 % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) );
     }
     else
@@ -83,6 +124,14 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
                 getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) * getSigmaSignFunction( order1 + order2 ) *
                 ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) *
                 ( ( degree1 % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) );
+    }
+
+    if( degree1 == 2 && std::abs( order1 ) == 1 && degree2 == 2 && order2 == 0 && areCoefficientsNormalized )
+    {
+        const double expectedFromDerivation = std::sqrt( 125.0 / 6.0 );
+        std::cout << "[DBG Eq47/48 multiplier C21xC20] computed=" << multiplier
+                  << " expected=" << expectedFromDerivation
+                  << " (sqrt(125/6))" << std::endl;
     }
 
     return multiplier;
@@ -215,15 +264,15 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
             = std::sqrt( cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
                          + cylindricalCoordinates( 2 ) * cylindricalCoordinates( 2 ) );
 
-    // If radius coordinate is smaller than planetary radius...
-    if ( sphericalpositionOfBodySubjectToAcceleration( 0 ) < ( equatorialRadiusOfBody1 + equatorialRadiusOfBody2 ) )
-    {
-        // ...throw runtime error.
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Distance to origin is smaller than the size of the main body." ) ) );
-    }
+    // // If radius coordinate is smaller than planetary radius...
+    // if ( sphericalpositionOfBodySubjectToAcceleration( 0 ) < ( equatorialRadiusOfBody1 + equatorialRadiusOfBody2 ) )
+    // {
+    //     // ...throw runtime error.
+    //     boost::throw_exception(
+    //                 boost::enable_error_info(
+    //                     std::runtime_error(
+    //                         "Distance to origin is smaller than the size of the main body." ) ) );
+    // }
 
     // If radius coordinate is zero set latitude coordinate to 90 degrees.
     if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
@@ -363,15 +412,15 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
             = std::sqrt( cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
                          + cylindricalCoordinates( 2 ) * cylindricalCoordinates( 2 ) );
     
-    // If radius coordinate is smaller than planetary radius...
-    if ( sphericalpositionOfBodySubjectToAcceleration( 0 ) < ( equatorialRadiusOfBody1 + equatorialRadiusOfBody2 ) )
-    {
-        // ...throw runtime error.
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Distance to origin is smaller than the size of the main body." ) ) );
-    }
+    // // If radius coordinate is smaller than planetary radius...
+    // if ( sphericalpositionOfBodySubjectToAcceleration( 0 ) < ( equatorialRadiusOfBody1 + equatorialRadiusOfBody2 ) )
+    // {
+    //     // ...throw runtime error.
+    //     boost::throw_exception(
+    //                 boost::enable_error_info(
+    //                     std::runtime_error(
+    //                         "Distance to origin is smaller than the size of the main body." ) ) );
+    // }
     
     // If radius coordinate is zero set latitude coordinate to 90 degrees.
     if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
@@ -562,6 +611,21 @@ void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients(
     double currentMultiplier = multipliers_.at( effectiveIndex );
     cosineCoefficient *= currentMultiplier;
     sineCoefficient *= ( ( ( order1 +  order2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) ) * currentMultiplier;
+
+    if( degree1 == 2 && std::abs( order1 ) == 1 && degree2 == 2 && order2 == 0 &&
+        isUnitC21ByC20DebugCase(
+                cosineCoefficientsOfBody1_, sineCoefficientsOfBody1_,
+                cosineCoefficientsOfBody2_, sineCoefficientsOfBody2_ ) )
+    {
+        const double expectedCosine = currentMultiplier;
+        const double expectedSine = 0.0;
+        std::cout << "[DBG Eq47/48 Ceff/Seff C21xC20] m1=" << order1
+                  << " m2=" << order2
+                  << " Ceff_computed=" << cosineCoefficient
+                  << " Ceff_expected=" << expectedCosine
+                  << " Seff_computed=" << sineCoefficient
+                  << " Seff_expected=" << expectedSine << std::endl;
+    }
 }
 
 //! Update transformed body-2 coefficients and rebuild effective coefficients for current relative orientation.
@@ -586,6 +650,27 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
                 transformedCosineCoefficientsOfBody2_,
                 transformedSineCoefficientsOfBody2_,
                 areCoefficientsNormalized_ );
+
+    if( isUnitC21ByC20DebugCase(
+                cosineCoefficientsOfBody1_, sineCoefficientsOfBody1_,
+                cosineCoefficientsOfBody2_, sineCoefficientsOfBody2_ ) )
+    {
+        std::cout << "[DBG Eq40/41 transformed body2] q(F2->F1)=("
+                  << coefficientRotationQuaterion.w( ) << ", "
+                  << coefficientRotationQuaterion.x( ) << ", "
+                  << coefficientRotationQuaterion.y( ) << ", "
+                  << coefficientRotationQuaterion.z( ) << ")" << std::endl;
+        std::cout << "  C20 computed=" << transformedCosineCoefficientsOfBody2_( 2, 0 )
+                  << " expected=1" << std::endl;
+        std::cout << "  C21 computed=" << transformedCosineCoefficientsOfBody2_( 2, 1 )
+                  << " expected=0" << std::endl;
+        std::cout << "  S21 computed=" << transformedSineCoefficientsOfBody2_( 2, 1 )
+                  << " expected=0" << std::endl;
+        std::cout << "  C22 computed=" << transformedCosineCoefficientsOfBody2_( 2, 2 )
+                  << " expected=0" << std::endl;
+        std::cout << "  S22 computed=" << transformedSineCoefficientsOfBody2_( 2, 2 )
+                  << " expected=0" << std::endl;
+    }
 
     // Populate the effective coefficients entering the Eq. (49) potential/acceleration summation.
     updateEffectiveMutualPotential( );

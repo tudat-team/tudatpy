@@ -174,6 +174,68 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
     return bodies;
 }
 
+//! Create Io/Jupiter system with exaggerated degree-two gravity-field coefficients.
+/*!
+ * The translational motion is taken directly from SPICE ephemerides (global origin: Jupiter), while
+ * rotational dynamics are propagated from the SPICE rotational states. Gravity fields are overwritten
+ * by synthetic degree-two fields with all degree-two coefficients set to O(1E-2) values.
+ */
+SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoch, const double finalEpoch )
+{
+    const std::vector< std::string > bodiesToCreate = { "Jupiter", "Io" };
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, initialEpoch - 3600.0, finalEpoch + 3600.0, "Jupiter", "ECLIPJ2000" );
+    for( const std::string& bodyName : bodiesToCreate )
+    {
+        bodySettings.at( bodyName )->gravityFieldSettings = nullptr;
+        bodySettings.at( bodyName )->rigidBodyPropertiesSettings = nullptr;
+    }
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    for( const std::string& bodyName : bodiesToCreate )
+    {
+        const double gravitationalParameter = spice_interface::getBodyGravitationalParameter( bodyName );
+        const double referenceRadius = spice_interface::getAverageRadius( bodyName );
+
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+        cosineCoefficients( 0, 0 ) = 1.0;
+
+        if( bodyName == "Jupiter" )
+        {
+            cosineCoefficients( 2, 0 ) = 1.20E-2;
+            cosineCoefficients( 2, 1 ) = -0.90E-2;
+            cosineCoefficients( 2, 2 ) = 1.10E-2;
+            sineCoefficients( 2, 1 ) = 0.80E-2;
+            sineCoefficients( 2, 2 ) = -1.00E-2;
+        }
+        else
+        {
+            cosineCoefficients( 2, 0 ) = -0.65E-2;
+            cosineCoefficients( 2, 1 ) = 1.35E-2;
+            cosineCoefficients( 2, 2 ) = -1.55E-2;
+            sineCoefficients( 2, 1 ) = -1.25E-2;
+            sineCoefficients( 2, 2 ) = 0.45E-2;
+        }
+
+        const double scaledMeanMomentOfInertia = 0.35;
+
+        addGravityFieldModel(
+                bodies,
+                bodyName,
+                std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                        gravitationalParameter,
+                        referenceRadius,
+                        cosineCoefficients,
+                        sineCoefficients,
+                        bodies.at( bodyName )->getRotationalEphemeris( )->getTargetFrameOrientation( ),
+                        scaledMeanMomentOfInertia ),
+                std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
+    }
+
+    return bodies;
+}
+
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
 
 //! Function to test torque-free propagation with initial rotation around one of its principal axes
@@ -1120,6 +1182,198 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque, computedInertialTorque, ( 1000.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
+}
+
+//! Propagate Io and Jupiter rotational dynamics concurrently and compare fourth-degree vs full two-body degree-only torques.
+BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoBodyDegreeOnlyTorque )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double initialEpoch = 1.0E8;
+    const double integrationStep = 30.0;
+    const int numberOfSteps = 10;
+    const double finalEpoch = initialEpoch + static_cast< double >( numberOfSteps ) * integrationStep;
+    const std::vector< std::string > bodiesToIntegrate = { "Io", "Jupiter" };
+    const std::vector< std::string > baseOrientations = { "ECLIPJ2000", "ECLIPJ2000" };
+    const double angularVelocityRelativeTolerance = 1.0E-14;
+    const double angularVelocityAbsoluteTolerance = 0.0;
+    const double rotationalStateTolerance = 1.0E-14;
+    const double relativeTorqueNormTolerance = 1.0E-14;
+    const double absoluteTorqueNormTolerance = 0.0;
+
+    std::vector< std::shared_ptr< TorqueSettings > > torqueSettingsList;
+    torqueSettingsList.push_back( fourthDegreeFullTwoBodyGravitationalTorque( ) );
+    torqueSettingsList.push_back( fullTwoBodySphericalHarmonicGravitationalTorque( 2, 2, 2, 2 ) );
+
+    std::vector< basic_astrodynamics::AvailableTorque > torqueModelTypes;
+    torqueModelTypes.push_back( basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque );
+    torqueModelTypes.push_back( basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque );
+
+    std::vector< Eigen::VectorXd > initialStates( 2 );
+    std::vector< std::map< double, Eigen::VectorXd > > stateHistories( 2 );
+    std::vector< std::map< double, Eigen::VectorXd > > dependentVariableHistories( 2 );
+
+    for( unsigned int modelCase = 0; modelCase < 2; modelCase++ )
+    {
+        SystemOfBodies bodies = getIoJupiterDegreeOnlyTorqueTestBodyMap( initialEpoch, finalEpoch );
+
+        SelectedTorqueMap selectedTorqueMap;
+        selectedTorqueMap[ "Io" ][ "Jupiter" ].push_back( torqueSettingsList.at( modelCase ) );
+        selectedTorqueMap[ "Jupiter" ][ "Io" ].push_back( torqueSettingsList.at( modelCase ) );
+
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, selectedTorqueMap, bodiesToIntegrate );
+
+        initialStates.at( modelCase ) =
+                getInitialRotationalStatesOfBodies< double, double >( bodiesToIntegrate, baseOrientations, bodies, initialEpoch );
+
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+        dependentVariablesList.push_back( std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                torqueModelTypes.at( modelCase ), "Io", "Jupiter", false ) );
+        dependentVariablesList.push_back( std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                torqueModelTypes.at( modelCase ), "Jupiter", "Io", false ) );
+
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, integrationStep );
+
+        std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< RotationalStatePropagatorSettings< double > >(
+                        torqueModelMap,
+                        bodiesToIntegrate,
+                        initialStates.at( modelCase ),
+                        initialEpoch,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ),
+                        quaternions,
+                        dependentVariablesList );
+
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
+        stateHistories.at( modelCase ) = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        dependentVariableHistories.at( modelCase ) = dynamicsSimulator.getDependentVariableHistory( );
+
+        BOOST_REQUIRE( stateHistories.at( modelCase ).size( ) > 1 );
+        BOOST_REQUIRE_EQUAL( stateHistories.at( modelCase ).size( ), dependentVariableHistories.at( modelCase ).size( ) );
+    }
+
+    const std::map< double, Eigen::VectorXd >& fourthDegreeStateHistory = stateHistories.at( 0 );
+    const std::map< double, Eigen::VectorXd >& fullTwoBodyStateHistory = stateHistories.at( 1 );
+    const std::map< double, Eigen::VectorXd >& fourthDegreeDependentVariableHistory = dependentVariableHistories.at( 0 );
+    const std::map< double, Eigen::VectorXd >& fullTwoBodyDependentVariableHistory = dependentVariableHistories.at( 1 );
+    const Eigen::VectorXd& fourthDegreeInitialState = initialStates.at( 0 );
+
+    // Ensure propagated rotational state of Io is non-trivial over the arc.
+    BOOST_CHECK_GT(
+            ( fourthDegreeStateHistory.rbegin( )->second.segment( 4, 3 ) - fourthDegreeInitialState.segment( 4, 3 ) ).norm( ),
+            1.0E-18 );
+
+    BOOST_REQUIRE_EQUAL( fourthDegreeStateHistory.size( ), fullTwoBodyStateHistory.size( ) );
+    BOOST_REQUIRE_EQUAL( fourthDegreeDependentVariableHistory.size( ), fullTwoBodyDependentVariableHistory.size( ) );
+
+    // Compare rotational-state and torque-history differences as a function of time.
+    auto fullTwoBodyStateIterator = fullTwoBodyStateHistory.begin( );
+    auto fullTwoBodyDependentVariableIterator = fullTwoBodyDependentVariableHistory.begin( );
+    double maximumRotationDifference = 0.0;
+    double maximumAngularVelocityRelativeDifference = 0.0;
+    double maximumAngularVelocityAbsoluteDifference = 0.0;
+    double maximumIoTorqueNormRelativeDifference = 0.0;
+    double maximumJupiterTorqueNormRelativeDifference = 0.0;
+    double maximumIoTorqueNormAbsoluteDifference = 0.0;
+    double maximumJupiterTorqueNormAbsoluteDifference = 0.0;
+    for( auto fourthDegreeStateIterator = fourthDegreeStateHistory.begin( );
+         fourthDegreeStateIterator != fourthDegreeStateHistory.end( );
+         ++fourthDegreeStateIterator, ++fullTwoBodyStateIterator, ++fullTwoBodyDependentVariableIterator )
+    {
+        BOOST_CHECK_SMALL( fourthDegreeStateIterator->first - fullTwoBodyStateIterator->first, 1.0E-15 );
+        BOOST_CHECK_SMALL(
+                fourthDegreeStateIterator->first - fullTwoBodyDependentVariableIterator->first,
+                1.0E-15 );
+
+        for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
+        {
+            const int stateStartIndex = i * 7;
+            Eigen::Quaterniond fourthDegreeQuaternion =
+                    linear_algebra::convertVectorToQuaternionFormat( fourthDegreeStateIterator->second.segment( stateStartIndex, 4 ) );
+            Eigen::Quaterniond fullTwoBodyQuaternion =
+                    linear_algebra::convertVectorToQuaternionFormat( fullTwoBodyStateIterator->second.segment( stateStartIndex, 4 ) );
+
+            fourthDegreeQuaternion.normalize( );
+            fullTwoBodyQuaternion.normalize( );
+
+            if( fourthDegreeQuaternion.dot( fullTwoBodyQuaternion ) < 0.0 )
+            {
+                fullTwoBodyQuaternion.coeffs( ) *= -1.0;
+            }
+
+            const double rotationDifference =
+                    Eigen::AngleAxisd( fourthDegreeQuaternion * fullTwoBodyQuaternion.inverse( ) ).angle( );
+            const Eigen::Vector3d angularVelocityDifference =
+                    fourthDegreeStateIterator->second.segment( stateStartIndex + 4, 3 ) -
+                    fullTwoBodyStateIterator->second.segment( stateStartIndex + 4, 3 );
+            const double angularVelocityScale =
+                    std::max( std::max( fourthDegreeStateIterator->second.segment( stateStartIndex + 4, 3 ).norm( ),
+                                        fullTwoBodyStateIterator->second.segment( stateStartIndex + 4, 3 ).norm( ) ),
+                              std::numeric_limits< double >::epsilon( ) );
+
+            maximumRotationDifference = std::max( maximumRotationDifference, rotationDifference );
+            maximumAngularVelocityRelativeDifference =
+                    std::max( maximumAngularVelocityRelativeDifference, angularVelocityDifference.norm( ) / angularVelocityScale );
+            maximumAngularVelocityAbsoluteDifference =
+                    std::max( maximumAngularVelocityAbsoluteDifference, angularVelocityDifference.norm( ) );
+        }
+
+        const Eigen::Vector3d fourthDegreeIoTorque =
+                fourthDegreeDependentVariableHistory.at( fourthDegreeStateIterator->first ).segment( 0, 3 );
+        const Eigen::Vector3d fullTwoBodyIoTorque = fullTwoBodyDependentVariableIterator->second.segment( 0, 3 );
+        const Eigen::Vector3d fourthDegreeJupiterTorque =
+                fourthDegreeDependentVariableHistory.at( fourthDegreeStateIterator->first ).segment( 3, 3 );
+        const Eigen::Vector3d fullTwoBodyJupiterTorque = fullTwoBodyDependentVariableIterator->second.segment( 3, 3 );
+        const Eigen::Vector3d ioTorqueDifference = fourthDegreeIoTorque - fullTwoBodyIoTorque;
+        const Eigen::Vector3d jupiterTorqueDifference = fourthDegreeJupiterTorque - fullTwoBodyJupiterTorque;
+
+        std::cout << "Time: " << fourthDegreeStateIterator->first << std::endl;
+        std::cout << "Io fourth-degree torque: " << fourthDegreeIoTorque.transpose( ) << std::endl;
+        std::cout << "Io full-two-body torque: " << fullTwoBodyIoTorque.transpose( ) << std::endl;
+        std::cout << "Io torque difference: " << ioTorqueDifference.transpose( )
+                  << " |norm|=" << ioTorqueDifference.norm( ) << std::endl;
+        std::cout << "Jupiter fourth-degree torque: " << fourthDegreeJupiterTorque.transpose( ) << std::endl;
+        std::cout << "Jupiter full-two-body torque: " << fullTwoBodyJupiterTorque.transpose( ) << std::endl;
+        std::cout << "Jupiter torque difference: " << jupiterTorqueDifference.transpose( )
+                  << " |norm|=" << jupiterTorqueDifference.norm( ) << std::endl;
+
+        const double ioTorqueScale =
+                std::max( std::max( fourthDegreeIoTorque.norm( ), fullTwoBodyIoTorque.norm( ) ), std::numeric_limits< double >::epsilon( ) );
+        const double jupiterTorqueScale =
+                std::max( std::max( fourthDegreeJupiterTorque.norm( ), fullTwoBodyJupiterTorque.norm( ) ),
+                          std::numeric_limits< double >::epsilon( ) );
+
+        maximumIoTorqueNormRelativeDifference = std::max(
+                maximumIoTorqueNormRelativeDifference,
+                std::fabs( fourthDegreeIoTorque.norm( ) - fullTwoBodyIoTorque.norm( ) ) / ioTorqueScale );
+        maximumJupiterTorqueNormRelativeDifference = std::max(
+                maximumJupiterTorqueNormRelativeDifference,
+                std::fabs( fourthDegreeJupiterTorque.norm( ) - fullTwoBodyJupiterTorque.norm( ) ) / jupiterTorqueScale );
+        maximumIoTorqueNormAbsoluteDifference = std::max(
+                maximumIoTorqueNormAbsoluteDifference,
+                ioTorqueDifference.norm( ) );
+        maximumJupiterTorqueNormAbsoluteDifference = std::max(
+                maximumJupiterTorqueNormAbsoluteDifference,
+                jupiterTorqueDifference.norm( ) );
+    }
+
+    std::cout << "Maximum rotation difference: " << maximumRotationDifference << std::endl;
+    std::cout << "Maximum angular-velocity relative difference: " << maximumAngularVelocityRelativeDifference << std::endl;
+    std::cout << "Maximum angular-velocity absolute difference: " << maximumAngularVelocityAbsoluteDifference << std::endl;
+    std::cout << "Maximum Io torque-norm relative difference: " << maximumIoTorqueNormRelativeDifference << std::endl;
+    std::cout << "Maximum Jupiter torque-norm relative difference: " << maximumJupiterTorqueNormRelativeDifference << std::endl;
+    std::cout << "Maximum Io torque-norm absolute difference: " << maximumIoTorqueNormAbsoluteDifference << std::endl;
+    std::cout << "Maximum Jupiter torque-norm absolute difference: " << maximumJupiterTorqueNormAbsoluteDifference << std::endl;
+
+    BOOST_CHECK_SMALL( maximumRotationDifference, rotationalStateTolerance );
+    BOOST_CHECK_SMALL( maximumAngularVelocityAbsoluteDifference,
+                       angularVelocityAbsoluteTolerance + angularVelocityRelativeTolerance );
+    BOOST_CHECK_SMALL( maximumIoTorqueNormAbsoluteDifference,
+                       absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
+    BOOST_CHECK_SMALL( maximumJupiterTorqueNormAbsoluteDifference,
+                       absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
