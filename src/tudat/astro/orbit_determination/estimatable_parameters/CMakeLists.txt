@@ -11,6 +11,7 @@
 set(estimatable_parameters_SOURCES
   "estimatableParameter.cpp"
   "estimatableParameterSet.cpp"
+  "observationBiasParameter.cpp"
   "sphericalHarmonicSineCoefficients.cpp"
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
@@ -54,4 +55,3 @@ TUDAT_ADD_LIBRARY("estimatable_parameters"
         "${estimatable_parameters_SOURCES}"
         "${estimatable_parameters_HEADERS}"
         )
-

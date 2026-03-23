@@ -112,8 +112,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useObservationBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > constantBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameterToEstimate );
                     if( constantBias == nullptr )
                     {
                         throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
@@ -134,8 +134,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useObservationBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > arcwiseBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameterToEstimate );
                     if( arcwiseBias == nullptr )
                     {
                         throw std::runtime_error( "Error when making partial w.r.t. arcwise observation bias, type is inconsistent" );
@@ -160,8 +160,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useObservationBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > constantBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameterToEstimate );
                     if( constantBias == nullptr )
                     {
                         throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
@@ -182,8 +182,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useObservationBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > arcwiseBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameterToEstimate );
                     if( arcwiseBias == nullptr )
                     {
                         throw std::runtime_error(
@@ -263,8 +263,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useTimeBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ConstantTimeBiasParameter > constantTimeBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::SingleArcTimeBiasParameter > constantTimeBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::SingleArcTimeBiasParameter >( parameterToEstimate );
                     if( constantTimeBias == nullptr )
                     {
                         throw std::runtime_error( "Error when making partial w.r.t. time bias, type is inconsistent" );
@@ -368,8 +368,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 if( useTimeBiasPartials )
                 {
                     // Check input consistency
-                    std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > arcwiseTimeBias =
-                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameterToEstimate );
+                    std::shared_ptr< estimatable_parameters::MultiArcTimeBiasParameter > arcwiseTimeBias =
+                            std::dynamic_pointer_cast< estimatable_parameters::MultiArcTimeBiasParameter >( parameterToEstimate );
                     if( arcwiseTimeBias == nullptr )
                     {
                         throw std::runtime_error( "Error when making partial w.r.t. time bias, type is inconsistent" );
