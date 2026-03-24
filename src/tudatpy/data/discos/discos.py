@@ -2,7 +2,22 @@ import requests
 from typing import Any
 
 class DiscosQuery:
+    """
+    A class to query the ESA DISCOS (Database and Information System Characterising Objects in Space) API.
+    """
     def __init__(self, token: str, timeout: int | None = 10, url: str = "https://discosweb.esoc.esa.int"):
+        """
+        Initialize the DiscosQuery client.
+
+        Parameters
+        ----------
+        token : str
+            API authentication token from DISCOS.
+        timeout : int, optional
+            Request timeout in seconds. Defaults to 10.
+        url : str, optional
+            Base URL for the DISCOS API. Defaults to "https://discosweb.esoc.esa.int".
+        """
         self.token = token
         self.url = url
         self.api_version = '2'
@@ -13,6 +28,23 @@ class DiscosQuery:
         self.timeout = timeout
 
     def query_object(self, sat_id: str | int, is_discos_id: bool = False, verbose: bool = True) -> dict[str, Any] | None:
+        """
+        Query object information from DISCOS using either a NORAD ID or a DISCOS ID.
+
+        Parameters
+        ----------
+        sat_id : str | int
+            The satellite identifier (NORAD ID or DISCOS ID).
+        is_discos_id : bool, optional
+            If True, treats sat_id as a DISCOS internal ID. If False, treats it as a NORAD ID. Defaults to False.
+        verbose : bool, optional
+            If True, prints status and error messages to the console. Defaults to True.
+
+        Returns
+        -------
+        dict[str, Any] | None
+            A dictionary containing object attributes if successful, None otherwise.
+        """
         if is_discos_id:
             query_url = f'{self.url}/api/objects/{sat_id}'
         else:
