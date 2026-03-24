@@ -25,6 +25,7 @@ class SpaceTrackQuery:
             password: str | None = None,
             spacetrack_url: str = "https://www.space-track.org",
             tle_data_folder: str = get_resource_path() + "/tle_data",
+            timeout: int = 60,
     ) -> None:
         """
         Parameters
@@ -50,6 +51,7 @@ class SpaceTrackQuery:
         os.makedirs(self.tle_data_folder, exist_ok=True)
 
         self.session: requests.Session = requests.Session()
+        self.timeout = timeout
         self._login(password)
         del password  # do not keep the plaintext password on the instance
 
@@ -85,7 +87,7 @@ class SpaceTrackQuery:
         try:
             response = self.session.post(
                 urljoin(self.spacetrack_url, "/ajaxauth/login"),
-                json={"identity": self.username, "password": password},
+                json={"identity": self.username, "password": password}, timeout=self.timeout
             )
             response.raise_for_status()
             print("Login successful.")
@@ -98,7 +100,8 @@ class SpaceTrackQuery:
         Logs out and closes the session. Safe to call multiple times.
         """
         try:
-            self.session.get(urljoin(self.spacetrack_url, "/ajaxauth/logout"))
+            self.session.get(urljoin(self.spacetrack_url, "/ajaxauth/logout"),
+                             timeout = self.timeout)
             print("Logged out of Space-Track.")
         except requests.exceptions.RequestException as e:
             print(f"Logout request failed (session may already be expired): {e}")
@@ -116,7 +119,7 @@ class SpaceTrackQuery:
 
     def _fetch_json(self, url: str) -> list:
         """GET a URL and return the body as a list."""
-        response = self.session.get(url)
+        response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
         return data if isinstance(data, list) else [data]
@@ -547,9 +550,6 @@ class OMMUtils:
         if isinstance(json_data, dict):
             json_data = [json_data]
 
-        if json_data and isinstance(json_data, list):
-            pass
-
         final_dict = defaultdict(list)
 
         for entry in json_data:
@@ -608,7 +608,7 @@ class OMMUtils:
     @staticmethod
     def tle_to_TleEphemeris_object(
             tle_line_1: str, tle_line_2: str
-    ) -> environment.TleEphemeris:
+    ) -> environment.Tle:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
