@@ -75,6 +75,7 @@ class SpaceTrackQuery:
 
         Parameters
         ----------
+        
         password : str
             Plaintext password. Never stored on the instance.
 
@@ -113,12 +114,36 @@ class SpaceTrackQuery:
     # ------------------------------------------------------------------
 
     def _build_url(self, *path_parts: str) -> str:
-        """Joins path segments onto the base URL, safe on all platforms."""
+        """
+        Joins path segments onto the base URL, safe on all platforms.
+
+        Parameters
+        ----------
+        *path_parts : str
+            URL path segments to join.
+
+        Returns
+        -------
+        str
+            The full URL.
+        """
         path = "/".join(part.strip("/") for part in path_parts)
         return urljoin(self.spacetrack_url.rstrip("/") + "/", path)
 
     def _fetch_json(self, url: str) -> list:
-        """GET a URL and return the body as a list."""
+        """
+        GET a URL and return the body as a list.
+
+        Parameters
+        ----------
+        url : str
+            The URL to fetch.
+
+        Returns
+        -------
+        list
+            The JSON response body as a list.
+        """
         response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
@@ -176,6 +201,17 @@ class SpaceTrackQuery:
         File structure on disk::
 
             {"last_api_hit": "<ISO datetime>", "data": [...]}
+
+        Parameters
+        ----------
+        filepath : str
+            Path to the JSON cache file.
+        new_data : list[dict]
+            New OMM records to merge.
+
+        Returns
+        -------
+        None
         """
         existing: list[dict] = []
         if os.path.exists(filepath):
@@ -292,6 +328,11 @@ class SpaceTrackQuery:
             ``True`` → merge into existing file. ``False`` → overwrite.
         filename : str | None
             Optional filename override. Defaults to ``'latest_on_orbit.json'``.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         url = self._build_url(
             "basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"
@@ -316,6 +357,11 @@ class SpaceTrackQuery:
             ``True`` → merge. ``False`` → overwrite.
         filename : str | None
             Optional filename override.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         if filename:
             json_name = filename
@@ -356,6 +402,11 @@ class SpaceTrackQuery:
             ``True`` → merge. ``False`` → overwrite.
         filename : str | None
             Force a specific cache filename.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         if not isinstance(norad_ids, (list, tuple, set)):
             norad_ids = [norad_ids]
@@ -407,6 +458,11 @@ class SpaceTrackQuery:
             Cache filename.
         update_existing : bool
             ``True`` → merge. ``False`` → overwrite.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         parts = ["basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"]
         for oe, bounds in filter_oe_dict.items():
@@ -621,7 +677,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.TleEphemeris
+        environment.Tle
             Configured TleEphemeris object.
         """
         return environment.TleEphemeris(
@@ -644,7 +700,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.TleEphemeris
+        environment.Tle
             Tle object.
         """
         return environment.Tle(tle_line_1, tle_line_2)
@@ -662,6 +718,10 @@ class OMMUtils:
         ----------
         filepath : str
             Absolute path to the cache file.
+
+        Returns
+        -------
+        None
         """
         if not os.path.exists(filepath):
             print(f"File not found: {filepath}")
