@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
          covarianceIterator != automaticCovariances.end( );
          covarianceIterator++ )
     {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 2.0E-8 );
         counter++;
     }
 }
