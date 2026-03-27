@@ -12,6 +12,7 @@
 #define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
 #include <stdexcept>
+#include <type_traits>
 
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/timeType.h"
@@ -20,7 +21,10 @@
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/timeEphemeris.h"
+#include "tudat/astro/ephemerides/timeEphemerisDirectFromMetric.h"
+#include "tudat/astro/ephemerides/timeEphemerisWithFirstOrderDirectConversion.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
@@ -29,6 +33,11 @@ namespace tudat
 
 namespace propagators
 {
+
+inline bool isProperTimeIntegratedStateType( const IntegratedStateType stateType )
+{
+    return ( stateType == proper_time ) || ( static_cast< int >( stateType ) == 5 );
+}
 
 template< typename StateScalarType, typename TimeType >
 void addEmptyTabulatedEphemeris( const simulation_setup::SystemOfBodies& bodies,
@@ -1113,30 +1122,150 @@ private:
 };
 
 
+template< typename TimeType, typename StateScalarType >
+TimeType addTimeDifferenceToEpoch( const TimeType& currentTime, const StateScalarType& timeDifference )
+{
+    if constexpr ( std::is_same_v< TimeType, Time > )
+    {
+        return currentTime + static_cast< long double >( timeDifference );
+    }
+    else
+    {
+        return static_cast< TimeType >(
+                    static_cast< long double >( currentTime ) + static_cast< long double >( timeDifference ) );
+    }
+}
+
+template< typename TimeType, typename StateScalarType >
 std::pair<
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >,
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > >
-> createRelativisticTimeInterpolators(std::map< double, double >& originalToTargetTimeMap);
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >,
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >
+> createRelativisticTimeInterpolators( std::map< TimeType, StateScalarType >& originalToTargetTimeMap )
+{
+    std::map< TimeType, StateScalarType > targetToOriginalTimeMap;
+    for( auto mapIterator = originalToTargetTimeMap.begin( ); mapIterator != originalToTargetTimeMap.end( ); mapIterator++ )
+    {
+        targetToOriginalTimeMap[ addTimeDifferenceToEpoch( mapIterator->first, mapIterator->second ) ] = -mapIterator->second;
+    }
 
-std::pair<
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >,
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, double > >
-> createRelativisticTimeInterpolators(std::map< Time, double >& originalToTargetTimeMap);
-
-
+    return std::make_pair(
+                std::make_shared< interpolators::LinearInterpolator< TimeType, StateScalarType > >( originalToTargetTimeMap ),
+                std::make_shared< interpolators::LinearInterpolator< TimeType, StateScalarType > >( targetToOriginalTimeMap ) );
+}
 
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedDirectFromMetricTimeEphemeris(
-        const simulation_setup::SystemOfBodies& bodies, const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution,
         const std::pair< std::string, std::string > referencePointIdentifier,
-        const std::pair< int, int >& startIndexAndSize );
+        const std::pair< int, int >& startIndexAndSize )
+{
+    if( startIndexAndSize.second != 1 )
+    {
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
+    }
+    std::map< TimeType, StateScalarType > floatingPointValueNumericalSolution;
+
+    for( const auto& solutionEntry : numericalSolution )
+    {
+        floatingPointValueNumericalSolution[ solutionEntry.first ] = solutionEntry.second( startIndexAndSize.first );
+    }
+
+    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > > > timeInterpolators =
+            createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
+
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
+    {
+        std::shared_ptr< TimeEphemeris > newTimeEphemeris =
+                std::make_shared< TimeEphemerisDirectFromMetric< TimeType, StateScalarType > >(
+                    referencePointIdentifier.first );
+        bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );
+    }
+
+    std::shared_ptr< TimeEphemerisDirectFromMetric< TimeType, StateScalarType > > timeEphemeris =
+            std::dynamic_pointer_cast< TimeEphemerisDirectFromMetric< TimeType, StateScalarType > >(
+                bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
+    if( timeEphemeris == nullptr )
+    {
+        throw std::runtime_error(
+                    "Error when resetting integrated direct-from-metric time ephemeris, no TimeEphemerisDirectFromMetric object found." );
+    }
+
+    timeEphemeris->resetGlobalToProperTimeInterpolators(
+                timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second );
+}
 
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedPostNewtonianTimeEphemeris(
         const simulation_setup::SystemOfBodies& bodies,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution,
         const std::pair< std::string, std::string > referencePointIdentifier,
-        const std::pair< int, int >& startIndexAndSize );
+        const std::pair< int, int >& startIndexAndSize )
+{
+    if( startIndexAndSize.second != 1 )
+    {
+        throw std::runtime_error(
+                    "Error when resetting integrated time ephemeris, found requested size " +
+                    std::to_string( startIndexAndSize.second ) );
+    }
+    std::map< TimeType, StateScalarType > floatingPointValueNumericalSolution;
+
+    for( const auto& solutionEntry : numericalSolution )
+    {
+        floatingPointValueNumericalSolution[ solutionEntry.first ] = solutionEntry.second( startIndexAndSize.first );
+    }
+
+    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > > > timeInterpolators =
+            createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
+
+    if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
+    {
+        std::shared_ptr< TimeEphemeris > newTimeEphemeris =
+                std::make_shared< TimeEphemerisWithFirstOrderDirectConversion< TimeType, StateScalarType > >(
+                    typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator( ),
+                    typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator( ),
+                    referencePointIdentifier.first,
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, TimeType >,
+                               bodies.getBody( referencePointIdentifier.first ),
+                               std::placeholders::_1 ) );
+        bodies.getBody( referencePointIdentifier.first )->setTimeScaleConverter( newTimeEphemeris );
+    }
+
+    std::shared_ptr< TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType > > timeEphemeris =
+            std::dynamic_pointer_cast< TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType > >(
+                bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) );
+    if( timeEphemeris == nullptr )
+    {
+        throw std::runtime_error(
+                    "Error when resetting integrated post-Newtonian time ephemeris, no TimeEphemerisFromPostNewtonianExpansion object found." );
+    }
+
+    if( referencePointIdentifier.second == "" )
+    {
+        timeEphemeris->resetBarycentricToBodycentricInterpolators( timeInterpolators.first, timeInterpolators.second );
+    }
+    else
+    {
+        if( timeEphemeris->doesReferencePointTopocentricConverterExist( referencePointIdentifier.second ) )
+        {
+            timeEphemeris->resetBodycentricToTopocentricInterpolators(
+                        timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second  );
+        }
+        else
+        {
+            std::shared_ptr< ground_stations::GroundStationState > groundStationState =
+                    std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointIdentifier.first ) )->getGroundStation(
+                        referencePointIdentifier.second )->getNominalStationState( );
+            timeEphemeris->resetBodycentricToTopocentricInterpolators(
+                        timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second,
+                        std::bind( &ground_stations::GroundStationState::getNominalCartesianPosition, groundStationState ) );
+        }
+    }
+}
 
 template< typename TimeType, typename StateScalarType >
 class RelativisticStateIntegratedStateProcessor: public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
@@ -1167,8 +1296,6 @@ public:
         // Reset numerically integrated states
         if( stateDerivativeType_ == direct_from_metric )
         {
-            std::cout<<"Resetting B: "<<referencePointIdentifier_.first<<" "<<referencePointIdentifier_.second<<std::endl;
-
             resetIntegratedDirectFromMetricTimeEphemeris< TimeType, StateScalarType >(
                         bodies_, numericalSolution, referencePointIdentifier_, this->startIndexAndSize_ );
         }
@@ -1342,8 +1469,10 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
                                        const simulation_setup::SystemOfBodies& bodies,
                                        const bool isPartOfMultiArc )
 {
+    const IntegratedStateType currentStateType = propagatorSettings->getStateType( );
+
     // Check dynamics type.
-    switch( propagatorSettings->getStateType( ) )
+    switch( currentStateType )
     {
         case hybrid: {
             // Check input consistency
@@ -1435,19 +1564,16 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
             break;
         }
         case proper_time: {
-            // Check input feasibility
             std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > properTimePropagatorSettings =
                     std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
             if( properTimePropagatorSettings == nullptr )
             {
                 throw std::runtime_error( "Error, input type for proper time dynamics is inconsistent when checking dynamics feasibility" );
             }
-
             break;
         }
-        
         default:
-            throw std::runtime_error( "Error, integrated state type " + std::to_string( propagatorSettings->getStateType( ) ) +
+            throw std::runtime_error( "Error, integrated state type " + std::to_string( static_cast< int >( currentStateType ) ) +
                                       " not recognized when checking dynamics feasibility" );
     }
 }
@@ -1474,8 +1600,10 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
     std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
             integratedStateProcessors;
 
+    const IntegratedStateType currentStateType = propagatorSettings->getStateType( );
+
     // Check dynamics type.
-    switch( propagatorSettings->getStateType( ) )
+    switch( currentStateType )
     {
         case hybrid: {
             // Check input consistency
@@ -1556,6 +1684,11 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
             std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationalPropagatorSettings =
                     std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
 
+            if( rotationalPropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, input rotational state type is inconsistent in createIntegratedStateProcessors" );
+            }
+
             integratedStateProcessors[ rotational_state ] =
                     std::make_shared< RotationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
                             startIndex, bodies, rotationalPropagatorSettings->bodiesToIntegrate_ );
@@ -1577,8 +1710,7 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
                             startIndex, bodies, massPropagatorSettings->bodiesWithMassToPropagate_ );
             break;
         }
-        case proper_time:
-        {
+        case proper_time: {
             std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > properTimePropagatorSettings =
                     std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
             if( properTimePropagatorSettings == nullptr )
@@ -1597,7 +1729,7 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
         }
         default:
             throw std::runtime_error( "Error, could not process integrated state type " +
-                                      std::to_string( propagatorSettings->getStateType( ) ) );
+                                      std::to_string( static_cast< int >( currentStateType ) ) );
     }
 
     return integratedStateProcessors;

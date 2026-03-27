@@ -36,11 +36,11 @@ namespace tudat
  *  \return Total time difference obtained by summing all conversion steps.
  */
 template< typename TimeType >
-double combineTimeDifferenceFunction( const std::vector< std::function< double( const TimeType ) > >& timeDifferenceFunctions,
-                                      const std::vector< int >& evaluationStepIndices,
-                                      const TimeType time )
+TimeType combineTimeDifferenceFunction( const std::vector< std::function< TimeType( const TimeType ) > >& timeDifferenceFunctions,
+                                        const std::vector< int >& evaluationStepIndices,
+                                        const TimeType time )
 {
-    double timeDifference = 0.0;
+    TimeType timeDifference = TimeType( 0.0 );
     std::vector< TimeType > intermediateTimes;
     intermediateTimes.push_back( time );
 
@@ -65,6 +65,19 @@ inline TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifferenc
     else
     {
         return static_cast< TimeType >( timeDifference.getSeconds< long double >( ) );
+    }
+}
+
+template< typename TimeType >
+inline TimeType convertInterpolatorTimeFromExtendedTime( const Time& currentTime )
+{
+    if constexpr ( std::is_same_v< TimeType, Time > )
+    {
+        return currentTime;
+    }
+    else
+    {
+        return static_cast< TimeType >( currentTime.getSeconds< long double >( ) );
     }
 }
 

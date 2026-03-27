@@ -30,10 +30,6 @@ set(ephemerides_SOURCES
         "aeordynamicAngleRotationalEphemeris.cpp"
         "directionBasedRotationalEphemeris.cpp"
         "multiArcEphemeris.cpp"
-        "timeEphemerisFromPostNewtonianExpansion.cpp"
-        "timeEphemerisWithFirstOrderDirectConversion.cpp"
-        "timeEphemerisWithSecondOrderDirectConversion.cpp"
-        "timeEphemerisDirectFromMetric.cpp"
         )
 
 # Set the header files.
