@@ -52,6 +52,7 @@
 #include "scalarTypes.h"
 
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/cameras/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -62,6 +63,7 @@ namespace tr = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
+namespace tcam = tudat::cameras;
 namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
@@ -2440,7 +2442,82 @@ bool
 
      )doc" );
 
-    /*!
+    py::class_< tcam::Camera, std::shared_ptr< tcam::Camera > >( m, "Camera", R"doc(
+        Object that defines a camera for use in observation models.
+
+        Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
+        and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
+     )doc" )
+            .def_property_readonly( "id", &tcam::Camera::getCameraId, R"doc(
+
+         **read-only**
+
+         Identifier of the camera, used in other parts of the simulation to refer to this camera.
+
+         :type: str
+         )doc" )
+            .def_property_readonly( "focal_lengths", &tcam::Camera::getFocalLengthsMatrix, R"doc(
+
+            **read-only**
+
+            Diagonal Matrix representing the camera's focal lengths on the x and y axis.
+
+            :type:: numpy.ndarray[numpy.float64[2, 2]]
+            )doc" )
+            .def( "calculateObservableBodyFixedPosition",
+                  &tcam::Camera::calculateObservableFromBodyFixed,
+                  py::arg( "body_fixed_observable_position" ),
+                  R"doc(
+
+         Function to compute the observable position of a point in the camera frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the body-fixed frame. The observable position is defined as the projection of the point onto the camera's sensor plane, and is typically expressed in pixel coordinates. The calculation takes into account the camera's orientation (given by :attr:`~Camera.quat`) and any other relevant properties of the camera.
+
+         Parameters
+         ----------
+         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the body-fixed frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def( "calculateObservableInertialPosition",
+                  &tcam::Camera::calculateObservableFromInertial,
+                  py::arg( "inertial_observable_position" ),
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided ``rotational_ephemeris`` and ``current_time``, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
+
+         Parameters
+         ----------
+         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the inertial frame.
+
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the transformation from inertial to body-fixed frame is computed.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def_property_readonly(
+                    "quat",
+                    []( const tcam::Camera& self ) -> Eigen::Vector4d {
+                        Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
+                        return Eigen::Vector4d( q.w( ), q.x( ), q.y( ), q.z( ) );
+                    },
+                    R"doc(
+            **read-only**
+
+            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
+            )doc" );
+    /*
      **************   GROUND STATION FUNCTIONALITY
      *******************
      */

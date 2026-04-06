@@ -80,6 +80,11 @@ namespace ground_stations
 class GroundStation;
 }  // namespace ground_stations
 
+namespace cameras
+{
+class Camera;
+}  // namespace cameras
+
 namespace system_models
 {
 class TimingSystem;
