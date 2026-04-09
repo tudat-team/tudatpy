@@ -48,9 +48,10 @@ public:
     AngularPositionObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-            const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
+            const bool normalizeRightAscension = false ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator )
+        lightTimeCalculator_( lightTimeCalculator ), normalizeRightAscension_( normalizeRightAscension )
     {}
 
     //! Destructor
@@ -136,7 +137,15 @@ public:
         double declination = mathematical_constants::PI / 2.0 - std::acos( relativePosition[ 2 ] / relativePosition.norm( ) );
         //        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
         //                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
-        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension, declination ).finished( );
+        if( !normalizeRightAscension_ )
+        {
+            return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension, declination ).finished( );
+        }
+        else
+        {
+            return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension * std::cos( declination ), declination ).finished( );
+
+        }
     }
 
     //! Function to get the object to calculate light time.
@@ -149,12 +158,20 @@ public:
         return lightTimeCalculator_;
     }
 
+    bool getNormalizeRightAscension( )
+    {
+        return normalizeRightAscension_;
+    }
+
+
 private:
     //! Object to calculate light time.
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
+
+    bool normalizeRightAscension_;
 };
 
 }  // namespace observation_models

@@ -56,13 +56,15 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( E
  * \return Derivative of (direct geometric) right ascension and declination w.r.t. position of observer or observed object.
  */
 Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
-                                                                                   const bool isLinkEndReceiver );
+                                                                                   const bool isLinkEndReceiver,
+                                                                                   const bool normalizeRightAscension );
 
 //! Derived class for scaling three-dimensional position partial to angular position observable partial
 class AngularPositionScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
-    AngularPositionScaling( ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ) { }
+    AngularPositionScaling( const bool normalizeRightAscension ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ),
+    normalizeRightAscension_( normalizeRightAscension ){ }
     //! Destructor
     ~AngularPositionScaling( ) { }
 
@@ -118,6 +120,9 @@ public:
     }
 
 private:
+
+    bool normalizeRightAscension_;
+
     //! Predeclared common scaling factor
     Eigen::Matrix< double, 2, 3 > scalingFactor_;
 

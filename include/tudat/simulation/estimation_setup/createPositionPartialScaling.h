@@ -265,8 +265,16 @@ public:
         switch( observableType )
         {
             case observation_models::angular_position:
-                positionPartialScaler = std::make_shared< AngularPositionScaling >( );
+            {
+                std::shared_ptr< observation_models::AngularPositionObservationModel< ParameterType, TimeType > > angularPositionModel =
+                    std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel< ParameterType, TimeType > >( observationModel );
+                if( angularPositionModel ==  nullptr )
+                {
+                    throw std::runtime_error( "Error when making angular position partial; object not recognized" );
+                }
+                positionPartialScaler = std::make_shared< AngularPositionScaling >( angularPositionModel->getNormalizeRightAscension( ) );
                 break;
+            }
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
