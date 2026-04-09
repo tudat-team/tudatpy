@@ -57,14 +57,17 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( E
  */
 Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
                                                                                    const bool isLinkEndReceiver,
-                                                                                   const bool normalizeRightAscension );
+                                                                                   const bool normalizeRightAscension,
+                                                                                   const Eigen::VectorXd& currentObservation = Eigen::VectorXd::Zero( 0 ) );
 
 //! Derived class for scaling three-dimensional position partial to angular position observable partial
 class AngularPositionScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
     AngularPositionScaling( const bool normalizeRightAscension ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ),
-    normalizeRightAscension_( normalizeRightAscension ){ }
+    normalizeRightAscension_( normalizeRightAscension )
+    {
+    }
     //! Destructor
     ~AngularPositionScaling( ) { }
 

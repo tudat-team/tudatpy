@@ -52,7 +52,8 @@ public:
             const bool normalizeRightAscension = false ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), normalizeRightAscension_( normalizeRightAscension )
-    {}
+    {
+    }
 
     //! Destructor
     ~AngularPositionObservationModel( ) {}
