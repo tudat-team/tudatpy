@@ -53,13 +53,34 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( E
 //! Function to compute the derivative of (direct geometric) right ascension and declination w.r.t. position of observer or
 //! observed object.
 Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
-                                                                                   const bool isLinkEndReceiver )
+                                                                                   const bool isLinkEndReceiver,
+                                                                                   const bool normalizeRightAscension,
+                                                                                   const Eigen::VectorXd& currentObservation )
 {
     Eigen::Matrix< double, 2, 3 > angularPositionPartial;
     angularPositionPartial.block( 0, 0, 1, 3 ) =
             calculatePartialOfRightAscensionWrtLinkEndPosition( relativeRangeVector, isLinkEndReceiver );
     angularPositionPartial.block( 1, 0, 1, 3 ) = calculatePartialOfDeclinationWrtLinkEndPosition( relativeRangeVector, isLinkEndReceiver );
-    return angularPositionPartial;
+    if( normalizeRightAscension )
+    {
+        if( currentObservation.rows(  ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting angular position partial scaling for normalized observable; incompatible input" );
+        }
+        double rightAscension = currentObservation( 0 );
+        double declination = currentObservation( 1 );
+        Eigen::Matrix< double, 2, 3 > normalizedAngularPositionPartial = angularPositionPartial;
+
+        normalizedAngularPositionPartial.block( 0, 0, 1, 3 ) =
+            std::cos( declination ) * angularPositionPartial.block( 0, 0, 1, 3 ) -
+                rightAscension * std::sin( declination ) * angularPositionPartial.block( 1, 0, 1, 3 );
+        return normalizedAngularPositionPartial;
+
+    }
+    else
+    {
+        return angularPositionPartial;
+    }
 }
 
 //! Update the scaling object to the current times and states
@@ -72,7 +93,7 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
     Eigen::Vector3d normalizedRelativeRangeVector = relativeRangeVector.normalized( );
 
     // Compute common scaling factor
-    scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true );
+    scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true, normalizeRightAscension_, currentObservation );
 
     // Compute scaling for receiver reference
     if( fixedLinkEnd == observation_models::receiver )

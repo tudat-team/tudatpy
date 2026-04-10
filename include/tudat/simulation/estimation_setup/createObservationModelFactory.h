@@ -1585,8 +1585,8 @@ public:
                                                                                       bodies,
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
-                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
-                        observationBias );
+                                                                                      observationSettings->lightTimeConvergenceCriteria_),
+                                                                                      observationBias, observationSettings->useNormalization_  );
 
                 break;
             }
