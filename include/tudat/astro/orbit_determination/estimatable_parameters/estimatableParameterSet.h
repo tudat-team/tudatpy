@@ -1542,6 +1542,7 @@ void getParametersToEstimatePerArcTest(
                                         currentArcCentralBody,
                                         currentArcInitialStateParameter->getFrameOrientation( ) );
 
+                        arcWiseInitialStateParameter->setCustomPartialSettings( currentArcInitialStateParameter->getCustomPartialSettings(  ) );
                         arcWiseStatesParameters.push_back( arcWiseInitialStateParameter );
 
                         //                        arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
