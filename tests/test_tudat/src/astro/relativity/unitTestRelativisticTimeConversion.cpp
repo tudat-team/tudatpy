@@ -438,12 +438,12 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     double endTime = finalEphemerisTime;
     double timeStep = 3000.0;
 
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            numerical_integrators::rungeKutta4Settings( timeStep );
+    std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings =
+            numerical_integrators::rungeKutta4Settings< Time >( Time( timeStep ) );
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( endTime );
 
     std::vector< std::string > listOfPerturbingBodies{ "Earth",  "Moon",  "Sun", "Jupiter", "Saturn" };
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialRelativisticTimeState = Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 1 );
+    Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialRelativisticTimeState = Eigen::Matrix< long double, Eigen::Dynamic, 1 >::Zero( 1 );
 
     auto outputProcessingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >(
                 false,
@@ -456,32 +456,32 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 
     const std::vector< std::string > topocentricPerturbingBodies{ "Moon", "Sun", "Jupiter", "Saturn" };
 
-    std::vector< std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, double > > > bodyCentricToTopocentricConversionSettings;
+    std::vector< std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, Time > > > bodyCentricToTopocentricConversionSettings;
     bodyCentricToTopocentricConversionSettings.push_back(
-                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
+                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< long double, Time > >(
                     std::make_pair( "Earth", "Graz" ), 0, 4, 0, topocentricPerturbingBodies,
-                    initialRelativisticTimeState, initialEphemerisTime, integratorSettings, terminationSettings,
+                    initialRelativisticTimeState, Time( initialEphemerisTime ), integratorSettings, terminationSettings,
                     dependentVariablesList,
                     outputProcessingSettings
                 ) );
     bodyCentricToTopocentricConversionSettings.push_back(
-                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
+                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< long double, Time > >(
                     std::make_pair( "Earth", "Yarragadee" ), 0, 4, 0, topocentricPerturbingBodies,
-                    initialRelativisticTimeState, initialEphemerisTime, integratorSettings, terminationSettings,
+                    initialRelativisticTimeState, Time( initialEphemerisTime ), integratorSettings, terminationSettings,
                     dependentVariablesList,
                     outputProcessingSettings
                 ) );
 
-    std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings<> > > relativisticConverterSettings;
-    relativisticConverterSettings[ "LRO" ] = std::make_shared< DirectRelativisticTimeConverterSettings<> >(
-                std::make_shared< propagators::FirstOrderBodycentricRelativisticTimePropagatorSettings< double, double > >(
-                    "LRO", listOfPerturbingBodies, initialEphemerisTime, integratorSettings, terminationSettings ),
+    std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > > > relativisticConverterSettings;
+    relativisticConverterSettings[ "LRO" ] = std::make_shared< DirectRelativisticTimeConverterSettings< long double, Time > >(
+                std::make_shared< propagators::FirstOrderBodycentricRelativisticTimePropagatorSettings< long double, Time > >(
+                    "LRO", listOfPerturbingBodies, Time( initialEphemerisTime ), integratorSettings, terminationSettings ),
                 integratorSettings ); 
 
     std::vector< std::string > listOfPerturbingBodies2{ "Moon",  "Sun", "Jupiter", "Saturn" };
-    relativisticConverterSettings[ "Earth" ] = std::make_shared< DirectRelativisticTimeConverterSettings<> >(
-                std::make_shared< propagators::SecondOrderBodyCenteredRelativisticTimeConverterSettings< double, double > >(
-                    "Earth", listOfPerturbingBodies2, initialEphemerisTime, integratorSettings, terminationSettings ),
+    relativisticConverterSettings[ "Earth" ] = std::make_shared< DirectRelativisticTimeConverterSettings< long double, Time > >(
+                std::make_shared< propagators::SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > >(
+                    "Earth", listOfPerturbingBodies2, Time( initialEphemerisTime ), integratorSettings, terminationSettings ),
                 integratorSettings,
                 bodyCentricToTopocentricConversionSettings );
 
@@ -493,86 +493,87 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     BOOST_CHECK_EQUAL( ( lroTimeScaleConverter == nullptr ), 0 );
     BOOST_CHECK_EQUAL( ( earthTimeScaleConverter == nullptr ), 0 );
 
-    BOOST_CHECK_SMALL( lroTimeScaleConverter->getTimeDifference(
-                           body_centered_coordinate_time_scale, barycentric_coordinate_time_scale, initialEphemerisTime ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference(
-                           body_centered_coordinate_time_scale, barycentric_coordinate_time_scale, initialEphemerisTime ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( lroTimeScaleConverter->getTimeDifference(
-                           barycentric_coordinate_time_scale, body_centered_coordinate_time_scale, initialEphemerisTime ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference(
-                           barycentric_coordinate_time_scale, body_centered_coordinate_time_scale, initialEphemerisTime ),
-                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( lroTimeScaleConverter->getTimeDifference< Time >(
+                           body_centered_coordinate_time_scale, barycentric_coordinate_time_scale, Time( initialEphemerisTime ) ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference< Time >(
+                           body_centered_coordinate_time_scale, barycentric_coordinate_time_scale, Time( initialEphemerisTime ) ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( lroTimeScaleConverter->getTimeDifference< Time >(
+                           barycentric_coordinate_time_scale, body_centered_coordinate_time_scale, Time( initialEphemerisTime ) ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference< Time >(
+                           barycentric_coordinate_time_scale, body_centered_coordinate_time_scale, Time( initialEphemerisTime ) ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
 
 
-    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference(
-                           body_centered_coordinate_time_scale, local_proper_time_scale, initialEphemerisTime, "Graz" ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference(
-                           local_proper_time_scale, body_centered_coordinate_time_scale, initialEphemerisTime, "Graz" ),
-                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference< Time >(
+                           body_centered_coordinate_time_scale, local_proper_time_scale, Time( initialEphemerisTime ), "Graz" ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( earthTimeScaleConverter->getTimeDifference< Time >(
+                           local_proper_time_scale, body_centered_coordinate_time_scale, Time( initialEphemerisTime ), "Graz" ).getSeconds< long double >( ),
+                       std::numeric_limits< long double >::epsilon( ) );
 
-    std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< double, double > > directEarthTimeScaleConverter =
-            std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< double, double > >(
-                "Earth", listOfPerturbingBodies2, initialEphemerisTime, integratorSettings, terminationSettings );
+    std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > > directEarthTimeScaleConverter =
+            std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > >(
+                "Earth", listOfPerturbingBodies2, Time( initialEphemerisTime ), integratorSettings, terminationSettings );
 
     directEarthTimeScaleConverter->getOutputSettings( )->setIntegratedResult( true );
 
     // Get directly calculated map of tcg-tcb from tcb input (key)
-    SingleArcDynamicsSimulator< > timeEquationPropagator = SingleArcDynamicsSimulator< >(
+    SingleArcDynamicsSimulator< long double, Time > timeEquationPropagator = SingleArcDynamicsSimulator< long double, Time >(
                 bodies, directEarthTimeScaleConverter, true );
 
-    std::map< double, Eigen::VectorXd > directTimeDifferencesVectors = timeEquationPropagator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, double > directTimeDifferences;
-    for( std::map< double, Eigen::VectorXd >::iterator resultIterator = directTimeDifferencesVectors.begin( ); resultIterator !=
+    std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > directTimeDifferencesVectors =
+            timeEquationPropagator.getEquationsOfMotionNumericalSolution( );
+    std::map< Time, long double > directTimeDifferences;
+    for( std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >::iterator resultIterator = directTimeDifferencesVectors.begin( ); resultIterator !=
          directTimeDifferencesVectors.end( ); resultIterator++ )
     {
         directTimeDifferences[ resultIterator->first ] = resultIterator->second.x( );
     }
 
     // Create map of tcb-tcg from tcg input (key)
-    std::map< double, double > directInverseTimeDifferences;
-    for( std::map< double, double >::iterator differenceIterator = directTimeDifferences.begin( ); differenceIterator !=
+    std::map< Time, long double > directInverseTimeDifferences;
+    for( std::map< Time, long double >::iterator differenceIterator = directTimeDifferences.begin( ); differenceIterator !=
          directTimeDifferences.end( ); differenceIterator++ )
     {
         directInverseTimeDifferences[ differenceIterator->first + differenceIterator->second ] = -differenceIterator->second;
     }
 
     // Get time difference functions from indirect calculator.
-    std::function< double( const double ) > indirectDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    std::function< Time( const Time ) > indirectDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 barycentric_coordinate_time_scale, body_centered_coordinate_time_scale );
-    std::function< double( const double ) > indirectInverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    std::function< Time( const Time ) > indirectInverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 body_centered_coordinate_time_scale, barycentric_coordinate_time_scale );
 
     // Iterate over all directly calculated function values, and use indirect inverse function to check whether a zero difference results.
-    Eigen::VectorXd forwardBackardTransformationResults =  Eigen::VectorXd( directTimeDifferences.size( ) );
-    Eigen::VectorXd inverseForwardBackardTransformationResults =  Eigen::VectorXd( directTimeDifferences.size( ) );
+    Eigen::Matrix< long double, Eigen::Dynamic, 1 > forwardBackardTransformationResults =
+            Eigen::Matrix< long double, Eigen::Dynamic, 1 >::Zero( directTimeDifferences.size( ) );
 
     int counter = 0;
-    double convertedValue = 0.0;
-    for( std::map< double, double >::iterator differenceIterator = directTimeDifferences.begin( ); differenceIterator !=
+    long double convertedValue = 0.0L;
+    for( std::map< Time, long double >::iterator differenceIterator = directTimeDifferences.begin( ); differenceIterator !=
          directTimeDifferences.end( ); differenceIterator++ )
     {
-        convertedValue = indirectDifferenceFunction( differenceIterator->first );
+        convertedValue = indirectDifferenceFunction( differenceIterator->first ).getSeconds< long double >( );
         forwardBackardTransformationResults( counter ) = convertedValue - differenceIterator->second;
         counter++;
     }
 
-    double maximumDifference = forwardBackardTransformationResults.maxCoeff( );
-    double minimumDifference = forwardBackardTransformationResults.minCoeff( );
+    long double maximumDifference = forwardBackardTransformationResults.maxCoeff( );
+    long double minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9 );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9 );
+    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
 
     counter = 0;
-    convertedValue = 0.0;
+    convertedValue = 0.0L;
     forwardBackardTransformationResults.setZero( );
-    for( std::map< double, double >::iterator differenceIterator = directInverseTimeDifferences.begin( ); differenceIterator !=
+    for( std::map< Time, long double >::iterator differenceIterator = directInverseTimeDifferences.begin( ); differenceIterator !=
          directInverseTimeDifferences.end( ); differenceIterator++ )
     {
-        convertedValue = indirectInverseDifferenceFunction( differenceIterator->first );
+        convertedValue = indirectInverseDifferenceFunction( differenceIterator->first ).getSeconds< long double >( );
         forwardBackardTransformationResults( counter ) = convertedValue-differenceIterator->second;
         counter++;
     }
@@ -580,33 +581,34 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9 );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9 );
+    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
 
-    std::vector< double > evaluationTimes = utilities::createVectorFromMapKeys( directTimeDifferences );
+    std::vector< Time > evaluationTimes = utilities::createVectorFromMapKeys( directTimeDifferences );
 
-    std::function< double( const double ) > differenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    std::function< Time( const Time ) > differenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 body_centered_coordinate_time_scale, local_proper_time_scale, "Graz" );
-    std::function< double( const double ) > inverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    std::function< Time( const Time ) > inverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 local_proper_time_scale, body_centered_coordinate_time_scale, "Graz" );
 
-    double convertedTime;
+    Time convertedTime;
     forwardBackardTransformationResults.setZero( );
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         convertedTime = evaluationTimes[ i ] + differenceFunction( evaluationTimes[ i ] );
-        forwardBackardTransformationResults( i ) = evaluationTimes[ i ] - ( convertedTime + inverseDifferenceFunction( convertedTime ) );
+        forwardBackardTransformationResults( i ) =
+                ( evaluationTimes[ i ] - ( convertedTime + inverseDifferenceFunction( convertedTime ) ) ).getSeconds< long double >( );
     }
 
     maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9 );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9 );
+    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
 
-    differenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    differenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 barycentric_coordinate_time_scale, local_proper_time_scale, "Graz" );
-    inverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction(
+    inverseDifferenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 local_proper_time_scale, barycentric_coordinate_time_scale, "Graz" );
 
 
@@ -614,16 +616,17 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         convertedTime = evaluationTimes[ i ] + differenceFunction( evaluationTimes[ i ] );
-        forwardBackardTransformationResults( i ) = evaluationTimes[ i ] - ( convertedTime + inverseDifferenceFunction( convertedTime ) );
+        forwardBackardTransformationResults( i ) =
+                ( evaluationTimes[ i ] - ( convertedTime + inverseDifferenceFunction( convertedTime ) ) ).getSeconds< long double >( );
     }
 
     maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     minimumDifference = forwardBackardTransformationResults.minCoeff( );
-    const double maxAbsDifference = std::max( std::fabs( maximumDifference ), std::fabs( minimumDifference ) );
+    const long double maxAbsDifference = std::max( std::fabs( maximumDifference ), std::fabs( minimumDifference ) );
     std::cout << "[test_concatenated_conversions] max_abs_diff=" << maxAbsDifference << std::endl;
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-12 );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-12 );
+    BOOST_CHECK_SMALL( maximumDifference, 1.0E-12L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-12L );
 }
 
 BOOST_AUTO_TEST_CASE( test_geoid_tt_tcg_sh_rotation_rate )

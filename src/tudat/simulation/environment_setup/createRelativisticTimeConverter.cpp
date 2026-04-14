@@ -116,5 +116,13 @@ template void setRelativisticTimeConverters<double, Time>(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > > >& converterSettings );
 
+template void setRelativisticTimeConverter<long double, Time>(
+        const std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > >& conversionSettings,
+        const SystemOfBodies& bodyMap );
+
+template void setRelativisticTimeConverters<long double, Time>(
+        const SystemOfBodies& bodyMap,
+        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > > >& converterSettings );
+
 } // namespace simulation_setup
 } // namespace tudat
