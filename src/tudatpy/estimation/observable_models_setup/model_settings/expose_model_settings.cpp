@@ -22,6 +22,7 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/astro/observation_models/observableTypes.h"
 
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
@@ -1444,6 +1445,22 @@ Returns
 
 )doc" );
 
+    m.def( "get_observable_size",
+       &tom::getObservableSize,
+       py::arg( "observable_type" ),
+       R"doc(
+ Function to get the size of an observable of a given type.
+
+ Parameters
+ ----------
+ observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+     The type of the observable.
+
+ Returns
+ -------
+ int
+     The size of the observable (e.g., 1 for one_way_range, 2 for angular_position).
+ )doc" );
     //////////////////////////////////////////// DEPRECATED
     ///////////////////////////////////////////////
 
