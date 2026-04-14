@@ -26,6 +26,9 @@ from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
 
+# do not remove this line, even if it looks liek an unused import line
+from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
+
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
     ".tudat",
