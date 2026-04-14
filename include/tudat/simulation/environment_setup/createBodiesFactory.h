@@ -308,6 +308,11 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
                                  orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
         }
+
+        for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->cameraSettings.size( ); j++ )
+        {
+            createCamera( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).second->cameraSettings.at( j ) );
+        }
     }
 
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
