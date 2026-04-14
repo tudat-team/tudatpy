@@ -824,20 +824,21 @@ class BatchMPC:
         # Get the default time scale converter
         time_scale_converter = time_representation.default_time_scale_converter()
 
+        augmented_table = table.copy()
         # Add 'epoch_seconds_UTC' column by converting DateTime Objects to epoch
-        table["epoch_seconds_UTC"] = [dt_obj.epoch() for dt_obj in dt_objects]
+        augmented_table["epoch_seconds_UTC"] = [dt_obj.epoch() for dt_obj in dt_objects]
 
         # Add 'epoch_seconds_TDB' column by converting from UTC to TDB
-        table["epoch_seconds_TDB"] = [
+        augmented_table["epoch_seconds_TDB"] = [
             time_scale_converter.convert_time(
                 input_scale=time_representation.utc_scale,
                 output_scale=time_representation.tdb_scale,
                 input_value=t_utc,
             )
-            for t_utc in table["epoch_seconds_UTC"]
+            for t_utc in augmented_table["epoch_seconds_UTC"]
         ]
 
-        return table
+        return augmented_table
 
     # data retrieval options: from_file: allows external observations to be added
     def from_file(
