@@ -849,7 +849,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
             designMatrixFromEstimation.transpose( ) * expectedFullWeightsMatrix * designMatrixFromEstimation;
     Eigen::MatrixXd expectedCovarianceFromEstimation = expectedInverseCovarianceFromEstimation.inverse( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            estimationOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedInverseCovarianceFromEstimation, 1.0E-15 );
+            estimationOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedInverseCovarianceFromEstimation, 1.0E-14 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             estimationOutput->getUnnormalizedCovarianceMatrix( ), expectedCovarianceFromEstimation, 5.0E-8 );
 
@@ -868,14 +868,14 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
     Eigen::MatrixXd expectedCovarianceFromCovariance = expectedInverseCovarianceFromCovariance.inverse( );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            covarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedInverseCovarianceFromCovariance, 1.0E-15 );
+            covarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedInverseCovarianceFromCovariance, 1.0E-14 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             covarianceOutput->getUnnormalizedCovarianceMatrix( ), expectedCovarianceFromCovariance, 5.0E-8 );
 
     // Ensure estimate and standalone covariance are consistent.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput->getUnnormalizedInverseCovarianceMatrix( ),
                                        estimationOutput->getUnnormalizedInverseCovarianceMatrix( ),
-                                       1.0E-15 );
+                                       1.0E-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

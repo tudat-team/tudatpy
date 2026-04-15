@@ -1145,6 +1145,163 @@ public:
         }
     }
 
+    void setBlockDiagonalWeights(
+            const std::vector< Eigen::MatrixXd > blockDiagonalWeights,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
+                getSingleObservationSets( observationParser );
+        if( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting block-diagonal weights, no single observation set found "
+                         "for specified observation parser. Weights not set";
+            return;
+        }
+
+        if( singleObsSets.size( ) == 1 )
+        {
+            singleObsSets.at( 0 )->setBlockDiagonalWeights( blockDiagonalWeights );
+            return;
+        }
+
+        bool areObsSetsSameSize = true;
+        unsigned int totalNumberOfObservations = singleObsSets.at( 0 )->getNumberOfObservables( );
+        for( unsigned int k = 1; k < singleObsSets.size( ); k++ )
+        {
+            const unsigned int currentNumberOfObservations = singleObsSets.at( k )->getNumberOfObservables( );
+            totalNumberOfObservations += currentNumberOfObservations;
+            if( currentNumberOfObservations != singleObsSets.at( 0 )->getNumberOfObservables( ) )
+            {
+                areObsSetsSameSize = false;
+            }
+        }
+
+        unsigned int startObsSet = 0;
+        for( auto obsSet : singleObsSets )
+        {
+            if( blockDiagonalWeights.size( ) == totalNumberOfObservations )
+            {
+                std::vector< Eigen::MatrixXd > singleSetWeights(
+                        blockDiagonalWeights.begin( ) + startObsSet,
+                        blockDiagonalWeights.begin( ) + startObsSet + obsSet->getNumberOfObservables( ) );
+                startObsSet += obsSet->getNumberOfObservables( );
+                obsSet->setBlockDiagonalWeights( singleSetWeights );
+            }
+            else if( areObsSetsSameSize && ( blockDiagonalWeights.size( ) == singleObsSets.at( 0 )->getNumberOfObservables( ) ) )
+            {
+                obsSet->setBlockDiagonalWeights( blockDiagonalWeights );
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when setting block-diagonal weights, the number of input blocks should be consistent "
+                        "with either the number of observations in each individual observation set, or the combined "
+                        "number of observations of all required observation sets." );
+            }
+        }
+    }
+
+    void setBlockDiagonalWeights(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, std::vector< Eigen::MatrixXd > >
+                    weightsPerObservationParser )
+    {
+        for( auto parserIt : weightsPerObservationParser )
+        {
+            setBlockDiagonalWeights( parserIt.second, parserIt.first );
+        }
+    }
+
+    void setFullWeightMatrix(
+            const Eigen::MatrixXd fullWeightMatrix,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
+                getSingleObservationSets( observationParser );
+        if( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting full weights matrix, no single observation set found "
+                         "for specified observation parser. Weights not set";
+            return;
+        }
+
+        if( singleObsSets.size( ) == 1 )
+        {
+            singleObsSets.at( 0 )->setFullWeightMatrix( fullWeightMatrix );
+            return;
+        }
+
+        bool areObsSetsSameSize = true;
+        int totalSizeAllObsSets = static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) );
+        for( unsigned int k = 1; k < singleObsSets.size( ); k++ )
+        {
+            const int currentObsSetSize = static_cast< int >( singleObsSets.at( k )->getTotalObservationSetSize( ) );
+            totalSizeAllObsSets += currentObsSetSize;
+            if( currentObsSetSize != static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
+            {
+                areObsSetsSameSize = false;
+            }
+        }
+
+        if( fullWeightMatrix.rows( ) == totalSizeAllObsSets && fullWeightMatrix.cols( ) == totalSizeAllObsSets )
+        {
+            std::vector< int > startIndices;
+            startIndices.push_back( 0 );
+            for( auto obsSet : singleObsSets )
+            {
+                startIndices.push_back( startIndices.back( ) + static_cast< int >( obsSet->getTotalObservationSetSize( ) ) );
+            }
+
+            for( unsigned int i = 0; i < singleObsSets.size( ); i++ )
+            {
+                const int iStart = startIndices.at( i );
+                const int iSize = startIndices.at( i + 1 ) - iStart;
+                for( unsigned int j = i + 1; j < singleObsSets.size( ); j++ )
+                {
+                    const int jStart = startIndices.at( j );
+                    const int jSize = startIndices.at( j + 1 ) - jStart;
+                    if( !( fullWeightMatrix.block( iStart, jStart, iSize, jSize ).isZero( 0.0 ) ) ||
+                        !( fullWeightMatrix.block( jStart, iStart, jSize, iSize ).isZero( 0.0 ) ) )
+                    {
+                        throw std::runtime_error(
+                                "Error when setting full weights matrix in ObservationCollection; "
+                                "off-block terms coupling different SingleObservationSet objects are not supported." );
+                    }
+                }
+            }
+
+            for( unsigned int i = 0; i < singleObsSets.size( ); i++ )
+            {
+                const int start = startIndices.at( i );
+                const int size = startIndices.at( i + 1 ) - start;
+                singleObsSets.at( i )->setFullWeightMatrix( fullWeightMatrix.block( start, start, size, size ) );
+            }
+        }
+        else if( areObsSetsSameSize &&
+                 fullWeightMatrix.rows( ) == static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) &&
+                 fullWeightMatrix.cols( ) == static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
+        {
+            for( auto obsSet : singleObsSets )
+            {
+                obsSet->setFullWeightMatrix( fullWeightMatrix );
+            }
+        }
+        else
+        {
+            throw std::runtime_error(
+                    "Error when setting full weights matrix, the input matrix size should be consistent with "
+                    "either each individual observation set, or the combined size of all required observation sets." );
+        }
+    }
+
+    void setFullWeightMatrix(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::MatrixXd > weightsPerObservationParser )
+    {
+        for( auto parserIt : weightsPerObservationParser )
+        {
+            setFullWeightMatrix( parserIt.second, parserIt.first );
+        }
+    }
+
     void appendObservationCollection(
             std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollectionToAppend )
     {
