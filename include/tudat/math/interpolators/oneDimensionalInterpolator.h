@@ -39,7 +39,8 @@ enum InterpolatorTypes {
     lagrange_interpolator = 3,
     hermite_spline_interpolator = 4,
     piecewise_constant_interpolator = 5,
-    discrete_jump_linear_interpolator = 6
+    discrete_jump_linear_interpolator = 6,
+    chebyshev_interpolator = 7
 
 };
 

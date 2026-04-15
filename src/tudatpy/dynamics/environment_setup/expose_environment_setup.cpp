@@ -11,9 +11,6 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_environment_setup.h"
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
@@ -21,6 +18,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/simulation/environment_setup/createRelativisticTimeConverter.h>
 #include <tudat/simulation/environment_setup/body.h>
 #include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
 #include <tudat/simulation/environment_setup/createBodiesFactory.h>
@@ -1025,6 +1023,139 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
            py::arg( "body_dict" ) );
 
     m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) );
+
+    // Relativistic time converter helpers
+    py::class_< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m, "DirectRelativisticTimeConverterSettings", R"doc(
+
+        Settings for constructing a direct relativistic time converter for a body.
+
+        This settings object groups the time-scale propagation settings used to
+        build a time-scale converter for a given body (e.g., TCB↔TCG and
+        body-centered↔topocentric conversions).
+
+        The barycentric↔body-centered leg follows the Soffel et al. (2003),
+        Eq. (58)-type implementation in Tudat:
+
+        .. math::
+
+            \frac{d}{dt}\Delta_{BC}
+            =
+            -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+            +
+            \frac{1}{c^4}\left(
+            -\frac{1}{8}v_C^4
+            -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+            +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+            +\frac{1}{2}w_{0,\mathrm{ext}}^2
+            +\Delta_{\mathrm{ext}}
+            \right),
+
+        while body-centered↔topocentric settings follow Turyshev et al. (2013),
+        Eq. (22):
+
+        .. math::
+
+            \frac{d}{dt_C}\left(\tau-t_C\right)
+            =
+            -\frac{1}{c^2}\left[
+            \frac{1}{2}v_0^2
+            +U_E(\mathbf{y})
+            +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+            +\mathbf{a}_E\cdot\mathbf{y}
+            \right].
+
+     )doc" );
+
+    m.def(
+        "direct_relativistic_time_converter_settings",
+        []( const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >& barycentric_to_bodycentric_settings,
+            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
+            const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& bodycentric_to_topocentric_settings )
+        {
+            return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                        barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
+        },
+        py::arg( "barycentric_to_bodycentric_settings" ),
+        py::arg( "integrator_settings" ),
+        py::arg( "bodycentric_to_topocentric_settings" ) =
+                std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
+        R"doc(
+
+ Create settings for a direct relativistic time converter.
+
+ Parameters
+ ----------
+ barycentric_to_bodycentric_settings : RelativisticTimePropagatorSettings
+     Settings for the barycentric↔body-centered conversion (e.g. TCB↔TCG).
+ integrator_settings : IntegratorSettings
+     Numerical integrator settings used for time-scale propagation.
+ bodycentric_to_topocentric_settings : list[RelativisticTimePropagatorSettings], optional
+     Optional list of body-centered↔topocentric conversion settings (local proper time).
+
+ Notes
+ -----
+ The barycentric↔body-centered component propagates
+
+ .. math::
+
+     \frac{d}{dt}\Delta_{BC}
+     =
+     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+     +
+     \frac{1}{c^4}\left(
+     -\frac{1}{8}v_C^4
+     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+     +\frac{1}{2}w_{0,\mathrm{ext}}^2
+     +\Delta_{\mathrm{ext}}
+     \right),
+
+ and the body-centered↔topocentric component propagates
+
+ .. math::
+
+     \frac{d}{dt_C}\left(\tau-t_C\right)
+     =
+     -\frac{1}{c^2}\left[
+     \frac{1}{2}v_0^2
+     +U_E(\mathbf{y})
+     +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+     +\mathbf{a}_E\cdot\mathbf{y}
+     \right].
+
+ In both cases, Tudat propagates the corresponding differential quantity directly.
+
+ Returns
+ -------
+ DirectRelativisticTimeConverterSettings
+     Settings object used by :func:`~set_relativistic_time_converters`.
+
+        )doc" );
+
+    m.def(
+        "set_relativistic_time_converters",
+        []( const tss::SystemOfBodies& bodies,
+            const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& settings )
+        {
+            tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
+        },
+        py::arg( "bodies" ),
+        py::arg( "converter_settings" ),
+        R"doc(
+
+ Attach relativistic time converters to bodies.
+
+ Parameters
+ ----------
+ bodies : SystemOfBodies
+     The system of bodies to which time converters are attached.
+ converter_settings : dict[str, DirectRelativisticTimeConverterSettings]
+     Mapping from body name to converter settings. Each entry creates a
+     time-scale converter accessible via :func:`~tudatpy.dynamics.environment.Body.get_time_scale_converter`.
+
+        )doc" );
 
     //        m.def("get_target_elevation_angles",
     //              &tss::getTargetElevationAngles,

@@ -19,6 +19,8 @@ namespace relativity
 //! Initialize global PPN parameters
 std::shared_ptr< PPNParameterSet > ppnParameterSet = std::make_shared< PPNParameterSet >( 1.0, 1.0 );
 
+
+
 double equivalencePrincipleLpiViolationParameter = 0.0;
 
 }  // namespace relativity

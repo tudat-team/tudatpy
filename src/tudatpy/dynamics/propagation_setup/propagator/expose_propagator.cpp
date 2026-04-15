@@ -1716,6 +1716,243 @@ HybridArcPropagatorSettings
 
      )doc" );
 
+    // Relativistic time propagator settings
+    py::class_< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m, "RelativisticTimePropagatorSettings", R"doc(
+
+        Base class for relativistic time-state propagator settings.
+
+     )doc" );
+
+    py::class_< tp::SecondOrderBodyCenteredRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::SecondOrderBodyCenteredRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "SecondOrderBodyCenteredRelativisticTimeConverterSettings", R"doc(
+
+        Settings for second-order body-centered relativistic time propagation.
+
+        Used to construct barycentric↔body-centered time conversions (e.g., TCB↔TCG)
+        with the Soffel et al. (2003), Eq. (58)-type post-Newtonian terms.
+
+        Tudat propagates:
+
+        .. math::
+
+            \frac{d}{dt}\Delta_{BC}
+            =
+            -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+            +
+            \frac{1}{c^4}\left(
+            -\frac{1}{8}v_C^4
+            -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+            +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+            +\frac{1}{2}w_{0,\mathrm{ext}}^2
+            +\Delta_{\mathrm{ext}}
+            \right),
+
+        where :math:`\Delta_{BC}` is the propagated barycentric/body-centered time difference.
+
+     )doc" );
+
+    py::class_< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "BodycenteredToTopocentricTimePropagatorSettings", R"doc(
+
+        Settings for body-centered↔topocentric relativistic time propagation.
+
+        Used for local proper time conversions at a ground station or reference point.
+
+        Tudat follows Turyshev et al. (2013), Eq. (22), and propagates
+        :math:`d(\tau-t_C)/dt_C` as:
+
+        .. math::
+
+            \frac{d}{dt_C}\left(\tau-t_C\right)
+            =
+            -\frac{1}{c^2}\left[
+            \frac{1}{2}v_0^2
+            +U_E(\mathbf{y})
+            +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+            +\mathbf{a}_E\cdot\mathbf{y}
+            \right].
+
+     )doc" );
+
+    m.def(
+        "second_order_body_centered_relativistic_time_settings",
+        []( const std::string& body,
+            const std::vector< std::string >& perturbing_bodies,
+            const TIME_TYPE& initial_time,
+            const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integrator_settings,
+            const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings,
+            const std::map< std::string, std::pair< int, int > >& spherical_harmonic_expansions )
+        {
+            return std::make_shared< tp::SecondOrderBodyCenteredRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                        body, perturbing_bodies, initial_time, integrator_settings, termination_settings, spherical_harmonic_expansions );
+        },
+        py::arg( "body" ),
+        py::arg( "perturbing_bodies" ),
+        py::arg( "initial_time" ),
+        py::arg( "integrator_settings" ),
+        py::arg( "termination_settings" ),
+        py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
+        R"doc(
+
+ Create settings for second-order body-centered relativistic time propagation.
+
+ Parameters
+ ----------
+ body : str
+     Name of the central body for the body-centered time scale.
+ perturbing_bodies : list[str]
+     List of perturbing bodies used in the time conversion.
+ initial_time : float
+     Initial time (seconds since J2000).
+ integrator_settings : IntegratorSettings
+     Numerical integrator settings for the time-state propagation.
+ termination_settings : PropagationTerminationSettings
+     Termination settings for the time-state propagation.
+ spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
+     Optional map of body name to (degree, order) for spherical harmonic gravity.
+
+ Notes
+ -----
+ This setting corresponds to the barycentric↔body-centered Soffel Eq. (58)
+ implementation in Tudat. The propagated derivative is:
+
+ .. math::
+
+     \frac{d}{dt}\Delta_{BC}
+     =
+     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
+     +
+     \frac{1}{c^4}\left(
+     -\frac{1}{8}v_C^4
+     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
+     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
+     +\frac{1}{2}w_{0,\mathrm{ext}}^2
+     +\Delta_{\mathrm{ext}}
+     \right).
+
+ Returns
+ -------
+ SecondOrderBodyCenteredRelativisticTimeConverterSettings
+     Settings object for body-centered relativistic time propagation.
+
+        )doc" );
+
+    m.def(
+        "bodycentered_to_topocentric_time_settings",
+        []( const std::pair< std::string, std::string >& reference_point_id,
+            const bool use_acceleration_term,
+            const int maximum_spherical_harmonic_degree,
+            const bool use_time_dependent_body_fixed_position,
+            const std::vector< std::string >& topocentric_external_bodies,
+            const py::array_t< double, py::array::c_style | py::array::forcecast >& initial_state,
+            const TIME_TYPE& initial_time,
+            const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integrator_settings,
+            const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings )
+        {
+            Eigen::VectorXd state_vector;
+            const auto buffer = initial_state.request( );
+            if( buffer.ndim == 1 )
+            {
+                state_vector = Eigen::Map< const Eigen::VectorXd >(
+                    static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] );
+            }
+            else if( buffer.ndim == 2 )
+            {
+                if( buffer.shape[ 1 ] == 1 )
+                {
+                    state_vector = Eigen::Map< const Eigen::VectorXd >(
+                        static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] );
+                }
+                else if( buffer.shape[ 0 ] == 1 )
+                {
+                    state_vector = Eigen::Map< const Eigen::VectorXd >(
+                        static_cast< const double* >( buffer.ptr ), buffer.shape[ 1 ] );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "initial_state must be a vector (shape [m] or [m,1] or [1,m])." );
+                }
+            }
+            else
+            {
+                throw std::runtime_error( "initial_state must be a vector (1D) or column/row vector (2D)." );
+            }
+
+            return std::make_shared< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                        reference_point_id,
+                        use_acceleration_term,
+                        maximum_spherical_harmonic_degree,
+                        use_time_dependent_body_fixed_position,
+                        topocentric_external_bodies,
+                        state_vector,
+                        initial_time,
+                        integrator_settings,
+                        termination_settings );
+        },
+        py::arg( "reference_point_id" ),
+        py::arg( "use_acceleration_term" ),
+        py::arg( "maximum_spherical_harmonic_degree" ),
+        py::arg( "use_time_dependent_body_fixed_position" ),
+        py::arg( "topocentric_external_bodies" ),
+        py::arg( "initial_state" ),
+        py::arg( "initial_time" ),
+        py::arg( "integrator_settings" ),
+        py::arg( "termination_settings" ),
+        R"doc(
+
+ Create settings for body-centered↔topocentric relativistic time propagation.
+
+ Parameters
+ ----------
+ reference_point_id : tuple[str, str]
+     (Body name, reference point name), e.g. ("Earth", "Graz").
+ use_acceleration_term : bool
+     Whether to include acceleration terms in the topocentric conversion.
+ maximum_spherical_harmonic_degree : int
+     Maximum spherical harmonic degree for gravity terms in the conversion.
+ use_time_dependent_body_fixed_position : bool
+     Whether to use time-dependent body-fixed positions for the reference point.
+ topocentric_external_bodies : list[str]
+     External bodies to include in the topocentric conversion.
+ initial_state : numpy.ndarray
+     Initial relativistic time state.
+ initial_time : float
+     Initial time (seconds since J2000).
+ integrator_settings : IntegratorSettings
+     Numerical integrator settings for the time-state propagation.
+ termination_settings : PropagationTerminationSettings
+     Termination settings for the time-state propagation.
+
+ Notes
+ -----
+ This setting is for the body-centered↔topocentric segment and follows
+ Turyshev et al. (2013), Eq. (22), i.e.
+
+ .. math::
+
+     \frac{d}{dt_C}\left(\tau-t_C\right)
+     =
+     -\frac{1}{c^2}\left[
+     \frac{1}{2}v_0^2
+     +U_E(\mathbf{y})
+     +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
+     +\mathbf{a}_E\cdot\mathbf{y}
+     \right].
+
+ Returns
+ -------
+ BodycenteredToTopocentricTimePropagatorSettings
+     Settings object for body-centered↔topocentric time propagation.
+
+        )doc" );
+
     m.def( "add_dependent_variable_settings",
            &tp::addDepedentVariableSettings< double >,
            py::arg( "dependent_variable_settings" ),

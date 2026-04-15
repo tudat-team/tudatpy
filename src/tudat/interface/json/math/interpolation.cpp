@@ -41,6 +41,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< InterpolatorSet
         case cubic_spline_interpolator:
         case hermite_spline_interpolator:
         case piecewise_constant_interpolator:
+        case chebyshev_interpolator:
             return;
         case lagrange_interpolator: {
             std::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
