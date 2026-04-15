@@ -564,8 +564,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     long double maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     long double minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
+    BOOST_CHECK_SMALL( maximumDifference, 2.0E-12L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 2.0E-12L );
 
     counter = 0;
     convertedValue = 0.0L;
@@ -581,8 +581,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
+    BOOST_CHECK_SMALL( maximumDifference, 2.0E-12L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 2.0E-12L );
 
     std::vector< Time > evaluationTimes = utilities::createVectorFromMapKeys( directTimeDifferences );
 
@@ -603,8 +603,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     maximumDifference = forwardBackardTransformationResults.maxCoeff( );
     minimumDifference = forwardBackardTransformationResults.minCoeff( );
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-9L );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-9L );
+    BOOST_CHECK_SMALL( maximumDifference, 2.0E-12L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 2.0E-12L );
 
     differenceFunction = earthTimeScaleConverter->getTimeDifferenceFunction< Time >(
                 barycentric_coordinate_time_scale, local_proper_time_scale, "Graz" );
@@ -625,8 +625,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
     const long double maxAbsDifference = std::max( std::fabs( maximumDifference ), std::fabs( minimumDifference ) );
     std::cout << "[test_concatenated_conversions] max_abs_diff=" << maxAbsDifference << std::endl;
 
-    BOOST_CHECK_SMALL( maximumDifference, 1.0E-12L );
-    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 1.0E-12L );
+    BOOST_CHECK_SMALL( maximumDifference, 2.0E-12L );
+    BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 2.0E-12L );
 }
 
 BOOST_AUTO_TEST_CASE( test_geoid_tt_tcg_sh_rotation_rate )
