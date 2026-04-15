@@ -39,6 +39,8 @@
 #include "tudat/interface/spice/spiceException.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/ephemerides/tleEphemeris.h"
 
 #include <limits>
 #include <stdexcept>
@@ -468,6 +470,29 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
 
     // Loaded kernels should be 0.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );
+}
+
+// Test 8: Cartesian state from TLE at epoch
+BOOST_AUTO_TEST_CASE( testSpiceWrappers_8 )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const std::string tleLine1 = "1 43908U 18111AJ  20146.60805006  .00000806  00000-0  34965-4 0  9999";
+    const std::string tleLine2 = "2 43908  97.2676  47.2136 0020001 220.6050 139.3698 15.24999521 78544";
+
+    const double queryEpoch = spice_interface::convertDateStringToEphemerisTime( "2020-05-26 02:25:00" );
+
+    auto tle = std::make_shared< ephemerides::Tle >( tleLine1, tleLine2 );
+    auto cartesianStateFromTle = spice_interface::getCartesianStateFromTleAtEpoch( queryEpoch, tle );
+
+    const Eigen::Vector6d expectedStateFromSpice = unit_conversions::convertKilometersToMeters(
+            ( Eigen::Vector6d( ) << -4644.60403398, -5038.95025539, -337.27141116, -0.45719025, 0.92884817, -7.55917355 ).finished( ) );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( cartesianStateFromTle( i ) - expectedStateFromSpice( i ) ), 1.0E0 );
+        BOOST_CHECK_SMALL( std::fabs( cartesianStateFromTle( i + 3 ) - expectedStateFromSpice( i + 3 ) ), 1.0E-4 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
