@@ -101,7 +101,7 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
    :members:
 
-.. autoclass:: TleEphemeris
+.. autoclass:: tudatpy.dynamics.environment.TleEphemeris
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.Tle
