@@ -477,6 +477,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_8 )
 {
     spice_interface::loadStandardSpiceKernels( );
 
+    // TLE, query epoch and expected states taken from
+    // https://naif.jpl.nasa.gov/pub/naif/misc/toolkit_docs_N0067/C/cspice/evsgp4_c.html#Examples
     const std::string tleLine1 = "1 43908U 18111AJ  20146.60805006  .00000806  00000-0  34965-4 0  9999";
     const std::string tleLine2 = "2 43908  97.2676  47.2136 0020001 220.6050 139.3698 15.24999521 78544";
 

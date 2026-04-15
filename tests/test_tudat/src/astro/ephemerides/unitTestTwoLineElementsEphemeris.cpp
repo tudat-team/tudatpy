@@ -198,6 +198,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsParsing )
                                                 { "1 18123U 87 53  A 87324.61041692 -.00000023  00000-0 -75103-5 0 00675",
                                                   "2 18123  98.8296 152.0074 0014950 168.7820 191.3688 14.12912554 21686" } };
 
+    // Tolerances in the same order as the elements returned by getelm_c
     const std::vector< double > tleTolerances = { 1e-10, 1e-6, 1e-7, 1e-6, 1e-6, 1e-9, 1e-6, 1e-6, 1e-10, 1e-13 };
 
     for( const auto& tleSet : tleSets )
