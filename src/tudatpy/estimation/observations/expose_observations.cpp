@@ -1529,6 +1529,22 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              A dictionary mapping observation parsers to tabulated weight vectors.
      )doc" )
             .def( "set_block_diagonal_weights",
+                  py::overload_cast< const Eigen::MatrixXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDiagonalWeights ),
+                  py::arg( "weight_block" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(
+         Set a single block weight matrix for all observations in a subset of observation sets.
+
+         Parameters
+         ----------
+         weight_block : numpy.ndarray
+             One square block matrix of size (single_observable_size, single_observable_size), applied to
+             every selected observation.
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+             Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
+     )doc" )
+            .def( "set_block_diagonal_weights",
                   py::overload_cast< const std::vector< Eigen::MatrixXd >,
                                      const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDiagonalWeights ),
@@ -1540,23 +1556,10 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          Parameters
          ----------
          block_diagonal_weights : list[numpy.ndarray]
-             List of block matrices. The input can represent either one observation set (and be applied to all
-             selected sets if they are compatible), or all selected sets concatenated in internal order.
+             List of block matrices. The input can represent all selected sets concatenated in internal order,
+             or one set and be reused for all selected sets if they are size-compatible.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
-     )doc" )
-            .def( "set_block_diagonal_weights",
-                  py::overload_cast<
-                          const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::vector< Eigen::MatrixXd > > >(
-                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDiagonalWeights ),
-                  py::arg( "block_diagonal_weights" ),
-                  R"doc(
-         Set block-diagonal weights for multiple subsets of observation sets.
-
-         Parameters
-         ----------
-         block_diagonal_weights : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, list[numpy.ndarray]]
-             A dictionary mapping observation parsers to block-diagonal weight definitions.
      )doc" )
             .def( "set_full_weight_matrix",
                   py::overload_cast< const Eigen::MatrixXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
@@ -1569,22 +1572,26 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          Parameters
          ----------
          full_weight_matrix : numpy.ndarray
-             Matrix that is either the size of one selected observation set (applied to all compatible sets),
-             or the combined size of all selected sets. In the combined case, cross-set off-block terms are not supported.
+             Full matrix applied to each selected single observation set. Its size must match each selected set.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_full_weight_matrix",
-                  py::overload_cast< const std::map< std::shared_ptr< tom::ObservationCollectionParser >, Eigen::MatrixXd > >(
+                  py::overload_cast< const std::vector< Eigen::MatrixXd >,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setFullWeightMatrix ),
-                  py::arg( "full_weight_matrix" ),
+                  py::arg( "full_weight_matrices" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   R"doc(
-         Set full weight matrix contributions for multiple subsets of observation sets.
+         Set one full weight matrix per selected single observation set.
 
          Parameters
          ----------
-         full_weight_matrix : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, numpy.ndarray]
-             A dictionary mapping observation parsers to full weight matrices.
+         full_weight_matrices : list[numpy.ndarray]
+             Full matrices, one per selected single observation set, in the same order as returned by
+             ``get_single_observation_sets(observation_parser)``.
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+             Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "append",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
