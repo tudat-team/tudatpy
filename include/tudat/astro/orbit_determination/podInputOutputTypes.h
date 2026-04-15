@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <Eigen/SparseCore>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -420,6 +421,16 @@ public:
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
         return observationCollection_->getConcatenatedWeights( );
+    }
+
+    Eigen::SparseMatrix< double > getWeightsMatrix( )
+    {
+        return observationCollection_->getConcatenatedWeightMatrix( );
+    }
+
+    bool hasOffDiagonalWeights( )
+    {
+        return observationCollection_->hasOffDiagonalWeights( );
     }
 
     void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )

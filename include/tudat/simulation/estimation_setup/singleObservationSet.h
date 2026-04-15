@@ -11,9 +11,11 @@
 #ifndef TUDAT_SINGLE_OBSERVATION_SET_H
 #define TUDAT_SINGLE_OBSERVATION_SET_H
 
+#include <cmath>
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -32,6 +34,13 @@ namespace observation_models
 {
 
 using namespace simulation_setup;
+
+enum ObservationWeightsMatrixType
+{
+    diagonal_weights_matrix = 0,
+    block_diagonal_weights_matrix = 1,
+    full_weights_matrix = 2
+};
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -54,7 +63,8 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
-        numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals )
+        numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals ),
+        weightsMatrixType_( diagonal_weights_matrix )
     {
 
 
@@ -510,7 +520,14 @@ public:
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
     {
-        return weights_;
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > combinedWeights;
+        Eigen::VectorXd combinedDiagonal = getWeightsDiagonalVector( );
+        combinedWeights.reserve( numberOfObservations_ );
+        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        {
+            combinedWeights.push_back( combinedDiagonal.segment( i * singleObservationSize_, singleObservationSize_ ) );
+        }
+        return combinedWeights;
     }
 
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
@@ -518,13 +535,35 @@ public:
         return weights_;
     }
 
-    Eigen::VectorXd getWeightsVector( ) const
+    Eigen::VectorXd getBaseWeightsDiagonalVector( ) const
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+
+        if( weightsMatrixType_ == diagonal_weights_matrix )
         {
-            weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
+            }
+        }
+        else if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = blockWeights_.at( i ).diagonal( );
+            }
+        }
+
+        return weightsVector;
+    }
+
+    Eigen::VectorXd getWeightsDiagonalVector( ) const
+    {
+        Eigen::VectorXd weightsVector = getBaseWeightsDiagonalVector( );
+        if( fullWeights_.rows( ) > 0 )
+        {
+            weightsVector += fullWeights_.diagonal( );
         }
         return weightsVector;
     }
@@ -537,7 +576,93 @@ public:
                     "Error when retrieving single observation weight, required index incompatible "
                     "with number of observations." );
         }
-        return weights_.at( index );
+        if( weightsMatrixType_ == diagonal_weights_matrix )
+        {
+            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
+        }
+        else if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
+        }
+        else
+        {
+            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
+        }
+    }
+
+    ObservationWeightsMatrixType getWeightsMatrixType( ) const
+    {
+        return weightsMatrixType_;
+    }
+
+    bool hasOffDiagonalWeights( ) const
+    {
+        if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            return true;
+        }
+
+        if( fullWeights_.rows( ) > 0 )
+        {
+            Eigen::MatrixXd offDiagonalContribution = fullWeights_;
+            offDiagonalContribution.diagonal( ).setZero( );
+            return !( offDiagonalContribution.isZero( 0.0 ) );
+        }
+
+        return false;
+    }
+
+    std::vector< Eigen::MatrixXd > getBlockDiagonalWeightMatrices( ) const
+    {
+        if( weightsMatrixType_ != block_diagonal_weights_matrix )
+        {
+            throw std::runtime_error( "Error when retrieving block-diagonal weights, current weight matrix type is not block-diagonal." );
+        }
+        return blockWeights_;
+    }
+
+    Eigen::MatrixXd getFullWeightMatrix( ) const
+    {
+        if( fullWeights_.rows( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving full weights matrix contribution, contribution is not set." );
+        }
+        return fullWeights_;
+    }
+
+    bool hasFullWeightMatrixContribution( ) const
+    {
+        return ( fullWeights_.rows( ) > 0 );
+    }
+
+    Eigen::MatrixXd getWeightMatrix( ) const
+    {
+        const int totalObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
+        Eigen::MatrixXd weightMatrix = Eigen::MatrixXd::Zero( totalObservationSetSize, totalObservationSetSize );
+
+        if( weightsMatrixType_ == diagonal_weights_matrix )
+        {
+            weightMatrix.diagonal( ) = Eigen::VectorXd::Zero( totalObservationSetSize );
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightMatrix.block( i * singleObservationSize_, i * singleObservationSize_, singleObservationSize_, singleObservationSize_ )
+                        .diagonal( ) = weights_.at( i );
+            }
+        }
+        else if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                const int startIndex = static_cast< int >( i * singleObservationSize_ );
+                weightMatrix.block( startIndex, startIndex, singleObservationSize_, singleObservationSize_ ) = blockWeights_.at( i );
+            }
+        }
+
+        if( fullWeights_.rows( ) > 0 )
+        {
+            weightMatrix += fullWeights_;
+        }
+        return weightMatrix;
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResiduals( ) const
@@ -609,6 +734,9 @@ public:
         {
             weights_.at( k ) = weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
         }
+        blockWeights_.clear( );
+        weightsMatrixType_ = diagonal_weights_matrix;
+        validateCombinedWeightsMatrix( );
     }
 
     void setConstantWeight( const Eigen::Matrix< double, Eigen::Dynamic, 1 >& weight )
@@ -623,6 +751,9 @@ public:
         {
             weights_.at( k ) = weight;
         }
+        blockWeights_.clear( );
+        weightsMatrixType_ = diagonal_weights_matrix;
+        validateCombinedWeightsMatrix( );
     }
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
@@ -640,6 +771,56 @@ public:
                 weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
         }
+        blockWeights_.clear( );
+        weightsMatrixType_ = diagonal_weights_matrix;
+        validateCombinedWeightsMatrix( );
+    }
+
+    void setBlockDiagonalWeights( const std::vector< Eigen::MatrixXd >& blockDiagonalWeights )
+    {
+        if( blockDiagonalWeights.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error(
+                    "Error when setting block-diagonal weights in single observation set, number of blocks is inconsistent." );
+        }
+
+        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        {
+            if( blockDiagonalWeights.at( i ).rows( ) != static_cast< int >( singleObservationSize_ ) ||
+                blockDiagonalWeights.at( i ).cols( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error(
+                        "Error when setting block-diagonal weights in single observation set, block size is inconsistent." );
+            }
+            validateWeightMatrixPositiveDefinite(
+                    blockDiagonalWeights.at( i ),
+                    "Error when setting block-diagonal weights in single observation set, block matrix is invalid." );
+            weights_.at( i ) = blockDiagonalWeights.at( i ).diagonal( );
+        }
+        blockWeights_ = blockDiagonalWeights;
+        weightsMatrixType_ = block_diagonal_weights_matrix;
+        validateCombinedWeightsMatrix( );
+    }
+
+    void setFullWeightMatrix( const Eigen::MatrixXd& fullWeightMatrix )
+    {
+        if( fullWeightMatrix.rows( ) == 0 && fullWeightMatrix.cols( ) == 0 )
+        {
+            fullWeights_.resize( 0, 0 );
+            return;
+        }
+
+        const int totalObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
+        if( fullWeightMatrix.rows( ) != totalObservationSetSize || fullWeightMatrix.cols( ) != totalObservationSetSize )
+        {
+            throw std::runtime_error(
+                    "Error when setting full weights matrix in single observation set, matrix size is inconsistent." );
+        }
+
+        validateSymmetricWeightMatrix( fullWeightMatrix,
+                                       "Error when setting full weights matrix in single observation set, matrix is invalid." );
+        fullWeights_ = fullWeightMatrix;
+        validateCombinedWeightsMatrix( );
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservations( ) const
@@ -694,6 +875,38 @@ public:
         observationTimes_.erase( observationTimes_.begin( ) + indexToRemove );
         residuals_.erase( residuals_.begin( ) + indexToRemove );
         weights_.erase( weights_.begin( ) + indexToRemove );
+        if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            blockWeights_.erase( blockWeights_.begin( ) + indexToRemove );
+        }
+        if( fullWeights_.rows( ) > 0 )
+        {
+            const int startIndex = static_cast< int >( indexToRemove * singleObservationSize_ );
+            const int reducedSize = fullWeights_.rows( ) - static_cast< int >( singleObservationSize_ );
+            Eigen::MatrixXd reducedWeights = Eigen::MatrixXd::Zero( reducedSize, reducedSize );
+
+            if( startIndex > 0 )
+            {
+                reducedWeights.block( 0, 0, startIndex, startIndex ) = fullWeights_.block( 0, 0, startIndex, startIndex );
+            }
+
+            const int trailingSize = reducedSize - startIndex;
+            if( trailingSize > 0 )
+            {
+                reducedWeights.block( startIndex, startIndex, trailingSize, trailingSize ) =
+                        fullWeights_.block( startIndex + singleObservationSize_, startIndex + singleObservationSize_, trailingSize,
+                                            trailingSize );
+            }
+            if( startIndex > 0 && trailingSize > 0 )
+            {
+                reducedWeights.block( 0, startIndex, startIndex, trailingSize ) =
+                        fullWeights_.block( 0, startIndex + singleObservationSize_, startIndex, trailingSize );
+                reducedWeights.block( startIndex, 0, trailingSize, startIndex ) =
+                        fullWeights_.block( startIndex + singleObservationSize_, 0, trailingSize, startIndex );
+            }
+
+            fullWeights_ = reducedWeights;
+        }
 
         if( observationsDependentVariables_.size( ) > 0 )
         {
@@ -982,6 +1195,15 @@ public:
                     "inconsistent." );
         }
 
+        if( weightsMatrixType_ != diagonal_weights_matrix || fullWeights_.rows( ) > 0 )
+        {
+            std::cerr << "Warning when adding observations to SingleObservationSet: resetting off-diagonal weights to diagonal defaults."
+                      << std::endl;
+            blockWeights_.clear( );
+            fullWeights_.resize( 0, 0 );
+            weightsMatrixType_ = diagonal_weights_matrix;
+        }
+
         for( unsigned int k = 0; k < observations.size( ); k++ )
         {
             if( observations.at( k ).size( ) != singleObservationSize_ )
@@ -1134,6 +1356,83 @@ private:
         }
     }
 
+    void validateSymmetricWeightMatrix( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
+    {
+        if( weightMatrix.rows( ) != weightMatrix.cols( ) )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not square." );
+        }
+        if( !weightMatrix.isApprox( weightMatrix.transpose( ), 1.0E-14 ) )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not symmetric." );
+        }
+    }
+
+    void validateWeightMatrixPositiveDefinite( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
+    {
+        validateSymmetricWeightMatrix( weightMatrix, errorPrefix );
+        Eigen::LLT< Eigen::MatrixXd > llt( weightMatrix );
+        if( llt.info( ) != Eigen::Success )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not positive definite." );
+        }
+    }
+
+    void validateCombinedWeightsMatrix( ) const
+    {
+        if( numberOfObservations_ == 0 )
+        {
+            return;
+        }
+
+        if( fullWeights_.rows( ) == 0 )
+        {
+            if( weightsMatrixType_ == diagonal_weights_matrix )
+            {
+                for( unsigned int i = 0; i < numberOfObservations_; i++ )
+                {
+                    if( weights_.at( i ).rows( ) != static_cast< int >( singleObservationSize_ ) )
+                    {
+                        throw std::runtime_error(
+                                "Error when setting weights in single observation set, diagonal weights size is inconsistent." );
+                    }
+
+                    for( unsigned int j = 0; j < singleObservationSize_; j++ )
+                    {
+                        const double currentWeight = weights_.at( i )( j );
+                        if( !std::isfinite( currentWeight ) || currentWeight <= 0.0 )
+                        {
+                            throw std::runtime_error(
+                                    "Error when setting weights in single observation set, diagonal weights must be finite and strictly "
+                                    "positive." );
+                        }
+                    }
+                }
+                return;
+            }
+            else if( weightsMatrixType_ == block_diagonal_weights_matrix )
+            {
+                if( blockWeights_.size( ) != numberOfObservations_ )
+                {
+                    throw std::runtime_error(
+                            "Error when setting weights in single observation set, number of block-diagonal weights is inconsistent." );
+                }
+
+                for( unsigned int i = 0; i < numberOfObservations_; i++ )
+                {
+                    validateWeightMatrixPositiveDefinite(
+                            blockWeights_.at( i ),
+                            "Error when setting weights in single observation set, block-diagonal weights are invalid." );
+                }
+                return;
+            }
+        }
+
+        validateWeightMatrixPositiveDefinite(
+                getWeightMatrix( ),
+                "Error when setting weights in single observation set, combined weights matrix is invalid." );
+    }
+
     void moveObservationsInOutFilteredSet( const std::vector< unsigned int >& indices,
                                            const bool moveInFilteredSet = true,
                                            const bool saveFilteredObservations = true )
@@ -1254,6 +1553,12 @@ private:
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 
+    std::vector< Eigen::MatrixXd > blockWeights_;
+
+    Eigen::MatrixXd fullWeights_;
+
+    ObservationWeightsMatrixType weightsMatrixType_;
+
     //    Eigen::VectorXd weightsVector_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
@@ -1286,7 +1591,18 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                     singleObservationSet->getObservationsDependentVariablesReference( ),
                     singleObservationSet->getDependentVariableBookkeeping( ),
                     singleObservationSet->getAncillarySettings( ) );
-    newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
+    if( singleObservationSet->getWeightsMatrixType( ) == diagonal_weights_matrix )
+    {
+        newObservationSet->setTabulatedWeights( singleObservationSet->getBaseWeightsDiagonalVector( ) );
+    }
+    else if( singleObservationSet->getWeightsMatrixType( ) == block_diagonal_weights_matrix )
+    {
+        newObservationSet->setBlockDiagonalWeights( singleObservationSet->getBlockDiagonalWeightMatrices( ) );
+    }
+    if( singleObservationSet->hasFullWeightMatrixContribution( ) )
+    {
+        newObservationSet->setFullWeightMatrix( singleObservationSet->getFullWeightMatrix( ) );
+    }
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
     newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
 
@@ -1316,7 +1632,18 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
     std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getWeightsVector( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getBaseWeightsDiagonalVector( );
+    ObservationWeightsMatrixType weightsMatrixType = observationSet->getWeightsMatrixType( );
+    std::vector< Eigen::MatrixXd > blockWeights;
+    Eigen::MatrixXd fullWeights;
+    if( weightsMatrixType == block_diagonal_weights_matrix )
+    {
+        blockWeights = observationSet->getBlockDiagonalWeightMatrices( );
+    }
+    if( observationSet->hasFullWeightMatrixContribution( ) )
+    {
+        fullWeights = observationSet->getFullWeightMatrix( );
+    }
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
 
     switch( observationSetSplitter->getSplitterType( ) )
@@ -1431,9 +1758,30 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         observationSet->getDependentVariableBookkeeping( ),
                         observationSet->getAncillarySettings( ) );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-        newSet->setTabulatedWeights( newWeightsVector );
+        if( weightsMatrixType == diagonal_weights_matrix )
+        {
+            Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
+                    weightsVector.segment( startIndex * observationSet->getSingleObservableSize( ),
+                                           sizeCurrentSet * observationSet->getSingleObservableSize( ) );
+            newSet->setTabulatedWeights( newWeightsVector );
+        }
+        else if( weightsMatrixType == block_diagonal_weights_matrix )
+        {
+            std::vector< Eigen::MatrixXd > newBlockWeights;
+            newBlockWeights.reserve( sizeCurrentSet );
+            for( int i = 0; i < sizeCurrentSet; i++ )
+            {
+                newBlockWeights.push_back( blockWeights.at( startIndex + i ) );
+            }
+            newSet->setBlockDiagonalWeights( newBlockWeights );
+        }
+        if( fullWeights.rows( ) > 0 )
+        {
+            const int blockSize = static_cast< int >( observationSet->getSingleObservableSize( ) );
+            const int matrixStart = startIndex * blockSize;
+            const int matrixSize = sizeCurrentSet * blockSize;
+            newSet->setFullWeightMatrix( fullWeights.block( matrixStart, matrixStart, matrixSize, matrixSize ) );
+        }
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
                 utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );

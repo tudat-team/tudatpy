@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVATION_COLLECTION_H
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -705,11 +706,85 @@ public:
                 for( auto index : linkEndsIt.second )
                 {
                     weights.push_back(
-                            observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getWeightsVector( ) );
+                            observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getWeightsDiagonalVector( ) );
                 }
             }
         }
         return weights;
+    }
+
+    bool hasOffDiagonalWeights(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
+                getSingleObservationSetsIndices( observationParser );
+        for( auto observableIt : observationSetsIndices )
+        {
+            for( auto linkEndsIt : observableIt.second )
+            {
+                for( auto index : linkEndsIt.second )
+                {
+                    if( observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->hasOffDiagonalWeights( ) )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    Eigen::SparseMatrix< double > getConcatenatedWeightMatrix(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
+                getSingleObservationSetsIndices( observationParser );
+
+        int totalObservationSize = 0;
+        for( auto observableIt : observationSetsIndices )
+        {
+            for( auto linkEndsIt : observableIt.second )
+            {
+                for( auto index : linkEndsIt.second )
+                {
+                    totalObservationSize += static_cast< int >(
+                            observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getTotalObservationSetSize( ) );
+                }
+            }
+        }
+
+        Eigen::SparseMatrix< double > weightsMatrix( totalObservationSize, totalObservationSize );
+        std::vector< Eigen::Triplet< double > > triplets;
+
+        int currentStartIndex = 0;
+        for( auto observableIt : observationSetsIndices )
+        {
+            for( auto linkEndsIt : observableIt.second )
+            {
+                for( auto index : linkEndsIt.second )
+                {
+                    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
+                            observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index );
+                    const int currentSetSize = static_cast< int >( observationSet->getTotalObservationSetSize( ) );
+                    Eigen::MatrixXd currentSetWeightMatrix = observationSet->getWeightMatrix( );
+                    for( int row = 0; row < currentSetSize; row++ )
+                    {
+                        for( int col = 0; col < currentSetSize; col++ )
+                        {
+                            const double value = currentSetWeightMatrix( row, col );
+                            if( value != 0.0 )
+                            {
+                                triplets.emplace_back( currentStartIndex + row, currentStartIndex + col, value );
+                            }
+                        }
+                    }
+                    currentStartIndex += currentSetSize;
+                }
+            }
+        }
+
+        weightsMatrix.setFromTriplets( triplets.begin( ), triplets.end( ) );
+        return weightsMatrix;
     }
 
     Eigen::VectorXd getConcatenatedWeights(
@@ -2638,7 +2713,18 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
                         oldObsSet->getObservationsDependentVariablesReference( ),
                         oldObsSet->getDependentVariableBookkeeping( ),
                         oldObsSet->getAncillarySettings( ) );
-        newObsSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
+        if( oldObsSet->getWeightsMatrixType( ) == diagonal_weights_matrix )
+        {
+            newObsSet->setTabulatedWeights( oldObsSet->getBaseWeightsDiagonalVector( ) );
+        }
+        else if( oldObsSet->getWeightsMatrixType( ) == block_diagonal_weights_matrix )
+        {
+            newObsSet->setBlockDiagonalWeights( oldObsSet->getBlockDiagonalWeightMatrices( ) );
+        }
+        if( oldObsSet->hasFullWeightMatrixContribution( ) )
+        {
+            newObsSet->setFullWeightMatrix( oldObsSet->getFullWeightMatrix( ) );
+        }
         newObsSet->setResiduals( oldObsSet->getResiduals( ) );
 
         newSingleObservationSets.push_back( newObsSet );
