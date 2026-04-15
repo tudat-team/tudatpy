@@ -22,6 +22,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/ephemerides/timeEphemeris.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 
 namespace tudat
@@ -37,43 +38,101 @@ class TimeEphemerisFromPostNewtonianExpansion : public TimeEphemeris
 {
 public:
     using TimeDifferenceInterpolator = std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >;
+    using TimeDifferenceDataMap = std::map< TimeType, StateScalarType >;
+
+    static std::shared_ptr< interpolators::InterpolatorSettings > getDefaultTimeDifferenceInterpolatorSettings( )
+    {
+        return std::make_shared< interpolators::InterpolatorSettings >(
+                    interpolators::cubic_spline_interpolator,
+                    interpolators::huntingAlgorithm,
+                    false,
+                    interpolators::extrapolate_at_boundary );
+    }
 
     TimeEphemerisFromPostNewtonianExpansion(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
             const std::string& centralBodyName,
+            const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences = TimeDifferenceDataMap( ),
             const std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >& groundStationPositionFunctions =
             ( std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
+            const std::map< std::string, TimeDifferenceDataMap > planetCoordinateToProperTimeDifferences =
+            ( std::map< std::string, TimeDifferenceDataMap >( ) ),
+            const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings =
+            getDefaultTimeDifferenceInterpolatorSettings( ) ) :
         TimeEphemeris( centralBodyName ),
-        barycenterToPlanetCenterCoordinateTimeInterpolator_( barycenterToPlanetCenterCoordinateTimeInterpolator ),
-        planetCenterToBarycenterCoordinateTimeInterpolator_( planetCenterToBarycenterCoordinateTimeInterpolator ),
         groundStationPositionFunctions_( groundStationPositionFunctions ),
-        planetCoordinateToProperTimeInterpolators_( planetCoordinateToProperTimeInterpolators ),
-        properTimeToPlanetCoordinateInterpolators_( properTimeToPlanetCoordinateInterpolators )
-    { }
+        timeDifferenceInterpolatorSettings_( timeDifferenceInterpolatorSettings )
+    {
+        if( timeDifferenceInterpolatorSettings_ == nullptr )
+        {
+            timeDifferenceInterpolatorSettings_ = getDefaultTimeDifferenceInterpolatorSettings( );
+        }
+
+        if( barycenterToPlanetCenterCoordinateTimeDifferences.size( ) > 0 )
+        {
+            resetBarycentricToBodycentricInterpolators( barycenterToPlanetCenterCoordinateTimeDifferences );
+        }
+
+        for( const auto& pointDataPair : planetCoordinateToProperTimeDifferences )
+        {
+            if( groundStationPositionFunctions_.count( pointDataPair.first ) == 0 )
+            {
+                throw std::runtime_error(
+                            "Error when initializing bodycentric to topocentric time converter for point " + pointDataPair.first +
+                            ", must also provide point position function; point not yet known in TimeEphemeris" );
+            }
+
+            resetBodycentricToTopocentricInterpolators(
+                        pointDataPair.second,
+                        pointDataPair.first,
+                        groundStationPositionFunctions_.at( pointDataPair.first ) );
+        }
+    }
 
     ~TimeEphemerisFromPostNewtonianExpansion( ) override = default;
 
     void resetBarycentricToBodycentricInterpolators(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator )
+            const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences,
+            const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings = nullptr )
     {
-        barycenterToPlanetCenterCoordinateTimeInterpolator_ = barycenterToPlanetCenterCoordinateTimeInterpolator;
-        planetCenterToBarycenterCoordinateTimeInterpolator_ = planetCenterToBarycenterCoordinateTimeInterpolator;
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettingsToUse =
+                ( timeDifferenceInterpolatorSettings == nullptr ) ?
+                    timeDifferenceInterpolatorSettings_ : timeDifferenceInterpolatorSettings;
+
+        if( interpolatorSettingsToUse == nullptr )
+        {
+            throw std::runtime_error( "Error when resetting barycentric/bodycentric time interpolators, interpolator settings are null." );
+        }
+
+        std::pair< TimeDifferenceInterpolator, TimeDifferenceInterpolator > timeInterpolators =
+                createRelativisticTimeInterpolators( barycenterToPlanetCenterCoordinateTimeDifferences, interpolatorSettingsToUse );
+
+        barycenterToPlanetCenterCoordinateTimeInterpolator_ = timeInterpolators.first;
+        planetCenterToBarycenterCoordinateTimeInterpolator_ = timeInterpolators.second;
     }
 
     void resetBodycentricToTopocentricInterpolators(
-            const TimeDifferenceInterpolator planetCoordinateToProperTimeInterpolator,
-            const TimeDifferenceInterpolator properTimeToPlanetCoordinateInterpolator,
+            const TimeDifferenceDataMap& planetCoordinateToProperTimeDifferences,
             const std::string& referencePoint,
-            const std::function< Eigen::Vector3d( const TimeType ) > referencePointPositionFunction = nullptr )
+            const std::function< Eigen::Vector3d( const TimeType ) > referencePointPositionFunction = nullptr,
+            const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings = nullptr )
     {
-        planetCoordinateToProperTimeInterpolators_[ referencePoint ] = planetCoordinateToProperTimeInterpolator;
-        properTimeToPlanetCoordinateInterpolators_[ referencePoint ] = properTimeToPlanetCoordinateInterpolator;
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettingsToUse =
+                ( timeDifferenceInterpolatorSettings == nullptr ) ?
+                    timeDifferenceInterpolatorSettings_ : timeDifferenceInterpolatorSettings;
+
+        if( interpolatorSettingsToUse == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when resetting bodycentric/topocentric time interpolators for point " + referencePoint +
+                        ", interpolator settings are null." );
+        }
+
+        std::pair< TimeDifferenceInterpolator, TimeDifferenceInterpolator > timeInterpolators =
+                createRelativisticTimeInterpolators( planetCoordinateToProperTimeDifferences, interpolatorSettingsToUse );
+
+        planetCoordinateToProperTimeInterpolators_[ referencePoint ] = timeInterpolators.first;
+        properTimeToPlanetCoordinateInterpolators_[ referencePoint ] = timeInterpolators.second;
+
         if( !doesReferencePointTopocentricConverterExist( referencePoint ) )
         {
             if( referencePointPositionFunction == nullptr )
@@ -116,12 +175,48 @@ public:
     }
 
 protected:
+    static TimeType addTimeDifferenceToEpoch( const TimeType& currentTime, const StateScalarType& timeDifference )
+    {
+        if constexpr ( std::is_same_v< TimeType, Time > )
+        {
+            return currentTime + static_cast< long double >( timeDifference );
+        }
+        else
+        {
+            return static_cast< TimeType >(
+                        static_cast< long double >( currentTime ) + static_cast< long double >( timeDifference ) );
+        }
+    }
+
+    std::pair< TimeDifferenceInterpolator, TimeDifferenceInterpolator > createRelativisticTimeInterpolators(
+            const TimeDifferenceDataMap& originalToTargetTimeMap,
+            const std::shared_ptr< interpolators::InterpolatorSettings >& interpolatorSettings )
+    {
+        if( originalToTargetTimeMap.size( ) == 0 )
+        {
+            return std::make_pair( TimeDifferenceInterpolator( ), TimeDifferenceInterpolator( ) );
+        }
+
+        std::map< TimeType, StateScalarType > targetToOriginalTimeMap;
+        for( const auto& mapEntry : originalToTargetTimeMap )
+        {
+            targetToOriginalTimeMap[ addTimeDifferenceToEpoch( mapEntry.first, mapEntry.second ) ] = -mapEntry.second;
+        }
+
+        return std::make_pair(
+                    interpolators::createOneDimensionalInterpolator< TimeType, StateScalarType >(
+                        originalToTargetTimeMap, interpolatorSettings ),
+                    interpolators::createOneDimensionalInterpolator< TimeType, StateScalarType >(
+                        targetToOriginalTimeMap, interpolatorSettings ) );
+    }
+
     TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator_;
     TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator_;
 
     std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > > groundStationPositionFunctions_;
     std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators_;
     std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators_;
+    std::shared_ptr< interpolators::InterpolatorSettings > timeDifferenceInterpolatorSettings_;
 };
 
 template< typename TimeType, typename StateScalarType >

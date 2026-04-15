@@ -1218,16 +1218,10 @@ void resetIntegratedPostNewtonianTimeEphemeris(
         floatingPointValueNumericalSolution[ solutionEntry.first ] = solutionEntry.second( startIndexAndSize.first );
     }
 
-    std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >,
-            std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > > > timeInterpolators =
-            createRelativisticTimeInterpolators( floatingPointValueNumericalSolution );
-
     if( bodies.getBody( referencePointIdentifier.first )->getTimeScaleConverter( ) == nullptr )
     {
         std::shared_ptr< TimeEphemeris > newTimeEphemeris =
                 std::make_shared< TimeEphemerisWithFirstOrderDirectConversion< TimeType, StateScalarType > >(
-                    typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator( ),
-                    typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator( ),
                     referencePointIdentifier.first,
                     std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, TimeType >,
                                bodies.getBody( referencePointIdentifier.first ),
@@ -1246,14 +1240,14 @@ void resetIntegratedPostNewtonianTimeEphemeris(
 
     if( referencePointIdentifier.second == "" )
     {
-        timeEphemeris->resetBarycentricToBodycentricInterpolators( timeInterpolators.first, timeInterpolators.second );
+        timeEphemeris->resetBarycentricToBodycentricInterpolators( floatingPointValueNumericalSolution );
     }
     else
     {
         if( timeEphemeris->doesReferencePointTopocentricConverterExist( referencePointIdentifier.second ) )
         {
             timeEphemeris->resetBodycentricToTopocentricInterpolators(
-                        timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second  );
+                        floatingPointValueNumericalSolution, referencePointIdentifier.second  );
         }
         else
         {
@@ -1261,7 +1255,7 @@ void resetIntegratedPostNewtonianTimeEphemeris(
                     std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointIdentifier.first ) )->getGroundStation(
                         referencePointIdentifier.second )->getNominalStationState( );
             timeEphemeris->resetBodycentricToTopocentricInterpolators(
-                        timeInterpolators.first, timeInterpolators.second, referencePointIdentifier.second,
+                        floatingPointValueNumericalSolution, referencePointIdentifier.second,
                         std::bind( &ground_stations::GroundStationState::getNominalCartesianPosition, groundStationState ) );
         }
     }

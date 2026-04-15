@@ -31,18 +31,19 @@ class TimeEphemerisWithSecondOrderDirectConversion : public TimeEphemerisFromPos
 public:
     using TimeDifferenceInterpolator =
             typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator;
+    using TimeDifferenceDataMap =
+            typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceDataMap;
 
     TimeEphemerisWithSecondOrderDirectConversion(
-            const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-            const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
             const std::string& centralBodyName,
             const std::function< Eigen::Vector6d( const TimeType ) > centralBodyStateFunction,
+            const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences = TimeDifferenceDataMap( ),
             const std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >& groundStationPositionFunctions =
             ( std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) );
+            const std::map< std::string, TimeDifferenceDataMap > planetCoordinateToProperTimeDifferences =
+            ( std::map< std::string, TimeDifferenceDataMap >( ) ),
+            const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings =
+            TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getDefaultTimeDifferenceInterpolatorSettings( ) );
 
     double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint,
                                               const TimeType currentTime ) override;
@@ -53,20 +54,18 @@ private:
 
 template< typename TimeType, typename StateScalarType >
 TimeEphemerisWithSecondOrderDirectConversion< TimeType, StateScalarType >::TimeEphemerisWithSecondOrderDirectConversion(
-        const TimeDifferenceInterpolator barycenterToPlanetCenterCoordinateTimeInterpolator,
-        const TimeDifferenceInterpolator planetCenterToBarycenterCoordinateTimeInterpolator,
         const std::string& centralBodyName,
         const std::function< Eigen::Vector6d( const TimeType ) > centralBodyStateFunction,
+        const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences,
         const std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >& groundStationPositionFunctions,
-        const std::map< std::string, TimeDifferenceInterpolator > planetCoordinateToProperTimeInterpolators,
-        const std::map< std::string, TimeDifferenceInterpolator > properTimeToPlanetCoordinateInterpolators ) :
+        const std::map< std::string, TimeDifferenceDataMap > planetCoordinateToProperTimeDifferences,
+        const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings ) :
     TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >(
-        barycenterToPlanetCenterCoordinateTimeInterpolator,
-        planetCenterToBarycenterCoordinateTimeInterpolator,
         centralBodyName,
+        barycenterToPlanetCenterCoordinateTimeDifferences,
         groundStationPositionFunctions,
-        planetCoordinateToProperTimeInterpolators,
-        properTimeToPlanetCoordinateInterpolators ),
+        planetCoordinateToProperTimeDifferences,
+        timeDifferenceInterpolatorSettings ),
     centralBodyStateFunction_( centralBodyStateFunction )
 { }
 
