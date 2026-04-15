@@ -532,6 +532,11 @@ public:
 
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
     {
+        if( weightsMatrixType_ != diagonal_weights_matrix )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving diagonal weight vectors by reference, base weight matrix type is not diagonal." );
+        }
         return weights_;
     }
 
@@ -542,6 +547,11 @@ public:
 
         if( weightsMatrixType_ == diagonal_weights_matrix )
         {
+            if( weights_.size( ) != numberOfObservations_ )
+            {
+                throw std::runtime_error(
+                        "Error when retrieving base diagonal weights vector, number of stored diagonal weights is inconsistent." );
+            }
             for( unsigned int i = 0; i < numberOfObservations_; i++ )
             {
                 weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
@@ -642,6 +652,11 @@ public:
 
         if( weightsMatrixType_ == diagonal_weights_matrix )
         {
+            if( weights_.size( ) != numberOfObservations_ )
+            {
+                throw std::runtime_error(
+                        "Error when retrieving weights matrix in single observation set, number of diagonal weights is inconsistent." );
+            }
             weightMatrix.diagonal( ) = Eigen::VectorXd::Zero( totalObservationSetSize );
             for( unsigned int i = 0; i < numberOfObservations_; i++ )
             {
@@ -730,9 +745,11 @@ public:
 
     void setConstantWeight( const double weight )
     {
+        weights_.clear( );
+        weights_.reserve( numberOfObservations_ );
         for( unsigned int k = 0; k < numberOfObservations_; k++ )
         {
-            weights_.at( k ) = weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
+            weights_.push_back( weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
         }
         blockWeights_.clear( );
         weightsMatrixType_ = diagonal_weights_matrix;
@@ -747,9 +764,11 @@ public:
                     "Error when setting constant weight in single observation set, weight size is "
                     "inconsistent with single observation size." );
         }
-        for( unsigned int k = 0; k < weights_.size( ); k++ )
+        weights_.clear( );
+        weights_.reserve( numberOfObservations_ );
+        for( unsigned int k = 0; k < numberOfObservations_; k++ )
         {
-            weights_.at( k ) = weight;
+            weights_.push_back( weight );
         }
         blockWeights_.clear( );
         weightsMatrixType_ = diagonal_weights_matrix;
@@ -764,12 +783,17 @@ public:
                     "Error when setting weights in single observation set, sizes are "
                     "incompatible." );
         }
+        weights_.clear( );
+        weights_.reserve( numberOfObservations_ );
         for( unsigned int k = 0; k < numberOfObservations_; k++ )
         {
+            Eigen::Matrix< double, Eigen::Dynamic, 1 > currentWeights =
+                    Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 );
             for( unsigned int i = 0; i < singleObservationSize_; i++ )
             {
-                weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
+                currentWeights[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
+            weights_.push_back( currentWeights );
         }
         blockWeights_.clear( );
         weightsMatrixType_ = diagonal_weights_matrix;
@@ -795,8 +819,8 @@ public:
             validateWeightMatrixPositiveDefinite(
                     blockDiagonalWeights.at( i ),
                     "Error when setting block-diagonal weights in single observation set, block matrix is invalid." );
-            weights_.at( i ) = blockDiagonalWeights.at( i ).diagonal( );
         }
+        weights_.clear( );
         blockWeights_ = blockDiagonalWeights;
         weightsMatrixType_ = block_diagonal_weights_matrix;
         validateCombinedWeightsMatrix( );
@@ -874,7 +898,10 @@ public:
         observations_.erase( observations_.begin( ) + indexToRemove );
         observationTimes_.erase( observationTimes_.begin( ) + indexToRemove );
         residuals_.erase( residuals_.begin( ) + indexToRemove );
-        weights_.erase( weights_.begin( ) + indexToRemove );
+        if( weightsMatrixType_ == diagonal_weights_matrix )
+        {
+            weights_.erase( weights_.begin( ) + indexToRemove );
+        }
         if( weightsMatrixType_ == block_diagonal_weights_matrix )
         {
             blockWeights_.erase( blockWeights_.begin( ) + indexToRemove );
@@ -1199,6 +1226,12 @@ public:
         {
             std::cerr << "Warning when adding observations to SingleObservationSet: resetting off-diagonal weights to diagonal defaults."
                       << std::endl;
+            weights_.clear( );
+            weights_.reserve( numberOfObservations_ );
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
+            }
             blockWeights_.clear( );
             fullWeights_.resize( 0, 0 );
             weightsMatrixType_ = diagonal_weights_matrix;
@@ -1334,7 +1367,14 @@ private:
 
         reorderVectorInPlace( observationTimes_, permutation );
         reorderVectorInPlace( observations_, permutation );
-        reorderVectorInPlace( weights_, permutation );
+        if( weightsMatrixType_ == diagonal_weights_matrix )
+        {
+            reorderVectorInPlace( weights_, permutation );
+        }
+        else if( weightsMatrixType_ == block_diagonal_weights_matrix )
+        {
+            reorderVectorInPlace( blockWeights_, permutation );
+        }
         reorderVectorInPlace( residuals_, permutation );
 
         if( !observationsDependentVariables_.empty( ) )
@@ -1389,6 +1429,11 @@ private:
         {
             if( weightsMatrixType_ == diagonal_weights_matrix )
             {
+                if( weights_.size( ) != numberOfObservations_ )
+                {
+                    throw std::runtime_error(
+                            "Error when setting weights in single observation set, number of diagonal weights is inconsistent." );
+                }
                 for( unsigned int i = 0; i < numberOfObservations_; i++ )
                 {
                     if( weights_.at( i ).rows( ) != static_cast< int >( singleObservationSize_ ) )
@@ -1456,7 +1501,7 @@ private:
 
                 observations.push_back( observations_.at( index ) );
                 times.push_back( observationTimes_.at( index ) );
-                weights.push_back( weights_.at( index ) );
+                weights.push_back( getWeight( index ) );
                 residuals.push_back( residuals_.at( index ) );
 
                 // If dependent variables not empty
@@ -1557,6 +1602,8 @@ private:
 
     Eigen::MatrixXd fullWeights_;
 
+    // Type of the base weights contribution (diagonal or block-diagonal).
+    // The optional full-matrix contribution is stored separately in fullWeights_.
     ObservationWeightsMatrixType weightsMatrixType_;
 
     //    Eigen::VectorXd weightsVector_;
