@@ -213,7 +213,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Parameters
  ----------
- link_ends_per_observable : dict[:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, list[`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`]]
+ link_ends_per_observable : dict[:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, list[:class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`]]
      Link geometry per observable type of which observations are to be simulated.
  simulation_times : list[ astro.time_representation.Time ]
      List of times at which to perform the observation simulation.
@@ -221,7 +221,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Defines the link end (via the :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`) which is used as a reference for observation times.
      The single link end specified here will be considered as the reference link end for all simulation settings object created in the function call.
 
- viability_settings : list[ :class:`ObservationViabilitySettings` ], default = [ ]
+ viability_settings : list[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` ], default = [ ]
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
      The single settings list given here will be considered as potential viability settings for all simulation settings object created in the function call.
 

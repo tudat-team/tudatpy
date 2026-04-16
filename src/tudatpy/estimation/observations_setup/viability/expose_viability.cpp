@@ -370,7 +370,7 @@ Examples
  Function for including viability checks into existing observation simulation settings.
 
  Function for adding viability checks to the observation simulation settings, such that only observations meeting certain conditions are retained.
- The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the ``observation_simulation_settings_list``
+ The viability settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the ``observation_simulation_settings_list``
  list.
  Note: the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects are modified in-place by this function,
  and thus the function does not return anything.
