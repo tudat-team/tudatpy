@@ -36,7 +36,7 @@ namespace observations_setup
 namespace observations_wrapper
 {
 
-void expose_observations_wrapper_io_bindings( py::module& m )
+void expose_observations_wrapper_io_bindings( py::module &m )
 {
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
@@ -64,7 +64,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Returns
         -------
-        list[tudatpy.astro.ObservableType]
+        list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             List of observable types.
         )doc" )
             .def_property_readonly( "start_and_end_time",
@@ -210,7 +210,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         ----------
         processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
             Processed ODF data.
-        observable_types_to_process : list[tudatpy.astro.ObservableType]
+        observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
         start_and_end_times_to_process : tuple[float, float]
             Start and end times of the data to process.
@@ -435,7 +435,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             The raw tracking file contents.
         spacecraft_name : str
             Name of the spacecraft.
-        observable_types_to_process : list[tudatpy.astro.ObservableType], optional
+        observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType], optional
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
@@ -447,7 +447,6 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         tudatpy.estimation.observations.ObservationCollection
             Observation collection.
         )doc" );
-
 }
 
 }  // namespace observations_wrapper

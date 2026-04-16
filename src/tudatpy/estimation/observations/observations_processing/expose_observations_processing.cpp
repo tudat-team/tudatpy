@@ -113,7 +113,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -139,7 +139,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -178,7 +178,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -204,7 +204,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -233,7 +233,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -263,7 +263,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 
@@ -286,7 +286,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 
@@ -309,7 +309,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 

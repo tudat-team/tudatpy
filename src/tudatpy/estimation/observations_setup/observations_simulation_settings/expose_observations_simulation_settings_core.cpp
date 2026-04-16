@@ -170,7 +170,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Parameters
  ----------
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Observable type of which observations are to be simulated.
  link_ends : LinkDefinition
      Link ends for which observations are to be simulated.
@@ -213,7 +213,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Parameters
  ----------
- link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
+ link_ends_per_observable : Dict[:class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, List[LinkDefinition]]]
      Link geometry per observable type of which observations are to be simulated.
  simulation_times : List[ astro.time_representation.Time ]
      List of times at which to perform the observation simulation.
@@ -275,7 +275,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Parameters
  ----------
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Observable type of which observations are to be simulated.
  link_ends : LinkDefinition
      Link ends for which observations are to be simulated.
@@ -337,7 +337,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Parameters
  ----------
- link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
+ link_ends_per_observable : Dict[:class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, List[LinkDefinition]]]
      Link geometry per observable type of which observations are to be simulated.
  start_time : astro.time_representation.Time
      First time at which an observation is to be simulated (and checked for viability).
@@ -370,7 +370,6 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
 
      )doc" );
-
 }
 
 }  // namespace observations_simulation_settings
