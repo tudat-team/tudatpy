@@ -23,6 +23,9 @@ import importlib
 import re
 from datetime import datetime
 
+from sphinx.util import logging as sphinx_logging
+LOGGER = sphinx_logging.getLogger(__name__)
+
 sys.path.insert(0, os.path.abspath("."))
 
 # When the docs are being built on ReadTheDocs, the binaries are in the tudatpy conda package installed in site-packages directory.
@@ -309,7 +312,13 @@ def fix_docstring_section_title_spacing(app, what, name, obj, options, lines):
             i += 1
 
         lines[:] = normalized_lines
-    except Exception:
+
+    except Exception as exc:
+
+        LOGGER.warning(
+            f"Docstring preprocessing failed for {{{name}}} ({what}): {exc}. Leaving original docstring unchanged.",
+            exc_info=True,
+        )
         return
         
 def replace_annotated_nparrays(text: str) -> str:
@@ -389,7 +398,7 @@ def simplify_signature_types(app, what, name, obj, options, signature, return_an
 
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
-    # priority=200 to run after napoleon processes the docstring and before Sphinx parses it for section headers
+    # run before default-priority (500) docstring processors
     app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
     app.connect("source-read", filter_mcd_docs)
