@@ -94,6 +94,7 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_acceleration_partials
             Tudat::tudat_torque_partials
             Tudat::tudat_observation_partials
+            Tudat::tudat_metric_partials
             Tudat::tudat_orbit_determination
             Tudat::tudat_estimatable_parameters
             Tudat::tudat_aerodynamics
