@@ -18,6 +18,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -87,33 +88,16 @@ public:
             }
         }
 
-        if( observations_.size( ) != observationTimes_.size( ) )
-        {
-            throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
-                                      std::to_string( observations_.size( ) ) + ", " + std::to_string( observationTimes_.size( ) ) );
-        }
-
-        for( unsigned int i = 1; i < observations.size( ); i++ )
-        {
-            if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
-            {
-                throw std::runtime_error(
-                        "Error when making SingleObservationSet, input observables not of "
-                        "consistent size." );
-            }
-        }
+        validateObservationsAndTimesSize(
+                observations_.size( ),
+                observationTimes_.size( ),
+                "making SingleObservationSet" );
+        validateConsistentObservationDimensions( observations_, "making SingleObservationSet" );
 
         singleObservationSize_ = getObservableSize( observableType );
         if( getObservableSize( observableType ) > 0 && !observations_.empty( ) )
         {
-            if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
-                                          std::to_string( observations_.at( 0 ).rows( ) ) +
-                                          ") is inconsistent with observable type " +
-                                          getObservableName( observableType ) + " (expected size " +
-                                          std::to_string( singleObservationSize_ ) + ")." );
-            }
+            validateObservationDimensionsAgainstSingleSize( observations_, "making SingleObservationSet" );
         }
         // Initialise weights
         if( weights.size( ) == 0 )
@@ -126,10 +110,11 @@ public:
         }
         else
         {
-            if( weights.size( ) != observationTimes.size( ) * singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
-            }
+            validateOptionalBatchSize(
+                    weights,
+                    observationTimes.size( ) * singleObservationSize_,
+                    "weights",
+                    "creating observation set with weights" );
             weightState_.diagonalWeights = weights;
         }
 
@@ -143,30 +128,18 @@ public:
         }
         else
         {
-            if( residuals.size( ) != observationTimes.size( ) * singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
-            }
+            validateOptionalBatchSize(
+                    residuals,
+                    observationTimes.size( ) * singleObservationSize_,
+                    "residuals",
+                    "creating observation set with residuals" );
         }
 
-        // Check observation dependent variables size
-        if( observationsDependentVariables_.size( ) > 0 )
-        {
-            if( observationsDependentVariables_.size( ) != numberOfObservations_ )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input should be consistent "
-                        "with the number of observations." );
-            }
-            if( observationsDependentVariables_[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input "
-                        "should be consistent with the total dependent variable size." );
-            }
-        }
+        validateDependentVariableBatch(
+                observationsDependentVariables_,
+                numberOfObservations_,
+                true,
+                "creating SingleObservationSet" );
 
         // Sort observations and metadata per observation time
         orderObservationsAndMetadata( );
@@ -590,18 +563,7 @@ public:
                     "Error when retrieving single observation weight, required index incompatible "
                     "with number of observations." );
         }
-        if( weightState_.matrixType == diagonal_weights_matrix )
-        {
-            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
-        }
-        else if( weightState_.matrixType == block_diagonal_weights_matrix )
-        {
-            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
-        }
-        else
-        {
-            return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
-        }
+        return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
     }
 
     ObservationWeightsMatrixType getWeightsMatrixType( ) const
@@ -750,14 +712,9 @@ public:
 
     void setConstantWeight( const double weight )
     {
-        weightState_.diagonalWeights.clear( );
-        weightState_.diagonalWeights.reserve( numberOfObservations_ );
-        for( unsigned int k = 0; k < numberOfObservations_; k++ )
-        {
-            weightState_.diagonalWeights.push_back( weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
-        }
-        weightState_.blockWeights.clear( );
-        weightState_.matrixType = diagonal_weights_matrix;
+        setDiagonalWeightState(
+                createUniformDiagonalWeights(
+                        weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) ) );
         validateCombinedWeightsMatrix( );
     }
 
@@ -769,14 +726,7 @@ public:
                     "Error when setting constant weight in single observation set, weight size is "
                     "inconsistent with single observation size." );
         }
-        weightState_.diagonalWeights.clear( );
-        weightState_.diagonalWeights.reserve( numberOfObservations_ );
-        for( unsigned int k = 0; k < numberOfObservations_; k++ )
-        {
-            weightState_.diagonalWeights.push_back( weight );
-        }
-        weightState_.blockWeights.clear( );
-        weightState_.matrixType = diagonal_weights_matrix;
+        setDiagonalWeightState( createUniformDiagonalWeights( weight ) );
         validateCombinedWeightsMatrix( );
     }
 
@@ -788,8 +738,8 @@ public:
                     "Error when setting weights in single observation set, sizes are "
                     "incompatible." );
         }
-        weightState_.diagonalWeights.clear( );
-        weightState_.diagonalWeights.reserve( numberOfObservations_ );
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        diagonalWeights.reserve( numberOfObservations_ );
         for( unsigned int k = 0; k < numberOfObservations_; k++ )
         {
             Eigen::Matrix< double, Eigen::Dynamic, 1 > currentWeights =
@@ -798,10 +748,9 @@ public:
             {
                 currentWeights[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
-            weightState_.diagonalWeights.push_back( currentWeights );
+            diagonalWeights.push_back( currentWeights );
         }
-        weightState_.blockWeights.clear( );
-        weightState_.matrixType = diagonal_weights_matrix;
+        setDiagonalWeightState( std::move( diagonalWeights ) );
         validateCombinedWeightsMatrix( );
     }
 
@@ -1221,12 +1170,7 @@ public:
                           const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
                           const bool sortObservations = true )
     {
-        if( !weights.empty( ) && ( observations.size( ) != weights.size( ) ) )
-        {
-            throw std::runtime_error(
-                    "Error when adding observations to SingleObservationSet, input sizes are "
-                    "inconsistent." );
-        }
+        validateOptionalBatchSize( weights, observations.size( ), "weights", "adding observations to SingleObservationSet" );
 
         if( weightState_.matrixType != diagonal_weights_matrix || weightState_.fullWeights.rows( ) > 0 )
         {
@@ -1299,14 +1243,135 @@ private:
         Eigen::MatrixXd fullWeights;
     };
 
+    void validateObservationsAndTimesSize(
+            const std::size_t numberOfObservations,
+            const std::size_t numberOfTimes,
+            const std::string& context ) const
+    {
+        if( numberOfObservations != numberOfTimes )
+        {
+            throw std::runtime_error( "Error when " + context + ", input sizes are inconsistent." );
+        }
+    }
+
+    template< typename DataType >
+    void validateOptionalBatchSize(
+            const std::vector< DataType >& data,
+            const std::size_t expectedSize,
+            const std::string& dataLabel,
+            const std::string& context ) const
+    {
+        if( !data.empty( ) && data.size( ) != expectedSize )
+        {
+            throw std::runtime_error( "Error when " + context + ", number of " + dataLabel + " is inconsistent." );
+        }
+    }
+
+    void validateConsistentObservationDimensions(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::string& context ) const
+    {
+        for( unsigned int i = 1; i < observations.size( ); i++ )
+        {
+            if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", input observables are not of consistent size." );
+            }
+        }
+    }
+
+    void validateObservationDimensionsAgainstSingleSize(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::string& context ) const
+    {
+        for( unsigned int i = 0; i < observations.size( ); i++ )
+        {
+            if( observations.at( i ).size( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", observation size is inconsistent." );
+            }
+        }
+    }
+
+    template< typename ScalarType >
+    void validatePerObservationVectorSize(
+            const std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& data,
+            const std::string& dataLabel,
+            const std::string& context ) const
+    {
+        for( unsigned int i = 0; i < data.size( ); i++ )
+        {
+            if( data.at( i ).size( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", " + dataLabel + " size is inconsistent." );
+            }
+        }
+    }
+
+    void validateObservationBatchSizes(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::vector< TimeType >& times,
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+            const std::vector< Eigen::VectorXd >& dependentVariables,
+            const std::string& context ) const
+    {
+        validateObservationsAndTimesSize( observations.size( ), times.size( ), context );
+        validateOptionalBatchSize( residuals, observations.size( ), "residuals", context );
+        validateOptionalBatchSize( dependentVariables, observations.size( ), "dependent variable entries", context );
+    }
+
+    void validateDependentVariableBatch(
+            const std::vector< Eigen::VectorXd >& dependentVariables,
+            const std::size_t expectedObservations,
+            const bool requireBookkeeping,
+            const std::string& context ) const
+    {
+        validateOptionalBatchSize( dependentVariables, expectedObservations, "dependent variable entries", context );
+        if( dependentVariables.empty( ) )
+        {
+            return;
+        }
+
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            if( requireBookkeeping )
+            {
+                throw std::runtime_error(
+                        "Error when " + context + ", dependent variable bookkeeping is required when dependent variables are provided." );
+            }
+            return;
+        }
+
+        const int expectedDependentVariableSize = dependentVariableBookkeeping_->getTotalDependentVariableSize( );
+        for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
+        {
+            if( dependentVariables.at( i ).size( ) != expectedDependentVariableSize )
+            {
+                throw std::runtime_error( "Error when " + context + ", dependent variable vector size is inconsistent." );
+            }
+        }
+    }
+
     void resetWeightsToUnitDiagonal( )
     {
-        const Eigen::Matrix< double, Eigen::Dynamic, 1 > unitWeights =
-                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
-        weightState_.matrixType = diagonal_weights_matrix;
-        weightState_.diagonalWeights.assign( numberOfObservations_, unitWeights );
-        weightState_.blockWeights.clear( );
+        setDiagonalWeightState(
+                createUniformDiagonalWeights( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) ) );
         weightState_.fullWeights.resize( 0, 0 );
+    }
+
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > createUniformDiagonalWeights(
+            const Eigen::Matrix< double, Eigen::Dynamic, 1 >& singleWeight ) const
+    {
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        diagonalWeights.assign( numberOfObservations_, singleWeight );
+        return diagonalWeights;
+    }
+
+    void setDiagonalWeightState( std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights )
+    {
+        weightState_.matrixType = diagonal_weights_matrix;
+        weightState_.diagonalWeights = std::move( diagonalWeights );
+        weightState_.blockWeights.clear( );
     }
 
     static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
@@ -1563,13 +1628,15 @@ private:
             return;
         }
 
-        if( ( observations.size( ) != times.size( ) ) ||
-            ( residuals.size( ) > 0 && observations.size( ) != residuals.size( ) ) ||
-            ( dependentVariables.size( ) > 0 && observations.size( ) != dependentVariables.size( ) ) )
-        {
-            throw std::runtime_error(
-                    "Error when adding observations with explicit weight data to SingleObservationSet, input sizes are inconsistent." );
-        }
+        validateObservationBatchSizes(
+                observations,
+                times,
+                residuals,
+                dependentVariables,
+                "adding observations with explicit weight data to SingleObservationSet" );
+        validateObservationDimensionsAgainstSingleSize( observations, "adding observations to SingleObservationSet" );
+        validatePerObservationVectorSize( residuals, "residual", "adding observations to SingleObservationSet" );
+        validateDependentVariableBatch( dependentVariables, observations.size( ), false, "adding observations to SingleObservationSet" );
 
         if( numberOfObservations_ > 0 && weightSubsetData.matrixType != weightState_.matrixType )
         {
@@ -1617,22 +1684,11 @@ private:
 
         for( unsigned int k = 0; k < observations.size( ); k++ )
         {
-            if( observations.at( k ).size( ) != singleObservationSize_ )
-            {
-                throw std::runtime_error(
-                        "Error when adding observations to SingleObservationSet, new observation size is inconsistent." );
-            }
-
             observations_.push_back( observations.at( k ) );
             observationTimes_.push_back( times.at( k ) );
 
             if( residuals.size( ) > 0 )
             {
-                if( residuals.at( k ).size( ) != singleObservationSize_ )
-                {
-                    throw std::runtime_error(
-                            "Error when adding observations to SingleObservationSet, new residual size is inconsistent." );
-                }
                 residuals_.push_back( residuals.at( k ) );
             }
             else
