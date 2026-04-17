@@ -56,7 +56,7 @@ class RampConverter(Converter):
 
         Parameters
         ----------
-        ramp_df : pd.DataFrame
+        ramp_df : pandas.DataFrame
             Ramp DataFrame to process. Each DataFrame must have at least the columns:
             "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float).
         tolerance : float, optional
@@ -65,7 +65,7 @@ class RampConverter(Converter):
 
         Returns
         -------
-        pd.DataFrame
+        pandas.DataFrame
             A merged ramp DataFrame with ramp intervals merged per station.
         """
         tolerance = 1e-6  # Precision from TNF data

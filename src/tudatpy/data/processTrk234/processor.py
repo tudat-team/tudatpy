@@ -125,10 +125,6 @@ class Trk234Processor:
 
         Parameters
         ----------
-        ramp_df : pd.DataFrame
-            DataFrame containing ramp data.
-        spacecraft_name : str
-            The spacecraft name used for setting the transponder turnaround ratio.
         bodies : SystemOfBodies
             The simulation bodies container.
         """

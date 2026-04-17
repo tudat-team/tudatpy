@@ -27,7 +27,7 @@ class Converter(ABC):
 
         Parameters
         ----------
-        merged_df : DataFrame
+        merged_df : pandas.DataFrame
             Merged DataFrame containing data from multiple files.
         spacecraftName : str, optional
             The spacecraft name used for building link definitions, if None the NAIF ID of the
@@ -35,7 +35,7 @@ class Converter(ABC):
 
         Returns
         -------
-        Union[DataFrame, List[SingleObservationSet]]
+        Union[pandas.DataFrame, list[SingleObservationSet]]
             A DataFrame or a list of single observation sets.
         """
         pass
