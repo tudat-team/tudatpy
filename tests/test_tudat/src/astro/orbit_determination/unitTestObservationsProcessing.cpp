@@ -1127,6 +1127,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsFilteringAndUnfiltering )
     fullWeightContribution.block( 4, 0, 2, 2 ) = fullWeightContribution.block( 0, 4, 2, 2 ).transpose( );
     fullWeightContribution.block( 2, 6, 2, 2 ) << 0.02, 0.005, 0.005, 0.025;
     fullWeightContribution.block( 6, 2, 2, 2 ) = fullWeightContribution.block( 2, 6, 2, 2 ).transpose( );
+    fullWeightContribution.block( 0, 2, 2, 2 ) << 0.012, 0.004, 0.004, 0.010;
+    fullWeightContribution.block( 2, 0, 2, 2 ) = fullWeightContribution.block( 0, 2, 2, 2 ).transpose( );
+    fullWeightContribution.block( 4, 6, 2, 2 ) << 0.009, 0.003, 0.003, 0.008;
+    fullWeightContribution.block( 6, 4, 2, 2 ) = fullWeightContribution.block( 4, 6, 2, 2 ).transpose( );
     observationSet->setFullWeightMatrix( fullWeightContribution );
 
     const Eigen::MatrixXd originalWeightsMatrix = observationSet->getWeightMatrix( );
