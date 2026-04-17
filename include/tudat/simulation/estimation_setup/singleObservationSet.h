@@ -974,141 +974,129 @@ public:
                 ( observationFilter->filterOut( ) ? numberOfObservations_ : filteredObservationSet_->getNumberOfObservables( ) );
         bool useOppositeCondition = observationFilter->useOppositeCondition( );
 
-        std::vector< unsigned int > indicesToRemove;
+        const bool filterOutObservations = observationFilter->filterOut( );
+        const auto getObservationTimeAt = [ & ]( const unsigned int index ) -> TimeType
+        {
+            return filterOutObservations ? observationTimes_.at( index ) : filteredObservationSet_->getObservationTime( index );
+        };
+
+        std::function< bool( unsigned int ) > shouldRemoveObservation;
         switch( observationFilter->getFilterType( ) )
         {
             case residual_filtering: {
                 Eigen::VectorXd residualCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
-                if( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
+                const std::shared_ptr< ObservationFilter< double > > scalarFilter =
+                        std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter );
+                const std::shared_ptr< ObservationFilter< Eigen::VectorXd > > vectorFilter =
+                        std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter );
+                if( scalarFilter != nullptr )
                 {
-                    residualCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) *
-                            Eigen::VectorXd::Ones( singleObservationSize_ );
+                    residualCutOff = scalarFilter->getFilterValue( ) * Eigen::VectorXd::Ones( singleObservationSize_ );
                 }
-                else if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
+                else if( vectorFilter != nullptr )
                 {
-                    if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) !=
-                        singleObservationSize_ )
+                    if( vectorFilter->getFilterValue( ).size( ) != singleObservationSize_ )
                     {
                         throw std::runtime_error(
                                 "Error when performing residual filtering, size of the residual "
                                 "cut off vector inconsistent with observable size." );
                     }
-                    residualCutOff =
-                            std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
+                    residualCutOff = vectorFilter->getFilterValue( );
                 }
 
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
+                shouldRemoveObservation = [ &, residualCutOff ]( const unsigned int index )
                 {
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
-                            ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < singleObservationSize_; k++ )
+                    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualVector =
+                            filterOutObservations ? residuals_.at( index ) : filteredObservationSet_->getResidual( index );
+                    for( unsigned int k = 0; k < singleObservationSize_; ++k )
                     {
-                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
+                        const bool passesFilter = std::fabs( residualVector[ k ] ) > residualCutOff[ k ];
+                        if( ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter ) )
                         {
-                            removeObservation = true;
+                            return true;
                         }
                     }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
+                    return false;
+                };
                 break;
             }
             case absolute_value_filtering: {
                 Eigen::VectorXd absoluteValueCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
-                if( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
+                const std::shared_ptr< ObservationFilter< double > > scalarFilter =
+                        std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter );
+                const std::shared_ptr< ObservationFilter< Eigen::VectorXd > > vectorFilter =
+                        std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter );
+                if( scalarFilter != nullptr )
                 {
-                    absoluteValueCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) *
-                            Eigen::VectorXd::Ones( singleObservationSize_ );
+                    absoluteValueCutOff = scalarFilter->getFilterValue( ) * Eigen::VectorXd::Ones( singleObservationSize_ );
                 }
-                else if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
+                else if( vectorFilter != nullptr )
                 {
-                    if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) !=
-                        singleObservationSize_ )
+                    if( vectorFilter->getFilterValue( ).size( ) != singleObservationSize_ )
                     {
                         throw std::runtime_error(
                                 "Error when performing observation value filtering, size of the "
                                 "filter value inconsistent with observable size." );
                     }
-                    absoluteValueCutOff =
-                            std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
+                    absoluteValueCutOff = vectorFilter->getFilterValue( );
                 }
 
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
+                shouldRemoveObservation = [ &, absoluteValueCutOff ]( const unsigned int index )
                 {
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
-                            ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < singleObservationSize_; k++ )
+                    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationVector =
+                            filterOutObservations ? observations_.at( index ) : filteredObservationSet_->getObservation( index );
+                    for( unsigned int k = 0; k < singleObservationSize_; ++k )
                     {
-                        if( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
+                        const bool passesFilter = observationVector[ k ] > absoluteValueCutOff[ k ];
+                        if( ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter ) )
                         {
-                            removeObservation = true;
+                            return true;
                         }
                     }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
+                    return false;
+                };
                 break;
             }
             case epochs_filtering: {
-                std::vector< double > filterEpochs =
+                const std::vector< double > filterEpochs =
                         std::dynamic_pointer_cast< ObservationFilter< std::vector< double > > >( observationFilter )->getFilterValue( );
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
+                shouldRemoveObservation = [ &, filterEpochs ]( const unsigned int index )
                 {
-                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j )
-                                                                                       : filteredObservationSet_->getObservationTime( j ) );
-                    if( ( !useOppositeCondition &&
-                          ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) > 0 ) ) ||
-                        ( useOppositeCondition &&
-                          ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) == 0 ) ) )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
+                    const TimeType observationTime = getObservationTimeAt( index );
+                    const bool passesFilter =
+                            std::count( filterEpochs.begin( ), filterEpochs.end( ), observationTime ) > 0;
+                    return ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter );
+                };
                 break;
             }
             case time_bounds_filtering: {
-                std::pair< double, double > timeBounds =
+                const std::pair< double, double > timeBounds =
                         std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )
                                 ->getFilterValue( );
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
+                shouldRemoveObservation = [ &, timeBounds ]( const unsigned int index )
                 {
-                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j )
-                                                                                       : filteredObservationSet_->getObservationTime( j ) );
-                    if( ( !useOppositeCondition &&
-                          ( ( singleObservationTime >= timeBounds.first ) && ( singleObservationTime <= timeBounds.second ) ) ) ||
-                        ( useOppositeCondition &&
-                          ( ( singleObservationTime < timeBounds.first ) || ( singleObservationTime > timeBounds.second ) ) ) )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
+                    const TimeType observationTime = getObservationTimeAt( index );
+                    const bool passesFilter = ( observationTime >= timeBounds.first ) && ( observationTime <= timeBounds.second );
+                    return ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter );
+                };
                 break;
             }
             case dependent_variable_filtering: {
-                if( std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter ) == nullptr )
+                const std::shared_ptr< ObservationDependentVariableFilter > dependentVariableFilter =
+                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter );
+                if( dependentVariableFilter == nullptr )
                 {
                     throw std::runtime_error(
                             "Error when performing dependent variable filtering, inconsistent "
                             "filter input (should be ObservationDependentVariableFilter object)." );
                 }
 
-                // Retrieve dependent variable settings and size
-                std::shared_ptr< ObservationDependentVariableSettings > settings =
-                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )
-                                ->getDependentVariableSettings( );
-                unsigned int dependentVariableSize = getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
+                const std::shared_ptr< ObservationDependentVariableSettings > settings =
+                        dependentVariableFilter->getDependentVariableSettings( );
+                const unsigned int dependentVariableSize =
+                        getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
 
-                // Retrieve dependent variable cut-off value
-                Eigen::VectorXd dependentVariableCutOff =
-                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )->getFilterValue( );
+                const Eigen::VectorXd dependentVariableCutOff = dependentVariableFilter->getFilterValue( );
                 if( dependentVariableCutOff.size( ) != dependentVariableSize )
                 {
                     throw std::runtime_error(
@@ -1117,10 +1105,9 @@ public:
                             "variable size." );
                 }
 
-                // Retrieve dependent variable values
-                Eigen::MatrixXd singleDependentVariableValues =
-                        ( observationFilter->filterOut( ) ? getSingleDependentVariable( settings )
-                                                          : filteredObservationSet_->getSingleDependentVariable( settings ) );
+                const Eigen::MatrixXd singleDependentVariableValues =
+                        filterOutObservations ? getSingleDependentVariable( settings )
+                                              : filteredObservationSet_->getSingleDependentVariable( settings );
                 if( ( singleDependentVariableValues.rows( ) != nbObservationsToTest ) ||
                     ( singleDependentVariableValues.cols( ) != dependentVariableSize ) )
                 {
@@ -1130,27 +1117,34 @@ public:
                             "number of observations and presupposed dependent variable size." );
                 }
 
-                // Check dependent variable values against cut-off value
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
+                shouldRemoveObservation = [ &, dependentVariableCutOff, singleDependentVariableValues, dependentVariableSize ](
+                                                  const unsigned int index )
                 {
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < dependentVariableSize; k++ )
+                    for( unsigned int k = 0; k < dependentVariableSize; ++k )
                     {
-                        if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
-                            ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
+                        const bool passesFilter =
+                                singleDependentVariableValues( index, k ) > dependentVariableCutOff[ k ];
+                        if( ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter ) )
                         {
-                            removeObservation = true;
+                            return true;
                         }
                     }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
+                    return false;
+                };
                 break;
             }
             default:
                 throw std::runtime_error( "Observation filter type not recognised." );
+        }
+
+        std::vector< unsigned int > indicesToRemove;
+        indicesToRemove.reserve( nbObservationsToTest );
+        for( unsigned int j = 0; j < nbObservationsToTest; ++j )
+        {
+            if( shouldRemoveObservation( j ) )
+            {
+                indicesToRemove.push_back( j );
+            }
         }
 
         if( observationFilter->filterOut( ) )
@@ -1888,45 +1882,7 @@ template< typename ObservationScalarType = double,
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filterObservations(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet,
         const std::shared_ptr< ObservationFilterBase > observationFilter,
-        const bool saveFilteredObservations = false )
-{
-    if( !observationFilter->filterOut( ) )
-    {
-        throw std::runtime_error(
-                "Error when creating new single observation set post-filtering, the filterOut "
-                "option should be set to true" );
-    }
-    // Create new observation set
-    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    singleObservationSet->getObservableType( ),
-                    singleObservationSet->getLinkEnds( ),
-                    singleObservationSet->getObservationsReference( ),
-                    singleObservationSet->getObservationTimesReference( ),
-                    singleObservationSet->getReferenceLinkEnd( ),
-                    singleObservationSet->getObservationsDependentVariablesReference( ),
-                    singleObservationSet->getDependentVariableBookkeeping( ),
-                    singleObservationSet->getAncillarySettings( ) );
-    if( singleObservationSet->getWeightsMatrixType( ) == diagonal_weights_matrix )
-    {
-        newObservationSet->setTabulatedWeights( singleObservationSet->getBaseWeightsDiagonalVector( ) );
-    }
-    else if( singleObservationSet->getWeightsMatrixType( ) == block_diagonal_weights_matrix )
-    {
-        newObservationSet->setBlockDiagonalWeights( singleObservationSet->getBlockDiagonalWeightMatrices( ) );
-    }
-    if( singleObservationSet->hasFullWeightMatrixContribution( ) )
-    {
-        newObservationSet->setFullWeightMatrix( singleObservationSet->getFullWeightMatrix( ) );
-    }
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
-    newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
-
-    // Filter observations from new observation set
-    newObservationSet->filterObservations( observationFilter, saveFilteredObservations );
-
-    return newObservationSet;
-}
+        const bool saveFilteredObservations = false );
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -1934,183 +1890,12 @@ template< typename ObservationScalarType = double,
 std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
         const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,
-        const bool printWarning = true )
-{
-    if( printWarning && observationSet->getFilteredObservationSet( ) != nullptr )
-    {
-        std::cerr << "Warning when splitting single observation set, the filtered observation set "
-                     "pointer is not empty and "
-                     " any filtered observation will be lost after splitting."
-                  << std::endl;
-    }
-
-    std::vector< int > rawStartIndicesNewSets = { 0 };
-    std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
-    std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getBaseWeightsDiagonalVector( );
-    ObservationWeightsMatrixType weightsMatrixType = observationSet->getWeightsMatrixType( );
-    std::vector< Eigen::MatrixXd > blockWeights;
-    Eigen::MatrixXd fullWeights;
-    if( weightsMatrixType == block_diagonal_weights_matrix )
-    {
-        blockWeights = observationSet->getBlockDiagonalWeightMatrices( );
-    }
-    if( observationSet->hasFullWeightMatrixContribution( ) )
-    {
-        fullWeights = observationSet->getFullWeightMatrix( );
-    }
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
-
-    switch( observationSetSplitter->getSplitterType( ) )
-    {
-        case time_tags_splitter: {
-            std::vector< double > timeTags =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )
-                            ->getSplitterValue( );
-            for( auto currentTimeTag : timeTags )
-            {
-                if( currentTimeTag > observationSet->getTimeBounds( ).first )
-                {
-                    bool detectedStartSet = false;
-                    int indexObs = rawStartIndicesNewSets.at( rawStartIndicesNewSets.size( ) - 1 );
-                    while( !detectedStartSet && indexObs < static_cast< int >( observationTimes.size( ) ) )
-                    {
-                        if( observationTimes.at( indexObs ) > currentTimeTag )
-                        {
-                            rawStartIndicesNewSets.push_back( indexObs );
-                            detectedStartSet = true;
-                        }
-                        indexObs++;
-                    }
-                }
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        case time_interval_splitter: {
-            double maxTimeInterval =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-            for( unsigned int i = 1; i < observationTimes.size( ); i++ )
-            {
-                if( ( observationTimes.at( i ) - observationTimes.at( i - 1 ) ) > maxTimeInterval )
-                {
-                    rawStartIndicesNewSets.push_back( i );
-                }
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        case time_span_splitter: {
-            double maxTimeSpan =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-            if( observationSet->getNumberOfObservables( ) > 0 )
-            {
-                double referenceEpoch = observationTimes.at( 0 );
-                for( unsigned int i = 1; i < observationTimes.size( ); i++ )
-                {
-                    if( ( observationTimes.at( i ) - referenceEpoch ) > maxTimeSpan )
-                    {
-                        rawStartIndicesNewSets.push_back( i );
-                        referenceEpoch = observationTimes.at( i );
-                    }
-                }
-                rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            }
-            break;
-        }
-        case nb_observations_splitter: {
-            int maxNbObs = std::dynamic_pointer_cast< ObservationSetSplitter< int > >( observationSetSplitter )->getSplitterValue( );
-            if( maxNbObs < observationSetSplitter->getMinNumberObservations( ) )
-            {
-                throw std::runtime_error(
-                        "Error when splitting observation sets, the maximum number of observations "
-                        "cannot be smaller than the minimum number of observations." );
-            }
-            for( int ind = maxNbObs; ind < static_cast< int >( observationSet->getNumberOfObservables( ) ); ind += maxNbObs )
-            {
-                rawStartIndicesNewSets.push_back( ind );
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Observation set splitter type not recognised." );
-    }
-
-    // Check that the minimum number of observations is met
-    std::vector< std::pair< int, int > > indicesNewSets;
-    for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
-    {
-        if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
-        {
-            indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j - 1 ),
-                                                      rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) );
-        }
-    }
-
-    // Split current observation set based on indices
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets;
-    for( unsigned int k = 0; k < indicesNewSets.size( ); k++ )
-    {
-        int startIndex = indicesNewSets.at( k ).first;
-        int sizeCurrentSet = indicesNewSets.at( k ).second;
-
-        std::vector< Eigen::VectorXd > newDependentVariables;
-        if( !dependentVariables.empty( ) )
-        {
-            newDependentVariables = utilities::getStlVectorSegment(
-                    observationSet->getObservationsDependentVariablesReference( ), startIndex, sizeCurrentSet );
-        }
-
-        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet =
-                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                        observationSet->getObservableType( ),
-                        observationSet->getLinkEnds( ),
-                        utilities::getStlVectorSegment( observationSet->getObservationsReference( ), startIndex, sizeCurrentSet ),
-                        utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
-                        observationSet->getReferenceLinkEnd( ),
-                        newDependentVariables,
-                        observationSet->getDependentVariableBookkeeping( ),
-                        observationSet->getAncillarySettings( ) );
-
-        if( weightsMatrixType == diagonal_weights_matrix )
-        {
-            Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                    weightsVector.segment( startIndex * observationSet->getSingleObservableSize( ),
-                                           sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-            newSet->setTabulatedWeights( newWeightsVector );
-        }
-        else if( weightsMatrixType == block_diagonal_weights_matrix )
-        {
-            std::vector< Eigen::MatrixXd > newBlockWeights;
-            newBlockWeights.reserve( sizeCurrentSet );
-            for( int i = 0; i < sizeCurrentSet; i++ )
-            {
-                newBlockWeights.push_back( blockWeights.at( startIndex + i ) );
-            }
-            newSet->setBlockDiagonalWeights( newBlockWeights );
-        }
-        if( fullWeights.rows( ) > 0 )
-        {
-            const int blockSize = static_cast< int >( observationSet->getSingleObservableSize( ) );
-            const int matrixStart = startIndex * blockSize;
-            const int matrixSize = sizeCurrentSet * blockSize;
-            newSet->setFullWeightMatrix( fullWeights.block( matrixStart, matrixStart, matrixSize, matrixSize ) );
-        }
-
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
-                utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
-        newSet->setResiduals( newResiduals );
-
-        newObsSets.push_back( newSet );
-    }
-
-    return newObsSets;
-}
+        const bool printWarning = true );
 
 }  // namespace observation_models
 
 }  // namespace tudat
+
+#include "tudat/simulation/estimation_setup/singleObservationSetUtilities.h"
 
 #endif  // TUDAT_SINGLE_OBSERVATION_SET_H
