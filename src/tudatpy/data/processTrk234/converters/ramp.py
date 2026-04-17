@@ -3,13 +3,13 @@ Ramp converter
 """
 
 from . import Converter
-from trk234 import bands
+from trk234 import bands, SFDU
 
 from pandas import DataFrame, concat
 
 
 class RampConverter(Converter):
-    def extract(self, sfdu_list):
+    def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent ramp data.
         # - Ramp format_code == 9
         # - Only keep decoded ones
@@ -35,7 +35,7 @@ class RampConverter(Converter):
 
         return DataFrame(data)
 
-    def process(self, ramp_df):
+    def process(self, ramp_df: DataFrame) -> DataFrame:
         """
         Concatenate ramp records and merge them per station following these rules:
 
@@ -56,7 +56,7 @@ class RampConverter(Converter):
 
         Parameters
         ----------
-        rampDf : pd.DataFrame
+        ramp_df : pd.DataFrame
             Ramp DataFrame to process. Each DataFrame must have at least the columns:
             "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float).
         tolerance : float, optional

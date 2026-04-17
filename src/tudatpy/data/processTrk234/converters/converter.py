@@ -3,24 +3,26 @@ Base converter class for processing SFDU data into structured data.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Any, Union
 from pandas import DataFrame
-
+from trk234 import SFDU
+from tudatpy.estimation.observations import SingleObservationSet
 
 class Converter(ABC):
     @abstractmethod
-    def extract(self, sfdu_list: List[Any]) -> DataFrame:
+    def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         """
         Extract data from a list of SFDU objects and return a pandas DataFrame.
         """
         pass
 
     @abstractmethod
-    def process(self, merged_df, spacecraftName=None) -> Union[DataFrame, List[Any]]:
+    def process(
+        self, merged_df: DataFrame, spacecraftName: str | None = None
+    ) -> DataFrame | list[SingleObservationSet]:
         """
         Process a merged DataFrame (from multiple files extract outputs) into Tudat structured format.
         For observable converters, this will be a list of
-        tudatpy.estimation.observations.single_observation_sets;
+        :class:`~tudatpy.estimation.observations.SingleObservationSet` objects.
         For the ramp converter, a merged ramp DataFrame.
 
         Parameters
@@ -33,7 +35,7 @@ class Converter(ABC):
 
         Returns
         -------
-        Union[DataFrame, List[Any]]
+        Union[DataFrame, List[SingleObservationSet]]
             A DataFrame or a list of single observation sets.
         """
         pass

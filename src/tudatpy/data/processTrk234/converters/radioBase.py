@@ -10,7 +10,8 @@ from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBa
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.astro import time_representation
 from . import Converter
-from trk234 import bands
+from trk234 import bands, SFDU
+from datetime import datetime
 
 
 class RadioBase(Converter):
@@ -33,7 +34,7 @@ class RadioBase(Converter):
 
     stationDict = get_approximate_dsn_ground_station_positions()
 
-    def get_link_ends(self, sfdu):
+    def get_link_ends(self, sfdu: SFDU) -> tuple[str, str, str]:
         """
         Returns the uplink, spacecraft, and downlink IDs for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -45,7 +46,7 @@ class RadioBase(Converter):
 
         Returns
         -------
-        tuple(int, int, int)
+        tuple(str, str, str)
             A tuple containing the uplink, spacecraft, and downlink IDs.
             If the uplink or downlink are unknown or not valid, the function returns NaN.
         """
@@ -62,7 +63,7 @@ class RadioBase(Converter):
 
         return (upLink, scId, dlLink)
 
-    def get_band(self, sfdu):
+    def get_band(self, sfdu: SFDU) -> tuple[str, str]:
         """
         Returns the uplink and downlink radio bands for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -82,7 +83,7 @@ class RadioBase(Converter):
             bands[sfdu.sec_chdo.vld_dl_band],
         )
 
-    def get_tracking_mode(self, sfdu):
+    def get_tracking_mode(self, sfdu: SFDU) -> str:
         """
         Returns the tracking mode for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -104,7 +105,9 @@ class RadioBase(Converter):
         )
         return trkMode
 
-    def build_link_ends_dict(self, link_end_tuple, spacecraftName=None):
+    def build_link_ends_dict(
+        self, link_end_tuple: tuple, spacecraftName: str | None = None
+    ) -> dict:
         """
         Construct a link ends dictionary for Doppler/Range observation creation.
 
@@ -150,7 +153,7 @@ class RadioBase(Converter):
                 ),
             }
 
-    def from_datetime_to_TBD(self, epoch, station):
+    def from_datetime_to_TBD(self, epoch: datetime, station: str) -> float:
         """
         Convert a datetime object in UTC into seconds since J2000 in TDB.
 

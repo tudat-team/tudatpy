@@ -1,13 +1,15 @@
 from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_doppler_ancillary_settings
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import create_single_observation_set
+from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
+
+from trk234 import SFDU
 from . import RadioBase
 from pandas import DataFrame
 
 
 class DerivedDopplerConverter(RadioBase):
-    def extract(self, sfdu_list):
+    def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent derived Carrier Doppler data.
         # - Derived Carrier Doppler format_code == 16
         # - Only keep decoded ones
@@ -33,7 +35,7 @@ class DerivedDopplerConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(self, doppler_df, spacecraftName=None):
+    def process(self, doppler_df: DataFrame, spacecraftName: str | None = None) -> list[SingleObservationSet]:
 
         observation_set_list = []
         for link_end in doppler_df["link_ends"].unique():
@@ -75,7 +77,7 @@ class DerivedDopplerConverter(RadioBase):
 
         return observation_set_list
 
-    def get_link_delays(self, sfdu):
+    def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """
         Returns the transmit time tag delay, spacecraft transmit delay, and receive time tag delay for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.

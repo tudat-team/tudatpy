@@ -4,7 +4,7 @@ from pandas import concat as pd_concat
 from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.astro import time_representation
 from tudatpy.dynamics.environment import (
-    PiecewiseLinearFrequencyInterpolator,
+    PiecewiseLinearFrequencyInterpolator, SystemOfBodies
 )
 
 
@@ -20,28 +20,36 @@ class Trk234Processor:
 
     Examples
     --------
-    >>> from tudatpy.data import Trk234Processor
-    >>>
-    >>> # Define TNF file paths
-    >>> tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
-    >>>
-    >>> # Create processor for both Doppler and range data
-    >>> tnf_processor = Trk234Processor(
-    ...     tnf_files,
-    ...     ["doppler", "range"],
-    ...     spacecraft_name="MRO"
-    ... )
-    >>>
-    >>> # Process observations
-    >>> observations = tnf_processor.process()
-    >>>
-    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
-    >>> tnf_processor.set_tnf_information_in_bodies(bodies)
+
+    .. code-block:: python
+
+        from tudatpy.data import Trk234Processor
+        
+        # Define TNF file paths
+        tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
+        
+        # Create processor for both Doppler and range data
+        tnf_processor = Trk234Processor(
+            tnf_files,
+            ["doppler", "range"],
+            spacecraft_name="MRO"
+        )
+        
+        # Process observations
+        observations = tnf_processor.process()
+        
+        # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
+        tnf_processor.set_tnf_information_in_bodies(bodies)
+
     """
 
     def __init__(
-        self, tnf_file_paths, requested_types, spacecraft_name=None, bodies=None
-    ):
+        self,
+        tnf_file_paths: list[str],
+        requested_types: list[str],
+        spacecraft_name: str | None = None,
+        bodies: SystemOfBodies | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -52,7 +60,7 @@ class Trk234Processor:
             Note: "ramp" should NOT be included here.
         spacecraft_name : str, optional
             The spacecraft name for building link definitions.
-        bodies : object, optional
+        bodies : SystemOfBodies, optional
             The simulation bodies container (used for setting ramp data).
         """
         self.tnf_file_paths = tnf_file_paths
@@ -69,7 +77,7 @@ class Trk234Processor:
         # Initialize ramp converter if needed.
         self.ramp_converter = cnv.RampConverter()
 
-    def process(self):
+    def process(self) -> ObservationCollection:
         """
         Process all TNF files provided at initialization. For each file, decode the SFDU data,
         and for each requested radiometric data type, extract data via the converter's extract method.
@@ -108,7 +116,7 @@ class Trk234Processor:
 
         return ObservationCollection(observation_sets)
 
-    def set_tnf_information_in_bodies(self, bodies):
+    def set_tnf_information_in_bodies(self, bodies: SystemOfBodies) -> None:
         """
         Update stations in bodies by setting the frequency interpolators from the ramp data.
         Set the transponder turnaround ratio for the spacecraft.
@@ -121,7 +129,7 @@ class Trk234Processor:
             DataFrame containing ramp data.
         spacecraft_name : str
             The spacecraft name used for setting the transponder turnaround ratio.
-        bodies : object
+        bodies : SystemOfBodies
             The simulation bodies container.
         """
 
