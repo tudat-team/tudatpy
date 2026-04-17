@@ -584,17 +584,17 @@ numpy.ndarray
 
         Parameters
         ----------
-        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Type of observable.
-        link_ends : tudatpy.estimation.observable_models_setup.links.LinkEndType
+        link_ends : dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
         observation_times : list[float]
             List of observation times.
-        reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+        reference_link_end : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Reference link end for the observation.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`, optional
             Ancillary settings for the observation.
 
         Returns
