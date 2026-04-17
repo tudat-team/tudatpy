@@ -107,21 +107,21 @@ void expose_observations( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.observation_models.ObservableType
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
             Type of observable.
-        link_ends : tudatpy.astro.observation_models.LinkDefinition
+        link_ends : tudatpy.estimation.observable_models_setup.links.LinkDefinition
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
         observation_epochs : list[float]
             List of observation times.
-        reference_link_end : tudatpy.astro.observation_models.LinkEndType
+        reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
             Reference link end for the observation.
         observation_dependent_variables : list[numpy.ndarray], optional
             List of dependent variables for each observation.
         dependent_variable_calculator : tudatpy.estimation.observations.ObservationDependentVariableCalculator, optional
             Calculator for dependent variables.
-        ancillary_settings : tudatpy.astro.observation_models.ObservationAncillarySimulationSettings, optional
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observation.
       )doc" )
             .def( py::init< const tom::ObservableType,
@@ -254,7 +254,7 @@ Filters observations based on a given filter criterion.
 
 Parameters
 ----------
-filter : tudatpy.numerical_simulation.estimation.ObservationFilterBase
+filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
     The filter to apply.
 save_filtered_obs : bool, optional
     If true, the filtered observations are stored in a separate set. Defaults to true.
@@ -556,7 +556,7 @@ Returns the values of a single dependent variable (specified by dependent variab
 
 Parameters
 ----------
-dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
     Settings for the dependent variable to retrieve.
 return_first_compatible_settings : bool, optional
     If true, returns the first compatible variable found. Defaults to false.
@@ -574,12 +574,12 @@ Returns the list of all dependent variable settings compatible with the settings
 
 Parameters
 ----------
-dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
     The settings to check for compatibility.
 
 Returns
 -------
-list[tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings]
+list[tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings]
     A list of compatible dependent variable settings.
 )doc" )
             .def( "compatible_dependent_variables_list",
@@ -590,7 +590,7 @@ Returns a vector containing the values of all dependent variables compatible wit
 
 Parameters
 ----------
-dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
     The settings to check for compatibility.
 
 Returns
@@ -607,7 +607,7 @@ Returns the time history of a single dependent variable (specified by settings).
 
 Parameters
 ----------
-dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
     Settings for the dependent variable to retrieve.
 return_first_compatible_settings : bool, optional
     If true, returns the first compatible variable found. Defaults to false.
@@ -664,17 +664,17 @@ numpy.ndarray
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.observation_models.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Type of observable.
-        link_ends : tudatpy.astro.observation_models.LinkEnds
+        link_ends : dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
         observation_times : list[float]
             List of observation times.
-        reference_link_end : tudatpy.astro.observation_models.LinkEndType
+        reference_link_end : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Reference link end for the observation.
-        ancillary_settings : tudatpy.astro.observation_models.ObservationAncillarySimulationSettings, optional
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`, optional
             Ancillary settings for the observation.
 
         Returns
@@ -708,7 +708,7 @@ Constructor for the ObservationCollection class.
 
 Parameters
 ----------
-observation_sets : list[tudatpy.numerical_simulation.estimation.SingleObservationSet]
+observation_sets : list[tudatpy.estimation.observations.SingleObservationSet]
     List of single observation sets to be included in the collection.
 )doc" )
             .def_property_readonly( "concatenated_times",
@@ -972,7 +972,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observable_type : :class:`ObservableType`
+         observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
              Observable type for which link definitions are to be retrieved.
          Returns
          -------
@@ -989,7 +989,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observable_type : :class:`ObservableType`
+         observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
              Observable type of which observations are to be simulated.
          link_ends : LinkDefinition
              Link ends for which observations are to be simulated.
@@ -1609,7 +1609,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_filters : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, tudatpy.numerical_simulation.estimation.ObservationFilterBase]
+         observation_filters : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, tudatpy.estimation.observations.observations_processing.ObservationFilterBase]
              A dictionary mapping observation parsers to observation filters.
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
@@ -1628,7 +1628,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_filter : tudatpy.numerical_simulation.estimation.ObservationFilterBase
+         observation_filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
              The observation filter to apply.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
@@ -1648,7 +1648,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_set_splitter : tudatpy.numerical_simulation.estimation.ObservationSetSplitterBase
+         observation_set_splitter : tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
              The splitter to use for splitting the observation sets.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
@@ -1668,7 +1668,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Returns
          -------
-         list[tudatpy.numerical_simulation.estimation.SingleObservationSet]
+         list[tudatpy.estimation.observations.SingleObservationSet]
              A list of the selected single observation sets.
      )doc" )
             .def( "print_observation_sets_start_and_size",
@@ -1705,7 +1705,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
              System of bodies.
          antenna_position : numpy.ndarray
              Position of the antenna in the spacecraft body-fixed frame.
@@ -1735,7 +1735,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
              System of bodies.
          antenna_switch_history : dict[float, numpy.ndarray]
              Dictionary mapping time to antenna position.
@@ -1765,9 +1765,9 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
              System of bodies.
-         antenna_body_fixed_ephemeris : tudatpy.numerical_simulation.ephemerides.Ephemeris
+         antenna_body_fixed_ephemeris : tudatpy.dynamics.environment.Ephemeris
              Ephemeris of the antenna in the spacecraft body-fixed frame.
          antenna_name : str
              Name of the antenna/reference point.
@@ -1807,9 +1807,9 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
+         bodies : tudatpy.dynamics.environment.SystemOfBodies
              System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets to which the variable should be added.
@@ -1829,7 +1829,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -1851,7 +1851,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -1872,14 +1872,14 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
          -------
-         tuple[list[list[tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings]], tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
+         tuple[list[list[tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings]], tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
              A pair containing a list of lists of compatible settings and the parser used.
      )doc" )
             .def( "compatible_dependent_variables_list",
@@ -1891,7 +1891,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
@@ -1911,7 +1911,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -1933,7 +1933,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -1955,7 +1955,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -1977,7 +1977,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
+         dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
@@ -2008,9 +2008,9 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         observation_collection : tudatpy.estimation.observations.ObservationCollection
             The collection of observations for which to compute residuals and dependent variables.
             This object is modified in-place.
-        observation_simulators : list[tudatpy.astro.observation_models.ObservationSimulatorBase]
+        observation_simulators : list[tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator]
             List of observation simulators to be used for computing the observations.
-        bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
             The system of bodies required for the observation simulation.
         )doc" );
 
@@ -2046,7 +2046,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_set : tudatpy.estimation.observations.SingleObservationSet
             The observation set to filter.
-        observation_filter : tudatpy.estimation.observations.ObservationFilterBase
+        observation_filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             The filter to apply.
         save_filtered_observations : bool, optional
             If true, the observations that are filtered out are stored within the new observation set. Defaults to false.
@@ -2074,7 +2074,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_set : tudatpy.estimation.observations.SingleObservationSet
             The observation set to split.
-        observation_splitter : tudatpy.estimation.observations.ObservationSetSplitterBase
+        observation_splitter : tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             The splitter defining the splitting criteria.
         print_warning : bool, optional
             If true, a warning is printed if the original set contains filtered observations that will be lost. Defaults to true.
@@ -2109,7 +2109,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_collection : tudatpy.estimation.observations.ObservationCollection
             The observation collection to filter.
-        observation_filters_map : dict[tudatpy.estimation.observations.ObservationCollectionParser, tudatpy.estimation.observations.ObservationFilterBase]
+        observation_filters_map : dict[tudatpy.estimation.observations.ObservationCollectionParser, tudatpy.estimation.observations.observations_processing.ObservationFilterBase]
             A dictionary mapping parsers to filters.
 
         Returns
@@ -2138,7 +2138,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_collection : tudatpy.estimation.observations.ObservationCollection
             The observation collection to filter.
-        observation_filter : tudatpy.estimation.observations.ObservationFilterBase
+        observation_filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             The filter to apply.
         observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, optional
             Parser to select the subset of observations to filter. Defaults to an empty parser (all observations).
@@ -2165,7 +2165,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_collection : tudatpy.estimation.observations.ObservationCollection
             The observation collection from which to split sets.
-        observation_set_splitter : tudatpy.estimation.observations.ObservationSetSplitterBase
+        observation_set_splitter : tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             The splitter defining how to split the sets.
         observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, optional
             Parser to select which observation sets to split. Defaults to an empty parser (all sets).

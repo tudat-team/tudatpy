@@ -69,7 +69,7 @@ class SpaceTrackQuery:
     # Authentication
     # ------------------------------------------------------------------
 
-    def _login(self, password: str) -> None:t
+    def _login(self, password: str) -> None:
         """
         Logs in to Space-Track.org.
 

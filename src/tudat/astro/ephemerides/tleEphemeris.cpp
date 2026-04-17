@@ -255,7 +255,7 @@ Tle::Tle( const std::string &lines )
     elementSetNumber_ = std::stoi( line1.substr( 64, 4 ) );
 
     // ---- Line 2: classical elements ----
-    inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 7 ) ) );
+    inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 8 ) ) );
     rightAscension_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 17, 8 ) ) );
 
     std::string eccentricityString = "0." + line2.substr( 26, 7 );
