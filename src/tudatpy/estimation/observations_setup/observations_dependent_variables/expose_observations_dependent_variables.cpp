@@ -131,7 +131,7 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
 
@@ -166,10 +166,10 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
 
@@ -205,13 +205,13 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
- link_ends : :class:`~tudatpy.astro.LinkDefinition`
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Identifies the link ends in the observation simulation settings for which the dependent variables are to be included.
 
      )doc" );
@@ -242,13 +242,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        link_end_type : tudatpy.astro.LinkEndType, optional
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the elevation angle is computed.
-        link_end_id : tudatpy.astro.LinkEndId, optional
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the link end for which the elevation angle is computed.
-        originating_link_end_type : tudatpy.astro.LinkEndType, optional
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.astro.LinkEndId, optional
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -271,13 +271,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        link_end_type : tudatpy.astro.LinkEndType, optional
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the azimuth angle is computed.
-        link_end_id : tudatpy.astro.LinkEndId, optional
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the link end for which the azimuth angle is computed.
-        originating_link_end_type : tudatpy.astro.LinkEndType, optional
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.astro.LinkEndId, optional
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -300,13 +300,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -332,13 +332,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the avoidance angle is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -364,13 +364,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the distance is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -396,13 +396,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the distance is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -428,13 +428,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body defining the orbital plane.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -453,7 +453,7 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the integration time.
 
         Returns
@@ -470,7 +470,7 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the retransmission delays.
 
         Returns
@@ -491,7 +491,7 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the link-end epochs.
 
         Returns

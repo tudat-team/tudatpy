@@ -510,9 +510,9 @@ void expose_ancillary_settings( py::module& m )
         ----------
         observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
             List of observation simulation settings to modify.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`
             Ancillary settings to add.
-        observable_type : tudatpy.kernel.astro.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Observable type for which to add the ancillary settings.
         )doc" );
 
@@ -532,11 +532,11 @@ void expose_ancillary_settings( py::module& m )
         ----------
         observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
             List of observation simulation settings to modify.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`
             Ancillary settings to add.
-        observable_type : tudatpy.kernel.astro.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Observable type for which to add the ancillary settings.
-        link_ends : tudatpy.kernel.astro.LinkDefinition
+        link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
             Link ends for which to add the ancillary settings.
         )doc" );
 
