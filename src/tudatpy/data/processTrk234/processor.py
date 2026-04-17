@@ -86,9 +86,8 @@ class Trk234Processor:
 
         Returns
         -------
-        ObservationCollection or None
-            An ObservationCollection containing all radiometric observation sets,
-            or None if none were processed.
+        ObservationCollection
+            An ObservationCollection containing all radiometric observation sets, if none were extracted, an empty collection is returned.
         """
         # Accumulate outputs for radiometric converters.
         extracted_data = {key: [] for key in self.converters.keys()}

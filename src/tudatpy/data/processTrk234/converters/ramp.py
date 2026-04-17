@@ -53,15 +53,13 @@ class RampConverter(Converter):
            to the new ramp's start time.
 
         Ramp merging is done separately per station.
+        A default tolerance of 1e-6 Hz is used when comparing frequency and rate values, which corresponds to the precision from TNF data.
 
         Parameters
         ----------
         ramp_df : pandas.DataFrame
             Ramp DataFrame to process. Each DataFrame must have at least the columns:
             "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float).
-        tolerance : float, optional
-            Tolerance used when comparing frequency and rate values. Default is 1e-6 Hz that is the
-            precision from TNF data.
 
         Returns
         -------

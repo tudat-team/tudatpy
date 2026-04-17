@@ -48,7 +48,7 @@ class RadioBase(Converter):
         -------
         tuple(str, str, str)
             A tuple containing the uplink, spacecraft, and downlink IDs.
-            If the uplink or downlink are unknown or not valid, the function returns NaN.
+            If the uplink is unknown or not valid, the uplink entry is a `"nan"` string.
         """
         upLink = (
             sfdu.sec_chdo.vld_ul_stn
