@@ -130,3 +130,9 @@ TUDAT_ADD_TEST_CASE(IfmsFileReader
 
 TUDAT_ADD_TEST_CASE(CrdAndSinexReaders
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(IonexReader
+        PRIVATE_LINKS
+        tudat_input_output
+        tudat_basic_astrodynamics
+        )

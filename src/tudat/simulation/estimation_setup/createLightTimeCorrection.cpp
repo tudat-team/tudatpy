@@ -17,6 +17,8 @@
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
+#include "tudat/astro/observation_models/corrections/neQuick2IonosphericCorrection.h"
+#include "tudat/io/readNeQuick2Data.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
@@ -687,6 +689,109 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
+        case nequick2_ionospheric: {
+            std::shared_ptr< NeQuick2IonosphericCorrectionSettings > nequick2Settings =
+                    std::dynamic_pointer_cast< NeQuick2IonosphericCorrectionSettings >( correctionSettings );
+            if( nequick2Settings == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error when creating NeQuick-2 ionospheric correction: incompatible settings type." );
+            }
+
+            std::string bodyName = nequick2Settings->getBodyWithIonosphere( );
+
+            // Determine CCIR data path
+            std::string ccirDataPath = nequick2Settings->getCcirDataPath( );
+            if( ccirDataPath.empty( ) )
+            {
+                ccirDataPath = paths::getNeQuick2DataPath( );
+            }
+
+            // Load CCIR coefficients and MODIP grid
+            input_output::CcirData ccirData = input_output::readCcirCoefficients( ccirDataPath );
+            Eigen::MatrixXd modipGrid = input_output::readModipGrid( ccirDataPath );
+
+            // Create solar flux function from space weather data
+            std::string solarActivityPath = nequick2Settings->getSolarActivityDataPath( );
+            if( solarActivityPath.empty( ) )
+            {
+                solarActivityPath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
+            }
+            input_output::solar_activity::SolarActivityDataMap solarActivityData =
+                    input_output::solar_activity::readSolarActivityData( solarActivityPath );
+            std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
+                    std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+            std::function< double( double ) > fluxFunction = [ solarActivityContainer ]( double time ) {
+                return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed;
+            };
+
+            // Create NeQuick-2 model
+            std::shared_ptr< environment::NeQuick2Model > neQuick2Model =
+                    std::make_shared< environment::NeQuick2Model >( ccirData, modipGrid, fluxFunction );
+
+            // Optionally create IONEX-constrained wrapper
+            std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel = nullptr;
+            if( nequick2Settings->getUseIonexRescaling( ) )
+            {
+                std::shared_ptr< environment::IonosphereModel > ionexModel =
+                        bodies.getBody( bodyName )->getIonosphereModel( );
+                if( ionexModel != nullptr )
+                {
+                    rescaledModel = std::make_shared< environment::IonexConstrainedNeQuick2Model >(
+                            neQuick2Model, ionexModel );
+                }
+            }
+
+            // Create Earth state function
+            std::function< Eigen::Vector6d( const double ) > earthStateFunction =
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                               bodies.at( bodyName ),
+                               std::placeholders::_1 );
+
+            // Create Earth rotation-to-body-fixed function
+            std::function< Eigen::Matrix3d( const double ) > earthRotationFunction =
+                    [ &bodies, bodyName ]( double time ) {
+                        return bodies.getBody( bodyName )->getRotationalEphemeris( )
+                                ->getRotationMatrixToTargetFrame( time );
+                    };
+
+            // Get equatorial radius from shape model
+            double equatorialRadius;
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel =
+                    bodies.getBody( bodyName )->getShapeModel( );
+            if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius =
+                        std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >(
+                                shapeModel )->getAverageRadius( );
+            }
+            else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius =
+                        std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
+                                shapeModel )->getEquatorialRadius( );
+            }
+            else
+            {
+                throw std::runtime_error(
+                    "Error when creating NeQuick-2 ionospheric correction for body " + bodyName +
+                    ": shape model not recognized." );
+            }
+
+            ObservableType baseObservableType = getBaseObservableType( observableType );
+
+            lightTimeCorrection = std::make_shared< NeQuick2IonosphericCorrection >(
+                    neQuick2Model,
+                    rescaledModel,
+                    baseObservableType,
+                    earthStateFunction,
+                    earthRotationFunction,
+                    equatorialRadius,
+                    nequick2Settings->getFirstOrderDelayCoefficient( ),
+                    nequick2Settings->getQuadratureOrder( ) );
+
+            break;
+        }
         default: {
             std::string errorMessage =
                     "Error, light time correction type " + std::to_string( correctionSettings->getCorrectionType( ) ) + " not recognized.";
@@ -934,9 +1039,9 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                 std::vector< interpolators::BoundaryInterpolationType >( 3, interpolators::use_boundary_value_with_warning ) );
     }
 
-    // Read TEC maps from IONEX file(s)
+    // Read TEC and RMS maps from IONEX file(s)
     input_output::IonexTecMap tecData;
-    readIonexFiles( dataFiles, tecData );
+    readIonexFiles( dataFiles, tecData, true );
 
     const std::vector< double >& times = tecData.epochs;
     const std::vector< double >& latitudes = tecData.latitudes;
@@ -957,14 +1062,38 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
         }
     }
 
-    // Create interpolator
+    // Create TEC interpolator
     std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > interpolator =
             interpolators::createMultiDimensionalInterpolator< double, double, 3 >(
                     { times, latitudes, longitudes }, tecGrid, interpolatorSettings );
 
     // Create model and assign to Earth
-    std::shared_ptr< environment::IonosphereModel > ionosphereModel =
+    std::shared_ptr< environment::TabulatedIonosphereModel > ionosphereModel =
             std::make_shared< environment::TabulatedIonosphereModel >( interpolator, tecData.referenceIonosphereHeight_ );
+
+    // Build RMS interpolator if RMS maps are available
+    if( !tecData.rmsMaps.empty( ) && tecData.rmsMaps.size( ) == tecData.tecMaps.size( ) )
+    {
+        boost::multi_array< double, 3 > rmsGrid( boost::extents[ times.size( ) ][ latitudes.size( ) ][ longitudes.size( ) ] );
+
+        for( std::size_t t = 0; t < times.size( ); ++t )
+        {
+            const Eigen::MatrixXd& rmsMap = tecData.rmsMaps.at( times.at( t ) );
+            for( std::size_t i = 0; i < latitudes.size( ); ++i )
+            {
+                for( std::size_t j = 0; j < longitudes.size( ); ++j )
+                {
+                    rmsGrid[ t ][ i ][ j ] = rmsMap( i, j );
+                }
+            }
+        }
+
+        std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > rmsInterpolator =
+                interpolators::createMultiDimensionalInterpolator< double, double, 3 >(
+                        { times, latitudes, longitudes }, rmsGrid, interpolatorSettings );
+
+        ionosphereModel->setRmsInterpolator( rmsInterpolator );
+    }
 
     bodies.at( "Earth" )->setIonosphereModel( ionosphereModel );
 }

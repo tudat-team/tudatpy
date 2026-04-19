@@ -414,6 +414,42 @@ private:
     const double firstOrderDelayCoefficient_;
 };
 
+//! Settings for NeQuick-2 path-integrated ionospheric correction
+class NeQuick2IonosphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    NeQuick2IonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere = "Earth",
+        bool useIonexRescaling = true,
+        double firstOrderDelayCoefficient = 40.3,
+        int quadratureOrder = 50,
+        const std::string& ccirDataPath = "",
+        const std::string& solarActivityDataPath = "" ):
+        LightTimeCorrectionSettings( nequick2_ionospheric ),
+        bodyWithIonosphere_( bodyWithIonosphere ),
+        useIonexRescaling_( useIonexRescaling ),
+        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+        quadratureOrder_( quadratureOrder ),
+        ccirDataPath_( ccirDataPath ),
+        solarActivityDataPath_( solarActivityDataPath )
+    {}
+
+    std::string getBodyWithIonosphere( ) const { return bodyWithIonosphere_; }
+    bool getUseIonexRescaling( ) const { return useIonexRescaling_; }
+    double getFirstOrderDelayCoefficient( ) const { return firstOrderDelayCoefficient_; }
+    int getQuadratureOrder( ) const { return quadratureOrder_; }
+    std::string getCcirDataPath( ) const { return ccirDataPath_; }
+    std::string getSolarActivityDataPath( ) const { return solarActivityDataPath_; }
+
+private:
+    std::string bodyWithIonosphere_;
+    bool useIonexRescaling_;
+    double firstOrderDelayCoefficient_;
+    int quadratureOrder_;
+    std::string ccirDataPath_;
+    std::string solarActivityDataPath_;
+};
+
 // Class defining settings for tabulated ionospheric corrections
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -532,6 +568,19 @@ inline std::shared_ptr< LightTimeCorrectionSettings > ionexIonosphericCorrection
                                                                                           const double firstOrderDelayCoefficient = 40.3 )
 {
     return std::make_shared< IonexIonosphericCorrectionSettings >( bodyWithIonosphere, ionosphereHeight, firstOrderDelayCoefficient );
+}
+
+inline std::shared_ptr< LightTimeCorrectionSettings > nequick2IonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere = "Earth",
+        bool useIonexRescaling = true,
+        double firstOrderDelayCoefficient = 40.3,
+        int quadratureOrder = 50,
+        const std::string& ccirDataPath = "",
+        const std::string& solarActivityDataPath = "" )
+{
+    return std::make_shared< NeQuick2IonosphericCorrectionSettings >(
+        bodyWithIonosphere, useIonexRescaling, firstOrderDelayCoefficient, quadratureOrder,
+        ccirDataPath, solarActivityDataPath );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(

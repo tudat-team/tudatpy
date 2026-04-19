@@ -22,7 +22,7 @@ class IonosphereModel
 public:
     virtual ~IonosphereModel( ) { }
 
-    //! Get vertical total electron content in TECU (1e16 e-/m²)
+    //! Get vertical total electron content in TECU (1e16 e-/m^2)
     virtual double getVerticalTotalElectronContent( const double latitude, const double longitude, const double time ) = 0;
 
     virtual double getReferenceIonosphereHeight( ) const = 0;
@@ -41,7 +41,6 @@ public:
     {
         std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = interpolatorSettings->getBoundaryHandling( );
 
-        // ✅ Default to warning if unspecified
         if( boundaryHandling.empty( ) )
         {
             boundaryHandling = std::vector< interpolators::BoundaryInterpolationType >( 3, interpolators::use_boundary_value_with_warning );
@@ -74,6 +73,38 @@ public:
 
     }
 
+    //! Get vertical TEC RMS/uncertainty at given lat [deg], lon [deg], and time [s since J2000].
+    //! Returns NaN if no RMS data is available.
+    double getVerticalTecRms( const double latitude, const double longitude, const double time )
+    {
+        if( rmsInterpolator_ == nullptr )
+        {
+            return std::numeric_limits< double >::quiet_NaN( );
+        }
+        std::vector< double > query = { time, latitude, longitude };
+        try
+        {
+            return rmsInterpolator_->interpolate( query );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in TEC RMS interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+    }
+
+    //! Check whether RMS data is available.
+    bool hasRmsData( ) const
+    {
+        return rmsInterpolator_ != nullptr;
+    }
+
+    //! Set the RMS interpolator (call after construction to add uncertainty data).
+    void setRmsInterpolator(
+            const std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > >& rmsInterpolator )
+    {
+        rmsInterpolator_ = rmsInterpolator;
+    }
+
     //! For debugging — return last query
     std::vector< double > getLastQuery( ) const
     {
@@ -87,6 +118,7 @@ public:
 
 private:
     std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > tecInterpolator_;
+    std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > rmsInterpolator_;
     std::vector< double > lastQuery_;
     double referenceIonosphereHeight_;
 };
