@@ -10,6 +10,7 @@
 
 #include "tudat/astro/observation_models/corrections/neQuick2IonosphericCorrection.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/ionosphereModel.h"
 #include "tudat/math/quadrature/gaussianQuadrature.h"
 
 #include <cmath>
@@ -22,20 +23,24 @@ namespace observation_models
 NeQuick2IonosphericCorrection::NeQuick2IonosphericCorrection(
     std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
     std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
+    std::shared_ptr< environment::IonosphereModel > ionexModel,
     const ObservableType observableType,
     std::function< Eigen::Vector6d( double ) > earthStateFunction,
     std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
     double earthEquatorialRadius,
     double firstOrderDelayCoefficient,
-    int quadratureOrder )
+    int quadratureOrder,
+    double ionexRmsBiasTecu )
     : LightTimeCorrection( nequick2_ionospheric ),
       neQuick2Model_( neQuick2Model ),
       rescaledModel_( rescaledModel ),
+      ionexModel_( ionexModel ),
       earthStateFunction_( earthStateFunction ),
       earthRotationToBodyFixedFunction_( earthRotationToBodyFixedFunction ),
       earthEquatorialRadius_( earthEquatorialRadius ),
       firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
-      quadratureOrder_( quadratureOrder )
+      quadratureOrder_( quadratureOrder ),
+      ionexRmsBiasTecu_( ionexRmsBiasTecu )
 {
     if( isRadiometricObservableType( observableType ) )
     {
@@ -77,7 +82,7 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
                                             legTransmissionTime,
                                             legReceptionTime );
 
-    // Get frequency from ancillary settings (same pattern as solar corona correction)
+    // Get frequency from ancillary settings
     double currentFrequency = TUDAT_NAN;
     if( currentMultiLegTransmitterIndex == 0 )
     {
@@ -112,6 +117,7 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
     double rxAltitude = ( rxBodyFixed.norm( ) - earthEquatorialRadius_ ) / 1.0e3;
     if( txAltitude < 80.0 && rxAltitude < 80.0 )
     {
+        lastCorrectionUncertaintySigma_ = 0.0;
         return 0.0;
     }
 
@@ -119,13 +125,11 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
     double stec;
     if( rescaledModel_ != nullptr )
     {
-        // IONEX-constrained NeQuick-2
         stec = rescaledModel_->computeRescaledSlantTec(
             txBodyFixed, rxBodyFixed, correctionTime, earthEquatorialRadius_, quadratureOrder_ );
     }
     else
     {
-        // Free-running NeQuick-2 (no IONEX constraint)
         int month;
         double ut;
         environment::NeQuick2Model::timeToMonthAndUT( correctionTime, month, ut );
@@ -157,10 +161,41 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
         stec = quadrature.getQuadrature( ) * pathLength;
     }
 
-    // Convert STEC to light-time correction: delay = sign * 40.3 * STEC / f^2 / c
-    return sign_ * firstOrderDelayCoefficient_ * stec /
+    // Compute the correction
+    double correction = sign_ * firstOrderDelayCoefficient_ * stec /
            std::pow( currentFrequency, 2.0 ) /
            physical_constants::getSpeedOfLight< double >( );
+
+    // Compute 1-sigma uncertainty from IONEX RMS + bias
+    lastCorrectionUncertaintySigma_ = 0.0;
+    if( ionexModel_ != nullptr )
+    {
+        // Cast to TabulatedIonosphereModel to access RMS
+        std::shared_ptr< environment::TabulatedIonosphereModel > tabulatedModel =
+                std::dynamic_pointer_cast< environment::TabulatedIonosphereModel >( ionexModel_ );
+        if( tabulatedModel != nullptr && tabulatedModel->hasRmsData( ) )
+        {
+            // Compute sub-satellite point (midpoint of ray projected to surface)
+            Eigen::Vector3d midpoint = 0.5 * ( txBodyFixed + rxBodyFixed );
+            double midRadius = midpoint.norm( );
+            double ippLatDeg = std::asin( midpoint.z( ) / midRadius ) * 180.0 / mathematical_constants::PI;
+            double ippLonDeg = std::atan2( midpoint.y( ), midpoint.x( ) ) * 180.0 / mathematical_constants::PI;
+
+            double vtecIonex = ionexModel_->getVerticalTotalElectronContent( ippLatDeg, ippLonDeg, correctionTime );
+            double rmsTecu = tabulatedModel->getVerticalTecRms( ippLatDeg, ippLonDeg, correctionTime );
+
+            // Total uncertainty: sqrt(rms^2 + bias^2)
+            double totalUncTecu = std::sqrt( rmsTecu * rmsTecu + ionexRmsBiasTecu_ * ionexRmsBiasTecu_ );
+
+            // Propagate fractional uncertainty to correction
+            if( vtecIonex > 0.1 )
+            {
+                lastCorrectionUncertaintySigma_ = std::abs( correction ) * totalUncTecu / vtecIonex;
+            }
+        }
+    }
+
+    return correction;
 }
 
 }  // namespace observation_models

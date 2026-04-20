@@ -729,17 +729,16 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             std::shared_ptr< environment::NeQuick2Model > neQuick2Model =
                     std::make_shared< environment::NeQuick2Model >( ccirData, modipGrid, fluxFunction );
 
+            // Get IONEX model (used for rescaling and uncertainty)
+            std::shared_ptr< environment::IonosphereModel > ionexModel =
+                    bodies.getBody( bodyName )->getIonosphereModel( );
+
             // Optionally create IONEX-constrained wrapper
             std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel = nullptr;
-            if( nequick2Settings->getUseIonexRescaling( ) )
+            if( nequick2Settings->getUseIonexRescaling( ) && ionexModel != nullptr )
             {
-                std::shared_ptr< environment::IonosphereModel > ionexModel =
-                        bodies.getBody( bodyName )->getIonosphereModel( );
-                if( ionexModel != nullptr )
-                {
-                    rescaledModel = std::make_shared< environment::IonexConstrainedNeQuick2Model >(
-                            neQuick2Model, ionexModel );
-                }
+                rescaledModel = std::make_shared< environment::IonexConstrainedNeQuick2Model >(
+                        neQuick2Model, ionexModel );
             }
 
             // Create Earth state function
@@ -783,12 +782,14 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             lightTimeCorrection = std::make_shared< NeQuick2IonosphericCorrection >(
                     neQuick2Model,
                     rescaledModel,
+                    ionexModel,
                     baseObservableType,
                     earthStateFunction,
                     earthRotationFunction,
                     equatorialRadius,
                     nequick2Settings->getFirstOrderDelayCoefficient( ),
-                    nequick2Settings->getQuadratureOrder( ) );
+                    nequick2Settings->getQuadratureOrder( ),
+                    nequick2Settings->getIonexRmsBiasTecu( ) );
 
             break;
         }

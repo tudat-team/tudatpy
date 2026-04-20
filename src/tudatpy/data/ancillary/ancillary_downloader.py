@@ -806,6 +806,14 @@ def _should_download_missing_only(
     return len(matches) == 0
 
 
+def _filter_vmf_stations(file_path: Path, stations: Sequence[str]) -> None:
+    """Filter a VMF file to keep only the specified stations (case-insensitive)."""
+    stations_upper = {s.upper() for s in stations}
+    lines = file_path.read_text().splitlines()
+    filtered = [ln for ln in lines if ln.split()[0].upper() in stations_upper]
+    file_path.write_text("\n".join(filtered) + "\n")
+
+
 def download_vmf(
     start: datetime,
     end: datetime,
@@ -814,6 +822,7 @@ def download_vmf(
     processing: VmfProcessing = VmfProcessing.OPERATIONAL,
     directory: Path | str = "~/.tudat/ancillary/vmf",
     day_padding: int = 1,
+    stations_to_keep: Sequence[str] | None = None,
 ) -> DownloadResult:
     """Download VMF troposphere mapping function files from Vienna.
 
@@ -838,6 +847,12 @@ def download_vmf(
     day_padding : int, default = 1
         Extra days to download before and after the range to ensure
         interpolation continuity at arc boundaries.
+    stations_to_keep : sequence of str, optional
+        If provided, filter each downloaded VMF file to keep only lines for
+        these station codes (case-insensitive, e.g. ``["OPMT", "WTZR"]``).
+        This significantly reduces memory usage when loading VMF data into
+        Tudat via ``set_vmf_troposphere_data``, especially for global GNSS
+        networks with 300+ stations.
 
     Returns
     -------
@@ -853,18 +868,17 @@ def download_vmf(
     >>> # Download GNSS troposphere data (default)
     >>> result = download_vmf(datetime(2025, 3, 1), datetime(2025, 3, 7))
     >>>
-    >>> # Download VLBI troposphere with ERA-Interim reanalysis
+    >>> # Download only for specific stations
     >>> result = download_vmf(
     ...     datetime(2025, 3, 1), datetime(2025, 3, 7),
-    ...     technique=VmfTechnique.VLBI,
-    ...     processing=VmfProcessing.ERA_INTERIM
+    ...     stations_to_keep=["OPMT", "WTZR", "HERS"]
     ... )
     """
     spec = _VMF_REGISTRY[technique]
     target_dir = _resolve_path(directory)
     year_doys = _date_range_to_year_doys(start, end, padding=day_padding)
 
-    return _sync_daily_files(
+    result = _sync_daily_files(
         year_doys,
         product_label=f"VMF ({technique.name})",
         target_dir=target_dir,
@@ -875,6 +889,16 @@ def download_vmf(
             y, doy, spec, processing
         ),
     )
+
+    # Filter stations after download
+    if stations_to_keep is not None:
+        for f in result.all_files:
+            try:
+                _filter_vmf_stations(f, stations_to_keep)
+            except Exception as exc:
+                log.warning("Failed to filter stations in %s: %s", f, exc)
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -892,6 +916,7 @@ def download_ancillary(
     vmf_processing: VmfProcessing = VmfProcessing.OPERATIONAL,
     ionex_products: Sequence[IonexProduct] | None = None,
     ionex_resolution: IonexResolution | None = IonexResolution.TWO_HOUR,
+    vmf_stations_to_keep: Sequence[str] | None = None,
     base_directory: Path | str = "~/.tudat/ancillary",
     netrc_path: Path | str | None = None,
 ) -> dict[str, DownloadResult]:
@@ -961,6 +986,7 @@ def download_ancillary(
     if vmf:
         results["vmf"] = download_vmf(
             start, end,
+            stations_to_keep=vmf_stations_to_keep,
             technique=vmf_technique,
             processing=vmf_processing,
             directory=base / "vmf",

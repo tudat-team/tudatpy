@@ -50,12 +50,14 @@ public:
     NeQuick2IonosphericCorrection(
         std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
         std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
+        std::shared_ptr< environment::IonosphereModel > ionexModel,
         const ObservableType observableType,
         std::function< Eigen::Vector6d( double ) > earthStateFunction,
         std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
         double earthEquatorialRadius,
         double firstOrderDelayCoefficient = 40.3,
-        int quadratureOrder = 50 );
+        int quadratureOrder = 50,
+        double ionexRmsBiasTecu = 0.0 );
 
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
@@ -63,10 +65,16 @@ public:
         const unsigned int currentMultiLegTransmitterIndex,
         const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
+    //! Get the last computed 1-sigma ionospheric correction uncertainty [seconds].
+    //! Valid only after calculateLightTimeCorrectionWithMultiLegLinkEndStates has been called
+    //! and IONEX RMS data is available. Returns 0 if RMS data is unavailable.
+    double getLastCorrectionUncertainty( ) const { return lastCorrectionUncertaintySigma_; }
+
 private:
 
     std::shared_ptr< environment::NeQuick2Model > neQuick2Model_;
     std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel_;
+    std::shared_ptr< environment::IonosphereModel > ionexModel_;
 
     std::function< Eigen::Vector6d( double ) > earthStateFunction_;
     std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction_;
@@ -75,6 +83,8 @@ private:
     double firstOrderDelayCoefficient_;
     int quadratureOrder_;
     int sign_;
+    double ionexRmsBiasTecu_;
+    double lastCorrectionUncertaintySigma_ = 0.0;
 };
 
 }  // namespace observation_models

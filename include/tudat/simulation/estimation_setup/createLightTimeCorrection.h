@@ -424,14 +424,16 @@ public:
         double firstOrderDelayCoefficient = 40.3,
         int quadratureOrder = 50,
         const std::string& ccirDataPath = "",
-        const std::string& solarActivityDataPath = "" ):
+        const std::string& solarActivityDataPath = "",
+        double ionexRmsBiasTecu = 0.0 ):
         LightTimeCorrectionSettings( nequick2_ionospheric ),
         bodyWithIonosphere_( bodyWithIonosphere ),
         useIonexRescaling_( useIonexRescaling ),
         firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
         quadratureOrder_( quadratureOrder ),
         ccirDataPath_( ccirDataPath ),
-        solarActivityDataPath_( solarActivityDataPath )
+        solarActivityDataPath_( solarActivityDataPath ),
+        ionexRmsBiasTecu_( ionexRmsBiasTecu )
     {}
 
     std::string getBodyWithIonosphere( ) const { return bodyWithIonosphere_; }
@@ -440,6 +442,7 @@ public:
     int getQuadratureOrder( ) const { return quadratureOrder_; }
     std::string getCcirDataPath( ) const { return ccirDataPath_; }
     std::string getSolarActivityDataPath( ) const { return solarActivityDataPath_; }
+    double getIonexRmsBiasTecu( ) const { return ionexRmsBiasTecu_; }
 
 private:
     std::string bodyWithIonosphere_;
@@ -448,6 +451,7 @@ private:
     int quadratureOrder_;
     std::string ccirDataPath_;
     std::string solarActivityDataPath_;
+    double ionexRmsBiasTecu_;
 };
 
 // Class defining settings for tabulated ionospheric corrections
@@ -576,11 +580,12 @@ inline std::shared_ptr< LightTimeCorrectionSettings > nequick2IonosphericCorrect
         double firstOrderDelayCoefficient = 40.3,
         int quadratureOrder = 50,
         const std::string& ccirDataPath = "",
-        const std::string& solarActivityDataPath = "" )
+        const std::string& solarActivityDataPath = "",
+        double ionexRmsBiasTecu = 0.0 )
 {
     return std::make_shared< NeQuick2IonosphericCorrectionSettings >(
         bodyWithIonosphere, useIonexRescaling, firstOrderDelayCoefficient, quadratureOrder,
-        ccirDataPath, solarActivityDataPath );
+        ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(

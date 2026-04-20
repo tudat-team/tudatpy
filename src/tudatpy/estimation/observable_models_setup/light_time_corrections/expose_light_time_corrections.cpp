@@ -411,7 +411,7 @@ Returns
 
            )doc" );
 
-    // IONEX-based VTEC correction
+    // IONEX-based VTEC correction (DEPRECATED)
     m.def( "ionex_ionospheric_light_time_correction",
            &tom::ionexIonosphericCorrectionSettings,
            py::arg( "body_with_ionosphere_name" ),
@@ -419,16 +419,15 @@ Returns
            py::arg( "first_order_delay_coefficient" ) = 40.3,
            R"doc(
 
-Function for creating settings for IONEX-based ionospheric light-time corrections.
+.. deprecated::
+    Use :func:`nequick2_ionospheric_light_time_correction` instead, which provides physically
+    correct path-integrated ionospheric corrections for all geometries including space-based receivers.
 
-Computes the ionospheric delay using VTEC values interpolated from IONEX global ionosphere maps with
-a Modified Single Layer Model (MSLM) mapping function. The IONEX data must first be loaded onto the body
-using :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex`.
-The mapping function converts VTEC to STEC via :math:`\text{STEC} = \text{VTEC} / \cos(z')`.
-
-This correction is suitable for ground-to-GNSS geometries where the receiver is below the ionosphere.
-For receivers embedded in the ionosphere (e.g., ISS), use
-:func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.nequick2_ionospheric_light_time_correction` instead.
+Function for creating settings for IONEX-based ionospheric light-time corrections using the
+Modified Single Layer Model (MSLM). This approximation maps VTEC to STEC via
+:math:`\text{STEC} = \text{VTEC} / \cos(z')` and is only valid when the receiver is below the ionosphere
+and the transmitter is above it. For receivers inside the ionosphere (e.g., ISS at ~420 km), this
+mapping is geometrically meaningless.
 
 Parameters
 ----------
@@ -437,25 +436,28 @@ body_with_ionosphere_name : str
 ionosphere_height : float
     Height of the ionospheric single-layer shell [m]. Typically 450e3 for IONEX maps.
 first_order_delay_coefficient : float, default = 40.3
-    Coefficient relating STEC to range delay: :math:`\Delta\rho = c_1 \cdot \text{STEC} / f^2` [m :sup:`3` /s :sup:`2`].
-
-Returns
--------
-:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
-    configured for IONEX ionospheric corrections.
+    Coefficient relating STEC to range delay [m :sup:`3` /s :sup:`2`].
 
            )doc" );
 
     // NeQuick-2 path-integrated ionospheric correction
     m.def( "nequick2_ionospheric_light_time_correction",
-           &tom::nequick2IonosphericCorrectionSettings,
-           py::arg( "body_with_ionosphere_name" ) = "Earth",
+           []( bool useIonexRescaling,
+               double firstOrderDelayCoefficient,
+               int quadratureOrder,
+               const std::string& ccirDataPath,
+               const std::string& solarActivityDataPath,
+               double ionexRmsBiasTecu ) {
+               return tom::nequick2IonosphericCorrectionSettings(
+                   "Earth", useIonexRescaling, firstOrderDelayCoefficient,
+                   quadratureOrder, ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
+           },
            py::arg( "use_ionex_rescaling" ) = true,
            py::arg( "first_order_delay_coefficient" ) = 40.3,
            py::arg( "quadrature_order" ) = 50,
            py::arg( "ccir_data_path" ) = "",
            py::arg( "solar_activity_data_path" ) = "",
+           py::arg( "ionex_rms_bias_tecu" ) = 0.0,
            R"doc(
 
 Function for creating settings for NeQuick-2 path-integrated ionospheric light-time corrections.
@@ -498,6 +500,14 @@ ccir_data_path : str, default = ""
 solar_activity_data_path : str, default = ""
     Path to space weather data file containing F10.7 solar radio flux values.
     If empty, uses the default space weather file.
+ionex_rms_bias_tecu : float, default = 0.0
+    Additional bias term [TECU] added in quadrature to the IONEX RMS uncertainty.
+    The total 1-sigma VTEC uncertainty is computed as
+    :math:`\sigma_{\text{total}} = \sqrt{\text{RMS}_{\text{IONEX}}^2 + \text{bias}^2}`.
+    A typical value of 2-5 TECU accounts for systematic errors in the IONEX maps
+    not captured by the formal RMS. Set to 0 to use only the IONEX RMS.
+    The resulting correction uncertainty is stored internally and can be retrieved
+    as a dependent variable after simulation.
 
 Returns
 -------
