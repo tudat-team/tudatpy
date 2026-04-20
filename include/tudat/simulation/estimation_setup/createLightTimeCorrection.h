@@ -673,7 +673,9 @@ void setVmfTroposphereCorrections(
 
 void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                                   const simulation_setup::SystemOfBodies& bodies,
-                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr,
+                                  const std::vector< std::pair< std::string, std::string > >& stationSubset = {},
+                                  double subsetPaddingDeg = 30.0 );
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link

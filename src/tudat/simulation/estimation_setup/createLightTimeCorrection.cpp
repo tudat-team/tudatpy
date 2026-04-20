@@ -1028,7 +1028,9 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
 
 void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                                   const simulation_setup::SystemOfBodies& bodies,
-                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                  const std::vector< std::pair< std::string, std::string > >& stationSubset,
+                                  double subsetPaddingDeg )
 {
     // Use default interpolator if none provided
     if( interpolatorSettings == nullptr )
@@ -1045,8 +1047,66 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
     readIonexFiles( dataFiles, tecData, true );
 
     const std::vector< double >& times = tecData.epochs;
-    const std::vector< double >& latitudes = tecData.latitudes;
-    const std::vector< double >& longitudes = tecData.longitudes;
+    std::vector< double > latitudes = tecData.latitudes;
+    std::vector< double > longitudes = tecData.longitudes;
+
+    // Determine latitude/longitude index ranges for subsetting
+    std::size_t latStart = 0, latEnd = latitudes.size( );
+    std::size_t lonStart = 0, lonEnd = longitudes.size( );
+
+    if( !stationSubset.empty( ) )
+    {
+        // Collect geodetic positions of all specified stations
+        double minLat = 90.0, maxLat = -90.0, minLon = 180.0, maxLon = -180.0;
+        for( const auto& bodyStation : stationSubset )
+        {
+            const std::string& bodyName = bodyStation.first;
+            const std::string& stationName = bodyStation.second;
+            Eigen::Vector3d geodeticPos = bodies.getBody( bodyName )
+                    ->getGroundStation( stationName )
+                    ->getNominalStationState( )
+                    ->getNominalGeodeticPosition( );
+            // geodeticPos = [altitude_m, latitude_rad, longitude_rad]
+            double latDeg = geodeticPos( 1 ) * 180.0 / mathematical_constants::PI;
+            double lonDeg = geodeticPos( 2 ) * 180.0 / mathematical_constants::PI;
+            minLat = std::min( minLat, latDeg );
+            maxLat = std::max( maxLat, latDeg );
+            minLon = std::min( minLon, lonDeg );
+            maxLon = std::max( maxLon, lonDeg );
+        }
+
+        // Expand bounding box by padding
+        minLat = std::max( -87.5, minLat - subsetPaddingDeg );
+        maxLat = std::min(  87.5, maxLat + subsetPaddingDeg );
+        minLon = std::max( -180.0, minLon - subsetPaddingDeg );
+        maxLon = std::min(  180.0, maxLon + subsetPaddingDeg );
+
+        // Find index ranges in the sorted lat/lon arrays
+        for( std::size_t i = 0; i < latitudes.size( ); ++i )
+        {
+            if( latitudes[ i ] >= minLat ) { latStart = i; break; }
+        }
+        for( std::size_t i = latitudes.size( ); i > 0; --i )
+        {
+            if( latitudes[ i - 1 ] <= maxLat ) { latEnd = i; break; }
+        }
+        for( std::size_t j = 0; j < longitudes.size( ); ++j )
+        {
+            if( longitudes[ j ] >= minLon ) { lonStart = j; break; }
+        }
+        for( std::size_t j = longitudes.size( ); j > 0; --j )
+        {
+            if( longitudes[ j - 1 ] <= maxLon ) { lonEnd = j; break; }
+        }
+
+        // Extract subset vectors
+        latitudes = std::vector< double >( latitudes.begin( ) + latStart, latitudes.begin( ) + latEnd );
+        longitudes = std::vector< double >( longitudes.begin( ) + lonStart, longitudes.begin( ) + lonEnd );
+
+        std::cerr << "IONEX subset: lat [" << latitudes.front( ) << ", " << latitudes.back( )
+                  << "] (" << latitudes.size( ) << " pts), lon [" << longitudes.front( ) << ", "
+                  << longitudes.back( ) << "] (" << longitudes.size( ) << " pts)" << std::endl;
+    }
 
     // Initialize 3D TEC grid: [time][lat][lon]
     boost::multi_array< double, 3 > tecGrid( boost::extents[ times.size( ) ][ latitudes.size( ) ][ longitudes.size( ) ] );
@@ -1058,7 +1118,7 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
         {
             for( std::size_t j = 0; j < longitudes.size( ); ++j )
             {
-                tecGrid[ t ][ i ][ j ] = map( i, j );
+                tecGrid[ t ][ i ][ j ] = map( latStart + i, lonStart + j );
             }
         }
     }
@@ -1084,7 +1144,7 @@ void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
             {
                 for( std::size_t j = 0; j < longitudes.size( ); ++j )
                 {
-                    rmsGrid[ t ][ i ][ j ] = rmsMap( i, j );
+                    rmsGrid[ t ][ i ][ j ] = rmsMap( latStart + i, lonStart + j );
                 }
             }
         }

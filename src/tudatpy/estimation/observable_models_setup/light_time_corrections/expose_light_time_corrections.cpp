@@ -674,6 +674,8 @@ internally maps ILRS station code <-> DOMES identifiers using the default ILRS S
            py::arg( "data_files" ),
            py::arg( "bodies" ),
            py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ),
+           py::arg( "station_subset" ) = std::vector< std::pair< std::string, std::string > >( ),
+           py::arg( "subset_padding_deg" ) = 30.0,
            R"doc(
 
 Load IONEX global ionosphere map data and set the resulting ionosphere model on the Earth body.
@@ -681,10 +683,12 @@ Load IONEX global ionosphere map data and set the resulting ionosphere model on 
 Reads one or more IONEX files (e.g., from IGS, CODE, JPL, ESA, UPC analysis centres), builds a 3D
 interpolator over [time, latitude, longitude], and attaches the resulting
 :class:`TabulatedIonosphereModel` to the ``"Earth"`` body. This model provides VTEC values at arbitrary
-locations and times, which can then be used by the IONEX or NeQuick-2 ionospheric light-time corrections.
+locations and times, which can then be used by the NeQuick-2 ionospheric light-time correction.
 
-Multiple IONEX files covering consecutive days can be provided for multi-day arcs; their TEC maps will
-be merged and sorted chronologically.
+When ``station_subset`` is provided, the IONEX map is spatially cropped to a bounding box around the
+specified ground stations (plus ``subset_padding_deg`` on each side). This significantly reduces memory
+usage and interpolation time, especially for long arcs with high-resolution IONEX products. The station
+geodetic positions are looked up from the ``bodies`` object.
 
 Parameters
 ----------
@@ -696,6 +700,26 @@ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
 interpolator_settings : InterpolatorSettings, optional
     Settings for the 3D multi-linear interpolator. If not provided, defaults to multi-linear
     interpolation with hunting algorithm and boundary value extrapolation.
+station_subset : list[tuple[str, str]], default = []
+    List of ``(body_name, station_name)`` pairs defining the ground stations around which to crop
+    the IONEX grid. When empty (default), the full global grid is loaded. Example:
+    ``[("Earth", "OPMT"), ("Earth", "WTZR")]``.
+subset_padding_deg : float, default = 30.0
+    Padding in degrees of latitude and longitude around the bounding box of the station locations.
+
+Examples
+--------
+.. code-block:: python
+
+    # Load full global IONEX grid (default)
+    light_time_corrections.set_ionosphere_model_from_ionex(
+        data_files=["path/to/ionex.INX"], bodies=bodies)
+
+    # Load only a regional subset around two stations (saves memory)
+    light_time_corrections.set_ionosphere_model_from_ionex(
+        data_files=["path/to/ionex.INX"], bodies=bodies,
+        station_subset=[("Earth", "OPMT"), ("Earth", "WTZR")],
+        subset_padding_deg=30.0)
 
            )doc" );
 }
