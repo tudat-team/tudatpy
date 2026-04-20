@@ -106,7 +106,7 @@ class RadioBase(Converter):
         return trkMode
 
     def build_link_ends_dict(
-        self, link_end_tuple: tuple, spacecraftName: str | None = None
+        self, link_end_tuple: tuple[str, str, str], spacecraftName: str | None = None
     ) -> dict:
         """
         Construct a link ends dictionary for Doppler/Range observation creation.
@@ -129,13 +129,19 @@ class RadioBase(Converter):
             the reflector as the spacecraft, and the receiver using Earth's reference point from the third element.
         """
 
+        if len(link_end_tuple) != 3:
+            raise ValueError(
+                "Error when processing TNF file, building link ends dictionary: \n"
+                + f"the link end tuple should contain exactly 3 elements: {link_end_tuple} provided."
+            )
+
         # Set custom spacecraft name if provided
         if spacecraftName is not None:
             spacecraft = links.body_origin_link_end_id(spacecraftName)
         else:
             spacecraft = links.body_origin_link_end_id(link_end_tuple[1])
 
-        if link_end_tuple[0] == "nan" and len(link_end_tuple) == 2:
+        if link_end_tuple[0] == "nan":
             return {
                 links.transmitter: spacecraft,
                 links.receiver: links.body_reference_point_link_end_id(
