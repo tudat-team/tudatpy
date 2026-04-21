@@ -85,7 +85,7 @@ class DerivedSraRangeConverter(RadioBase):
                             ]
                             station = link_end[2] if len(link_end) == 3 else link_end[1]
                             epoch_seconds = [
-                                self.from_datetime_to_TBD(row["epoch"], station)
+                                self.from_datetime_UTC_to_TDB(row["epoch"], station)
                             ]
                             observation_set = create_single_observation_set(
                                 ObservableType.dsn_n_way_range_type,

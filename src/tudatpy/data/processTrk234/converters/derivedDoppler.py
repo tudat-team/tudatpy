@@ -62,7 +62,7 @@ class DerivedDopplerConverter(RadioBase):
                         station = link_end[2] if len(link_end) == 3 else link_end[1]
                         epoch_seconds = (
                             df_ct["epoch"]
-                            .apply(lambda t: self.from_datetime_to_TBD(t, station))
+                            .apply(lambda t: self.from_datetime_UTC_to_TDB(t, station))
                             .tolist()
                         )
                         observation_set = create_single_observation_set(

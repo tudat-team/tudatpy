@@ -159,13 +159,13 @@ class RadioBase(Converter):
                 ),
             }
 
-    def from_datetime_to_TBD(self, epoch: datetime, station: str) -> float:
+    def from_datetime_UTC_to_TDB(self, datetime_utc: datetime, station: str) -> float:
         """
         Convert a datetime object in UTC into seconds since J2000 in TDB.
 
         Parameters
         ----------
-        epoch : datetime
+        datetime_utc : datetime
             The datetime object to convert.
 
         Returns
@@ -181,7 +181,7 @@ class RadioBase(Converter):
                 )
             )
 
-        epoch_utc = time_representation.DateTime.from_python_datetime(epoch).to_epoch()
+        epoch_utc = time_representation.DateTime.from_python_datetime(datetime_utc).to_epoch()
         epoch_tdb = self.time_scale_converter.convert_time(
             input_scale=time_representation.utc_scale,
             output_scale=time_representation.tdb_scale,
