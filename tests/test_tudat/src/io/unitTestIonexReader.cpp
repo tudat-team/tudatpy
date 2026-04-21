@@ -11,6 +11,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include "tudat/paths.hpp"
+#include "tudat/io/basicInputOutput.h"
+
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
@@ -22,7 +25,7 @@ namespace unit_tests
 {
 
 // Path to directory containing IONEX test files
-const std::string ionexTestDir = "/Users/michael.plumaris/Downloads/ionex_test_files/";
+const std::string ionexTestDir = tudat::paths::getTudatTestDataPath(  ) + "/ionex_test_files/";
 
 struct IonexTestCase
 {
