@@ -48,7 +48,6 @@ class Trk234Processor:
         tnf_file_paths: list[str],
         requested_types: list[str],
         spacecraft_name: str | None = None,
-        bodies: SystemOfBodies | None = None,
     ) -> None:
         """
         Parameters
@@ -60,12 +59,9 @@ class Trk234Processor:
             Note: "ramp" should NOT be included here.
         spacecraft_name : str, optional
             The spacecraft name for building link definitions.
-        bodies : SystemOfBodies, optional
-            The simulation bodies container (used for setting ramp data).
         """
         self.tnf_file_paths = tnf_file_paths
         self.spacecraft_name = spacecraft_name
-        self.bodies = bodies
 
         # Initialize observables converters.
         self.converters = {}
