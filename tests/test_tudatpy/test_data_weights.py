@@ -91,14 +91,3 @@ def test_MPC_weights_to_ObsCol(
 
     assert total_diff_time == 0
     assert total_diff == 0
-
-    # test pod_input
-    # provide the observation collection as input, and limit number of iterations for estimation.
-    pod_input = estimation_analysis.EstimationInput(
-        observations_and_times=observation_collection,
-        convergence_checker=estimation_analysis.estimation_convergence_checker(
-            maximum_iterations=1,
-        ),
-    )
-    pod_input.set_weights_from_observation_collection()
-

@@ -345,12 +345,16 @@ def get_weights_VFCC17(
             "Must provide either parameters: `epoch`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
         )
 
+    table["observatory"] = table["observatory"].astype(str).str.strip().str.zfill(3)
+    table["number"] = table["number"].astype(str).str.strip()
+
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
 
     # get an approximate timezone based on the observatory code's longitude
     observatories_table = MPC.get_observatory_codes().to_pandas()
+    observatories_table["Code"] = observatories_table["Code"].astype(str).str.strip().str.zfill(3)
     observatories_table = (
         observatories_table.assign(
             lon_wrapping=lambda x: (x.Longitude + 180) % 360 - 180
@@ -740,6 +744,7 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
+            temp["Code"] = temp["Code"].astype(str).str.strip().str.zfill(3)
             # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
@@ -769,6 +774,21 @@ class BatchMPC:
             .assign(Z=lambda x: x.sin * r_earth)
         )
         self._observatory_info = temp
+
+    def _standardize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Internal helper to ensure IDs are strings and observatories are zero-padded."""
+        # Work on a copy to avoid SettingWithCopyWarnings
+        df = df.copy()
+
+        # Standardize Observatory Codes (e.g., 673 -> "673", 89 -> "089", C51 -> "C51")
+        if "observatory" in df.columns:
+            df["observatory"] = df["observatory"].astype(str).str.strip().str.zfill(3)
+
+        # Standardize MPC Numbers (e.g., 433 -> "433")
+        if "number" in df.columns:
+            df["number"] = df["number"].astype(str).str.strip()
+
+        return df
 
     def _apply_EFCC18(
         self,
@@ -948,7 +968,7 @@ class BatchMPC:
             else:
                 obs = MPC.get_observations(code).to_pandas()
 
-            obs["number"] = obs["number"].astype(str)  # to avoid pandas FutureWarning
+            obs = self._standardize_dataframe(obs)
 
             # convert JD to J2000 and UTC, convert deg to rad
             obs = self._add_time_columns(obs)
@@ -1037,7 +1057,7 @@ class BatchMPC:
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
-        obs = table
+        obs = self._standardize_dataframe(table)
         obs = self._add_time_columns(obs)
         if in_degrees:
             obs = obs.assign(
@@ -1045,7 +1065,6 @@ class BatchMPC:
             ).assign(DEC=lambda x: np.radians(x.DEC))
 
         # convert object mpc code to string
-        obs["number"] = obs.number.astype(str)
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
@@ -1950,7 +1969,7 @@ class BatchMPC:
         pd.DataFrame
             Dataframe with information about the observatories.
         """
-        temp = self._observatory_info
+        temp = self._observatory_info.copy()
         temp2 = self._table
 
         count_observations = (
@@ -1960,6 +1979,9 @@ class BatchMPC:
             .reset_index(drop=False)
             .loc[:, ["observatory", "count"]]
         )
+
+        temp = temp.copy()
+        count_observations = count_observations.copy()
 
         temp = pd.merge(
             left=temp,
