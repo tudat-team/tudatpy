@@ -18,12 +18,11 @@ class Converter(ABC):
     @abstractmethod
     def process(
         self, merged_df: DataFrame, spacecraftName: str | None = None
-    ) -> DataFrame | list[SingleObservationSet]:
+    ) -> list[SingleObservationSet]:
         """
         Process a merged DataFrame (from multiple files extract outputs) into Tudat structured format.
         For observable converters, this will be a list of
         :class:`~tudatpy.estimation.observations.SingleObservationSet` objects.
-        For the ramp converter, a merged ramp DataFrame.
 
         Parameters
         ----------
@@ -35,7 +34,7 @@ class Converter(ABC):
 
         Returns
         -------
-        Union[pandas.DataFrame, list[SingleObservationSet]]
-            A DataFrame or a list of single observation sets.
+        list[SingleObservationSet]
+            A list of single observation sets.
         """
         pass

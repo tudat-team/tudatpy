@@ -2,13 +2,12 @@
 Ramp converter
 """
 
-from . import Converter
 from trk234 import bands, SFDU
 
 from pandas import DataFrame, concat
 
 
-class RampConverter(Converter):
+class RampConverter():
     def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent ramp data.
         # - Ramp format_code == 9
