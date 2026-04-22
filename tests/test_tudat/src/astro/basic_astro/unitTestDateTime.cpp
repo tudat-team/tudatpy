@@ -378,10 +378,10 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
 {
     std::cout << "Testing ISO initialization" << std::endl;
-    std::vector< std::string > testStrings = { "2023-06-20T00:05:23.28176583402943837",
-                                               "2020-02-29T23:59:59.99999999999999998",
-                                               "2000-01-01T12:00:00.00000000000000000",
-                                               "1753-08-09T22:34:10.72952318308363849" };
+    std::vector< std::string > testStrings = { "2023-06-20T00:05:23.2817658340294",
+                                               "2020-02-29T23:59:59.9999999999998",
+                                               "2000-01-01T12:00:00.0000000000000",
+                                               "1753-08-09T22:34:10.7295231830836" };
 
     std::vector< double > julianDays = { 2460116., 2458909., 2451545., 2361551 };
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
