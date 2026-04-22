@@ -69,7 +69,7 @@ std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( );
 
 /*!
  * Returns the velocity for a DSN ground station. The velocities are specified according to table 3 of DSN 810-005,
- * 301 Coverage and Geometry, Revision K (2016), DSN/JPL.
+ * 301 Coverage and Geometry, Revision O (2024), DSN/JPL.
  *
  * @return Velocity for respective station.
  */
@@ -77,7 +77,7 @@ Eigen::Vector3d getDsnStationVelocity( std::string stationName );
 
 /*!
  * Returns the setting for a DSN ground station. The settings are specified according to table 2 and 3 of DSN 810-005,
- * 301 Coverage and Geometry, Revision K (2016), DSN/JPL. The positions of the ground stations are specified with respect
+ * 301 Coverage and Geometry, Revision O (2024), DSN/JPL. The positions of the ground stations are specified with respect
  * to ITRF2014 and account for their linear motion.
  *
  * @return Ground station settings for respective station.
@@ -86,7 +86,7 @@ std::shared_ptr< GroundStationSettings > getDsnStationSetting( std::string stati
 
 /*!
  * Returns the settings for DSN ground stations. The settings are specified according to table 2 and 3 of DSN 810-005,
- * 301 Coverage and Geometry, Revision K (2016), DSN/JPL. The positions of the ground stations are specified with respect
+ * 301 Coverage and Geometry, Revision O (2024), DSN/JPL. The positions of the ground stations are specified with respect
  * to ITRF2014 and account for their linear motion.
  *
  * @return Vector of ground station settings.

@@ -471,14 +471,24 @@ void expose_ground_station_setup( py::module& m )
     This function returns the positions of VLBI stations.
 
     The VLBI station positions are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
-        
+
+    Returns
+    -------
+    dict[str, numpy.ndarray([3,1])]
+        Dictionary mapping station name to positions.
+
         )doc" );
     m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities, R"doc(
         
     This function returns the velocities of VLBI stations.
 
     The VLBI station velocities are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
-        
+
+    Returns
+    -------
+    dict[str, numpy.ndarray([3,1])]
+        Dictionary mapping station name to velocities.
+
         )doc" );
 }
 
