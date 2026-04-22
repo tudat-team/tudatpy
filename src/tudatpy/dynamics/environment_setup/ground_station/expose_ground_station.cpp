@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
 namespace py = pybind11;
@@ -203,24 +204,6 @@ void expose_ground_station_setup( py::module& m )
 
      )doc" );
 
-    m.def(
-            "get_approximate_dsn_ground_station_positions",
-            []( ) -> py::dict {
-                // Call the C++ function
-                std::map< std::string, Eigen::Vector3d > stationPositions = tss::getApproximateDsnGroundStationPositions( );
-
-                // Convert the std::map to a Python dict
-                py::dict pythonDict;
-                for( const auto& entry : stationPositions )
-                {
-                    // entry.first is the station name, entry.second is the Eigen::Vector3d
-                    pythonDict[ entry.first.c_str( ) ] = entry.second;
-                }
-
-                return pythonDict;
-            },
-            "Returns a dictionary mapping DSN station names (str) to approximate positions (Eigen::Vector3d)." );
-
     m.def( "dsn_station",
            &tss::getDsnStationSetting,
            py::arg( "station_name" ),
@@ -262,7 +245,7 @@ void expose_ground_station_setup( py::module& m )
  Function for creating settings for all DSN stations
 
  Function for creating settings for all DSN stations, defined by nominal positions and linear velocities, as defined
- by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
+ by Cartesian elements in *DSN No. 810-005, 301, Rev. O*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301O.pdf>`__.
  Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
  station positions, regardless of the selected Earth rotation model.
 
@@ -455,10 +438,48 @@ void expose_ground_station_setup( py::module& m )
 
      )doc" );
 
+    m.def( "get_approximate_dsn_ground_station_positions", &tss::getApproximateDsnGroundStationPositions, R"doc(
+        
+    This function returns the approximate positions of the DSN ground stations.
+
+    The function returns ground station positions for all present ground stations specified in `DSN 810-005, 301 Coverage and Geometry, Revision O (2024), DSN/JPL <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301O.pdf>`__. Additionally, historic positions for DSS-12, DSS-42 and DSS-61 are provided, retrieved from `NAIF <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt>`__. The positions of the ground stations are specified at 2003.0 with respect to ITRF93.
+
+    Returns
+    -------
+    dict[str, numpy.ndarray([3,1])]
+        Dictionary mapping DSN station names (str, format: "DSS-<id>") to approximate positions.
+        
+        )doc" );
+
+    m.def( "get_radio_telescope_positions", &tss::getCombinedApproximateGroundStationPositions, R"doc(
+        
+    This function returns the positions of DSN ground stations and VLBI stations.
+
+    The function returns ground station positions for all DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) and VLBI stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions`).
+
+    Returns
+    -------
+    dict[str, numpy.ndarray([3,1])]
+        Dictionary mapping station name to positions.
+        
+        )doc" );
+
     m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
 
-    m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions );
-    m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities );
+    m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions, R"doc(
+        
+    This function returns the positions of VLBI stations.
+
+    The VLBI station positions are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
+        
+        )doc" );
+    m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities, R"doc(
+        
+    This function returns the velocities of VLBI stations.
+
+    The VLBI station velocities are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
+        
+        )doc" );
 }
 
 }  // namespace ground_station
