@@ -12,12 +12,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.dates as mdates
 import datetime
 from astroquery.mpc import MPC
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
-from astropy.time import Time
 import astropy.units as u
 import astropy
 import copy
@@ -27,8 +25,6 @@ from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
-from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
-
 # do not remove this line, even if it looks liek an unused import line
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
@@ -739,8 +735,8 @@ class BatchMPC:
             self._bands = list(self._table.band.unique())
 
         # if user gives custom name, set that as body name, else MPC code
-        if self._table.custom_name.any():
-            self._MPC_codes = list(self._table.custom_name.unique())
+        if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
+            self._MPC_codes = list(self._table["custom_name"].unique())
         else:
             self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
@@ -866,12 +862,12 @@ class BatchMPC:
             for t_utc in augmented_table["epoch_seconds_UTC"]
         ]
 
-        return table
+        return augmented_table
 
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
 
         augmented_table = table.copy()
-        augmented_table['custom_name'] = [custom_name]*len(augmented_table)
+        augmented_table["custom_name"] = [custom_name]*len(augmented_table)
 
         return augmented_table
 
@@ -981,9 +977,7 @@ class BatchMPC:
                 obs = MPC.get_observations(code).to_pandas()
 
             obs = self._standardize_dataframe(obs)
-
-            if custom_name:
-                obs = self._add_custom_name_column(obs, custom_name)
+            obs = self._add_custom_name_column(obs, custom_name)
 
             # convert JD to J2000 and UTC, convert deg to rad
             obs = self._add_time_columns(obs)
@@ -1046,9 +1040,6 @@ class BatchMPC:
 
         self._refresh_metadata()
 
-    def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
-        obs = self._standardize_dataframe(table)
     def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas. """
         obs = table
