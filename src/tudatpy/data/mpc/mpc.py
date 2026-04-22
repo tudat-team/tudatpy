@@ -29,6 +29,9 @@ from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
+# do not remove this line, even if it looks liek an unused import line
+from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
+
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
     ".tudat",
@@ -345,12 +348,16 @@ def get_weights_VFCC17(
             "Must provide either parameters: `epoch`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
         )
 
+    table["observatory"] = table["observatory"].astype(str).str.strip().str.zfill(3)
+    table["number"] = table["number"].astype(str).str.strip()
+
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
 
     # get an approximate timezone based on the observatory code's longitude
     observatories_table = MPC.get_observatory_codes().to_pandas()
+    observatories_table["Code"] = observatories_table["Code"].astype(str).str.strip().str.zfill(3)
     observatories_table = (
         observatories_table.assign(
             lon_wrapping=lambda x: (x.Longitude + 180) % 360 - 180
@@ -745,7 +752,8 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
-            # This query checks if Longitude is Nan: non-terretrial telescopes
+            temp["Code"] = temp["Code"].astype(str).str.strip().str.zfill(3)
+            # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
             self._MPC_space_telescopes = sats
@@ -774,6 +782,21 @@ class BatchMPC:
             .assign(Z=lambda x: x.sin * r_earth)
         )
         self._observatory_info = temp
+
+    def _standardize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Internal helper to ensure IDs are strings and observatories are zero-padded."""
+        # Work on a copy to avoid SettingWithCopyWarnings
+        df = df.copy()
+
+        # Standardize Observatory Codes (e.g., 673 -> "673", 89 -> "089", C51 -> "C51")
+        if "observatory" in df.columns:
+            df["observatory"] = df["observatory"].astype(str).str.strip().str.zfill(3)
+
+        # Standardize MPC Numbers (e.g., 433 -> "433")
+        if "number" in df.columns:
+            df["number"] = df["number"].astype(str).str.strip()
+
+        return df
 
     def _apply_EFCC18(
             self,
@@ -829,25 +852,28 @@ class BatchMPC:
         # Get the default time scale converter
         time_scale_converter = time_representation.default_time_scale_converter()
 
+        augmented_table = table.copy()
         # Add 'epoch_seconds_UTC' column by converting DateTime Objects to epoch
-        table['epoch_seconds_UTC'] = [dt_obj.epoch() for dt_obj in dt_objects]
+        augmented_table["epoch_seconds_UTC"] = [dt_obj.epoch() for dt_obj in dt_objects]
 
         # Add 'epoch_seconds_TDB' column by converting from UTC to TDB
-        table['epoch_seconds_TDB'] = [
+        augmented_table["epoch_seconds_TDB"] = [
             time_scale_converter.convert_time(
                 input_scale=time_representation.utc_scale,
                 output_scale=time_representation.tdb_scale,
-                input_value=t_utc
-            ) for t_utc in table['epoch_seconds_UTC']
+                input_value=t_utc,
+            )
+            for t_utc in augmented_table["epoch_seconds_UTC"]
         ]
 
         return table
 
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
 
-        table['custom_name'] = [custom_name]*len(table)
+        augmented_table = table.copy()
+        augmented_table['custom_name'] = [custom_name]*len(augmented_table)
 
-        return table
+        return augmented_table
 
     # data retrieval options: from_file: allows external observations to be added
     def from_file(self, filename: str, in_degrees: bool = False, frame: str = "J2000", custom_name: str | None = None) -> None:
@@ -954,7 +980,7 @@ class BatchMPC:
             else:
                 obs = MPC.get_observations(code).to_pandas()
 
-            obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
+            obs = self._standardize_dataframe(obs)
 
             if custom_name:
                 obs = self._add_custom_name_column(obs, custom_name)
@@ -1020,6 +1046,9 @@ class BatchMPC:
 
         self._refresh_metadata()
 
+    def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
+        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
+        obs = self._standardize_dataframe(table)
     def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas. """
         obs = table
@@ -1031,7 +1060,6 @@ class BatchMPC:
             )
 
         # convert object mpc code to string
-        obs["number"] = obs.number.astype(str)
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
@@ -1305,6 +1333,110 @@ class BatchMPC:
                 in_place=True,
             )
             return new
+    def create_observations_from_astropy_table(
+            self,
+            table,
+            station_body: str = "Earth",
+            apply_weights_VFCC17: bool = False,
+            apply_star_catalog_debias: bool = False,
+            debias_kwargs: dict = dict(),
+            in_degrees: bool = True,
+
+    ) -> observations.ObservationCollection:
+        """
+        Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
+        Unlike to_tudat(), it does not require a SystemOfBodies object as input.
+        Unlike to_tudat(), apply_weights_VFCC17 and apply_star_catalog_debias flags are set to False by default,
+        as users might have minimal tables available, which do not necessary contain all the fields required
+        by the batchMPC class (e.g. note1,note2, catalog, etc...)
+
+        This method is useful for creating observation collections when the environment
+        is not defined. Note that, when performing a simulation,
+        you must manually ensure that the ground stations (observatory codes)
+        and bodies (MPC numbers) referenced in this
+        collection are added to your simulation environment.
+
+        Parameters
+        ----------
+        table : astropy.table.Table | pd.DataFrame
+            The input table containing observations. Must include 'number',
+            'observatory', 'epoch', 'RA', and 'DEC' columns.
+        station_body : str, optional
+            The name of the body to which the ground stations (observatories)
+            are attached, by default "Earth".
+
+        Returns
+        -------
+        observations.ObservationCollection
+            A collection of observation sets grouped by link.
+        """
+
+        # 1. Initialize internal table handling
+        # We temporarily use a BatchMPC instance to leverage existing logic
+        temp_batch = BatchMPC()
+        if isinstance(table, Table):
+            temp_batch.from_astropy(table, in_degrees=in_degrees)
+        else:
+            temp_batch.from_pandas(table, in_degrees=in_degrees)
+
+        # 2. Apply Star Catalog Debias (EFCC18)
+        # Matches logic in to_tudat()
+        if apply_star_catalog_debias:
+            temp_batch._apply_EFCC18(**debias_kwargs)
+            RA_col = "RA_EFCC18"
+            DEC_col = "DEC_EFCC18"
+        else:
+            RA_col = "RA"
+            DEC_col = "DEC"
+
+        # 3. Apply Weighting (VFCC17)
+        # Matches logic in to_tudat()
+        if apply_weights_VFCC17:
+            weights_table = get_weights_VFCC17(
+                mpc_table=temp_batch.table,
+                return_full_table=True,
+            )
+            df = weights_table # Work with the table containing weights
+        else:
+            df = temp_batch.table.copy()
+
+        # 4. Group by unique Link (Target Body + Observatory)
+        unique_links = df.groupby(["number", "observatory"])
+        observation_set_list = []
+
+        for (mpc_code, observatory_code), group in unique_links:
+            # --- A. Define Link Ends ---
+            link_ends = dict()
+            link_ends[links.transmitter] = links.body_origin_link_end_id(str(mpc_code))
+            link_ends[links.receiver] = links.body_reference_point_link_end_id(
+                station_body, str(observatory_code)
+            )
+            link_definition = links.link_definition(link_ends)
+
+            # --- B. Extract Data ---
+            # Use the pre-calculated TDB seconds from the internal processing
+            times = group["epoch_seconds_TDB"].to_numpy()
+            observables = group[[RA_col, DEC_col]].to_numpy()
+
+            # --- C. Create SingleObservationSet ---
+            observation_set = observations.create_single_observation_set(
+                model_settings.angular_position_type,
+                link_definition.link_ends,
+                observables,
+                times,
+                links.receiver
+            )
+
+            # --- D. Apply Weights ---
+            # Extract weights and flatten for Tudat (RA1, DEC1, RA2, DEC2...)
+            if "weight" in group.columns:
+                weights = group["weight"].to_numpy()
+                weights_flat = np.ravel([weights, weights], "F")
+                observation_set.weights_vector = weights_flat
+
+            observation_set_list.append(observation_set)
+
+        return observations.ObservationCollection(observation_set_list)
 
     def to_tudat(
             self,
@@ -1792,7 +1924,7 @@ class BatchMPC:
         pd.DataFrame
             Dataframe with information about the observatories.
         """
-        temp = self._observatory_info
+        temp = self._observatory_info.copy()
         temp2 = self._table
 
         count_observations = (
@@ -1802,6 +1934,9 @@ class BatchMPC:
             .reset_index(drop=False)
             .loc[:, ["observatory", "count"]]
         )
+
+        temp = temp.copy()
+        count_observations = count_observations.copy()
 
         temp = pd.merge(
             left=temp,

@@ -25,6 +25,7 @@ class SpaceTrackQuery:
             password: str | None = None,
             spacetrack_url: str = "https://www.space-track.org",
             tle_data_folder: str = get_resource_path() + "/tle_data",
+            timeout: int = 60,
     ) -> None:
         """
         Parameters
@@ -50,6 +51,7 @@ class SpaceTrackQuery:
         os.makedirs(self.tle_data_folder, exist_ok=True)
 
         self.session: requests.Session = requests.Session()
+        self.timeout = timeout
         self._login(password)
         del password  # do not keep the plaintext password on the instance
 
@@ -73,6 +75,7 @@ class SpaceTrackQuery:
 
         Parameters
         ----------
+        
         password : str
             Plaintext password. Never stored on the instance.
 
@@ -85,7 +88,7 @@ class SpaceTrackQuery:
         try:
             response = self.session.post(
                 urljoin(self.spacetrack_url, "/ajaxauth/login"),
-                json={"identity": self.username, "password": password},
+                json={"identity": self.username, "password": password}, timeout=self.timeout
             )
             response.raise_for_status()
             print("Login successful.")
@@ -98,7 +101,8 @@ class SpaceTrackQuery:
         Logs out and closes the session. Safe to call multiple times.
         """
         try:
-            self.session.get(urljoin(self.spacetrack_url, "/ajaxauth/logout"))
+            self.session.get(urljoin(self.spacetrack_url, "/ajaxauth/logout"),
+                             timeout = self.timeout)
             print("Logged out of Space-Track.")
         except requests.exceptions.RequestException as e:
             print(f"Logout request failed (session may already be expired): {e}")
@@ -110,13 +114,37 @@ class SpaceTrackQuery:
     # ------------------------------------------------------------------
 
     def _build_url(self, *path_parts: str) -> str:
-        """Joins path segments onto the base URL, safe on all platforms."""
+        """
+        Joins path segments onto the base URL, safe on all platforms.
+
+        Parameters
+        ----------
+        *path_parts : str
+            URL path segments to join.
+
+        Returns
+        -------
+        str
+            The full URL.
+        """
         path = "/".join(part.strip("/") for part in path_parts)
         return urljoin(self.spacetrack_url.rstrip("/") + "/", path)
 
     def _fetch_json(self, url: str) -> list:
-        """GET a URL and return the body as a list."""
-        response = self.session.get(url)
+        """
+        GET a URL and return the body as a list.
+
+        Parameters
+        ----------
+        url : str
+            The URL to fetch.
+
+        Returns
+        -------
+        list
+            The JSON response body as a list.
+        """
+        response = self.session.get(url, timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
         return data if isinstance(data, list) else [data]
@@ -173,6 +201,17 @@ class SpaceTrackQuery:
         File structure on disk::
 
             {"last_api_hit": "<ISO datetime>", "data": [...]}
+
+        Parameters
+        ----------
+        filepath : str
+            Path to the JSON cache file.
+        new_data : list[dict]
+            New OMM records to merge.
+
+        Returns
+        -------
+        None
         """
         existing: list[dict] = []
         if os.path.exists(filepath):
@@ -289,6 +328,11 @@ class SpaceTrackQuery:
             ``True`` → merge into existing file. ``False`` → overwrite.
         filename : str | None
             Optional filename override. Defaults to ``'latest_on_orbit.json'``.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         url = self._build_url(
             "basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"
@@ -313,6 +357,11 @@ class SpaceTrackQuery:
             ``True`` → merge. ``False`` → overwrite.
         filename : str | None
             Optional filename override.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         if filename:
             json_name = filename
@@ -353,6 +402,11 @@ class SpaceTrackQuery:
             ``True`` → merge. ``False`` → overwrite.
         filename : str | None
             Force a specific cache filename.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         if not isinstance(norad_ids, (list, tuple, set)):
             norad_ids = [norad_ids]
@@ -404,6 +458,11 @@ class SpaceTrackQuery:
             Cache filename.
         update_existing : bool
             ``True`` → merge. ``False`` → overwrite.
+
+        Returns
+        -------
+        list | None
+            List of OMM records or None if the request failed.
         """
         parts = ["basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD"]
         for oe, bounds in filter_oe_dict.items():
@@ -547,9 +606,6 @@ class OMMUtils:
         if isinstance(json_data, dict):
             json_data = [json_data]
 
-        if json_data and isinstance(json_data, list):
-            pass
-
         final_dict = defaultdict(list)
 
         for entry in json_data:
@@ -608,7 +664,7 @@ class OMMUtils:
     @staticmethod
     def tle_to_TleEphemeris_object(
             tle_line_1: str, tle_line_2: str
-    ) -> environment.TleEphemeris:
+    ) -> environment.Tle:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
@@ -621,7 +677,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.TleEphemeris
+        environment.Tle
             Configured TleEphemeris object.
         """
         return environment.TleEphemeris(
@@ -644,7 +700,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.TleEphemeris
+        environment.Tle
             Tle object.
         """
         return environment.Tle(tle_line_1, tle_line_2)
@@ -662,6 +718,10 @@ class OMMUtils:
         ----------
         filepath : str
             Absolute path to the cache file.
+
+        Returns
+        -------
+        None
         """
         if not os.path.exists(filepath):
             print(f"File not found: {filepath}")

@@ -203,7 +203,7 @@ Examples
 
  Parameters
  ----------
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Observable type for which the associated reference link end is to be retrieved.
  Returns
  -------

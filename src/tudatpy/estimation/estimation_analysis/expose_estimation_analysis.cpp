@@ -846,6 +846,12 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
             .def_readonly( "final_parameters",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
                            R"doc(No documentation found.)doc" )
+            .def_readonly( "exception_during_inversion",
+                        &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringInversion_,
+                        R"doc(No documentation found.)doc" )
+            .def_readonly( "exception_during_propagation",
+                                &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::exceptionDuringPropagation_,
+                        R"doc(No documentation found.)doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
                            R"doc(No documentation found.)doc" );
