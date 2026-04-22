@@ -14,12 +14,16 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cmath>
 #include <boost/algorithm/string.hpp>
 #include <set>
 
 namespace tudat
 {
 namespace input_output
+{
+
+namespace
 {
 
 double parseIonexEpochToSecondsSinceJ2000( const std::string& line )
@@ -33,7 +37,77 @@ double parseIonexEpochToSecondsSinceJ2000( const std::string& line )
     return basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
-void readIonexFile( const std::string& filePath, IonexTecMap& data )
+//! Find the index of a value in a sorted grid using tolerance-based lookup
+std::size_t findGridIndex( const std::vector< double >& grid, const double value, const double tolerance = 0.01 )
+{
+    for( std::size_t i = 0; i < grid.size( ); ++i )
+    {
+        if( std::fabs( grid[ i ] - value ) < tolerance )
+        {
+            return i;
+        }
+    }
+    throw std::runtime_error( "IONEX: Value " + std::to_string( value ) + " not found in grid." );
+}
+
+//! Parse a single map block (TEC or RMS) from the current file position.
+//! Expects the file stream to be positioned just after the START OF ... MAP line.
+//! Also extracts the epoch from the EPOCH OF CURRENT MAP line within the block.
+Eigen::MatrixXd parseMapBlock( std::ifstream& file, const IonexTecMap& data,
+                               const std::string& endMarker, const int exponent,
+                               double& epoch )
+{
+    Eigen::MatrixXd mapData = Eigen::MatrixXd::Zero( data.latitudes.size( ), data.longitudes.size( ) );
+    std::string line;
+    const double scaleFactor = std::pow( 10.0, exponent );
+
+    while( std::getline( file, line ) )
+    {
+        if( line.find( endMarker ) != std::string::npos )
+        {
+            break;
+        }
+
+        if( line.find( "EPOCH OF CURRENT MAP" ) != std::string::npos )
+        {
+            epoch = parseIonexEpochToSecondsSinceJ2000( line );
+        }
+        else if( line.find( "LAT/LON1/LON2/DLON/H" ) != std::string::npos )
+        {
+            double lat, lonStart, lonEnd, lonStep, height;
+            std::stringstream ss( line.substr( 0, 60 ) );
+            ss >> lat >> lonStart >> lonEnd >> lonStep >> height;
+
+            std::size_t latIndex = findGridIndex( data.latitudes, lat );
+
+            std::vector< double > values;
+            while( values.size( ) < data.longitudes.size( ) )
+            {
+                std::getline( file, line );
+                for( std::size_t i = 0; i + 5 <= line.size( ) && values.size( ) < data.longitudes.size( ); i += 5 )
+                {
+                    std::string val = line.substr( i, 5 );
+                    boost::algorithm::trim( val );
+                    if( !val.empty( ) )
+                    {
+                        values.push_back( std::stod( val ) * scaleFactor );
+                    }
+                }
+            }
+
+            for( std::size_t j = 0; j < values.size( ) && j < data.longitudes.size( ); ++j )
+            {
+                mapData( latIndex, j ) = values[ j ];
+            }
+        }
+    }
+
+    return mapData;
+}
+
+}  // anonymous namespace
+
+void readIonexFile( const std::string& filePath, IonexTecMap& data, const bool loadRmsMaps )
 {
     std::ifstream file( filePath );
     if( !file )
@@ -43,9 +117,8 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data )
 
     std::string line;
     std::vector< double > epochQueue;
-    std::vector< Eigen::MatrixXd > mapQueue;
-
-    double currentEpoch = -1.0;
+    std::vector< Eigen::MatrixXd > tecMapQueue;
+    std::vector< Eigen::MatrixXd > rmsMapQueue;
 
     while( std::getline( file, line ) )
     {
@@ -77,7 +150,12 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data )
         {
             std::stringstream ss( line );
             ss >> data.hgtMin >> data.hgtMax >> data.dHgt;
-            data.referenceIonosphereHeight_ = data.hgtMin;  // assume single-shell height = HGT1
+            data.referenceIonosphereHeight_ = data.hgtMin * 1.0e3;  // convert km to m
+        }
+        else if( line.find( "EXPONENT" ) != std::string::npos )
+        {
+            std::stringstream ss( line );
+            ss >> data.exponent;
         }
         else if( line.find( "EPOCH OF FIRST MAP" ) != std::string::npos )
         {
@@ -87,74 +165,30 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data )
         {
             data.epochEnd = parseIonexEpochToSecondsSinceJ2000( line );
         }
-        else if( line.find( "EPOCH OF CURRENT MAP" ) != std::string::npos )
-        {
-            currentEpoch = parseIonexEpochToSecondsSinceJ2000( line );
-            epochQueue.push_back( currentEpoch );
-        }
         else if( line.find( "START OF TEC MAP" ) != std::string::npos )
         {
-            Eigen::MatrixXd tecMap = Eigen::MatrixXd::Zero( data.latitudes.size( ), data.longitudes.size( ) );
-            std::vector< std::vector< bool > > fillMask( data.latitudes.size( ), std::vector< bool >( data.longitudes.size( ), false ) );
-
-            while( std::getline( file, line ) )
+            double epoch = -1.0;
+            tecMapQueue.push_back( parseMapBlock( file, data, "END OF TEC MAP", data.exponent, epoch ) );
+            epochQueue.push_back( epoch );
+        }
+        else if( line.find( "START OF RMS MAP" ) != std::string::npos )
+        {
+            if( loadRmsMaps )
             {
-                if( line.find( "END OF TEC MAP" ) != std::string::npos )
+                double rmsEpoch = -1.0;
+                rmsMapQueue.push_back( parseMapBlock( file, data, "END OF RMS MAP", data.exponent, rmsEpoch ) );
+            }
+            else
+            {
+                // Skip RMS block
+                while( std::getline( file, line ) )
                 {
-                    break;
-                }
-
-                if( line.find( "LAT/LON1/LON2/DLON/H" ) != std::string::npos )
-                {
-                    double lat, lonStart, lonEnd, lonStep, height;
-                    std::stringstream ss( line.substr( 0, 60 ) );
-                    ss >> lat >> lonStart >> lonEnd >> lonStep >> height;
-
-                    std::size_t latIndex =
-                            std::distance( data.latitudes.begin( ), std::find( data.latitudes.begin( ), data.latitudes.end( ), lat ) );
-
-                    std::vector< double > tecValues;
-                    while( tecValues.size( ) < data.longitudes.size( ) )
+                    if( line.find( "END OF RMS MAP" ) != std::string::npos )
                     {
-                        std::getline( file, line );
-                        for( std::size_t i = 0; i + 5 <= line.size( ); i += 5 )
-                        {
-                            std::string val = line.substr( i, 5 );
-                            tecValues.push_back( std::stod( val ) * 0.1 );
-                        }
-                    }
-
-                    for( std::size_t j = 0; j < tecValues.size( ); ++j )
-                    {
-                        double lon = lonStart + lonStep * j;
-                        std::size_t lonIndex = std::distance( data.longitudes.begin( ),
-                                                              std::find( data.longitudes.begin( ), data.longitudes.end( ), lon ) );
-
-                        if( latIndex >= data.latitudes.size( ) || lonIndex >= data.longitudes.size( ) )
-                        {
-                            throw std::runtime_error( "LAT/LON index out of bounds in TEC map." );
-                        }
-
-                        tecMap( latIndex, lonIndex ) = tecValues.at( j );
-                        fillMask[ latIndex ][ lonIndex ] = true;
+                        break;
                     }
                 }
             }
-
-            // Confirm completeness
-            for( std::size_t i = 0; i < data.latitudes.size( ); ++i )
-            {
-                for( std::size_t j = 0; j < data.longitudes.size( ); ++j )
-                {
-                    if( !fillMask[ i ][ j ] )
-                    {
-                        std::cerr << "Warning: TEC map at epoch " << currentEpoch << " missing value at lat=" << data.latitudes[ i ]
-                                  << ", lon=" << data.longitudes[ j ] << std::endl;
-                    }
-                }
-            }
-
-            mapQueue.push_back( tecMap );
         }
     }
 
@@ -162,15 +196,23 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data )
 
     // Reverse latitudes to ascending order (required by Tudat interpolators)
     std::reverse( data.latitudes.begin( ), data.latitudes.end( ) );
-    for( Eigen::MatrixXd& mat: mapQueue )
+    for( Eigen::MatrixXd& mat: tecMapQueue )
     {
-        mat = mat.colwise( ).reverse( ).eval( );  // flip rows to match new lat order
+        mat = mat.colwise( ).reverse( ).eval( );
+    }
+    for( Eigen::MatrixXd& mat: rmsMapQueue )
+    {
+        mat = mat.colwise( ).reverse( ).eval( );
     }
 
     // Store to output structure
-    if( epochQueue.size( ) != mapQueue.size( ) )
+    if( epochQueue.size( ) != tecMapQueue.size( ) )
     {
         throw std::runtime_error( "IONEX epoch list and TEC map count mismatch." );
+    }
+    if( loadRmsMaps && !rmsMapQueue.empty( ) && rmsMapQueue.size( ) != tecMapQueue.size( ) )
+    {
+        throw std::runtime_error( "IONEX TEC and RMS map count mismatch." );
     }
 
     // Apply microsecond adjustments to avoid boundary overlaps
@@ -183,17 +225,19 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data )
     for( std::size_t i = 0; i < epochQueue.size( ); ++i )
     {
         data.epochs.push_back( epochQueue[ i ] );
-        data.tecMaps[ epochQueue[ i ] ] = mapQueue[ i ];
+        data.tecMaps[ epochQueue[ i ] ] = tecMapQueue[ i ];
+        if( loadRmsMaps && i < rmsMapQueue.size( ) )
+        {
+            data.rmsMaps[ epochQueue[ i ] ] = rmsMapQueue[ i ];
+        }
     }
-
-    // data.printMetadata( );
 }
 
-void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& data )
+void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& data, const bool loadRmsMaps )
 {
     for( const auto& path: filePaths )
     {
-        readIonexFile( path, data );
+        readIonexFile( path, data, loadRmsMaps );
     }
 
     std::set< double > uniqueHeights;
@@ -215,7 +259,7 @@ void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& d
     for( std::size_t i = 1; i < data.epochs.size( ); ++i )
     {
         double delta = data.epochs[ i ] - data.epochs[ i - 1 ];
-        if( delta > 2.0 * 3600.0 )
+        if( delta > 24.0 * 3600.0 )
         {
             std::cerr << "Warning: Gap of " << delta / 3600.0 << " hours between TEC maps at epochs: " << data.epochs[ i - 1 ] << " and "
                       << data.epochs[ i ] << "\n";

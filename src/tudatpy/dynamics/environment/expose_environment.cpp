@@ -539,10 +539,105 @@ void expose_environment( py::module& m )
                                                                                                                R"doc(
 Base class for ionospheric models.
 
-Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m²) based on geodetic position (latitude, longitude) and time.
+Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m^2) based on geodetic position
+(latitude, longitude in degrees) and time (seconds since J2000 TDB).
 
-This is the base class from which models like TabulatedIonosphereModel or GlobalIonosphereModelVtecCalculator retrieve electron content data. The model is typically stored
-inside a `Body` instance and used in observation corrections or environmental queries.
+This is the base class from which models like ``TabulatedIonosphereModel`` (IONEX-backed) retrieve electron
+content data. The model is stored inside a ``Body`` instance (via ``body.get_ionosphere_model()``) and
+used internally by ionospheric light-time corrections. It can also be queried directly for VTEC sampling
+(e.g., for plotting global ionospheric maps).
+)doc" )
+            .def( "get_vertical_total_electron_content",
+                  &tudat::environment::IonosphereModel::getVerticalTotalElectronContent,
+                  py::arg( "latitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+Get the vertical total electron content at a given location and time.
+
+Parameters
+----------
+latitude : float
+    Geodetic latitude [degrees].
+longitude : float
+    Geodetic longitude [degrees].
+time : float
+    Time [seconds since J2000 TDB].
+
+Returns
+-------
+float
+    Vertical TEC in TECU (1 TECU = 1e16 electrons/m^2).
+
+)doc" )
+            .def( "get_reference_ionosphere_height",
+                  &tudat::environment::IonosphereModel::getReferenceIonosphereHeight,
+                  R"doc(
+
+Get the reference ionosphere shell height.
+
+Returns
+-------
+float
+    Reference height [m].
+
+)doc" );
+
+    py::class_< tudat::environment::TabulatedIonosphereModel,
+                std::shared_ptr< tudat::environment::TabulatedIonosphereModel >,
+                tudat::environment::IonosphereModel >( m,
+                "TabulatedIonosphereModel",
+                R"doc(
+
+Ionospheric model backed by tabulated IONEX global ionosphere map data.
+
+Provides VTEC via 3D interpolation over [time, latitude, longitude]. When RMS/uncertainty
+maps are loaded (automatically from IONEX files), they can be queried via
+:func:`get_vertical_tec_rms`.
+
+Instances are created internally by
+:func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex`
+and stored on the Earth body. Access via ``bodies.get_body("Earth").get_ionosphere_model()``.
+
+)doc" )
+            .def( "get_vertical_tec_rms",
+                  &tudat::environment::TabulatedIonosphereModel::getVerticalTecRms,
+                  py::arg( "latitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+Get the RMS uncertainty of the vertical TEC at a given location and time.
+
+Returns NaN if no RMS data is available (e.g., if the IONEX file did not contain RMS maps).
+
+Parameters
+----------
+latitude : float
+    Geodetic latitude [degrees].
+longitude : float
+    Geodetic longitude [degrees].
+time : float
+    Time [seconds since J2000 TDB].
+
+Returns
+-------
+float
+    Vertical TEC RMS in TECU, or NaN if unavailable.
+
+)doc" )
+            .def( "has_rms_data",
+                  &tudat::environment::TabulatedIonosphereModel::hasRmsData,
+                  R"doc(
+
+Check whether RMS/uncertainty data is available.
+
+Returns
+-------
+bool
+    True if RMS maps were loaded from the IONEX file(s).
+
 )doc" );
 
     py::class_< ta::AtmosphereModel, std::shared_ptr< ta::AtmosphereModel > >( m,

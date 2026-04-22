@@ -41,6 +41,7 @@ set(io_SOURCES
         "readVariousPdsFiles.cpp"
         "readViennaMappingFunctionData.cpp"
         "readIonexFile.cpp"
+        "readNeQuick2Data.cpp"
 
 )
 
