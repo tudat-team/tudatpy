@@ -151,6 +151,51 @@ void expose_parameters( py::module& m )
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
+            .def( "indices_for_parameter_enum",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterEnum,
+                  py::arg( "parameter_type" ),
+                  R"doc(
+
+         Function to retrieve the indices of parameters for a given parameter enum.
+
+         Function to retrieve the indices of all parameters with a given enum, regardless of body/reference point
+         identifier.
+
+
+         Parameters
+         ----------
+         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
+             Parameter enum for which the indices are retrieved.
+         Returns
+         -------
+         List[ tuple[int, int] ]
+             Indices of the parameters corresponding to the enum. The first element of each tuple is the start index,
+             the second element is the size of the parameter.
+
+     )doc" )
+            .def( "indices_for_parameter_identifier",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterIdentifier,
+                  py::arg( "parameter_identifier" ),
+                  R"doc(
+
+         Function to retrieve indices of parameters from an identifier with optional enum-only matching.
+
+         Function to retrieve parameter indices from a parameter identifier. If both strings in the identifier are empty,
+         matching is performed on the enum only and exactly one match is required.
+
+
+         Parameters
+         ----------
+         parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+             Parameter identifier for which the indices are retrieved.
+
+         Returns
+         -------
+         List[ tuple[int, int] ]
+             Indices of the parameters corresponding to the identifier. The first element of each tuple is the start
+             index, the second element is the parameter size.
+
+     )doc" )
             .def( "indices_for_parameter_description",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterDescription,
                   py::arg( "parameter_description" ),

@@ -23,6 +23,7 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -240,6 +241,136 @@ void expose_estimation_analysis( py::module& m )
 
 
 
+
+     )doc" );
+
+    m.def( "create_inverse_apriori_covariance",
+           &tss::createInverseAprioriCovariance,
+           py::arg( "parameter_set" ),
+           py::arg( "apriori_uncertainty_per_parameter" ),
+           R"doc(
+
+ Function to create an inverse a priori covariance matrix from per-parameter uncertainties.
+
+ Function that creates a full inverse a priori covariance matrix for the estimated parameters in ``parameter_set``.
+ The matrix is initialized as all zeros and only diagonal entries for specified parameters are set.
+
+ The ``apriori_uncertainty_per_parameter`` input is a list where each entry is:
+
+ * an entry created with :func:`~tudatpy.estimation.estimation_analysis.apriori_uncertainty_entry`
+ * or a tuple ``(parameter_identifier, uncertainty_vector)``
+
+ with:
+
+ * ``parameter_identifier`` = ``(EstimatableParameterTypes, (body_name, secondary_name))``
+ * ``uncertainty_vector`` = 1D array-like.
+
+ If both strings in ``parameter_identifier`` are empty, parameter matching is performed by enum only.
+ In this case, exactly one matching parameter must exist in ``parameter_set``.
+
+ Uncertainties are interpreted as 1-sigma values. For each constrained component, the corresponding diagonal entry
+ is set to :math:`1/\sigma^2`.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Consolidated set of estimated parameters.
+ apriori_uncertainty_per_parameter : list
+     List of ``(parameter_identifier, uncertainty)`` entries.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Inverse a priori covariance matrix.
+
+     )doc" );
+
+    m.def( "apriori_uncertainty_entry",
+           py::overload_cast< const tep::EstimatebleParameterIdentifier&, const double >(
+                   &tss::aprioriUncertaintyEntry ),
+           py::arg( "parameter_identifier" ),
+           py::arg( "uncertainty" ),
+           R"doc(
+
+ Function to create a scalar a priori uncertainty entry.
+
+ Helper function that creates one entry for use in
+ :func:`~tudatpy.estimation.estimation_analysis.create_inverse_apriori_covariance` and
+ :func:`~tudatpy.estimation.estimation_analysis.add_inverse_apriori_covariance_entries`.
+
+ Parameters
+ ----------
+ parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+     Parameter identifier to constrain.
+ uncertainty : float
+     Scalar (1-sigma) uncertainty.
+
+ Returns
+ -------
+ tuple
+     Entry that can be added to the ``apriori_uncertainty_per_parameter`` list.
+
+     )doc" );
+
+    m.def( "apriori_uncertainty_entry",
+           py::overload_cast< const tep::EstimatebleParameterIdentifier&, const Eigen::VectorXd& >(
+                   &tss::aprioriUncertaintyEntry ),
+           py::arg( "parameter_identifier" ),
+           py::arg( "uncertainty" ),
+           R"doc(
+
+ Function to create a vector a priori uncertainty entry.
+
+ Helper function that creates one entry for use in
+ :func:`~tudatpy.estimation.estimation_analysis.create_inverse_apriori_covariance` and
+ :func:`~tudatpy.estimation.estimation_analysis.add_inverse_apriori_covariance_entries`.
+
+ Parameters
+ ----------
+ parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+     Parameter identifier to constrain.
+ uncertainty : numpy.ndarray[numpy.float64[m]]
+     Vector of (1-sigma) uncertainties.
+
+ Returns
+ -------
+ tuple
+     Entry that can be added to the ``apriori_uncertainty_per_parameter`` list.
+
+     )doc" );
+
+    m.def( "add_inverse_apriori_covariance_entries",
+           &tss::addInverseAprioriCovarianceEntries,
+           py::arg( "inverse_apriori_covariance" ),
+           py::arg( "parameter_set" ),
+           py::arg( "apriori_uncertainty_per_parameter" ),
+           R"doc(
+
+ Function to add or update entries in an inverse a priori covariance matrix.
+
+ Function that takes an existing inverse a priori covariance matrix and sets diagonal entries from the provided
+ per-parameter uncertainties. Existing matrix entries are preserved, except for constrained diagonal entries which
+ are overwritten.
+
+ If ``inverse_apriori_covariance`` is provided as a 0x0 matrix, a zero matrix with the correct parameter dimension
+ is created before applying entries.
+
+ The format and interpretation of ``apriori_uncertainty_per_parameter`` is identical to
+ :func:`~tudatpy.estimation.estimation_analysis.create_inverse_apriori_covariance`.
+
+ Parameters
+ ----------
+ inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, m]]
+     Existing inverse a priori covariance matrix (or a 0x0 matrix).
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Consolidated set of estimated parameters.
+ apriori_uncertainty_per_parameter : list
+     List of ``(parameter_identifier, uncertainty)`` entries.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Updated inverse a priori covariance matrix.
 
      )doc" );
 
