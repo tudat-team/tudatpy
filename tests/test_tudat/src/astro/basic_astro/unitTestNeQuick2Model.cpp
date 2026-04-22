@@ -30,7 +30,7 @@ namespace unit_tests
 {
 
 // Path to NeQuick-2 data (bundled in tudat resources)
-const std::string neQuick2DataPath = tudat::paths::getTudatTestDataPath( ) + "/nequick2/";
+const std::string neQuick2DataPath = tudat::paths::getTudatTestDataPath( ) + "nequick2/";
 
 BOOST_AUTO_TEST_SUITE( test_nequick2_model )
 
