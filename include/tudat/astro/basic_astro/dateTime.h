@@ -97,22 +97,100 @@ TimeType timeFromIsoString( const std::string &isoTime )
     return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
 }
 
+inline constexpr std::array< std::array< int, 3 >, 27 > leapSecondIntroductionDays = {{
+        { 1972, 7, 1 }, { 1973, 1, 1 }, { 1974, 1, 1 }, { 1975, 1, 1 }, { 1976, 1, 1 }, { 1977, 1, 1 }, { 1978, 1, 1 },
+        { 1979, 1, 1 }, { 1980, 1, 1 }, { 1981, 7, 1 }, { 1982, 7, 1 }, { 1983, 7, 1 }, { 1985, 7, 1 }, { 1988, 1, 1 },
+        { 1990, 1, 1 }, { 1991, 1, 1 }, { 1992, 7, 1 }, { 1993, 7, 1 }, { 1994, 7, 1 }, { 1996, 1, 1 }, { 1997, 7, 1 },
+        { 1999, 1, 1 }, { 2006, 1, 1 }, { 2009, 1, 1 }, { 2012, 7, 1 }, { 2015, 7, 1 }, { 2017, 1, 1 } }};
+
+template< std::size_t NumberOfIntroductionDates >
+constexpr bool areLeapSecondIntroductionDaysValid(
+        const std::array< std::array< int, 3 >, NumberOfIntroductionDates >& introductionDays )
+{
+    for( const auto& introductionDay : introductionDays )
+    {
+        if( introductionDay.at( 2 ) != 1 )
+        {
+            return false;
+        }
+        if( introductionDay.at( 1 ) != 1 && introductionDay.at( 1 ) != 7 )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+static_assert( areLeapSecondIntroductionDaysValid( leapSecondIntroductionDays ),
+               "Leap-second introductions must always be at day 1 of month 1 or 7." );
+
+inline bool isLeapSecondIntroductionDay( const int year, const int month, const int day )
+{
+    if( day != 1 )
+    {
+        return false;
+    }
+    if( month != 1 && month != 7 )
+    {
+        return false;
+    }
+
+    for( const auto& leapSecondIntroductionDate : leapSecondIntroductionDays )
+    {
+        if( month != leapSecondIntroductionDate.at( 1 ) )
+        {
+            continue;
+        }
+        if( year != leapSecondIntroductionDate.at( 0 ) )
+        {
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
+inline void getPreviousDay( int& year, int& month, int& day )
+{
+    day -= 1;
+    if( day == 0 )
+    {
+        month -= 1;
+        if( month == 0 )
+        {
+            month = 12;
+            year -= 1;
+        }
+        day = basic_astrodynamics::getDaysInMonth( month, year );
+    }
+}
+
 inline bool isLeapSecondDay( const int year, const int month, const int day )
 {
-    static const std::array< int, 27 > leapSecondIntroductionDays = {
-        julianDayNumberFromDate( 1972, 7, 1 ), julianDayNumberFromDate( 1973, 1, 1 ), julianDayNumberFromDate( 1974, 1, 1 ),
-        julianDayNumberFromDate( 1975, 1, 1 ), julianDayNumberFromDate( 1976, 1, 1 ), julianDayNumberFromDate( 1977, 1, 1 ),
-        julianDayNumberFromDate( 1978, 1, 1 ), julianDayNumberFromDate( 1979, 1, 1 ), julianDayNumberFromDate( 1980, 1, 1 ),
-        julianDayNumberFromDate( 1981, 7, 1 ), julianDayNumberFromDate( 1982, 7, 1 ), julianDayNumberFromDate( 1983, 7, 1 ),
-        julianDayNumberFromDate( 1985, 7, 1 ), julianDayNumberFromDate( 1988, 1, 1 ), julianDayNumberFromDate( 1990, 1, 1 ),
-        julianDayNumberFromDate( 1991, 1, 1 ), julianDayNumberFromDate( 1992, 7, 1 ), julianDayNumberFromDate( 1993, 7, 1 ),
-        julianDayNumberFromDate( 1994, 7, 1 ), julianDayNumberFromDate( 1996, 1, 1 ), julianDayNumberFromDate( 1997, 7, 1 ),
-        julianDayNumberFromDate( 1999, 1, 1 ), julianDayNumberFromDate( 2006, 1, 1 ), julianDayNumberFromDate( 2009, 1, 1 ),
-        julianDayNumberFromDate( 2012, 7, 1 ), julianDayNumberFromDate( 2015, 7, 1 ), julianDayNumberFromDate( 2017, 1, 1 ) };
+    int nextYear = year;
+    int nextMonth = month;
+    int nextDay = day + 1;
 
-    const int followingJulianDay = julianDayNumberFromDate( year, month, day ) + 1;
-    return std::find( leapSecondIntroductionDays.begin( ), leapSecondIntroductionDays.end( ), followingJulianDay ) !=
-            leapSecondIntroductionDays.end( );
+    if( nextDay > basic_astrodynamics::getDaysInMonth( nextMonth, nextYear ) )
+    {
+        nextDay = 1;
+        nextMonth += 1;
+        if( nextMonth > 12 )
+        {
+            nextMonth = 1;
+            nextYear += 1;
+        }
+    }
+    return isLeapSecondIntroductionDay( nextYear, nextMonth, nextDay );
+}
+
+inline bool wasPreviousDayLeapSecondDay( const int year, const int month, const int day )
+{
+    int previousYear = year;
+    int previousMonth = month;
+    int previousDay = day;
+    basic_astrodynamics::getPreviousDay( previousYear, previousMonth, previousDay );
+    return basic_astrodynamics::isLeapSecondDay( previousYear, previousMonth, previousDay );
 }
 
 struct DateTime {
@@ -390,14 +468,15 @@ public:
         long double seconds = time.getSecondsIntoFullPeriod( ) - static_cast< long double >( 60 * minute );
 
         // Leap-second epochs are normalized to the next day by the Time type; restore a 23:59:60 <= s < 61 representation here.
-        if( hour == 0 && minute == 0 && fullDaysSinceMidnightJD0 > 0 )
+        if( hour == 0 && minute == 0 )
         {
-            int previousDay, previousMonth, previousYear;
-            basic_astrodynamics::convertShiftedJulianDayToCalendarDate< int >(
-                    fullDaysSinceMidnightJD0 - 1, previousDay, previousMonth, previousYear );
-
-            if( basic_astrodynamics::isLeapSecondDay( previousYear, previousMonth, previousDay ) )
+            if( basic_astrodynamics::wasPreviousDayLeapSecondDay( year, month, day ) )
             {
+                int previousYear = year;
+                int previousMonth = month;
+                int previousDay = day;
+                basic_astrodynamics::getPreviousDay( previousYear, previousMonth, previousDay );
+
                 if( seconds >= 0.0L && seconds < 1.0L )
                 {
                     long double leapSecondValue = 60.0L + seconds;
