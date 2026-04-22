@@ -712,7 +712,25 @@ void expose_environment_setup( py::module &m )
            "body_with_ground_station",
            "station_name" );
 
-    m.def( "get_safe_interpolation_interval", &tudat::ephemerides::getSafeEphemerisEvaluationInterval, py::arg( "ephemeris_model" ) );
+    m.def( "get_safe_interpolation_interval",
+           &tudat::ephemerides::getSafeEphemerisEvaluationInterval,
+           py::arg( "ephemeris_model" ),
+           R"doc(
+ Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ on which the interpolator inside this object is valid is checked and returned.
+
+
+ Parameters
+ ----------
+ ephemeris_model : Ephemeris
+    Ephemeris object, retrieved as get.body('BODY_NAME').ephemeris
+
+Returns
+---------
+Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
+
+    )doc");
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,

@@ -468,9 +468,11 @@ public:
                               const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
                               const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                               const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                      std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                              const bool useNormalization = false ):
         observableType_( observableType ), linkEnds_( linkEnds ), biasSettings_( biasSettings ),
-        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), observableTimeScale_( basic_astrodynamics::tdb_scale )
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), observableTimeScale_( basic_astrodynamics::tdb_scale ),
+        useNormalization_( useNormalization )
     {
         if( lightTimeCorrections != nullptr )
         {
@@ -493,10 +495,11 @@ public:
                               const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                               const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                       std::make_shared< LightTimeConvergenceCriteria >( ),
-                              const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
+                              const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale,
+                              const bool useNormalization = false  ):
         observableType_( observableType ), linkEnds_( linkEnds ), lightTimeCorrectionsList_( lightTimeCorrectionsList ),
         biasSettings_( biasSettings ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
-        observableTimeScale_( observableTimeScale )
+        observableTimeScale_( observableTimeScale ), useNormalization_( useNormalization )
     {}
 
     //! Destructor
@@ -516,6 +519,8 @@ public:
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
     basic_astrodynamics::TimeScales observableTimeScale_;
+
+    bool useNormalization_;
 };
 
 std::vector< LinkDefinition > getObservationModelListLinkEnds(
@@ -1056,10 +1061,12 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+                const bool normalizeRightAscension = false )
 {
     return std::make_shared< ObservationModelSettings >(
-            angular_position, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+            angular_position, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria,
+            basic_astrodynamics::tdb_scale, normalizeRightAscension );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(

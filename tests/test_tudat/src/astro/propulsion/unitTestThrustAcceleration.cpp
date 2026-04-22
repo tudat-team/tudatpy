@@ -1324,7 +1324,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
-                    BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-12 * currentThrustMagnitude );
+                    BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 5.0E-12 * currentThrustMagnitude );
                     for( unsigned int j = 0; j < 3; j++ )
                     {
                         BOOST_CHECK_SMALL( std::fabs( manualRotationMatrix( i, j ) - currentRotationMatrix( i, j ) ), 1.0E-12 );

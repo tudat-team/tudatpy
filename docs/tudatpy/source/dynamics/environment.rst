@@ -46,6 +46,10 @@ Classes
 
 
    Ephemeris
+
+   TleEphemeris
+
+   Tle
    
    RotationalEphemeris
 
@@ -96,6 +100,13 @@ Classes
    
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TleEphemeris
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.Tle
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
    :members:
