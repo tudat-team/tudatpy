@@ -919,7 +919,7 @@ class BatchMPC:
 
         Parameters
         ----------
-        MPCcodes : list[str | int] 
+        MPCcodes : list[str | int]
             List of integer or str MPC object codes for minor planets or comets.
         id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
@@ -1256,7 +1256,7 @@ class BatchMPC:
                 self._table = self._table.query("observatory != @observatories_exclude")
 
             timescale_converter_needed = isinstance(epoch_start, datetime.datetime) or \
-                               isinstance(epoch_end, datetime.datetime)
+                                         isinstance(epoch_end, datetime.datetime)
 
             if timescale_converter_needed:
                 # This loads necessary kernels/tables
