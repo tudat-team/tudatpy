@@ -12,7 +12,6 @@
 #endif
 #include "expose_observations_wrapper_bindings.h"
 
-#include <pybind11/cast.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
