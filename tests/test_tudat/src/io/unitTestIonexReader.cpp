@@ -25,7 +25,7 @@ namespace unit_tests
 {
 
 // Path to directory containing IONEX test files
-const std::string ionexTestDir = tudat::paths::getTudatTestDataPath(  ) + "/ionex_test_files/";
+const std::string ionexTestDir = tudat::paths::getTudatTestDataPath(  ) + "ionex_test_files/";
 
 struct IonexTestCase
 {
