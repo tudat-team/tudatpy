@@ -1083,6 +1083,7 @@ BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMe
     }
 }
 
+//! Verifies that filtering/unfiltering preserves block and full weight contributions exactly.
 BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsFilteringAndUnfiltering )
 {
     typedef double ObservationScalarType;

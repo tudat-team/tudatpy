@@ -30,6 +30,7 @@ namespace tudat
 namespace unit_tests
 {
 
+//! Utility to assemble a dense block-diagonal matrix from per-observation block weights.
 Eigen::MatrixXd buildBlockDiagonalMatrix( const std::vector< Eigen::MatrixXd >& blockWeights )
 {
     const int setSize = static_cast< int >( blockWeights.size( ) ) * blockWeights.at( 0 ).rows( );
@@ -45,6 +46,7 @@ Eigen::MatrixXd buildBlockDiagonalMatrix( const std::vector< Eigen::MatrixXd >& 
     return blockDiagonalMatrix;
 }
 
+//! Utility to build a strictly diagonally dominant dense weight matrix with configurable coupling strength.
 Eigen::MatrixXd createFullDenseWeightMatrix( const int size, const double baseDiagonal, const double couplingScale )
 {
     Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero( size, size );
@@ -559,6 +561,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 }
 
+//! Verifies that sparse/full off-diagonal weights are propagated consistently through estimation and covariance paths.
 BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
 {
     using namespace observation_models;

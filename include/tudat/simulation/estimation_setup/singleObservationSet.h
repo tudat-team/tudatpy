@@ -38,11 +38,13 @@ namespace observation_models
 
 using namespace simulation_setup;
 
+//! Enumeration of supported base weight representations in a single observation set.
 enum ObservationWeightsMatrixType
 {
+    //! Independent per-component weights per observation.
     diagonal_weights_matrix = 0,
-    block_diagonal_weights_matrix = 1,
-    full_weights_matrix = 2
+    //! Dense per-observation blocks, with no coupling between different observations.
+    block_diagonal_weights_matrix = 1
 };
 
 template< typename ObservationScalarType = double,
@@ -494,6 +496,7 @@ public:
         return ancillarySettings_;
     }
 
+    //! Returns per-observation diagonal weights including any full-matrix diagonal contribution.
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
     {
         std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > combinedWeights;
@@ -506,6 +509,7 @@ public:
         return combinedWeights;
     }
 
+    //! Returns a reference to stored base diagonal weights (diagonal base mode only).
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
     {
         if( weightState_.matrixType != diagonal_weights_matrix )
@@ -516,6 +520,7 @@ public:
         return weightState_.diagonalWeights;
     }
 
+    //! Returns the diagonal vector of the base weights (without full-matrix contribution).
     Eigen::VectorXd getBaseWeightsDiagonalVector( ) const
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
@@ -545,6 +550,7 @@ public:
         return weightsVector;
     }
 
+    //! Returns the diagonal vector of the combined weights matrix.
     Eigen::VectorXd getWeightsDiagonalVector( ) const
     {
         Eigen::VectorXd weightsVector = getBaseWeightsDiagonalVector( );
@@ -555,6 +561,7 @@ public:
         return weightsVector;
     }
 
+    //! Returns the diagonal-weight segment for a single observation index.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeight( unsigned int index ) const
     {
         if( index >= numberOfObservations_ )
@@ -566,11 +573,13 @@ public:
         return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
     }
 
+    //! Returns which base representation is currently used for the weights.
     ObservationWeightsMatrixType getWeightsMatrixType( ) const
     {
         return weightState_.matrixType;
     }
 
+    //! Checks whether the combined weights matrix currently contains off-diagonal terms.
     bool hasOffDiagonalWeights( ) const
     {
         if( weightState_.matrixType == block_diagonal_weights_matrix )
@@ -588,6 +597,7 @@ public:
         return false;
     }
 
+    //! Returns per-observation dense blocks for block-diagonal base mode.
     std::vector< Eigen::MatrixXd > getBlockDiagonalWeightMatrices( ) const
     {
         if( weightState_.matrixType != block_diagonal_weights_matrix )
@@ -597,6 +607,7 @@ public:
         return weightState_.blockWeights;
     }
 
+    //! Returns the optional full-matrix contribution added to the base weights.
     Eigen::MatrixXd getFullWeightMatrix( ) const
     {
         if( weightState_.fullWeights.rows( ) == 0 )
@@ -606,11 +617,13 @@ public:
         return weightState_.fullWeights;
     }
 
+    //! Indicates whether an additional full-matrix weight contribution is present.
     bool hasFullWeightMatrixContribution( ) const
     {
         return ( weightState_.fullWeights.rows( ) > 0 );
     }
 
+    //! Builds and returns the full combined weight matrix for active observations.
     Eigen::MatrixXd getWeightMatrix( ) const
     {
         const int totalObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
@@ -710,6 +723,7 @@ public:
         return meanResiduals;
     }
 
+    //! Sets one constant diagonal-weight vector for all observations.
     void setConstantWeight( const double weight )
     {
         setDiagonalWeightState(
@@ -718,6 +732,7 @@ public:
         validateCombinedWeightsMatrix( );
     }
 
+    //! Sets one component-wise diagonal-weight vector for all observations.
     void setConstantWeight( const Eigen::Matrix< double, Eigen::Dynamic, 1 >& weight )
     {
         if( weight.size( ) != singleObservationSize_ )
@@ -730,6 +745,7 @@ public:
         validateCombinedWeightsMatrix( );
     }
 
+    //! Sets per-observation diagonal weights from one concatenated vector.
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
     {
         if( weightsVector.rows( ) != static_cast< int >( singleObservationSize_ * observations_.size( ) ) )
@@ -754,6 +770,7 @@ public:
         validateCombinedWeightsMatrix( );
     }
 
+    //! Sets per-observation dense blocks as the base block-diagonal weight model.
     void setBlockDiagonalWeights( const std::vector< Eigen::MatrixXd >& blockDiagonalWeights )
     {
         if( blockDiagonalWeights.size( ) != numberOfObservations_ )
@@ -780,6 +797,7 @@ public:
         validateCombinedWeightsMatrix( );
     }
 
+    //! Sets or clears the additional full-matrix weight contribution.
     void setFullWeightMatrix( const Eigen::MatrixXd& fullWeightMatrix )
     {
         if( fullWeightMatrix.rows( ) == 0 && fullWeightMatrix.cols( ) == 0 )
@@ -1010,22 +1028,20 @@ public:
     }
 
 private:
+    //! Canonical weight state stored for the currently active observations.
     struct WeightState
     {
+        //! Base matrix representation used for per-observation weights.
         ObservationWeightsMatrixType matrixType = diagonal_weights_matrix;
+        //! Per-observation diagonal weight vectors (used when matrixType is diagonal).
         std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        //! Per-observation dense blocks (used when matrixType is block-diagonal).
         std::vector< Eigen::MatrixXd > blockWeights;
+        //! Optional additional full contribution over the complete active observation set.
         Eigen::MatrixXd fullWeights;
     };
 
-    struct WeightSubsetData
-    {
-        ObservationWeightsMatrixType matrixType = diagonal_weights_matrix;
-        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
-        std::vector< Eigen::MatrixXd > blockWeights;
-        Eigen::MatrixXd fullWeights;
-    };
-
+    //! Validates that the number of observations matches the number of epochs.
     void validateObservationsAndTimesSize(
             const std::size_t numberOfObservations,
             const std::size_t numberOfTimes,
@@ -1037,6 +1053,7 @@ private:
         }
     }
 
+    //! Validates that an optional per-observation batch is either empty or has the expected size.
     template< typename DataType >
     void validateOptionalBatchSize(
             const std::vector< DataType >& data,
@@ -1050,6 +1067,7 @@ private:
         }
     }
 
+    //! Validates that all observation vectors in the batch have the same dimension.
     void validateConsistentObservationDimensions(
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::string& context ) const
@@ -1063,6 +1081,7 @@ private:
         }
     }
 
+    //! Validates that each observation vector matches the configured single-observation size.
     void validateObservationDimensionsAgainstSingleSize(
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::string& context ) const
@@ -1076,6 +1095,7 @@ private:
         }
     }
 
+    //! Validates that each per-observation vector in a batch has the expected component size.
     template< typename ScalarType >
     void validatePerObservationVectorSize(
             const std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& data,
@@ -1091,6 +1111,7 @@ private:
         }
     }
 
+    //! Validates cross-batch consistency for observations, times, residuals and dependent variables.
     void validateObservationBatchSizes(
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType >& times,
@@ -1103,6 +1124,7 @@ private:
         validateOptionalBatchSize( dependentVariables, observations.size( ), "dependent variable entries", context );
     }
 
+    //! Validates dependent-variable batch size and bookkeeping compatibility.
     void validateDependentVariableBatch(
             const std::vector< Eigen::VectorXd >& dependentVariables,
             const std::size_t expectedObservations,
@@ -1135,6 +1157,7 @@ private:
         }
     }
 
+    //! Resets base weights to unit diagonal and clears the optional full-matrix contribution.
     void resetWeightsToUnitDiagonal( )
     {
         setDiagonalWeightState(
@@ -1142,6 +1165,7 @@ private:
         weightState_.fullWeights.resize( 0, 0 );
     }
 
+    //! Creates one identical diagonal-weight vector per currently active observation.
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > createUniformDiagonalWeights(
             const Eigen::Matrix< double, Eigen::Dynamic, 1 >& singleWeight ) const
     {
@@ -1150,6 +1174,7 @@ private:
         return diagonalWeights;
     }
 
+    //! Stores diagonal base weights and clears block-diagonal storage.
     void setDiagonalWeightState( std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights )
     {
         weightState_.matrixType = diagonal_weights_matrix;
@@ -1157,6 +1182,7 @@ private:
         weightState_.blockWeights.clear( );
     }
 
+    //! Builds the permutation that sorts observation indices by ascending epoch.
     static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
     {
         const std::size_t numberOfObservations = observationTimes.size( );
@@ -1174,6 +1200,7 @@ private:
         return permutation;
     }
 
+    //! Applies a precomputed permutation to a vector in-place.
     template< typename T >
     void reorderVectorInPlace( std::vector< T >& data, const std::vector< std::size_t >& permutation )
     {
@@ -1188,6 +1215,7 @@ private:
         data.swap( reorderedData );
     }
 
+    //! Reorders a square matrix interpreted as observation-sized blocks.
     void reorderSquareMatrixInObservationBlocksInPlace( Eigen::MatrixXd& matrix, const std::vector< std::size_t >& permutation )
     {
         if( matrix.rows( ) == 0 )
@@ -1219,6 +1247,7 @@ private:
         matrix.swap( reorderedMatrix );
     }
 
+    //! Sorts all active observation-aligned containers by ascending observation epoch.
     void orderObservationsAndMetadata( )
     {
         const std::size_t numberOfObservations = observationTimes_.size( );
@@ -1252,6 +1281,7 @@ private:
         }
     }
 
+    //! Updates cached minimum/maximum epochs for the active observation set.
     void updateTimeBounds( )
     {
         if( observationTimes_.size( ) == 0 )
@@ -1265,6 +1295,7 @@ private:
         }
     }
 
+    //! Creates consecutive observation indices [0, ..., N-1].
     std::vector< unsigned int > createSequentialObservationIndices( const unsigned int numberOfObservations ) const
     {
         std::vector< unsigned int > indices( numberOfObservations );
@@ -1275,6 +1306,7 @@ private:
         return indices;
     }
 
+    //! Creates consecutive observation indices with a constant offset.
     std::vector< unsigned int > createSequentialObservationIndicesWithOffset(
             const unsigned int numberOfObservations,
             const unsigned int offset ) const
@@ -1287,6 +1319,7 @@ private:
         return indices;
     }
 
+    //! Applies a constant offset to each observation index in the input list.
     std::vector< unsigned int > applyOffsetToObservationIndices(
             const std::vector< unsigned int >& indices,
             const unsigned int offset ) const
@@ -1300,6 +1333,7 @@ private:
         return offsetIndices;
     }
 
+    //! Concatenates two observation-index lists in-order.
     std::vector< unsigned int > concatenateObservationIndices(
             const std::vector< unsigned int >& firstIndices,
             const std::vector< unsigned int >& secondIndices ) const
@@ -1311,6 +1345,7 @@ private:
         return concatenatedIndices;
     }
 
+    //! Applies a permutation to an index list and returns the permuted indices.
     std::vector< unsigned int > applyPermutationToObservationIndices(
             const std::vector< unsigned int >& indices,
             const std::vector< std::size_t >& permutation ) const
@@ -1329,6 +1364,7 @@ private:
         return permutedIndices;
     }
 
+    //! Returns all observation indices not present in the selected set.
     std::vector< unsigned int > getComplementObservationIndices(
             const unsigned int totalNumberOfObservations,
             const std::vector< unsigned int >& selectedIndices ) const
@@ -1356,6 +1392,7 @@ private:
         return complementIndices;
     }
 
+    //! Extracts a block matrix using observation indices as block selectors.
     Eigen::MatrixXd extractObservationBlockMatrix(
             const Eigen::MatrixXd& matrix,
             const std::vector< unsigned int >& rowObservationIndices,
@@ -1385,6 +1422,7 @@ private:
         return extractedMatrix;
     }
 
+    //! Returns the full-weight contribution for one state (or a size-compatible zero matrix if absent).
     Eigen::MatrixXd getEffectiveFullWeightContributionMatrix(
             const WeightState& weightState,
             const unsigned int numberOfObservations ) const
@@ -1407,6 +1445,7 @@ private:
         return weightState.fullWeights;
     }
 
+    //! Returns the active-filtered cross-correlation block (or zeros if absent).
     Eigen::MatrixXd getEffectiveCrossWeightContributionMatrix(
             const unsigned int currentNumberOfObservations,
             const unsigned int filteredNumberOfObservations ) const
@@ -1431,6 +1470,7 @@ private:
         return fullWeightCrossCorrelationWithFilteredSet_;
     }
 
+    //! Builds the combined full-weight matrix over [active; filtered] observations.
     Eigen::MatrixXd getCombinedFullWeightContributionMatrix(
             const unsigned int currentNumberOfObservations,
             const unsigned int filteredNumberOfObservations ) const
@@ -1468,6 +1508,7 @@ private:
         return combinedFullWeights;
     }
 
+    //! Splits a combined [active; filtered] full-weight matrix back into internal storage blocks.
     void setCombinedFullWeightContributionMatrix(
             const Eigen::MatrixXd& combinedFullWeights,
             const unsigned int currentNumberOfObservations,
@@ -1518,6 +1559,7 @@ private:
         filteredObservationSet_->validateCombinedWeightsMatrix( );
     }
 
+    //! Stores an empty matrix when the contribution is numerically zero to keep sparse semantics.
     Eigen::MatrixXd compressWeightContributionMatrix( const Eigen::MatrixXd& matrix ) const
     {
         if( matrix.rows( ) == 0 || matrix.cols( ) == 0 || matrix.isZero( 0.0 ) )
@@ -1527,6 +1569,7 @@ private:
         return matrix;
     }
 
+    //! Validates that a weight matrix is square and symmetric.
     void validateSymmetricWeightMatrix( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
     {
         if( weightMatrix.rows( ) != weightMatrix.cols( ) )
@@ -1539,6 +1582,7 @@ private:
         }
     }
 
+    //! Validates that a weight matrix is symmetric positive definite.
     void validateWeightMatrixPositiveDefinite( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
     {
         validateSymmetricWeightMatrix( weightMatrix, errorPrefix );
@@ -1549,6 +1593,7 @@ private:
         }
     }
 
+    //! Validates internal consistency and definiteness of the currently active combined weight model.
     void validateCombinedWeightsMatrix( ) const
     {
         if( numberOfObservations_ == 0 )
@@ -1609,18 +1654,22 @@ private:
                 "Error when setting weights in single observation set, combined weights matrix is invalid." );
     }
 
+    //! Extracts the full-weight submatrix corresponding to the selected observation indices.
     Eigen::MatrixXd extractFullWeightMatrixSubset( const std::vector< unsigned int >& indices ) const;
 
-    WeightSubsetData extractWeightSubsetData( const std::vector< unsigned int >& indices ) const;
+    //! Extracts base/full weight data for a selected observation subset.
+    WeightState extractWeightSubsetData( const std::vector< unsigned int >& indices ) const;
 
+    //! Appends a batch of observations together with explicit pre-validated weight payload data.
     void addObservationsWithWeightData(
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType >& times,
             const std::vector< Eigen::VectorXd >& dependentVariables,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-            const WeightSubsetData& weightSubsetData,
+            const WeightState& weightSubsetData,
             const bool sortObservations );
 
+    //! Moves observations between active and filtered sets while preserving weight/residual/dependent-variable consistency.
     void moveObservationsInOutFilteredSet( const std::vector< unsigned int >& indices,
                                            const bool moveInFilteredSet = true,
                                            const bool saveFilteredObservations = true );
@@ -1649,42 +1698,58 @@ private:
         return singleDependentVariable;
     }
 
+    //! Observable type shared by all observations in this set.
     const ObservableType observableType_;
 
+    //! Link-end definition shared by all observations in this set.
     LinkDefinition linkEnds_;
 
+    //! Cached minimum/maximum epoch over the active observations.
     std::pair< TimeType, TimeType > timeBounds_;
 
+    //! Active observed values, one vector per observation epoch.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
+    //! Active observation epochs, aligned with observations_.
     std::vector< TimeType > observationTimes_;
 
+    //! Reference link end used when interpreting the observable.
     const LinkEndType referenceLinkEnd_;
 
+    //! Optional dependent-variable vectors, aligned with observations_.
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
+    //! Bookkeeping object describing dependent-variable layout per observation.
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
+    //! Ancillary settings shared by all observations in this set.
     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
+    //! Number of active observations currently stored.
     unsigned int numberOfObservations_;
 
+    //! Observable size (number of components) per observation.
     unsigned int singleObservationSize_;
 
+    //! Weight state for active observations only.
     WeightState weightState_;
 
     //    Eigen::VectorXd weightsVector_;
 
+    //! Active residual vectors, aligned with observations_.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
+    //! Storage for observations currently filtered out of this set.
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
 
+    //! Full-weight cross block coupling active observations to filtered observations.
     Eigen::MatrixXd fullWeightCrossCorrelationWithFilteredSet_;
 };
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//! Returns a filtered copy of the input single observation set.
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filterObservations(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet,
         const std::shared_ptr< ObservationFilterBase > observationFilter,
@@ -1693,6 +1758,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//! Splits one single observation set into multiple sets according to a splitter configuration.
 std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
         const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,

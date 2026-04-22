@@ -13,10 +13,12 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
+//! Applies an observation filter by moving matching entries between active and filtered storage.
 void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::filterObservations(
         const std::shared_ptr< ObservationFilterBase > observationFilter,
         const bool saveFilteredObservations )
 {
+    // Lazily create filtered storage when filtering-out is requested for the first time.
     if( observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
     {
         // Initialise empty filtered observation set
@@ -47,6 +49,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         return filterOutObservations ? observationTimes_.at( index ) : filteredObservationSet_->getObservationTime( index );
     };
 
+    // Build a predicate that marks observations to be moved for the configured filter type.
     std::function< bool( unsigned int ) > shouldRemoveObservation;
     switch( observationFilter->getFilterType( ) )
     {
@@ -206,6 +209,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 
     std::vector< unsigned int > indicesToRemove;
     indicesToRemove.reserve( nbObservationsToTest );
+    // Evaluate the predicate over the currently active/filter-targeted observations.
     for( unsigned int j = 0; j < nbObservationsToTest; ++j )
     {
         if( shouldRemoveObservation( j ) )
@@ -214,6 +218,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         }
     }
 
+    // Move selected entries to filtered storage or back to active storage.
     if( observationFilter->filterOut( ) )
     {
         moveObservationsInOutFilteredSet( indicesToRemove, true, saveFilteredObservations );
@@ -228,6 +233,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
+//! Appends observations with diagonal weights, enforcing consistency with the current weight model.
 void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::addObservations(
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType >& times,
@@ -238,14 +244,26 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 {
     validateOptionalBatchSize( weights, observations.size( ), "weights", "adding observations to SingleObservationSet" );
 
-    if( weightState_.matrixType != diagonal_weights_matrix || weightState_.fullWeights.rows( ) > 0 )
+    // Full-matrix correlations cannot be safely expanded by this append API.
+    if( weightState_.fullWeights.rows( ) > 0 || fullWeightCrossCorrelationWithFilteredSet_.rows( ) > 0 ||
+        ( filteredObservationSet_ != nullptr &&
+          ( filteredObservationSet_->weightState_.fullWeights.rows( ) > 0 ||
+            filteredObservationSet_->fullWeightCrossCorrelationWithFilteredSet_.rows( ) > 0 ) ) )
+    {
+        throw std::runtime_error(
+                "Error when adding observations to SingleObservationSet: this operation is not supported when full "
+                "weights are defined." );
+    }
+
+    if( weightState_.matrixType != diagonal_weights_matrix )
     {
         std::cerr << "Warning when adding observations to SingleObservationSet: resetting off-diagonal weights to diagonal defaults."
                   << std::endl;
         resetWeightsToUnitDiagonal( );
     }
 
-    WeightSubsetData weightSubsetData;
+    // Convert input diagonal weights into the internal append payload format.
+    WeightState weightSubsetData;
     weightSubsetData.matrixType = diagonal_weights_matrix;
     weightSubsetData.diagonalWeights.reserve( observations.size( ) );
 
@@ -275,6 +293,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
 Eigen::MatrixXd
+//! Extracts the full-weight submatrix induced by a subset of observation indices.
 SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::extractFullWeightMatrixSubset(
         const std::vector< unsigned int >& indices ) const
 {
@@ -305,11 +324,12 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
-typename SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::WeightSubsetData
+typename SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::WeightState
+//! Extracts base/full weight payload for the selected observation indices.
 SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::extractWeightSubsetData(
         const std::vector< unsigned int >& indices ) const
 {
-    WeightSubsetData weightSubset;
+    WeightState weightSubset;
     weightSubset.matrixType = weightState_.matrixType;
 
     if( weightState_.matrixType == diagonal_weights_matrix )
@@ -337,12 +357,13 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
+//! Core append routine that inserts observations together with explicit weight payload data.
 void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::addObservationsWithWeightData(
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType >& times,
         const std::vector< Eigen::VectorXd >& dependentVariables,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-        const WeightSubsetData& weightSubsetData,
+        const WeightState& weightSubsetData,
         const bool sortObservations )
 {
     if( observations.empty( ) )
@@ -350,6 +371,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         return;
     }
 
+    // Validate observation/residual/dependent-variable dimensions before mutating state.
     validateObservationBatchSizes(
             observations,
             times,
@@ -366,6 +388,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                 "Error when adding observations to SingleObservationSet, base weight matrix type is inconsistent with existing data." );
     }
 
+    // Validate weight payload shape against the selected matrix representation.
     if( weightSubsetData.matrixType == diagonal_weights_matrix )
     {
         if( weightSubsetData.diagonalWeights.size( ) != observations.size( ) )
@@ -404,6 +427,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         weightState_.blockWeights.clear( );
     }
 
+    // Append base metadata and per-observation base weights.
     for( unsigned int k = 0; k < observations.size( ); k++ )
     {
         observations_.push_back( observations.at( k ) );
@@ -448,6 +472,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 
     if( weightState_.fullWeights.rows( ) > 0 || weightSubsetData.fullWeights.rows( ) > 0 )
     {
+        // Expand/merge full-weight contribution blocks for old and appended observations.
         Eigen::MatrixXd combinedFullWeights = Eigen::MatrixXd::Zero(
                 oldObservationSetSize + newObservationSetSize, oldObservationSetSize + newObservationSetSize );
         if( weightState_.fullWeights.rows( ) > 0 )
@@ -465,6 +490,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 
     if( sortObservations )
     {
+        // Keep active observations in canonical time-sorted order if requested.
         orderObservationsAndMetadata( );
     }
 
@@ -476,6 +502,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type
                   IsStateScalarAndTimeType >
+//! Moves observations between active and filtered sets while preserving full-weight block consistency.
 void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType >::moveObservationsInOutFilteredSet(
         const std::vector< unsigned int >& indices,
         const bool moveInFilteredSet,
@@ -495,6 +522,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     std::vector< Eigen::VectorXd > dependentVariables;
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
 
+    // Move observations from active storage to filtered storage.
     if( moveInFilteredSet )
     {
         const Eigen::MatrixXd combinedFullWeightsBeforeMove = getCombinedFullWeightContributionMatrix(
@@ -503,7 +531,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         const std::vector< unsigned int > retainedCurrentIndices =
                 getComplementObservationIndices( currentObservationCountBeforeMove, indices );
 
-        WeightSubsetData weightSubsetData;
+        WeightState weightSubsetData;
         if( saveFilteredObservations )
         {
             weightSubsetData = extractWeightSubsetData( indices );
@@ -569,6 +597,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                 currentObservationCountBeforeMove - static_cast< unsigned int >( indices.size( ) ),
                 filteredObservationCountBeforeMove + ( saveFilteredObservations ? static_cast< unsigned int >( indices.size( ) ) : 0 ) );
     }
+    // Move observations from filtered storage back to active storage.
     else
     {
         const Eigen::MatrixXd combinedFullWeightsBeforeMove = getCombinedFullWeightContributionMatrix(
@@ -577,7 +606,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         const std::vector< unsigned int > retainedFilteredIndices =
                 getComplementObservationIndices( filteredObservationCountBeforeMove, indices );
 
-        WeightSubsetData weightSubsetData = filteredObservationSet_->extractWeightSubsetData( indices );
+        WeightState weightSubsetData = filteredObservationSet_->extractWeightSubsetData( indices );
         std::vector< TimeType > currentTimesBeforeSorting = observationTimes_;
         for( auto index : indices )
         {

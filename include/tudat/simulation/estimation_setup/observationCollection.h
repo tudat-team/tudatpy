@@ -692,6 +692,7 @@ public:
         return std::make_pair( getConcatenatedObservations( observationParser ),
                                getConcatenatedDoubleObservationTimes( observationParser ) );
     }
+    //! Returns per-set diagonal weight vectors for all observation sets selected by the parser.
     std::vector< Eigen::VectorXd > getWeights(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
@@ -713,6 +714,7 @@ public:
         return weights;
     }
 
+    //! Checks whether any selected single observation set contains off-diagonal weights.
     bool hasOffDiagonalWeights(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
@@ -734,12 +736,14 @@ public:
         return false;
     }
 
+    //! Builds a block-concatenated sparse weights matrix over all selected observation sets.
     Eigen::SparseMatrix< double > getConcatenatedWeightMatrix(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
                 getSingleObservationSetsIndices( observationParser );
 
+        // First pass: determine total matrix dimension.
         int totalObservationSize = 0;
         for( auto observableIt : observationSetsIndices )
         {
@@ -756,6 +760,7 @@ public:
         Eigen::SparseMatrix< double > weightsMatrix( totalObservationSize, totalObservationSize );
         std::vector< Eigen::Triplet< double > > triplets;
 
+        // Second pass: copy each set's full weight matrix into its global block location.
         int currentStartIndex = 0;
         for( auto observableIt : observationSetsIndices )
         {
@@ -1145,6 +1150,7 @@ public:
         }
     }
 
+    //! Sets one dense block as block-diagonal base weights for all selected observations.
     void setBlockDiagonalWeights(
             const Eigen::MatrixXd weightBlock,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
@@ -1165,6 +1171,7 @@ public:
         }
     }
 
+    //! Sets per-observation block-diagonal base weights for selected sets.
     void setBlockDiagonalWeights(
             const std::vector< Eigen::MatrixXd > blockDiagonalWeights,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
@@ -1221,6 +1228,7 @@ public:
         }
     }
 
+    //! Sets one full weight-matrix contribution for each selected single observation set.
     void setFullWeightMatrix(
             const Eigen::MatrixXd fullWeightMatrix,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
@@ -1250,6 +1258,7 @@ public:
         }
     }
 
+    //! Sets one full weight-matrix contribution per selected single observation set.
     void setFullWeightMatrix(
             const std::vector< Eigen::MatrixXd > fullWeightMatrices,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )

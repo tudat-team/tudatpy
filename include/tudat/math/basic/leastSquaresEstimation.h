@@ -90,6 +90,7 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
                                                            const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
                                                            const double limitConditionNumberForWarning = 1.0E8 );
 
+//! Sparse-weight overload of covariance update including a priori information and optional constraints.
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
                                                            const Eigen::SparseMatrix< double >& weightMatrix,
                                                            const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
@@ -115,6 +116,7 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
                                                                    const Eigen::MatrixXd& considerDesignMatrix,
                                                                    const Eigen::MatrixXd& considerCovariance );
 
+//! Sparse-weight overload for consider-parameter covariance contribution.
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
                                                                    const Eigen::MatrixXd& designMatrix,
                                                                    const Eigen::SparseMatrix< double >& weightMatrix,
@@ -149,6 +151,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
 
+//! Sparse-weight overload of least-squares adjustment with a priori and optional constraints.
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
@@ -178,6 +181,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const double limitConditionNumberForWarning = 1.0E8 );
 
+//! Sparse-weight overload of least-squares adjustment without a priori covariance.
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,

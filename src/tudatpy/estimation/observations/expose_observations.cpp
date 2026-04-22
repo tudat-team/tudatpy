@@ -77,7 +77,6 @@ void expose_observations( py::module& m )
     py::enum_< tom::ObservationWeightsMatrixType >( m, "ObservationWeightsMatrixType" )
             .value( "diagonal_weights_matrix", tom::diagonal_weights_matrix )
             .value( "block_diagonal_weights_matrix", tom::block_diagonal_weights_matrix )
-            .value( "full_weights_matrix", tom::full_weights_matrix )
             .export_values( );
 
     // SINGLE OBSERVATION SET

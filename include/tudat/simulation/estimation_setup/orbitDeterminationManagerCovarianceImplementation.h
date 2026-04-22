@@ -34,6 +34,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
     const Eigen::VectorXd weightsMatrixDiagonal = estimationInput->getWeightsMatrixDiagonals( );
     const bool hasOffDiagonalWeights = estimationInput->hasOffDiagonalWeights( );
+    // Retrieve either sparse full weights (correlated case) or validate diagonal-only input.
     Eigen::SparseMatrix< double > weightsMatrix;
     if( hasOffDiagonalWeights )
     {
@@ -101,6 +102,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
 
     // Compute inverse of updated covariance
     Eigen::MatrixXd inverseNormalizedCovariance;
+    // Build inverse covariance using the same weight representation provided by the estimation input.
     if( hasOffDiagonalWeights )
     {
         inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
@@ -126,6 +128,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::MatrixXd covarianceContributionConsiderParameters;
     if( considerParametersIncluded_ )
     {
+        // Compute consider contribution with the same weighting model used above.
         if( hasOffDiagonalWeights )
         {
             covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(

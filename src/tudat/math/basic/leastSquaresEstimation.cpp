@@ -58,6 +58,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 namespace
 {
 
+//! Applies diagonal weights to each row of the design matrix.
 Eigen::MatrixXd applyWeightsToDesignMatrix( const Eigen::MatrixXd& designMatrix,
                                             const Eigen::VectorXd& diagonalOfWeightMatrix )
 {
@@ -72,6 +73,7 @@ Eigen::MatrixXd applyWeightsToDesignMatrix( const Eigen::MatrixXd& designMatrix,
     return weightedDesignMatrix;
 }
 
+//! Applies a full sparse weight matrix to the design matrix.
 Eigen::MatrixXd applyWeightsToDesignMatrix( const Eigen::MatrixXd& designMatrix,
                                             const Eigen::SparseMatrix< double >& weightMatrix )
 {
@@ -83,18 +85,21 @@ Eigen::MatrixXd applyWeightsToDesignMatrix( const Eigen::MatrixXd& designMatrix,
     return ( weightMatrix * designMatrix ).eval( );
 }
 
+//! Applies diagonal weights to an observation/residual vector.
 Eigen::VectorXd applyWeightsToObservationVector( const Eigen::VectorXd& observationVector,
                                                  const Eigen::VectorXd& diagonalOfWeightMatrix )
 {
     return diagonalOfWeightMatrix.cwiseProduct( observationVector );
 }
 
+//! Applies a full sparse weight matrix to an observation/residual vector.
 Eigen::VectorXd applyWeightsToObservationVector( const Eigen::VectorXd& observationVector,
                                                  const Eigen::SparseMatrix< double >& weightMatrix )
 {
     return weightMatrix * observationVector;
 }
 
+//! Augments the normal matrix with linear constraint rows/columns when constraints are provided.
 void addConstraintsToInverseCovarianceMatrix( Eigen::MatrixXd& inverseOfCovarianceMatrix,
                                               const Eigen::MatrixXd& designMatrix,
                                               const Eigen::MatrixXd& constraintMultiplier,
@@ -126,6 +131,7 @@ void addConstraintsToInverseCovarianceMatrix( Eigen::MatrixXd& inverseOfCovarian
 }
 
 template< typename WeightType >
+//! Shared implementation for dense-diagonal and sparse full-weight covariance updates.
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrixImplementation(
         const Eigen::MatrixXd& designMatrix,
         const WeightType& weightData,
@@ -133,14 +139,17 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrixImplementation(
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside )
 {
+    // Build normal matrix: H^T W H + P0^-1.
     Eigen::MatrixXd inverseOfCovarianceMatrix =
             inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * applyWeightsToDesignMatrix( designMatrix, weightData );
+    // Append constraint equations when requested.
     addConstraintsToInverseCovarianceMatrix(
             inverseOfCovarianceMatrix, designMatrix, constraintMultiplier, constraintRightHandside );
     return inverseOfCovarianceMatrix;
 }
 
 template< typename WeightType >
+//! Shared implementation for consider-parameter covariance contribution with generic weight representation.
 Eigen::MatrixXd calculateConsiderParametersCovarianceContributionImplementation(
         const Eigen::MatrixXd& normalisedCovarianceMatrix,
         const Eigen::MatrixXd& designMatrix,
@@ -155,6 +164,7 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContributionImplementation(
 }
 
 template< typename WeightType >
+//! Shared least-squares implementation for diagonal and sparse full weight inputs.
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrixImplementation(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
@@ -166,6 +176,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters,
         const Eigen::VectorXd& considerParametersDeviations )
 {
+    // Build weighted right-hand side, including consider-parameter deviations when provided.
     Eigen::VectorXd weightedRightHandSideArgument = observationResiduals;
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
@@ -181,6 +192,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                                      constraintMultiplier,
                                                                      constraintRightHandside );
 
+    // Extend RHS with constraint values in the augmented system.
     if( constraintMultiplier.rows( ) != 0 )
     {
         int numberOfConstraints = constraintMultiplier.rows( );
@@ -190,6 +202,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
     }
 
+    // Solve normal equations and return both correction and assembled normal matrix.
     return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
                            inverseOfCovarianceMatrix );
 }

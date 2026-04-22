@@ -423,11 +423,13 @@ public:
         return observationCollection_->getConcatenatedWeights( );
     }
 
+    //! Function to return the full sparse observation weight matrix.
     Eigen::SparseMatrix< double > getWeightsMatrix( )
     {
         return observationCollection_->getConcatenatedWeightMatrix( );
     }
 
+    //! Function to check whether current observation weights contain off-diagonal terms.
     bool hasOffDiagonalWeights( )
     {
         return observationCollection_->hasOffDiagonalWeights( );

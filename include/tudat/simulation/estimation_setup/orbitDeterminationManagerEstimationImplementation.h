@@ -49,6 +49,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     const Eigen::VectorXd weightsMatrixDiagonal = estimationInput->getWeightsMatrixDiagonals( );
     const bool hasOffDiagonalWeights = estimationInput->hasOffDiagonalWeights( );
+    // Retrieve either the sparse full matrix (correlated case) or validate diagonal-only input.
     Eigen::SparseMatrix< double > weightsMatrix;
     if( hasOffDiagonalWeights )
     {
@@ -179,7 +180,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             {
                 conditionNumberCheck = TUDAT_NAN;
             }
-            // Perform LSQ inversion
+            // Perform LSQ inversion using either sparse full weights or diagonal weights.
             if( hasOffDiagonalWeights )
             {
                 leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
@@ -229,6 +230,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
         {
+            // Compute consider-parameter contribution with the same weight representation used in the normal matrix.
             if( hasOffDiagonalWeights )
             {
                 covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(

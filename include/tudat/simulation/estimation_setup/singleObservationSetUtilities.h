@@ -12,6 +12,7 @@ namespace observation_models
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
+//! Creates a filtered copy of a single observation set, preserving weights and residuals.
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filterObservations(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet,
         const std::shared_ptr< ObservationFilterBase > observationFilter,
@@ -24,6 +25,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                 "option should be set to true" );
     }
 
+    // Clone metadata, values and weights before applying the filter in-place on the clone.
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
             std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
                     singleObservationSet->getObservableType( ),
@@ -55,11 +57,18 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
+//! Splits one observation set into multiple sets according to a splitter rule.
 std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
         const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,
         const bool printWarning )
 {
+    if( observationSet->hasFullWeightMatrixContribution( ) )
+    {
+        throw std::runtime_error(
+                "Error when splitting single observation set: this operation is not supported when full weights are defined." );
+    }
+
     if( printWarning && observationSet->getFilteredObservationSet( ) != nullptr )
     {
         std::cerr << "Warning when splitting single observation set, the filtered observation set "
@@ -68,6 +77,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                   << std::endl;
     }
 
+    // Gather source data that will be partitioned into new observation sets.
     std::vector< int > rawStartIndicesNewSets = { 0 };
     std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
@@ -75,16 +85,12 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getBaseWeightsDiagonalVector( );
     ObservationWeightsMatrixType weightsMatrixType = observationSet->getWeightsMatrixType( );
     std::vector< Eigen::MatrixXd > blockWeights;
-    Eigen::MatrixXd fullWeights;
     if( weightsMatrixType == block_diagonal_weights_matrix )
     {
         blockWeights = observationSet->getBlockDiagonalWeightMatrices( );
     }
-    if( observationSet->hasFullWeightMatrixContribution( ) )
-    {
-        fullWeights = observationSet->getFullWeightMatrix( );
-    }
 
+    // Compute raw split boundaries according to the selected splitter mode.
     switch( observationSetSplitter->getSplitterType( ) )
     {
         case time_tags_splitter: {
@@ -161,6 +167,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             throw std::runtime_error( "Observation set splitter type not recognised." );
     }
 
+    // Convert raw boundaries to [start, size] pairs while enforcing minimum set size.
     std::vector< std::pair< int, int > > indicesNewSets;
     for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
     {
@@ -171,6 +178,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
         }
     }
 
+    // Materialize each split as a new single observation set with consistent weights/residuals.
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets;
     for( unsigned int k = 0; k < indicesNewSets.size( ); k++ )
     {
@@ -211,13 +219,6 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 newBlockWeights.push_back( blockWeights.at( startIndex + i ) );
             }
             newSet->setBlockDiagonalWeights( newBlockWeights );
-        }
-        if( fullWeights.rows( ) > 0 )
-        {
-            const int blockSize = static_cast< int >( observationSet->getSingleObservableSize( ) );
-            const int matrixStart = startIndex * blockSize;
-            const int matrixSize = sizeCurrentSet * blockSize;
-            newSet->setFullWeightMatrix( fullWeights.block( matrixStart, matrixStart, matrixSize, matrixSize ) );
         }
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
