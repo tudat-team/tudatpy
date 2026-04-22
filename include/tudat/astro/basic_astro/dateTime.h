@@ -11,6 +11,8 @@
 #ifndef TUDAT_DATETIME_H
 #define TUDAT_DATETIME_H
 
+#include <algorithm>
+#include <array>
 #include <chrono>
 #include <ctime>
 
@@ -93,6 +95,24 @@ TimeType timeFromIsoString( const std::string &isoTime )
 
     decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
     return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
+}
+
+inline bool isLeapSecondDay( const int year, const int month, const int day )
+{
+    static const std::array< int, 27 > leapSecondIntroductionDays = {
+        julianDayNumberFromDate( 1972, 7, 1 ), julianDayNumberFromDate( 1973, 1, 1 ), julianDayNumberFromDate( 1974, 1, 1 ),
+        julianDayNumberFromDate( 1975, 1, 1 ), julianDayNumberFromDate( 1976, 1, 1 ), julianDayNumberFromDate( 1977, 1, 1 ),
+        julianDayNumberFromDate( 1978, 1, 1 ), julianDayNumberFromDate( 1979, 1, 1 ), julianDayNumberFromDate( 1980, 1, 1 ),
+        julianDayNumberFromDate( 1981, 7, 1 ), julianDayNumberFromDate( 1982, 7, 1 ), julianDayNumberFromDate( 1983, 7, 1 ),
+        julianDayNumberFromDate( 1985, 7, 1 ), julianDayNumberFromDate( 1988, 1, 1 ), julianDayNumberFromDate( 1990, 1, 1 ),
+        julianDayNumberFromDate( 1991, 1, 1 ), julianDayNumberFromDate( 1992, 7, 1 ), julianDayNumberFromDate( 1993, 7, 1 ),
+        julianDayNumberFromDate( 1994, 7, 1 ), julianDayNumberFromDate( 1996, 1, 1 ), julianDayNumberFromDate( 1997, 7, 1 ),
+        julianDayNumberFromDate( 1999, 1, 1 ), julianDayNumberFromDate( 2006, 1, 1 ), julianDayNumberFromDate( 2009, 1, 1 ),
+        julianDayNumberFromDate( 2012, 7, 1 ), julianDayNumberFromDate( 2015, 7, 1 ), julianDayNumberFromDate( 2017, 1, 1 ) };
+
+    const int followingJulianDay = julianDayNumberFromDate( year, month, day ) + 1;
+    return std::find( leapSecondIntroductionDays.begin( ), leapSecondIntroductionDays.end( ), followingJulianDay ) !=
+            leapSecondIntroductionDays.end( );
 }
 
 struct DateTime {
@@ -369,6 +389,31 @@ public:
 
         long double seconds = time.getSecondsIntoFullPeriod( ) - static_cast< long double >( 60 * minute );
 
+        // Leap-second epochs are normalized to the next day by the Time type; restore a 23:59:60 <= s < 61 representation here.
+        if( hour == 0 && minute == 0 && fullDaysSinceMidnightJD0 > 0 )
+        {
+            int previousDay, previousMonth, previousYear;
+            basic_astrodynamics::convertShiftedJulianDayToCalendarDate< int >(
+                    fullDaysSinceMidnightJD0 - 1, previousDay, previousMonth, previousYear );
+
+            if( basic_astrodynamics::isLeapSecondDay( previousYear, previousMonth, previousDay ) )
+            {
+                if( seconds >= 0.0L && seconds < 1.0L )
+                {
+                    long double leapSecondValue = 60.0L + seconds;
+                    if( leapSecondValue >= 61.0L )
+                    {
+                        leapSecondValue = std::nextafter( 61.0L, 0.0L );
+                    }
+                    return DateTime( previousYear, previousMonth, previousDay, 23, 59, leapSecondValue );
+                }
+                if( seconds == 1.0L )
+                {
+                    return DateTime( year, month, day, 0, 0, 0.0L );
+                }
+            }
+        }
+
         return DateTime( year, month, day, hour, minute, seconds );
     }
 
@@ -446,12 +491,20 @@ protected:
 
     void verifySeconds( )
     {
-        if( seconds_ > 60.0L || seconds_ < 0.0L || ( seconds_ != seconds_ ) )
+        if( seconds_ >= 61.0L || seconds_ < 0.0L || ( seconds_ != seconds_ ) )
         {
             throw std::runtime_error( "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ) +
                                       ", full date time was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) + ", " +
                                       std::to_string( day_ ) + ", " + std::to_string( hour_ ) + ", " + std::to_string( minute_ ) + ", " +
                                       std::to_string( seconds_ ) );
+        }
+
+        if( seconds_ >= 60.0L && ( hour_ != 23 || minute_ != 59 || !basic_astrodynamics::isLeapSecondDay( year_, month_, day_ ) ) )
+        {
+            throw std::runtime_error( "Error when creating Tudat DateTime, a value of 60 <= seconds < 61 is only valid for leap "
+                                      "second dates at 23:59:60 <= seconds < 61. Input was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) +
+                                      ", " + std::to_string( day_ ) + ", " + std::to_string( hour_ ) + ", " +
+                                      std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
         }
     }
 };
