@@ -212,7 +212,7 @@ public:
                 selectedLookupScheme,
                 boundaryHandling,
                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
-                period )
+                period ){ }
 
     //! Default destructor
     /*!
