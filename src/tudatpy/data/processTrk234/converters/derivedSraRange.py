@@ -2,16 +2,17 @@ from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_r
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 
-from tudatpy.estimation.observations import create_single_observation_set
+from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
 
 from . import RadioBase
+from trk234 import SFDU
 from pandas import DataFrame
 import numpy as _np
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 class DerivedSraRangeConverter(RadioBase):
-    def extract(self, sfdu_list):
+    def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent SRA Range data.
         # - SRA Range format_code == 7
         # - Only keep decoded ones
@@ -53,7 +54,7 @@ class DerivedSraRangeConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(self, range_df, spacecraftName):
+    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> list[SingleObservationSet]:
 
         observation_set_list = []
         for link_end in range_df["link_ends"].unique():
@@ -84,7 +85,7 @@ class DerivedSraRangeConverter(RadioBase):
                             ]
                             station = link_end[2] if len(link_end) == 3 else link_end[1]
                             epoch_seconds = [
-                                self.from_datetime_to_TBD(row["epoch"], station)
+                                self.from_datetime_UTC_to_TDB(row["epoch"], station)
                             ]
                             observation_set = create_single_observation_set(
                                 ObservableType.dsn_n_way_range_type,
@@ -98,7 +99,7 @@ class DerivedSraRangeConverter(RadioBase):
 
         return observation_set_list
 
-    def get_link_delays(self, sfdu):
+    def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """
         Returns the transmit time tag delay, spacecraft transmit delay, and receive time tag delay for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function. If the ruToSeconds parameter is provided,
@@ -167,7 +168,7 @@ class DerivedSraRangeConverter(RadioBase):
 
         return (uplinkDelay, scft_transpd_delay, downlinkDelay)
 
-    def get_zero_phase_times(self, sfdu):
+    def get_zero_phase_times(self, sfdu: SFDU) -> tuple[datetime, datetime]:
         """
         Get the zero phase times from the three way SRA Range.
 
