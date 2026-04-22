@@ -405,6 +405,24 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testIsoInitializationLeapSecond )
+{
+    const std::string leapSecondIsoString = "2016-12-31T23:59:60.5";
+    DateTime leapSecondFromIso = DateTime::fromIsoString( leapSecondIsoString );
+    DateTime referenceLeapSecond( 2016, 12, 31, 23, 59, 60.5L );
+
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getYear( ), 2016 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getMonth( ), 12 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getDay( ), 31 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getHour( ), 23 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getMinute( ), 59 );
+    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) -
+                                                           referenceLeapSecond.epoch< Time >( ) ) ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+}
+
 BOOST_AUTO_TEST_CASE( testDateTimeDayInYearConversions )
 {
     {
