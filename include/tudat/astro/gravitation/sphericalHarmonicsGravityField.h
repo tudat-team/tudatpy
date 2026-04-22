@@ -18,7 +18,6 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -729,8 +728,15 @@ public:
 
     virtual Eigen::Vector3d getCenterOfMass( )
     {
-        return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) ).finished( ) /
-                referenceRadius_ * std::sqrt( 3.0 );
+        if( cosineCoefficients_.size( ) > 1 && sineCoefficients_.size(  ) > 1 )
+        {
+            return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) ).finished( ) /
+                    referenceRadius_ * std::sqrt( 3.0 );
+        }
+        else
+        {
+            return Eigen::Vector3d::Zero( );
+        }
     }
 
     virtual Eigen::Matrix3d getInertiaTensor( );

@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_environment.h"
 
 #include <pybind11/chrono.h>
@@ -17,9 +19,33 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/astro/aerodynamics.h>
-#include <tudat/astro/ephemerides.h>
-#include <tudat/astro/gravitation.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/atmosphereModel.h>
+#include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/flightConditions.h>
+#include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/basic_astro/ionosphereModel.h>
+#include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
+#include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
+#include <tudat/astro/electromagnetism/radiationSourceModel.h>
+#include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/constantEphemeris.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/itrsToGcrsRotationModel.h>
+#include <tudat/astro/ephemerides/keplerEphemeris.h>
+#include <tudat/astro/ephemerides/multiArcEphemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/ephemerides/synchronousRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/tabulatedEphemeris.h>
+#include <tudat/astro/ephemerides/tleEphemeris.h>
+#include <tudat/astro/gravitation/gravityFieldModel.h>
+#include <tudat/astro/gravitation/gravityFieldVariations.h>
+#include <tudat/astro/gravitation/polyhedronGravityField.h>
+#include <tudat/astro/gravitation/sphericalHarmonicsGravityField.h>
+#include <tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h>
+#include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
 
 #include "scalarTypes.h"
@@ -264,15 +290,35 @@ void expose_environment( py::module& m )
                            py::overload_cast< const std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
                                    &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator ) );
 
-    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
+    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle", R"doc(
+
+ Tle object containing the SGP/SDP model parameters as derived from the element set.
+
+ .. note::
+
+        This class is typically used together with the :class:`~TleEphemeris` class, which uses the TLE data to compute the state of a satellite at a given epoch.
+
+ )doc" )
             .def( py::init<  // ctor 1
                           const std::string& >( ),
-                  py::arg( "lines" ) )
+                  py::arg( "lines" ),
+                  R"doc(
+
+                Initialize TLE object from a single string containing the TLE data, delimited by a newline character.
+
+                :type: str
+                )doc" )
             .def( py::init<  // ctor 2
                           const std::string&,
                           const std::string& >( ),
                   py::arg( "line_1" ),
-                  py::arg( "line_2" ) )
+                  py::arg( "line_2" ),
+                  R"doc(
+
+                Initialize TLE object from separate strings for the first and second lines of the TLE.
+
+                :type: str
+                )doc" )
             .def_property_readonly( "reference_epoch",
                                     &te::Tle::getEpoch,
                                     R"doc(
@@ -475,7 +521,14 @@ void expose_environment( py::module& m )
                   py::arg( "frame_orientation" ) = "J2000",
                   py::arg( "tle" ) = nullptr,
                   py::arg( "use_sdp" ) = false )
-            .def_property_readonly( "tle", &te::TleEphemeris::getTle );
+            .def_property_readonly( "tle", &te::TleEphemeris::getTle, R"doc(
+
+                **read-only**
+
+                Tle object which holds the properties of the TLE set.
+
+                :type: Tle
+                )doc" );
 
     /*!
      **************   END EPHEMERIDES  ******************

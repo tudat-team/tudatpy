@@ -14,8 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -161,6 +159,11 @@ void testObservationPartials(
         double observationTime = 1.1E7,
         const double gammaToleranceWeakening = 1.0 )
 {
+    bool isNormalized = false;
+    if( std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel ) != nullptr )
+    {
+        isNormalized = std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel )->getNormalizeRightAscension(  );
+    }
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
     // Retrieve double and vector parameters and estimate body states
@@ -344,7 +347,7 @@ void testObservationPartials(
                     }
 
                     // Test position partial
-                    if( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
+                    if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) && ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
@@ -454,8 +457,8 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
-                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial
-                                  << " " << numericalPartialsWrtDoubleParameters.at( i ) << " "
+                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << ", " << currentParameterPartial
+                                  << ", " << numericalPartialsWrtDoubleParameters.at( i ) << ", "
                                   << ( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) /
                                         numericalPartialsWrtDoubleParameters.at( i )( 0 )
                                   << std::endl;

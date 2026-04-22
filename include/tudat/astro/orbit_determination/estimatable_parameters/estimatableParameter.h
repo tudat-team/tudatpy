@@ -23,6 +23,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 namespace tudat

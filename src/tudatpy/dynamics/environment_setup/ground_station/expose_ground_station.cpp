@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_ground_station.h"
 
 #include <pybind11/complex.h>
@@ -307,7 +309,7 @@ void expose_ground_station_setup( py::module& m )
  Function for creating settings for existing MPC stations.
  Observatories cartesian coordinates were converted using parallax info (rho_cos_phi, rho_sin_phi)
  from Project Pluto's list: https://www.projectpluto.com/mpc_stat.txt,
- which has them in geodetic cordinates. Some station positions (e.g. amateur observatories positions) might lack accuracy,
+ which has them in geodetic coordinates. Some station positions (e.g. amateur observatories positions) might lack accuracy,
  especially in altitude, as it is sometimes not clear whether their altitude has to be intended as a geodetic or ellipsoidal altitude.
  For more info and insights, please check the following discussion: https://www.projectpluto.com/mpc_stat.htm.
 
@@ -315,6 +317,60 @@ void expose_ground_station_setup( py::module& m )
  -------
  list[ GroundStationSettings ]
      List of settings to create MPC stations
+
+     )doc" );
+
+    m.def( "default_ilrs_sinex_state_file",
+           &tss::getDefaultIlrsSinexStateFilePath,
+           R"doc(
+
+ Return the default SINEX station-state file path for ILRS station loading.
+
+ Returns
+ -------
+ str
+     Path to the default ILRS SINEX state file in Tudat resources.
+
+     )doc" );
+
+    m.def( "default_ilrs_sinex_eccentricity_file",
+           &tss::getDefaultIlrsSinexEccentricityFilePath,
+           R"doc(
+
+ Return the default SINEX station-eccentricity file path for ILRS station loading.
+
+ Returns
+ -------
+ str
+     Path to the default ILRS SINEX eccentricity file in Tudat resources.
+
+     )doc" );
+
+    m.def( "ilrs_stations_from_sinex_domes",
+           &tss::getIlrsStationSettingsFromSinexDomes,
+           py::arg( "domes_ids" ),
+           py::arg( "sinex_state_file" ),
+           py::arg( "sinex_eccentricity_file" ),
+           py::arg( "throw_exception_on_missing_data" ) = false,
+           R"doc(
+
+ Function for creating ILRS station settings from SINEX state/eccentricity files using IERS DOMES identifiers.
+
+ Parameters
+ ----------
+ domes_ids : List[str]
+     List of IERS DOMES identifiers to load (for example, ``["14201S018"]`` for Wettzell).
+ sinex_state_file : str
+     Path to SINEX station-state file (position/velocity).
+ sinex_eccentricity_file : str
+     Path to SINEX eccentricity file. Set to an empty string to disable eccentricity offsets.
+ throw_exception_on_missing_data : bool, default = False
+     Whether to throw when requested stations cannot be mapped or found.
+
+ Returns
+ -------
+ list[ GroundStationSettings ]
+     Ground station settings for the selected ILRS DOMES stations.
 
      )doc" );
 

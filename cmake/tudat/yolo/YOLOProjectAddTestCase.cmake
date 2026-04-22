@@ -79,10 +79,34 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                 "${TudatResources_INCLUDE_DIRS}"
                 )
 
+        set(test_private_links ${PARSED_ARGS_PRIVATE_LINKS})
+        if (CMAKE_UNITY_BUILD)
+            list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
+        endif ()
+
+        # Unity build on Linux can expose circular static-library dependencies;
+        # GNU ld resolves archives in one pass unless grouped.
+        set(test_private_link_items ${test_private_links})
+        if (CMAKE_UNITY_BUILD AND TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            set(test_private_link_items
+                    -Wl,--start-group
+                    ${test_private_links}
+                    -Wl,--end-group
+                    )
+        endif ()
+
         target_link_libraries("${target_name}"
-                PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
+                PUBLIC ${test_private_link_items}
                 PRIVATE "${Boost_LIBRARIES}"
                 )
+
+        if (TUDAT_BUILD_WITH_PCH)
+            if (DEFINED TUDAT_TEST_PCH_REUSE_TARGET AND TARGET "${TUDAT_TEST_PCH_REUSE_TARGET}")
+                target_precompile_headers("${target_name}" REUSE_FROM "${TUDAT_TEST_PCH_REUSE_TARGET}")
+            elseif (DEFINED TUDAT_TEST_PCH_HEADERS)
+                target_precompile_headers("${target_name}" PRIVATE ${TUDAT_TEST_PCH_HEADERS})
+            endif ()
+        endif ()
 
         #==========================================================================
         # BUILD-TREE.
@@ -90,6 +114,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         set_target_properties(${target_name}
                 PROPERTIES
                 LINKER_LANGUAGE CXX
+                UNITY_BUILD OFF
                 ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
                 LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
                 RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/tests"

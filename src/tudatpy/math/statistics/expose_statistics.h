@@ -13,8 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/math/statistics.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

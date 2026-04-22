@@ -15,7 +15,7 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
@@ -30,6 +30,7 @@
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
 {

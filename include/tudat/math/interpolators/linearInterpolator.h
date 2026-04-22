@@ -18,8 +18,6 @@
 #ifndef TUDAT_LINEAR_INTERPOLATOR_H
 #define TUDAT_LINEAR_INTERPOLATOR_H
 
-#include <boost/multi_array.hpp>
-#include <boost/array.hpp>
 #include <memory>
 
 #include <Eigen/Core>
@@ -134,6 +132,7 @@ public:
                 period )
     { }
 
+
     //! Constructor from vectors of independent and dependent data.
     /*!
      *  This constructor initializes the interpolator from two vectors containing the independent
@@ -214,13 +213,12 @@ public:
                 boundaryHandling,
                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
                 period )
-    { }
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~LinearInterpolator( ) { }
+    ~LinearInterpolator( ) {}
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!

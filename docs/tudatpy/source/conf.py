@@ -19,7 +19,12 @@
 
 import os
 import sys
+import importlib
+import re
 from datetime import datetime
+
+from sphinx.util import logging as sphinx_logging
+LOGGER = sphinx_logging.getLogger(__name__)
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -43,6 +48,32 @@ if bool(os.getenv("READTHEDOCS")) is True:
 else:
     # when building locally, use the binaries generated with tudat-bundle
     sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+
+
+def has_mcd_support():
+    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+    try:
+        atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
+    except Exception:
+        return False
+    return hasattr(atmosphere, "mcd")
+
+
+HAS_MCD_SUPPORT = has_mcd_support()
+
+
+def filter_mcd_docs(app, docname, source):
+    """Hide MCD docs when the imported tudatpy build has no MCD support."""
+    if docname != "dynamics/environment_setup/atmosphere" or HAS_MCD_SUPPORT:
+        return
+
+    text = source[0]
+    text = text.replace("\n   mcd\n", "\n")
+    text = text.replace(
+        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
+        "\n",
+    )
+    source[0] = text
 
 # -- General configuration ------------------------------------------------
 
@@ -77,7 +108,7 @@ autodoc_member_order = "groupwise"
 
 
 autodoc_default_options = {
-    "show-inheritance": True
+    "show-inheritance": True,
 }
 
 bibtex_bibfiles = ["refs.bib"]
@@ -121,9 +152,175 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         lines.clear()
         # retrieve variable type directly from the object
         lines.append(f":type: {type(obj).__name__}")
-        
-import re
 
+
+NUMPY_DOCSTRING_SECTION_TITLES = {
+    "Parameters",
+    "Returns",
+    "Yields",
+    "Raises",
+    "Warns",
+    "Warnings",
+    "Examples",
+    "Notes",
+    "See Also",
+    "Attributes",
+    "Methods",
+    "References",
+}
+
+
+def _leading_whitespace_width(text: str) -> int:
+    """Return indentation width of a line in spaces."""
+    return len(text) - len(text.lstrip())
+
+
+def _is_dash_underline(text: str) -> bool:
+    """Return whether a line is a non-empty dash-only underline."""
+    stripped = text.strip()
+    return bool(stripped) and set(stripped) == {"-"}
+
+
+def _is_numpy_section_header(lines, index: int) -> bool:
+    """Check whether lines[index:index+2] form a NumPy-style section header.
+    
+    The section header consists of a title line (with text in NUMPY_DOCSTRING_SECTION_TITLES) followed by an underline line of dashes.
+    The title and underline must have the same indentation, and the underline must be at least as
+    long as the title.
+    """
+
+    if index + 1 >= len(lines):
+        return False
+
+    title_line = lines[index]
+    underline_line = lines[index + 1]
+    title = title_line.strip()
+
+    if title not in NUMPY_DOCSTRING_SECTION_TITLES:
+        return False
+
+    if not _is_dash_underline(underline_line):
+        return False
+
+    if _leading_whitespace_width(title_line) != _leading_whitespace_width(underline_line):
+        return False
+
+    if len(underline_line.strip()) < len(title):
+        return False
+
+    return True
+
+
+def _is_overloaded_pybind_docstring(lines) -> bool:
+    """Detect pybind-generated overloaded-function docstrings."""
+    return any(line.strip() == "Overloaded function." for line in lines[:3])
+
+
+def _rewrite_overloaded_list_items(lines):
+    """Rewrite numbered overload entries into labeled code-style signatures.
+    
+    This function detects lines of the form "   1. signature" in pybind-generated docstrings for overloaded functions and rewrites them into a more Sphinx-friendly format:
+         Overload 1:
+         ``signature``
+    This allows Sphinx to correctly parse the signatures and display them in the documentation, rather than treating them as plain text list items.
+    """
+
+    OVERLOAD_LIST_ITEM_PATTERN = re.compile(r"^(\s*)(\d+)\.\s+(.*)$")
+
+    rewritten_lines = []
+    for line in lines:
+        match = OVERLOAD_LIST_ITEM_PATTERN.match(line)
+        if match is None:
+            rewritten_lines.append(line)
+            continue
+
+        indent, index, signature = match.groups()
+        rewritten_lines.append(f"{indent}Overload {index}:")
+        rewritten_lines.append(f"{indent}``{signature}``")
+
+    return rewritten_lines
+
+
+def _dedent_to_numpy_headers(lines):
+    """Dedent all docstring lines to the minimum NumPy-section header indent.
+    
+    This function detects all NumPy-style section headers in the docstring and computes the minimum indentation among them. It then dedents all lines by that amount, ensuring that section headers are flush with the left margin and that relative indentation within sections is preserved.
+    """
+
+    header_indents = []
+
+    for i in range(len(lines) - 1):
+        title = lines[i].strip()
+        underline = lines[i + 1]
+
+        if (
+            title in NUMPY_DOCSTRING_SECTION_TITLES
+            and _is_dash_underline(underline)
+            and len(underline.strip()) >= len(title)
+        ):
+            header_indents.append(_leading_whitespace_width(lines[i]))
+
+    if not header_indents:
+        return lines
+
+    base_indent = min(header_indents)
+
+    return [
+        line[base_indent:]
+        if _leading_whitespace_width(line) >= base_indent
+        else line
+        for line in lines
+    ]
+
+
+def fix_docstring_section_title_spacing(app, what, name, obj, options, lines):
+    """Fix docstring section title spacing for Sphinx parsing.
+    
+    This function processes docstrings to ensure that NumPy-style section headers are correctly recognized by Sphinx. It detects section headers, ensures they are flush with the left margin, and that they are followed by an empty line if needed. This allows Sphinx to properly parse the sections and display them in the documentation.
+    This fixes `CRITICAL: Unexpected section title.` errors in the Sphinx build.
+    """
+
+    if not lines:
+        return
+
+    try:
+        working_lines = list(lines)
+
+        if _is_overloaded_pybind_docstring(working_lines):
+            working_lines = _rewrite_overloaded_list_items(working_lines)
+
+        working_lines = _dedent_to_numpy_headers(working_lines)
+
+        normalized_lines = []
+        i = 0
+
+        while i < len(working_lines):
+            if _is_numpy_section_header(working_lines, i):
+                normalized_lines.append(working_lines[i])
+                normalized_lines.append(working_lines[i + 1])
+
+                has_content_line = (i + 2) < len(working_lines)
+                missing_empty_line = has_content_line and working_lines[i + 2].strip() != ""
+                if missing_empty_line:
+                    empty_line = " " * _leading_whitespace_width(working_lines[i])
+                    normalized_lines.append(empty_line)
+
+                i += 2
+                continue
+
+            normalized_lines.append(working_lines[i])
+            i += 1
+
+        lines[:] = normalized_lines
+
+    except Exception as exc:
+
+        LOGGER.warning(
+            f"Docstring preprocessing failed for {{{name}}} ({what}): {exc}. Leaving original docstring unchanged.",
+            exc_info=True,
+        )
+        return
+        
 def replace_annotated_nparrays(text: str) -> str:
     """
     Replace typing.Annotated[numpy.typing.ArrayLike, <dtype>, "[<shape>]"]
@@ -166,6 +363,7 @@ def replace_annotated_nparrays(text: str) -> str:
 
     return text
 
+
 def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
 
 
@@ -196,10 +394,14 @@ def simplify_signature_types(app, what, name, obj, options, signature, return_an
         return_annotation = replace_annotated_nparrays(return_annotation)
 
     return signature, return_annotation
-    
+
+
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
+    # run before default-priority (500) docstring processors
+    app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
+    app.connect("source-read", filter_mcd_docs)
     
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -345,7 +547,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "pagmo": ("https://esa.github.io/pagmo2/", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
 }

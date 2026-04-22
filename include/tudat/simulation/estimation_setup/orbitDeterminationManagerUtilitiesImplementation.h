@@ -1,0 +1,183 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_ORBITDETERMINATIONMANAGERUTILITIESIMPLEMENTATION_H
+#define TUDAT_ORBITDETERMINATIONMANAGERUTILITIESIMPLEMENTATION_H
+
+#include <cmath>
+#include <stdexcept>
+#include <string>
+
+#include "tudat/astro/observation_models/observationManager.h"
+#include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getObservationSimulators( ) const
+{
+    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+            observationSimulators;
+
+    for( typename std::map< observation_models::ObservableType,
+                            std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::
+                 const_iterator managerIterator = observationManagers_.begin( );
+         managerIterator != observationManagers_.end( );
+         managerIterator++ )
+    {
+        observationSimulators.push_back( managerIterator->second->getObservationSimulator( ) );
+    }
+
+    return observationSimulators;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::MatrixXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeAprioriCovariance(
+        const Eigen::MatrixXd& inverseAPrioriCovariance,
+        const Eigen::VectorXd& normalizationValues )
+{
+    int numberOfEstimatedParameters = inverseAPrioriCovariance.rows( );
+    Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix =
+            Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
+
+    for( int j = 0; j < numberOfEstimatedParameters; j++ )
+    {
+        for( int k = 0; k < numberOfEstimatedParameters; k++ )
+        {
+            normalizedInverseAprioriCovarianceMatrix( j, k ) =
+                    inverseAPrioriCovariance( j, k ) / ( normalizationValues( j ) * normalizationValues( k ) );
+        }
+    }
+    return normalizedInverseAprioriCovarianceMatrix;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::MatrixXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeCovariance(
+        const Eigen::MatrixXd& covariance,
+        const Eigen::VectorXd& normalizationFactors )
+{
+    int numberParameters = covariance.rows( );
+    Eigen::MatrixXd normalizedCovariance = Eigen::MatrixXd::Zero( numberParameters, numberParameters );
+    for( int j = 0; j < numberParameters; j++ )
+    {
+        for( int k = 0; k < numberParameters; k++ )
+        {
+            normalizedCovariance( j, k ) = covariance( j, k ) * ( normalizationFactors( j ) * normalizationFactors( k ) );
+        }
+    }
+    return normalizedCovariance;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeDesignMatrix(
+        Eigen::MatrixXd& observationMatrix )
+{
+    Eigen::VectorXd normalizationTerms = Eigen::VectorXd( observationMatrix.cols( ) );
+
+    for( int i = 0; i < observationMatrix.cols( ); i++ )
+    {
+        Eigen::VectorXd currentVector = observationMatrix.block( 0, i, observationMatrix.rows( ), 1 );
+        double minimum = currentVector.minCoeff( );
+        double maximum = currentVector.maxCoeff( );
+        if( std::fabs( minimum ) > maximum )
+        {
+            normalizationTerms( i ) = minimum;
+        }
+        else
+        {
+            normalizationTerms( i ) = maximum;
+        }
+        if( normalizationTerms( i ) == 0.0 )
+        {
+            normalizationTerms( i ) = 1.0;
+        }
+        currentVector = currentVector / normalizationTerms( i );
+
+        observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
+    }
+
+    return normalizationTerms;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getNormalizedConsiderCovariance(
+        const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+        const Eigen::VectorXd& considerNormalizationTerms,
+        Eigen::MatrixXd& normalizedConsiderCovariance )
+{
+    Eigen::MatrixXd unnormalizedConsiderCovariance = estimationInput->getConsiderCovariance( );
+    if( unnormalizedConsiderCovariance.rows( ) == 0 && unnormalizedConsiderCovariance.cols( ) == 0 )
+    {
+        unnormalizedConsiderCovariance = Eigen::MatrixXd::Zero( numberConsiderParameters_, numberConsiderParameters_ );
+    }
+    else if( unnormalizedConsiderCovariance.rows( ) != numberConsiderParameters_ &&
+             unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
+    {
+        throw std::runtime_error( "Error, consider covariance size: [" + std::to_string( unnormalizedConsiderCovariance.rows( ) ) +
+                                  ", " + std::to_string( unnormalizedConsiderCovariance.cols( ) ) +
+                                  "] does not match number of consider parameters: " + std::to_string( numberConsiderParameters_ ) );
+    }
+    normalizedConsiderCovariance = normalizeCovariance( unnormalizedConsiderCovariance, considerNormalizationTerms );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getObservationManager(
+        const observation_models::ObservableType observableType ) const
+{
+    // Check if manager exists for requested observable type.
+    if( observationManagers_.count( observableType ) == 0 )
+    {
+        throw std::runtime_error( "Error when retrieving observation manager of type " + std::to_string( observableType ) +
+                                  ", manager not found" );
+    }
+
+    return observationManagers_.at( observableType );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEstimatedAndConsiderDesignMatrices(
+        const Eigen::MatrixXd& designMatrix,
+        const int numberObservations )
+{
+    Eigen::MatrixXd designMatrixEstimatedParameters = designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
+
+    Eigen::MatrixXd designMatrixConsiderParameters =
+            designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ );
+
+    return std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters );
+}
+
+}  // namespace simulation_setup
+
+}  // namespace tudat
+
+#endif  // TUDAT_ORBITDETERMINATIONMANAGERUTILITIESIMPLEMENTATION_H

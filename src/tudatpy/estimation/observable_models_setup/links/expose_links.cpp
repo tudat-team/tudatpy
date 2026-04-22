@@ -7,11 +7,19 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_links.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
 namespace tom = tudat::observation_models;
 
@@ -195,7 +203,7 @@ Examples
 
  Parameters
  ----------
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Observable type for which the associated reference link end is to be retrieved.
  Returns
  -------
@@ -281,7 +289,7 @@ Examples
                                     R"doc(
          Function for setting a name for the reference point on a body.
 
-         Function for setting a name for the reference point on a body (tipically, the name of a ground station).
+         Function for setting a name for the reference point on a body (typically, the name of a ground station).
 
      Examples
      --------

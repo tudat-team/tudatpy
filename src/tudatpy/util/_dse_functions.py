@@ -259,7 +259,7 @@ def get_yates_array(no_of_factors : int,
 # After some definitions, we iterate through yates array, depending on the value being -1 or 1, we add the occurrence
 # to a certain container. Later the amount of items in the container determines the contribution of that specific
 # variable to an objective value. This iteration is done for individual, linear, and quadratic effects, thereby
-# determing the contribution of all interactions.
+# determining the contribution of all interactions.
 
 def anova_analysis(objective_values, 
                    factorial_design_array : np.ndarray, 

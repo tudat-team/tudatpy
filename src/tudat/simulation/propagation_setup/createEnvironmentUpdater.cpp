@@ -14,6 +14,8 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 
 namespace tudat
 {

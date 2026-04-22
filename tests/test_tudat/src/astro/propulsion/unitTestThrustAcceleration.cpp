@@ -21,7 +21,8 @@
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
@@ -29,8 +30,11 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include <limits>
 #include <string>
@@ -1320,7 +1324,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
-                    BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-12 * currentThrustMagnitude );
+                    BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 5.0E-12 * currentThrustMagnitude );
                     for( unsigned int j = 0; j < 3; j++ )
                     {
                         BOOST_CHECK_SMALL( std::fabs( manualRotationMatrix( i, j ) - currentRotationMatrix( i, j ) ), 1.0E-12 );

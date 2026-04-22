@@ -17,11 +17,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"

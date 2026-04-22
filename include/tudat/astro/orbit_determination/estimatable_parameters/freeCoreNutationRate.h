@@ -13,7 +13,6 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat

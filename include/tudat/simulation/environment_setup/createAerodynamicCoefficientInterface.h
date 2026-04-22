@@ -11,11 +11,13 @@
 #ifndef TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 #define TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -27,6 +29,9 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 //  Class for providing settings for aerodynamic coefficient model.
 /*

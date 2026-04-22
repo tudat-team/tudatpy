@@ -7,11 +7,19 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_ancillary_settings.h"
+
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tom = tudat::observation_models;
@@ -502,9 +510,9 @@ void expose_ancillary_settings( py::module& m )
         ----------
         observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
             List of observation simulation settings to modify.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`
             Ancillary settings to add.
-        observable_type : tudatpy.kernel.astro.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Observable type for which to add the ancillary settings.
         )doc" );
 
@@ -524,11 +532,11 @@ void expose_ancillary_settings( py::module& m )
         ----------
         observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
             List of observation simulation settings to modify.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`
             Ancillary settings to add.
-        observable_type : tudatpy.kernel.astro.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Observable type for which to add the ancillary settings.
-        link_ends : tudatpy.kernel.astro.LinkDefinition
+        link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
             Link ends for which to add the ancillary settings.
         )doc" );
 

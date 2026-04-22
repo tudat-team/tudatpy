@@ -108,6 +108,10 @@ std::string getObservationDependentVariableName( const ObservationDependentVaria
             dependentVariableName = "Retransmission delays ";
             break;
         }
+        case link_end_epochs_dependent_variable: {
+            dependentVariableName = "Link-end epochs ";
+            break;
+        }
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " + std::to_string( variableType ) +
                                       " not found when retrieving variable name." );
@@ -154,6 +158,9 @@ bool isObservationDependentVariableVectorial( const ObservationDependentVariable
         case retransmission_delays_dependent_variable:
             isVariableVectorial = true;
             break;
+        case link_end_epochs_dependent_variable:
+            isVariableVectorial = true;
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
@@ -186,6 +193,9 @@ bool isObservationDependentVariableAncillarySetting( const ObservationDependentV
             isAncillarySetting = true;
             break;
         case retransmission_delays_dependent_variable:
+            isAncillarySetting = true;
+            break;
+        case link_end_epochs_dependent_variable:
             isAncillarySetting = true;
             break;
         default:
@@ -221,6 +231,8 @@ bool isObservationDependentVariableGroundStationProperty( const ObservationDepen
         case link_angle_with_orbital_plane:
             break;
         case retransmission_delays_dependent_variable:
+            break;
+        case link_end_epochs_dependent_variable:
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -259,6 +271,8 @@ bool isObservationDependentVariableInterlinkProperty( const ObservationDependent
             break;
         case retransmission_delays_dependent_variable:
             break;
+        case link_end_epochs_dependent_variable:
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
@@ -282,6 +296,9 @@ int getObservationDependentVariableSize( const std::shared_ptr< ObservationDepen
         {
             case retransmission_delays_dependent_variable:
                 variableSize = linkEnds.size( ) - 2;
+                break;
+            case link_end_epochs_dependent_variable:
+                variableSize = 2 * ( linkEnds.size( ) - 1 );
                 break;
             default:
                 throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -402,6 +419,9 @@ bool doesObservationDependentVariableExistForGivenLink( const observation_models
         case retransmission_delays_dependent_variable:
             doesLinkHaveDependency = true;
             break;
+        case link_end_epochs_dependent_variable:
+            doesLinkHaveDependency = true;
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableId( variableSettings ) +
@@ -428,6 +448,9 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
             linkEndDependent = false;
             break;
         case retransmission_delays_dependent_variable:
+            linkEndDependent = false;
+            break;
+        case link_end_epochs_dependent_variable:
             linkEndDependent = false;
             break;
         default:
@@ -492,6 +515,12 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
         case retransmission_delays_dependent_variable: {
             isObservableTypeCompatibleFunction =
                     std::bind( &observation_models::observableCanHaveRetransmissionDelay, std::placeholders::_1 );
+            break;
+        }
+        case link_end_epochs_dependent_variable: {
+            isObservableTypeCompatibleFunction = [ = ]( const ObservableType observableType ) {
+                return ( observableType == n_way_range || observableType == dsn_n_way_range );
+            };
             break;
         }
         default:

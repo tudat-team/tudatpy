@@ -12,8 +12,7 @@
 #ifndef TUDAT_ROTATIONREPRESENTATIONS_H
 #define TUDAT_ROTATIONREPRESENTATIONS_H
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 namespace tudat
 {

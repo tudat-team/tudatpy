@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"

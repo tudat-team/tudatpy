@@ -13,6 +13,8 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/tools/floating_point_comparison.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
 #include <cmath>
@@ -24,7 +26,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 

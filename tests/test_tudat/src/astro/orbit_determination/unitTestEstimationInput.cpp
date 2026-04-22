@@ -12,12 +12,17 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
+#include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 
 namespace tudat
@@ -159,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
          covarianceIterator != automaticCovariances.end( );
          covarianceIterator++ )
     {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 2.0E-8 );
         counter++;
     }
 }

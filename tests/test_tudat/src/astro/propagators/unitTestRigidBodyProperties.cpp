@@ -21,7 +21,7 @@
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
@@ -29,8 +29,9 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include <limits>
 #include <string>

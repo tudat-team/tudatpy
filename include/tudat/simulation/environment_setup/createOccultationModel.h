@@ -11,13 +11,17 @@
 #ifndef TUDATBUNDLE_CREATEOCCULTATIONMODEL_H
 #define TUDATBUNDLE_CREATEOCCULTATIONMODEL_H
 
+#include <string>
+#include <vector>
+
 #include "tudat/astro/electromagnetism/occultationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //! Function to create occultation model from a list of occulting bodies.
 /*!

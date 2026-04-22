@@ -13,9 +13,7 @@
 
 #include <vector>
 #include <map>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -68,13 +66,13 @@ enum BodyFixedAngleSource {
 class BodyFixedAerodynamicAngleInterface
 {
 public:
-    BodyFixedAerodynamicAngleInterface( const BodyFixedAngleSource angleSource ): angleSource_( angleSource ) { }
+    BodyFixedAerodynamicAngleInterface( const BodyFixedAngleSource angleSource ): angleSource_( angleSource ) {}
 
-    virtual ~BodyFixedAerodynamicAngleInterface( ) { }
+    virtual ~BodyFixedAerodynamicAngleInterface( ) {}
 
     virtual Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 
-    virtual void resetCurrentTime( ) { }
+    virtual void resetCurrentTime( ) {}
 
     BodyFixedAngleSource getAngleSource( )
     {

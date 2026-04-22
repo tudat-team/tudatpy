@@ -8,8 +8,18 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_astro.h"
+
+#include "element_conversion/expose_element_conversion.h"
+#include "frame_conversion/expose_frame_conversion.h"
+#include "fundamentals/expose_fundamentals.h"
+#include "gravitation/expose_gravitation.h"
+#include "polyhedron_utilities/expose_polyhedron_utilities.h"
+#include "time_representation/expose_time_representation.h"
+#include "two_body_dynamics/expose_two_body_dynamics.h"
 
 namespace py = pybind11;
 

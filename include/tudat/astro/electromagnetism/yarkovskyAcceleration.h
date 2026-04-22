@@ -17,7 +17,6 @@
 #define TUDAT_YARKOVSKYACCELERATION_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/basicTypedefs.h"
@@ -59,7 +58,7 @@ public:
             const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); } ):
         yarkovskyParameter_( yarkovskyParameter ), bodyStateFunction_( bodyStateFunction ),
         centralBodyStateFunction_( centralBodyStateFunction )
-    { }
+    {}
 
     //! Destructor
     ~YarkovskyAcceleration( ) override = default;

@@ -22,6 +22,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/environment_setup/createSurfacePropertyDistribution.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/occultationModel.h"
 
 namespace tudat

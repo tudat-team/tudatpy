@@ -77,6 +77,8 @@ Functions
 
 
 
+
+   merge_body_panel_setting_lists
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry
@@ -92,6 +94,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings_list_from_dae
+
+.. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.merge_body_panel_setting_lists
 
 
 
