@@ -694,15 +694,12 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 }
 
 /*!
- * Container for transmitter frequency ramp information extracted from tracking data.
- * @var rampUtcTimes reference epoch in seconds since J2000, in UTC time scale
- * @var frequencyValues Transmitting frequency values
- * @var frequencyRampRates Linear transmitting frequency ramp rates
+ * @brief Container for transmitter frequency ramp information extracted from tracking data.
  */
 struct FrequencyRampData {
-    std::vector< double > rampUtcTimes;
-    std::vector< double > frequencyValues;
-    std::vector< double > frequencyRampRates;
+    std::vector< double > rampUtcTimes;        ///< reference epoch in seconds since J2000, in UTC time scale
+    std::vector< double > frequencyValues;     ///< transmitting frequency values
+    std::vector< double > frequencyRampRates;  ///< linear transmitting frequency ramp rates
 };
 
 using StationRampInformation = std::map< std::string, std::vector< FrequencyRampData > >;

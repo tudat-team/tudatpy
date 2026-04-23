@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 namespace tudat
 {
