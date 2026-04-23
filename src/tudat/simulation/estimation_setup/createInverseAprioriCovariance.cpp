@@ -18,6 +18,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Validate matrix dimensions or create a correctly sized zero matrix from a 0x0 input.
 Eigen::MatrixXd getValidatedInverseAprioriCovarianceInput(
         const Eigen::MatrixXd& inverseAprioriCovariance,
         const int numberOfEstimatedParameters )
@@ -40,6 +41,7 @@ Eigen::MatrixXd getValidatedInverseAprioriCovarianceInput(
     return inverseAprioriCovariance;
 }
 
+//! Convert scalar/vector uncertainty input to per-component values and validate positivity.
 Eigen::VectorXd getUncertaintyValuesForParameter(
         const Eigen::VectorXd& uncertaintyValues,
         const int parameterSize,
@@ -88,20 +90,6 @@ Eigen::VectorXd getUncertaintyValuesForParameter(
     }
 
     return currentUncertaintyValues;
-}
-
-std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > aprioriUncertaintyEntry(
-        const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier,
-        const double uncertainty )
-{
-    return std::make_pair( parameterIdentifier, Eigen::VectorXd::Constant( 1, uncertainty ) );
-}
-
-std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > aprioriUncertaintyEntry(
-        const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier,
-        const Eigen::VectorXd& uncertaintyValues )
-{
-    return std::make_pair( parameterIdentifier, uncertaintyValues );
 }
 
 }  // namespace simulation_setup

@@ -131,13 +131,13 @@ void expose_parameters( py::module& m )
 
                                    )doc" )
             .def( "indices_for_parameter_type",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterType,
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParameterIndicesForParameterIdentifier,
                   py::arg( "parameter_type" ),
                   R"doc(
 
-         Function to retrieve the indices of a given type of parameter.
+         Function to retrieve parameter indices from an identifier.
 
-         Function to retrieve the index of all parameters of a given type from the parameter set.
+         Function to retrieve the index of all parameters matching a given identifier from the parameter set.
          This function can be very useful, since the order of parameters within the parameter set does not necessarily correspond to the order in which the elements were added to the set.
 
 
@@ -174,14 +174,14 @@ void expose_parameters( py::module& m )
 
      )doc" )
             .def( "indices_for_parameter_identifier",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterIdentifier,
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParameterIndicesForParameterIdentifier,
                   py::arg( "parameter_identifier" ),
                   R"doc(
 
          Function to retrieve indices of parameters from an identifier with optional enum-only matching.
 
          Function to retrieve parameter indices from a parameter identifier. If both strings in the identifier are empty,
-         matching is performed on the enum only and exactly one match is required.
+         matching is performed on the enum only and all matching parameters are returned.
 
 
          Parameters

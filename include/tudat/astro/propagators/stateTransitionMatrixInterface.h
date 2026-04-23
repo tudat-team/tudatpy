@@ -763,7 +763,8 @@ protected:
              parameterIterator++ )
         {
             estimatable_parameters::EstimatebleParameterIdentifier parameterId = parameterIterator->second->getParameterName( );
-            std::vector< std::pair< int, int > > parametersIndices = parametersToEstimate->getIndicesForParameterType( parameterId );
+            std::vector< std::pair< int, int > > parametersIndices =
+                    parametersToEstimate->getParameterIndicesForParameterIdentifier( parameterId );
             if( parametersIndices.size( ) != 1 )
             {
                 throw std::runtime_error( "Error when creating state transition matrix interface, more than one parameter found with ID " +
@@ -792,7 +793,7 @@ protected:
             {
                 estimatable_parameters::EstimatebleParameterIdentifier parameterId = parameterIterator->second->getParameterName( );
                 std::vector< std::pair< int, int > > parametersIndices =
-                        arcWiseParametersToEstimate_[ arc ]->getIndicesForParameterType( parameterId );
+                        arcWiseParametersToEstimate_[ arc ]->getParameterIndicesForParameterIdentifier( parameterId );
                 for( unsigned int j = 0; j < parametersIndices.size( ); j++ )
                 {
                     int startIndexInitialStateArcWise = parametersIndices[ j ].first;

@@ -44,6 +44,14 @@ template< typename InitialStateParameterType = double >
 class EstimatableParameterSet
 {
 public:
+    struct Parameter
+    {
+        std::shared_ptr< EstimatableParameter< double > > doubleParameter_;
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > vectorParameter_;
+        std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > >
+                initialStateParameter_;
+    };
+
     //! Constructor of parameter set.
     /*!
      *  Constructor of parameter set.
@@ -420,139 +428,116 @@ public:
         return considerParameters_;
     }
 
-    //! Function to retrieve the start index and size of (a) parameter(s) for a given parameter type.
+    //! Retrieve indices for all parameters with a given enum.
     /*!
-     * Function to retrieve the start index and size of (a) parameter(s) for a given parameter type, regardless of the
-     * associated body/reference point identifier.
-     * \param requiredParameterType Parameter type that is to be searched in full list of parameters.
+     * Wrapper around getParameterIndicesForParameterIdentifier using enum-only matching.
+     * \param requiredParameterType Parameter type to search for in full list of parameters.
      * \return List of start indices and sizes of parameters corresponding to requiredParameterType.
      */
     std::vector< std::pair< int, int > > getIndicesForParameterEnum( const EstimatebleParametersEnum requiredParameterType )
     {
-        std::vector< std::pair< int, int > > typeIndices;
-
-        for( auto parameterIterator : initialSingleArcStateParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ).first == requiredParameterType )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : initialMultiArcStateParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ).first == requiredParameterType )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : doubleParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ).first == requiredParameterType )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : vectorParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ).first == requiredParameterType )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        return typeIndices;
+        return getParameterIndicesForParameterIdentifier(
+                std::make_pair( requiredParameterType, std::make_pair( std::string( "" ), std::string( "" ) ) ) );
     }
 
-    //! Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+    //! Retrieve parameter indices and parameter objects from an identifier.
     /*!
-     * Function to retrieve the start index and size of (a) parameters(s) with a given identifier
-     * \param requiredParameterId Parameter identifier that is to be searched in full list of patameters
-     * \return List of start indices and sizes of parameters corresponding to requiredParameterId
+     * Returns start index and size pairs, together with the matching parameter objects, for parameter block(s) that
+     * match \p requiredParameterId.
+     * If both identifier strings are empty, only the enum is used for matching and all matching
+     * parameter blocks are returned.
+     * \param requiredParameterId Parameter identifier to search for in the estimated-parameter set.
+     * \return List of ((start index, size), parameter object) entries for matching parameter block(s).
      */
-    std::vector< std::pair< int, int > > getIndicesForParameterType( const EstimatebleParameterIdentifier requiredParameterId )
-    {
-        std::vector< std::pair< int, int > > typeIndices;
-
-        for( auto parameterIterator : initialSingleArcStateParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : initialMultiArcStateParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : doubleParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        for( auto parameterIterator : vectorParameters_ )
-        {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
-            {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
-            }
-        }
-
-        return typeIndices;
-    }
-
-    //! Function to retrieve indices for a parameter identifier, optionally using only the enum for matching.
-    /*!
-     * Function to retrieve the start index and size of parameter(s) from a given identifier. If the body and reference
-     * point fields in the identifier are both empty strings, matching is performed on the enum only. In this case,
-     * exactly one matching parameter entry is required.
-     * \param requiredParameterId Parameter identifier to be searched in the full list of parameters.
-     * \return List with one (start index, size) pair if enum-only matching is requested, or all pairs for exact matching.
-     */
-    std::vector< std::pair< int, int > > getIndicesForParameterIdentifier(
+    std::vector< std::pair< std::pair< int, int >, Parameter > > getIndicesForParameterIdentifier(
             const EstimatebleParameterIdentifier requiredParameterId )
     {
+        std::vector< std::pair< std::pair< int, int >, Parameter > > typeIndices;
+
         const bool isTypeOnlyIdentifier =
                 requiredParameterId.second.first.empty( ) && requiredParameterId.second.second.empty( );
 
-        if( isTypeOnlyIdentifier )
+        for( auto parameterIterator : initialSingleArcStateParameters_ )
         {
-            std::vector< std::pair< int, int > > typeIndices = getIndicesForParameterEnum( requiredParameterId.first );
-
-            if( typeIndices.size( ) == 0 )
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
             {
-                throw std::runtime_error( "Error when looking for parameter indices based on parameter enum, no parameter found for enum: " +
-                                          std::to_string( static_cast< int >( requiredParameterId.first ) ) );
+                Parameter parameterObject;
+                parameterObject.initialStateParameter_ = parameterIterator.second;
+                typeIndices.push_back( std::make_pair(
+                        std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ), parameterObject ) );
             }
-            else if( typeIndices.size( ) > 1 )
-            {
-                throw std::runtime_error(
-                        "Error when looking for parameter indices based on parameter enum, multiple parameters found for enum: " +
-                        std::to_string( static_cast< int >( requiredParameterId.first ) ) +
-                        ". Provide body/reference point strings to disambiguate." );
-            }
-
-            return typeIndices;
         }
 
-        std::vector< std::pair< int, int > > typeIndices = getIndicesForParameterType( requiredParameterId );
-        if( typeIndices.size( ) == 0 )
+        for( auto parameterIterator : initialMultiArcStateParameters_ )
         {
-            throw std::runtime_error( "Error when looking for parameter indices based on parameter identifier, no parameter found for: " +
-                                      std::to_string( static_cast< int >( requiredParameterId.first ) ) + ", " +
-                                      requiredParameterId.second.first + ", " + requiredParameterId.second.second );
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
+            {
+                Parameter parameterObject;
+                parameterObject.initialStateParameter_ = parameterIterator.second;
+                typeIndices.push_back( std::make_pair(
+                        std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ), parameterObject ) );
+            }
         }
+
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
+            {
+                Parameter parameterObject;
+                parameterObject.doubleParameter_ = parameterIterator.second;
+                typeIndices.push_back( std::make_pair(
+                        std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ), parameterObject ) );
+            }
+        }
+
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
+            {
+                Parameter parameterObject;
+                parameterObject.vectorParameter_ = parameterIterator.second;
+                typeIndices.push_back( std::make_pair(
+                        std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ), parameterObject ) );
+            }
+        }
+
         return typeIndices;
+    }
+
+    //! Retrieve only indices for parameters matching an identifier.
+        std::vector< std::pair< int, int > > getParameterIndicesForParameterIdentifier(
+            const EstimatebleParameterIdentifier requiredParameterId )
+    {
+        std::vector< std::pair< int, int > > parameterIndices;
+        std::vector< std::pair< std::pair< int, int >, Parameter > > parameterEntries =
+                getIndicesForParameterIdentifier( requiredParameterId );
+
+        for( const std::pair< std::pair< int, int >, Parameter >& parameterEntry : parameterEntries )
+        {
+            parameterIndices.push_back( parameterEntry.first );
+        }
+
+        return parameterIndices;
+    }
+
+    //! Retrieve only parameter objects for parameters matching an identifier.
+    std::vector< Parameter > getParametersForParameterIdentifier(
+            const EstimatebleParameterIdentifier requiredParameterId )
+    {
+        std::vector< Parameter > parameters;
+        std::vector< std::pair< std::pair< int, int >, Parameter > > parameterEntries =
+                getIndicesForParameterIdentifier( requiredParameterId );
+
+        for( const std::pair< std::pair< int, int >, Parameter >& parameterEntry : parameterEntries )
+        {
+            parameters.push_back( parameterEntry.second );
+        }
+
+        return parameters;
     }
 
     //! Function to retrieve the start index and size of a parameter with a given parameter description
