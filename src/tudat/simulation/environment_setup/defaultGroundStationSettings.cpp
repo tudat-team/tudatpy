@@ -88,15 +88,6 @@ const static std::string MPCGroundStationPosFile = tudat::paths::getStationLocat
 const static std::string MPCGroundStationVelFile = tudat::paths::getStationLocationDataPath( ) + "/mpc.vel";
 const static std::string MPCGroundStationCodesFile = tudat::paths::getStationLocationDataPath( ) + "/mpc_codes.dat";
 
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationPositionsFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t" );
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationPositionReferenceEpochsFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t", 3 );
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationVelocitiesFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationVelFile, '$', " \t" );
-const static std::map< std::string, std::string > groundStationCodesFromFile =
-        utilities::getMapFromFile< std::string, std::string >( pysctrackGroundStationCodesFile, '*', " \t" );
-
 std::map< std::string, Eigen::Vector3d > getCombinedApproximateGroundStationPositions( )
 {
     auto combinedMap = getApproximateDsnGroundStationPositions( );
