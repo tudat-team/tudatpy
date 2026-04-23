@@ -45,6 +45,26 @@ std::vector< std::tuple< int, int, long double > > times = { { 8, 34, 30.2345678
                                                              { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
                                                              { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L } };
 
+std::string trimTrailingFractionalZeros( const std::string& input )
+{
+    const std::size_t decimalPointIndex = input.find( "." );
+    if( decimalPointIndex == std::string::npos )
+    {
+        return input;
+    }
+
+    std::size_t lastNonZeroIndex = input.find_last_not_of( '0' );
+    if( lastNonZeroIndex == std::string::npos || lastNonZeroIndex < decimalPointIndex )
+    {
+        return input.substr( 0, decimalPointIndex );
+    }
+    if( input.at( lastNonZeroIndex ) == '.' )
+    {
+        return input.substr( 0, lastNonZeroIndex );
+    }
+    return input.substr( 0, lastNonZeroIndex + 1 );
+}
+
 BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 {
     for( unsigned int i = 0; i < years.size( ); i++ )
@@ -390,10 +410,11 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
         DateTime dateTime = DateTime::fromIsoString( testStrings.at( i ) );
         std::string reconstuctedString = dateTime.isoString( true, 17 );
 
-        // TODO: fix test for long doubles with 64-bit precision
         if( sizeof( long double ) > 8 )
         {
-            BOOST_CHECK_EQUAL( testStrings.at( i ), reconstuctedString );
+            // Compare canonicalized representations, as ISO formatting may pad trailing zeros.
+            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ),
+                               trimTrailingFractionalZeros( reconstuctedString ) );
         }
         Time time = timeFromIsoString< Time >( testStrings.at( i ) );
         BOOST_CHECK_SMALL( static_cast< long double >( time - dateTime.epoch< Time >( ) ),
