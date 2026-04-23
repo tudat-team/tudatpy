@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <stdexcept>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
@@ -20,8 +21,10 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 
@@ -30,6 +33,100 @@ namespace tudat
 namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
+
+//! Test utility functions for constructing and updating inverse a priori covariance matrices.
+BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
+{
+    using estimatable_parameters::EstimatebleParameterIdentifier;
+
+    // Create two scalar gravitational parameters and one custom vector parameter.
+    std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+            std::make_shared< gravitation::GravityFieldModel >( 3.986004418E14 );
+    std::shared_ptr< gravitation::GravityFieldModel > marsGravityField =
+            std::make_shared< gravitation::GravityFieldModel >( 4.282837E13 );
+
+    std::shared_ptr< estimatable_parameters::GravitationalParameter > earthMuParameter =
+            std::make_shared< estimatable_parameters::GravitationalParameter >( earthGravityField, "Earth" );
+    std::shared_ptr< estimatable_parameters::GravitationalParameter > marsMuParameter =
+            std::make_shared< estimatable_parameters::GravitationalParameter >( marsGravityField, "Mars" );
+
+    Eigen::VectorXd customParameterValue = ( Eigen::Vector3d( ) << 1.0, 2.0, 3.0 ).finished( );
+    std::shared_ptr< estimatable_parameters::CustomEstimatableParameter > customVectorParameter =
+            std::make_shared< estimatable_parameters::CustomEstimatableParameter >(
+                    "CustomA",
+                    3,
+                    [ &customParameterValue ]( ) { return customParameterValue; },
+                    [ &customParameterValue ]( const Eigen::VectorXd& newParameterValue )
+                    { customParameterValue = newParameterValue; } );
+
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > scalarParameters = {
+        earthMuParameter,
+        marsMuParameter };
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters = {
+        customVectorParameter };
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+            std::make_shared< estimatable_parameters::EstimatableParameterSet< double > >( scalarParameters, vectorParameters );
+
+    BOOST_CHECK_EQUAL( parameterSet->getEstimatedParameterSetSize( ), 5 );
+
+    // Test enum-only lookup for a unique enum.
+    const EstimatebleParameterIdentifier customEnumOnlyIdentifier =
+            std::make_pair( estimatable_parameters::custom_estimated_parameter, std::make_pair( "", "" ) );
+    std::vector< std::pair< int, int > > customIndices = parameterSet->getIndicesForParameterIdentifier( customEnumOnlyIdentifier );
+    BOOST_CHECK_EQUAL( customIndices.size( ), 1 );
+    BOOST_CHECK_EQUAL( customIndices.at( 0 ).first, 2 );
+    BOOST_CHECK_EQUAL( customIndices.at( 0 ).second, 3 );
+
+    const EstimatebleParameterIdentifier earthMuIdentifier =
+            std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Earth", "" ) );
+    const EstimatebleParameterIdentifier marsMuIdentifier =
+            std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Mars", "" ) );
+
+    // Test matrix creation from uncertainty entries.
+    std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > creationEntries;
+    creationEntries.push_back( simulation_setup::aprioriUncertaintyEntry( earthMuIdentifier, 2.0 ) );
+    creationEntries.push_back( simulation_setup::aprioriUncertaintyEntry(
+            customEnumOnlyIdentifier, ( Eigen::Vector3d( ) << 10.0, 20.0, 40.0 ).finished( ) ) );
+
+    Eigen::MatrixXd createdInverseAprioriCovariance =
+            simulation_setup::createInverseAprioriCovariance< double >( parameterSet, creationEntries );
+
+    BOOST_CHECK_EQUAL( createdInverseAprioriCovariance.rows( ), 5 );
+    BOOST_CHECK_EQUAL( createdInverseAprioriCovariance.cols( ), 5 );
+    BOOST_CHECK_CLOSE_FRACTION( createdInverseAprioriCovariance( 0, 0 ), 1.0 / 4.0, 1.0E-15 );
+    BOOST_CHECK_EQUAL( createdInverseAprioriCovariance( 1, 1 ), 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( createdInverseAprioriCovariance( 2, 2 ), 1.0 / 100.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( createdInverseAprioriCovariance( 3, 3 ), 1.0 / 400.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( createdInverseAprioriCovariance( 4, 4 ), 1.0 / 1600.0, 1.0E-15 );
+    BOOST_CHECK_EQUAL( createdInverseAprioriCovariance( 0, 2 ), 0.0 );
+
+    // Test update while preserving non-updated entries.
+    Eigen::MatrixXd initialInverseAprioriCovariance = 3.0 * Eigen::MatrixXd::Identity( 5, 5 );
+    initialInverseAprioriCovariance( 0, 1 ) = 9.0;
+    initialInverseAprioriCovariance( 1, 0 ) = 9.0;
+
+    std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > updateEntries;
+    updateEntries.push_back( simulation_setup::aprioriUncertaintyEntry( marsMuIdentifier, 5.0 ) );
+
+    Eigen::MatrixXd updatedInverseAprioriCovariance =
+            simulation_setup::addInverseAprioriCovarianceEntries< double >(
+                    initialInverseAprioriCovariance, parameterSet, updateEntries );
+
+    BOOST_CHECK_CLOSE_FRACTION( updatedInverseAprioriCovariance( 1, 1 ), 1.0 / 25.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( updatedInverseAprioriCovariance( 0, 0 ), 3.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( updatedInverseAprioriCovariance( 0, 1 ), 9.0, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( updatedInverseAprioriCovariance( 1, 0 ), 9.0, 1.0E-15 );
+
+    // Enum-only lookup must fail for ambiguous enums.
+    const EstimatebleParameterIdentifier ambiguousGravitationalEnumIdentifier =
+            std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "", "" ) );
+    std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > ambiguousEntries;
+    ambiguousEntries.push_back( simulation_setup::aprioriUncertaintyEntry( ambiguousGravitationalEnumIdentifier, 1.0 ) );
+
+    BOOST_CHECK_THROW(
+            simulation_setup::createInverseAprioriCovariance< double >( parameterSet, ambiguousEntries ), std::runtime_error );
+}
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
 //! correctly handed

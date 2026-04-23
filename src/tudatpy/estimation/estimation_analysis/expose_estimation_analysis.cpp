@@ -245,7 +245,7 @@ void expose_estimation_analysis( py::module& m )
      )doc" );
 
     m.def( "create_inverse_apriori_covariance",
-           &tss::createInverseAprioriCovariance,
+           &tss::createInverseAprioriCovariance< STATE_SCALAR_TYPE >,
            py::arg( "parameter_set" ),
            py::arg( "apriori_uncertainty_per_parameter" ),
            R"doc(
@@ -340,7 +340,7 @@ void expose_estimation_analysis( py::module& m )
      )doc" );
 
     m.def( "add_inverse_apriori_covariance_entries",
-           &tss::addInverseAprioriCovarianceEntries,
+           &tss::addInverseAprioriCovarianceEntries< STATE_SCALAR_TYPE >,
            py::arg( "inverse_apriori_covariance" ),
            py::arg( "parameter_set" ),
            py::arg( "apriori_uncertainty_per_parameter" ),

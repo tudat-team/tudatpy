@@ -18,19 +18,10 @@ namespace tudat
 namespace simulation_setup
 {
 
-namespace
-{
-
 Eigen::MatrixXd getValidatedInverseAprioriCovarianceInput(
         const Eigen::MatrixXd& inverseAprioriCovariance,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >& parameterSet )
+        const int numberOfEstimatedParameters )
 {
-    if( parameterSet == nullptr )
-    {
-        throw std::runtime_error( "Error when creating/updating inverse apriori covariance: parameter_set is null." );
-    }
-
-    const int numberOfEstimatedParameters = parameterSet->getEstimatedParameterSetSize( );
     if( inverseAprioriCovariance.rows( ) == 0 && inverseAprioriCovariance.cols( ) == 0 )
     {
         return Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
@@ -99,8 +90,6 @@ Eigen::VectorXd getUncertaintyValuesForParameter(
     return currentUncertaintyValues;
 }
 
-}  // namespace
-
 std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > aprioriUncertaintyEntry(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier,
         const double uncertainty )
@@ -113,50 +102,6 @@ std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::Vector
         const Eigen::VectorXd& uncertaintyValues )
 {
     return std::make_pair( parameterIdentifier, uncertaintyValues );
-}
-
-Eigen::MatrixXd addInverseAprioriCovarianceEntries(
-        const Eigen::MatrixXd& inverseAprioriCovariance,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >& parameterSet,
-        const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                aprioriUncertaintyPerParameter )
-{
-    Eigen::MatrixXd updatedInverseAprioriCovariance =
-            getValidatedInverseAprioriCovarianceInput( inverseAprioriCovariance, parameterSet );
-
-    for( const std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd >& aprioriEntry :
-         aprioriUncertaintyPerParameter )
-    {
-        const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier = aprioriEntry.first;
-        const Eigen::VectorXd& uncertaintyValues = aprioriEntry.second;
-
-        const std::vector< std::pair< int, int > > parameterIndices =
-                parameterSet->getIndicesForParameterIdentifier( parameterIdentifier );
-
-        for( const std::pair< int, int >& indexAndSize : parameterIndices )
-        {
-            const int startIndex = indexAndSize.first;
-            const int parameterSize = indexAndSize.second;
-            const Eigen::VectorXd currentUncertaintyValues =
-                    getUncertaintyValuesForParameter( uncertaintyValues, parameterSize, parameterIdentifier );
-
-            for( int i = 0; i < parameterSize; i++ )
-            {
-                updatedInverseAprioriCovariance( startIndex + i, startIndex + i ) =
-                        1.0 / ( currentUncertaintyValues( i ) * currentUncertaintyValues( i ) );
-            }
-        }
-    }
-
-    return updatedInverseAprioriCovariance;
-}
-
-Eigen::MatrixXd createInverseAprioriCovariance(
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >& parameterSet,
-        const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                aprioriUncertaintyPerParameter )
-{
-    return addInverseAprioriCovarianceEntries( Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, aprioriUncertaintyPerParameter );
 }
 
 }  // namespace simulation_setup
