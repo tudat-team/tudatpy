@@ -77,6 +77,7 @@ Examples
             .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
             .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
             .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
+            .value( "camera_pixels_type", tom::ObservableType::camera_pixels )
             .export_values( );
 
     py::class_< tom::DopplerProperTimeRateSettings, std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
