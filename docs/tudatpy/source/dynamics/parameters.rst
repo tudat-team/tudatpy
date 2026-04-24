@@ -28,5 +28,15 @@ Classes
 .. autoclass:: tudatpy.dynamics.parameters.EstimatableParameter
    :members:
 
+.. autosummary::
+
+   EstimatableParameter.get_parameter_value
+   EstimatableParameter.set_parameter_value
+
 .. autoclass:: tudatpy.dynamics.parameters.EstimatableParameterSet
    :members:
+
+.. autosummary::
+
+   EstimatableParameterSet.indices_for_parameter_type
+   EstimatableParameterSet.parameters_for_parameter_type

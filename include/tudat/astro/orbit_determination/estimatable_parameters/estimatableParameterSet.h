@@ -485,11 +485,18 @@ public:
         return typeIndices;
     }
 
-    //! Retrieve only indices for parameters matching an identifier.
-    std::vector< std::pair< int, int > > getParameterIndicesForParameterIdentifier(
-            const EstimatebleParameterIdentifier requiredParameterId )
+    //! Retrieve only indices for parameters matching a parameter enum.
+    /*!
+     * Retrieves indices for all parameter blocks with matching parameter enum.
+     * \param requiredParameterType Parameter enum for which matching parameter-block indices are retrieved.
+     * \return Matching (start index, size) entries in parameter-set order.
+     */
+    std::vector< std::pair< int, int > > getIndicesForParameterType(
+            const EstimatebleParametersEnum requiredParameterType )
     {
         std::vector< std::pair< int, int > > parameterIndices;
+        const EstimatebleParameterIdentifier requiredParameterId =
+                std::make_pair( requiredParameterType, std::make_pair( "", "" ) );
         std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
                 getParametersAndIndicesForParameterIdentifier( requiredParameterId );
 

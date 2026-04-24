@@ -763,8 +763,16 @@ protected:
              parameterIterator++ )
         {
             estimatable_parameters::EstimatebleParameterIdentifier parameterId = parameterIterator->second->getParameterName( );
-            std::vector< std::pair< int, int > > parametersIndices =
-                    parametersToEstimate->getParameterIndicesForParameterIdentifier( parameterId );
+            std::vector< std::pair< std::pair< int, int >,
+                                    std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+                    parameterEntries = parametersToEstimate->getParametersAndIndicesForParameterIdentifier( parameterId );
+            std::vector< std::pair< int, int > > parametersIndices;
+            for( const std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > >&
+                         parameterEntry :
+                 parameterEntries )
+            {
+                parametersIndices.push_back( parameterEntry.first );
+            }
             if( parametersIndices.size( ) != 1 )
             {
                 throw std::runtime_error( "Error when creating state transition matrix interface, more than one parameter found with ID " +
@@ -792,8 +800,17 @@ protected:
                  parameterIterator++ )
             {
                 estimatable_parameters::EstimatebleParameterIdentifier parameterId = parameterIterator->second->getParameterName( );
-                std::vector< std::pair< int, int > > parametersIndices =
-                        arcWiseParametersToEstimate_[ arc ]->getParameterIndicesForParameterIdentifier( parameterId );
+                std::vector< std::pair< std::pair< int, int >,
+                                        std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+                        parameterEntries =
+                                arcWiseParametersToEstimate_[ arc ]->getParametersAndIndicesForParameterIdentifier( parameterId );
+                std::vector< std::pair< int, int > > parametersIndices;
+                for( const std::pair< std::pair< int, int >,
+                                      std::shared_ptr< estimatable_parameters::EstimatableParameterBase > >& parameterEntry :
+                     parameterEntries )
+                {
+                    parametersIndices.push_back( parameterEntry.first );
+                }
                 for( unsigned int j = 0; j < parametersIndices.size( ); j++ )
                 {
                     int startIndexInitialStateArcWise = parametersIndices[ j ].first;

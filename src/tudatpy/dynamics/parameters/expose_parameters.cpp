@@ -194,25 +194,17 @@ void expose_parameters( py::module& m )
         :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
 
                                    )doc" )
-            .def( "get_parameter_indices_for_parameter_identifier",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParameterIndicesForParameterIdentifier,
-                  py::arg( "parameter_identifier" ),
+            .def( "indices_for_parameter_type",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterType,
+                  py::arg( "parameter_type" ),
                   R"doc(
 
-         Retrieve indices of parameter blocks matching a parameter identifier.
-
-         Matching rules:
-
-         * If either identifier string is non-empty, exact matching is used on the full identifier.
-         * If both strings are empty, matching is performed on the enum only.
-         * If multiple parameter blocks match, all matches are returned.
-         * If no parameter blocks match, an empty list is returned.
-
+         Retrieve indices of parameter blocks matching a parameter enum.
 
          Parameters
          ----------
-         parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
-             Parameter identifier for which the indices are retrieved.
+         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
+             Parameter enum for which matching indices are retrieved.
 
          Returns
          -------
@@ -220,23 +212,26 @@ void expose_parameters( py::module& m )
              Matching ``(start_index, size)`` entries in parameter-set order.
 
      )doc" )
-            .def( "get_parameters_for_parameter_identifier",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersForParameterIdentifier,
-                  py::arg( "parameter_identifier" ),
+            .def(
+                    "parameters_for_parameter_type",
+                    [ ]( tep::EstimatableParameterSet< STATE_SCALAR_TYPE >& self,
+                         const tep::EstimatebleParametersEnum parameterType )
+                    {
+                        return self.getParametersForParameterIdentifier(
+                                std::make_pair( parameterType, std::make_pair( "", "" ) ) );
+                    },
+                    py::arg( "parameter_type" ),
                   R"doc(
 
-         Retrieve parameter objects matching a parameter identifier.
-
-         Matching rules are identical to
-         :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.get_parameter_indices_for_parameter_identifier`.
+         Retrieve parameter objects matching a parameter enum.
 
          Returned parameter objects are instances of
          :class:`~tudatpy.dynamics.parameters.EstimatableParameter`.
 
          Parameters
          ----------
-         parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
-             Parameter identifier for which matching parameter objects are retrieved.
+         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
+             Parameter enum for which matching parameter objects are retrieved.
 
          Returns
          -------

@@ -90,13 +90,15 @@ Eigen::MatrixXd addCovarianceDiagonalEntries(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier = aprioriEntry.first;
         const Eigen::VectorXd& covarianceDiagonalValues = aprioriEntry.second;
 
-        const std::vector< std::pair< int, int > > parameterIndices =
-                parameterSet->getParameterIndicesForParameterIdentifier( parameterIdentifier );
+        const std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+                parameterEntries = parameterSet->getParametersAndIndicesForParameterIdentifier( parameterIdentifier );
 
-        for( const std::pair< int, int >& indexAndSize : parameterIndices )
+        for( const std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > >&
+                     parameterEntry :
+             parameterEntries )
         {
-            const int startIndex = indexAndSize.first;
-            const int parameterSize = indexAndSize.second;
+            const int startIndex = parameterEntry.first.first;
+            const int parameterSize = parameterEntry.first.second;
             const Eigen::VectorXd currentCovarianceDiagonalValues =
                     getCovarianceDiagonalValuesForParameter( covarianceDiagonalValues, parameterSize, parameterIdentifier );
 
