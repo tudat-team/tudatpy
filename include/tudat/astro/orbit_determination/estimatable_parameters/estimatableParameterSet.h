@@ -431,7 +431,7 @@ public:
      */
     std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > >
     getParametersAndIndicesForParameterIdentifier(
-            const EstimatebleParameterIdentifier requiredParameterId )
+            const EstimatebleParameterIdentifier& requiredParameterId )
     {
         std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > typeIndices;
 
