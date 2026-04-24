@@ -912,10 +912,125 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
+    // === Coma processing: datasets (minimal shells so Python can hold them) ===
+    py::class_< tss::ComaPolyDataset >( m,
+                                        "ComaPolyDataset",
+                                        R"doc(
+
+ Polynomial coefficient dataset for coma atmosphere density model.
+
+ This class holds polynomial coefficients that describe the spherical harmonic expansion of gas
+ density in a cometary coma. The coefficients represent the spatial variation of density as a
+ function of position relative to the comet nucleus. The dataset can contain data from multiple
+ files, each covering a different time period, enabling time-dependent coma modeling.
+
+ Polynomial coefficients are the raw input format and need to be evaluated to produce Stokes
+ coefficients for use in the coma model. This evaluation is typically performed automatically
+ when creating a coma atmosphere model.
+
+ .. note:: This class cannot be directly instantiated by the user. Create instances using
+           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
+           and its ``create_poly_coef_dataset()`` method.
+
+
+ Examples
+ --------
+ Create a polynomial dataset from coefficient files:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files
+   file_paths = [
+       "coma_data/h2o_poly_epoch1.txt",
+       "coma_data/h2o_poly_epoch2.txt"
+   ]
+
+   # Create file processor
+   processor = environment_setup.atmosphere.coma_model_file_processor(file_paths)
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Use the dataset to create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015)  # H2O molecular weight
+
+
+      )doc" );
+
+    py::class_< tss::ComaStokesDataset >( m,
+                                          "ComaStokesDataset",
+                                          R"doc(
+
+ Stokes coefficient (spherical harmonics) dataset for coma atmosphere density model.
+
+ This class holds precomputed Stokes coefficients (spherical harmonic coefficients) that describe
+ the gas density distribution in a cometary coma. The coefficients are evaluated at a specific grid
+ of radii and solar longitudes, enabling efficient interpolation during simulation. The dataset can
+ contain data from multiple files, each covering a different time period.
+
+ Stokes coefficients provide a direct representation of the spherical harmonic expansion:
+
+ .. math::
+     \\rho(r, \\theta, \\phi) = \\sum_{n=0}^{N} \\sum_{m=0}^{n} [C_{nm}(r) \\cos(m\\phi) + S_{nm}(r) \\sin(m\\phi)] P_{nm}(\\cos\\theta)
+
+ where :math:`C_{nm}` and :math:`S_{nm}` are the Stokes coefficients, :math:`P_{nm}` are associated
+ Legendre polynomials, and :math:`(r, \\theta, \\phi)` are spherical coordinates.
+
+ .. note:: This class cannot be directly instantiated by the user. Create instances using
+           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
+           and its ``create_coma_stokes_dataset()`` method, or load from pre-existing CSV files.
+
+
+ Examples
+ --------
+ Create a Stokes dataset by transforming polynomial coefficients:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["coma_data/h2o_poly.txt"])
+
+   # Transform to Stokes coefficients at specific radii and solar longitudes
+   stokes_dataset = processor.create_coma_stokes_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Use the dataset to create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+ Alternatively, load from pre-existing Stokes CSV files:
+
+ .. code-block:: python
+
+   # Create file processor from existing Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="coma_data/stokes_csv",
+       prefix="stokes")
+
+   # Load Stokes dataset from files
+   stokes_dataset = processor.create_coma_stokes_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[])
+
+   # Use the dataset
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+
+      )doc" );
+
     // --- Coma Model ---
 
     m.def(
-            "coma_model",
+            "coma_model_from_poly_data",
             py::overload_cast<
                 const tss::ComaPolyDataset&, double, int, int, bool >( &tss::comaSettings ),
             py::arg( "poly_data" ),
@@ -993,7 +1108,7 @@ using the NRLMSISE-00 global reference model:
    poly_dataset = processor.create_poly_coef_dataset()
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
        poly_data=poly_dataset,
        molecular_weight=0.018015,  # H2O molecular weight in kg/mol
        max_degree=10,
@@ -1010,7 +1125,7 @@ using the NRLMSISE-00 global reference model:
                 );
 
     m.def(
-            "coma_model",
+            "coma_model_from_stokes_data",
             py::overload_cast<
                 const tss::ComaStokesDataset&, double, int, int, bool >( &tss::comaSettings ),
             py::arg( "stokes_data" ),
@@ -1081,14 +1196,14 @@ using the NRLMSISE-00 global reference model:
    processor = environment_setup.atmosphere.coma_model_file_processor(poly_file_paths)
 
    # Create Stokes dataset by evaluating at specific radii and solar longitudes
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
        requested_max_degree=10,
        requested_max_order=10)
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015,  # H2O molecular weight in kg/mol
        max_degree=10,
@@ -1110,12 +1225,12 @@ using the NRLMSISE-00 global reference model:
        prefix="stokes")
 
    # Create Stokes dataset (radii and longitudes are read from files)
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[],  # Ignored when loading from files
        sol_longitudes_deg=[])
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
@@ -1154,7 +1269,7 @@ Create coma settings and add temperature model:
 .. code-block:: python
 
   # Create coma atmosphere settings from polynomial data
-  coma_settings = environment_setup.atmosphere.coma_model(
+  coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
       poly_data=density_poly_dataset,
       molecular_weight=0.018015)  # H2O in kg/mol
 
@@ -1207,7 +1322,7 @@ Examples
 .. code-block:: python
 
   # Create coma settings with polynomial density data
-  coma_settings = environment_setup.atmosphere.coma_model(
+  coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
       poly_data=density_poly_data,
       molecular_weight=0.018015)
 
@@ -1257,7 +1372,7 @@ Examples
 .. code-block:: python
 
   # Create coma settings with Stokes density data
-  coma_settings = environment_setup.atmosphere.coma_model(
+  coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
       stokes_data=density_stokes_data,
       molecular_weight=0.018015)
 
@@ -1269,121 +1384,6 @@ Examples
       gamma=1.33)
 
 )doc" );
-
-    // === Coma processing: datasets (minimal shells so Python can hold them) ===
-    py::class_< tss::ComaPolyDataset >( m,
-                                        "ComaPolyDataset",
-                                        R"doc(
-
- Polynomial coefficient dataset for coma atmosphere density model.
-
- This class holds polynomial coefficients that describe the spherical harmonic expansion of gas
- density in a cometary coma. The coefficients represent the spatial variation of density as a
- function of position relative to the comet nucleus. The dataset can contain data from multiple
- files, each covering a different time period, enabling time-dependent coma modeling.
-
- Polynomial coefficients are the raw input format and need to be evaluated to produce Stokes
- coefficients for use in the coma model. This evaluation is typically performed automatically
- when creating a coma atmosphere model.
-
- .. note:: This class cannot be directly instantiated by the user. Create instances using
-           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
-           and its ``create_poly_coef_dataset()`` method.
-
-
- Examples
- --------
- Create a polynomial dataset from coefficient files:
-
- .. code-block:: python
-
-   # Define paths to polynomial coefficient files
-   file_paths = [
-       "coma_data/h2o_poly_epoch1.txt",
-       "coma_data/h2o_poly_epoch2.txt"
-   ]
-
-   # Create file processor
-   processor = environment_setup.atmosphere.coma_model_file_processor(file_paths)
-
-   # Create polynomial dataset
-   poly_dataset = processor.create_poly_coef_dataset()
-
-   # Use the dataset to create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
-       poly_data=poly_dataset,
-       molecular_weight=0.018015)  # H2O molecular weight
-
-
-      )doc" );
-
-    py::class_< tss::ComaStokesDataset >( m,
-                                          "ComaStokesDataset",
-                                          R"doc(
-
- Stokes coefficient (spherical harmonics) dataset for coma atmosphere density model.
-
- This class holds precomputed Stokes coefficients (spherical harmonic coefficients) that describe
- the gas density distribution in a cometary coma. The coefficients are evaluated at a specific grid
- of radii and solar longitudes, enabling efficient interpolation during simulation. The dataset can
- contain data from multiple files, each covering a different time period.
-
- Stokes coefficients provide a direct representation of the spherical harmonic expansion:
-
- .. math::
-     \\rho(r, \\theta, \\phi) = \\sum_{n=0}^{N} \\sum_{m=0}^{n} [C_{nm}(r) \\cos(m\\phi) + S_{nm}(r) \\sin(m\\phi)] P_{nm}(\\cos\\theta)
-
- where :math:`C_{nm}` and :math:`S_{nm}` are the Stokes coefficients, :math:`P_{nm}` are associated
- Legendre polynomials, and :math:`(r, \\theta, \\phi)` are spherical coordinates.
-
- .. note:: This class cannot be directly instantiated by the user. Create instances using
-           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
-           and its ``create_sh_dataset()`` method, or load from pre-existing CSV files.
-
-
- Examples
- --------
- Create a Stokes dataset by transforming polynomial coefficients:
-
- .. code-block:: python
-
-   # Create file processor from polynomial files
-   processor = environment_setup.atmosphere.coma_model_file_processor(
-       ["coma_data/h2o_poly.txt"])
-
-   # Transform to Stokes coefficients at specific radii and solar longitudes
-   stokes_dataset = processor.create_sh_dataset(
-       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
-       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
-       requested_max_degree=10,
-       requested_max_order=10)
-
-   # Use the dataset to create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
-       stokes_data=stokes_dataset,
-       molecular_weight=0.018015)
-
- Alternatively, load from pre-existing Stokes CSV files:
-
- .. code-block:: python
-
-   # Create file processor from existing Stokes CSV files
-   processor = environment_setup.atmosphere.coma_model_file_processor(
-       input_dir="coma_data/stokes_csv",
-       prefix="stokes")
-
-   # Load Stokes dataset from files
-   stokes_dataset = processor.create_sh_dataset(
-       radii_m=[],  # Ignored when loading from files
-       sol_longitudes_deg=[])
-
-   # Use the dataset
-   coma_settings = environment_setup.atmosphere.coma_model(
-       stokes_data=stokes_dataset,
-       molecular_weight=0.018015)
-
-
-      )doc" );
 
     py::class_< tss::ComaWindDatasetCollection >( m,
                                                    "ComaWindDatasetCollection",
@@ -1490,7 +1490,7 @@ Examples
    poly_dataset = processor.create_poly_coef_dataset()
 
    # Or transform to Stokes coefficients
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
 
@@ -1504,7 +1504,7 @@ Examples
        prefix="stokes")
 
    # Load Stokes dataset
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[],  # Ignored when loading from files
        sol_longitudes_deg=[])
 
@@ -1543,13 +1543,13 @@ Examples
    poly_dataset = processor.create_poly_coef_dataset()
 
    # Use in coma atmosphere model
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
        poly_data=poly_dataset,
        molecular_weight=0.018015)
 
 
       )doc")
-        .def("create_sh_dataset",
+        .def("create_coma_stokes_dataset",
              py::overload_cast<>(&tss::ComaModelFileProcessor::createSHDataset, py::const_),
              R"doc(
 
@@ -1568,7 +1568,7 @@ Examples
  ------
  RuntimeError
      If the processor was constructed from polynomial coefficient files. Use the parameterized version
-     :meth:`create_sh_dataset(radii_m, sol_longitudes_deg, ...)` for polynomial files instead.
+     :meth:`create_coma_stokes_dataset(radii_m, sol_longitudes_deg, ...)` for polynomial files instead.
 
  Examples
  --------
@@ -1580,15 +1580,15 @@ Examples
        prefix="stokes")
 
    # Load Stokes dataset (no parameters needed)
-   stokes_dataset = processor.create_sh_dataset()
+   stokes_dataset = processor.create_coma_stokes_dataset()
 
    # Use in coma atmosphere model
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
       )doc")
-        .def("create_sh_dataset",
+        .def("create_coma_stokes_dataset",
              py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int, const bool, const bool>(
                  &tss::ComaModelFileProcessor::createSHDataset, py::const_),
              py::arg("radii_m"),
@@ -1634,7 +1634,7 @@ Examples
  ------
  RuntimeError
      If the processor was constructed from Stokes CSV files. Use the parameterless version
-     :meth:`create_sh_dataset()` for Stokes CSV files instead.
+     :meth:`create_coma_stokes_dataset()` for Stokes CSV files instead.
 
  Examples
  --------
@@ -1645,14 +1645,14 @@ Examples
        ["h2o_poly.txt"])
 
    # Transform to Stokes at specific radii and solar longitudes
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0, 10000.0, 20000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
        requested_max_degree=10,
        requested_max_order=10)
 
    # Use in coma atmosphere model
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
@@ -1724,7 +1724,7 @@ Examples
    processor_from_csv = environment_setup.atmosphere.coma_model_file_processor(
        input_dir="stokes_output",
        prefix="stokes")
-   stokes_dataset = processor_from_csv.create_sh_dataset(
+   stokes_dataset = processor_from_csv.create_coma_stokes_dataset(
        radii_m=[],  # Ignored when loading from files
        sol_longitudes_deg=[])
 
@@ -1787,7 +1787,7 @@ Examples
    poly_dataset = processor.create_poly_coef_dataset()
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
        poly_data=poly_dataset,
        molecular_weight=0.018015,  # H2O in kg/mol
        max_degree=10,
@@ -1804,14 +1804,14 @@ Examples
    processor = environment_setup.atmosphere.coma_model_file_processor(poly_files)
 
    # Transform to Stokes coefficients at specific radii and solar longitudes
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
        requested_max_degree=10,
        requested_max_order=10)
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
@@ -1872,12 +1872,12 @@ Examples
        prefix="stokes")
 
    # Load Stokes dataset (radii and longitudes are read from files)
-   stokes_dataset = processor.create_sh_dataset(
+   stokes_dataset = processor.create_coma_stokes_dataset(
        radii_m=[],  # Ignored when loading from CSV files
        sol_longitudes_deg=[])  # Ignored when loading from CSV files
 
    # Create coma atmosphere settings
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)  # H2O in kg/mol
 
@@ -1900,12 +1900,12 @@ Examples
    stokes_processor = environment_setup.atmosphere.coma_model_file_processor(
        input_dir="stokes_saved",
        prefix="stokes")
-   stokes_dataset = stokes_processor.create_sh_dataset(
+   stokes_dataset = stokes_processor.create_coma_stokes_dataset(
        radii_m=[],
        sol_longitudes_deg=[])
 
    # Step 3: Use in simulation
-   coma_settings = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
