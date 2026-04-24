@@ -22,11 +22,7 @@
 #include <map>
 #include <vector>
 
-#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/io/basicInputOutput.h"
-#include "tudat/io/readBinaryFile.h"
-#include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
