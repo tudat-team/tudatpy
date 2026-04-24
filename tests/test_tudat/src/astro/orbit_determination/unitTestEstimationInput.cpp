@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     const EstimatebleParameterIdentifier customEnumOnlyIdentifier =
             std::make_pair( estimatable_parameters::custom_estimated_parameter, std::make_pair( "", "" ) );
     std::vector< std::pair< int, int > > customIndices =
-            parameterSet->getParameterIndicesForParameterIdentifier( customEnumOnlyIdentifier );
+            parameterSet->getIndicesForParameterType( customEnumOnlyIdentifier.first );
     BOOST_CHECK_EQUAL( customIndices.size( ), 1 );
     BOOST_CHECK_EQUAL( customIndices.at( 0 ).first, 2 );
     BOOST_CHECK_EQUAL( customIndices.at( 0 ).second, 3 );
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     const EstimatebleParameterIdentifier ambiguousGravitationalEnumIdentifier =
             std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "", "" ) );
     std::vector< std::pair< int, int > > ambiguousIndices =
-            parameterSet->getParameterIndicesForParameterIdentifier( ambiguousGravitationalEnumIdentifier );
+            parameterSet->getIndicesForParameterType( ambiguousGravitationalEnumIdentifier.first );
     BOOST_CHECK_EQUAL( ambiguousIndices.size( ), 2 );
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 0 ).second, 1 );
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 1 ).second, 1 );
@@ -152,11 +152,6 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK( ambiguousParameters.at( 1 ) != nullptr );
     BOOST_CHECK_EQUAL( ambiguousParameters.at( 0 )->getParameterSize( ), 1 );
     BOOST_CHECK_EQUAL( ambiguousParameters.at( 1 )->getParameterSize( ), 1 );
-
-    // Non-existent identifier returns no matches.
-    const EstimatebleParameterIdentifier nonExistentIdentifier =
-            std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Jupiter", "" ) );
-    BOOST_CHECK_EQUAL( parameterSet->getParameterIndicesForParameterIdentifier( nonExistentIdentifier ).size( ), 0 );
 
     // Enum-only inverse a priori covariance entry applies to all matching parameters.
     std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > ambiguousEntries;
