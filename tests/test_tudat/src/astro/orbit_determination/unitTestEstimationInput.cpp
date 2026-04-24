@@ -79,18 +79,22 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_EQUAL( customIndices.at( 0 ).first, 2 );
     BOOST_CHECK_EQUAL( customIndices.at( 0 ).second, 3 );
 
-    std::vector< std::pair< std::pair< int, int >, estimatable_parameters::EstimatableParameterSet< double >::Parameter > >
-            customEntries =
-            parameterSet->getIndicesForParameterIdentifier( customEnumOnlyIdentifier );
+    std::vector< std::pair< std::pair< int, int >,
+                            estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > >
+            customEntries = parameterSet->getIndicesForParameterIdentifier( customEnumOnlyIdentifier );
     BOOST_CHECK_EQUAL( customEntries.size( ), 1 );
-    BOOST_CHECK( customEntries.at( 0 ).second.vectorParameter_ != nullptr );
+    BOOST_CHECK( customEntries.at( 0 ).second != nullptr );
     BOOST_CHECK_EQUAL( customEntries.at( 0 ).first.first, customIndices.at( 0 ).first );
     BOOST_CHECK_EQUAL( customEntries.at( 0 ).first.second, customIndices.at( 0 ).second );
+    BOOST_CHECK_CLOSE_FRACTION(
+            customEntries.at( 0 ).second->getParameterValueBase( ).norm( ), customParameterValue.norm( ), 1.0E-15 );
 
-    std::vector< estimatable_parameters::EstimatableParameterSet< double >::Parameter > customParameters =
+    std::vector< estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > customParameters =
             parameterSet->getParametersForParameterIdentifier( customEnumOnlyIdentifier );
     BOOST_CHECK_EQUAL( customParameters.size( ), 1 );
-    BOOST_CHECK( customParameters.at( 0 ).vectorParameter_ != nullptr );
+    BOOST_CHECK( customParameters.at( 0 ) != nullptr );
+    customParameters.at( 0 )->setParameterValueBase( ( Eigen::Vector3d( ) << 4.0, 5.0, 6.0 ).finished( ) );
+    BOOST_CHECK_SMALL( ( customParameterValue - ( Eigen::Vector3d( ) << 4.0, 5.0, 6.0 ).finished( ) ).norm( ), 1.0E-15 );
 
     const EstimatebleParameterIdentifier earthMuIdentifier =
             std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Earth", "" ) );
@@ -141,11 +145,13 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 0 ).second, 1 );
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 1 ).second, 1 );
 
-    std::vector< estimatable_parameters::EstimatableParameterSet< double >::Parameter > ambiguousParameters =
+    std::vector< estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > ambiguousParameters =
             parameterSet->getParametersForParameterIdentifier( ambiguousGravitationalEnumIdentifier );
     BOOST_CHECK_EQUAL( ambiguousParameters.size( ), 2 );
-    BOOST_CHECK( ambiguousParameters.at( 0 ).doubleParameter_ != nullptr );
-    BOOST_CHECK( ambiguousParameters.at( 1 ).doubleParameter_ != nullptr );
+    BOOST_CHECK( ambiguousParameters.at( 0 ) != nullptr );
+    BOOST_CHECK( ambiguousParameters.at( 1 ) != nullptr );
+    BOOST_CHECK_EQUAL( ambiguousParameters.at( 0 )->getParameterSize( ), 1 );
+    BOOST_CHECK_EQUAL( ambiguousParameters.at( 1 )->getParameterSize( ), 1 );
 
     // Non-existent identifier returns no matches.
     const EstimatebleParameterIdentifier nonExistentIdentifier =
