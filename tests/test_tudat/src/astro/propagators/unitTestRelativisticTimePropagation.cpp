@@ -44,7 +44,6 @@ using namespace basic_astrodynamics;
 BOOST_AUTO_TEST_SUITE( test_relativistic_time_propagation )
 
 
-// Temporarily disabled (currently failing).
 BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
 {
     loadStandardSpiceKernels( );
