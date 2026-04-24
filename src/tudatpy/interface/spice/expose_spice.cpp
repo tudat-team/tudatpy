@@ -324,8 +324,8 @@ void expose_spice( py::module &m )
  ----------
  epoch : float
      Time in seconds since J2000 at which the state is to be retrieved.
- tle : :class:`~tudatpy.kernel.astro.ephemerides.Tle`
-     Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
+ tle : :class:`~tudatpy.dynamics.environment.Tle`
+     Tle object containing the SGP/SDP model parameters as derived from the element set.
  Returns
  -------
  cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).

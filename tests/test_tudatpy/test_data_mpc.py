@@ -119,6 +119,21 @@ def test_create_observations_from_astropy_table(mpc_code):
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
+def test_mpc_custom_name_metadata(mpc_code):
+    batch = BatchMPC()
+    # Use a real MPC code but provide a custom name
+    custom_name = "Death_Star"
+    batch.get_observations([mpc_code], custom_name=custom_name)
+
+    # Verify the custom_name column exists and has the correct value
+    assert "custom_name" in batch.table.columns
+    assert (batch.table["custom_name"] == custom_name).all()
+
+    # Verify MPC_objects returns the custom name instead of mpc code
+    assert custom_name in batch.MPC_objects
+    assert mpc_code not in batch.MPC_objects
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat(mpc_code):
     """Check if observatory table matches observation_collection"""
     query = BatchMPC()

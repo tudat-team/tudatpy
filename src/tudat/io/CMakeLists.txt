@@ -42,7 +42,7 @@ set(io_SOURCES
         "readViennaMappingFunctionData.cpp"
         "readIonexFile.cpp"
         "readInpopEphemerisFile.cpp"
-
+        "readNeQuick2Data.cpp"
 )
 
 # Add header files.
