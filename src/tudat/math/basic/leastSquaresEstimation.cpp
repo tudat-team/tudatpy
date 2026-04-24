@@ -96,6 +96,11 @@ Eigen::VectorXd applyWeightsToObservationVector( const Eigen::VectorXd& observat
 Eigen::VectorXd applyWeightsToObservationVector( const Eigen::VectorXd& observationVector,
                                                  const Eigen::SparseMatrix< double >& weightMatrix )
 {
+    if( weightMatrix.rows( ) != observationVector.rows( ) || weightMatrix.cols( ) != observationVector.rows( ) )
+    {
+        throw std::runtime_error(
+                "Error when multiplying observation vector by weights matrix, sizes are incompatible." );
+    }
     return weightMatrix * observationVector;
 }
 
