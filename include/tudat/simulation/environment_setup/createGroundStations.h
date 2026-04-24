@@ -15,7 +15,6 @@
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
 {
