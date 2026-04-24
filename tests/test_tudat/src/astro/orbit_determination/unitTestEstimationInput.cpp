@@ -101,14 +101,14 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     const EstimatebleParameterIdentifier marsMuIdentifier =
             std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Mars", "" ) );
 
-    // Test matrix creation from uncertainty entries.
+    // Test matrix creation from inverse a priori covariance entries.
     std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > creationEntries;
-    creationEntries.push_back( std::make_pair( earthMuIdentifier, Eigen::VectorXd::Constant( 1, 2.0 ) ) );
+    creationEntries.push_back( std::make_pair( earthMuIdentifier, Eigen::VectorXd::Constant( 1, 1.0 / 4.0 ) ) );
     creationEntries.push_back( std::make_pair(
-            customEnumOnlyIdentifier, ( Eigen::Vector3d( ) << 10.0, 20.0, 40.0 ).finished( ) ) );
+            customEnumOnlyIdentifier, ( Eigen::Vector3d( ) << 1.0 / 100.0, 1.0 / 400.0, 1.0 / 1600.0 ).finished( ) ) );
 
     Eigen::MatrixXd createdInverseAprioriCovariance =
-            simulation_setup::createInverseAprioriCovariance< double >( parameterSet, creationEntries );
+            simulation_setup::createCovarianceFromDiagonalEntries< double >( parameterSet, creationEntries );
 
     BOOST_CHECK_EQUAL( createdInverseAprioriCovariance.rows( ), 5 );
     BOOST_CHECK_EQUAL( createdInverseAprioriCovariance.cols( ), 5 );
@@ -125,10 +125,10 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     initialInverseAprioriCovariance( 1, 0 ) = 9.0;
 
     std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > updateEntries;
-    updateEntries.push_back( std::make_pair( marsMuIdentifier, Eigen::VectorXd::Constant( 1, 5.0 ) ) );
+    updateEntries.push_back( std::make_pair( marsMuIdentifier, Eigen::VectorXd::Constant( 1, 1.0 / 25.0 ) ) );
 
     Eigen::MatrixXd updatedInverseAprioriCovariance =
-            simulation_setup::addInverseAprioriCovarianceEntries< double >(
+            simulation_setup::addCovarianceDiagonalEntries< double >(
                     initialInverseAprioriCovariance, parameterSet, updateEntries );
 
     BOOST_CHECK_CLOSE_FRACTION( updatedInverseAprioriCovariance( 1, 1 ), 1.0 / 25.0, 1.0E-15 );
@@ -158,13 +158,13 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
             std::make_pair( estimatable_parameters::gravitational_parameter, std::make_pair( "Jupiter", "" ) );
     BOOST_CHECK_EQUAL( parameterSet->getParameterIndicesForParameterIdentifier( nonExistentIdentifier ).size( ), 0 );
 
-    // Enum-only uncertainty entry applies to all matching parameters.
+    // Enum-only inverse a priori covariance entry applies to all matching parameters.
     std::vector< std::pair< EstimatebleParameterIdentifier, Eigen::VectorXd > > ambiguousEntries;
     ambiguousEntries.push_back(
             std::make_pair( ambiguousGravitationalEnumIdentifier, Eigen::VectorXd::Constant( 1, 1.0 ) ) );
 
     Eigen::MatrixXd ambiguousInverseAprioriCovariance =
-            simulation_setup::createInverseAprioriCovariance< double >( parameterSet, ambiguousEntries );
+            simulation_setup::createCovarianceFromDiagonalEntries< double >( parameterSet, ambiguousEntries );
     BOOST_CHECK_CLOSE_FRACTION( ambiguousInverseAprioriCovariance( 0, 0 ), 1.0, 1.0E-15 );
     BOOST_CHECK_CLOSE_FRACTION( ambiguousInverseAprioriCovariance( 1, 1 ), 1.0, 1.0E-15 );
     BOOST_CHECK_EQUAL( ambiguousInverseAprioriCovariance( 2, 2 ), 0.0 );

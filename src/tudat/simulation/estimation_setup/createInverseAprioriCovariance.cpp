@@ -19,77 +19,77 @@ namespace simulation_setup
 {
 
 //! Validate matrix dimensions or create a correctly sized zero matrix from a 0x0 input.
-Eigen::MatrixXd getValidatedInverseAprioriCovarianceInput(
-        const Eigen::MatrixXd& inverseAprioriCovariance,
+Eigen::MatrixXd getValidatedCovarianceInput(
+        const Eigen::MatrixXd& covarianceMatrix,
         const int numberOfEstimatedParameters )
 {
-    if( inverseAprioriCovariance.rows( ) == 0 && inverseAprioriCovariance.cols( ) == 0 )
+    if( covarianceMatrix.rows( ) == 0 && covarianceMatrix.cols( ) == 0 )
     {
         return Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
     }
 
-    if( inverseAprioriCovariance.rows( ) != numberOfEstimatedParameters ||
-        inverseAprioriCovariance.cols( ) != numberOfEstimatedParameters )
+    if( covarianceMatrix.rows( ) != numberOfEstimatedParameters ||
+        covarianceMatrix.cols( ) != numberOfEstimatedParameters )
     {
-        throw std::runtime_error( "Error when creating/updating inverse apriori covariance: provided matrix has size " +
-                                  std::to_string( inverseAprioriCovariance.rows( ) ) + "x" +
-                                  std::to_string( inverseAprioriCovariance.cols( ) ) + ", expected " +
+        throw std::runtime_error( "Error when creating/updating covariance matrix entries: provided matrix has size " +
+                                  std::to_string( covarianceMatrix.rows( ) ) + "x" +
+                                  std::to_string( covarianceMatrix.cols( ) ) + ", expected " +
                                   std::to_string( numberOfEstimatedParameters ) + "x" +
                                   std::to_string( numberOfEstimatedParameters ) + "." );
     }
 
-    return inverseAprioriCovariance;
+    return covarianceMatrix;
 }
 
-//! Convert scalar/vector uncertainty input to per-component values and validate positivity.
-Eigen::VectorXd getUncertaintyValuesForParameter(
-        const Eigen::VectorXd& uncertaintyValues,
+//! Convert scalar/vector covariance diagonal input to per-component values and validate non-negativity.
+Eigen::VectorXd getCovarianceDiagonalValuesForParameter(
+        const Eigen::VectorXd& covarianceDiagonalValues,
         const int parameterSize,
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier )
 {
-    Eigen::VectorXd currentUncertaintyValues;
+    Eigen::VectorXd currentCovarianceDiagonalValues;
 
-    if( uncertaintyValues.size( ) == 1 )
+    if( covarianceDiagonalValues.size( ) == 1 )
     {
-        currentUncertaintyValues = Eigen::VectorXd::Constant( parameterSize, uncertaintyValues( 0 ) );
+        currentCovarianceDiagonalValues = Eigen::VectorXd::Constant( parameterSize, covarianceDiagonalValues( 0 ) );
     }
-    else if( uncertaintyValues.size( ) == parameterSize )
+    else if( covarianceDiagonalValues.size( ) == parameterSize )
     {
-        currentUncertaintyValues = uncertaintyValues;
+        currentCovarianceDiagonalValues = covarianceDiagonalValues;
     }
     else
     {
         throw std::runtime_error(
-                "Error when applying apriori uncertainty entries for parameter type '" +
+                "Error when applying covariance diagonal entries for parameter type '" +
                 estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' with identifiers ('" +
                 parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second +
-                "'): uncertainty size is incompatible with parameter size. "
-                "Received uncertainty vector of size " +
-                std::to_string( uncertaintyValues.size( ) ) + " for parameter size " + std::to_string( parameterSize ) +
-                ". Use a scalar uncertainty or a vector matching the parameter size." );
+                "'): value vector size is incompatible with parameter size. "
+                "Received vector of size " +
+                std::to_string( covarianceDiagonalValues.size( ) ) + " for parameter size " +
+                std::to_string( parameterSize ) + ". Use a scalar value or a vector matching the parameter size." );
     }
 
-    if( currentUncertaintyValues.size( ) == 0 )
+    if( currentCovarianceDiagonalValues.size( ) == 0 )
     {
         throw std::runtime_error(
-                "Error when applying apriori uncertainty entries for parameter type '" +
+                "Error when applying covariance diagonal entries for parameter type '" +
                 estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' with identifiers ('" +
-                parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second + "'): uncertainty is empty." );
+                parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second + "'): input is empty." );
     }
 
-    for( int i = 0; i < currentUncertaintyValues.size( ); i++ )
+    for( int i = 0; i < currentCovarianceDiagonalValues.size( ); i++ )
     {
-        if( !( currentUncertaintyValues( i ) > 0.0 ) )
+        if( !( currentCovarianceDiagonalValues( i ) >= 0.0 ) )
         {
             throw std::runtime_error(
-                    "Error when applying apriori uncertainty entries for parameter type '" +
+                    "Error when applying covariance diagonal entries for parameter type '" +
                     estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' with identifiers ('" +
                     parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second +
-                    "'): uncertainty entries must be strictly positive." );
+                    "'): entries must be non-negative." );
         }
     }
 
-    return currentUncertaintyValues;
+    return currentCovarianceDiagonalValues;
 }
 
 }  // namespace simulation_setup

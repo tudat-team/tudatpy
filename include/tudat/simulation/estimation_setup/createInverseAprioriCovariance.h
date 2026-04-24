@@ -24,68 +24,71 @@ namespace tudat
 {
 namespace simulation_setup
 {
-//! Validate/initialize the inverse a priori covariance matrix input.
+//! Validate/initialize a covariance-like matrix input.
 /*!
  * If the input matrix is 0x0, a zero matrix with the required dimensions is created.
  * Otherwise, the function verifies that the input matrix is square and matches the
  * full estimated-parameter dimension.
- * \param inverseAprioriCovariance Input inverse a priori covariance matrix.
+ * \param covarianceMatrix Input covariance-like matrix.
  * \param numberOfEstimatedParameters Required matrix size based on the parameter set.
- * \return Validated inverse a priori covariance matrix.
+ * \return Validated covariance-like matrix.
  */
-Eigen::MatrixXd getValidatedInverseAprioriCovarianceInput(
-        const Eigen::MatrixXd& inverseAprioriCovariance,
+Eigen::MatrixXd getValidatedCovarianceInput(
+        const Eigen::MatrixXd& covarianceMatrix,
         const int numberOfEstimatedParameters );
 
-//! Expand and validate uncertainties for a single estimatable-parameter block.
+//! Expand and validate covariance diagonal values for a single estimatable-parameter block.
 /*!
- * Accepts either a scalar uncertainty (size-1 vector) or one uncertainty per block component.
- * Scalar input is broadcast to the block size. The resulting uncertainties are checked to be
- * non-empty and strictly positive.
- * \param uncertaintyValues Input uncertainty values for a parameter.
+ * Accepts either a scalar value (size-1 vector) or one value per block component.
+ * Scalar input is broadcast to the block size. The resulting vector is checked to be
+ * non-empty and non-negative.
+ * \param covarianceDiagonalValues Input covariance diagonal values for a parameter.
  * \param parameterSize Size of the matched parameter block.
  * \param parameterIdentifier Identifier of the matched parameter (for error reporting).
- * \return Uncertainty vector of size \p parameterSize.
+ * \return Covariance diagonal values of size \p parameterSize.
  */
-Eigen::VectorXd getUncertaintyValuesForParameter(
-        const Eigen::VectorXd& uncertaintyValues,
+Eigen::VectorXd getCovarianceDiagonalValuesForParameter(
+        const Eigen::VectorXd& covarianceDiagonalValues,
         const int parameterSize,
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier );
 
-//! Add/update inverse a priori covariance entries from per-parameter uncertainties.
+//! Add/update diagonal entries in a covariance-like matrix from per-parameter vectors.
 /*!
- * For each entry in \p aprioriUncertaintyPerParameter, this function resolves the matching
+ * For each entry in \p covarianceDiagonalEntriesPerParameter, this function resolves the matching
  * parameter block(s) in \p parameterSet and sets the corresponding diagonal terms in the
- * inverse a priori covariance matrix to :math:`1/\sigma^2`.
+ * covariance-like matrix directly to the provided values.
  *
- * If \p inverseAprioriCovariance is 0x0, a zero matrix with the full parameter-set size
+ * If \p covarianceMatrix is 0x0, a zero matrix with the full parameter-set size
  * is created first.
  *
- * \param inverseAprioriCovariance Existing inverse a priori covariance matrix (or 0x0 matrix).
+ * This function is representation-agnostic: it can be used to build a covariance matrix,
+ * an inverse covariance matrix, or any diagonal matrix with parameter-aligned entries.
+ *
+ * \param covarianceMatrix Existing covariance-like matrix (or 0x0 matrix).
  * \param parameterSet Estimatable-parameter set used for block index lookup.
- * \param aprioriUncertaintyPerParameter Per-parameter uncertainty entries.
- * \return Updated inverse a priori covariance matrix.
+ * \param covarianceDiagonalEntriesPerParameter Per-parameter diagonal-entry vectors.
+ * \return Updated covariance-like matrix.
  */
 template< typename InitialStateParameterType = double >
-Eigen::MatrixXd addInverseAprioriCovarianceEntries(
-        const Eigen::MatrixXd& inverseAprioriCovariance,
+Eigen::MatrixXd addCovarianceDiagonalEntries(
+        const Eigen::MatrixXd& covarianceMatrix,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
         const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                aprioriUncertaintyPerParameter )
+                covarianceDiagonalEntriesPerParameter )
 {
     if( parameterSet == nullptr )
     {
-        throw std::runtime_error( "Error when creating/updating inverse apriori covariance: parameter_set is null." );
+        throw std::runtime_error( "Error when creating/updating covariance matrix entries: parameter_set is null." );
     }
 
-    Eigen::MatrixXd updatedInverseAprioriCovariance =
-            getValidatedInverseAprioriCovarianceInput( inverseAprioriCovariance, parameterSet->getEstimatedParameterSetSize( ) );
+    Eigen::MatrixXd updatedCovarianceMatrix =
+            getValidatedCovarianceInput( covarianceMatrix, parameterSet->getEstimatedParameterSetSize( ) );
 
     for( const std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd >& aprioriEntry :
-         aprioriUncertaintyPerParameter )
+         covarianceDiagonalEntriesPerParameter )
     {
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier = aprioriEntry.first;
-        const Eigen::VectorXd& uncertaintyValues = aprioriEntry.second;
+        const Eigen::VectorXd& covarianceDiagonalValues = aprioriEntry.second;
 
         const std::vector< std::pair< int, int > > parameterIndices =
                 parameterSet->getParameterIndicesForParameterIdentifier( parameterIdentifier );
@@ -94,36 +97,39 @@ Eigen::MatrixXd addInverseAprioriCovarianceEntries(
         {
             const int startIndex = indexAndSize.first;
             const int parameterSize = indexAndSize.second;
-            const Eigen::VectorXd currentUncertaintyValues =
-                    getUncertaintyValuesForParameter( uncertaintyValues, parameterSize, parameterIdentifier );
+            const Eigen::VectorXd currentCovarianceDiagonalValues =
+                    getCovarianceDiagonalValuesForParameter( covarianceDiagonalValues, parameterSize, parameterIdentifier );
 
             for( int i = 0; i < parameterSize; i++ )
             {
-                updatedInverseAprioriCovariance( startIndex + i, startIndex + i ) =
-                        1.0 / ( currentUncertaintyValues( i ) * currentUncertaintyValues( i ) );
+                updatedCovarianceMatrix( startIndex + i, startIndex + i ) = currentCovarianceDiagonalValues( i );
             }
         }
     }
 
-    return updatedInverseAprioriCovariance;
+    return updatedCovarianceMatrix;
 }
 
-//! Create a full inverse a priori covariance matrix from per-parameter uncertainties.
+//! Create a covariance-like matrix from per-parameter diagonal-entry vectors.
 /*!
- * Convenience wrapper around addInverseAprioriCovarianceEntries that starts from an empty
+ * Convenience wrapper around addCovarianceDiagonalEntries that starts from an empty
  * matrix and creates a correctly sized matrix automatically.
+ *
+ * This function is representation-agnostic: it can create a covariance matrix,
+ * an inverse covariance matrix, or any parameter-aligned diagonal matrix.
+ *
  * \param parameterSet Estimatable-parameter set used for block index lookup.
- * \param aprioriUncertaintyPerParameter Per-parameter uncertainty entries.
- * \return Inverse a priori covariance matrix with constrained diagonal entries set.
+ * \param covarianceDiagonalEntriesPerParameter Per-parameter diagonal-entry vectors.
+ * \return Covariance-like matrix with constrained diagonal entries set.
  */
 template< typename InitialStateParameterType = double >
-Eigen::MatrixXd createInverseAprioriCovariance(
+Eigen::MatrixXd createCovarianceFromDiagonalEntries(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
         const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                aprioriUncertaintyPerParameter )
+                covarianceDiagonalEntriesPerParameter )
 {
-    return addInverseAprioriCovarianceEntries< InitialStateParameterType >(
-            Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, aprioriUncertaintyPerParameter );
+    return addCovarianceDiagonalEntries< InitialStateParameterType >(
+            Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter );
 }
 
 }  // namespace simulation_setup

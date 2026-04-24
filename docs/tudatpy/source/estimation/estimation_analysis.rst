@@ -23,11 +23,9 @@ Functions
 
    estimation_convergence_checker
 
-   apriori_uncertainty_entry
+   create_covariance_from_diagonal_entries
 
-   create_inverse_apriori_covariance
-
-   add_inverse_apriori_covariance_entries
+   add_covariance_diagonal_entries
 
    create_best_fit_to_ephemeris
 
@@ -42,11 +40,9 @@ Functions
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.apriori_uncertainty_entry
+.. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.create_inverse_apriori_covariance
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.add_inverse_apriori_covariance_entries
+.. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
 
