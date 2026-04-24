@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <vector>
 #include <istream>
+#include <cstdint>
+#include <string>
 
 namespace tudat
 {
