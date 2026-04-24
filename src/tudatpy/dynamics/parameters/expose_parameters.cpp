@@ -199,12 +199,19 @@ void expose_parameters( py::module& m )
                   py::arg( "parameter_type" ),
                   R"doc(
 
-         Retrieve indices of parameter blocks matching a parameter enum.
+         Retrieve indices of parameter blocks matching a parameter identifier.
+
+         Matching rules:
+
+         * If either identifier string is non-empty, exact matching is used on the full identifier.
+         * If both strings are empty, matching is performed on the enum only.
+         * If multiple parameter blocks match, all matches are returned.
+         * If no parameter blocks match, an empty list is returned.
 
          Parameters
          ----------
-         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
-             Parameter enum for which matching indices are retrieved.
+         parameter_type : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+             Parameter identifier for which matching indices are retrieved.
 
          Returns
          -------
@@ -212,26 +219,23 @@ void expose_parameters( py::module& m )
              Matching ``(start_index, size)`` entries in parameter-set order.
 
      )doc" )
-            .def(
-                    "parameters_for_parameter_type",
-                    [ ]( tep::EstimatableParameterSet< STATE_SCALAR_TYPE >& self,
-                         const tep::EstimatebleParametersEnum parameterType )
-                    {
-                        return self.getParametersForParameterIdentifier(
-                                std::make_pair( parameterType, std::make_pair( "", "" ) ) );
-                    },
-                    py::arg( "parameter_type" ),
+            .def( "parameters_for_parameter_type",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersForParameterIdentifier,
+                  py::arg( "parameter_type" ),
                   R"doc(
 
-         Retrieve parameter objects matching a parameter enum.
+         Retrieve parameter objects matching a parameter identifier.
+
+         Matching rules are identical to
+         :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.indices_for_parameter_type`.
 
          Returned parameter objects are instances of
          :class:`~tudatpy.dynamics.parameters.EstimatableParameter`.
 
          Parameters
          ----------
-         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
-             Parameter enum for which matching parameter objects are retrieved.
+         parameter_type : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+             Parameter identifier for which matching parameter objects are retrieved.
 
          Returns
          -------

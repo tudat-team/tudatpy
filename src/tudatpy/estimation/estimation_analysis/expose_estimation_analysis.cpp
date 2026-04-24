@@ -248,6 +248,7 @@ void expose_estimation_analysis( py::module& m )
            &tss::createCovarianceFromDiagonalEntries< STATE_SCALAR_TYPE >,
            py::arg( "parameter_set" ),
            py::arg( "covariance_diagonal_entries_per_parameter" ),
+           py::arg( "require_all_entries_to_match" ) = true,
            R"doc(
 
  Function to create a covariance-like matrix from per-parameter diagonal-entry vectors.
@@ -281,6 +282,9 @@ void expose_estimation_analysis( py::module& m )
      Consolidated set of estimated parameters.
  covariance_diagonal_entries_per_parameter : list
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
+ require_all_entries_to_match : bool, default = True
+     If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
+     If False, non-matching identifiers are ignored.
 
  Returns
  -------
@@ -294,6 +298,7 @@ void expose_estimation_analysis( py::module& m )
            py::arg( "covariance_matrix" ),
            py::arg( "parameter_set" ),
            py::arg( "covariance_diagonal_entries_per_parameter" ),
+           py::arg( "require_all_entries_to_match" ) = true,
            R"doc(
 
  Function to add or update diagonal entries in a covariance-like matrix.
@@ -318,6 +323,9 @@ void expose_estimation_analysis( py::module& m )
      Consolidated set of estimated parameters.
  covariance_diagonal_entries_per_parameter : list
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
+ require_all_entries_to_match : bool, default = True
+     If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
+     If False, non-matching identifiers are ignored.
 
  Returns
  -------

@@ -67,6 +67,7 @@ Eigen::VectorXd getCovarianceDiagonalValuesForParameter(
  * \param covarianceMatrix Existing covariance-like matrix (or 0x0 matrix).
  * \param parameterSet Estimatable-parameter set used for block index lookup.
  * \param covarianceDiagonalEntriesPerParameter Per-parameter diagonal-entry vectors.
+ * \param requireAllEntriesToMatch If true, each provided parameter identifier must match at least one parameter block.
  * \return Updated covariance-like matrix.
  */
 template< typename InitialStateParameterType = double >
@@ -74,7 +75,8 @@ Eigen::MatrixXd addCovarianceDiagonalEntries(
         const Eigen::MatrixXd& covarianceMatrix,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
         const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                covarianceDiagonalEntriesPerParameter )
+                covarianceDiagonalEntriesPerParameter,
+        const bool requireAllEntriesToMatch = true )
 {
     if( parameterSet == nullptr )
     {
@@ -90,15 +92,22 @@ Eigen::MatrixXd addCovarianceDiagonalEntries(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier = aprioriEntry.first;
         const Eigen::VectorXd& covarianceDiagonalValues = aprioriEntry.second;
 
-        const std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
-                parameterEntries = parameterSet->getParametersAndIndicesForParameterIdentifier( parameterIdentifier );
+        const std::vector< std::pair< int, int > > parameterIndices =
+                parameterSet->getIndicesForParameterType( parameterIdentifier );
 
-        for( const std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > >&
-                     parameterEntry :
-             parameterEntries )
+        if( parameterIndices.size( ) == 0 && requireAllEntriesToMatch )
         {
-            const int startIndex = parameterEntry.first.first;
-            const int parameterSize = parameterEntry.first.second;
+            throw std::runtime_error(
+                    "Error when applying covariance diagonal entries: no parameters found for identifier with parameter type '" +
+                    estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' and strings ('" +
+                    parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second +
+                    "'). Disable strict checking by setting requireAllEntriesToMatch to false." );
+        }
+
+        for( const std::pair< int, int >& indexAndSize : parameterIndices )
+        {
+            const int startIndex = indexAndSize.first;
+            const int parameterSize = indexAndSize.second;
             const Eigen::VectorXd currentCovarianceDiagonalValues =
                     getCovarianceDiagonalValuesForParameter( covarianceDiagonalValues, parameterSize, parameterIdentifier );
 
@@ -122,16 +131,21 @@ Eigen::MatrixXd addCovarianceDiagonalEntries(
  *
  * \param parameterSet Estimatable-parameter set used for block index lookup.
  * \param covarianceDiagonalEntriesPerParameter Per-parameter diagonal-entry vectors.
+ * \param requireAllEntriesToMatch If true, each provided parameter identifier must match at least one parameter block.
  * \return Covariance-like matrix with constrained diagonal entries set.
  */
 template< typename InitialStateParameterType = double >
 Eigen::MatrixXd createCovarianceFromDiagonalEntries(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >& parameterSet,
         const std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >&
-                covarianceDiagonalEntriesPerParameter )
+                covarianceDiagonalEntriesPerParameter,
+        const bool requireAllEntriesToMatch = true )
 {
     return addCovarianceDiagonalEntries< InitialStateParameterType >(
-            Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter );
+            Eigen::MatrixXd::Zero( 0, 0 ),
+            parameterSet,
+            covarianceDiagonalEntriesPerParameter,
+            requireAllEntriesToMatch );
 }
 
 }  // namespace simulation_setup
