@@ -49,6 +49,14 @@ Eigen::VectorXd getCovarianceDiagonalValuesForParameter(
 {
     Eigen::VectorXd currentCovarianceDiagonalValues;
 
+    if( covarianceDiagonalValues.size( ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error when applying covariance diagonal entries for parameter type '" +
+                estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' with identifiers ('" +
+                parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second + "'): input is empty." );
+    }
+
     if( covarianceDiagonalValues.size( ) == 1 )
     {
         currentCovarianceDiagonalValues = Eigen::VectorXd::Constant( parameterSize, covarianceDiagonalValues( 0 ) );
@@ -67,14 +75,6 @@ Eigen::VectorXd getCovarianceDiagonalValuesForParameter(
                 "Received vector of size " +
                 std::to_string( covarianceDiagonalValues.size( ) ) + " for parameter size " +
                 std::to_string( parameterSize ) + ". Use a scalar value or a vector matching the parameter size." );
-    }
-
-    if( currentCovarianceDiagonalValues.size( ) == 0 )
-    {
-        throw std::runtime_error(
-                "Error when applying covariance diagonal entries for parameter type '" +
-                estimatable_parameters::getParameterTypeString( parameterIdentifier.first ) + "' with identifiers ('" +
-                parameterIdentifier.second.first + "', '" + parameterIdentifier.second.second + "'): input is empty." );
     }
 
     for( int i = 0; i < currentCovarianceDiagonalValues.size( ); i++ )
