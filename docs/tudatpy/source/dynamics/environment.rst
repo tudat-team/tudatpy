@@ -46,6 +46,8 @@ Classes
 
 
    Ephemeris
+
+   TimeEphemeris
    
    RotationalEphemeris
 
@@ -95,6 +97,9 @@ Classes
 
    
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
@@ -163,6 +168,5 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
-
 
 

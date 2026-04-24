@@ -42,6 +42,7 @@
 #include "scalarTypes.h"
 #include "shape/expose_shape.h"
 #include "shape_deformation/expose_shape_deformation.h"
+#include "space_time/expose_space_time.h"
 #include "vehicle_systems/expose_vehicle_systems.h"
 
 namespace py = pybind11;
@@ -61,6 +62,23 @@ namespace dynamics
 {
 namespace environment_setup
 {
+
+std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
+directRelativisticTimeConverterSettings(
+        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >& barycentric_to_bodycentric_settings,
+        const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
+        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& bodycentric_to_topocentric_settings )
+{
+    return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
+}
+
+void setRelativisticTimeConverters(
+        const tss::SystemOfBodies& bodies,
+        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& settings )
+{
+    tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
+}
 
 void expose_environment_setup( py::module &m )
 {
@@ -99,6 +117,9 @@ void expose_environment_setup( py::module &m )
 
     auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
     vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
+
+    auto space_time_setup = m.def_submodule( "space_time" );
+    space_time::expose_space_time_setup( space_time_setup );
 
     //        m.def("get_body_gravitational_parameter",
     //              &tss::getBodyGravitationalParameter,
@@ -1029,54 +1050,13 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                 std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m, "DirectRelativisticTimeConverterSettings", R"doc(
 
-        Settings for constructing a direct relativistic time converter for a body.
-
-        This settings object groups the time-scale propagation settings used to
-        build a time-scale converter for a given body (e.g., TCB↔TCG and
-        body-centered↔topocentric conversions).
-
-        The barycentric↔body-centered leg follows the Soffel et al. (2003),
-        Eq. (58)-type implementation in Tudat:
-
-        .. math::
-
-            \frac{d}{dt}\Delta_{BC}
-            =
-            -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
-            +
-            \frac{1}{c^4}\left(
-            -\frac{1}{8}v_C^4
-            -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
-            +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
-            +\frac{1}{2}w_{0,\mathrm{ext}}^2
-            +\Delta_{\mathrm{ext}}
-            \right),
-
-        while body-centered↔topocentric settings follow Turyshev et al. (2013),
-        Eq. (22):
-
-        .. math::
-
-            \frac{d}{dt_C}\left(\tau-t_C\right)
-            =
-            -\frac{1}{c^2}\left[
-            \frac{1}{2}v_0^2
-            +U_E(\mathbf{y})
-            +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
-            +\mathbf{a}_E\cdot\mathbf{y}
-            \right].
+        Settings container for constructing a direct relativistic time converter.
 
      )doc" );
 
     m.def(
         "direct_relativistic_time_converter_settings",
-        []( const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >& barycentric_to_bodycentric_settings,
-            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
-            const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& bodycentric_to_topocentric_settings )
-        {
-            return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                        barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
-        },
+        &directRelativisticTimeConverterSettings,
         py::arg( "barycentric_to_bodycentric_settings" ),
         py::arg( "integrator_settings" ),
         py::arg( "bodycentric_to_topocentric_settings" ) =
@@ -1085,47 +1065,34 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
  Create settings for a direct relativistic time converter.
 
+ This function combines:
+
+ 1. One barycentric↔body-centered conversion settings object, and
+ 2. Zero or more body-centered↔topocentric conversion settings objects
+
+ into a single converter-settings object for one body.
+
+ The ``barycentric_to_bodycentric_settings`` input should be created with either:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`, or
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.second_order_body_centered_relativistic_time_settings`.
+
+ Each entry in ``bodycentric_to_topocentric_settings`` should typically be created with:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`.
+
+ This function only assembles converter settings. Use
+ :func:`~set_relativistic_time_converters` to attach them to bodies.
+
  Parameters
  ----------
  barycentric_to_bodycentric_settings : RelativisticTimePropagatorSettings
-     Settings for the barycentric↔body-centered conversion (e.g. TCB↔TCG).
+     Settings object defining the barycentric↔body-centered leg.
  integrator_settings : IntegratorSettings
-     Numerical integrator settings used for time-scale propagation.
+     Numerical integrator settings used when creating the direct converter.
  bodycentric_to_topocentric_settings : list[RelativisticTimePropagatorSettings], optional
-     Optional list of body-centered↔topocentric conversion settings (local proper time).
-
- Notes
- -----
- The barycentric↔body-centered component propagates
-
- .. math::
-
-     \frac{d}{dt}\Delta_{BC}
-     =
-     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
-     +
-     \frac{1}{c^4}\left(
-     -\frac{1}{8}v_C^4
-     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
-     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
-     +\frac{1}{2}w_{0,\mathrm{ext}}^2
-     +\Delta_{\mathrm{ext}}
-     \right),
-
- and the body-centered↔topocentric component propagates
-
- .. math::
-
-     \frac{d}{dt_C}\left(\tau-t_C\right)
-     =
-     -\frac{1}{c^2}\left[
-     \frac{1}{2}v_0^2
-     +U_E(\mathbf{y})
-     +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}\left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
-     +\mathbf{a}_E\cdot\mathbf{y}
-     \right].
-
- In both cases, Tudat propagates the corresponding differential quantity directly.
+     Optional list of settings objects defining body-centered↔topocentric legs.
+     Each list entry typically corresponds to one reference point/station.
 
  Returns
  -------
@@ -1136,24 +1103,51 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
     m.def(
         "set_relativistic_time_converters",
-        []( const tss::SystemOfBodies& bodies,
-            const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& settings )
-        {
-            tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
-        },
+        &setRelativisticTimeConverters,
         py::arg( "bodies" ),
         py::arg( "converter_settings" ),
         R"doc(
 
  Attach relativistic time converters to bodies.
 
+ This function takes the converter settings assembled with
+ :func:`~direct_relativistic_time_converter_settings` and instantiates the
+ corresponding converter models in the provided system of bodies.
+
+ For each entry in ``converter_settings``, Tudat sets up:
+
+ - one barycentric↔body-centered conversion leg (first- or second-order), and
+ - zero or more body-centered↔topocentric conversion legs.
+
+ The key of each dictionary entry is typically the associated body name, while
+ the converter content is defined by the corresponding
+ :class:`~DirectRelativisticTimeConverterSettings` object.
+
+ The converter settings used here are typically created from:
+
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings` or
+   :func:`~tudatpy.dynamics.propagation_setup.propagator.second_order_body_centered_relativistic_time_settings`
+   for the barycentric↔body-centered leg, and
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`
+   for optional topocentric legs.
+
+ After this function returns, each configured body can provide time-scale
+ differences through
+ :func:`~tudatpy.dynamics.environment.Body.get_time_scale_converter`.
+
  Parameters
  ----------
  bodies : SystemOfBodies
      The system of bodies to which time converters are attached.
  converter_settings : dict[str, DirectRelativisticTimeConverterSettings]
-     Mapping from body name to converter settings. Each entry creates a
-     time-scale converter accessible via :func:`~tudatpy.dynamics.environment.Body.get_time_scale_converter`.
+     Mapping from identifiers (typically body names) to direct converter
+     settings objects. Each entry creates one relativistic time converter
+     configuration.
+
+ Returns
+ -------
+ None
+     This function modifies ``bodies`` in place by attaching converter models.
 
         )doc" );
 

@@ -53,10 +53,16 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
             throw std::runtime_error( "Error: Body " + bodyName + " has no gravity field model." );
         }
 
+        std::shared_ptr< relativity::PPNParameterSet > ppnSet = schwarzschildSettings->getPpnParameterSet( );
+        if( ppnSet == nullptr )
+        {
+            ppnSet = relativity::ppnParameterSet;
+        }
+
         spaceTimeMetric = std::make_shared< relativity::HarmonicSchwarzschildMetric >(
             std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                        centralBody->getGravityFieldModel( ) ),
-            schwarzschildSettings->getPpnParameterSet( ),
+            ppnSet,
             bodyName,
             schwarzschildSettings->getIncludeSecondPostNewtonianOrder( ) );
 
@@ -83,6 +89,10 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
         std::map< int, std::function< void( const double ) > > rotationUpdateFunctions;
 
         std::shared_ptr< relativity::PPNParameterSet > ppnSet = solarSettings->getPpnParameterSet( );
+        if( ppnSet == nullptr )
+        {
+            ppnSet = relativity::ppnParameterSet;
+        }
 
         const std::vector< std::string >& firstOrderBodies = solarSettings->getBodiesWithFirstOrderExpansion( );
         const std::vector< std::string >& secondOrderBodies = solarSettings->getBodiesWithSecondOrderExpansion( );

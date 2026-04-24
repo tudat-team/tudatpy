@@ -1909,6 +1909,71 @@ private:
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >
+firstOrderBodycentricRelativisticTimePropagatorSettings(
+        const std::string& bodyName,
+        const std::vector< std::string >& externalBodies,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                std::map< std::string, std::pair< int, int > >( ) )
+{
+    return std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
+                bodyName,
+                externalBodies,
+                initialTime,
+                integratorSettings,
+                terminationSettings,
+                sphericalHarmonicGravityExpansions );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >
+secondOrderBodyCenteredRelativisticTimePropagatorSettings(
+        const std::string& bodyName,
+        const std::vector< std::string >& externalBodies,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                std::map< std::string, std::pair< int, int > >( ) )
+{
+    return std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >(
+                bodyName,
+                externalBodies,
+                initialTime,
+                integratorSettings,
+                terminationSettings,
+                sphericalHarmonicGravityExpansions );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >
+bodycenteredToTopocentricTimePropagatorSettings(
+        const std::pair< std::string, std::string > referencePointId,
+        const bool useAccelerationTerm,
+        const int maximumSphericalHarmonicDegree,
+        const bool useTimeDependentBodyFixedPosition,
+        const std::vector< std::string >& topocentricExternalBodies,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings )
+{
+    return std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >(
+                referencePointId,
+                useAccelerationTerm,
+                maximumSphericalHarmonicDegree,
+                useTimeDependentBodyFixedPosition,
+                topocentricExternalBodies,
+                initialBodyStates,
+                initialTime,
+                integratorSettings,
+                terminationSettings );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
 class DirectRelativisticTimePropagatorSettings : public RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >
 {
 public:
@@ -1940,6 +2005,36 @@ public:
         // No additional models required for direct-from-metric propagation.
     }
 };
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< DirectRelativisticTimePropagatorSettings< StateScalarType, TimeType > >
+directRelativisticTimePropagatorSettings(
+        const std::pair< std::string, std::string >& referencePointId,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+            []( const TimeType& inputTime ){ return inputTime; },
+        const double distanceScalingFactor = 1.0,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
+{
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
+
+    return std::make_shared< DirectRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
+                referencePointId,
+                initialTime,
+                integratorSettings,
+                terminationSettings,
+                timeVariableConversionFunction,
+                distanceScalingFactor,
+                dependentVariablesToSave,
+                outputSettingsToUse );
+}
 
 
 //! Class used to provide settings for a custom state derivative model

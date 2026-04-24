@@ -260,43 +260,16 @@ void expose_environment( py::module& m )
 
          Relativistic time-scale converter for a body (and optional reference points).
 
-         This object provides time differences between supported scales (e.g. TCB, TCG,
-         and local proper time) for the associated body.
+         This object is created/populated from relativistic time propagator settings
+         after propagation of the associated proper-time differential equations.
+         In standard usage, it defines the barycentric↔body-centered conversion
+         for the associated body, and optionally the body-centered↔topocentric
+         conversion for each configured reference point.
 
-         For barycentric↔body-centered conversion, Tudat propagates
-         (Soffel et al., 2003, Eq. 58 implementation):
-
-         .. math::
-
-             \frac{d}{dt}\Delta_{BC}
-             =
-             -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
-             +
-             \frac{1}{c^4}\left(
-             -\frac{1}{8}v_C^4
-             -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
-             +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
-             +\frac{1}{2}w_{0,\mathrm{ext}}^2
-             +\Delta_{\mathrm{ext}}
-             \right).
-
-         For body-centered↔topocentric conversion, Tudat propagates
-         (Turyshev et al., 2013, Eq. 22 implementation):
-
-         .. math::
-
-             \frac{d}{dt_C}\left(\tau-t_C\right)
-             =
-             -\frac{1}{c^2}\left[
-             \frac{1}{2}v_0^2
-             +U_E(\mathbf{y})
-             +\sum_{b\neq E}\frac{GM_b}{2r_{bE}^3}
-             \left(3(\mathbf{n}_{bE}\cdot\mathbf{y})^2-\mathbf{y}^2\right)
-             +\mathbf{a}_E\cdot\mathbf{y}
-             \right].
-
-         These propagated rates are integrated internally to provide requested
-         scale differences.
+         The object is typically set up via
+         :func:`~tudatpy.dynamics.environment_setup.set_relativistic_time_converters`
+         using settings created from
+         :mod:`tudatpy.dynamics.propagation_setup.propagator`.
 
       )doc" )
             .def( "get_time_difference",
@@ -328,6 +301,40 @@ void expose_environment( py::module& m )
          -------
          float
              Time difference in seconds.
+
+      )doc" )
+            .def( "get_time_difference_from_time",
+                  static_cast< tudat::Time ( tudat::TimeEphemeris::* )(
+                      const tudat::basic_astrodynamics::TimeScales,
+                      const tudat::basic_astrodynamics::TimeScales,
+                      const tudat::Time,
+                      const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference< tudat::Time > ),
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_time" ),
+                  py::arg( "point_identifier" ) = "",
+                  R"doc(
+
+         Get time difference :math:`t_{output} - t_{input}` at a given input epoch.
+
+         This overload takes and returns a :class:`~tudatpy.astro.time_representation.Time`
+         object.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Input time scale.
+         output_scale : TimeScales
+             Output time scale.
+         input_time : Time
+             Input time value as a :class:`~tudatpy.astro.time_representation.Time` object.
+         point_identifier : str, default = ""
+             Optional reference point identifier (for topocentric/local proper time).
+
+         Returns
+         -------
+         Time
+             Time difference as a :class:`~tudatpy.astro.time_representation.Time` object.
 
       )doc" );
 

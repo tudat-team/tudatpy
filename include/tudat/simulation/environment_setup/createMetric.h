@@ -186,6 +186,65 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
         const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
         const simulation_setup::SystemOfBodies& bodyMap );
 
+//! Factory function for Schwarzschild metric settings.
+/*!
+ *  \param bodyName Central body used in the Schwarzschild metric.
+ *  \param includeSecondPostNewtonianOrder If true, include second post-Newtonian terms.
+ *  \param ppnParameterSetToUse PPN parameter set used in metric evaluation.
+ *  \return Shared pointer to Schwarzschild metric settings.
+ */
+inline std::shared_ptr< SchwardschildSpaceTimeMetricSettings > schwardschildSpaceTimeMetricSettings(
+        const std::string& bodyName,
+        const bool includeSecondPostNewtonianOrder = false,
+        const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSetToUse = relativity::ppnParameterSet )
+{
+    return std::make_shared< SchwardschildSpaceTimeMetricSettings >(
+                bodyName, ppnParameterSetToUse, includeSecondPostNewtonianOrder );
+}
+
+//! Factory function for solar-system metric settings.
+/*!
+ *  \param bodiesWithFirstOrderExpansion Bodies included at first post-Newtonian order.
+ *  \param bodiesWithSecondOrderExpansion Bodies included in second-order terms.
+ *  \param bodySphericalHarmonicExpansions Optional map of body name to maximum spherical harmonic degree/order.
+ *  \param angularMomentumBodies Bodies for which angular momentum terms are included.
+ *  \param useBodyAccelerations If true, include explicit body acceleration terms where required.
+ *  \param ppnParameterSetToUse PPN parameter set used in metric evaluation.
+ *  \return Shared pointer to solar-system metric settings.
+ */
+inline std::shared_ptr< SolarSystemSpaceTimeMetricSettings > solarSystemSpaceTimeMetricSettings(
+        const std::vector< std::string >& bodiesWithFirstOrderExpansion,
+        const std::vector< std::string >& bodiesWithSecondOrderExpansion = { },
+        const std::map< std::string, std::pair< int, int > >& bodySphericalHarmonicExpansions = { },
+        const std::vector< std::string >& angularMomentumBodies = { },
+        const bool useBodyAccelerations = true,
+        const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSetToUse = relativity::ppnParameterSet )
+{
+    return std::make_shared< SolarSystemSpaceTimeMetricSettings >(
+                bodiesWithFirstOrderExpansion,
+                bodiesWithSecondOrderExpansion,
+                bodySphericalHarmonicExpansions,
+                angularMomentumBodies,
+                ppnParameterSetToUse,
+                useBodyAccelerations );
+}
+
+//! Create and assign global base metric from metric settings.
+/*!
+ *  This function sets the global ``baseMetric`` used by direct-from-metric
+ *  relativistic time propagation and clears cached cloned metric objects.
+ *
+ *  \param spaceTimeMetricSettings Metric settings defining model type and configuration.
+ *  \param bodyMap System of bodies providing required environment models/functions.
+ */
+inline void createBaseMetric(
+        const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
+        const simulation_setup::SystemOfBodies& bodyMap )
+{
+    baseMetric = createSpaceTimeMetric( spaceTimeMetricSettings, bodyMap );
+    evaluatedMetricObjects.clear( );
+}
+
 } // namespace simulation_setup
 } // namespace tudat
 
