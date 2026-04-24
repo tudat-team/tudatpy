@@ -10,8 +10,6 @@
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
-#include <algorithm>
-
 namespace tio = tudat::input_output;
 
 namespace tudat
