@@ -74,7 +74,7 @@ Examples
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
-    py::enum_< tom::LinkEndReferencePointType >( m, "LinkEndReferencePointType", "IntEnum", R"doc(
+    py::enum_< tom::LinkEndReferencePointType >( m, "LinkEndReferencePointType", R"doc(
 
 Enumeration of link end reference point types.
 
@@ -295,11 +295,11 @@ Enumeration of link end reference point types.
 
       )doc" )
             .def_property_readonly( "reference_point",
-                                    &tom::LinkEndId::getStationName,
+                                    &tom::LinkEndId::getReferencePointName,
                                     R"doc(
-         Function for setting a name for the reference point on a body.
+         Function for retrieving the name of the reference point on a body.
 
-         Function for setting a name for the reference point on a body (typically, the name of a ground station).
+         Function for retrieving the name of the reference point on a body (typically, the name of a ground station).
 
      Examples
      --------
@@ -321,7 +321,32 @@ Enumeration of link end reference point types.
 
 
 
-      )doc" );
+      )doc" )
+            .def_property_readonly( "station_name",
+                                    &tom::LinkEndId::getStationName,
+                                    R"doc(
+         Name of the ground station reference point on the body, str. Empty if there is no reference point.
+      )doc" )
+            .def_property_readonly( "component_name",
+                                    &tom::LinkEndId::getComponentName,
+                                    R"doc(
+         Name of the body component reference point (e.g. camera name), str. Empty if not a body component.
+      )doc" )
+            .def_property_readonly( "reference_point_type",
+                                    &tom::LinkEndId::getReferencePointType,
+                                    R"doc(
+         Type of reference point (undefined, ground_station, or body_component), LinkEndReferencePointType.
+      )doc" )
+            .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
+            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
+            .def( py::init< const std::string&, const std::string&, tom::LinkEndReferencePointType >( ),
+                  py::arg( "body_name" ),
+                  py::arg( "reference_point_name" ),
+                  py::arg( "reference_point_type" ) )
+            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) )
+            .def( py::init< const std::pair< std::string, std::string >&, tom::LinkEndReferencePointType >( ),
+                  py::arg( "link_end" ),
+                  py::arg( "reference_point_type" ) );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -408,6 +433,32 @@ Enumeration of link end reference point types.
      print(links.body_reference_point_link_end_id(receiver, reference_point))
 
 
+
+     )doc" );
+
+    m.def(
+            "body_component_link_end_id",
+            []( const std::string& bodyName, const std::string& componentName ) {
+                return tom::linkEndId( bodyName, componentName, tom::LinkEndReferencePointType::body_component );
+            },
+            py::arg( "body_name" ),
+            py::arg( "component_name" ),
+            R"doc(
+
+ Function to create a link end identifier for a body component (e.g. a camera).
+
+ Parameters
+ ----------
+ body_name : str
+     Name of the body on which the component is located.
+
+ component_name : str
+     Identifier of the component (e.g. camera name).
+
+ Returns
+ -------
+ LinkEndId
+     A LinkEndId object representing a body component.
 
      )doc" );
 
