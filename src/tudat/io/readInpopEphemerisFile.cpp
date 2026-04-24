@@ -9,12 +9,14 @@
  *
  */
 
+#include <algorithm>
 #include <fstream>
-#include <sstream>
-#include <iostream>
-#include <stdexcept>
-#include <memory>
 #include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"

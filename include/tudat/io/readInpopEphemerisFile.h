@@ -12,6 +12,7 @@
 #ifndef TUDAT_READINPOPTIMEEPHEMERIS_H
 #define TUDAT_READINPOPTIMEEPHEMERIS_H
 
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <string>
