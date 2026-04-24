@@ -97,7 +97,7 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     // Add wind model (always exists)
     if( centralBody->getShapeModel( ) == nullptr )
     {
-        std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration
+        std::cerr << "Warning, body " << nameOfBodyExertingAcceleration
                   << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
     }
     else
