@@ -1528,7 +1528,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              A dictionary mapping observation parsers to tabulated weight vectors.
      )doc" )
             .def( "set_block_diagonal_weights",
-                  py::overload_cast< const Eigen::MatrixXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                  py::overload_cast< const Eigen::MatrixXd&, const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDiagonalWeights ),
                   py::arg( "weight_block" ),
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
@@ -1544,7 +1544,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_block_diagonal_weights",
-                  py::overload_cast< const std::vector< Eigen::MatrixXd >,
+                  py::overload_cast< const std::vector< Eigen::MatrixXd >&,
                                      const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setBlockDiagonalWeights ),
                   py::arg( "block_diagonal_weights" ),
@@ -1561,7 +1561,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_full_weight_matrix",
-                  py::overload_cast< const Eigen::MatrixXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                  py::overload_cast< const Eigen::MatrixXd&, const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setFullWeightMatrix ),
                   py::arg( "full_weight_matrix" ),
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
@@ -1576,7 +1576,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_full_weight_matrix",
-                  py::overload_cast< const std::vector< Eigen::MatrixXd >,
+                  py::overload_cast< const std::vector< Eigen::MatrixXd >&,
                                      const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setFullWeightMatrix ),
                   py::arg( "full_weight_matrices" ),

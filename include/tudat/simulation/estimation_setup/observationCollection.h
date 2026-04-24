@@ -1152,7 +1152,7 @@ public:
 
     //! Sets one dense block as block-diagonal base weights for all selected observations.
     void setBlockDiagonalWeights(
-            const Eigen::MatrixXd weightBlock,
+            const Eigen::MatrixXd& weightBlock,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
@@ -1173,7 +1173,7 @@ public:
 
     //! Sets per-observation block-diagonal base weights for selected sets.
     void setBlockDiagonalWeights(
-            const std::vector< Eigen::MatrixXd > blockDiagonalWeights,
+            const std::vector< Eigen::MatrixXd >& blockDiagonalWeights,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
@@ -1230,7 +1230,7 @@ public:
 
     //! Sets one full weight-matrix contribution for each selected single observation set.
     void setFullWeightMatrix(
-            const Eigen::MatrixXd fullWeightMatrix,
+            const Eigen::MatrixXd& fullWeightMatrix,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
@@ -1260,7 +1260,7 @@ public:
 
     //! Sets one full weight-matrix contribution per selected single observation set.
     void setFullWeightMatrix(
-            const std::vector< Eigen::MatrixXd > fullWeightMatrices,
+            const std::vector< Eigen::MatrixXd >& fullWeightMatrices,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
