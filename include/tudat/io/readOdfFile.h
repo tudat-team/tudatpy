@@ -205,10 +205,10 @@ public:
      * @param dataType_ Data type, specified according to section 3.2.4
      * of TRK-2-18 (2018).
      */
-    OdfDataSpecificBlock( OdfDataType dataType ): dataType_( dataType ) { }
+    OdfDataSpecificBlock( OdfDataType dataType ): dataType_( dataType ) {}
 
     // Destructor
-    virtual ~OdfDataSpecificBlock( ) { }
+    virtual ~OdfDataSpecificBlock( ) {}
 
     /*!
      * Virtual function printing the observable specific data block to
@@ -246,7 +246,7 @@ public:
     OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDodDataType );
 
     // Destructor
-    ~OdfDDodDataBlock( ) { }
+    ~OdfDDodDataBlock( ) {}
 
     int getSecondReceivingStationId( )
     {
@@ -317,7 +317,7 @@ public:
     OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDorDataType );
 
     // Destructor
-    ~OdfDDorDataBlock( ) { }
+    ~OdfDDorDataBlock( ) {}
 
     int getSecondReceivingStationId( )
     {
@@ -380,7 +380,7 @@ public:
     OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dopplerDataType );
 
     // Destructor
-    ~OdfDopplerDataBlock( ) { }
+    ~OdfDopplerDataBlock( ) {}
 
     int getReceiverChannel( )
     {
@@ -449,7 +449,7 @@ public:
     OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits );
 
     // Destructor
-    ~OdfSequentialRangeDataBlock( ) { }
+    ~OdfSequentialRangeDataBlock( ) {}
 
     int getSpacecraftId( )
     {
@@ -516,7 +516,7 @@ public:
     OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits );
 
     // Destructor
-    ~OdfToneRangeDataBlock( ) { }
+    ~OdfToneRangeDataBlock( ) {}
 
     int getSpacecraftId( )
     {
@@ -566,7 +566,7 @@ public:
     OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType angleDataType );
 
     // Destructor
-    ~OdfAngleDataBlock( ) { }
+    ~OdfAngleDataBlock( ) {}
 
     int getSpacecraftId( )
     {
