@@ -1254,9 +1254,27 @@ void resetIntegratedPostNewtonianTimeEphemeris(
             std::shared_ptr< ground_stations::GroundStationState > groundStationState =
                     std::dynamic_pointer_cast< simulation_setup::Body >( bodies.getBody( referencePointIdentifier.first ) )->getGroundStation(
                         referencePointIdentifier.second )->getNominalStationState( );
+            // The direct correction in TimeEphemerisWith*OrderDirectConversion dots the central body's
+            // INERTIAL barycentric velocity with this position vector. The IBP identity that underlies
+            // the -v_E.r/c^2 correction requires r in the inertial frame (so that v_rel = dr/dt = omega x r).
+            // Returning the body-fixed nominal position here would silently drop Earth's diurnal rotation
+            // and leave a ~2 us/day periodic residual against direct-from-metric.
+            const auto rotationalEphemeris =
+                    bodies.getBody( referencePointIdentifier.first )->getRotationalEphemeris( );
+            if( rotationalEphemeris == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when wiring direct-correction station position function: body " +
+                            referencePointIdentifier.first + " has no rotational ephemeris." );
+            }
+            auto stationPositionInInertialFrame = [ groundStationState, rotationalEphemeris ]( const TimeType t ) -> Eigen::Vector3d
+            {
+                return rotationalEphemeris->getRotationToBaseFrame( static_cast< double >( t ) ).toRotationMatrix( )
+                       * groundStationState->getNominalCartesianPosition( );
+            };
             timeEphemeris->resetBodycentricToTopocentricInterpolators(
                         floatingPointValueNumericalSolution, referencePointIdentifier.second,
-                        std::bind( &ground_stations::GroundStationState::getNominalCartesianPosition, groundStationState ) );
+                        stationPositionInInertialFrame );
         }
     }
 }
