@@ -44,8 +44,6 @@ template< typename InitialStateParameterType = double >
 class EstimatableParameterSet
 {
 public:
-    using ParameterBasePointer = std::shared_ptr< EstimatableParameterBase >;
-
     //! Constructor of parameter set.
     /*!
      *  Constructor of parameter set.
@@ -422,18 +420,6 @@ public:
         return considerParameters_;
     }
 
-    //! Retrieve indices for all parameters with a given enum.
-    /*!
-     * Wrapper around getParameterIndicesForParameterIdentifier using enum-only matching.
-     * \param requiredParameterType Parameter type to search for in full list of parameters.
-     * \return List of start indices and sizes of parameters corresponding to requiredParameterType.
-     */
-    std::vector< std::pair< int, int > > getIndicesForParameterEnum( const EstimatebleParametersEnum requiredParameterType )
-    {
-        return getParameterIndicesForParameterIdentifier(
-                std::make_pair( requiredParameterType, std::make_pair( std::string( "" ), std::string( "" ) ) ) );
-    }
-
     //! Retrieve parameter indices and parameter objects from an identifier.
     /*!
      * Returns start index and size pairs, together with the matching parameter objects, for parameter block(s) that
@@ -443,10 +429,11 @@ public:
      * \param requiredParameterId Parameter identifier to search for in the estimated-parameter set.
      * \return List of ((start index, size), parameter object) entries for matching parameter block(s).
      */
-    std::vector< std::pair< std::pair< int, int >, ParameterBasePointer > > getIndicesForParameterIdentifier(
+    std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > >
+    getParametersAndIndicesForParameterIdentifier(
             const EstimatebleParameterIdentifier requiredParameterId )
     {
-        std::vector< std::pair< std::pair< int, int >, ParameterBasePointer > > typeIndices;
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > typeIndices;
 
         const bool isTypeOnlyIdentifier =
                 requiredParameterId.second.first.empty( ) && requiredParameterId.second.second.empty( );
@@ -503,10 +490,11 @@ public:
             const EstimatebleParameterIdentifier requiredParameterId )
     {
         std::vector< std::pair< int, int > > parameterIndices;
-        std::vector< std::pair< std::pair< int, int >, ParameterBasePointer > > parameterEntries =
-                getIndicesForParameterIdentifier( requiredParameterId );
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
+                getParametersAndIndicesForParameterIdentifier( requiredParameterId );
 
-        for( const std::pair< std::pair< int, int >, ParameterBasePointer >& parameterEntry : parameterEntries )
+        for( const std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > >& parameterEntry :
+             parameterEntries )
         {
             parameterIndices.push_back( parameterEntry.first );
         }
@@ -515,14 +503,15 @@ public:
     }
 
     //! Retrieve only parameter objects for parameters matching an identifier.
-    std::vector< ParameterBasePointer > getParametersForParameterIdentifier(
+    std::vector< std::shared_ptr< EstimatableParameterBase > > getParametersForParameterIdentifier(
             const EstimatebleParameterIdentifier requiredParameterId )
     {
-        std::vector< ParameterBasePointer > parameters;
-        std::vector< std::pair< std::pair< int, int >, ParameterBasePointer > > parameterEntries =
-                getIndicesForParameterIdentifier( requiredParameterId );
+        std::vector< std::shared_ptr< EstimatableParameterBase > > parameters;
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
+                getParametersAndIndicesForParameterIdentifier( requiredParameterId );
 
-        for( const std::pair< std::pair< int, int >, ParameterBasePointer >& parameterEntry : parameterEntries )
+        for( const std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > >& parameterEntry :
+             parameterEntries )
         {
             parameters.push_back( parameterEntry.second );
         }

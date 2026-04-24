@@ -34,6 +34,70 @@ namespace parameters
 
 void expose_parameters( py::module& m )
 {
+    py::class_< tep::EstimatableParameterBase, std::shared_ptr< tep::EstimatableParameterBase > >(
+            m,
+            "EstimatableParameter",
+            R"doc(
+
+         Estimatable parameter exposed through an untemplated vector-valued interface.
+
+      )doc" )
+            .def_property_readonly( "parameter_identifier",
+                                    &tep::EstimatableParameterBase::getParameterName,
+                                    R"doc(
+
+         **read-only**
+
+         Full parameter identifier as ``(parameter_type, (associated_body, secondary_identifier))``.
+
+         :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+      )doc" )
+            .def_property_readonly( "parameter_description",
+                                    &tep::EstimatableParameterBase::getParameterDescription,
+                                    R"doc(
+
+         **read-only**
+
+         Human-readable parameter description.
+
+         :type: str
+      )doc" )
+            .def_property_readonly( "parameter_size",
+                                    &tep::EstimatableParameterBase::getParameterSize,
+                                    R"doc(
+
+         **read-only**
+
+         Size of this parameter block in the estimation vector.
+
+         :type: int
+      )doc" )
+            .def( "get_parameter_value",
+                  &tep::EstimatableParameterBase::getParameterValueBase,
+                  R"doc(
+
+         Get the parameter value through the untemplated interface.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[m, 1]]
+             Current value of this parameter block.
+
+      )doc" )
+            .def( "set_parameter_value",
+                  &tep::EstimatableParameterBase::setParameterValueBase,
+                  py::arg( "parameter_value" ),
+                  R"doc(
+
+         Set the parameter value through the untemplated interface.
+
+         Parameters
+         ----------
+         parameter_value : numpy.ndarray[numpy.float64[m, 1]]
+             New value for this parameter block.
+
+      )doc" );
+
     // ESTIMATABLE PARAMETER SET CLASS
 
     py::class_< tep::EstimatableParameterSet< STATE_SCALAR_TYPE >, std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > > >(
@@ -130,58 +194,19 @@ void expose_parameters( py::module& m )
         :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
 
                                    )doc" )
-            .def( "indices_for_parameter_type",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParameterIndicesForParameterIdentifier,
-                  py::arg( "parameter_type" ),
-                  R"doc(
-
-         Function to retrieve parameter indices from an identifier.
-
-         Function to retrieve the index of all parameters matching a given identifier from the parameter set.
-         This function can be very useful, since the order of parameters within the parameter set does not necessarily correspond to the order in which the elements were added to the set.
-
-
-         Parameters
-         ----------
-         parameter_type : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
-             Parameter identifier for which the indices are retrieved. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
-         Returns
-         -------
-         List[ tuple[int, int] ]
-             Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
-
-     )doc" )
-            .def( "indices_for_parameter_enum",
-                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterEnum,
-                  py::arg( "parameter_type" ),
-                  R"doc(
-
-         Function to retrieve the indices of parameters for a given parameter enum.
-
-         Function to retrieve the indices of all parameters with a given enum, regardless of body/reference point
-         identifier.
-
-
-         Parameters
-         ----------
-         parameter_type : :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`
-             Parameter enum for which the indices are retrieved.
-         Returns
-         -------
-         List[ tuple[int, int] ]
-             Indices of the parameters corresponding to the enum. The first element of each tuple is the start index,
-             the second element is the size of the parameter.
-
-     )doc" )
-            .def( "indices_for_parameter_identifier",
+            .def( "get_parameter_indices_for_parameter_identifier",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParameterIndicesForParameterIdentifier,
                   py::arg( "parameter_identifier" ),
                   R"doc(
 
-         Function to retrieve indices of parameters from an identifier with optional enum-only matching.
+         Retrieve indices of parameter blocks matching a parameter identifier.
 
-         Function to retrieve parameter indices from a parameter identifier. If both strings in the identifier are empty,
-         matching is performed on the enum only and all matching parameters are returned.
+         Matching rules:
+
+         * If either identifier string is non-empty, exact matching is used on the full identifier.
+         * If both strings are empty, matching is performed on the enum only.
+         * If multiple parameter blocks match, all matches are returned.
+         * If no parameter blocks match, an empty list is returned.
 
 
          Parameters
@@ -192,10 +217,33 @@ void expose_parameters( py::module& m )
          Returns
          -------
          List[ tuple[int, int] ]
-             Indices of the parameters corresponding to the identifier. The first element of each tuple is the start
-             index, the second element is the parameter size.
+             Matching ``(start_index, size)`` entries in parameter-set order.
 
      )doc" )
+            .def( "get_parameters_for_parameter_identifier",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersForParameterIdentifier,
+                  py::arg( "parameter_identifier" ),
+                  R"doc(
+
+         Retrieve parameter objects matching a parameter identifier.
+
+         Matching rules are identical to
+         :meth:`~tudatpy.dynamics.parameters.EstimatableParameterSet.get_parameter_indices_for_parameter_identifier`.
+
+         Returned parameter objects are instances of
+         :class:`~tudatpy.dynamics.parameters.EstimatableParameter`.
+
+         Parameters
+         ----------
+         parameter_identifier : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+             Parameter identifier for which matching parameter objects are retrieved.
+
+         Returns
+         -------
+         List[ :class:`~tudatpy.dynamics.parameters.EstimatableParameter` ]
+             Matching parameter objects in parameter-set order.
+
+      )doc" )
             .def( "indices_for_parameter_description",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterDescription,
                   py::arg( "parameter_description" ),

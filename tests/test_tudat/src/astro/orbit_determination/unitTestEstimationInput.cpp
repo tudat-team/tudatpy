@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_EQUAL( customIndices.at( 0 ).second, 3 );
 
     std::vector< std::pair< std::pair< int, int >,
-                            estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > >
-            customEntries = parameterSet->getIndicesForParameterIdentifier( customEnumOnlyIdentifier );
+                            std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+            customEntries = parameterSet->getParametersAndIndicesForParameterIdentifier( customEnumOnlyIdentifier );
     BOOST_CHECK_EQUAL( customEntries.size( ), 1 );
     BOOST_CHECK( customEntries.at( 0 ).second != nullptr );
     BOOST_CHECK_EQUAL( customEntries.at( 0 ).first.first, customIndices.at( 0 ).first );
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_CLOSE_FRACTION(
             customEntries.at( 0 ).second->getParameterValueBase( ).norm( ), customParameterValue.norm( ), 1.0E-15 );
 
-    std::vector< estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > customParameters =
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > customParameters =
             parameterSet->getParametersForParameterIdentifier( customEnumOnlyIdentifier );
     BOOST_CHECK_EQUAL( customParameters.size( ), 1 );
     BOOST_CHECK( customParameters.at( 0 ) != nullptr );
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( test_InverseAprioriCovarianceUtilities )
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 0 ).second, 1 );
     BOOST_CHECK_EQUAL( ambiguousIndices.at( 1 ).second, 1 );
 
-    std::vector< estimatable_parameters::EstimatableParameterSet< double >::ParameterBasePointer > ambiguousParameters =
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > ambiguousParameters =
             parameterSet->getParametersForParameterIdentifier( ambiguousGravitationalEnumIdentifier );
     BOOST_CHECK_EQUAL( ambiguousParameters.size( ), 2 );
     BOOST_CHECK( ambiguousParameters.at( 0 ) != nullptr );
