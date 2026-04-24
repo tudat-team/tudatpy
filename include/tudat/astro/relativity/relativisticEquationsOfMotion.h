@@ -48,13 +48,15 @@ namespace relativity
 Eigen::Vector4d evaluateFourAcceleration(
         const std::vector< Eigen::Matrix4d >& christoffelSymbols, const Eigen::Vector4d& fourVelocity );
 
-//! Evaluate four-acceleration using current values stored in a metric object.
+//! Evaluate four-acceleration using a metric object and current 8D state.
 /*!
- *  \param spaceTimeMetric Metric object with already-updated state and metric quantities.
+ *  \param spaceTimeMetric Metric object used in four-acceleration evaluation.
+ *  \param currentState Current 8D state used in metric/four-velocity evaluation.
  *  \return Four-acceleration \f$du^\mu/d\tau\f$.
  */
 Eigen::Vector4d evaluateFourAcceleration(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric );
+        const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+        const Eigen::Matrix< double, 8, 1 >& currentState );
 
 //! Update metric and evaluate four-acceleration at a given state and epoch.
 /*!
