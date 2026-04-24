@@ -1069,6 +1069,36 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
             basic_astrodynamics::tdb_scale, normalizeRightAscension );
 }
 
+inline std::shared_ptr< ObservationModelSettings > cameraPixelSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    const auto linkEndMap = linkEnds.getLinkEnds( );
+    if( linkEndMap.count( observed_body ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, observed_body link end not provided." );
+    }
+    if( linkEndMap.count( observer ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, observer link end not provided." );
+    }
+    if( linkEndMap.at( observer ).getReferencePointType( ) != LinkEndReferencePointType::body_component )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, observer reference point must be of type body_component." );
+    }
+    if( linkEndMap.at( observer ).getReferencePointName( ).empty( ) )
+    {
+        throw std::runtime_error( "Error when creating pixel coordinates settings, receiver reference point name is empty." );
+    }
+
+    return std::make_shared< ObservationModelSettings >(
+            camera_pixels, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+}
+
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
