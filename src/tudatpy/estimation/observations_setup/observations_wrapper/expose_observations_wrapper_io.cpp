@@ -122,7 +122,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "verbose" ) = true,
-           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            R"doc(
         Process multiple ODF files.
 
@@ -135,7 +137,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         verbose : bool, optional
             Whether to print warnings, by default True.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
 
         Returns
         -------
@@ -149,7 +151,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "file_name" ),
            py::arg( "spacecraft_name" ),
            py::arg( "verbose" ) = true,
-           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            R"doc(
         Process a single ODF file.
 
@@ -162,7 +166,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         verbose : bool, optional
             Whether to print warnings, by default True.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
 
         Returns
         -------
@@ -187,7 +191,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         ----------
         processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
             Processed ODF file contents.
-        bodies : tudatpy.dynamics.SystemOfBodies
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
         body_with_ground_stations_name : str, optional
             Name of the body in which the ground stations are located, by default "Earth".
@@ -229,7 +233,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "odf_file_names" ),
            py::arg( "target_name" ),
            py::arg( "verbose_output" ) = true,
-           py::arg( "earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            py::arg( "allow_duplicate_observations_within_single_set" ) = true,
            R"doc(
         Create an observation collection from ODF files.
@@ -238,7 +244,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
 
         Parameters
         ----------
-        bodies : tudatpy.dynamics.SystemOfBodies
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
         odf_file_names : list[str]
             List of ODF file names.
@@ -247,7 +253,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         verbose_output : bool, optional
             Whether to print verbose output during processing, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
         allow_duplicate_observations_within_single_set: bool
             Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
 
@@ -266,7 +272,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "reception_band" ),
            py::arg( "transmission_band" ),
            py::arg( "apply_troposphere_correction" ) = true,
-           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            py::arg( "remove_invalid_lines" ) = true,
            R"doc(
         Create an observation collection from IFMS files for a single station.
@@ -277,7 +285,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         ----------
         ifms_file_names : list[str]
             List of IFMS file names.
-        bodies : tudatpy.dynamics.SystemOfBodies
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
         target_name : str
             Name of the target spacecraft.
@@ -290,7 +298,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
         remove_invalid_lines : bool, optional
             Boolean (default true) defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined
 
@@ -309,7 +317,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "reception_band" ),
            py::arg( "transmission_band" ),
            py::arg( "apply_troposphere_correction" ) = true,
-           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            py::arg( "remove_invalid_lines" ) = true,
            R"doc(
         Create an observation collection from IFMS files for multiple stations.
@@ -320,7 +330,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         ----------
         ifms_file_names : list[str]
             List of IFMS file names.
-        bodies : tudatpy.dynamics.SystemOfBodies
+        bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
         target_name : str
             Name of the target spacecraft.
@@ -333,7 +343,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         apply_troposphere_correction : bool, optional
             Whether to apply troposphere correction, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
         remove_invalid_lines : bool, optional
             Boolean (default true) defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined
 
@@ -353,7 +363,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "receiving_station_name" ),
            py::arg( "reception_band" ),
            py::arg( "transmission_band" ),
-           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            R"doc(
         Create an observation collection from an FDETS file.
 
@@ -378,7 +390,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
             Transmission frequency band.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
 
         Returns
         -------
@@ -424,7 +436,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),
            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
-           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
            R"doc(
         Create an observation collection from raw tracking file data.
@@ -438,7 +452,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType], optional
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
-            Map with approximate positions of ground stations in Earth-fixed frame.
+            Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
         ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observations.
 
