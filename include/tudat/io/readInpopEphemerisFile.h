@@ -39,7 +39,14 @@ namespace input_output
  */
 inline void trimString( std::string& str )
 {
-    str.erase( 0, str.find_first_not_of( " \t\r\n" ) );
+    const std::string::size_type firstNonWhitespace = str.find_first_not_of( " \t\r\n" );
+    if ( firstNonWhitespace == std::string::npos )
+    {
+        str.clear( );
+        return;
+    }
+
+    str.erase( 0, firstNonWhitespace );
     str.erase( str.find_last_not_of( " \t\r\n" ) + 1 );
 }
 
