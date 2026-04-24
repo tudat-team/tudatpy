@@ -47,6 +47,9 @@ enum LinkEndType {
     receiver2 = 9,
 };
 
+//! Enum defining the type of reference point represented by a LinkEndId.
+enum class LinkEndReferencePointType { undefined = -1, ground_station = 0, body_component = 1 };
+
 ////! Typedef for the identifier of a given link-end (body and reference points)
 // typedef std::pair< std::string, std::string > LinkEndId;
 

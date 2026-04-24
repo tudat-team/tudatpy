@@ -74,6 +74,16 @@ Examples
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
+    py::enum_< tom::LinkEndReferencePointType >( m, "LinkEndReferencePointType", "IntEnum", R"doc(
+
+Enumeration of link end reference point types.
+
+      )doc" )
+            .value( "undefined", tom::LinkEndReferencePointType::undefined )
+            .value( "ground_station", tom::LinkEndReferencePointType::ground_station )
+            .value( "body_component", tom::LinkEndReferencePointType::body_component )
+            .export_values( );
+
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
            py::arg( "transmitter" ),
