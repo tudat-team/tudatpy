@@ -85,6 +85,12 @@ void setStationFrequenciesFromTrackingData( const StationRampInformation& rampIn
                 rampStartTimes, rampEndTimes, rampRates, rampStartFrequencies );
     }
 
+    if( bodies.count( stationReferenceBodyName ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error when setting station frequencies, reference body \"" + stationReferenceBodyName +
+                "\" not found in system of bodies." );
+    }
     auto stationReferenceBody = bodies.at( stationReferenceBodyName );
 
     for( auto const& [ stationName, frequencyInterpolator ] : rampInterpolators )
