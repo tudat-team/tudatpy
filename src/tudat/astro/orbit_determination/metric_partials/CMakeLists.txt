@@ -11,7 +11,6 @@ set(metric_partials_HEADERS
   "christoffelSymbolPartial.h"
   "schwarzschildMetricPartial.h"
   "schwarzschildMetricChristoffelSymbolPartials.h"
-  "numericalSolarSystemMetricPartial.h"
   "solarSystemMetricPartials.h"
 )
 
