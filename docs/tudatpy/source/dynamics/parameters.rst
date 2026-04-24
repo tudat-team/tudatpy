@@ -21,7 +21,12 @@ Classes
 
 .. autosummary::
 
+   EstimatableParameter
+
    EstimatableParameterSet
+
+.. autoclass:: tudatpy.dynamics.parameters.EstimatableParameter
+   :members:
 
 .. autoclass:: tudatpy.dynamics.parameters.EstimatableParameterSet
    :members:
