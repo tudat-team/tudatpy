@@ -493,7 +493,7 @@ public:
      * \return Matching (start index, size) entries in parameter-set order.
      */
     std::vector< std::pair< int, int > > getIndicesForParameterType(
-            const EstimatebleParameterIdentifier requiredParameterId )
+            const EstimatebleParameterIdentifier& requiredParameterId )
     {
         std::vector< std::pair< int, int > > parameterIndices;
         std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
@@ -510,7 +510,7 @@ public:
 
     //! Retrieve only parameter objects for parameters matching an identifier.
     std::vector< std::shared_ptr< EstimatableParameterBase > > getParametersForParameterIdentifier(
-            const EstimatebleParameterIdentifier requiredParameterId )
+            const EstimatebleParameterIdentifier& requiredParameterId )
     {
         std::vector< std::shared_ptr< EstimatableParameterBase > > parameters;
         std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
