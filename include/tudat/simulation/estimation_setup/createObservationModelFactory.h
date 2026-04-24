@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "tudat/astro/observation_models/cameraPixelsObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
 #include "tudat/astro/observation_models/dopplerMeasuredFrequencyObservationModel.h"
@@ -37,6 +38,7 @@
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/cameras/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -1653,6 +1655,57 @@ public:
 
                 break;
             }
+            case camera_pixels: {
+                // Check consistency input.
+                if( linkEnds.size( ) != 2 )
+                {
+                    std::string errorMessage =
+                            "Error when making camera pixels model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
+                    throw std::runtime_error( errorMessage );
+                }
+                if( linkEnds.count( observer ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making camera pixels model, no observer found" );
+                }
+                if( linkEnds.count( observed_body ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making camera pixels model, no observed_body found" );
+                }
+                std::shared_ptr< ObservationBias< 2 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator< 2 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                if( linkEnds.at( observer ).componentName_ == "" )
+                {
+                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for observer" );
+                }
+
+                if( bodies.at( linkEnds.at( observer ).bodyName_ )->getCameraMap( )[ linkEnds.at( observer ).componentName_ ] == nullptr )
+                {
+                    throw std::runtime_error( "Error when making camera pixels model, observer " + linkEnds.at( observer ).bodyName_ +
+                                              " does not have camera named " + linkEnds.at( observer ).componentName_ + "." );
+                }
+
+                // Create observation model
+                std::shared_ptr< cameras::Camera > camera =
+                        bodies.at( linkEnds.at( observer ).bodyName_ )->getCamera( linkEnds.at( observer ).componentName_ );
+
+                observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds,
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      observed_body,
+                                                                                      observer,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        camera,
+                        observationBias );
+                break;
+            }
             default:
                 std::string errorMessage = "Error, observable " + std::to_string( observationSettings->observableType_ ) +
                         "  not recognized when making size 2 observation model.";
@@ -2029,6 +2082,13 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             singleObservableCorrectionList = ( angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
+        case observation_models::camera_pixels: {
+            std::shared_ptr< observation_models::CameraPixelsObservationModel< ObservationScalarType, TimeType > > cameraPixelsModel =
+                    std::dynamic_pointer_cast< observation_models::CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            singleObservableCorrectionList = ( cameraPixelsModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+            break;
+        }
         case observation_models::one_way_differenced_range: {
             std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > >
                     oneWayDifferencedRangeObservationModel = std::dynamic_pointer_cast<
@@ -2291,7 +2351,6 @@ public:
         return std::make_pair( firstObservationModel, secondObservationModel );
     }
 };
-
 
 }  // namespace observation_models
 
