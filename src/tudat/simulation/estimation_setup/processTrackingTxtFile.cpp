@@ -37,7 +37,7 @@ std::vector< ObservableType > findAvailableObservableTypes( const std::vector< i
 
 void setStationFrequenciesFromTrackingData( const StationRampInformation& rampInformation,
                                             simulation_setup::SystemOfBodies& bodies,
-                                            std::string stationReferenceBodyName )
+                                            const std::string& stationReferenceBodyName )
 {
     std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
 
