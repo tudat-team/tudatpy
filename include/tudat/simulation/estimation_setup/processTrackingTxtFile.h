@@ -706,7 +706,7 @@ using StationRampInformation = std::map< std::string, std::vector< FrequencyRamp
 
 void setStationFrequenciesFromTrackingData( const StationRampInformation& rampInformation,
                                             simulation_setup::SystemOfBodies& bodies,
-                                            std::string stationReferenceBodyName = "Earth" );
+                                            const std::string& stationReferenceBodyName = "Earth" );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 void setStationFrequenciesFromTrackingData(
