@@ -48,7 +48,9 @@ public:
                                   const double doubleParameter = TUDAT_NAN ):
         observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ), stringParameter_( stringParameter ),
         doubleParameter_( doubleParameter )
-    { }
+    {}
+
+    virtual ~ObservationViabilitySettings( ) = default;
 
     //! Type of viability that is to be checked
     ObservationViabilityType observationViabilityType_;
@@ -87,6 +89,53 @@ protected:
      */
     double doubleParameter_;
 };
+
+class ObservationBoundariesViabilitySettings : public ObservationViabilitySettings
+{
+public:
+    ObservationBoundariesViabilitySettings( const std::pair< std::string, std::string > associatedLinkEnd,
+                                            const std::vector< std::pair< double, double > > boundaries ):
+        ObservationViabilitySettings( observation_boundaries, associatedLinkEnd ), boundaries_( boundaries )
+    {
+        for( unsigned int i = 0; i < boundaries.size( ); i++ )
+        {
+            if( boundaries.at( i ).first > boundaries.at( i ).second )
+            {
+                throw std::runtime_error( "Error when making observation boundaries viability settings, boundary pair is inconsistent: " +
+                                          std::to_string( boundaries.at( i ).first ) + " is larger than " +
+                                          std::to_string( boundaries.at( i ).second ) );
+            }
+        }
+    }
+
+    const std::vector< std::pair< double, double > >& getBoundaries( ) const
+    {
+        return boundaries_;
+    }
+
+private:
+    std::vector< std::pair< double, double > > boundaries_;
+};
+
+inline std::shared_ptr< ObservationViabilitySettings > observationBoundariesViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const std::vector< std::pair< double, double > > boundaries )
+{
+    return std::make_shared< ObservationBoundariesViabilitySettings >( associatedLinkEnd, boundaries );
+}
+
+inline std::vector< std::shared_ptr< ObservationViabilitySettings > > observationBoundariesViabilitySettings(
+        const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
+        const std::vector< std::pair< double, double > > boundaries )
+{
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
+    for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
+    {
+        viabilitySettingsList.push_back(
+                std::make_shared< ObservationBoundariesViabilitySettings >( associatedLinkEnds.at( i ), boundaries ) );
+    }
+    return viabilitySettingsList;
+}
 
 inline std::vector< std::shared_ptr< ObservationViabilitySettings > > elevationAngleViabilitySettings(
         const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
@@ -162,6 +211,21 @@ typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySe
  */
 ObservationViabilitySettingsList filterObservationViabilitySettings( const ObservationViabilitySettingsList& observationViabilitySettings,
                                                                      const LinkEnds& linkEnds );
+
+//! Function to create an object to check if observation value is within given boundaries
+/*!
+ * Function to create an object to check if observation value is within given boundaries
+ * \param bodies Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
+ * (settings must be compatible with observation boundaries check). If ground station is not specified (by associatedLinkEnd_.second in
+ * observationViabilitySettings), check is performed for all ground stations on (or c.o.m. of) body (defined by associatedLinkEnd_.first)
+ * automatically. \return Object to check if observation value is within given boundaries
+ */
+std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBoundariesCalculator(
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
 //! Function to create an object to check if a minimum elevation angle condition is met for an observation
 /*!
