@@ -203,6 +203,11 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
         break;
     }
+    default:
+        throw std::runtime_error(
+            "Error when creating space-time metric: metric type " +
+            std::to_string( static_cast< int >( spaceTimeMetricSettings->getMetricType( ) ) ) +
+            " is not recognized." );
     }
 
     return spaceTimeMetric;
