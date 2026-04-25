@@ -64,14 +64,16 @@ Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime(
     spaceTimeCoordinateVelocity.segment( 1, 3 ) = coordinateVelocity;
 
     Eigen::Vector3d accelerationVector = Eigen::Vector3d::Zero( );
-    double timeChristoffelSymbolProduct =
+    const double timeChristoffelSymbolProduct =
             ( spaceTimeCoordinateVelocity.transpose( ) * christoffelSymbols.at( 0 ) * spaceTimeCoordinateVelocity )( 0, 0 ) /
             physical_constants::SPEED_OF_LIGHT;
 
     for( int i = 0; i < 3; i++ )
     {
-        accelerationVector( i ) = spaceTimeCoordinateVelocity( i + 1 ) * timeChristoffelSymbolProduct -
-                spaceTimeCoordinateVelocity.transpose( ) * christoffelSymbols.at( i + 1 ) * spaceTimeCoordinateVelocity;
+        const double firstTerm = spaceTimeCoordinateVelocity( i + 1 ) * timeChristoffelSymbolProduct;
+        const double secondTerm =
+                ( spaceTimeCoordinateVelocity.transpose( ) * christoffelSymbols.at( i + 1 ) * spaceTimeCoordinateVelocity )( 0, 0 );
+        accelerationVector( i ) = firstTerm - secondTerm;
     }
 
     return accelerationVector;

@@ -39,6 +39,7 @@
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/relativity/schwarzschildMetric.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/utilities.h"
@@ -1449,6 +1450,56 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
     return accelerationModel;
 }
 
+std::function< Eigen::Vector6d( ) > getAcceleratedBodyStateFunctionForMetric(
+        const std::shared_ptr< relativity::Metric >& metric,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const SystemOfBodies& bodies )
+{
+    if( metric == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating direct relativistic acceleration from metric on " +
+                nameOfBodyUndergoingAcceleration + ": metric pointer is null." );
+    }
+
+    std::shared_ptr< relativity::HarmonicSchwarzschildMetric > schwarzschildMetric =
+            std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metric );
+    if( schwarzschildMetric != nullptr )
+    {
+        const std::string centralBodyName = schwarzschildMetric->getCentralBodyName( );
+        if( !bodies.doesBodyExist( centralBodyName ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating direct relativistic acceleration from metric on " +
+                    nameOfBodyUndergoingAcceleration + ": central body " + centralBodyName +
+                    " of Schwarzschild metric is not present in the SystemOfBodies." );
+        }
+
+        std::shared_ptr< Body > centralBody = bodies.at( centralBodyName );
+        return [ bodyUndergoingAcceleration, centralBody ]( )
+        {
+            const Eigen::Vector6d bodyState = bodyUndergoingAcceleration->getState( );
+            const Eigen::Vector6d centralBodyState = centralBody->getState( );
+
+            Eigen::Vector6d relativeState = Eigen::Vector6d::Zero( );
+            relativeState.segment( 0, 3 ) = bodyState.segment( 0, 3 ) - centralBodyState.segment( 0, 3 );
+            relativeState.segment( 3, 3 ) = bodyState.segment( 3, 3 ) - centralBodyState.segment( 3, 3 );
+            return relativeState;
+        };
+    }
+
+    if( std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metric ) != nullptr )
+    {
+        return std::bind( &Body::getState, bodyUndergoingAcceleration );
+    }
+
+    throw std::runtime_error(
+            "Error when creating direct relativistic acceleration from metric on " +
+            nameOfBodyUndergoingAcceleration +
+            ": unsupported metric type for retrieving accelerated-body state in metric coordinates." );
+}
+
 std::shared_ptr< relativity::DirectRelativisticAcceleration > createDirectRelativisticAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -1471,33 +1522,8 @@ std::shared_ptr< relativity::DirectRelativisticAcceleration > createDirectRelati
     }
 
     std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction =
-            std::bind( &Body::getState, bodyUndergoingAcceleration );
-
-    std::shared_ptr< relativity::HarmonicSchwarzschildMetric > schwarzschildMetric =
-            std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( baseMetric );
-    if( schwarzschildMetric != nullptr )
-    {
-        const std::string centralBodyName = schwarzschildMetric->getCentralBodyName( );
-        if( !bodies.doesBodyExist( centralBodyName ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating direct relativistic acceleration from metric on " +
-                    nameOfBodyUndergoingAcceleration + ": central body " + centralBodyName +
-                    " of Schwarzschild metric is not present in the SystemOfBodies." );
-        }
-
-        std::shared_ptr< Body > centralBody = bodies.at( centralBodyName );
-        acceleratedBodyStateFunction = [ bodyUndergoingAcceleration, centralBody ]( )
-        {
-            const Eigen::Vector6d bodyState = bodyUndergoingAcceleration->getState( );
-            const Eigen::Vector6d centralBodyState = centralBody->getState( );
-
-            Eigen::Vector6d relativeState = Eigen::Vector6d::Zero( );
-            relativeState.segment( 0, 3 ) = bodyState.segment( 0, 3 ) - centralBodyState.segment( 0, 3 );
-            relativeState.segment( 3, 3 ) = bodyState.segment( 3, 3 ) - centralBodyState.segment( 3, 3 );
-            return relativeState;
-        };
-    }
+            getAcceleratedBodyStateFunctionForMetric(
+                    baseMetric, bodyUndergoingAcceleration, nameOfBodyUndergoingAcceleration, bodies );
 
     return std::make_shared< relativity::DirectRelativisticAcceleration >(
             baseMetric->Clone( ), acceleratedBodyStateFunction );

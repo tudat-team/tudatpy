@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <memory> 
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -161,6 +161,7 @@ public:
             spaceTimeMetric_->update( currentAcceleratedBodyState_, currentTime, 0, 1 );
             this->currentAcceleration_ =
                     evaluateRelativisticEquationsOfMotionInCoordinateTime( spaceTimeMetric_, currentAcceleratedBodyState_ );
+
         }
     }
 

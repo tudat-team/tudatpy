@@ -16,6 +16,8 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createMetric.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -68,6 +70,63 @@ double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun,
 {
     return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 *
             mathematical_constants::PI / (physical_constants::JULIAN_YEAR)*std::sqrt( 1.0 - meanEccentricity * meanEccentricity );
+}
+
+std::map< double, Eigen::Vector3d > runPropagationAndRetrieveTotalAcceleration(
+        const SelectedAccelerationMap& selectedAccelerationSettings,
+        const double simulationStartEpoch,
+        const double simulationEndEpoch,
+        const std::vector< std::string >& bodiesToPropagate,
+        const std::vector< std::string >& centralBodies,
+        const Eigen::Vector6d& vehicleInitialStateInKeplerianElements )
+{
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+
+    createBaseMetric( schwardschildSpaceTimeMetricSettings( "Earth" ), bodies );
+
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, selectedAccelerationSettings, bodiesToPropagate, centralBodies );
+
+    const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+            total_acceleration_dependent_variable, "Vehicle" ) );
+
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 20.0 );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariables );
+
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+    const std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+
+    std::map< double, Eigen::Vector3d > accelerationHistory;
+    for( const auto& dependentVariableEntry : dependentVariableHistory )
+    {
+        if( dependentVariableEntry.second.rows( ) != 3 )
+        {
+            throw std::runtime_error(
+                    "Error in runPropagationAndRetrieveTotalAcceleration: expected 3 components for total acceleration dependent variable." );
+        }
+        accelerationHistory[ dependentVariableEntry.first ] = dependentVariableEntry.second.segment( 0, 3 );
+    }
+
+    return accelerationHistory;
 }
 
 BOOST_AUTO_TEST_SUITE( test_relativistic_acceleration_corrections )
@@ -364,7 +423,7 @@ BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarz
     spice_interface::loadStandardSpiceKernels( );
 
     const double simulationStartEpoch = 0.0;
-    const double simulationEndEpoch = 2.0 * physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = simulationStartEpoch + 20.0;
 
     std::vector< std::string > bodiesToPropagate{ "Vehicle" };
     std::vector< std::string > centralBodies{ "Earth" };
@@ -377,73 +436,48 @@ BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarz
     vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
     vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
-    auto runPropagationAndRetrieveTotalAccelerationNorm = [ & ](
-            const SelectedAccelerationMap& selectedAccelerationSettings ) -> std::map< double, Eigen::VectorXd >
-    {
-        BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
-        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-        bodies.createEmptyBody( "Vehicle" );
-
-        createBaseMetric( schwardschildSpaceTimeMetricSettings( "Earth" ), bodies );
-
-        basic_astrodynamics::AccelerationMap accelerationModelMap =
-                createAccelerationModelsMap( bodies, selectedAccelerationSettings, bodiesToPropagate, centralBodies );
-
-        const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        const Eigen::VectorXd systemInitialState =
-                convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
-
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-                total_acceleration_norm_dependent_variable, "Vehicle" ) );
-
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 20.0 );
-
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies,
-                        accelerationModelMap,
-                        bodiesToPropagate,
-                        systemInitialState,
-                        simulationStartEpoch,
-                        integratorSettings,
-                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
-                        cowell,
-                        dependentVariables );
-
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        return dynamicsSimulator.getDependentVariableHistory( );
-    };
-
     SelectedAccelerationMap correctionAccelerationSettings;
     correctionAccelerationSettings[ "Vehicle" ][ "Earth" ] = {
             std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ),
             std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false ) };
 
-    std::map< double, Eigen::VectorXd > correctionTotalAccelerationNormHistory =
-            runPropagationAndRetrieveTotalAccelerationNorm( correctionAccelerationSettings );
+    std::map< double, Eigen::Vector3d > correctionTotalAccelerationHistory =
+            runPropagationAndRetrieveTotalAcceleration(
+                    correctionAccelerationSettings,
+                    simulationStartEpoch,
+                    simulationEndEpoch,
+                    bodiesToPropagate,
+                    centralBodies,
+                    vehicleInitialStateInKeplerianElements );
 
     SelectedAccelerationMap metricAccelerationSettings;
     metricAccelerationSettings[ "Vehicle" ][ "" ] = {
             relativisticAccelerationFromMetric( ) };
 
-    std::map< double, Eigen::VectorXd > metricTotalAccelerationNormHistory =
-            runPropagationAndRetrieveTotalAccelerationNorm( metricAccelerationSettings );
+    std::map< double, Eigen::Vector3d > metricTotalAccelerationHistory =
+            runPropagationAndRetrieveTotalAcceleration(
+                    metricAccelerationSettings,
+                    simulationStartEpoch,
+                    simulationEndEpoch,
+                    bodiesToPropagate,
+                    centralBodies,
+                    vehicleInitialStateInKeplerianElements );
 
-    BOOST_REQUIRE_EQUAL( correctionTotalAccelerationNormHistory.size( ), metricTotalAccelerationNormHistory.size( ) );
+    BOOST_REQUIRE_EQUAL( correctionTotalAccelerationHistory.size( ), metricTotalAccelerationHistory.size( ) );
 
     double maximumRelativeDifference = 0.0;
-    auto correctionIterator = correctionTotalAccelerationNormHistory.begin( );
-    auto metricIterator = metricTotalAccelerationNormHistory.begin( );
-    for( ; correctionIterator != correctionTotalAccelerationNormHistory.end( ); ++correctionIterator, ++metricIterator )
+    auto correctionIterator = correctionTotalAccelerationHistory.begin( );
+    auto metricIterator = metricTotalAccelerationHistory.begin( );
+    for( ; correctionIterator != correctionTotalAccelerationHistory.end( ); ++correctionIterator, ++metricIterator )
     {
         BOOST_CHECK_SMALL( correctionIterator->first - metricIterator->first, 1.0E-14 );
 
-        const double correctionNorm = correctionIterator->second( 0 );
-        const double metricNorm = metricIterator->second( 0 );
+        const Eigen::Vector3d correctionAcceleration = correctionIterator->second;
+        const Eigen::Vector3d metricAcceleration = metricIterator->second;
+        const double correctionNorm = correctionAcceleration.norm( );
+        const double absoluteDifferenceNorm = ( metricAcceleration - correctionAcceleration ).norm( );
         const double relativeDifference =
-                std::fabs( correctionNorm - metricNorm ) / std::max( std::fabs( correctionNorm ), 1.0E-30 );
+                absoluteDifferenceNorm / std::max( correctionNorm, 1.0E-30 );
 
         if( relativeDifference > maximumRelativeDifference )
         {
@@ -451,7 +485,60 @@ BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarz
         }
     }
 
-    BOOST_CHECK_SMALL( maximumRelativeDifference, 5.0E-2 );
+    BOOST_CHECK_SMALL( maximumRelativeDifference, 1.0E-14 );
+}
+
+BOOST_AUTO_TEST_CASE( testDirectMetricSchwarzschildRelativisticPartAgainstCorrectionAtGenericState )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createBaseMetric( schwardschildSpaceTimeMetricSettings( "Earth" ), bodies );
+
+    std::shared_ptr< relativity::Metric > metric = bodies.getSpaceTimeProperties( )->getBaseMetric( );
+    BOOST_REQUIRE( metric != nullptr );
+
+    const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet =
+            bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+    BOOST_REQUIRE( ppnParameterSet != nullptr );
+
+    Eigen::Vector6d testState = Eigen::Vector6d::Zero( );
+    testState << 7.0e6, -2.0e6, 1.0e6, 1200.0, 7300.0, -900.0;
+
+    const double testEpoch = 0.0;
+    const Eigen::Vector3d directTotalAcceleration =
+            relativity::evaluateRelativisticEquationsOfMotionInCoordinateTimeWithUpdate( metric, testState, testEpoch );
+
+    const Eigen::Vector3d relativePosition = testState.segment( 0, 3 );
+    const Eigen::Vector3d relativeVelocity = testState.segment( 3, 3 );
+    const double relativeDistance = relativePosition.norm( );
+
+    const Eigen::Vector3d newtonianPointMassAcceleration =
+            -earthGravitationalParameter * relativePosition / std::pow( relativeDistance, 3.0 );
+    const Eigen::Vector3d directRelativisticPart = directTotalAcceleration - newtonianPointMassAcceleration;
+
+    const double commonCorrectionTerm =
+            relativity::calculateRelativisticAccelerationCorrectionsCommonterm(
+                    earthGravitationalParameter, relativeDistance );
+    const Eigen::Vector3d schwarzschildCorrection =
+            relativity::calculateScharzschildGravitationalAccelerationCorrection(
+                    earthGravitationalParameter,
+                    relativePosition,
+                    relativeVelocity,
+                    relativeDistance,
+                    commonCorrectionTerm,
+                    ppnParameterSet->getParameterGamma( ),
+                    ppnParameterSet->getParameterBeta( ) );
+
+    const double absoluteDifference = ( directRelativisticPart - schwarzschildCorrection ).norm( );
+    const double relativeDifference =
+            absoluteDifference /
+            std::max( schwarzschildCorrection.norm( ), 1.0e-30 );
+
+    BOOST_CHECK_SMALL( absoluteDifference, 1.0e-14 );
+    BOOST_CHECK_SMALL( relativeDifference, 1.0e-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

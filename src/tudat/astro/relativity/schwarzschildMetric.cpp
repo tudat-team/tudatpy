@@ -78,7 +78,6 @@ void HarmonicSchwarzschildMetric::updateChristoffelSymbols( )
     }
 
     const Eigen::Vector3d position = currentEvaluationState_.segment( 0, 3 );
-    const Eigen::Vector3d velocity = currentEvaluationState_.segment( 3, 3 );
 
     const double distance = position.norm( );
     const double inverseDistanceSquared = 1.0 / ( distance * distance );
@@ -90,8 +89,7 @@ void HarmonicSchwarzschildMetric::updateChristoffelSymbols( )
 
     // ^0_{0i} and ^0_{i0}
     currentChristoffelSymbols_[ 0 ]( 0, 0 ) = -scalarPotentialTimeDerivative;
-    const Eigen::Vector3d spaceTimeCoupling =
-            position * ( 1.0 + 2.0 * ( 1.0 - beta ) * scaledPotential );
+    const Eigen::Vector3d spaceTimeCoupling = position * ( 1.0 + 2.0 * ( 1.0 - beta ) * scaledPotential );
     currentChristoffelSymbols_[ 0 ].block( 1, 0, 3, 1 ) = spaceTimeCoupling;
     currentChristoffelSymbols_[ 0 ].block( 0, 1, 1, 3 ) = spaceTimeCoupling.transpose( );
     currentChristoffelSymbols_[ 0 ].block( 1, 1, 3, 3 ) =
@@ -107,27 +105,39 @@ void HarmonicSchwarzschildMetric::updateChristoffelSymbols( )
     // ^i_{jk}
     for ( int i = 0; i < 3; i++ )
     {
-        Eigen::Matrix3d diagTerm = position( i ) * gamma * Eigen::Matrix3d::Identity( );
-        if ( includeSecondPostNewtonianOrder_ )
+        Eigen::Matrix3d spatialBlock = Eigen::Matrix3d::Zero( );
+
+        for ( int j = 0; j < 3; j++ )
         {
-            diagTerm += position( i ) * 2.0 * scaledPotential *
-                        ( epsilon - gamma * gamma ) * Eigen::Matrix3d::Identity( );
+            for ( int k = 0; k < 3; k++ )
+            {
+                spatialBlock( j, k ) =
+                        gamma *
+                        ( ( j == k ? position( i ) : 0.0 )
+                        - ( i == j ? position( k ) : 0.0 )
+                        - ( i == k ? position( j ) : 0.0 ) );
+            }
         }
 
-        Eigen::Matrix3d offDiagTerm = Eigen::Matrix3d::Zero( );
-        Eigen::RowVector3d offDiagRow = position.transpose( ) * -gamma;
-        offDiagTerm.block( i, 0, 1, 3 ) = offDiagRow;
-        offDiagTerm.block( 0, i, 3, 1 ) = offDiagRow.transpose( );
-
         if ( includeSecondPostNewtonianOrder_ )
         {
-            offDiagRow += position.transpose( ) *
-                ( -scaledPotential * ( epsilon - 2.0 * gamma * gamma ) );
-            offDiagTerm.block( i, 0, 1, 3 ) = offDiagRow;
-            offDiagTerm.block( 0, i, 3, 1 ) = offDiagRow.transpose( );
+            for ( int j = 0; j < 3; j++ )
+            {
+                for ( int k = 0; k < 3; k++ )
+                {
+                    spatialBlock( j, k ) +=
+                            2.0 * scaledPotential * ( epsilon - gamma * gamma ) *
+                            ( j == k ? position( i ) : 0.0 );
+
+                    spatialBlock( j, k ) +=
+                            -scaledPotential * ( epsilon - 2.0 * gamma * gamma ) *
+                            ( ( i == j ? position( k ) : 0.0 )
+                            + ( i == k ? position( j ) : 0.0 ) );
+                }
+            }
         }
 
-        currentChristoffelSymbols_[ i + 1 ].block( 1, 1, 3, 3 ) += diagTerm + offDiagTerm;
+        currentChristoffelSymbols_[ i + 1 ].block( 1, 1, 3, 3 ) += spatialBlock;
 
         currentChristoffelSymbols_[ i + 1 ]( 0, i + 1 ) = gamma * scalarPotentialTimeDerivative;
         currentChristoffelSymbols_[ i + 1 ]( i + 1, 0 ) = gamma * scalarPotentialTimeDerivative;
