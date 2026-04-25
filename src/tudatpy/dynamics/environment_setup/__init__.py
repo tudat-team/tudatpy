@@ -1,18 +1,6 @@
-from pathlib import Path
-
-# In editable installs, this file may be symlinked from source while the package
-# directory in site-packages is stale. Extend __path__ with the resolved source
-# directory so newly added subpackages are discoverable without requiring a full
-# reinstall after every package-structure change.
-_current_package_dir = Path(__file__).parent
-_resolved_package_dir = Path(__file__).resolve().parent
-if _resolved_package_dir != _current_package_dir and str(_resolved_package_dir) not in __path__:
-    __path__.append(str(_resolved_package_dir))
-
 from tudatpy.kernel.dynamics.environment_setup import (
     BodySettings,
     BodyListSettings,
-    DirectRelativisticTimeConverterSettings,
     get_default_body_settings,
     get_default_body_settings_time_limited,
     get_default_single_body_settings,
@@ -21,8 +9,6 @@ from tudatpy.kernel.dynamics.environment_setup import (
     get_default_single_alternate_body_settings_time_limited,
     create_simplified_system_of_bodies,
     create_system_of_bodies,
-    direct_relativistic_time_converter_settings,
-    set_relativistic_time_converters,
     add_empty_tabulated_ephemeris,
     create_tabulated_ephemeris_from_spice,
     create_body_ephemeris,
@@ -55,6 +41,5 @@ from . import (
     rotation_model,
     shape,
     shape_deformation,
-    space_time,
     vehicle_systems,
 )
