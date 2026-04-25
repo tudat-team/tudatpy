@@ -276,6 +276,14 @@ public:
                                                                                                    isPartialForDifferencedObservable,
                                                                                                    isPartialForConcatenatedObservable );
                 break;
+            case observation_models::camera_pixels:
+                observationPartials =
+                        createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >( observationModel,
+                                                                                                   bodies,
+                                                                                                   parametersToEstimate,
+                                                                                                   isPartialForDifferencedObservable,
+                                                                                                   isPartialForConcatenatedObservable );
+                break;
             case observation_models::relative_angular_position:
                 observationPartials =
                         createDifferencedObservablePartials< ObservationScalarType, TimeType, 2 >( observationModel,

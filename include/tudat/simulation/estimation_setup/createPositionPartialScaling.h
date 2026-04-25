@@ -18,6 +18,7 @@
 
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/cameraPixelsPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
