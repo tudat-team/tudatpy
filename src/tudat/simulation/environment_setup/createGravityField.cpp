@@ -15,7 +15,6 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
-#include <iostream>
 
 namespace tudat
 {
