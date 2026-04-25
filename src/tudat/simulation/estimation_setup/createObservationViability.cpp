@@ -35,7 +35,9 @@ ObservationViabilitySettingsList filterObservationViabilitySettings( const Obser
             // Check if present viabilitytt setting is relevant
             if( linkEndIterator->second == observationViabilitySettings.at( i )->getAssociatedLinkEnd( ) ||
                 ( ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).second == "" ) &&
-                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) ) )
+                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) ) ||
+                ( ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) &&
+                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).second == linkEndIterator->second.componentName_ ) ) )
             {
                 filteredViabilitySettings.push_back( observationViabilitySettings.at( i ) );
                 break;
@@ -182,9 +184,9 @@ std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBou
     if( boundariesSettings == nullptr )
     {
         throw std::runtime_error(
-            "Error when making observation boundaries calculator, "
-            "input settings are not of type ObservationBoundariesViabilitySettings"
-        );
+                "Error when making observation boundaries calculator, "
+                "input settings are not of type ObservationBoundariesViabilitySettings"
+            );
     }
 
     std::vector< std::pair< double, double > > boundaries = boundariesSettings->getBoundaries( );
@@ -214,7 +216,7 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
     for( unsigned int i = 0; i < relevantObservationViabilitySettings.size( ); i++ )
     {
         switch( relevantObservationViabilitySettings.at( i )->observationViabilityType_ )
-        {   
+        {
             case observation_boundaries:
                 linkViabilityCalculators.push_back( createObservationBoundariesCalculator(
                     observationType,
