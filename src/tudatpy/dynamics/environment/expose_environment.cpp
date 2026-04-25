@@ -352,7 +352,7 @@ void expose_environment( py::module& m )
          Parameters
          ----------
          input_scale : TimeScales
-             Input time scale.m
+             Input time scale.
          output_scale : TimeScales
              Output time scale.
          input_time : Time
