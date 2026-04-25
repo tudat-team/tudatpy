@@ -142,13 +142,9 @@ public:
                                     const std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction ):
         spaceTimeMetric_( spaceTimeMetric ), acceleratedBodyStateFunction_( acceleratedBodyStateFunction ){ }
 
-    //! Get current acceleration value.
-    /*!
-     *  \return Current model acceleration.
-     */
-    Eigen::Vector3d getAcceleration( )
+    std::shared_ptr< relativity::Metric > getSpaceTimeMetric( ) const
     {
-        return currentAcceleration_;
+        return spaceTimeMetric_;
     }
 
     //! Update internal acceleration value for a new time.
@@ -163,7 +159,8 @@ public:
 
             currentAcceleratedBodyState_ =  acceleratedBodyStateFunction_( );
             spaceTimeMetric_->update( currentAcceleratedBodyState_, currentTime, 0, 1 );
-            currentAcceleration_ = evaluateRelativisticEquationsOfMotionInCoordinateTime( spaceTimeMetric_, currentAcceleratedBodyState_ );
+            this->currentAcceleration_ =
+                    evaluateRelativisticEquationsOfMotionInCoordinateTime( spaceTimeMetric_, currentAcceleratedBodyState_ );
         }
     }
 
@@ -173,8 +170,6 @@ private:
     std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction_;
 
     Eigen::Vector6d currentAcceleratedBodyState_;
-
-    Eigen::Vector3d currentAcceleration_;
 
 };
 

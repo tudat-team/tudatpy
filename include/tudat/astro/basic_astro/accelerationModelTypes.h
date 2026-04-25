@@ -62,7 +62,8 @@ enum AvailableAcceleration {
     custom_acceleration = 20,
     einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration,
-    rtg_acceleration
+    rtg_acceleration,
+    relativistic_acceleration_from_metric
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type

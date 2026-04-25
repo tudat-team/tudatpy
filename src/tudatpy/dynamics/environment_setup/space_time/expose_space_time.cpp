@@ -14,6 +14,7 @@
 
 #include <pybind11/stl.h>
 #include <tudat/astro/relativity/metric.h>
+#include <tudat/simulation/environment_setup/createBodiesSettings.h>
 #include <tudat/simulation/environment_setup/createMetric.h>
 
 namespace py = pybind11;
@@ -29,39 +30,14 @@ namespace environment_setup
 namespace space_time
 {
 
-std::shared_ptr< tr::PPNParameterSet > getGlobalPpnParameterSet( )
-{
-    return tr::ppnParameterSet;
-}
-
-void setGlobalPpnParameterSet( const std::shared_ptr< tr::PPNParameterSet >& ppn_parameter_set )
-{
-    tr::ppnParameterSet = ppn_parameter_set;
-}
-
-double getEquivalencePrincipleLpiViolationParameter( )
-{
-    return tr::equivalencePrincipleLpiViolationParameter;
-}
-
-void setEquivalencePrincipleLpiViolationParameter( const double value )
-{
-    tr::equivalencePrincipleLpiViolationParameter = value;
-}
-
-void createBaseMetric(
-        const std::shared_ptr< tss::SpaceTimeMetricSettings >& space_time_metric_settings,
-        const tss::SystemOfBodies& bodies )
-{
-    tss::createBaseMetric( space_time_metric_settings, bodies );
-}
-
 void expose_space_time_setup( py::module& m )
 {
     py::class_< tr::PPNParameterSet, std::shared_ptr< tr::PPNParameterSet > >(
             m, "PPNParameterSet", R"doc(
 
         Container class for PPN parameters used in relativistic models.
+        These parameters are assigned through
+        :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
 
         The first-order PPN parameters :math:`\gamma` and :math:`\beta` follow
         the conventions summarized by :cite:t:`willlrr2014`.
@@ -124,12 +100,38 @@ void expose_space_time_setup( py::module& m )
 
      )doc" );
 
+    py::class_< tss::SpaceTimePropertiesSettings, std::shared_ptr< tss::SpaceTimePropertiesSettings > >(
+            m, "SpaceTimePropertiesSettings", R"doc(
+
+        Settings for initializing
+        :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
+
+     )doc" )
+            .def( py::init<
+                          const std::shared_ptr< tss::SpaceTimeMetricSettings >&,
+                          const std::shared_ptr< tr::PPNParameterSet >&,
+                          const double >( ),
+                  py::arg( "metric_settings" ) = nullptr,
+                  py::arg( "ppn_parameter_set" ) = nullptr,
+                  py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0 )
+            .def_property(
+                    "metric_settings",
+                    &tss::SpaceTimePropertiesSettings::getMetricSettings,
+                    &tss::SpaceTimePropertiesSettings::setMetricSettings )
+            .def_property(
+                    "ppn_parameter_set",
+                    &tss::SpaceTimePropertiesSettings::getPpnParameterSet,
+                    &tss::SpaceTimePropertiesSettings::setPpnParameterSet )
+            .def_property(
+                    "equivalence_principle_lpi_violation_parameter",
+                    &tss::SpaceTimePropertiesSettings::getEquivalencePrincipleLpiViolationParameter,
+                    &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter );
+
     m.def(
             "schwarzschild_metric_settings",
             &tss::schwardschildSpaceTimeMetricSettings,
             py::arg( "body" ),
             py::arg( "include_second_post_newtonian_order" ) = false,
-            py::arg( "ppn_parameter_set" ) = tr::ppnParameterSet,
             R"doc(
 
  Create settings for a harmonic Schwarzschild metric.
@@ -149,19 +151,18 @@ void expose_space_time_setup( py::module& m )
  :math:`\delta_{ij}` is the Kronecker delta, and :math:`\beta,\gamma,\epsilon`
  are the PPN parameters.
 
- Parameters
- ----------
- body : str
-     Name of the central gravitating body used in the metric.
- include_second_post_newtonian_order : bool, optional
-     If true, include second post-Newtonian terms.
- ppn_parameter_set : PPNParameterSet, optional
-     PPN parameter set used in the metric. Defaults to the global PPN parameter set.
+Parameters
+----------
+body : str
+    Name of the central gravitating body used in the metric.
+include_second_post_newtonian_order : bool, optional
+    If true, include second post-Newtonian terms.
 
- Returns
- -------
- SchwardschildSpaceTimeMetricSettings
-     Settings object for the Schwarzschild metric model.
+Returns
+-------
+SchwardschildSpaceTimeMetricSettings
+     Settings object for the Schwarzschild metric model. This can be assigned
+     to :attr:`SpaceTimePropertiesSettings.metric_settings`.
 
         )doc" );
 
@@ -173,7 +174,6 @@ void expose_space_time_setup( py::module& m )
             py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
             py::arg( "angular_momentum_bodies" ) = std::vector< std::string >( ),
             py::arg( "use_body_accelerations" ) = true,
-            py::arg( "ppn_parameter_set" ) = tr::ppnParameterSet,
             R"doc(
 
  Create settings for a solar-system post-Newtonian metric.
@@ -192,12 +192,47 @@ void expose_space_time_setup( py::module& m )
      +2(\gamma^2+\beta-1)\frac{w^2_{\mathrm{(2)}}}{c^4}\delta_{ij}
      +2(\gamma+1)\frac{q_{ij}}{c^4},
 
- where :math:`w` is assembled from the configured first-order bodies,
- :math:`w^2_{\mathrm{(2)}}` contains squared-potential terms from bodies
- configured as second-order, :math:`q_{ij}` is the anisotropic matrix potential,
- :math:`\mathbf{w}` is the vector potential, :math:`w_i` its :math:`i`-th component,
+ In Tudat, these quantities are evaluated as
+
+ .. math::
+
+     w=\sum_{a\in\mathcal{F}} w_a,\qquad
+     w_a=
+     \begin{cases}
+     \mu_a/R_a, & \text{point-mass term},\\
+     U_a^{\mathrm{SH}}, & \text{if spherical-harmonic expansion is configured},
+     \end{cases}
+
+ .. math::
+
+     \mathbf{w}
+     =\sum_{a\in\mathcal{F}} w_a\,\mathbf{v}_a
+     -\sum_{k\in\mathcal{A}}
+     \frac{G}{2R_k^3}\left(\mathbf{S}_k\times\mathbf{r}_k\right),
+     \qquad w_i=(\mathbf{w})_i,
+
+ .. math::
+
+     w^2_{\mathrm{(2)}}=\sum_{b\in\mathcal{S}} w_b^2,
+
+ .. math::
+
+     q_{ij}=\sum_{b\in\mathcal{S}} q^{(b)}_{ij},\qquad
+     q^{(b)}_{ij}
+     =
+     \frac{\mu_b^2}{4R_b^2}
+     \left(\frac{r_{b,i}r_{b,j}}{R_b^2}-\delta_{ij}\right).
+
+ where :math:`\mathcal{F}` is the set of bodies in ``first_order_bodies``,
+ :math:`\mathcal{S}` is the set of bodies in ``second_order_bodies``,
+ :math:`\mathcal{A}` is the set of bodies in ``angular_momentum_bodies``,
+ :math:`\mu_a=GM_a` is the gravitational parameter of body :math:`a`,
+ :math:`\mathbf{r}_a` is the relative position vector from body :math:`a` to the metric evaluation point,
+ :math:`R_a=\lVert\mathbf{r}_a\rVert`, :math:`\mathbf{v}_a` is the barycentric velocity of body :math:`a`,
+ :math:`\mathbf{S}_k` is the angular-momentum vector of body :math:`k`,
+ :math:`U_a^{\mathrm{SH}}` is the configured spherical-harmonic scalar potential contribution,
  :math:`\delta_{ij}` is the Kronecker delta, :math:`c` is the speed of light,
- and :math:`\beta,\gamma` are the PPN parameters.
+ :math:`G` is the gravitational constant, and :math:`\beta,\gamma` are the PPN parameters.
 
  Parameters
  ----------
@@ -209,119 +244,14 @@ void expose_space_time_setup( py::module& m )
      Optional spherical-harmonic degree/order settings per body.
  angular_momentum_bodies : list[str], optional
      Bodies for which angular-momentum terms are included.
- use_body_accelerations : bool, optional
-     Whether body-acceleration terms are included in the metric model.
- ppn_parameter_set : PPNParameterSet, optional
-     PPN parameter set used in the metric. Defaults to the global PPN parameter set.
+use_body_accelerations : bool, optional
+    Whether body-acceleration terms are included in the metric model.
 
- Returns
- -------
- SolarSystemSpaceTimeMetricSettings
-     Settings object for the solar-system metric model.
-
-        )doc" );
-
-    m.def(
-            "create_base_metric",
-            &createBaseMetric,
-            py::arg( "metric_settings" ),
-            py::arg( "bodies" ),
-            R"doc(
-
- Create and assign the global base metric from metric settings and bodies.
-
- This function creates the configured metric model and assigns it to Tudat's
- global ``baseMetric`` variable used by direct-from-metric relativistic-time propagation.
-
- Parameters
- ----------
- metric_settings : SpaceTimeMetricSettings
-     Metric settings defining the metric model to create.
- bodies : SystemOfBodies
-     System of bodies providing required environment models and state functions.
-
- Returns
- -------
- None
-     The global base metric is updated in place.
-
-        )doc" );
-
-    m.def(
-            "get_global_ppn_parameter_set",
-            &getGlobalPpnParameterSet,
-            R"doc(
-
- Retrieve Tudat's global PPN parameter set.
-
- This is the global PPN parameter set used by all Tudat functionality that
- requires PPN parameters, unless explicitly overridden in local settings.
-
- Returns
- -------
- PPNParameterSet
-     Global PPN parameter set used by default in relativistic models.
-
-        )doc" );
-
-    m.def(
-            "set_global_ppn_parameter_set",
-            &setGlobalPpnParameterSet,
-            py::arg( "ppn_parameter_set" ),
-            R"doc(
-
- Replace Tudat's global PPN parameter set.
-
- The assigned value is returned by
- :func:`~get_global_ppn_parameter_set`.
-
- Parameters
- ----------
- ppn_parameter_set : PPNParameterSet
-     New global PPN parameter set.
-
- Returns
- -------
- None
-
-        )doc" );
-
-    m.def(
-            "get_equivalence_principle_lpi_violation_parameter",
-            &getEquivalencePrincipleLpiViolationParameter,
-            R"doc(
-
- Retrieve the global equivalence-principle LPI-violation parameter.
-
- This is the global value used by all Tudat functionality that requires the
- equivalence-principle local-position-invariance violation parameter.
-
- Returns
- -------
- float
-     Global LPI-violation parameter value.
-
-        )doc" );
-
-    m.def(
-            "set_equivalence_principle_lpi_violation_parameter",
-            &setEquivalencePrincipleLpiViolationParameter,
-            py::arg( "value" ),
-            R"doc(
-
- Set the global equivalence-principle LPI-violation parameter.
-
- The assigned value is returned by
- :func:`~get_equivalence_principle_lpi_violation_parameter`.
-
- Parameters
- ----------
- value : float
-     New value for the global LPI-violation parameter.
-
- Returns
- -------
- None
+Returns
+-------
+SolarSystemSpaceTimeMetricSettings
+     Settings object for the solar-system metric model. This can be assigned
+     to :attr:`SpaceTimePropertiesSettings.metric_settings`.
 
         )doc" );
 }

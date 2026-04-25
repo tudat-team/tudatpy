@@ -15,6 +15,7 @@
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/relativity/schwarzschildMetric.h"
@@ -171,6 +172,9 @@ void checkValidityOfRequiredEnvironmentUpdates(
                                     "Error when making environment model update settings, could not find vehicle systems of body " +
                                     updateIterator->second.at( i ) );
                         }
+                        break;
+                    }
+                    case space_time_metric_update: {
                         break;
                     }
                 }
@@ -391,6 +395,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     {
         if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
         {
+            std::shared_ptr< Metric > baseMetric = bodyMap.getSpaceTimeProperties( )->getBaseMetric( );
             if( baseMetric == nullptr )
             {
                 throw std::runtime_error(
@@ -755,6 +760,67 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( primaryBody );
                             }
+                        }
+                        break;
+                    }
+                    case relativistic_acceleration_from_metric: {
+                        std::shared_ptr< relativity::DirectRelativisticAcceleration > directRelativisticAcceleration =
+                                std::dynamic_pointer_cast< relativity::DirectRelativisticAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( directRelativisticAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "acceleration object is incompatible." );
+                        }
+
+                        std::shared_ptr< relativity::Metric > metricToUse = directRelativisticAcceleration->getSpaceTimeMetric( );
+                        if( metricToUse == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "metric pointer is null." );
+                        }
+
+                        if( std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metricToUse ) != nullptr )
+                        {
+                            std::shared_ptr< relativity::SolarSystemMetric > solarSystemMetric =
+                                    std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metricToUse );
+                            std::vector< std::string > bodyList = solarSystemMetric->getBodyList( );
+                            for( const auto& bodyName: bodyList )
+                            {
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
+                            }
+
+                            std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > shFunctionList =
+                                    solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
+                            for( auto shIterator = shFunctionList.begin( ); shIterator != shFunctionList.end( ); ++shIterator )
+                            {
+                                if( shIterator->first < static_cast< int >( bodyList.size( ) ) )
+                                {
+                                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                            bodyList.at( shIterator->first ) );
+                                }
+                                else
+                                {
+                                    throw std::runtime_error(
+                                            "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                            "spherical-harmonic index exceeds body list size." );
+                                }
+                            }
+                        }
+                        else if( std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
+                        {
+                            std::shared_ptr< relativity::HarmonicSchwarzschildMetric > schwarzschildMetric =
+                                    std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metricToUse );
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    schwarzschildMetric->getCentralBodyName( ) );
+                        }
+                        else
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "metric type is not recognized." );
                         }
                         break;
                     }

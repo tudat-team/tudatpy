@@ -39,6 +39,7 @@ BOOST_AUTO_TEST_SUITE( test_schwarzschild_metric )
 BOOST_AUTO_TEST_CASE( testSchwarzschildMetricPerturbation )
 {
     const double sunGravitationalParameter = 132712440018.0E9;
+    auto ppnParameterSet = std::make_shared< PPNParameterSet >( 1.0, 1.0 );
     auto schwarzschildMetric = std::make_shared< HarmonicSchwarzschildMetric >(
             [=]( ){ return sunGravitationalParameter; },
             ppnParameterSet,
@@ -95,4 +96,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
 }  // namespace tudat
-

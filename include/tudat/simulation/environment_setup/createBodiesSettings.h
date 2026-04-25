@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
+#include "tudat/astro/relativity/metric.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
@@ -37,6 +38,8 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class SpaceTimeMetricSettings;
 
 //! Struct holding settings for a body to be created.
 /*!
@@ -88,18 +91,82 @@ struct BodySettings {
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
 };
 
+class SpaceTimePropertiesSettings
+{
+public:
+    SpaceTimePropertiesSettings(
+            const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
+            const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
+                    std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
+            const double equivalencePrincipleLpiViolationParameter = 0.0 ):
+        metricSettings_( metricSettings ),
+        ppnParameterSet_( ppnParameterSet ),
+        equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter )
+    {
+        if( ppnParameterSet_ == nullptr )
+        {
+            ppnParameterSet_ = std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 );
+        }
+    }
+
+    std::shared_ptr< SpaceTimeMetricSettings > getMetricSettings( ) const
+    {
+        return metricSettings_;
+    }
+
+    void setMetricSettings( const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings )
+    {
+        metricSettings_ = metricSettings;
+    }
+
+    std::shared_ptr< relativity::PPNParameterSet > getPpnParameterSet( ) const
+    {
+        return ppnParameterSet_;
+    }
+
+    void setPpnParameterSet( const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet )
+    {
+        if( ppnParameterSet == nullptr )
+        {
+            throw std::runtime_error( "Error when setting PPN parameter set, input is nullptr." );
+        }
+        ppnParameterSet_ = ppnParameterSet;
+    }
+
+    double getEquivalencePrincipleLpiViolationParameter( ) const
+    {
+        return equivalencePrincipleLpiViolationParameter_;
+    }
+
+    void setEquivalencePrincipleLpiViolationParameter( const double equivalencePrincipleLpiViolationParameter )
+    {
+        equivalencePrincipleLpiViolationParameter_ = equivalencePrincipleLpiViolationParameter;
+    }
+
+private:
+    std::shared_ptr< SpaceTimeMetricSettings > metricSettings_;
+
+    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
+
+    double equivalencePrincipleLpiViolationParameter_;
+};
+
 class BodyListSettings
 {
 public:
     BodyListSettings( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
         bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ), frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation )
+        frameOrientation_( frameOrientation ),
+        spaceTimePropertiesSettings_( std::make_shared< SpaceTimePropertiesSettings >( ) )
     { }
 
     BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings,
                       const std::string frameOrigin = "SSB",
                       const std::string frameOrientation = "ECLIPJ2000" ):
-        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation )
+        bodySettings_( bodySettings ),
+        frameOrigin_( frameOrigin ),
+        frameOrientation_( frameOrientation ),
+        spaceTimePropertiesSettings_( std::make_shared< SpaceTimePropertiesSettings >( ) )
     { }
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
@@ -158,12 +225,28 @@ public:
         return bodySettings_;
     }
 
+    std::shared_ptr< SpaceTimePropertiesSettings > getSpaceTimeSettings( ) const
+    {
+        return spaceTimePropertiesSettings_;
+    }
+
+    void setSpaceTimeSettings( const std::shared_ptr< SpaceTimePropertiesSettings >& spaceTimePropertiesSettings )
+    {
+        if( spaceTimePropertiesSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when setting space-time settings, input is nullptr." );
+        }
+        spaceTimePropertiesSettings_ = spaceTimePropertiesSettings;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings_;
 
     std::string frameOrigin_;
 
     std::string frameOrientation_;
+
+    std::shared_ptr< SpaceTimePropertiesSettings > spaceTimePropertiesSettings_;
 };
 
 }  // namespace simulation_setup

@@ -1817,8 +1817,8 @@ public:
                                                                         dependentVariablesToSave,
                                                                         outputSettings ),
           externalBodies_( externalBodies ),
-          angularMomentumBodies_( angularMomentumBodies ),
-          sphericalHarmonicGravityExpansions_( sphericalHarmonicGravityExpansions ){ }
+          sphericalHarmonicGravityExpansions_( sphericalHarmonicGravityExpansions ),
+          angularMomentumBodies_( angularMomentumBodies ){ }
 
     ~SecondOrderBodyCenteredRelativisticTimeConverterSettings( ){ }
 

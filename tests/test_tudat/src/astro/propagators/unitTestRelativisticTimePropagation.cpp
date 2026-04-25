@@ -96,12 +96,9 @@ BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
             std::vector< std::string >{ "Earth" },
             std::map< std::string, std::pair< int, int > >( ),
             std::vector< std::string >( ),
-            std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
             false );
 
-    baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
-    evaluatedMetricObjects.clear( );
-    evaluatedMetricObjects[ std::make_pair( "Earth", "Graz" ) ] = baseMetric->Clone( );
+    createBaseMetric( metricSettings, bodiesDirect );
 
     auto propagationPrintSettings = std::make_shared< PropagationPrintSettings >(
             true,

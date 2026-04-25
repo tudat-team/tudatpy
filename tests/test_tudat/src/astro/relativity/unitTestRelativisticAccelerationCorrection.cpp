@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -356,6 +357,101 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
                                      statistics::computeSampleMean( earthEccentricities ) );
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarzschildCorrection )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double simulationStartEpoch = 0.0;
+    const double simulationEndEpoch = 2.0 * physical_constants::JULIAN_DAY;
+
+    std::vector< std::string > bodiesToPropagate{ "Vehicle" };
+    std::vector< std::string > centralBodies{ "Earth" };
+
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7000.0E3;
+    vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    vehicleInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 30.0 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 40.0 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
+    vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
+
+    auto runPropagationAndRetrieveTotalAccelerationNorm = [ & ](
+            const SelectedAccelerationMap& selectedAccelerationSettings ) -> std::map< double, Eigen::VectorXd >
+    {
+        BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+        bodies.createEmptyBody( "Vehicle" );
+
+        createBaseMetric( schwardschildSpaceTimeMetricSettings( "Earth" ), bodies );
+
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, selectedAccelerationSettings, bodiesToPropagate, centralBodies );
+
+        const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        const Eigen::VectorXd systemInitialState =
+                convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                total_acceleration_norm_dependent_variable, "Vehicle" ) );
+
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 20.0 );
+
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        simulationStartEpoch,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
+
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+        return dynamicsSimulator.getDependentVariableHistory( );
+    };
+
+    SelectedAccelerationMap correctionAccelerationSettings;
+    correctionAccelerationSettings[ "Vehicle" ][ "Earth" ] = {
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ),
+            std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false ) };
+
+    std::map< double, Eigen::VectorXd > correctionTotalAccelerationNormHistory =
+            runPropagationAndRetrieveTotalAccelerationNorm( correctionAccelerationSettings );
+
+    SelectedAccelerationMap metricAccelerationSettings;
+    metricAccelerationSettings[ "Vehicle" ][ "" ] = {
+            relativisticAccelerationFromMetric( ) };
+
+    std::map< double, Eigen::VectorXd > metricTotalAccelerationNormHistory =
+            runPropagationAndRetrieveTotalAccelerationNorm( metricAccelerationSettings );
+
+    BOOST_REQUIRE_EQUAL( correctionTotalAccelerationNormHistory.size( ), metricTotalAccelerationNormHistory.size( ) );
+
+    double maximumRelativeDifference = 0.0;
+    auto correctionIterator = correctionTotalAccelerationNormHistory.begin( );
+    auto metricIterator = metricTotalAccelerationNormHistory.begin( );
+    for( ; correctionIterator != correctionTotalAccelerationNormHistory.end( ); ++correctionIterator, ++metricIterator )
+    {
+        BOOST_CHECK_SMALL( correctionIterator->first - metricIterator->first, 1.0E-14 );
+
+        const double correctionNorm = correctionIterator->second( 0 );
+        const double metricNorm = metricIterator->second( 0 );
+        const double relativeDifference =
+                std::fabs( correctionNorm - metricNorm ) / std::max( std::fabs( correctionNorm ), 1.0E-30 );
+
+        if( relativeDifference > maximumRelativeDifference )
+        {
+            maximumRelativeDifference = relativeDifference;
+        }
+    }
+
+    BOOST_CHECK_SMALL( maximumRelativeDifference, 5.0E-2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

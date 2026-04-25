@@ -1055,6 +1055,7 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     earth->setGravityFieldModel( earthGravityField );
 
     // Create acceleration model.
+    std::shared_ptr< PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
     std::function< double( ) > ppnParameterGammaFunction = std::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
     std::function< double( ) > ppnParameterBetaFunction = std::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
     std::shared_ptr< RelativisticAccelerationCorrection > accelerationModel = std::make_shared< RelativisticAccelerationCorrection >(

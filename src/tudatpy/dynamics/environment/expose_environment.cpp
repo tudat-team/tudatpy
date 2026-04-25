@@ -2967,6 +2967,50 @@ inside a `Body` instance and used in observation corrections or environmental qu
          :type: dict[str,GroundStation]
       )doc" );
 
+    py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >(
+            m, "SpaceTimeProperties", R"doc(
+
+         Space-time properties associated with a :class:`~SystemOfBodies`.
+         This container stores the PPN parameter set, the equivalence-principle
+         LPI-violation parameter, and the internally used base metric.
+
+      )doc" )
+            .def_property(
+                    "ppn_parameter_set",
+                    &tss::SpaceTimeProperties::getPpnParameterSet,
+                    &tss::SpaceTimeProperties::setPpnParameterSet,
+                    R"doc(
+
+         PPN parameter set used by models built from this environment.
+
+         :type: PPNParameterSet
+      )doc" )
+            .def_property(
+                    "equivalence_principle_lpi_violation_parameter",
+                    &tss::SpaceTimeProperties::getEquivalencePrincipleLpiViolationParameter,
+                    &tss::SpaceTimeProperties::setEquivalencePrincipleLpiViolationParameter,
+                    R"doc(
+
+         Equivalence-principle local-position-invariance violation parameter.
+
+         :type: float
+      )doc" )
+            .def_property_readonly(
+                    "has_base_metric",
+                    []( const tss::SpaceTimeProperties& properties )
+                    {
+                        return ( properties.getBaseMetric( ) != nullptr );
+                    },
+                    R"doc(
+
+         **read-only**
+
+         Whether a base metric is currently defined in this space-time
+         properties container.
+
+         :type: bool
+      )doc" );
+
     py::class_< tss::SystemOfBodies, std::shared_ptr< tss::SystemOfBodies > >( m, "SystemOfBodies", R"doc(
 
          Object that contains a set of Body objects and associated frame
@@ -3184,6 +3228,18 @@ inside a `Body` instance and used in observation corrections or environmental qu
                   R"doc(
 
          Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`__.
+
+     )doc" )
+            .def_property_readonly(
+                    "space_time_properties",
+                    &tss::SystemOfBodies::getSpaceTimeProperties,
+                    R"doc(
+
+         Space-time properties container used by models created from this system of bodies.
+         This is the canonical access point for PPN parameters and the
+         equivalence-principle LPI-violation parameter.
+
+         :type: SpaceTimeProperties
 
      )doc" );
 

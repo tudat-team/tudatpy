@@ -679,8 +679,10 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
     std::vector< std::function< void( Eigen::Vector6d ) > > stateSetFunctions;
     std::vector< std::function< Eigen::Vector6d( ) > > stateGetFunctions;
     std::vector< std::shared_ptr< EstimatableParameter< double > > > gravitationalParameters;
-    std::shared_ptr< EstimatableParameter< double > > gammaParameter = std::make_shared< PPNParameterGamma >( );
-    std::shared_ptr< EstimatableParameter< double > > betaParameter = std::make_shared< PPNParameterBeta >( );
+    std::shared_ptr< EstimatableParameter< double > > gammaParameter =
+            std::make_shared< PPNParameterGamma >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) );
+    std::shared_ptr< EstimatableParameter< double > > betaParameter =
+            std::make_shared< PPNParameterBeta >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) );
 
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {

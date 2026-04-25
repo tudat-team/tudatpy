@@ -29,6 +29,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/relativity/metric.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
@@ -1153,15 +1154,90 @@ void addEmptyEphemeris( const std::shared_ptr< Body > body,
     }
 }
 
+//! Struct with global space-time properties used by dynamics/observation models in a SystemOfBodies.
+struct SpaceTimeProperties
+{
+public:
+    SpaceTimeProperties(
+            const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
+                    std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
+            const double equivalencePrincipleLpiViolationParameter = 0.0,
+            const std::shared_ptr< relativity::Metric >& baseMetric = nullptr ):
+        ppnParameterSet_( ppnParameterSet ),
+        equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter ),
+        baseMetric_( baseMetric )
+    {
+        if( ppnParameterSet_ == nullptr )
+        {
+            ppnParameterSet_ = std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 );
+        }
+    }
+
+    std::shared_ptr< relativity::PPNParameterSet > getPpnParameterSet( ) const
+    {
+        if( ppnParameterSet_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving PPN parameter set: no PPN parameter set is defined in SpaceTimeProperties." );
+        }
+        return ppnParameterSet_;
+    }
+
+    void setPpnParameterSet( const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet )
+    {
+        if( ppnParameterSet == nullptr )
+        {
+            throw std::runtime_error( "Error when setting PPN parameter set, input is nullptr." );
+        }
+        ppnParameterSet_ = ppnParameterSet;
+    }
+
+    double getEquivalencePrincipleLpiViolationParameter( ) const
+    {
+        return equivalencePrincipleLpiViolationParameter_;
+    }
+
+    void setEquivalencePrincipleLpiViolationParameter( const double equivalencePrincipleLpiViolationParameter )
+    {
+        equivalencePrincipleLpiViolationParameter_ = equivalencePrincipleLpiViolationParameter;
+    }
+
+    std::shared_ptr< relativity::Metric > getBaseMetric( ) const
+    {
+        return baseMetric_;
+    }
+
+    void setBaseMetric( const std::shared_ptr< relativity::Metric >& baseMetric )
+    {
+        baseMetric_ = baseMetric;
+    }
+
+private:
+    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
+
+    double equivalencePrincipleLpiViolationParameter_;
+
+    std::shared_ptr< relativity::Metric > baseMetric_;
+};
+
 class SystemOfBodies
 {
 public:
     SystemOfBodies( const std::string frameOrigin = "SSB",
                     const std::string frameOrientation = "ECLIPJ2000",
                     const std::unordered_map< std::string, std::shared_ptr< Body > >& bodyMap =
-                            std::unordered_map< std::string, std::shared_ptr< Body > >( ) ):
-        frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ), bodyMap_( bodyMap )
-    { }
+                            std::unordered_map< std::string, std::shared_ptr< Body > >( ),
+                    const std::shared_ptr< SpaceTimeProperties >& spaceTimeProperties =
+                            std::make_shared< SpaceTimeProperties >( ) ):
+        frameOrigin_( frameOrigin ),
+        frameOrientation_( frameOrientation ),
+        bodyMap_( bodyMap ),
+        spaceTimeProperties_( spaceTimeProperties )
+    {
+        if( spaceTimeProperties_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating SystemOfBodies: input space-time properties are nullptr." );
+        }
+    }
 
     std::shared_ptr< Body > at( const std::string& bodyName ) const
     {
@@ -1251,6 +1327,25 @@ public:
         return bodyMap_;
     }
 
+    std::shared_ptr< SpaceTimeProperties > getSpaceTimeProperties( ) const
+    {
+        if( spaceTimeProperties_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving space-time properties from SystemOfBodies: no space-time properties are defined." );
+        }
+        return spaceTimeProperties_;
+    }
+
+    void setSpaceTimeProperties( const std::shared_ptr< SpaceTimeProperties >& spaceTimeProperties )
+    {
+        if( spaceTimeProperties == nullptr )
+        {
+            throw std::runtime_error( "Error when setting space-time properties, input is nullptr." );
+        }
+        spaceTimeProperties_ = spaceTimeProperties;
+    }
+
     void deleteBody( const std::string bodyName )
     {
         bodyMap_.at( bodyName ).reset( );
@@ -1263,6 +1358,8 @@ private:
     std::string frameOrientation_;
 
     std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap_;
+
+    std::shared_ptr< SpaceTimeProperties > spaceTimeProperties_;
 };
 
 double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::string bodyName );

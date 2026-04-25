@@ -27,7 +27,13 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
         const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
         const SystemOfBodies& bodies )
 {
+    if( spaceTimeMetricSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating space-time metric: input settings are nullptr." );
+    }
+
     std::shared_ptr< relativity::Metric > spaceTimeMetric;
+    std::shared_ptr< relativity::PPNParameterSet > ppnSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
 
     switch( spaceTimeMetricSettings->getMetricType( ) )
     {
@@ -51,12 +57,6 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
         if (centralBody->getGravityFieldModel( ) == nullptr)
         {
             throw std::runtime_error( "Error: Body " + bodyName + " has no gravity field model." );
-        }
-
-        std::shared_ptr< relativity::PPNParameterSet > ppnSet = schwarzschildSettings->getPpnParameterSet( );
-        if( ppnSet == nullptr )
-        {
-            ppnSet = relativity::ppnParameterSet;
         }
 
         spaceTimeMetric = std::make_shared< relativity::HarmonicSchwarzschildMetric >(
@@ -87,12 +87,6 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
         std::map< int, std::function< double( ) > > bodyAngularMomentumFunctions;
         std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > bodySphericalHarmonicGravityWrappers;
         std::map< int, std::function< void( const double ) > > rotationUpdateFunctions;
-
-        std::shared_ptr< relativity::PPNParameterSet > ppnSet = solarSettings->getPpnParameterSet( );
-        if( ppnSet == nullptr )
-        {
-            ppnSet = relativity::ppnParameterSet;
-        }
 
         const std::vector< std::string >& firstOrderBodies = solarSettings->getBodiesWithFirstOrderExpansion( );
         const std::vector< std::string >& secondOrderBodies = solarSettings->getBodiesWithSecondOrderExpansion( );

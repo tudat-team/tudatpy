@@ -167,6 +167,7 @@ std::shared_ptr< RelativisticTimeStateDerivative<StateScalarType, TimeType > > c
 {
     if( evaluatedMetricObjects.count( conversionSettings->getReferencePointId( ) ) == 0 )
     {
+        std::shared_ptr< relativity::Metric > baseMetric = bodies.getSpaceTimeProperties( )->getBaseMetric( );
         if( baseMetric != nullptr )
         {
             evaluatedMetricObjects[ conversionSettings->getReferencePointId( ) ] = baseMetric->Clone( );

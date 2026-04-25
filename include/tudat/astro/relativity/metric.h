@@ -15,7 +15,6 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/relativity/relativisticPotentials.h"
 
 namespace tudat
@@ -29,7 +28,7 @@ namespace relativity
 const static Eigen::Matrix4d minkowskiMetric =
         ( Eigen::Matrix4d( ) << -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ).finished( );
 
-//! Class that stores the PPN parameters, typically used as a 'global' environment property stored in ppnParameterSet variable
+//! Class that stores the PPN parameters used by relativity models.
 class PPNParameterSet
 {
 public:
@@ -209,16 +208,7 @@ protected:
 };
 
 
-//! Global PPN parameter set, initialized upon compilation (with values equal to GR).
-extern std::shared_ptr< PPNParameterSet > ppnParameterSet;
-
-//! Global parameter denoting EP violation in proper time rate, initialized to GR value of 0 upon compilation.
-extern double equivalencePrincipleLpiViolationParameter;
-
 }  // namespace relativity
-
-extern std::shared_ptr< relativity::Metric > baseMetric;
-
 
 }  // namespace tudat
 

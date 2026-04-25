@@ -112,10 +112,8 @@ BOOST_AUTO_TEST_CASE( testSolarSystemMetricTimePartial )
     std::vector< std::string > secondOrderPerturbingBodies;
     std::map< std::string, std::pair< int, int > > bodySphericalHarmonicExpansions;
     bodySphericalHarmonicExpansions[ "Earth" ] = std::make_pair( 12, 12 );
-    auto ppnSet = relativity::ppnParameterSet;
-    BOOST_REQUIRE( ppnSet != nullptr );
     auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-            firstOrderPerturbingBodies, secondOrderPerturbingBodies, bodySphericalHarmonicExpansions, std::vector< std::string >( ), ppnSet );
+            firstOrderPerturbingBodies, secondOrderPerturbingBodies, bodySphericalHarmonicExpansions, std::vector< std::string >( ) );
     auto solarSystemMetric = std::dynamic_pointer_cast< SolarSystemMetric >(
             createSpaceTimeMetric( metricSettings, bodies ) );
     BOOST_REQUIRE( solarSystemMetric != nullptr );
@@ -194,14 +192,11 @@ BOOST_AUTO_TEST_CASE( testSingleBodySphericalHarmonicPartials )
     std::vector< std::string > firstOrderPerturbingBodies{ "Earth" };
     std::map< std::string, std::pair< int, int > > bodySphericalHarmonicExpansions;
     bodySphericalHarmonicExpansions[ "Earth" ] = std::make_pair( 12, 12 );
-    auto initialPpnSet = relativity::ppnParameterSet;
-    BOOST_REQUIRE( initialPpnSet != nullptr );
     auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
             firstOrderPerturbingBodies,
             std::vector< std::string >( ),
             bodySphericalHarmonicExpansions,
-            std::vector< std::string >( ),
-            initialPpnSet );
+            std::vector< std::string >( ) );
 
     auto solarSystemMetric = std::dynamic_pointer_cast< SolarSystemMetric >(
             createSpaceTimeMetric( metricSettings, bodies ) );
@@ -297,14 +292,11 @@ BOOST_AUTO_TEST_CASE( testSolarSystemMetricStateAndParameterPartials )
     {
         bodySphericalHarmonicExpansions[ "Mercury" ] = std::make_pair( maxMercuryDegreeToUse, maxMercuryOrderToUse );
     }
-    auto initialPpnSet = relativity::ppnParameterSet;
-    BOOST_REQUIRE( initialPpnSet != nullptr );
     auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
             firstOrderPerturbingBodies,
             std::vector< std::string >( ),
             bodySphericalHarmonicExpansions,
-            std::vector< std::string >( ),
-            initialPpnSet );
+            std::vector< std::string >( ) );
 
     auto solarSystemMetric = std::dynamic_pointer_cast< SolarSystemMetric >(
             createSpaceTimeMetric( metricSettings, bodies ) );

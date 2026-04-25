@@ -370,6 +370,17 @@ void expose_environment_setup( py::module &m )
 
 
      )doc" )
+            .def_property(
+                    "space_time_settings",
+                    &tss::BodyListSettings::getSpaceTimeSettings,
+                    &tss::BodyListSettings::setSpaceTimeSettings,
+                    R"doc(
+
+         Settings used to initialize :attr:`SystemOfBodies.space_time_properties`
+         when calling :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`.
+
+         :type: SpaceTimePropertiesSettings
+      )doc" )
             .def_property_readonly( "frame_origin",
                                     &tss::BodyListSettings::getFrameOrigin,
                                     R"doc(

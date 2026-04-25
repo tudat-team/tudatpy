@@ -66,17 +66,16 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     bodies.getBody( "Earth" )->setStateFromEphemeris( evaluationTime );
 
     auto firstOrderSchwarzschildSettings =
-            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", ppnParameterSet, false );
+            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", false );
     [[maybe_unused]] auto secondOrderSchwarzschildSettings =
-            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", ppnParameterSet, true );
+            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", true );
 
     auto firstOrderSolarSystemSettings =
             std::make_shared< SolarSystemSpaceTimeMetricSettings >(
                     std::vector< std::string >{ "Earth" },
                     std::vector< std::string >( ),
                     std::map< std::string, std::pair< int, int > >( ),
-                    std::vector< std::string >( ),
-                    ppnParameterSet );
+                    std::vector< std::string >( ) );
     // Second-order solar-system terms currently unimplemented; re-enable once metric supports them.
     // auto secondOrderSolarSystemSettings =
     //         std::make_shared< SolarSystemSpaceTimeMetricSettings >(
@@ -201,21 +200,19 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     const int availableOrder = earthGravityField->getOrderOfExpansion( );
     const int fullDegree = std::min( 12, availableDegree );
     const int fullOrder = std::min( 12, availableOrder );
-    auto ppnSet = std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 );
-
     bodySphericalHarmonicExpansions[ "Earth" ] = std::make_pair( fullDegree, fullOrder );
     auto fullMetricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ), ppnSet );
+            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ) );
 
     const int truncatedDegree = std::min( 2, availableDegree );
     const int truncatedOrder = std::min( 2, availableOrder );
     bodySphericalHarmonicExpansions[ "Earth" ] = std::make_pair( truncatedDegree, truncatedOrder );
     auto truncatedMetricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ), ppnSet );
+            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ) );
 
     bodySphericalHarmonicExpansions[ "Earth" ] = std::make_pair( 0, 0 );
     auto pointMassMetricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ), ppnSet );
+            firstOrderPerturbingBodies, std::vector< std::string >( ), bodySphericalHarmonicExpansions, std::vector< std::string >( ) );
 
     auto fullMetric = createSpaceTimeMetric( fullMetricSettings, bodies );
     auto truncatedMetric = createSpaceTimeMetric( truncatedMetricSettings, bodies );
