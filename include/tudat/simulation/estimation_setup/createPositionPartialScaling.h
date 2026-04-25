@@ -275,6 +275,15 @@ public:
                 positionPartialScaler = std::make_shared< AngularPositionScaling >( angularPositionModel->getNormalizeRightAscension( ) );
                 break;
             }
+            case observation_models::camera_pixels: {
+                std::shared_ptr< cameras::Camera > camera =
+                        bodies.at( linkEnds.at( observation_models::observer ).bodyName_ )
+                                ->getCamera( linkEnds.at( observation_models::observer ).componentName_ );
+                positionPartialScaler = std::make_shared< CameraPixelsScaling >(
+                        [ camera ]( const double time ) { return camera->getRotationFromInertialToCameraFrame( time ); },
+                        camera->getFocalLengthsMatrix( ) );
+                break;
+            }
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
