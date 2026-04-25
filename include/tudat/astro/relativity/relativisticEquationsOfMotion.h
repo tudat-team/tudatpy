@@ -160,7 +160,7 @@ public:
             this->currentTime_ = currentTime;
 
             currentAcceleratedBodyState_ =  acceleratedBodyStateFunction_( );
-            spaceTimeMetric_->update( currentAcceleratedBodyState_, currentTime, 0, 1 );
+            spaceTimeMetric_->update( currentAcceleratedBodyState_, currentTime, 1, 1 );
             this->currentAcceleration_ =
                     evaluateRelativisticEquationsOfMotionInCoordinateTime( spaceTimeMetric_, currentAcceleratedBodyState_ );
 
