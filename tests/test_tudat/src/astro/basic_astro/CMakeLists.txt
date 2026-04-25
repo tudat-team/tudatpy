@@ -150,3 +150,10 @@ TUDAT_ADD_TEST_CASE(PolyhedronFunctions
 TUDAT_ADD_TEST_CASE(DateTime
         PRIVATE_LINKS
         tudat_basic_astrodynamics)
+
+TUDAT_ADD_TEST_CASE(NeQuick2Model
+        PRIVATE_LINKS
+        tudat_basic_astrodynamics
+        tudat_input_output
+        tudat_numerical_quadrature
+        )

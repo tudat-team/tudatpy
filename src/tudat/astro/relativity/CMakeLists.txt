@@ -28,7 +28,7 @@ set(relativity_HEADERS
         "relativisticAccelerationCorrection.h"
         "relativisticTimeConversion.h"
         "metric.h"
-        "SolarSystemMetric.h"
+        "solarSystemMetric.h"
         "schwarzschildMetric.h"
         "relativisticPotentials.h"
         "einsteinInfeldHoffmannEquations.h"
