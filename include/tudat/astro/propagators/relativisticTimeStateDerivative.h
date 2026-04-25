@@ -493,8 +493,8 @@ public:
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
-        stateDerivative = ( Eigen::Matrix< StateScalarType, 1, 1 >( )  << relativity::calculateFirstOrderTcbToTcgIntegrand( 
-            this->currentVelocity_, this->currentExternalPotential_ ) ).finished( );
+        stateDerivative( 0, 0 ) = relativity::calculateFirstOrderTcbToTcgIntegrand(
+            this->currentVelocity_, this->currentExternalPotential_ );
     }
 
     //! Function to update all environment variables to current time.
@@ -683,13 +683,14 @@ public:
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
-        stateDerivative = ( Eigen::Matrix< StateScalarType, 1, 1 >( ) 
-           // << ( physical_constants::LB_TIME_RATE_TERM + relativity::calculateFirstOrderTcbToTcgIntegrand( this->currentVelocity_,
-           //      this->currentExternalPotential_) ) * ( 1 + physical_constants::LB_TIME_RATE_TERM - physical_constants::LG_TIME_RATE_TERM) - physical_constants::LG_TIME_RATE_TERM
-            << relativity::calculateFirstOrderTcbToTcgIntegrand( this->currentVelocity_,   this->currentExternalPotential_)         
-                 + relativity::calculateSecondOrderTcbToTcgIntegrand(
-                this->currentVelocity_, this->currentExternalPotential_, this->currentCentralBodyState_.segment( 3, 3 ), 
-                currentExternalVectorPotential_, currentSecondOrderExternalPotentialCorrection_ ) ).finished( );
+        stateDerivative( 0, 0 ) =
+            relativity::calculateFirstOrderTcbToTcgIntegrand( this->currentVelocity_, this->currentExternalPotential_ ) +
+            relativity::calculateSecondOrderTcbToTcgIntegrand(
+                this->currentVelocity_,
+                this->currentExternalPotential_,
+                this->currentCentralBodyState_.segment( 3, 3 ),
+                currentExternalVectorPotential_,
+                currentSecondOrderExternalPotentialCorrection_ );
     }
 
 
@@ -924,11 +925,13 @@ public:
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
-        stateDerivative = ( Eigen::Matrix< StateScalarType, 1, 1 >( ) 
-            << relativity::calculateFirstOrderPlanetocentricToTopocentricConversion(
-                currentPointPositionInPcrs_, currentPointVelocityInPcrs_, currentLocalPotential_,
-                currentBarycentricAccelerationOfCentralBody_, currentExternalBodyRelativePositions_,
-                this->currentExternalBodyGravitationalParameters_ ) ).finished( );
+        stateDerivative( 0, 0 ) = relativity::calculateFirstOrderPlanetocentricToTopocentricConversion(
+            currentPointPositionInPcrs_,
+            currentPointVelocityInPcrs_,
+            currentLocalPotential_,
+            currentBarycentricAccelerationOfCentralBody_,
+            currentExternalBodyRelativePositions_,
+            this->currentExternalBodyGravitationalParameters_ );
     }
 
 

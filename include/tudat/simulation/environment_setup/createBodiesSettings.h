@@ -151,6 +151,37 @@ private:
     double equivalencePrincipleLpiViolationParameter_;
 };
 
+//! Factory function for PPN parameter settings.
+/*!
+ *  \param parameterGamma First-order PPN parameter gamma.
+ *  \param parameterBeta First-order PPN parameter beta.
+ *  \param parameterEpsilon Second-order post-Newtonian parameter epsilon.
+ *  \return Shared pointer to PPN parameter settings.
+ */
+inline std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet(
+        const double parameterGamma = 1.0,
+        const double parameterBeta = 1.0,
+        const double parameterEpsilon = 0.0 )
+{
+    return std::make_shared< relativity::PPNParameterSet >( parameterGamma, parameterBeta, 0.0, parameterEpsilon );
+}
+
+//! Factory function for system-level space-time properties settings.
+/*!
+ *  \param metricSettings Optional settings defining which metric model to build.
+ *  \param ppnParameterSet Optional PPN parameter settings. If null, GR defaults are used.
+ *  \param equivalencePrincipleLpiViolationParameter Equivalence-principle local-position-invariance violation parameter.
+ *  \return Shared pointer to space-time properties settings.
+ */
+inline std::shared_ptr< SpaceTimePropertiesSettings > spaceTimePropertiesSettings(
+        const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
+        const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet = nullptr,
+        const double equivalencePrincipleLpiViolationParameter = 0.0 )
+{
+    return std::make_shared< SpaceTimePropertiesSettings >(
+                metricSettings, ppnParameterSet, equivalencePrincipleLpiViolationParameter );
+}
+
 class BodyListSettings
 {
 public:

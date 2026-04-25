@@ -70,8 +70,6 @@ Functions
 
    first_order_bodycentric_relativistic_time_settings
 
-   second_order_body_centered_relativistic_time_settings
-
    bodycentered_to_topocentric_time_settings
 
    direct_relativistic_time_settings
@@ -109,8 +107,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.non_sequential_termination
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings
-
-.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.second_order_body_centered_relativistic_time_settings
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings
 
@@ -178,8 +174,6 @@ Classes
 
    FirstOrderBodycentricRelativisticTimePropagatorSettings
 
-   SecondOrderBodyCenteredRelativisticTimeConverterSettings
-
    BodycenteredToTopocentricTimePropagatorSettings
 
    DirectRelativisticTimePropagatorSettings
@@ -233,9 +227,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.FirstOrderBodycentricRelativisticTimePropagatorSettings
-   :members:
-
-.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.SecondOrderBodyCenteredRelativisticTimeConverterSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.BodycenteredToTopocentricTimePropagatorSettings

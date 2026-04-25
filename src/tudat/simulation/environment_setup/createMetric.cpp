@@ -19,6 +19,7 @@
 namespace tudat
 {
 
+std::map< std::pair< std::string, std::string >, std::shared_ptr< relativity::Metric > > evaluatedMetricObjects;
 
 namespace simulation_setup
 {
@@ -37,10 +38,10 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
 
     switch( spaceTimeMetricSettings->getMetricType( ) )
     {
-    case schwardschild_metric:
+    case schwarzschild_metric:
     {
-        std::shared_ptr< SchwardschildSpaceTimeMetricSettings > schwarzschildSettings =
-                std::dynamic_pointer_cast< SchwardschildSpaceTimeMetricSettings >( spaceTimeMetricSettings );
+        std::shared_ptr< SchwarzschildSpaceTimeMetricSettings > schwarzschildSettings =
+                std::dynamic_pointer_cast< SchwarzschildSpaceTimeMetricSettings >( spaceTimeMetricSettings );
 
         if (schwarzschildSettings == nullptr)
         {

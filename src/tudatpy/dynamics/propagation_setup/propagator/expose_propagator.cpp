@@ -1787,15 +1787,6 @@ HybridArcPropagatorSettings
 
      )doc" );
 
-    py::class_< tp::SecondOrderBodyCenteredRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::SecondOrderBodyCenteredRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "SecondOrderBodyCenteredRelativisticTimeConverterSettings", R"doc(
-
-        Settings for second-order barycentric↔body-centered relativistic time conversion.
-
-     )doc" );
-
     py::class_< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
@@ -1882,108 +1873,6 @@ HybridArcPropagatorSettings
         )doc" );
 
     m.def(
-        "second_order_body_centered_relativistic_time_settings",
-        &tp::secondOrderBodyCenteredRelativisticTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-        py::arg( "body" ),
-        py::arg( "perturbing_bodies" ),
-        py::arg( "initial_time" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "termination_settings" ),
-        py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
-        R"doc(
-
- Creates settings for second-order barycentric↔body-centered relativistic time conversion.
-
- Creates settings for the time-rate model used to convert between a barycentric time scale and a body-centered
- coordinate time scale (for example TCB↔TCG). The model follows the post-Newtonian
- :cite:t:`soffel2003` Eq. (58)-type
- implementation in Tudat and propagates the time difference directly.
-
- The propagated differential quantity is:
-
- .. math::
-
-     \frac{d}{dt}\Delta_{BC}
-     =
-     -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right)
-     +
-     \frac{1}{c^4}\left(
-     -\frac{1}{8}v_C^4
-     -\frac{3}{2}w_{0,\mathrm{ext}}v_C^2
-     +4\,\mathbf{v}_C\cdot\mathbf{w}_{\mathrm{ext}}
-     +\frac{1}{2}w_{0,\mathrm{ext}}^2
-     +\Delta_{\mathrm{ext}}
-     \right).
-
- In Tudat, the potential terms are evaluated as
-
- .. math::
-
-     w_{0,\mathrm{ext}}=\sum_{i=1}^{N} w_{0,i},\qquad
-     w_{0,i}=
-     \begin{cases}
-     \mu_i/R_i, & \text{point-mass contribution},\\
-     U_i^{\mathrm{SH}}, & \text{if spherical-harmonic contributions are configured},
-     \end{cases}
-
- .. math::
-
-     \mathbf{w}_{\mathrm{ext}}
-     =\sum_{i=1}^{N}\frac{\mu_i}{R_i}\mathbf{v}_i
-     -\sum_{k\in\mathcal{A}}\frac{G}{2R_k^3}\left(\mathbf{S}_k\times\mathbf{r}_k\right),
-     \qquad \mathbf{w}\equiv\mathbf{w}_{\mathrm{ext}},
-
- .. math::
-
-     \Delta_{\mathrm{ext}}
-     =\sum_{i=1}^{N}\frac{\mu_i}{R_i}\left[
-     -2v_i^2
-     +\frac{\left(\mathbf{r}_i\cdot\mathbf{v}_i\right)^2}{2R_i^2}
-     +4\,\mathbf{v}_i\cdot\mathbf{v}_C
-     +\sum_{\substack{j=1 \\ j\neq i}}^{N}\frac{\mu_j}{r_{ij}}
-     \right].
-
- where :math:`\Delta_{BC}` is the barycentric minus body-centered coordinate-time difference,
- :math:`t` is barycentric coordinate time, :math:`c` is the speed of light,
- :math:`N` is the number of perturbing bodies included in the sums,
- :math:`\mathbf{v}_C` is the central-body barycentric velocity vector,
- :math:`v_C=\lVert\mathbf{v}_C\rVert` is its magnitude,
- :math:`G` is the gravitational constant,
- :math:`\mu_i=GM_i` is the gravitational parameter of perturbing body :math:`i`,
- :math:`\mathbf{r}_C,\mathbf{r}_i` are barycentric position vectors of central and perturbing bodies,
- :math:`R_i=\lVert\mathbf{r}_C-\mathbf{r}_i\rVert`,
- :math:`\mathbf{v}_i` is the barycentric velocity vector of perturbing body :math:`i`,
- :math:`v_i=\lVert\mathbf{v}_i\rVert`,
- :math:`r_{ij}=\lVert\mathbf{r}_j-\mathbf{r}_i\rVert`,
- :math:`\mathbf{S}_k` is the angular-momentum vector of body :math:`k`,
- :math:`\mathcal{A}` is the set of bodies for which angular-momentum terms are included,
- :math:`U_i^{\mathrm{SH}}` is the configured spherical-harmonic potential contribution,
- and :math:`\cdot` denotes the Euclidean inner product.
-
- Parameters
- ----------
- body : str
-     Name of the central body that defines the body-centered coordinate time scale.
- perturbing_bodies : list[str]
-     Bodies whose gravity contributes to the external potential terms in the conversion.
- initial_time : float
-     Initial time (seconds since J2000).
- integrator_settings : IntegratorSettings
-     Numerical integrator settings used to propagate the relativistic time state.
- termination_settings : PropagationTerminationSettings
-     Termination settings for the relativistic time-state propagation.
- spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
-     Optional map from body name to ``(degree, order)`` defining spherical-harmonic gravity expansions
-     in the potential evaluation.
-
- Returns
- -------
- SecondOrderBodyCenteredRelativisticTimeConverterSettings
-     Settings object for this barycentric↔body-centered relativistic time conversion model.
-
-        )doc" );
-
-    m.def(
         "bodycentered_to_topocentric_time_settings",
         &bodycenteredToTopocentricTimePropagatorSettingsFromArray,
         py::arg( "reference_point_id" ),
@@ -2062,8 +1951,6 @@ HybridArcPropagatorSettings
         py::arg( "initial_time" ),
         py::arg( "integrator_settings" ),
         py::arg( "termination_settings" ),
-        py::arg( "time_variable_conversion_function" ) =
-            std::function< TIME_TYPE( const TIME_TYPE& ) >( []( const TIME_TYPE& input_time ){ return input_time; } ),
         py::arg( "distance_scaling_factor" ) = 1.0,
         py::arg( "dependent_variables_to_save" ) =
             std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
@@ -2073,6 +1960,12 @@ HybridArcPropagatorSettings
  Creates settings for direct metric-based relativistic time conversion.
 
  Creates settings for propagating the proper-time difference of a reference point directly from a space-time metric.
+ The metric used by this model is the base metric stored in
+ :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`,
+ which is configured through
+ :attr:`~tudatpy.dynamics.environment_setup.BodyListSettings.space_time_settings`.
+ Metric and space-time settings are defined in
+ :mod:`~tudatpy.dynamics.environment_setup.space_time`.
  The propagated differential quantity is
 
  .. math::
@@ -2088,6 +1981,15 @@ HybridArcPropagatorSettings
      \frac{d\tau}{dt}-1=-\frac{1}{2}\varepsilon-\frac{1}{8}\varepsilon^2,\qquad
      \varepsilon=\frac{1}{c^2}\left(u^\mu h_{\mu\nu}u^\nu+v^2\right),\qquad
      u^\mu=(c,\mathbf{v}).
+
+ The distance scaling factor is denoted by :math:`L` (default :math:`L=1`).
+ In terms of scaled spatial quantities:
+
+ .. math::
+
+     \mathbf{r}^{(L)} = L\,\mathbf{r},\qquad
+     \mu^{(L)} = L\,\mu,\qquad
+     L=1\ \text{(default)}.
 
  where :math:`\tau` is proper time at the reference point, :math:`t` is barycentric coordinate time,
  :math:`c` is the speed of light, :math:`\varepsilon` is the dimensionless expansion quantity defined above,
@@ -2107,10 +2009,8 @@ HybridArcPropagatorSettings
      Numerical integrator settings used to propagate the relativistic time state.
  termination_settings : PropagationTerminationSettings
      Termination settings for the relativistic time-state propagation.
- time_variable_conversion_function : callable, optional
-     Optional function that maps the propagation independent variable to the model evaluation time.
  distance_scaling_factor : float, optional
-     Distance scaling factor applied in the propagated formulation.
+     Distance scaling factor :math:`L` (default ``1.0``).
  dependent_variables_to_save : list[SingleDependentVariableSaveSettings], optional
      Dependent variables to save during propagation.
  output_settings : SingleArcPropagatorProcessingSettings, optional

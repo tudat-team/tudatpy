@@ -348,9 +348,8 @@ BOOST_AUTO_TEST_CASE( testProgressiveComplexityDiagnostic )
                 std::vector< std::string >( ),
                 L.metricShOrders,
                 std::vector< std::string >( ),
-                std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
                 false );
-        baseMetric = createSpaceTimeMetric( metricSet, bodiesDirect );
+        auto baseMetric = createSpaceTimeMetric( metricSet, bodiesDirect );
         evaluatedMetricObjects.clear( );
         evaluatedMetricObjects[ std::make_pair( "Earth", stationName ) ] = baseMetric->Clone( );
 
@@ -533,9 +532,8 @@ BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun 
             std::vector< std::string >( ),
             sphericalHarmonicOrders,
             std::vector< std::string >( ),
-            std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
             false );
-    baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
+    auto baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
     evaluatedMetricObjects.clear( );
     evaluatedMetricObjects[ std::make_pair( "Earth", stationName ) ] = baseMetric->Clone( );
 

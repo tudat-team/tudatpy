@@ -30,7 +30,7 @@ namespace simulation_setup
 
 enum SpaceTimeMetricTypes
 {
-    schwardschild_metric,
+    schwarzschild_metric,
     solar_system_metric
 };
 
@@ -61,7 +61,7 @@ protected:
 };
 
 //! Settings for the harmonic Schwarzschild metric.
-class SchwardschildSpaceTimeMetricSettings : public SpaceTimeMetricSettings
+class SchwarzschildSpaceTimeMetricSettings : public SpaceTimeMetricSettings
 {
 public:
     //! Constructor.
@@ -69,10 +69,10 @@ public:
      *  \param bodyName Central body used in the Schwarzschild metric.
      *  \param includeSecondPostNewtonianOrder If true, include second post-Newtonian terms.
      */
-    SchwardschildSpaceTimeMetricSettings(
+    SchwarzschildSpaceTimeMetricSettings(
             const std::string& bodyName,
             const bool includeSecondPostNewtonianOrder = false )
-        : SpaceTimeMetricSettings( schwardschild_metric ),
+        : SpaceTimeMetricSettings( schwarzschild_metric ),
           bodyName_( bodyName ),
           includeSecondPostNewtonianOrder_( includeSecondPostNewtonianOrder ) { }
 
@@ -174,11 +174,11 @@ std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
  *  \param includeSecondPostNewtonianOrder If true, include second post-Newtonian terms.
  *  \return Shared pointer to Schwarzschild metric settings.
  */
-inline std::shared_ptr< SchwardschildSpaceTimeMetricSettings > schwardschildSpaceTimeMetricSettings(
+inline std::shared_ptr< SchwarzschildSpaceTimeMetricSettings > schwarzschildSpaceTimeMetricSettings(
         const std::string& bodyName,
         const bool includeSecondPostNewtonianOrder = false )
 {
-    return std::make_shared< SchwardschildSpaceTimeMetricSettings >(
+    return std::make_shared< SchwarzschildSpaceTimeMetricSettings >(
                 bodyName, includeSecondPostNewtonianOrder );
 }
 

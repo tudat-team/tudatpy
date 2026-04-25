@@ -2013,8 +2013,6 @@ directRelativisticTimePropagatorSettings(
         const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
-            []( const TimeType& inputTime ){ return inputTime; },
         const double distanceScalingFactor = 1.0,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = { },
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
@@ -2030,7 +2028,7 @@ directRelativisticTimePropagatorSettings(
                 initialTime,
                 integratorSettings,
                 terminationSettings,
-                timeVariableConversionFunction,
+                []( const TimeType& inputTime ){ return inputTime; },
                 distanceScalingFactor,
                 dependentVariablesToSave,
                 outputSettingsToUse );

@@ -305,7 +305,7 @@
      set(CMAKE_CXX_FLAGS_DEBUG "-g")
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare -Wno-maybe-uninitialized -Wno-stringop-overflow")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)

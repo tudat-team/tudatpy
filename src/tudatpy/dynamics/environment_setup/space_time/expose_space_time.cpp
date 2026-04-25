@@ -72,7 +72,7 @@ void expose_space_time_setup( py::module& m )
                     R"doc(Second-order post-Newtonian parameter :math:`\epsilon`.)doc" );
 
     py::enum_< tss::SpaceTimeMetricTypes >( m, "SpaceTimeMetricType" )
-            .value( "schwardschild_metric", tss::schwardschild_metric )
+            .value( "schwarzschild_metric", tss::schwarzschild_metric )
             .value( "solar_system_metric", tss::solar_system_metric );
 
     py::class_< tss::SpaceTimeMetricSettings, std::shared_ptr< tss::SpaceTimeMetricSettings > >(
@@ -82,10 +82,10 @@ void expose_space_time_setup( py::module& m )
 
      )doc" );
 
-    py::class_< tss::SchwardschildSpaceTimeMetricSettings,
-                std::shared_ptr< tss::SchwardschildSpaceTimeMetricSettings >,
+    py::class_< tss::SchwarzschildSpaceTimeMetricSettings,
+                std::shared_ptr< tss::SchwarzschildSpaceTimeMetricSettings >,
                 tss::SpaceTimeMetricSettings >(
-            m, "SchwardschildSpaceTimeMetricSettings", R"doc(
+            m, "SchwarzschildSpaceTimeMetricSettings", R"doc(
 
         Settings for a harmonic Schwarzschild metric.
 
@@ -103,7 +103,9 @@ void expose_space_time_setup( py::module& m )
     py::class_< tss::SpaceTimePropertiesSettings, std::shared_ptr< tss::SpaceTimePropertiesSettings > >(
             m, "SpaceTimePropertiesSettings", R"doc(
 
-        Settings for initializing
+        Settings assigned to
+        :attr:`~tudatpy.dynamics.environment_setup.BodyListSettings.space_time_settings`,
+        for initializing
         :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
 
      )doc" )
@@ -128,28 +130,94 @@ void expose_space_time_setup( py::module& m )
                     &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter );
 
     m.def(
+            "ppn_parameter_set",
+            &tss::ppnParameterSet,
+            py::arg( "parameter_gamma" ) = 1.0,
+            py::arg( "parameter_beta" ) = 1.0,
+            py::arg( "parameter_epsilon" ) = 0.0,
+            R"doc(
+
+ Create settings for PPN parameters used by system-level space-time properties.
+
+ The returned object is typically assigned to
+ :attr:`~tudatpy.dynamics.environment_setup.space_time.SpaceTimePropertiesSettings.ppn_parameter_set`, which is then used to build
+ :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
+
+ Parameters
+ ----------
+ parameter_gamma : float, optional
+     First-order PPN parameter :math:`\gamma`.
+ parameter_beta : float, optional
+     First-order PPN parameter :math:`\beta`.
+ parameter_epsilon : float, optional
+     Second-order post-Newtonian parameter :math:`\epsilon`.
+
+ Returns
+ -------
+ PPNParameterSet
+     Settings object for PPN parameters.
+
+        )doc" );
+
+    m.def(
+            "space_time_properties_settings",
+            &tss::spaceTimePropertiesSettings,
+            py::arg( "metric_settings" ) = nullptr,
+            py::arg( "ppn_parameter_set" ) = nullptr,
+            py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0,
+            R"doc(
+
+ Create settings for system-level space-time properties.
+
+ This function creates a :class:`~SpaceTimePropertiesSettings` object that is assigned to
+ :attr:`~tudatpy.dynamics.environment_setup.BodyListSettings.space_time_settings`. During
+ :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`, these settings define
+ :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
+
+ Parameters
+ ----------
+ metric_settings : SpaceTimeMetricSettings, optional
+     Settings that define the base metric model to be used.
+ ppn_parameter_set : PPNParameterSet, optional
+     PPN parameter settings used by relativistic models.
+ equivalence_principle_lpi_violation_parameter : float, optional
+     Local-position-invariance violation parameter for equivalence-principle models.
+
+ Returns
+ -------
+ SpaceTimePropertiesSettings
+     Settings object used to initialize ``SystemOfBodies.space_time_properties``.
+
+        )doc" );
+
+    m.def(
             "schwarzschild_metric_settings",
-            &tss::schwardschildSpaceTimeMetricSettings,
+            &tss::schwarzschildSpaceTimeMetricSettings,
             py::arg( "body" ),
             py::arg( "include_second_post_newtonian_order" ) = false,
             R"doc(
 
- Create settings for a harmonic Schwarzschild metric.
+Create settings for a harmonic Schwarzschild metric.
 
- The implemented covariant metric perturbation is
+The implemented covariant metric perturbation is
 
- .. math::
+.. math::
 
-     h_{00}=2\frac{U}{c^2}-2\beta\frac{U^2}{c^4},\qquad
-     h_{ij}=2\gamma\frac{U}{c^2}\delta_{ij}
-     +2\epsilon\frac{U^2}{c^4}\delta_{ij},
+   h_{00} = 2\frac{U}{c^2} - 2\beta\frac{U^2}{c^4}
 
- with :math:`h_{0i}=0` for this metric model.
+.. math::
 
- where :math:`U=\mu/r` is the central-body potential, :math:`\mu=GM`,
- :math:`r` is the distance from the central body, :math:`c` is the speed of light,
- :math:`\delta_{ij}` is the Kronecker delta, and :math:`\beta,\gamma,\epsilon`
- are the PPN parameters.
+   h_{ij} = 2\gamma\frac{U}{c^2}\delta_{ij}
+   + 2\epsilon\frac{U^2}{c^4}\delta_{ij}
+
+.. math::
+
+   h_{0i} = 0
+
+where :math:`U=\mu/r` is the central-body potential, :math:`\mu=GM`,
+:math:`r` is the distance from the central body, :math:`c` is the speed of light,
+:math:`\delta_{ij}` is the Kronecker delta, and :math:`\beta,\gamma,\epsilon`
+are the PPN parameters.
 
 Parameters
 ----------
@@ -160,7 +228,7 @@ include_second_post_newtonian_order : bool, optional
 
 Returns
 -------
-SchwardschildSpaceTimeMetricSettings
+SchwarzschildSpaceTimeMetricSettings
      Settings object for the Schwarzschild metric model. This can be assigned
      to :attr:`SpaceTimePropertiesSettings.metric_settings`.
 
@@ -176,74 +244,87 @@ SchwardschildSpaceTimeMetricSettings
             py::arg( "use_body_accelerations" ) = true,
             R"doc(
 
- Create settings for a solar-system post-Newtonian metric.
+Create settings for a solar-system post-Newtonian metric.
 
- The implemented metric uses the standard post-Newtonian decomposition
- with scalar potential :math:`w` and vector potential :math:`\mathbf{w}`:
+The implemented metric uses the standard post-Newtonian decomposition
+with scalar potential :math:`w` and vector potential :math:`\mathbf{w}`.
+The formulation follows the IAU-relativistic framework conventions
+summarized by :cite:t:`soffel2003`.
 
- .. math::
+.. math::
 
-     h_{00}=2\frac{w}{c^2}-2\beta\frac{w^2}{c^4},\qquad
-     h_{0i}=-2(\gamma+1)\frac{w_i}{c^3},
+    h_{00} = 2\frac{w}{c^2} - 2\beta\frac{w^2}{c^4}
 
- .. math::
+.. math::
 
-     h_{ij}=2\gamma\frac{w}{c^2}\delta_{ij}
-     +2(\gamma^2+\beta-1)\frac{w^2_{\mathrm{(2)}}}{c^4}\delta_{ij}
-     +2(\gamma+1)\frac{q_{ij}}{c^4},
+    h_{0i} = -2(\gamma + 1)\frac{w_i}{c^3}
 
- In Tudat, these quantities are evaluated as
+.. math::
 
- .. math::
+    h_{ij} = 2\gamma\frac{w}{c^2}\delta_{ij}
+    + 2(\gamma^2 + \beta - 1)\frac{\left(w_{\mathrm{(2)}}\right)^2}{c^4}\delta_{ij}
+    + 2(\gamma + 1)\frac{q_{ij}}{c^4}
 
-     w=\sum_{a\in\mathcal{F}} w_a,\qquad
-     w_a=
-     \begin{cases}
-     \mu_a/R_a, & \text{point-mass term},\\
-     U_a^{\mathrm{SH}}, & \text{if spherical-harmonic expansion is configured},
-     \end{cases}
+In Tudat, these quantities are evaluated as
 
- .. math::
+.. math::
 
-     \mathbf{w}
-     =\sum_{a\in\mathcal{F}} w_a\,\mathbf{v}_a
-     -\sum_{k\in\mathcal{A}}
-     \frac{G}{2R_k^3}\left(\mathbf{S}_k\times\mathbf{r}_k\right),
-     \qquad w_i=(\mathbf{w})_i,
+    w = \sum_{a\in\mathcal{F}} w_a
 
- .. math::
+.. math::
 
-     w^2_{\mathrm{(2)}}=\sum_{b\in\mathcal{S}} w_b^2,
+    w_a =
+    \begin{cases}
+    \mu_a/R_a, & \text{point-mass term}, \\
+    U_a^{\mathrm{SH}}, & \text{if spherical-harmonic expansion is configured},
+    \end{cases}
 
- .. math::
+.. math::
 
-     q_{ij}=\sum_{b\in\mathcal{S}} q^{(b)}_{ij},\qquad
-     q^{(b)}_{ij}
-     =
-     \frac{\mu_b^2}{4R_b^2}
-     \left(\frac{r_{b,i}r_{b,j}}{R_b^2}-\delta_{ij}\right).
+    \mathbf{w} = \sum_{a\in\mathcal{F}} w_a\,\mathbf{v}_a
+    - \sum_{k\in\mathcal{A}}
+    \frac{G}{2R_k^3}\left(\mathbf{S}_k\times\mathbf{r}_k\right)
 
- where :math:`\mathcal{F}` is the set of bodies in ``first_order_bodies``,
- :math:`\mathcal{S}` is the set of bodies in ``second_order_bodies``,
- :math:`\mathcal{A}` is the set of bodies in ``angular_momentum_bodies``,
- :math:`\mu_a=GM_a` is the gravitational parameter of body :math:`a`,
- :math:`\mathbf{r}_a` is the relative position vector from body :math:`a` to the metric evaluation point,
- :math:`R_a=\lVert\mathbf{r}_a\rVert`, :math:`\mathbf{v}_a` is the barycentric velocity of body :math:`a`,
- :math:`\mathbf{S}_k` is the angular-momentum vector of body :math:`k`,
- :math:`U_a^{\mathrm{SH}}` is the configured spherical-harmonic scalar potential contribution,
- :math:`\delta_{ij}` is the Kronecker delta, :math:`c` is the speed of light,
- :math:`G` is the gravitational constant, and :math:`\beta,\gamma` are the PPN parameters.
+.. math::
 
- Parameters
- ----------
- first_order_bodies : list[str]
-     Bodies included in the first-order post-Newtonian terms.
- second_order_bodies : list[str], optional
-     Bodies included in second-order terms.
- spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
-     Optional spherical-harmonic degree/order settings per body.
- angular_momentum_bodies : list[str], optional
-     Bodies for which angular-momentum terms are included.
+    w_i = (\mathbf{w})_i
+
+.. math::
+
+    \left(w_{\mathrm{(2)}}\right)^2 = \sum_{b\in\mathcal{S}} \left(w_b\right)^2
+
+.. math::
+
+    q_{ij} = \sum_{b\in\mathcal{S}} q^{(b)}_{ij}
+
+.. math::
+
+    q^{(b)}_{ij} =
+    \frac{\mu_b^2}{4R_b^2}
+    \left(\frac{r_{b,i}r_{b,j}}{R_b^2} - \delta_{ij}\right)
+
+where :math:`\mathcal{F}` is the set of bodies in ``first_order_bodies``,
+:math:`\mathcal{S}` is the set of bodies in ``second_order_bodies``,
+:math:`\mathcal{A}` is the set of bodies in ``angular_momentum_bodies``,
+:math:`\mu_a=GM_a` is the gravitational parameter of body :math:`a`,
+:math:`\mathbf{r}_a` is the relative position vector from body :math:`a` to the metric evaluation point,
+:math:`R_a=\lVert\mathbf{r}_a\rVert`, :math:`\mathbf{v}_a` is the barycentric velocity of body :math:`a`,
+:math:`\mathbf{S}_k` is the angular-momentum vector of body :math:`k`,
+:math:`U_a^{\mathrm{SH}}` is the configured spherical-harmonic scalar potential contribution,
+:math:`w_b` follows the same definition as :math:`w_a` but evaluated for body :math:`b`,
+:math:`\delta_{ij}` is the Kronecker delta, :math:`c` is the speed of light,
+:math:`G` is the gravitational constant, and :math:`\beta,\gamma` are the PPN parameters.
+
+Parameters
+----------
+first_order_bodies : list[str]
+    Bodies included in the first-order post-Newtonian terms.
+second_order_bodies : list[str], optional
+    Bodies included in second-order terms.
+spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
+    Optional spherical-harmonic degree/order settings per body.
+angular_momentum_bodies : list[str], optional
+    Bodies for which angular-momentum terms are included.
 use_body_accelerations : bool, optional
     Whether body-acceleration terms are included in the metric model.
 

@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     bodies.getBody( "Earth" )->setStateFromEphemeris( evaluationTime );
 
     auto firstOrderSchwarzschildSettings =
-            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", false );
+            std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", false );
     [[maybe_unused]] auto secondOrderSchwarzschildSettings =
-            std::make_shared< SchwardschildSpaceTimeMetricSettings >( "Earth", true );
+            std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", true );
 
     auto firstOrderSolarSystemSettings =
             std::make_shared< SolarSystemSpaceTimeMetricSettings >(

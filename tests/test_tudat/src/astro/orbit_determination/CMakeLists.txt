@@ -73,7 +73,6 @@ endif ()
 add_subdirectory(acceleration_partials)
 add_subdirectory(rotational_dynamics_partials)
 add_subdirectory(observation_partials)
-add_subdirectory(metric_partials)
 
 set(ORBIT_DETERMINATION_TEST_PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}

@@ -80,7 +80,7 @@ std::map< double, Eigen::Vector3d > runPropagationAndRetrieveTotalAcceleration(
         const std::vector< std::string >& centralBodies,
         const Eigen::Vector6d& vehicleInitialStateInKeplerianElements,
         const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings =
-                schwardschildSpaceTimeMetricSettings( "Earth" ),
+                schwarzschildSpaceTimeMetricSettings( "Earth" ),
         const bool useStaticEarthInSsbFrame = false )
 {
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarz
     };
 
     std::vector< MetricTestCase > metricTestCases = {
-            { "schwarzschild", schwardschildSpaceTimeMetricSettings( "Earth" ), false },
+            { "schwarzschild", schwarzschildSpaceTimeMetricSettings( "Earth" ), false },
             { "solar_system_earth_only",
               solarSystemSpaceTimeMetricSettings(
                       std::vector< std::string >{ "Earth" },
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarz
                         bodiesToPropagate,
                         centralBodies,
                         vehicleInitialStateInKeplerianElements,
-                        schwardschildSpaceTimeMetricSettings( "Earth" ),
+                        schwarzschildSpaceTimeMetricSettings( "Earth" ),
                         metricTestCase.useStaticEarthInSsbFrame );
 
         std::map< double, Eigen::Vector3d > metricTotalAccelerationHistory =
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE( testDirectMetricRelativisticPartAgainstCorrectionAtGeneric
 
     std::vector< MetricComparisonCase > testCases = {
             { "schwarzschild",
-              schwardschildSpaceTimeMetricSettings( "Earth" ),
+              schwarzschildSpaceTimeMetricSettings( "Earth" ),
               false,
               false },
             { "solar_system_earth_only",

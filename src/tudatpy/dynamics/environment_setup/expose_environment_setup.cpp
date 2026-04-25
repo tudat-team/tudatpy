@@ -1083,10 +1083,9 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
  into a single converter-settings object for one body.
 
- The ``barycentric_to_bodycentric_settings`` input should be created with either:
+ The ``barycentric_to_bodycentric_settings`` input should be created with:
 
- - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`, or
- - :func:`~tudatpy.dynamics.propagation_setup.propagator.second_order_body_centered_relativistic_time_settings`.
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`.
 
  Each entry in ``bodycentric_to_topocentric_settings`` should typically be created with:
 
@@ -1136,8 +1135,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
  The converter settings used here are typically created from:
 
- - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings` or
-   :func:`~tudatpy.dynamics.propagation_setup.propagator.second_order_body_centered_relativistic_time_settings`
+ - :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
    for the barycentric↔body-centered leg, and
  - :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`
    for optional topocentric legs.

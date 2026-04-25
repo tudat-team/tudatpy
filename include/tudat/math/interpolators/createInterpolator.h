@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <memory>
+#include <utility>
 
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
@@ -53,8 +54,10 @@ public:
     InterpolatorSettings( const InterpolatorTypes interpolatorType,
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                           const bool useLongDoubleTimeStep = false,
-                          const std::vector< BoundaryInterpolationType >& boundaryHandling = std::vector< BoundaryInterpolationType >( ) ):
-        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ), boundaryHandling_( boundaryHandling )
+                          std::vector< BoundaryInterpolationType > boundaryHandling = std::vector< BoundaryInterpolationType >( ) ):
+        interpolatorType_( interpolatorType ),
+        selectedLookupScheme_( selectedLookupScheme ),
+        boundaryHandling_( std::move( boundaryHandling ) )
     {
         // Check that if interpolator type matches with number of dimensions
         std::vector< bool > isMethodOneDimensional = std::vector< bool >( 6, true );
