@@ -1820,12 +1820,19 @@ HybridArcPropagatorSettings
 
  Creates settings for the first-order time-rate model used to convert between barycentric and body-centered
  coordinate time scales (for example TCB↔TCG), using only the :math:`\mathcal{O}(1/c^2)` contribution.
+ The time-scale notation used here is:
+
+ .. math::
+
+     t_B=\text{barycentric coordinate time},\qquad
+     t_P=\text{planet-centered coordinate time},\qquad
+     \tau=\text{proper time of an observer}.
 
  The propagated differential quantity is:
 
  .. math::
 
-     \frac{d}{dt}\Delta_{BC}
+     \frac{d}{dt_B}\Delta_{BC}
      =
      -\frac{1}{c^2}\left(\frac{v_C^2}{2}+w_{0,\mathrm{ext}}\right).
 
@@ -1840,8 +1847,13 @@ HybridArcPropagatorSettings
      U_i^{\mathrm{SH}}, & \text{if spherical-harmonic contributions are configured}.
      \end{cases}
 
- where :math:`\Delta_{BC}` is the barycentric minus body-centered coordinate-time difference,
- :math:`t` is barycentric coordinate time, :math:`c` is the speed of light,
+ with
+
+ .. math::
+
+     \Delta_{BC}=t_P-t_B,\qquad t\equiv t_B,
+
+ where :math:`c` is the speed of light,
  :math:`N` is the number of perturbing bodies included in the sums,
  :math:`\mathbf{v}_C` is the central-body barycentric velocity vector,
  :math:`v_C=\lVert\mathbf{v}_C\rVert` is its magnitude,
@@ -1891,12 +1903,19 @@ HybridArcPropagatorSettings
  Creates settings for the proper-time conversion at a local reference point (for example a ground station),
  starting from a body-centered coordinate time scale. The implemented model follows
  :cite:t:`turyshev2013`, Eq. (22).
+ The time-scale notation used here is:
+
+ .. math::
+
+     t_B=\text{barycentric coordinate time},\qquad
+     t_P=\text{planet-centered coordinate time},\qquad
+     \tau=\text{proper time of an observer}.
 
  The propagated differential quantity is:
 
  .. math::
 
-     \frac{d}{dt_C}\left(\tau-t_C\right)
+     \frac{d}{dt_P}\left(\tau-t_P\right)
      =
      -\frac{1}{c^2}\left[
      \frac{1}{2}v_0^2
@@ -1905,7 +1924,13 @@ HybridArcPropagatorSettings
      +\mathbf{a}_E\cdot\mathbf{y}
      \right].
 
- where :math:`\tau` is proper time at the reference point, :math:`t_C` is the body-centered coordinate time,
+ with
+
+ .. math::
+
+     \Delta_{PT}=\tau-t_P,
+
+ where :math:`\tau` is proper time at the reference point,
  :math:`c` is the speed of light, :math:`\mathbf{v}_0` is the reference-point velocity vector in the body-centered frame,
  :math:`v_0=\lVert\mathbf{v}_0\rVert` is its magnitude, :math:`U_E(\mathbf{y})` is the body gravitational potential
  at the reference-point position :math:`\mathbf{y}` (with :math:`\mathbf{y}^2=\mathbf{y}\cdot\mathbf{y}`),
@@ -1964,21 +1989,29 @@ HybridArcPropagatorSettings
  :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`,
  which is configured through
  :attr:`~tudatpy.dynamics.environment_setup.BodyListSettings.space_time_settings`.
- Metric and space-time settings are defined in
- :mod:`~tudatpy.dynamics.environment_setup.space_time`.
+ Metric and space-time settings are defined in the
+ :ref:`space_time` module.
+ The time-scale notation used here is:
+
+ .. math::
+
+     t_B=\text{barycentric coordinate time},\qquad
+     t_P=\text{planet-centered coordinate time},\qquad
+     \tau=\text{proper time of an observer}.
+
  The propagated differential quantity is
 
  .. math::
 
-     \frac{d}{dt}\Delta_{\mathrm{direct}}=\frac{d\tau}{dt}-1,\qquad
-     \Delta_{\mathrm{direct}}\equiv\tau-t.
+     \frac{d}{dt_B}\Delta_{\mathrm{direct}}=\frac{d\tau}{dt_B}-1,\qquad
+     \Delta_{\mathrm{direct}}\equiv\tau-t_B.
 
  In Tudat, for this model, the proper-time rate is evaluated from the covariant metric perturbation with
  a second-order square-root expansion:
 
  .. math::
 
-     \frac{d\tau}{dt}-1=-\frac{1}{2}\varepsilon-\frac{1}{8}\varepsilon^2,\qquad
+     \frac{d\tau}{dt_B}-1=-\frac{1}{2}\varepsilon-\frac{1}{8}\varepsilon^2,\qquad
      \varepsilon=\frac{1}{c^2}\left(u^\mu h_{\mu\nu}u^\nu+v^2\right),\qquad
      u^\mu=(c,\mathbf{v}).
 
@@ -1991,7 +2024,7 @@ HybridArcPropagatorSettings
      \mu^{(L)} = L\,\mu,\qquad
      L=1\ \text{(default)}.
 
- where :math:`\tau` is proper time at the reference point, :math:`t` is barycentric coordinate time,
+ where :math:`\tau` is proper time at the reference point, :math:`t_B` is barycentric coordinate time,
  :math:`c` is the speed of light, :math:`\varepsilon` is the dimensionless expansion quantity defined above,
  :math:`h_{\mu\nu}` is the covariant metric perturbation tensor at the
  reference-point state, :math:`u^\mu` is the space-time coordinate-velocity 4-vector,

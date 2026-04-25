@@ -258,18 +258,47 @@ void expose_environment( py::module& m )
     py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >(
             m, "TimeEphemeris", R"doc(
 
-         Relativistic time-scale converter for a body (and optional reference points).
+         Relativistic time-scale converter for a body (and optional reference points on bodies,
+         such as ground stations).
 
          This object is created/populated from relativistic time propagator settings
          after propagation of the associated proper-time differential equations.
-         In standard usage, it defines the barycentric↔body-centered conversion
-         for the associated body, and optionally the body-centered↔topocentric
-         conversion for each configured reference point.
+         Depending on the selected model, it provides either direct barycentric↔proper-time
+         conversion, or chained barycentric↔planet-centered↔proper-time conversion
+         for configured reference points.
+
+         Time-ephemeris data are generated from settings created with:
+         :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`,
+         :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`,
+         and :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`.
+         These settings are then attached through
+         :func:`~tudatpy.dynamics.environment_setup.set_relativistic_time_converters`.
+
+         Two conversion structures are used in Tudat:
+
+         1. Direct-from-metric (no planet-centered coordinate time available):
+
+         .. math::
+
+             \Delta_{B\tau}^{\mathrm{direct}}(t_B)=\tau-t_B,\qquad
+             \Delta_{\tau B}^{\mathrm{direct}}(\tau)=t_B-\tau.
+
+         2. Post-Newtonian chained conversion (with planet-centered coordinate time :math:`t_P`):
+
+         .. math::
+
+             \Delta_{B\tau}(t_B)=\Delta_{BC}(t_B)+\Delta_{PT}(t_P)+\Delta_{\mathrm{direct}}(t_P),
+             \qquad t_P=t_B+\Delta_{BC}(t_B),
+
+         where :math:`\Delta_{BC}=t_P-t_B`, :math:`\Delta_{PT}=\tau-t_P`, and for first-order direct conversion
+         :math:`\Delta_{\mathrm{direct}}=-\mathbf{v}_C\cdot\mathbf{r}/c^2`.
+         For :math:`\tau\rightarrow t_B`, the inverse conversion applies the inverse/interpolated
+         :math:`\Delta_{PT}` and :math:`\Delta_{BC}` terms with the opposite-sign direct correction.
 
          The object is typically set up via
          :func:`~tudatpy.dynamics.environment_setup.set_relativistic_time_converters`
-         using settings created from
-         :mod:`tudatpy.dynamics.propagation_setup.propagator`.
+         using settings created from the
+         :ref:`propagator` module.
 
       )doc" )
             .def( "get_time_difference",
@@ -323,7 +352,7 @@ void expose_environment( py::module& m )
          Parameters
          ----------
          input_scale : TimeScales
-             Input time scale.
+             Input time scale.m
          output_scale : TimeScales
              Output time scale.
          input_time : Time
@@ -2730,18 +2759,7 @@ bool
          :type: numpy.ndarray
       )doc" )
             .def( "get_ionosphere_model", &tudat::simulation_setup::Body::getIonosphereModel )
-            .def( "get_time_scale_converter",
-                  &tss::Body::getTimeScaleConverter,
-                  R"doc(
 
-         Retrieve the time scale converter (relativistic time ephemeris) associated with this body, if any.
-
-         Returns
-         -------
-         TimeEphemeris
-             Converter object to query time differences between time scales (e.g., TCB, TCG, proper time).
-
-      )doc" )
             .def_property_readonly( "position",
                                     &tss::Body::getPosition,
                                     R"doc(
@@ -3030,6 +3048,20 @@ bool
         :type: list[RadiationPressureTargetModel]
 
      )doc" )
+    .def_property_readonly( "time_ephemeris",
+      &tss::Body::getTimeScaleConverter,
+      R"doc(
+
+         Object defining the relativistic time conversion model of this body, used to convert between
+         barycentric coordinate time, body-centered coordinate time and proper time.
+         Depending on the selected model, the type of this attribute is
+         :class:`~TimeEphemeris`, or a derived class thereof.
+         If no converter has been defined for this body, this attribute is ``None``.
+
+
+         :type: TimeEphemeris
+
+      )doc" )
             .def_property( "radiation_pressure_source_model",
                            &tss::Body::getRadiationSourceModel,
                            &tss::Body::setRadiationSourceModel,
