@@ -64,7 +64,6 @@ namespace te = tudat::ephemerides;
 namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
 namespace tcam = tudat::cameras;
-namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
