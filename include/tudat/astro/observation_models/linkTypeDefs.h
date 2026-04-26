@@ -54,7 +54,10 @@ enum class LinkEndReferencePointType { undefined = -1, ground_station = 0, body_
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ) {}
+    LinkEndId( ):
+        bodyName_( "" ), stationName_( "" ), componentName_( "" ),
+        referencePointType_( LinkEndReferencePointType::undefined )
+    {}
 
     LinkEndId( const std::pair< std::string, std::string >& linkEnd ):
         bodyName_( linkEnd.first ), stationName_( linkEnd.second ), componentName_( "" ),
