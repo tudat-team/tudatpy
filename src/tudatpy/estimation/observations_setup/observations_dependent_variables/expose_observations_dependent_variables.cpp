@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
@@ -493,6 +494,44 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the link-end epochs.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "light_time_correction_components_dependent_variable",
+           &tss::lightTimeCorrectionComponentsDependentVariable,
+           py::arg( "transmitter_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "receiver_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "transmitter_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "receiver_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
+           R"doc(
+        Function to create a dependent variable that saves each light-time correction contribution
+        individually for a single leg (transmitter → receiver) of the observable.
+
+        The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
+        on the selected leg, in registration order. If ``correction_type_filter`` is supplied,
+        only contributions whose type appears in the filter are returned, in the order of the filter.
+
+        Supported for observables whose light-time computation is extracted by the simulator
+        (one-way range, n-way range, DSN n-way range, one-way Doppler). Unsupported observables
+        produce a clear error at setup time.
+
+        Parameters
+        ----------
+        transmitter_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the transmitting side of the leg (e.g. ``transmitter``, ``retransmitter``).
+        receiver_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the receiving side of the leg.
+        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the transmitting side (body/station).
+        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the receiving side.
+        correction_type_filter : list[tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionType], optional
+            Subset of correction types to save. Empty list = save all registered corrections.
 
         Returns
         -------
