@@ -488,6 +488,100 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
             &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, linkEndEphemeris, std::placeholders::_1 );
 }
 
+
+template< typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, 6, 1 > calculateCurrentInertialReferencePointStateDuringPropagation(
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) >& bodyStateFunction,
+        const std::function< Eigen::Quaterniond( ) >& bodyRotationFunction,
+        const std::function< Eigen::Vector3d( ) >& bodyFixedReferencePointStateFunction,
+        const std::function< Eigen::Matrix3d( ) >& bodyDerivativeRotationFunction = [](){ return Eigen::Matrix3d::Zero(); } )
+{
+    Eigen::Matrix< StateScalarType, 6, 1 > localReferencePointState;
+    localReferencePointState << bodyFixedReferencePointStateFunction().template cast< StateScalarType >(),
+                                Eigen::Matrix< StateScalarType, 3, 1 >::Zero();
+
+    Eigen::Matrix< StateScalarType, 6, 1 > inertialReferencePointState =
+            ephemerides::transformStateToFrameFromRotationFunctions< StateScalarType >(
+                localReferencePointState, bodyRotationFunction, bodyDerivativeRotationFunction );
+
+    return bodyStateFunction() + inertialReferencePointState;
+}
+
+template< typename StateScalarType = double >
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > createReferencePointStateFunctionDuringPropagation(
+        const std::shared_ptr< simulation_setup::Body >& bodyWithReferencePoint,
+        const std::function< Eigen::Vector3d( ) >& bodyFixedReferencePointStateFunction )
+{
+    using namespace std::placeholders;
+
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > bodyStateFunction =
+            std::bind( &simulation_setup::Body::getState, bodyWithReferencePoint );
+
+    std::function< Eigen::Quaterniond( ) > bodyRotationFunction =
+            std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, bodyWithReferencePoint );
+
+    std::function< Eigen::Matrix3d( ) > bodyRotationDerivativeFunction =
+            std::bind( &simulation_setup::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, bodyWithReferencePoint );
+
+    return std::bind(
+        &calculateCurrentInertialReferencePointStateDuringPropagation< StateScalarType >,
+        bodyStateFunction,
+        bodyRotationFunction,
+        bodyFixedReferencePointStateFunction,
+        bodyRotationDerivativeFunction );
+}
+
+template< typename StateScalarType = double >
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCurrentStateFunctionDuringPropagation(
+        const std::shared_ptr< simulation_setup::Body >& bodyWithLinkEnd,
+        const std::pair< std::string, std::string >& linkEndId )
+{
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > linkEndCompleteStateFunction;
+
+    if( linkEndId.second != "" )  // ground station or reference point
+    {
+        auto celestialBody = std::dynamic_pointer_cast< simulation_setup::Body >( bodyWithLinkEnd );
+        if( celestialBody == nullptr || celestialBody->getGroundStationMap( ).count( linkEndId.second ) == 0 )
+        {
+            throw std::runtime_error( "Error: reference point " + linkEndId.second + " not found on body " + linkEndId.first );
+        }
+
+        auto referencePoint = celestialBody->getGroundStation( linkEndId.second );
+        auto nominalStateFunction = std::bind(
+            &ground_stations::GroundStationState::getNominalCartesianPosition,
+            referencePoint->getNominalStationState( ) );
+
+        linkEndCompleteStateFunction = createReferencePointStateFunctionDuringPropagation( bodyWithLinkEnd, nominalStateFunction );
+    }
+    else  // center of mass
+    {
+        linkEndCompleteStateFunction = std::bind(
+            &simulation_setup::Body::getState, bodyWithLinkEnd );
+    }
+
+    return linkEndCompleteStateFunction;
+}
+
+template< typename StateScalarType = double >
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCurrentStateFunctionDuringPropagation(
+        const std::pair< std::string, std::string >& linkEndId,
+        const simulation_setup::SystemOfBodies& bodyMap )
+{
+    if( bodyMap.count( linkEndId.first ) == 0 )
+    {
+        throw std::runtime_error( "Error: body " + linkEndId.first + " not found in SystemOfBodies." );
+    }
+
+    return getLinkEndCompleteCurrentStateFunctionDuringPropagation< StateScalarType >(
+        bodyMap.at( linkEndId.first ), linkEndId );
+}
+
+
+
+
+
+
+
 // std::vector< double >  getTargetElevationAngles(
 //         const std::shared_ptr< Body > observingBody,
 //         const std::shared_ptr< Body > targetBody,

@@ -269,10 +269,12 @@ public:
             const std::vector< std::function< double( ) > >& gravitationalParameterFunctions,
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
             const std::vector< LinkEndType >& perturbingBodyMatchLinkEnds,
-            const std::vector< std::string >& perturbingBodyNames ):
+            const std::vector< std::string >& perturbingBodyNames,
+            const std::function< double( ) >& equivalencePrincipleLpiViolationParameterFunction = [ ]( ){ return 0.0; } ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ), gravitationalParameterFunctions_( gravitationalParameterFunctions ),
         perturbingBodyStateFunctions_( perturbingBodyStateFunctions ), perturbingBodyMatchLinkEnds_( perturbingBodyMatchLinkEnds ),
-        perturbingBodyNames_( perturbingBodyNames )
+        perturbingBodyNames_( perturbingBodyNames ),
+        equivalencePrincipleLpiViolationParameterFunction_( equivalencePrincipleLpiViolationParameterFunction )
     {
         if( ( gravitationalParameterFunctions_.size( ) != perturbingBodyStateFunctions_.size( ) ) ||
             ( gravitationalParameterFunctions_.size( ) != perturbingBodyMatchLinkEnds_.size( ) ) ||
@@ -332,7 +334,12 @@ public:
         return relativity::calculateFirstCentralBodyProperTimeRateDifference( computationPointRelativeState,
                                                                               currentPerturbedStates_,
                                                                               currentCentralBodyGravitationalParameters_,
-                                                                              relativity::equivalencePrincipleLpiViolationParameter );
+                                                                              equivalencePrincipleLpiViolationParameterFunction_( ) );
+    }
+
+    double getEquivalencePrincipleLpiViolationParameter( ) const
+    {
+        return equivalencePrincipleLpiViolationParameterFunction_( );
     }
 
     //! Function to compute the state of the computation point w.r.t. the central body
@@ -428,6 +435,8 @@ private:
     std::vector< LinkEndType > perturbingBodyMatchLinkEnds_;
 
     std::vector< std::string > perturbingBodyNames_;
+
+    std::function< double( ) > equivalencePrincipleLpiViolationParameterFunction_;
 
     std::vector< Eigen::Vector6d > currentPerturbedStates_;
 

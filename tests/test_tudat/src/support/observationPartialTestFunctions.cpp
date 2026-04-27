@@ -162,11 +162,26 @@ std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters
         std::shared_ptr< EstimatableParameter< double > > relativisticParameter;
         if( useEquivalencePrincipleParameter )
         {
-            relativisticParameter = std::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+            std::shared_ptr< simulation_setup::SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+            if( spaceTimeProperties == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating equivalence principle violation estimatable parameter in test setup: "
+                        "SystemOfBodies has no space-time properties." );
+            }
+            relativisticParameter = std::make_shared< EquivalencePrincipleLpiViolationParameter >(
+                    [ spaceTimeProperties ]( )
+                    {
+                        return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
+                    },
+                    [ spaceTimeProperties ]( const double parameterValue )
+                    {
+                        spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
+                    } );
         }
         else
         {
-            relativisticParameter = std::make_shared< PPNParameterGamma >( );
+            relativisticParameter = std::make_shared< PPNParameterGamma >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) );
         }
         estimatableDoubleParameters.push_back( relativisticParameter );
     }

@@ -85,13 +85,14 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
 
                 // Create light-time correction function
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
                 lightTimeCorrection = std::make_shared< FirstOrderLightTimeCorrectionCalculator >(
                         perturbingBodyStateFunctions,
                         perturbingBodyGravitationalParameterFunctions,
                         perturbingBodies,
                         transmitter.bodyName_,
                         receiver.bodyName_,
-                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+                        std::bind( &relativity::PPNParameterSet::getParameterGamma, ppnParameterSet ),
                         std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )
                                 ->getBendingFlag( ) );
             }

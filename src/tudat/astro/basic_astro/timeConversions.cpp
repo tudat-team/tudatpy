@@ -10,6 +10,7 @@
  */
 
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <stdexcept>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -17,8 +18,32 @@
 
 namespace tudat
 {
+
 namespace basic_astrodynamics
 {
+
+//! Function to determine whether a time scale is a general, relativistic time scale.
+bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
+{
+    bool isRelativistic = 0;
+    switch( originalTimeScale )
+    {
+    case body_centered_coordinate_time_scale:
+        isRelativistic = 1;
+        break;
+    case barycentric_coordinate_time_scale:
+        isRelativistic = 1;
+        break;
+    case local_proper_time_scale:
+        isRelativistic = 1;
+        break;
+    default:
+        throw std::runtime_error(
+                    "Error when getting relativistic time scale, input was " +
+                    std::to_string( static_cast< int >( originalTimeScale ) ) );
+    }
+    return isRelativistic;
+}
 
 //! Function to get the Julian day on J2000, in double precision.
 template<>

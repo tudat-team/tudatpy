@@ -419,6 +419,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 associatedReferenceFrame,
                                 sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
                     }
+
                 }
             }
             break;

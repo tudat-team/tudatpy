@@ -143,12 +143,23 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                                        bodies.at( currentBodyName ),
                                        std::placeholders::_1 ) );
                 }
+                std::shared_ptr< simulation_setup::SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+                if( spaceTimeProperties == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating DirectFirstOrderDopplerProperTimeRateInterface: "
+                            "SystemOfBodies has no space-time properties." );
+                }
                 properTimeRateInterface = std::make_shared< DirectFirstOrderDopplerProperTimeRateInterface >(
                         linkEndForCalculator,
                         gravitationalParameterFunctions,
                         perturbingBodyStateFunctions,
                         perturbingBodyMatchLinkEnds,
-                        directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_ );
+                        directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_,
+                        [ spaceTimeProperties ]( )
+                        {
+                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
+                        } );
             }
             break;
         }

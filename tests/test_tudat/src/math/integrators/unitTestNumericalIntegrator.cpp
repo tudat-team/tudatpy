@@ -191,7 +191,8 @@ bool testIntegrateToFunction( const double intervalStart,
 BOOST_AUTO_TEST_CASE( testNumberOfStepsUsingNumericalIntegrator )
 {
     // Set random initial state.
-    Eigen::VectorXd initialState = ( Eigen::VectorXd( 4 ) << 0.34, 0.24, 0.76, 0.10 ).finished( );
+    Eigen::VectorXd initialState( 4 );
+    initialState << 0.34, 0.24, 0.76, 0.10;
 
     // Case 1: test number of steps for different start and end times.
     {
