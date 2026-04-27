@@ -231,6 +231,118 @@ BOOST_AUTO_TEST_CASE( testRelativisticTimePropagationPlaceholder )
     BOOST_CHECK( true );
 }
 
+// Smoke test for the new GR/SR split dependent variables introduced in this
+// commit. Propagates Earth's first-order TCB->TCG coordinate-time difference
+// over a short span with proper_time_rate_kinematic_term and
+// proper_time_rate_potential_term saved at every step. Verifies:
+//   (1) the saved values are finite, of the expected order of magnitude, and
+//       have the expected sign (both should be negative dτ/dt - 1 contributions);
+//   (2) the recovered (kinematic + potential) sum equals the analytical
+//       integrand -(0.5 v^2 + U_ext)/c^2 at each epoch when reconstructed
+//       from the body ephemeris and external-potential sum.
+BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariables )
+{
+    loadStandardSpiceKernels( );
+
+    const double initialEphemerisTime = 0.0;
+    const double finalEphemerisTime = 5.0 * physical_constants::JULIAN_DAY;
+    const double integrationStep = 100.0;
+    const double buffer = 5.0 * integrationStep;
+
+    const std::vector< std::string > bodyNames{ "Earth", "Sun" };
+    const std::vector< std::string > perturbingBodies{ "Sun" };
+
+    auto bodySettings = getDefaultBodySettings(
+            bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Earth" );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.clear( );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+    bodySettings.at( "Sun" )->bodyDeformationSettings.clear( );
+    bodySettings.at( "Sun" )->gravityFieldVariationSettings.clear( );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    for( const auto& bodyName : bodyNames )
+    {
+        bodies.getBody( bodyName )->setStateFromEphemeris( initialEphemerisTime );
+    }
+    bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
+
+    auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
+    auto integratorSettings = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
+        propagators::properTimeRateKinematicTermDependentVariable( "Earth" ),
+        propagators::properTimeRatePotentialTermDependentVariable( "Earth" )
+    };
+
+    auto pnSettings = std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< double, double > >(
+            "Earth",
+            perturbingBodies,
+            initialEphemerisTime,
+            integratorSettings,
+            terminationSettings,
+            std::map< std::string, std::pair< int, int > >( ),
+            []( const double t ){ return t; },
+            1.0,
+            dependentVariables );
+    pnSettings->getOutputSettings( )->setIntegratedResult( true );
+
+    SingleArcDynamicsSimulator< double > simulator( bodies, pnSettings, true );
+    const std::map< double, Eigen::VectorXd > dependentHistory =
+            simulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+
+    BOOST_REQUIRE( !dependentHistory.empty( ) );
+
+    const double inv_c2 = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    const double expectedRateMagnitude =
+            ( 0.5 * 30000.0 * 30000.0
+              + physical_constants::GRAVITATIONAL_CONSTANT * 1.989e30 / 1.496e11 ) * inv_c2;
+
+    auto earthEphemeris = bodies.getBody( "Earth" )->getEphemeris( );
+    auto sunEphemeris = bodies.getBody( "Sun" )->getEphemeris( );
+    const double sunGm = bodies.getBody( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    double maxAbsRecoveryError = 0.0;
+    for( const auto& entry : dependentHistory )
+    {
+        const double t = entry.first;
+        const Eigen::VectorXd& v = entry.second;
+        BOOST_REQUIRE_EQUAL( v.size( ), 2 );
+        const double kinematic = v( 0 );
+        const double potential = v( 1 );
+
+        BOOST_CHECK( std::isfinite( kinematic ) );
+        BOOST_CHECK( std::isfinite( potential ) );
+        // Both terms have the form -X/c^2 with X >= 0, so non-positive.
+        BOOST_CHECK_LE( kinematic, 0.0 );
+        BOOST_CHECK_LE( potential, 0.0 );
+        // Magnitude check (within an order of magnitude of the expected level).
+        BOOST_CHECK_LT( std::fabs( kinematic + potential ), 5.0 * expectedRateMagnitude );
+        BOOST_CHECK_GT( std::fabs( kinematic + potential ), 0.1 * expectedRateMagnitude );
+
+        // Independent reconstruction from ephemerides.
+        const Eigen::Vector6d earthState = earthEphemeris->getCartesianState( t );
+        const double v2 = earthState.segment( 3, 3 ).squaredNorm( );
+        const Eigen::Vector6d sunState = sunEphemeris->getCartesianState( t );
+        const double r_es = ( earthState.segment( 0, 3 ) - sunState.segment( 0, 3 ) ).norm( );
+        const double uExt = sunGm / r_es;
+
+        const double expectedKinematic = -0.5 * v2 * inv_c2;
+        const double expectedPotential = -uExt * inv_c2;
+
+        maxAbsRecoveryError = std::max( maxAbsRecoveryError,
+                                        std::fabs( kinematic - expectedKinematic )
+                                        + std::fabs( potential - expectedPotential ) );
+    }
+
+    std::cout << "[GrSrSplit] samples=" << dependentHistory.size( )
+              << "  expected_rate~=" << expectedRateMagnitude
+              << " s/s  max_abs_recovery_error=" << maxAbsRecoveryError << " s/s" << std::endl;
+
+    BOOST_CHECK_SMALL( maxAbsRecoveryError, 1.0e-15 );
+}
+
 // Progressive-complexity diagnostic. Runs several configurations from simplest
 // (Sun + Earth point-mass, equator station) up through Earth SH(20) and Moon,
 // sampling BOTH the full station residual AND the body-center TCB<->TCG-only

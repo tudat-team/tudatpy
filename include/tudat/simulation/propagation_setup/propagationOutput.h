@@ -18,7 +18,9 @@
 #include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
@@ -2975,6 +2977,107 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             {
                 variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
                                               std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
+                break;
+            }
+            case proper_time_rate_kinematic_term:
+            case proper_time_rate_potential_term:
+            {
+                // Two pipelines can produce these dependent variables:
+                //   (1) post-Newtonian chain: FirstOrderBarycentricToBodyCentricTimeStateDerivative
+                //       (or its second-order subclass), which caches v_E and U_ext explicitly.
+                //   (2) direct-from-metric: DirectProperTimeRateStateDerivative, where v_E comes
+                //       from the bound reference-point state function and U_ext is read from a
+                //       SolarSystemMetric that has been updated for the current epoch.
+                std::shared_ptr< ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                        StateScalarType, TimeType > > pnStateDerivative;
+                std::shared_ptr< ::tudat::DirectProperTimeRateStateDerivative<
+                        StateScalarType, TimeType > > directStateDerivative;
+
+                const auto properTimeIt = stateDerivativeModels.find( proper_time );
+                if( properTimeIt != stateDerivativeModels.end( ) )
+                {
+                    for( const auto& candidate : properTimeIt->second )
+                    {
+                        auto pnCandidate = std::dynamic_pointer_cast<
+                                ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( pnCandidate != nullptr && pnCandidate->getCentralBody( ) == bodyWithProperty )
+                        {
+                            pnStateDerivative = pnCandidate;
+                            break;
+                        }
+                        auto directCandidate = std::dynamic_pointer_cast<
+                                ::tudat::DirectProperTimeRateStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( directCandidate != nullptr && directCandidate->getCentralBody( ) == bodyWithProperty )
+                        {
+                            directStateDerivative = directCandidate;
+                        }
+                    }
+                }
+
+                const double invSquareC = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                const bool wantKinematic =
+                        ( dependentVariableSettings->dependentVariableType_ == proper_time_rate_kinematic_term );
+
+                if( pnStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            const double v = pnStateDerivative->getCurrentCentralBodySpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            return -pnStateDerivative->getCurrentExternalScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else if( directStateDerivative != nullptr )
+                {
+                    auto referenceStateFunction = directStateDerivative->getReferencePointStateFunction( );
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ referenceStateFunction, invSquareC ]( ) {
+                            const Eigen::Vector6d state = referenceStateFunction( );
+                            return -0.5 * state.segment( 3, 3 ).squaredNorm( ) * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        // For the direct path the metric must be a SolarSystemMetric, which
+                        // exposes the cached total scalar potential at the current evaluation
+                        // point. Other metric types (e.g. Schwarzschild) do not currently expose
+                        // a scalar-potential getter and would require a separate dependent
+                        // variable; rather than silently returning 0 we surface the limitation.
+                        auto solarMetric = std::dynamic_pointer_cast< relativity::SolarSystemMetric >(
+                                directStateDerivative->getSpaceTimeMetric( ) );
+                        if( solarMetric == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating proper_time_rate_potential_term dependent "
+                                    "variable for body " + bodyWithProperty +
+                                    ": direct-from-metric state derivative is not backed by a "
+                                    "SolarSystemMetric, which is required to expose the current "
+                                    "scalar potential." );
+                        }
+                        variableFunction = [ solarMetric, invSquareC ]( ) {
+                            return -solarMetric->getCurrentScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error(
+                            "Error when creating proper-time-rate dependent variable: "
+                            "no relativistic-time state derivative found for body " +
+                            bodyWithProperty + ". Make sure this body is being propagated as a "
+                            "post-Newtonian (first- or second-order) or direct-from-metric "
+                            "relativistic time state." );
+                }
                 break;
             }
             default:

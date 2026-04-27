@@ -142,7 +142,9 @@ enum PropagationDependentVariables {
     full_body_paneled_geometry = 75,
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
-    solar_longitude = 78
+    solar_longitude = 78,
+    proper_time_rate_kinematic_term = 79,
+    proper_time_rate_potential_term = 80
 
 };
 
@@ -1392,6 +1394,29 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSection
 {
     return std::make_shared< CrossSectionDependentVariableSaveSettings >(
             actual_cross_section, bodyName, centralBodyName, accelerationType );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the kinematic (special-relativistic, second-order
+//! Doppler) term \f$-v^{2} / (2c^{2})\f$ of the proper-time-rate integrand at the central body of a
+//! relativistic time propagation. Supported pipelines: post-Newtonian (first- and second-order
+//! TCB->TCG) and direct-from-metric.
+//! @get_docstring(properTimeRateKinematicTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRateKinematicTermDependentVariable(
+        const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_kinematic_term, bodyName );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the potential (general-relativistic, gravitational
+//! redshift) term \f$-U_{\mathrm{ext}} / c^{2}\f$ of the proper-time-rate integrand at the central
+//! body of a relativistic time propagation. For the post-Newtonian chain, \f$U_{\mathrm{ext}}\f$ is
+//! the sum over external bodies as cached by the state derivative. For the direct-from-metric path
+//! it is read from the SolarSystemMetric's current scalar potential at the reference point.
+//! @get_docstring(properTimeRatePotentialTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePotentialTermDependentVariable(
+        const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_potential_term, bodyName );
 }
 
 }  // namespace propagators
