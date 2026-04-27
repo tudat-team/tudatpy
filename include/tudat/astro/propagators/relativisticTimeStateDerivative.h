@@ -273,6 +273,17 @@ public:
         return currentProperTimeDerivative_;
     }
 
+    //! Function returning the reference-point Cartesian state used at each evaluation.
+    /*!
+     *  Wraps the function bound at construction (either the body's own state or, for a ground
+     *  station reference, the topocentric state). Used by GR/SR-split dependent variables to
+     *  read out the BCRS velocity that drives the kinematic time-dilation term.
+     */
+    std::function< Eigen::Vector6d( ) > getReferencePointStateFunction( ) const
+    {
+        return referencePointStateFunction_;
+    }
+
 
 protected:
     std::shared_ptr< relativity::Metric > spaceTimeMetric_;
@@ -495,6 +506,30 @@ public:
     {
         stateDerivative( 0, 0 ) = relativity::calculateFirstOrderTcbToTcgIntegrand(
             this->currentVelocity_, this->currentExternalPotential_ );
+    }
+
+    //! Get last-evaluated central-body BCRS speed |v_E|.
+    /*!
+     *  Returns the central-body barycentric speed used in the most recent integrand evaluation.
+     *  Set by updateStateDerivativeModel(); valid after at least one update. Inherited unchanged
+     *  by the second-order subclass.
+     */
+    double getCurrentCentralBodySpeed( ) const
+    {
+        return this->currentVelocity_;
+    }
+
+    //! Get last-evaluated external scalar potential U_ext at the central body.
+    /*!
+     *  Returns Sigma_i (mu_i / r_iE) over the configured external bodies (with optional
+     *  higher-order spherical-harmonic gravity contributions if requested at construction time).
+     *  Used together with the central-body speed to split the first-order proper-time-rate
+     *  integrand into kinematic (-v^2/(2 c^2)) and potential (-U/c^2) contributions for
+     *  diagnostics. Inherited unchanged by the second-order subclass.
+     */
+    double getCurrentExternalScalarPotential( ) const
+    {
+        return this->currentExternalPotential_;
     }
 
     //! Function to update all environment variables to current time.

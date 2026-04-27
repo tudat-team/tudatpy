@@ -2592,6 +2592,45 @@ The type of the acceleration that is to be saved.
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
+
+    m.def( "proper_time_rate_kinematic_term",
+           &tp::properTimeRateKinematicTermDependentVariable,
+           py::arg( "body_name" ),
+           R"doc(Function to retrieve the kinematic (special-relativistic) term -v^2/(2 c^2) of
+the proper-time-rate integrand for a body that is being propagated as a relativistic
+time state. Works for post-Newtonian (first- or second-order) and direct-from-metric
+relativistic time propagation.
+
+Parameters
+----------
+body_name : str
+    Name of the central body whose proper-time-rate term is requested.
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the kinematic term at every integrator step.
+)doc" );
+
+    m.def( "proper_time_rate_potential_term",
+           &tp::properTimeRatePotentialTermDependentVariable,
+           py::arg( "body_name" ),
+           R"doc(Function to retrieve the potential (general-relativistic / gravitational redshift)
+term -U_ext/c^2 of the proper-time-rate integrand for a body that is being propagated
+as a relativistic time state. For the post-Newtonian chain, U_ext is the sum over
+external bodies. For the direct-from-metric path the value is read from the
+SolarSystemMetric's current scalar potential at the reference point.
+
+Parameters
+----------
+body_name : str
+    Name of the central body whose proper-time-rate term is requested.
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the potential term at every integrator step.
+)doc" );
 }
 
 }  // namespace dependent_variable
