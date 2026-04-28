@@ -113,7 +113,7 @@ std::string getObservationDependentVariableName( const ObservationDependentVaria
             break;
         }
         case light_time_correction_components: {
-            dependentVariableName = "Per-type light-time correction contributions ";
+            dependentVariableName = "Per-correction light-time correction contributions ";
             break;
         }
         default:
