@@ -84,7 +84,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
 
         Returns
         -------
-        list[tudatpy.io.odf.OdfDataType]
+        list[tudatpy.data.OdfDataType]
             List of ignored ODF observable type IDs.
         )doc" )
             .def_property_readonly( "ignored_ground_stations",
@@ -102,7 +102,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
 
         Returns
         -------
-        list[tudatpy.io.OdfRawFileContents]
+        list[tudatpy.data.OdfRawFileContents]
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
@@ -445,7 +445,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
 
         Parameters
         ----------
-        raw_tracking_txtfile_contents : tudatpy.io.TrackingTxtFileContents
+        raw_tracking_txtfile_contents : tudatpy.data.TrackingTxtFileContents
             The raw tracking file contents.
         spacecraft_name : str
             Name of the spacecraft.

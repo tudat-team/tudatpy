@@ -64,7 +64,7 @@ class Trk234Processor:
         self.spacecraft_name = spacecraft_name
 
         # Initialize observables converters.
-        self.converters = {}
+        self.converters : dict[str, cnv.Converter] = {}
         if "doppler" in requested_types:
             self.converters["doppler"] = cnv.DerivedDopplerConverter()
         if "range" in requested_types:

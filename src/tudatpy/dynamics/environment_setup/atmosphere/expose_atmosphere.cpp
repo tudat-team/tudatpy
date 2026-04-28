@@ -83,7 +83,7 @@ The values in this class may be recomputed every time step to reflect changing a
 
                          Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
 
-                         :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.io.read_solar_activity_data.
+                         :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
                          )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
