@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
             // Create observed observation collection
             observedObservationCollection = observation_models::createOdfObservedObservationCollection< long double, Time >(
-                    processedOdfFileContents, { dsn_n_way_averaged_doppler } );
+                    processedOdfFileContents, { observation_models::ObservableType::dsn_n_way_averaged_doppler } );
 
             observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
         }
@@ -109,7 +109,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             observedObservationCollection =
                     createOdfObservedObservationCollectionFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
             observedObservationCollection->removeSingleObservationSets(
-                    std::make_shared< ObservationCollectionObservableTypeParser >( dsn_n_way_range ) );
+                    std::make_shared< ObservationCollectionObservableTypeParser >( observation_models::ObservableType::dsn_n_way_range ) );
+            observedObservationCollection->removeSingleObservationSets( std::make_shared< ObservationCollectionObservableTypeParser >(
+                    observation_models::ObservableType::dsn_one_way_averaged_doppler ) );
         }
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
