@@ -638,7 +638,8 @@ private:
                     if( verbose_ )
                     {
                         std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                                  << " not covered by ramp table of station " << receivingStation << ", ignoring it." << std::endl;
+                                  << " not covered by ramp table of receiving station " << receivingStation << ", ignoring it."
+                                  << std::endl;
                     }
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
@@ -654,7 +655,7 @@ private:
                 if( verbose_ )
                 {
                     std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by ramp tables," << " ignoring it." << std::endl;
+                              << " not covered by extents of receiver ramp tables," << " ignoring it." << std::endl;
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
