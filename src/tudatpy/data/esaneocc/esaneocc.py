@@ -2,7 +2,6 @@ from ESANEOCC import neocc
 import pandas as pd
 class NEOCCQuery:
     """Handles raw data retrieval from ESA NEOCC."""
-
     @staticmethod
     def get_observational_ephemerides(
             designator: str,
