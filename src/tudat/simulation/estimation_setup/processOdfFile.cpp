@@ -27,15 +27,15 @@ observation_models::ObservableType getObservableTypeForOdfId( const input_output
             // TODO: don't forget to remove
             // ProcessedOdfFileContentsPrivateFunctionTest class after implementing
             // processing of data type 11 (1-way Doppler)
-            //    case 11:
-            //        observableType =
-            //        observation_models::dsn_one_way_averaged_doppler; break;
+        case tio::OdfDataType::one_way_doppler:
+            observableType = observation_models::ObservableType::dsn_one_way_averaged_doppler;
+            break;
         case tio::OdfDataType::two_way_doppler:
         case tio::OdfDataType::three_way_doppler:
-            observableType = observation_models::dsn_n_way_averaged_doppler;
+            observableType = observation_models::ObservableType::dsn_n_way_averaged_doppler;
             break;
         case tio::OdfDataType::sra_planetary_operational_discrete_spectrum_range:
-            observableType = observation_models::dsn_n_way_range;
+            observableType = observation_models::ObservableType::dsn_n_way_range;
             break;
         default:
             throw std::runtime_error( "Error when getting observable type from ODF ID: ID " +

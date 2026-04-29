@@ -671,14 +671,11 @@ private:
      */
     void extractRawOdfOrbitData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
     {
-        // Retrieve data blocks from ODF file raw contents
-        std::vector< std::shared_ptr< input_output::OdfDataBlock > > rawDataBlocks = rawOdfData->getDataBlocks( );
-
         // Iterate over all block of ODF file.
-        for( unsigned int i = 0; i < rawDataBlocks.size( ); i++ )
+        for( auto const& rawDataBlock : rawOdfData->getDataBlocks( ) )
         {
             // Retrieve observable type and link ends
-            input_output::OdfDataType currentObservableId = rawDataBlocks.at( i )->getObservableSpecificDataBlock( )->dataType_;
+            input_output::OdfDataType currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
 
             // Get current observable type and throw warning if not implemented
             observation_models::ObservableType currentObservableType;
@@ -698,14 +695,14 @@ private:
                                   << " is not implemented, ignoring the corresponding data." << std::endl;
                     }
                 }
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlocks.at( i ) );
+                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 continue;
             }
 
-            observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock( rawDataBlocks.at( i ), spacecraftName_ );
+            observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock( rawDataBlock, spacecraftName_ );
 
             // Check if observation is valid and should be processed
-            if( isObservationValid( rawDataBlocks.at( i ), linkEnds, currentObservableType ) )
+            if( isObservationValid( rawDataBlock, linkEnds, currentObservableType ) )
             {
                 // Check if data object already exists for current observable/link ends
                 bool createNewObject = false;
@@ -723,6 +720,7 @@ private:
                 {
                     switch( currentObservableType )
                     {
+                        case observation_models::ObservableType::dsn_one_way_averaged_doppler:
                         case observation_models::ObservableType::dsn_n_way_averaged_doppler: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileDopplerData< TimeType > >(
@@ -748,7 +746,7 @@ private:
                 }
 
                 addOdfRawDataBlockToProcessedData(
-                        rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+                        rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
             }
         }
     }
@@ -792,41 +790,53 @@ private:
             singleLinkProcessedData->originFiles_.push_back( rawDataFileName );
 
             // Add properties to data object for Doppler data
-            if( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_averaged_doppler )
+            switch( auto currentObservableType = singleLinkProcessedData->getObservableType( ) )
             {
-                std::shared_ptr< input_output::OdfDopplerDataBlock > odfDopplerDataBlock =
-                        std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >( rawDataBlock->getObservableSpecificDataBlock( ) );
-                std::shared_ptr< ProcessedOdfFileDopplerData< TimeType > > odfParsedDopplerDataBlock =
-                        std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( singleLinkProcessedData );
+                case observation_models::ObservableType::dsn_one_way_averaged_doppler:
+                case observation_models::ObservableType::dsn_n_way_averaged_doppler: {
+                    auto odfDopplerDataBlock = std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
+                            rawDataBlock->getObservableSpecificDataBlock( ) );
+                    auto odfParsedDopplerDataBlock =
+                            std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( singleLinkProcessedData );
 
-                singleLinkProcessedData->observableValues_.push_back(
-                        ( Eigen::Matrix< double, 1, 1 >( ) << rawDataBlock->getCommonDataBlock( )->getObservableValue( ) ).finished( ) );
+                    singleLinkProcessedData->observableValues_.push_back(
+                            ( Eigen::Matrix< double, 1, 1 >( ) << rawDataBlock->getCommonDataBlock( )->getObservableValue( ) )
+                                    .finished( ) );
 
-                odfParsedDopplerDataBlock->countInterval_.push_back( odfDopplerDataBlock->getCompressionTime( ) );
-                odfParsedDopplerDataBlock->receiverChannels_.push_back( odfDopplerDataBlock->getReceiverChannel( ) );
-                odfParsedDopplerDataBlock->receiverRampingFlags_.push_back( odfDopplerDataBlock->getReceiverExciterFlag( ) );
-                odfParsedDopplerDataBlock->referenceFrequencies_.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
-                odfParsedDopplerDataBlock->transmitterUplinkDelays_.push_back( odfDopplerDataBlock->getTransmittingStationUplinkDelay( ) );
-            }
-            else if( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_range )
-            {
-                std::shared_ptr< input_output::OdfSequentialRangeDataBlock > odfSequentialRangeDataBlock =
-                        std::dynamic_pointer_cast< input_output::OdfSequentialRangeDataBlock >(
-                                rawDataBlock->getObservableSpecificDataBlock( ) );
-                std::shared_ptr< ProcessedOdfFileSequentialRangeData< TimeType > > odfParsedSequentialRangeDataBlock =
-                        std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( singleLinkProcessedData );
+                    odfParsedDopplerDataBlock->countInterval_.push_back( odfDopplerDataBlock->getCompressionTime( ) );
+                    odfParsedDopplerDataBlock->receiverChannels_.push_back( odfDopplerDataBlock->getReceiverChannel( ) );
+                    odfParsedDopplerDataBlock->receiverRampingFlags_.push_back( odfDopplerDataBlock->getReceiverExciterFlag( ) );
+                    odfParsedDopplerDataBlock->referenceFrequencies_.push_back( odfDopplerDataBlock->getReferenceFrequency( ) );
+                    odfParsedDopplerDataBlock->transmitterUplinkDelays_.push_back(
+                            odfDopplerDataBlock->getTransmittingStationUplinkDelay( ) );
+                    break;
+                }
+                case observation_models::ObservableType::dsn_n_way_range: {
+                    auto odfSequentialRangeDataBlock = std::dynamic_pointer_cast< input_output::OdfSequentialRangeDataBlock >(
+                            rawDataBlock->getObservableSpecificDataBlock( ) );
+                    auto odfParsedSequentialRangeDataBlock =
+                            std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( singleLinkProcessedData );
 
-                singleLinkProcessedData->observableValues_.push_back(
-                        ( Eigen::Matrix< double, 1, 1 >( ) << rawDataBlock->getCommonDataBlock( )->getObservableValue( ) ).finished( ) );
+                    singleLinkProcessedData->observableValues_.push_back(
+                            ( Eigen::Matrix< double, 1, 1 >( ) << rawDataBlock->getCommonDataBlock( )->getObservableValue( ) )
+                                    .finished( ) );
 
-                odfParsedSequentialRangeDataBlock->composite2_.push_back( odfSequentialRangeDataBlock->getCompositeTwo( ) );
-                odfParsedSequentialRangeDataBlock->lowestRangingComponent_.push_back(
-                        odfSequentialRangeDataBlock->getLowestRangingComponent( ) );
-                odfParsedSequentialRangeDataBlock->referenceFrequency_.push_back( odfSequentialRangeDataBlock->getReferenceFrequency( ) );
-                odfParsedSequentialRangeDataBlock->uplinkRangingCoderInPhaseTimeOffset_.push_back(
-                        odfSequentialRangeDataBlock->getUplinkCoderInPhaseTimeOffset( ) );
-                odfParsedSequentialRangeDataBlock->transmitterUplinkDelay_.push_back(
-                        odfSequentialRangeDataBlock->getTransmittingStationUplinkDelay( ) );
+                    odfParsedSequentialRangeDataBlock->composite2_.push_back( odfSequentialRangeDataBlock->getCompositeTwo( ) );
+                    odfParsedSequentialRangeDataBlock->lowestRangingComponent_.push_back(
+                            odfSequentialRangeDataBlock->getLowestRangingComponent( ) );
+                    odfParsedSequentialRangeDataBlock->referenceFrequency_.push_back(
+                            odfSequentialRangeDataBlock->getReferenceFrequency( ) );
+                    odfParsedSequentialRangeDataBlock->uplinkRangingCoderInPhaseTimeOffset_.push_back(
+                            odfSequentialRangeDataBlock->getUplinkCoderInPhaseTimeOffset( ) );
+                    odfParsedSequentialRangeDataBlock->transmitterUplinkDelay_.push_back(
+                            odfSequentialRangeDataBlock->getTransmittingStationUplinkDelay( ) );
+                    break;
+                }
+                default: {
+                    std::cerr << "Warning: Observable type " << observation_models::getObservableName( currentObservableType )
+                              << " is not implemented." << std::endl;
+                    break;
+                }
             }
         }
     }
