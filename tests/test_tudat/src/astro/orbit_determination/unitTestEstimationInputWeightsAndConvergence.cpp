@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
             ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
-    // Creatre ground stations: same position, but different representation
+    // Create ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
