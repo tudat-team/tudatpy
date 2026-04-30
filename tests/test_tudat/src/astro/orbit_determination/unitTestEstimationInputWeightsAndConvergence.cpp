@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
                 numberOfDaysOfData;
         Eigen::VectorXd angularPositionWeights = Eigen::VectorXd::Ones( totalSizeAngularPositionObs );
 
-        // Concatenate tabulated weights per observable type (default weihts for angular_position observables)
+        // Concatenate tabulated weights per observable type (default weights for angular_position observables)
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
         weightPerObservationParser[ observationParser( one_way_range ) ] = singleSetRangeWeights;
         weightPerObservationParser[ observationParser( one_way_doppler ) ] = dopplerWeights;
