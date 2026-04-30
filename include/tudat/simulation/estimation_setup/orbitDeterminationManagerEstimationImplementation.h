@@ -87,7 +87,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;
+    std::vector< double > costFunctionHistory;
     double residualRms;
+    std::map< observation_models::ObservableType, double > residualRmsPerType;
     double costFunction;
 
     // Set current parameter estimate as both previous and current estimate
@@ -218,6 +220,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         costFunction = linear_algebra::computeLeastSquaresCostFunction( estimationInput->getWeightsMatrixDiagonals( ),
                                                                         residuals.template cast< double >( ) );
         rmsResidualHistory.push_back( residualRms );
+        costFunctionHistory.push_back( costFunction );
 
         if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
         {
@@ -230,7 +233,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         if( estimationInput->getPrintOutput( ) )
         {
-            std::cout << "Current residual: " << residualRms << std::endl;
+            std::map< observation_models::ObservableType, std::pair< int, int > > indicesPerObservableType =
+                    estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
+
+            if( indicesPerObservableType.size( ) > 1 )
+            {
+                for( auto it : indicesPerObservableType )
+                {
+                    double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare(
+                            residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
+                    residualRmsPerType[ it.first ] = currentTypeRms;
+                    std::cout << "Current residual for observable (" << observation_models::getObservableName( it.first )
+                              << "): " << currentTypeRms << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "Current residual: " << residualRms << std::endl;
+            }
         }
 
         // If current iteration is better than previous one, update 'best' data.

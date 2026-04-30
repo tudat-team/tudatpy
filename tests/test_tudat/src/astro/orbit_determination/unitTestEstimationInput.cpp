@@ -679,6 +679,231 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 }
 
+//! Test that best-iteration selection during estimation uses the least-squares cost function
+BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
+{
+    using TimeType = double;
+    using StateScalarType = double;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    const int numberOfDaysOfData = 365;
+    const TimeType initialEphemerisTime = TimeType( 1.0E7 );
+    const TimeType finalEphemerisTime = initialEphemerisTime + static_cast< TimeType >( numberOfDaysOfData ) * 86400.0;
+    const double maximumTimeStep = 3600.0;
+    const double buffer = 10.0 * maximumTimeStep;
+
+    std::vector< std::string > bodyNames = { "Earth", "Mars", "Sun", "Moon", "Jupiter", "Saturn" };
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfMars[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Mars" ] = accelerationsOfMars;
+
+    std::vector< std::string > bodiesToIntegrate = { "Mars" };
+    std::map< std::string, std::string > centralBodyMap;
+    centralBodyMap[ "Mars" ] = "SSB";
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+            "Mars",
+            propagators::getInitialStateOfBody< TimeType, StateScalarType >(
+                    "Mars", centralBodyMap.at( "Mars" ), bodies, initialEphemerisTime ),
+            centralBodyMap.at( "Mars" ) ) );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+            createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
+
+    std::vector< std::string > centralBodies = { "SSB" };
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 1800.0 );
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
+                    finalEphemerisTime,
+                    cowell );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Earth", "" );
+    linkEnds[ receiver ] = LinkEndId( "Mars", "" );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, linkEnds ) );
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ) );
+
+    OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager(
+            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+
+    std::vector< TimeType > observationTimes;
+    observationTimes.reserve( numberOfDaysOfData );
+    for( int i = 0; i < numberOfDaysOfData; i++ )
+    {
+        observationTimes.push_back( initialEphemerisTime + ( static_cast< TimeType >( i ) + 0.5 ) * 86400.0 );
+    }
+
+    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > nominalInitialParameterEstimate =
+            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+
+    simulation_setup::noiseSeed = 0;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
+    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+            one_way_range, linkEnds, observationTimes, transmitter ) );
+    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+            angular_position, linkEnds, observationTimes, transmitter ) );
+    addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 0.1, one_way_range );
+    addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 3.0E-7, angular_position );
+
+    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservations< StateScalarType, TimeType >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    // Inject deterministic structured biases so range and angular residual improvements compete across iterations.
+    const std::shared_ptr< ObservationCollectionParser > rangeParser = observationParser( one_way_range );
+    const std::shared_ptr< ObservationCollectionParser > angularParser = observationParser( angular_position );
+    Eigen::VectorXd rangeObservations = simulatedObservations->getConcatenatedObservations( rangeParser );
+    Eigen::VectorXd angularObservations = simulatedObservations->getConcatenatedObservations( angularParser );
+    for( int i = 0; i < rangeObservations.size( ); i++ )
+    {
+        const double cycleArgument = static_cast< double >( i ) / 31.0;
+        rangeObservations( i ) += 0.25 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
+    }
+    for( int i = 0; i < angularObservations.size( ) / 2; i++ )
+    {
+        const double cycleArgument = static_cast< double >( i ) / 43.0;
+        angularObservations( 2 * i ) += 4.0E-8 * std::cos( 2.0 * mathematical_constants::PI * cycleArgument );
+        angularObservations( 2 * i + 1 ) -= 4.0E-8 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
+    }
+    simulatedObservations->setObservations( rangeObservations, rangeParser );
+    simulatedObservations->setObservations( angularObservations, angularParser );
+
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ rangeParser ] = 1.0 / ( 0.1 * 0.1 );
+    weightsPerObservationParser[ angularParser ] = 1.0 / ( 1.0E-8 * 1.0E-8 );
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    bool foundDistinctBestIteration = false;
+    int selectedCase = -1;
+    int selectedMinimumCostIteration = -1;
+    int selectedMinimumRmsIteration = -1;
+    double selectedRmsFromMinimumCostIteration = TUDAT_NAN;
+    std::vector< double > selectedCostHistory;
+    std::vector< double > selectedRmsHistory;
+    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > selectedEstimationOutput = nullptr;
+
+    std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > perturbationCases;
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 5.0E3, -3.0E3, 2.0E3, 0.5, -0.4, 0.3 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 8.0E3, -6.0E3, 4.0E3, 1.2, -0.9, 0.7 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 2.0E4, 1.0E4, -1.5E4, 3.0, -2.0, 1.5 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << -1.5E4, 8.0E3, 1.0E4, -2.5, 1.8, -1.2 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 3.0E4, -2.5E4, 1.0E4, 5.0, -4.0, 3.5 ).finished( ) );
+
+    for( unsigned int caseIndex = 0; caseIndex < perturbationCases.size( ); caseIndex++ )
+    {
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > perturbedInitialParameterEstimate = nominalInitialParameterEstimate;
+        perturbedInitialParameterEstimate += perturbationCases.at( caseIndex );
+        parametersToEstimate->template resetParameterValues< StateScalarType >( perturbedInitialParameterEstimate );
+
+        std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
+                std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations );
+        estimationInput->defineEstimationSettings( true, true, false, false, true, false );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8, -1.0, -1.0, 1000 ) );
+
+        std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
+                orbitDeterminationManager.estimateParameters( estimationInput );
+
+        BOOST_CHECK( estimationOutput->residualHistory_.size( ) >= 2 );
+        BOOST_CHECK( estimationOutput->bestIteration_ >= 0 );
+        BOOST_CHECK( estimationOutput->bestIteration_ < static_cast< int >( estimationOutput->residualHistory_.size( ) ) );
+
+        const Eigen::VectorXd weights = estimationInput->getWeightsMatrixDiagonals( );
+        int minimumCostIteration = -1;
+        int minimumRmsIteration = -1;
+        double minimumCost = TUDAT_NAN;
+        double minimumRms = TUDAT_NAN;
+        double rmsFromMinimumCostIteration = TUDAT_NAN;
+        std::vector< double > costHistory;
+        std::vector< double > rmsHistory;
+        costHistory.reserve( estimationOutput->residualHistory_.size( ) );
+        rmsHistory.reserve( estimationOutput->residualHistory_.size( ) );
+        for( unsigned int i = 0; i < estimationOutput->residualHistory_.size( ); i++ )
+        {
+            const double currentCost =
+                    linear_algebra::computeLeastSquaresCostFunction( weights, estimationOutput->residualHistory_.at( i ) );
+            const double currentRms =
+                    linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( i ) );
+            costHistory.push_back( currentCost );
+            rmsHistory.push_back( currentRms );
+
+            if( currentCost < minimumCost || !( minimumCost == minimumCost ) )
+            {
+                minimumCost = currentCost;
+                minimumCostIteration = static_cast< int >( i );
+                rmsFromMinimumCostIteration = currentRms;
+            }
+            if( currentRms < minimumRms || !( minimumRms == minimumRms ) )
+            {
+                minimumRms = currentRms;
+                minimumRmsIteration = static_cast< int >( i );
+            }
+        }
+
+        BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, minimumCostIteration );
+        BOOST_CHECK_CLOSE_FRACTION( estimationOutput->residualStandardDeviation_, rmsFromMinimumCostIteration, 1.0E-15 );
+
+        std::cout << "Perturbation case " << caseIndex << " iteration history:" << std::endl;
+        for( unsigned int i = 0; i < costHistory.size( ); i++ )
+        {
+            std::cout << "  Iteration " << i << ": RMS = " << rmsHistory.at( i )
+                      << ", cost = " << costHistory.at( i ) << std::endl;
+        }
+        std::cout << "  Estimator best iteration: " << estimationOutput->bestIteration_ << std::endl;
+        std::cout << "  Minimum-cost iteration: " << minimumCostIteration << std::endl;
+        std::cout << "  Minimum-RMS iteration: " << minimumRmsIteration << std::endl;
+
+        if( minimumCostIteration != minimumRmsIteration )
+        {
+            foundDistinctBestIteration = true;
+            selectedCase = static_cast< int >( caseIndex );
+            selectedMinimumCostIteration = minimumCostIteration;
+            selectedMinimumRmsIteration = minimumRmsIteration;
+            selectedRmsFromMinimumCostIteration = rmsFromMinimumCostIteration;
+            selectedCostHistory = costHistory;
+            selectedRmsHistory = rmsHistory;
+            selectedEstimationOutput = estimationOutput;
+            break;
+        }
+    }
+
+    BOOST_REQUIRE_MESSAGE( foundDistinctBestIteration,
+                           "Could not generate a case where minimum-cost and minimum-RMS iteration differ for mixed range/angular "
+                           "estimation in the configured deterministic perturbation cases." );
+
+    std::cout << "Selected perturbation case for cost-vs-RMS distinction: " << selectedCase << std::endl;
+    for( unsigned int i = 0; i < selectedCostHistory.size( ); i++ )
+    {
+        std::cout << "Iteration " << i << ": RMS = " << selectedRmsHistory.at( i )
+                  << ", cost = " << selectedCostHistory.at( i ) << std::endl;
+    }
+    std::cout << "Best iteration from estimator: " << selectedEstimationOutput->bestIteration_ << std::endl;
+    std::cout << "Minimum-cost iteration: " << selectedMinimumCostIteration << std::endl;
+    std::cout << "Minimum-RMS iteration: " << selectedMinimumRmsIteration << std::endl;
+
+    BOOST_CHECK_EQUAL( selectedEstimationOutput->bestIteration_, selectedMinimumCostIteration );
+    BOOST_CHECK( selectedEstimationOutput->bestIteration_ != selectedMinimumRmsIteration );
+    BOOST_CHECK_CLOSE_FRACTION(
+            selectedEstimationOutput->residualStandardDeviation_, selectedRmsFromMinimumCostIteration, 1.0E-15 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
