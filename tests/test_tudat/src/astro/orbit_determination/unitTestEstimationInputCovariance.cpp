@@ -186,12 +186,12 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
 {
     std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > > podData;
 
-    // Simulate covariances directly by propagating to different final tomes
-    std::map< int, Eigen::MatrixXd > manualCovarianes;
+    // Simulate covariances directly by propagating to different final times
+    std::map< int, Eigen::MatrixXd > manualCovariances;
     for( unsigned int i = 1; i < 5; i++ )
     {
         executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, i, 0, false );
-        manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
+        manualCovariances[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
     }
 
     // Use final calculations to compute covariance as a function of time
@@ -204,14 +204,14 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
          covarianceIterator != automaticCovariances.end( );
          covarianceIterator++ )
     {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 2.0E-8 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovariances.at( counter ), 2.0E-8 );
         counter++;
     }
 }
 
 BOOST_AUTO_TEST_CASE( test_DesignMatrixSaving )
 {
-    // Simulate covariances directly by propagating to different final tomes
+    // Simulate covariances directly by propagating to different final times
     for( unsigned int i = 0; i < 2; i++ )
     {
         std::vector< Eigen::MatrixXd > designMatrices;
