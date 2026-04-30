@@ -191,6 +191,13 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
+    // Define estimation input
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+
+    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            simulatedObservations->getObservationTypeStartAndSize( );
+
     {
         simulatedObservations->setConstantWeight( 0.1 );
 
@@ -531,29 +538,29 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, minimumCostIteration );
         BOOST_CHECK_CLOSE_FRACTION( estimationOutput->residualStandardDeviation_, rmsFromMinimumCostIteration, 1.0E-15 );
 
-        BOOST_TEST_MESSAGE( "Perturbation case " << caseIndex << " iteration history:" );
+        std::cout << "Perturbation case " << caseIndex << " iteration history:" << std::endl;
         for( unsigned int i = 0; i < costHistory.size( ); i++ )
         {
-            BOOST_TEST_MESSAGE( "  Iteration " << i << ": RMS = " << rmsHistory.at( i )
-                      << ", cost = " << costHistory.at( i ) );
+            std::cout << "  Iteration " << i << ": RMS = " << rmsHistory.at( i )
+                      << ", cost = " << costHistory.at( i ) << std::endl;
         }
-        BOOST_TEST_MESSAGE( "  Estimator best iteration: " << estimationOutput->bestIteration_ );
-        BOOST_TEST_MESSAGE( "  Minimum-cost iteration: " << minimumCostIteration );
-        BOOST_TEST_MESSAGE( "  Minimum-RMS iteration: " << minimumRmsIteration );
+        std::cout << "  Estimator best iteration: " << estimationOutput->bestIteration_ << std::endl;
+        std::cout << "  Minimum-cost iteration: " << minimumCostIteration << std::endl;
+        std::cout << "  Minimum-RMS iteration: " << minimumRmsIteration << std::endl;
 
         if( minimumCostIteration != minimumRmsIteration )
         {
             numberOfDistinctBestIterationCases++;
 
-            BOOST_TEST_MESSAGE( "Selected perturbation case for cost-vs-RMS distinction: " << caseIndex );
+            std::cout << "Selected perturbation case for cost-vs-RMS distinction: " << caseIndex << std::endl;
             for( unsigned int i = 0; i < costHistory.size( ); i++ )
             {
-                BOOST_TEST_MESSAGE( "Iteration " << i << ": RMS = " << rmsHistory.at( i )
-                          << ", cost = " << costHistory.at( i ) );
+                std::cout << "Iteration " << i << ": RMS = " << rmsHistory.at( i )
+                          << ", cost = " << costHistory.at( i ) << std::endl;
             }
-            BOOST_TEST_MESSAGE( "Best iteration from estimator: " << estimationOutput->bestIteration_ );
-            BOOST_TEST_MESSAGE( "Minimum-cost iteration: " << minimumCostIteration );
-            BOOST_TEST_MESSAGE( "Minimum-RMS iteration: " << minimumRmsIteration );
+            std::cout << "Best iteration from estimator: " << estimationOutput->bestIteration_ << std::endl;
+            std::cout << "Minimum-cost iteration: " << minimumCostIteration << std::endl;
+            std::cout << "Minimum-RMS iteration: " << minimumRmsIteration << std::endl;
 
             BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, minimumCostIteration );
             BOOST_CHECK( estimationOutput->bestIteration_ != minimumRmsIteration );
