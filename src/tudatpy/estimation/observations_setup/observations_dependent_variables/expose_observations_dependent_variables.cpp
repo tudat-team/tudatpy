@@ -517,8 +517,13 @@ void expose_observations_dependent_variables( py::module& m )
         only contributions whose type appears in the filter are returned, in the order of the filter.
 
         Supported for observables whose light-time computation is extracted by the simulator
-        (one-way range, n-way range, DSN n-way range, one-way Doppler). Unsupported observables
-        produce a clear error at setup time.
+        (one-way range, n-way range, DSN n-way range, one-way Doppler). Requesting this
+        dependent variable for an unsupported observable, or for a transmitter/receiver pair
+        that does not correspond to an actual leg of the chosen observable, raises a
+        ``RuntimeError`` when the observation is simulated (i.e. on the first call to
+        :func:`~tudatpy.estimation.observations.simulate_observations` for that
+        :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`),
+        not silently dropped.
 
         Parameters
         ----------

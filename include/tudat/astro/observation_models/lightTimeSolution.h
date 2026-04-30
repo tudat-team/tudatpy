@@ -13,10 +13,12 @@
 
 #include <memory>
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <numeric>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -694,20 +696,13 @@ public:
 
     //! Function to get the values of the individual light-time corrections that were summed into
     //! `currentCorrection_` during the last call to `setTotalLightTimeCorrection`. Order matches
-    //! `correctionFunctions_` / `getLightTimeCorrection()`.
-    std::vector< ObservationScalarType > getCurrentLightTimeCorrectionComponentsTyped( ) const
-    {
-        return currentCorrectionComponents_;
-    }
-
+    //! `correctionFunctions_` / `getLightTimeCorrection()`. Stored as `double` to match the
+    //! native return type of `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`
+    //! — the values are computed in `double` regardless of `ObservationScalarType`, so a wider
+    //! cache would not buy precision.
     std::vector< double > getCurrentLightTimeCorrectionComponents( ) const override
     {
-        std::vector< double > componentsAsDouble( currentCorrectionComponents_.size( ) );
-        for( unsigned int i = 0; i < currentCorrectionComponents_.size( ); i++ )
-        {
-            componentsAsDouble[ i ] = static_cast< double >( currentCorrectionComponents_[ i ] );
-        }
-        return componentsAsDouble;
+        return currentCorrectionComponents_;
     }
 
     std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override
@@ -781,8 +776,9 @@ protected:
     ObservationScalarType currentCorrection_;
 
     //! Per-correction values from the last `setTotalLightTimeCorrection` call (same order as
-    //! `correctionFunctions_`). Populated alongside `currentCorrection_`.
-    std::vector< ObservationScalarType > currentCorrectionComponents_;
+    //! `correctionFunctions_`). Stored as `double` (the native type returned by
+    //! `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`).
+    std::vector< double > currentCorrectionComponents_;
 
     // Number of iterations until light time convergence
     unsigned int iterationCounter_;
@@ -833,8 +829,6 @@ protected:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
-        ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
-
         std::vector< double > linkEndTimesDouble( linkEndTimes.size( ) );
         std::vector< Eigen::Vector6d > linkEndStatesDouble( linkEndStates.size( ) );
         for( unsigned int i = 0; i < linkEndTimesDouble.size( ); ++i )
@@ -843,16 +837,24 @@ protected:
             linkEndStatesDouble.at( i ) = linkEndStates.at( i ).template cast< double >( );
         }
 
+        // Cache each correction's contribution; they are returned as `double` regardless of
+        // `ObservationScalarType`. The cumulative total is then formed by widening to the
+        // calculator's working precision.
         currentCorrectionComponents_.resize( correctionFunctions_.size( ) );
-        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
-        {
-            const ObservationScalarType singleCorrection = static_cast< ObservationScalarType >(
-                    correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
-            currentCorrectionComponents_[ i ] = singleCorrection;
-            totalLightTimeCorrections += singleCorrection;
-        }
-        currentCorrection_ = totalLightTimeCorrections;
+        std::transform( correctionFunctions_.begin( ),
+                        correctionFunctions_.end( ),
+                        currentCorrectionComponents_.begin( ),
+                        [ & ]( const std::shared_ptr< LightTimeCorrection >& correction ) {
+                            return correction->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                                    linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings );
+                        } );
+        currentCorrection_ = std::accumulate(
+                currentCorrectionComponents_.begin( ),
+                currentCorrectionComponents_.end( ),
+                mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 ),
+                []( const ObservationScalarType acc, const double component ) {
+                    return acc + static_cast< ObservationScalarType >( component );
+                } );
     }
 
 private:

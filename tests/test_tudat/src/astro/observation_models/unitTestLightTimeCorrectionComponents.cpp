@@ -274,6 +274,58 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
     }
 }
 
+//! Verifies that requesting `light_time_correction_components` for an observable whose leg
+//! structure is not extracted by the simulator (here: angular position, ObservationSize == 2)
+//! raises a clear `std::runtime_error` when the simulator builds the dependent-variable
+//! calculator, instead of silently dropping the request and returning an empty vector.
+BOOST_AUTO_TEST_CASE( testUnsupportedObservableRaises )
+{
+    loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames{ "Earth", "Moon", "Sun" };
+    const double initialEphemerisTime = 1.0E7;
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation(
+            bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", "Station1" ) );
+    linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
+
+    std::vector< std::shared_ptr< LightTimeCorrectionSettings > > correctionSettings{
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Sun" } )
+    };
+    std::shared_ptr< ObservationModelSettings > observationSettings = std::make_shared< ObservationModelSettings >(
+            angular_position, linkEnds, correctionSettings );
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+            createObservationSimulators( std::vector< std::shared_ptr< ObservationModelSettings > >{ observationSettings }, bodies );
+
+    std::shared_ptr< TabulatedObservationSimulationSettings<> > simulationSettings =
+            std::make_shared< TabulatedObservationSimulationSettings<> >(
+                    angular_position, linkEnds, std::vector< double >{ initialEphemerisTime + 1000.0 }, receiver );
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput{ simulationSettings };
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList{
+            lightTimeCorrectionComponentsDependentVariable( transmitter, receiver )
+    };
+    addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariablesList, bodies );
+
+    auto runSimulation = [ & ]( ) {
+        return simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    };
+    BOOST_CHECK_THROW( runSimulation( ), std::runtime_error );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

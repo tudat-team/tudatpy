@@ -132,9 +132,28 @@ public:
     //! `light_time_correction_components` with an empty type-filter — its size equals the
     //! number of registered light-time corrections, which is only known once the observation
     //! model has been built). `ObservationDependentVariableCalculator` flushes this list and
-    //! registers the settings properly once `setLegLightTimeCalculators` is called.
+    //! registers the settings properly when constructed with a leg-LightTimeCalculator map.
+    //!
+    //! Mirrors the deduplication that `addDependentVariables` does for non-deferred settings:
+    //! an incoming setting compatible (by `areSettingsCompatible`) with anything already in
+    //! `settingsList_` or `deferredSettings_` is dropped, so repeated calls to
+    //! `addDependentVariablesToObservationSimulationSettings` don't produce duplicate entries.
     void addDeferredSetting( const std::shared_ptr< ObservationDependentVariableSettings > setting )
     {
+        for( const auto& existing : deferredSettings_ )
+        {
+            if( existing->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
+        for( const auto& existing : settingsList_ )
+        {
+            if( existing->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
         deferredSettings_.push_back( setting );
     }
 
@@ -198,15 +217,14 @@ public:
                     dependentVariableBookkeeping_->getDependentVariableSettings( ).at( i ), bodies, indices.first, indices.second );
         }
 
-        // Then, drain any deferred `light_time_correction_components` settings. They were added
-        // before the leg-LightTimeCalculator map was known; now we have it, so we can register
-        // them properly (this updates both the bookkeeping and the add-function list).
-        if( !legLightTimeCalculators_.empty( ) )
+        // Then, drain any deferred `light_time_correction_components` settings. We always drain,
+        // even if the leg map is empty (i.e. the observation model is one that the simulator does
+        // not extract leg calculators from): `registerLightTimeCorrectionComponents` will throw
+        // a clear "no LightTimeCalculator for leg X" error per entry, surfacing the unsupported
+        // observable rather than silently dropping the user's request.
+        for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
         {
-            for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
-            {
-                registerLightTimeCorrectionComponents( settings );
-            }
+            registerLightTimeCorrectionComponents( settings );
         }
     }
 
