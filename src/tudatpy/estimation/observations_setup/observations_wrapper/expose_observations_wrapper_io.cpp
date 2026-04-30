@@ -105,6 +105,16 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         list[tudatpy.data.OdfRawFileContents]
             List of raw ODF data objects.
         )doc" )
+            .def_property_readonly( "ignored_odf_raw_data_blocks",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getIgnoredOdfRawDataBlocks,
+                                    R"doc(
+        Return the ignored ODF data blocks.
+
+        Returns
+        -------
+        list[tudatpy.data.OdfDataBlock]
+            List of ignored ODF data blocks.
+        )doc" )
             .def( "define_antenna_id",
                   py::overload_cast< const std::string &, const std::string & >(
                           &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),

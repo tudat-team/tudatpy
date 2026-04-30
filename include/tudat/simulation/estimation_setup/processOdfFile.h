@@ -468,6 +468,12 @@ public:
         return rawOdfData_;
     }
 
+    // Return the ignored ODF data blocks
+    std::vector< std::shared_ptr< input_output::OdfDataBlock > > getIgnoredOdfRawDataBlocks( )
+    {
+        return ignoredOdfRawDataBlocks_;
+    }
+
     void defineSpacecraftAntennaId( const std::string& spacecraft, const std::string& antennaName )
     {
         std::map< observation_models::ObservableType,
