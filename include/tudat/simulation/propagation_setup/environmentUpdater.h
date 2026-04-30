@@ -168,6 +168,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 case custom_state: {
                     break;
                 }
@@ -223,6 +225,8 @@ private:
                     }
                     break;
                 }
+                case proper_time:
+                    break;
                 default:
                     throw std::runtime_error( "Error, could not find  state settings for " + std::to_string( statesToSet.at( i ) ) );
             }
@@ -484,7 +488,6 @@ private:
     {
         std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, std::function< void( const double ) > > > >
                 updateTimeFunctionList;
-
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator updateIterator = updateSettings.begin( );
              updateIterator != updateSettings.end( );
@@ -761,6 +764,10 @@ private:
                                                     std::bind( &electromagnetism::RadiationPressureTargetModel::updateMembers,
                                                                targetModel,
                                                                std::placeholders::_1 ) ) );
+                            break;
+                        }
+                        case space_time_metric_update: {
+                            // Reserved for future metric model updates.
                             break;
                         }
                     }

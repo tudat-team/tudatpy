@@ -46,6 +46,7 @@ set(propagators_HEADERS
         "nBodyUnifiedStateModelExponentialMapStateDerivative.h"
         "dynamicsStateDerivativeModel.h"
         "singleStateTypeDerivative.h"
+        "relativisticTimeStateDerivative.h"
         "integrateEquations.h"
         "bodyMassStateDerivative.h"
         "variationalEquations.h"

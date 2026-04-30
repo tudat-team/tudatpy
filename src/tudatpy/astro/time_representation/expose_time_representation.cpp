@@ -320,6 +320,12 @@ void expose_time_representation( py::module& m )
  )doc" )
             .value( "ut1_scale", tba::ut1_scale, R"doc(
  )doc" )
+            .value( "body_centered_coordinate_time_scale", tba::body_centered_coordinate_time_scale, R"doc(
+ )doc" )
+            .value( "barycentric_coordinate_time_scale", tba::barycentric_coordinate_time_scale, R"doc(
+ )doc" )
+            .value( "local_proper_time_scale", tba::local_proper_time_scale, R"doc(
+ )doc" )
             .export_values( );
 
     py::class_< teo::TerrestrialTimeScaleConverter, std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,

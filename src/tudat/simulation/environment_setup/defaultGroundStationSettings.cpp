@@ -23,6 +23,7 @@ namespace simulation_setup
 
 std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( )
 {
+    // excluding DSS-23 and DSS-33-T19 since they are still in planning as of Rev. O (2024)
     std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
         { "DSS-12",
           ( Eigen::Vector3d( ) << -2350443.812, -4651980.837, +3665630.988 )
@@ -47,13 +48,15 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
         //          .finished( ) },  // W196:
         // https://www.narrabri.atnf.csiro.au/observing/users_guide/html_old_20090512/Cartesian_Coordinates.html
         // (may not be entirely accurate)
+        { "DSS-53", ( Eigen::Vector3d( ) << +4849338.209, -360657.812, +4114746.173 ).finished( ) },
         { "DSS-54", ( Eigen::Vector3d( ) << +4849434.488, -360723.8999, +4114618.835 ).finished( ) },
         { "DSS-55", ( Eigen::Vector3d( ) << +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
+        { "DSS-56", ( Eigen::Vector3d( ) << +4849421.679, -360549.659, +4114646.987 ).finished( ) },
         { "DSS-61",
           ( Eigen::Vector3d( ) << +4849245.211, -0360278.166, +4114884.445 )
                   .finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
         { "DSS-63", ( Eigen::Vector3d( ) << +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
-        { "DSS-65", ( Eigen::Vector3d( ) << +4849339.634, -360427.6630, +4114750.733 ).finished( ) },
+        { "DSS-65", ( Eigen::Vector3d( ) << +4849339.634, -360427.6637, +4114750.733 ).finished( ) },
 
     };
 
@@ -85,19 +88,11 @@ const static std::string MPCGroundStationPosFile = tudat::paths::getStationLocat
 const static std::string MPCGroundStationVelFile = tudat::paths::getStationLocationDataPath( ) + "/mpc.vel";
 const static std::string MPCGroundStationCodesFile = tudat::paths::getStationLocationDataPath( ) + "/mpc_codes.dat";
 
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationPositionsFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t" );
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationPositionReferenceEpochsFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t", 3 );
-const static std::map< std::string, Eigen::Vector3d > approximateGroundStationVelocitiesFromFile =
-        utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationVelFile, '$', " \t" );
-const static std::map< std::string, std::string > groundStationCodesFromFile =
-        utilities::getMapFromFile< std::string, std::string >( pysctrackGroundStationCodesFile, '*', " \t" );
-
 std::map< std::string, Eigen::Vector3d > getCombinedApproximateGroundStationPositions( )
 {
     auto combinedMap = getApproximateDsnGroundStationPositions( );
-    combinedMap.insert( approximateGroundStationPositionsFromFile.begin( ), approximateGroundStationPositionsFromFile.end( ) );
+    auto const& vlbiMap = getVlbiStationPositions( );
+    combinedMap.insert( vlbiMap.begin( ), vlbiMap.end( ) );
     return combinedMap;
 }
 
@@ -272,7 +267,6 @@ std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStation
     return stations;
 }
 
-
 std::map< double, Eigen::Vector3d > getPiecewiseEccentricityDisplacementList(
         const std::vector< input_output::SinexStationEccentricity >& stationEccentricityHistory )
 {
@@ -285,9 +279,7 @@ std::map< double, Eigen::Vector3d > getPiecewiseEccentricityDisplacementList(
     std::vector< input_output::SinexStationEccentricity > sortedEccentricityHistory = stationEccentricityHistory;
     std::sort( sortedEccentricityHistory.begin( ),
                sortedEccentricityHistory.end( ),
-               [ ]( const input_output::SinexStationEccentricity& firstEntry,
-                    const input_output::SinexStationEccentricity& secondEntry )
-               {
+               []( const input_output::SinexStationEccentricity& firstEntry, const input_output::SinexStationEccentricity& secondEntry ) {
                    return firstEntry.startEpoch_ < secondEntry.startEpoch_;
                } );
 
@@ -329,11 +321,10 @@ std::string getDefaultIlrsSinexEccentricityFilePath( )
     return paths::getStationLocationDataPath( ) + "/slrecc.250513.ILRS.xyz.snx";
 }
 
-std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFromSinexDomes(
-        const std::vector< std::string >& domesIds,
-        const std::string& sinexStateFile,
-        const std::string& sinexEccentricityFile,
-        const bool throwExceptionOnMissingData )
+std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFromSinexDomes( const std::vector< std::string >& domesIds,
+                                                                                              const std::string& sinexStateFile,
+                                                                                              const std::string& sinexEccentricityFile,
+                                                                                              const bool throwExceptionOnMissingData )
 {
     const std::map< std::string, input_output::SinexStationState > sinexStateData = input_output::readSinexStationData( sinexStateFile );
 
@@ -344,7 +335,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFr
     }
 
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
-    for( const std::string& domesId: domesIds )
+    for( const std::string& domesId : domesIds )
     {
         if( sinexStateData.count( domesId ) == 0 )
         {
@@ -383,7 +374,8 @@ std::vector< std::shared_ptr< GroundStationSettings > > getIlrsStationSettingsFr
 
         if( currentState.velocity_( 0 ) == currentState.velocity_( 0 ) )
         {
-            const double referenceEpoch = ( currentState.referenceEpoch_ == currentState.referenceEpoch_ ) ? currentState.referenceEpoch_ : 0.0;
+            const double referenceEpoch =
+                    ( currentState.referenceEpoch_ == currentState.referenceEpoch_ ) ? currentState.referenceEpoch_ : 0.0;
             stationSettings->addStationMotionSettings(
                     std::make_shared< LinearGroundStationMotionSettings >( currentState.velocity_, referenceEpoch ) );
         }

@@ -23,6 +23,7 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -240,6 +241,96 @@ void expose_estimation_analysis( py::module& m )
 
 
 
+
+     )doc" );
+
+    m.def( "create_covariance_from_diagonal_entries",
+           &tss::createCovarianceFromDiagonalEntries< STATE_SCALAR_TYPE >,
+           py::arg( "parameter_set" ),
+           py::arg( "covariance_diagonal_entries_per_parameter" ),
+           py::arg( "require_all_entries_to_match" ) = true,
+           R"doc(
+
+ Function to create a covariance-like matrix from per-parameter diagonal-entry vectors.
+
+ Function that creates a full covariance-like matrix for the estimated parameters in ``parameter_set``.
+ The matrix is initialized as all zeros and only diagonal entries for specified parameters are set.
+ This function is representation-agnostic and can be used for covariance matrices, inverse covariance matrices,
+ consider covariance matrices, or any parameter-aligned diagonal matrix.
+
+ The ``covariance_diagonal_entries_per_parameter`` input is a list where each entry is:
+
+ * a tuple ``(parameter_identifier, covariance_diagonal_entries_vector)``
+
+ with:
+
+ * ``parameter_identifier`` = ``(EstimatableParameterTypes, (body_name, secondary_name))``
+ * ``covariance_diagonal_entries_vector`` = 1D vector of diagonal values.
+   The vector is interpreted per matched parameter block:
+   - length 1: the scalar is broadcast to all components of the matched parameter block
+   - length = parameter block size: each vector element is used for the corresponding block component
+
+ If both strings in ``parameter_identifier`` are empty, parameter matching is performed by enum only.
+ In case of multiple matching parameters, the same a priori constraint is applied to each match.
+
+ For each matched parameter block, the values from ``covariance_diagonal_entries_vector`` are written directly to
+ the corresponding diagonal entries of the output matrix.
+
+ Parameters
+ ----------
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Consolidated set of estimated parameters.
+ covariance_diagonal_entries_per_parameter : list
+     List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
+ require_all_entries_to_match : bool, default = True
+     If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
+     If False, non-matching identifiers are ignored.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Covariance-like matrix with specified diagonal entries.
+
+     )doc" );
+
+    m.def( "add_covariance_diagonal_entries",
+           &tss::addCovarianceDiagonalEntries< STATE_SCALAR_TYPE >,
+           py::arg( "covariance_matrix" ),
+           py::arg( "parameter_set" ),
+           py::arg( "covariance_diagonal_entries_per_parameter" ),
+           py::arg( "require_all_entries_to_match" ) = true,
+           R"doc(
+
+ Function to add or update diagonal entries in a covariance-like matrix.
+
+ Function that takes an existing covariance-like matrix and sets diagonal entries from the provided
+ per-parameter diagonal-entry vectors. Existing matrix entries are preserved, except for constrained diagonal entries which
+ are overwritten.
+ This function is representation-agnostic and can be used for covariance matrices, inverse covariance matrices,
+ consider covariance matrices, or any parameter-aligned diagonal matrix.
+
+ If ``covariance_matrix`` is provided as a 0x0 matrix, a zero matrix with the correct parameter dimension
+ is created before applying entries.
+
+ The format and interpretation of ``covariance_diagonal_entries_per_parameter`` is identical to
+ :func:`~tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries`.
+
+ Parameters
+ ----------
+ covariance_matrix : numpy.ndarray[numpy.float64[m, m]]
+     Existing covariance-like matrix (or a 0x0 matrix).
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Consolidated set of estimated parameters.
+ covariance_diagonal_entries_per_parameter : list
+     List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
+ require_all_entries_to_match : bool, default = True
+     If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
+     If False, non-matching identifiers are ignored.
+
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[m, m]]
+     Updated covariance-like matrix.
 
      )doc" );
 

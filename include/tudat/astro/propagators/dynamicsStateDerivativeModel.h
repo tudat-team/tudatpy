@@ -503,6 +503,8 @@ public:
                     break;
                 case custom_state:
                     break;
+                case proper_time:
+                    break;
                 default:
                     throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
                     break;

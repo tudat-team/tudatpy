@@ -23,6 +23,10 @@ Functions
 
    estimation_convergence_checker
 
+   create_covariance_from_diagonal_entries
+
+   add_covariance_diagonal_entries
+
    create_best_fit_to_ephemeris
 
 
@@ -35,6 +39,10 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.add_covariance_diagonal_entries
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
 

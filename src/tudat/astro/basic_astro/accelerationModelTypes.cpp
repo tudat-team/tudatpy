@@ -28,6 +28,7 @@
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/system_models/rtgAccelerationModel.h"
 
 #include <stdexcept>
@@ -106,7 +107,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case rtg_acceleration:
             accelerationName = "rtg anisotropic radiation acceleration";
-        break;
+            break;
+        case relativistic_acceleration_from_metric:
+            accelerationName = "direct relativistic acceleration from metric";
+            break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
@@ -186,6 +190,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = relativistic_correction_acceleration;
     }
+    else if( std::dynamic_pointer_cast< relativity::DirectRelativisticAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = relativistic_acceleration_from_metric;
+    }
     else if( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = empirical_acceleration;
@@ -257,6 +265,7 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case einstein_infeld_hoffmann_acceleration:
         case yarkovsky_acceleration:
         case rtg_acceleration:
+        case relativistic_acceleration_from_metric:
             return false;
         case aerodynamic:
         case cannon_ball_radiation_pressure:

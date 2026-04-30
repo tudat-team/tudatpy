@@ -18,6 +18,7 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <functional>
+#include <memory>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -647,6 +648,31 @@ public:
                                                                  minimumOrder );
     }
 
+    double getGravitationalPotentialFromInertialPosition(
+        const Eigen::Vector3d& inertialPosition,
+        const Eigen::Quaterniond& inertialToBodyFixedRotation,
+        const double maximumDegree,
+        const double maximumOrder,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache = nullptr,
+        const double minimumDegree = 0,
+        const double minimumOrder = 0 )
+    {
+        const Eigen::Vector3d bodyFixedPosition = inertialToBodyFixedRotation * inertialPosition;
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheToUse =
+                ( sphericalHarmonicsCache == nullptr ) ? sphericalHarmonicsCache_ : *sphericalHarmonicsCache;
+
+        return calculateSphericalHarmonicGravitationalPotential(
+            bodyFixedPosition,
+            gravitationalParameter_,
+            referenceRadius_,
+            cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+            sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+            sphericalHarmonicsCacheToUse,
+            minimumDegree,
+            minimumOrder );
+    }
+
+
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
@@ -784,6 +810,7 @@ protected:
 
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients
