@@ -400,8 +400,8 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
                     cowell );
 
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = LinkEndId( "Earth", "" );
-    linkEnds[ receiver ] = LinkEndId( "Mars", "" );
+    linkEnds[ receiver ] = LinkEndId( "Earth", "" );
+    linkEnds[ transmitter ] = LinkEndId( "Mars", "" );
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, linkEnds ) );
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ) );
@@ -411,7 +411,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
     std::vector< TimeType > observationTimes;
     observationTimes.reserve( numberOfDaysOfData );
-    for( int i = 0; i < numberOfDaysOfData; i++ )
+    for( int i = 0; i < numberOfDaysOfData - 1; i++ )
     {
         observationTimes.push_back( initialEphemerisTime + ( static_cast< TimeType >( i ) + 0.5 ) * 86400.0 );
     }
@@ -422,9 +422,9 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     simulation_setup::noiseSeed = 0;
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
-            one_way_range, linkEnds, observationTimes, transmitter ) );
+            one_way_range, linkEnds, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
-            angular_position, linkEnds, observationTimes, transmitter ) );
+            angular_position, linkEnds, observationTimes, receiver ) );
     addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 0.1, one_way_range );
     addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 3.0E-7, angular_position );
 
@@ -435,35 +435,46 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     // Inject deterministic structured biases so range and angular residual improvements compete across iterations.
     const std::shared_ptr< ObservationCollectionParser > rangeParser = observationParser( one_way_range );
     const std::shared_ptr< ObservationCollectionParser > angularParser = observationParser( angular_position );
-    Eigen::VectorXd rangeObservations = simulatedObservations->getConcatenatedObservations( rangeParser );
-    Eigen::VectorXd angularObservations = simulatedObservations->getConcatenatedObservations( angularParser );
-    for( int i = 0; i < rangeObservations.size( ); i++ )
+    Eigen::VectorXd baseRangeObservations = simulatedObservations->getConcatenatedObservations( rangeParser );
+    Eigen::VectorXd baseAngularObservations = simulatedObservations->getConcatenatedObservations( angularParser );
+    for( int i = 0; i < baseRangeObservations.size( ); i++ )
     {
         const double cycleArgument = static_cast< double >( i ) / 31.0;
-        rangeObservations( i ) += 0.25 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
+        baseRangeObservations( i ) += 0.25 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
     }
-    for( int i = 0; i < angularObservations.size( ) / 2; i++ )
+    for( int i = 0; i < baseAngularObservations.size( ) / 2; i++ )
     {
         const double cycleArgument = static_cast< double >( i ) / 43.0;
-        angularObservations( 2 * i ) += 4.0E-8 * std::cos( 2.0 * mathematical_constants::PI * cycleArgument );
-        angularObservations( 2 * i + 1 ) -= 4.0E-8 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
+        baseAngularObservations( 2 * i ) += 4.0E-8 * std::cos( 2.0 * mathematical_constants::PI * cycleArgument );
+        baseAngularObservations( 2 * i + 1 ) -= 4.0E-8 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument );
     }
-    simulatedObservations->setObservations( rangeObservations, rangeParser );
-    simulatedObservations->setObservations( angularObservations, angularParser );
 
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ rangeParser ] = 1.0 / ( 0.1 * 0.1 );
-    weightsPerObservationParser[ angularParser ] = 1.0 / ( 1.0E-8 * 1.0E-8 );
-    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+    const double rangeBaseWeight = 1.0 / ( 0.1 * 0.1 );
+    const double angularBaseWeight = 1.0 / ( 1.0E-8 * 1.0E-8 );
+    Eigen::VectorXd rangeWeights = Eigen::VectorXd::Zero( baseRangeObservations.size( ) );
+    for( int i = 0; i < rangeWeights.size( ); i++ )
+    {
+        const double cycleArgument = static_cast< double >( i ) / 29.0;
+        const double scaleFactor = 0.25 + 1.75 * ( 0.5 + 0.5 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument ) );
+        rangeWeights( i ) = rangeBaseWeight * scaleFactor;
+    }
+    Eigen::VectorXd angularWeights = Eigen::VectorXd::Zero( baseAngularObservations.size( ) );
+    for( int i = 0; i < angularWeights.size( ) / 2; i++ )
+    {
+        const double cycleArgument = static_cast< double >( i ) / 37.0;
+        const double raScaleFactor = 0.2 + 3.8 * ( 0.5 + 0.5 * std::sin( 2.0 * mathematical_constants::PI * cycleArgument ) );
+        const double decScaleFactor = 0.2 + 3.8 * ( 0.5 + 0.5 * std::cos( 2.0 * mathematical_constants::PI * cycleArgument ) );
+        angularWeights( 2 * i ) = angularBaseWeight * raScaleFactor;
+        angularWeights( 2 * i + 1 ) = angularBaseWeight * decScaleFactor;
+    }
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
+    weightsPerObservationParser[ rangeParser ] = rangeWeights;
+    weightsPerObservationParser[ angularParser ] = angularWeights;
+    simulatedObservations->setTabulatedWeights( weightsPerObservationParser );
+    simulatedObservations->setObservations( baseRangeObservations, rangeParser );
+    simulatedObservations->setObservations( baseAngularObservations, angularParser );
 
-    bool foundDistinctBestIteration = false;
-    int selectedCase = -1;
-    int selectedMinimumCostIteration = -1;
-    int selectedMinimumRmsIteration = -1;
-    double selectedRmsFromMinimumCostIteration = TUDAT_NAN;
-    std::vector< double > selectedCostHistory;
-    std::vector< double > selectedRmsHistory;
-    std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > selectedEstimationOutput = nullptr;
+    int numberOfDistinctBestIterationCases = 0;
 
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > perturbationCases;
     perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 5.0E3, -3.0E3, 2.0E3, 0.5, -0.4, 0.3 ).finished( ) );
@@ -471,6 +482,8 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 2.0E4, 1.0E4, -1.5E4, 3.0, -2.0, 1.5 ).finished( ) );
     perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << -1.5E4, 8.0E3, 1.0E4, -2.5, 1.8, -1.2 ).finished( ) );
     perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 3.0E4, -2.5E4, 1.0E4, 5.0, -4.0, 3.5 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << -4.0E4, 2.0E4, -3.0E4, -6.0, 4.5, -3.2 ).finished( ) );
+    perturbationCases.push_back( ( Eigen::VectorXd( 6 ) << 5.0E4, 4.0E4, -2.0E4, 7.5, 6.0, -4.5 ).finished( ) );
 
     for( unsigned int caseIndex = 0; caseIndex < perturbationCases.size( ); caseIndex++ )
     {
@@ -481,7 +494,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
                 std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations );
         estimationInput->defineEstimationSettings( true, true, false, false, true, false );
-        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8, -1.0, -1.0, 1000 ) );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 10, -1.0, -1.0, 1000 ) );
 
         std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
                 orbitDeterminationManager.estimateParameters( estimationInput );
@@ -537,36 +550,27 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
         if( minimumCostIteration != minimumRmsIteration )
         {
-            foundDistinctBestIteration = true;
-            selectedCase = static_cast< int >( caseIndex );
-            selectedMinimumCostIteration = minimumCostIteration;
-            selectedMinimumRmsIteration = minimumRmsIteration;
-            selectedRmsFromMinimumCostIteration = rmsFromMinimumCostIteration;
-            selectedCostHistory = costHistory;
-            selectedRmsHistory = rmsHistory;
-            selectedEstimationOutput = estimationOutput;
-            break;
+            numberOfDistinctBestIterationCases++;
+
+            std::cout << "Selected perturbation case for cost-vs-RMS distinction: " << caseIndex << std::endl;
+            for( unsigned int i = 0; i < costHistory.size( ); i++ )
+            {
+                std::cout << "Iteration " << i << ": RMS = " << rmsHistory.at( i )
+                          << ", cost = " << costHistory.at( i ) << std::endl;
+            }
+            std::cout << "Best iteration from estimator: " << estimationOutput->bestIteration_ << std::endl;
+            std::cout << "Minimum-cost iteration: " << minimumCostIteration << std::endl;
+            std::cout << "Minimum-RMS iteration: " << minimumRmsIteration << std::endl;
+
+            BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, minimumCostIteration );
+            BOOST_CHECK( estimationOutput->bestIteration_ != minimumRmsIteration );
+            BOOST_CHECK_CLOSE_FRACTION( estimationOutput->residualStandardDeviation_, rmsFromMinimumCostIteration, 1.0E-15 );
         }
     }
 
-    BOOST_REQUIRE_MESSAGE( foundDistinctBestIteration,
+    BOOST_REQUIRE_MESSAGE( numberOfDistinctBestIterationCases > 0,
                            "Could not generate a case where minimum-cost and minimum-RMS iteration differ for mixed range/angular "
                            "estimation in the configured deterministic perturbation cases." );
-
-    std::cout << "Selected perturbation case for cost-vs-RMS distinction: " << selectedCase << std::endl;
-    for( unsigned int i = 0; i < selectedCostHistory.size( ); i++ )
-    {
-        std::cout << "Iteration " << i << ": RMS = " << selectedRmsHistory.at( i )
-                  << ", cost = " << selectedCostHistory.at( i ) << std::endl;
-    }
-    std::cout << "Best iteration from estimator: " << selectedEstimationOutput->bestIteration_ << std::endl;
-    std::cout << "Minimum-cost iteration: " << selectedMinimumCostIteration << std::endl;
-    std::cout << "Minimum-RMS iteration: " << selectedMinimumRmsIteration << std::endl;
-
-    BOOST_CHECK_EQUAL( selectedEstimationOutput->bestIteration_, selectedMinimumCostIteration );
-    BOOST_CHECK( selectedEstimationOutput->bestIteration_ != selectedMinimumRmsIteration );
-    BOOST_CHECK_CLOSE_FRACTION(
-            selectedEstimationOutput->residualStandardDeviation_, selectedRmsFromMinimumCostIteration, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
