@@ -231,16 +231,16 @@ BOOST_AUTO_TEST_CASE( testRelativisticTimePropagationPlaceholder )
     BOOST_CHECK( true );
 }
 
-// Smoke test for the new GR/SR split dependent variables introduced in this
-// commit. Propagates Earth's first-order TCB->TCG coordinate-time difference
-// over a short span with proper_time_rate_kinematic_term and
-// proper_time_rate_potential_term saved at every step. Verifies:
-//   (1) the saved values are finite, of the expected order of magnitude, and
-//       have the expected sign (both should be negative dτ/dt - 1 contributions);
-//   (2) the recovered (kinematic + potential) sum equals the analytical
-//       integrand -(0.5 v^2 + U_ext)/c^2 at each epoch when reconstructed
-//       from the body ephemeris and external-potential sum.
-BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariables )
+// Validates the GR/SR-split dependent variables on the post-Newtonian chain
+// (FirstOrderBarycentricToBodyCentricTimeStateDerivative): runs
+// FirstOrderBodycentricRelativisticTimePropagatorSettings for Earth with both
+// proper_time_rate_kinematic_term and proper_time_rate_potential_term saved at
+// every step, and reconstructs both terms independently from Earth's BCRS state
+// and the Sun's gravitational parameter at each epoch. Each per-step value must
+// match the reconstruction to <1e-15 s/s (numerical-noise level) and the sum
+// must be of the expected order of magnitude with the expected (non-positive)
+// sign.
+BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariablesPostNewtonian )
 {
     loadStandardSpiceKernels( );
 
@@ -336,11 +336,166 @@ BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariables )
                                         + std::fabs( potential - expectedPotential ) );
     }
 
-    std::cout << "[GrSrSplit] samples=" << dependentHistory.size( )
+    std::cout << "[GrSrSplit-PN] samples=" << dependentHistory.size( )
               << "  expected_rate~=" << expectedRateMagnitude
               << " s/s  max_abs_recovery_error=" << maxAbsRecoveryError << " s/s" << std::endl;
 
     BOOST_CHECK_SMALL( maxAbsRecoveryError, 1.0e-15 );
+}
+
+// Validates the GR/SR-split dependent variables on the direct-from-metric path
+// (DirectProperTimeRateStateDerivative + SolarSystemMetric): runs
+// DirectRelativisticTimePropagatorSettings for the ISS with both
+// proper_time_rate_kinematic_term and proper_time_rate_potential_term saved.
+// Verifies that:
+//   - kinematic term tracks -0.5 * v_BCRS^2 / c^2 from the ISS reference state;
+//   - potential term tracks -U_total(r_ISS_BCRS) / c^2 from the SolarSystemMetric;
+//   - both terms have the expected sign and order of magnitude.
+// Also exercises the non-SolarSystemMetric error path: the dependent variable
+// creation must throw if the metric backing the direct-from-metric propagator is
+// a Schwarzschild metric (no scalar-potential getter exposed).
+BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariablesDirectFromMetric )
+{
+    loadStandardSpiceKernels( );
+
+    const double initialEphemerisTime = 0.0;
+    const double finalEphemerisTime = 1.0E4;
+    const double integrationStep = 10.0;
+    const double buffer = 5.0 * integrationStep;
+
+    const std::vector< std::string > bodyNames{ "Earth", "Sun" };
+
+    auto bodySettings = getDefaultBodySettings(
+            bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Earth" );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.clear( );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+    bodySettings.at( "Sun" )->bodyDeformationSettings.clear( );
+    bodySettings.at( "Sun" )->gravityFieldVariationSettings.clear( );
+
+    // Earth-only solar-system metric so the metric is well-defined at the ISS BCRS position
+    // (Earth's potential there is finite; Sun is excluded to avoid evaluating Sun's potential
+    // at the Sun centre via downstream gradient calls).
+    bodySettings.setSpaceTimeSettings( std::make_shared< SpaceTimePropertiesSettings >(
+            std::make_shared< SolarSystemSpaceTimeMetricSettings >(
+                    std::vector< std::string >{ "Earth" } ),
+            std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ) ) );
+
+    // Add a tabulated ISS-like ephemeris.
+    Eigen::Vector6d issState;
+    issState << 6.78e6, 0.0, 0.0, 0.0, 7.66e3, 0.0;
+    bodySettings.addSettings( "ISS" );
+    bodySettings.at( "ISS" )->constantMass = 1.0;
+    bodySettings.at( "ISS" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+            issState, "Earth", "ECLIPJ2000" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
+
+    auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
+    auto integratorSettings = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
+        propagators::properTimeRateKinematicTermDependentVariable( "ISS" ),
+        propagators::properTimeRatePotentialTermDependentVariable( "ISS" ),
+    };
+
+    auto directSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
+            std::make_pair( "ISS", "" ),
+            initialEphemerisTime,
+            integratorSettings,
+            terminationSettings,
+            []( const double t ){ return t; },
+            1.0,
+            dependentVariables );
+    directSettings->getOutputSettings( )->setIntegratedResult( true );
+
+    SingleArcDynamicsSimulator< double > simulator( bodies, directSettings, true );
+    const std::map< double, Eigen::VectorXd > dependentHistory =
+            simulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+
+    BOOST_REQUIRE( !dependentHistory.empty( ) );
+
+    const double inv_c2 = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+
+    // Pull the same ISS BCRS state and Earth GM the propagator uses so the comparison is
+    // exact (Body::getState returns the BCRS state, which is what the SolarSystemMetric is
+    // evaluated against).
+    auto issBody = bodies.getBody( "ISS" );
+    auto earthBody = bodies.getBody( "Earth" );
+    const double earthGm = earthBody->getGravityFieldModel( )->getGravitationalParameter( );
+
+    double maxAbsKinError = 0.0;
+    double maxAbsPotError = 0.0;
+    for( const auto& entry : dependentHistory )
+    {
+        const double t = entry.first;
+        const Eigen::VectorXd& v = entry.second;
+        BOOST_REQUIRE_EQUAL( v.size( ), 2 );
+        const double kinematic = v( 0 );
+        const double potential = v( 1 );
+
+        BOOST_CHECK( std::isfinite( kinematic ) );
+        BOOST_CHECK( std::isfinite( potential ) );
+        BOOST_CHECK_LE( kinematic, 0.0 );
+        BOOST_CHECK_LE( potential, 0.0 );
+
+        // Tick the body states forward to time t before reading them back.
+        issBody->setStateFromEphemeris( t );
+        earthBody->setStateFromEphemeris( t );
+
+        const Eigen::Vector6d issBcrsState = issBody->getState( );
+        const double v2 = issBcrsState.segment( 3, 3 ).squaredNorm( );
+        const double expectedKinematic = -0.5 * v2 * inv_c2;
+        maxAbsKinError = std::max( maxAbsKinError, std::fabs( kinematic - expectedKinematic ) );
+
+        // Earth-only metric: U_total at the ISS BCRS position = U_E evaluated relative to Earth's centre.
+        const Eigen::Vector6d earthBcrsState = earthBody->getState( );
+        const double rIssRelEarth = ( issBcrsState.segment( 0, 3 ) - earthBcrsState.segment( 0, 3 ) ).norm( );
+        const double uTotal = earthGm / rIssRelEarth;
+        const double expectedPotential = -uTotal * inv_c2;
+        maxAbsPotError = std::max( maxAbsPotError, std::fabs( potential - expectedPotential ) );
+    }
+
+    std::cout << "[GrSrSplit-Direct] samples=" << dependentHistory.size( )
+              << "  max_abs_kin_error=" << maxAbsKinError
+              << " s/s  max_abs_pot_error=" << maxAbsPotError << " s/s" << std::endl;
+
+    // Tolerances loose enough to absorb ECLIPJ2000<->BCRS rotation noise but tight enough
+    // to catch any sign or magnitude regression in the propagator dispatch.
+    BOOST_CHECK_SMALL( maxAbsKinError, 1.0e-12 );
+    BOOST_CHECK_SMALL( maxAbsPotError, 1.0e-12 );
+
+    // Non-SolarSystemMetric error path: build a separate environment with a Schwarzschild
+    // metric and confirm that requesting the potential dependent variable throws when
+    // the propagator is created.
+    auto bodySettingsSchwarz = getDefaultBodySettings(
+            std::vector< std::string >{ "Earth" }, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    bodySettingsSchwarz.at( "Earth" )->gravityFieldSettings =
+            std::make_shared< SpiceCentralGravityFieldSettings >( "Earth" );
+    bodySettingsSchwarz.setSpaceTimeSettings( std::make_shared< SpaceTimePropertiesSettings >(
+            std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth" ) ) );
+    bodySettingsSchwarz.addSettings( "ISS" );
+    bodySettingsSchwarz.at( "ISS" )->constantMass = 1.0;
+    bodySettingsSchwarz.at( "ISS" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+            issState, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodiesSchwarz = createSystemOfBodies( bodySettingsSchwarz );
+
+    auto schwarzPotentialOnly = std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >{
+        propagators::properTimeRatePotentialTermDependentVariable( "ISS" ),
+    };
+    auto schwarzSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
+            std::make_pair( "ISS", "" ),
+            initialEphemerisTime,
+            integratorSettings,
+            terminationSettings,
+            []( const double t ){ return t; },
+            1.0,
+            schwarzPotentialOnly );
+    BOOST_CHECK_THROW(
+            SingleArcDynamicsSimulator< double >( bodiesSchwarz, schwarzSettings, true ),
+            std::runtime_error );
 }
 
 // Progressive-complexity diagnostic. Runs several configurations from simplest
