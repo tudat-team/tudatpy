@@ -55,7 +55,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                   ")" );
     }
     // Declare variables to be returned (i.e. results from best iteration)
-    double bestResidual = TUDAT_NAN;
+    double bestCostFunction = TUDAT_NAN;
+    double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
@@ -87,6 +88,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;
     double residualRms;
+    double costFunction;
 
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
@@ -213,6 +215,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
+        costFunction = linear_algebra::computeLeastSquaresCostFunction( estimationInput->getWeightsMatrixDiagonals( ),
+                                                                        residuals.template cast< double >( ) );
         rmsResidualHistory.push_back( residualRms );
 
         if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
@@ -230,9 +234,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         }
 
         // If current iteration is better than previous one, update 'best' data.
-        if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
+        if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
         {
-            bestResidual = residualRms;
+            bestCostFunction = costFunction;
+            bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
             estimationInput->getObservationCollection( )->setResiduals( residuals );
@@ -287,7 +292,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     if( estimationInput->getPrintOutput( ) )
     {
-        std::cout << "Final residual: " << bestResidual << std::endl;
+        std::cout << "Best iteration: " << bestIteration << " out of " << numberOfIterations - 1 << std::endl;
+        std::cout << "Rms residual from best iteration: " << bestRmsResidual << std::endl;
+        std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
     }
 
     // Create estimation output object
@@ -298,7 +305,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      bestWeightsMatrixDiagonal,
                                                                                      bestTransformationData,
                                                                                      bestInverseNormalizedCovarianceMatrix,
-                                                                                     bestResidual,
+                                                                                     bestRmsResidual,
                                                                                      bestIteration,
                                                                                      residualHistory,
                                                                                      parameterHistory,
