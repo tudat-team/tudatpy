@@ -183,11 +183,7 @@ BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
 
-    // double startTime = startAndEndTimeTdb.first;
-    // TODO: delete following line and replace by previous one after processing of ODF data type 11 (1-way Doppler) is implemented
-    double startTime = observation_models::ProcessedOdfFileContentsPrivateFunctionTest::computeObservationTimesTdbFromJ2000(
-            processedOdfFileContents, "DSS-25", rawOdfContents->getDataBlocks( ).front( )->getCommonDataBlock( )->getObservableTime( ) );
-
+    double startTime = startAndEndTimeTdb.first;
     double endTime = startAndEndTimeTdb.second;
 
     // Compare start and end time with values in LBL file
@@ -259,11 +255,7 @@ BOOST_AUTO_TEST_CASE( testProcessMultipleOdfFile )
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
 
-    // double startTime = startAndEndTimeTdb.first;
-    // TODO: delete following line and replace by previous one after processing of ODF data type 11 (1-way Doppler) is implemented
-    double startTime = observation_models::ProcessedOdfFileContentsPrivateFunctionTest::computeObservationTimesTdbFromJ2000(
-            processedOdfFileContents, "DSS-55", rawOdfContents1->getDataBlocks( ).front( )->getCommonDataBlock( )->getObservableTime( ) );
-
+    double startTime = startAndEndTimeTdb.first;
     double endTime = startAndEndTimeTdb.second;
 
     // Compare start and end time with values in LBL file

@@ -637,38 +637,38 @@ private:
             // See TRK-2-18, Rev. E, Table 3-4d, Item 17
             if( receiverExciterFlag == 0 )
             {
-            // Check if receiving station is in ramp tables
-            if( rampInterpolators_.count( receivingStation ) == 0 )
-            {
-                if( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
+                // Check if receiving station is in ramp tables
+                if( rampInterpolators_.count( receivingStation ) == 0 )
                 {
-                    ignoredGroundStations_.push_back( receivingStation );
+                    if( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
+                    {
+                        ignoredGroundStations_.push_back( receivingStation );
+                        if( verbose_ )
+                        {
+                            std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
+                                      << " not covered by ramp table of receiving station " << receivingStation << ", ignoring it."
+                                      << std::endl;
+                        }
+                    }
+                    ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+                    return false;
+                }
+
+                // Check if observation time is covered by ramp tables
+                if( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) <
+                            unprocessedRampStartTimesPerStation_[ receivingStation ].front( ) ||
+                    rawDataBlock->getCommonDataBlock( )->getObservableTime( ) >
+                            unprocessedRampStartTimesPerStation_[ receivingStation ].back( ) )
+                {
                     if( verbose_ )
                     {
                         std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                                  << " not covered by ramp table of receiving station " << receivingStation << ", ignoring it."
-                                  << std::endl;
+                                  << " not covered by extents of receiver ramp tables," << " ignoring it." << std::endl;
                     }
+                    ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+                    return false;
                 }
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                return false;
             }
-
-            // Check if observation time is covered by ramp tables
-            if( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) <
-                        unprocessedRampStartTimesPerStation_[ receivingStation ].front( ) ||
-                rawDataBlock->getCommonDataBlock( )->getObservableTime( ) >
-                        unprocessedRampStartTimesPerStation_[ receivingStation ].back( ) )
-            {
-                if( verbose_ )
-                {
-                    std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by extents of receiver ramp tables," << " ignoring it." << std::endl;
-                }
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                return false;
-            }
-        }
         }
 
         return true;
@@ -1029,25 +1029,6 @@ private:
     bool verbose_;
 
     std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
-
-    // TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way
-    // Doppler) is implemented
-    friend class ProcessedOdfFileContentsPrivateFunctionTest;
-};
-
-// TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way Doppler)
-// is implemented
-class ProcessedOdfFileContentsPrivateFunctionTest
-{
-public:
-    static double computeObservationTimesTdbFromJ2000( std::shared_ptr< ProcessedOdfFileContents< double > > processedOdfFileContents,
-                                                       const std::string groundStation,
-                                                       const double observationTimeUtcFromEME1950 )
-    {
-        return processedOdfFileContents->computeObservationTimesTdbFromJ2000( groundStation, { observationTimeUtcFromEME1950 } ).front( );
-    }
-
-private:
 };
 
 template< typename TimeType = Time >

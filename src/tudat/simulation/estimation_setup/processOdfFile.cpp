@@ -24,9 +24,6 @@ observation_models::ObservableType getObservableTypeForOdfId( const input_output
 
     switch( observable_type_id )
     {
-            // TODO: don't forget to remove
-            // ProcessedOdfFileContentsPrivateFunctionTest class after implementing
-            // processing of data type 11 (1-way Doppler)
         case tio::OdfDataType::one_way_doppler:
             observableType = observation_models::ObservableType::dsn_one_way_averaged_doppler;
             break;
