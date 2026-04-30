@@ -206,8 +206,7 @@ BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsOneWayRange )
 //! Verifies that the `correction_type_filter` argument selects a subset of the registered
 //! corrections by `LightTimeCorrectionType`. Two corrections of the same type (first-order
 //! relativistic, but with different perturbers) are registered, then filtered — the filter
-//! matches by type, so the result has one entry corresponding to the first-registered correction
-//! of that type.
+//! matches by type, so all registered corrections of the requested type are returned.
 BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
 {
     loadStandardSpiceKernels( );
@@ -247,9 +246,8 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
             { sunCorrection, jupiterCorrection },
             lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
 
-    // Filtered (first-order relativistic only): the filter matches by type; with two corrections
-    // of the same type, the factory picks the first match, yielding a 1-entry vector equal to the
-    // first component of the full vector.
+    // Filtered (first-order relativistic only): with two corrections of the same type, both are
+    // returned and match the full vector.
     SimulationOutputs filtered = simulateOneWayRange(
             bodies,
             linkEnds,
@@ -268,9 +266,11 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
     for( auto it: filtered.dependentVariables )
     {
         const double time = it.first;
-        BOOST_REQUIRE_EQUAL( it.second.size( ), 1 );
+        BOOST_REQUIRE_EQUAL( it.second.size( ), 2 );
         BOOST_CHECK_CLOSE_FRACTION(
                 it.second( 0 ), full.dependentVariables.at( time )( 0 ), std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                it.second( 1 ), full.dependentVariables.at( time )( 1 ), std::numeric_limits< double >::epsilon( ) );
     }
 }
 

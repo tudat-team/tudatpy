@@ -692,22 +692,10 @@ public:
         return currentCorrection_;
     }
 
-    //! Function to get the values of the individual light-time corrections that were summed into
-    //! `currentCorrection_` during the last call to `setTotalLightTimeCorrection`. Order matches
-    //! `correctionFunctions_` / `getLightTimeCorrection()`.
-    std::vector< ObservationScalarType > getCurrentLightTimeCorrectionComponentsTyped( ) const
-    {
-        return currentCorrectionComponents_;
-    }
 
     std::vector< double > getCurrentLightTimeCorrectionComponents( ) const override
     {
-        std::vector< double > componentsAsDouble( currentCorrectionComponents_.size( ) );
-        for( unsigned int i = 0; i < currentCorrectionComponents_.size( ); i++ )
-        {
-            componentsAsDouble[ i ] = static_cast< double >( currentCorrectionComponents_[ i ] );
-        }
-        return componentsAsDouble;
+        return currentCorrectionComponents_;
     }
 
     std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override
@@ -782,7 +770,7 @@ protected:
 
     //! Per-correction values from the last `setTotalLightTimeCorrection` call (same order as
     //! `correctionFunctions_`). Populated alongside `currentCorrection_`.
-    std::vector< ObservationScalarType > currentCorrectionComponents_;
+    std::vector< double > currentCorrectionComponents_;
 
     // Number of iterations until light time convergence
     unsigned int iterationCounter_;
@@ -846,11 +834,10 @@ protected:
         currentCorrectionComponents_.resize( correctionFunctions_.size( ) );
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            const ObservationScalarType singleCorrection = static_cast< ObservationScalarType >(
-                    correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
+            const double singleCorrection = correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings );
             currentCorrectionComponents_[ i ] = singleCorrection;
-            totalLightTimeCorrections += singleCorrection;
+            totalLightTimeCorrections += static_cast< ObservationScalarType >( singleCorrection );
         }
         currentCorrection_ = totalLightTimeCorrections;
     }

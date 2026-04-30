@@ -26,8 +26,8 @@ namespace
 //! Resolve, for the given `LightTimeCorrectionComponentsDependentVariableSettings`, which entries
 //! of the LightTimeCalculator's per-correction cache should populate the dependent-variable
 //! vector. If the settings object carries no filter, the order and size matches the calculator's
-//! registered corrections; otherwise each requested correction type is matched against the
-//! first registered correction of that type (missing types produce a clear error).
+//! registered corrections; otherwise all corrections of each requested type are selected, grouped
+//! in filter order (missing types produce a clear error).
 std::vector< int > resolveLightTimeCorrectionSourceIndices(
         const std::shared_ptr< LightTimeCorrectionComponentsDependentVariableSettings >& lightTimeSettings,
         const std::shared_ptr< observation_models::LightTimeCalculatorBase >& lightTimeCalculator )
@@ -46,24 +46,30 @@ std::vector< int > resolveLightTimeCorrectionSourceIndices(
         return sourceIndices;
     }
 
+    std::map< observation_models::LightTimeCorrectionType, std::vector< int > > indicesByType;
+    for( unsigned int i = 0; i < registeredCorrections.size( ); i++ )
+    {
+        indicesByType[ registeredCorrections[ i ]->getLightTimeCorrectionType( ) ].push_back( static_cast< int >( i ) );
+    }
+
+    std::map< observation_models::LightTimeCorrectionType, bool > processedRequestedTypes;
     for( const observation_models::LightTimeCorrectionType requestedType : filter )
     {
-        int matched = -1;
-        for( unsigned int i = 0; i < registeredCorrections.size( ); i++ )
+        if( processedRequestedTypes[ requestedType ] )
         {
-            if( registeredCorrections[ i ]->getLightTimeCorrectionType( ) == requestedType )
-            {
-                matched = static_cast< int >( i );
-                break;
-            }
+            continue;
         }
-        if( matched < 0 )
+
+        auto matchedIndices = indicesByType.find( requestedType );
+        if( matchedIndices == indicesByType.end( ) || matchedIndices->second.empty( ) )
         {
             throw std::runtime_error(
                     "Error when adding light_time_correction_components dependent variable: requested correction type '" +
                     observation_models::getLightTimeCorrectionName( requestedType ) + "' is not registered on this leg." );
         }
-        sourceIndices.push_back( matched );
+
+        sourceIndices.insert( sourceIndices.end( ), matchedIndices->second.begin( ), matchedIndices->second.end( ) );
+        processedRequestedTypes[ requestedType ] = true;
     }
     return sourceIndices;
 }
@@ -647,8 +653,7 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
     // Defer `light_time_correction_components` whose size cannot be resolved without the
     // observation model's LightTimeCalculator (i.e. no caller-supplied size override and an empty
     // filter). The setting is kept in `deferredSettings_` and turned into a real entry by
-    // `ObservationDependentVariableCalculator::setLegLightTimeCalculators` (or the equivalent
-    // constructor path) once the leg map is known.
+    // `ObservationDependentVariableCalculator` once the leg map is known.
     if( sizeOverride < 0 && variableSettings->variableType_ == light_time_correction_components )
     {
         auto lightTimeSettings = std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
@@ -796,27 +801,12 @@ void ObservationDependentVariableCalculator::registerLightTimeCorrectionComponen
             indices.first, indices.second, lightTimeCalculator, sourceIndices ) );
 }
 
-void ObservationDependentVariableCalculator::setLegLightTimeCalculators(
-        const LegLightTimeCalculatorMap& legLightTimeCalculators )
-{
-    legLightTimeCalculators_ = legLightTimeCalculators;
-
-    // Process any settings that were handed to `addDependentVariable` before we had the map. They
-    // live on the bookkeeping, since it is the only state that survives across Calculator
-    // rebuilds (the simulator constructs a fresh Calculator from the bookkeeping at simulate-time).
-    for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
-    {
-        registerLightTimeCorrectionComponents( settings );
-    }
-}
-
 void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies &bodies )
 {
     // `light_time_correction_components` needs the per-leg LightTimeCalculator map to compute its
-    // size and lambda. If the map isn't set yet, defer registration (on the bookkeeping so that
-    // a fresh Calculator constructed from the same bookkeeping still sees the deferred entry).
+    // size and lambda.
     if( variableSettings->variableType_ == light_time_correction_components )
     {
         if( !doesObservationDependentVariableExistForGivenLink(
@@ -828,12 +818,13 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         }
         if( legLightTimeCalculators_.empty( ) )
         {
-            dependentVariableBookkeeping_->addDeferredSetting( variableSettings );
+            throw std::runtime_error(
+                    "Error when adding light_time_correction_components dependent variable: no leg "
+                    "LightTimeCalculator map is available for observable '" +
+                    observation_models::getObservableName( dependentVariableBookkeeping_->getObservableType( ) ) +
+                    "'. Construct ObservationDependentVariableCalculator with a populated leg map." );
         }
-        else
-        {
-            registerLightTimeCorrectionComponents( variableSettings );
-        }
+        registerLightTimeCorrectionComponents( variableSettings );
         return;
     }
 
@@ -914,7 +905,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
                     "registered for leg (" +
                     observation_models::getLinkEndTypeString( lightTimeSettings->originatingLinkEndType_ ) + " -> " +
                     observation_models::getLinkEndTypeString( lightTimeSettings->linkEndType_ ) +
-                    "). Call `setLegLightTimeCalculators` before rehydrating the calculator." );
+                    "). Construct the calculator with a populated leg map before rehydrating." );
         }
         std::shared_ptr< observation_models::LightTimeCalculatorBase > lightTimeCalculator = calculatorIt->second;
         const std::vector< int > sourceIndices = resolveLightTimeCorrectionSourceIndices( lightTimeSettings, lightTimeCalculator );

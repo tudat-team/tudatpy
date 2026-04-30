@@ -132,9 +132,23 @@ public:
     //! `light_time_correction_components` with an empty type-filter — its size equals the
     //! number of registered light-time corrections, which is only known once the observation
     //! model has been built). `ObservationDependentVariableCalculator` flushes this list and
-    //! registers the settings properly once `setLegLightTimeCalculators` is called.
+    //! registers the settings properly once constructed with a populated leg map.
     void addDeferredSetting( const std::shared_ptr< ObservationDependentVariableSettings > setting )
     {
+        for( const auto& existingSetting : settingsList_ )
+        {
+            if( existingSetting->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
+        for( const auto& existingSetting : deferredSettings_ )
+        {
+            if( existingSetting->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
         deferredSettings_.push_back( setting );
     }
 
@@ -164,7 +178,7 @@ private:
     int totalDependentVariableSize_;
 
     //! Settings whose layout cannot be resolved yet (see `addDeferredSetting`). Picked up and
-    //! turned into real entries by `ObservationDependentVariableCalculator::setLegLightTimeCalculators`.
+    //! turned into real entries by `ObservationDependentVariableCalculator` once the leg map is known.
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > deferredSettings_;
 };
 
@@ -176,14 +190,9 @@ public:
     using LegLightTimeCalculatorMap = std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
                                                 std::shared_ptr< observation_models::LightTimeCalculatorBase > >;
 
-    ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
-                                            const observation_models::LinkDefinition& linkEnds ):
-        dependentVariableBookkeeping_( std::make_shared< ObservationDependentVariableBookkeeping >( observableType, linkEnds ) )
-    {}
-
     ObservationDependentVariableCalculator( const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
                                             const SystemOfBodies& bodies,
-                                            const LegLightTimeCalculatorMap& legLightTimeCalculators = LegLightTimeCalculatorMap( ) ):
+                                            const LegLightTimeCalculatorMap& legLightTimeCalculators ):
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), legLightTimeCalculators_( legLightTimeCalculators )
     {
         // First, build add-functions for whatever settings already live on the bookkeeping. This
@@ -201,6 +210,15 @@ public:
         // Then, drain any deferred `light_time_correction_components` settings. They were added
         // before the leg-LightTimeCalculator map was known; now we have it, so we can register
         // them properly (this updates both the bookkeeping and the add-function list).
+        if( !dependentVariableBookkeeping_->getDeferredSettings( ).empty( ) && legLightTimeCalculators_.empty( ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating observation dependent variable calculator: deferred "
+                    "light_time_correction_components settings exist, but no leg LightTimeCalculator "
+                    "map was provided for observable '" +
+                    observation_models::getObservableName( dependentVariableBookkeeping_->getObservableType( ) ) +
+                    "'. This observable/model combination may not support per-correction light-time outputs." );
+        }
         if( !legLightTimeCalculators_.empty( ) )
         {
             for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
@@ -226,11 +244,6 @@ public:
     {
         return dependentVariableBookkeeping_;
     }
-
-    //! Register the per-leg light-time calculators used to resolve `light_time_correction_components`
-    //! dependent variables, and process any previously-deferred settings of that type. The simulator
-    //! wires this up automatically from the observation model; user code normally does not call it.
-    void setLegLightTimeCalculators( const LegLightTimeCalculatorMap& legLightTimeCalculators );
 
     const LegLightTimeCalculatorMap& getLegLightTimeCalculators( ) const
     {
