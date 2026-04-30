@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -348,7 +349,10 @@ public:
         {
             extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
         }
-        printExtractionWarnings( );
+        if( verbose_ )
+        {
+            printExtractionWarnings( );
+        }
         // Compute the processed observation times (i.e. TDB time from J2000)
         updateProcessedObservationTimes( );
     }
@@ -582,6 +586,40 @@ private:
     }
 
     /*!
+     * Checks whether a ramp interpolator is available for a given station and observation time.
+     *
+     * @param stationName Name of the ground station
+     * @param observableTime Time of the observation
+     * @return Bool indicating whether ramp interpolator is available
+     */
+    bool isRampInterpolatorAvailable( std::string stationName, Time observableTime )
+    {
+        // Check if receiving station is in ramp tables
+        if( rampInterpolators_.count( stationName ) == 0 )
+        {
+            if( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), stationName ) == 0 )
+            {
+                if( verbose_ )
+                {
+                    std::cerr << "Warning: no ramp tables found for station " << stationName << ", ignoring corresponding observations."
+                              << std::endl;
+                }
+                ignoredGroundStations_.push_back( stationName );
+            }
+            return false;
+        }
+
+        // Check if observation time is covered by ramp tables
+        if( observableTime < unprocessedRampStartTimesPerStation_[ stationName ].front( ) ||
+            observableTime > unprocessedRampEndTimesPerStation_[ stationName ].back( ) )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /*!
      * Checks whether a given observation is valid. Checks if the observation time is covered by the
      * available ramp tables, for the relevant ground station(s).
      *
@@ -595,6 +633,7 @@ private:
                              observation_models::ObservableType currentObservableType )
     {
         input_output::OdfDataType currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
+        Time observableTime = rawDataBlock->getCommonDataBlock( )->getObservableTime( );
 
         std::string transmittingStation, receivingStation;
 
@@ -603,30 +642,9 @@ private:
             transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
 
             // Check if transmitting station is in ramp tables
-            if( rampInterpolators_.count( transmittingStation ) == 0 )
+            if( !isRampInterpolatorAvailable( transmittingStation, observableTime ) )
             {
-                if( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), transmittingStation ) == 0 )
-                {
-                    ignoredGroundStations_.push_back( transmittingStation );
-                    if( verbose_ )
-                    {
-                        std::cerr << "Warning: ground station " << transmittingStation << " not available in ramp tables,"
-                                  << " ignoring corresponding data." << std::endl;
-                    }
-                }
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                return false;
-            }
-
-            // Check if observation time is covered by ramp tables
-            if( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) <
-                unprocessedRampStartTimesPerStation_[ transmittingStation ].front( ) )
-            {
-                if( verbose_ )
-                {
-                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back(
-                            rawDataBlock->getCommonDataBlock( )->getObservableTime( ) );
-                }
+                noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back( observableTime );
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
             }
@@ -641,39 +659,11 @@ private:
 
             // If receiver exciter flag is 0, the receiver reference frequency should be obtained from the ramp tables
             // See TRK-2-18, Rev. E, Table 3-4d, Item 17
-            if( receiverExciterFlag == 0 )
+            if( receiverExciterFlag == 0 && !isRampInterpolatorAvailable( receivingStation, observableTime ) )
             {
-                // Check if receiving station is in ramp tables
-                if( rampInterpolators_.count( receivingStation ) == 0 )
-                {
-                    if( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
-                    {
-                        ignoredGroundStations_.push_back( receivingStation );
-                        if( verbose_ )
-                        {
-                            std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                                      << " not covered by ramp table of receiving station " << receivingStation << ", ignoring it."
-                                      << std::endl;
-                        }
-                    }
-                    ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                    return false;
-                }
-
-                // Check if observation time is covered by ramp tables
-                if( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) <
-                            unprocessedRampStartTimesPerStation_[ receivingStation ].front( ) ||
-                    rawDataBlock->getCommonDataBlock( )->getObservableTime( ) >
-                            unprocessedRampStartTimesPerStation_[ receivingStation ].back( ) )
-                {
-                    if( verbose_ )
-                    {
-                        std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                                  << " not covered by extents of receiver ramp tables," << " ignoring it." << std::endl;
-                    }
-                    ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                    return false;
-                }
+                noRampDataItems_[ static_cast< int >( currentObservableId ) ][ receivingStation ].push_back( observableTime );
+                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+                return false;
             }
         }
 
