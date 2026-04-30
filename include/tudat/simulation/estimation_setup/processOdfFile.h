@@ -586,13 +586,12 @@ private:
     }
 
     /*!
-     * Checks whether a ramp interpolator is available for a given station and observation time.
+     * Checks whether a ramp interpolator is available for a given station.
      *
      * @param stationName Name of the ground station
-     * @param observableTime Time of the observation
      * @return Bool indicating whether ramp interpolator is available
      */
-    bool isRampInterpolatorAvailable( std::string stationName, Time observableTime )
+    bool isRampInterpolatorAvailable( std::string stationName )
     {
         // Check if receiving station is in ramp tables
         if( rampInterpolators_.count( stationName ) == 0 )
@@ -606,13 +605,6 @@ private:
                 }
                 ignoredGroundStations_.push_back( stationName );
             }
-            return false;
-        }
-
-        // Check if observation time is covered by ramp tables
-        if( observableTime < unprocessedRampStartTimesPerStation_[ stationName ].front( ) ||
-            observableTime > unprocessedRampEndTimesPerStation_[ stationName ].back( ) )
-        {
             return false;
         }
 
@@ -635,23 +627,29 @@ private:
         input_output::OdfDataType currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
         Time observableTime = rawDataBlock->getCommonDataBlock( )->getObservableTime( );
 
-        std::string transmittingStation, receivingStation;
-
         if( requiresTransmittingStation( currentObservableType ) )
         {
-            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
+            std::string transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
 
             // Check if transmitting station is in ramp tables
-            if( !isRampInterpolatorAvailable( transmittingStation, observableTime ) )
+            if( !isRampInterpolatorAvailable( transmittingStation ) )
             {
                 noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back( observableTime );
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+                return false;
+            }
+
+            // For Doppler, the observation time is the midpoint of the time interval, for range the observation time is the reception time
+            // at the receiving equipment. The observable time should thus be after the start of the ramp tables for the transmitting
+            // station
+            if( observableTime < unprocessedRampStartTimesPerStation_[ transmittingStation ].front( ) )
+            {
+                noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back( observableTime );
                 return false;
             }
         }
         if( requiresFirstReceivingStation( currentObservableType ) )
         {
-            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
+            std::string receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
 
             int receiverExciterFlag =
                     std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >( rawDataBlock->getObservableSpecificDataBlock( ) )
@@ -659,11 +657,20 @@ private:
 
             // If receiver exciter flag is 0, the receiver reference frequency should be obtained from the ramp tables
             // See TRK-2-18, Rev. E, Table 3-4d, Item 17
-            if( receiverExciterFlag == 0 && !isRampInterpolatorAvailable( receivingStation, observableTime ) )
+            if( receiverExciterFlag == 0 )
             {
-                noRampDataItems_[ static_cast< int >( currentObservableId ) ][ receivingStation ].push_back( observableTime );
-                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
-                return false;
+                if( !isRampInterpolatorAvailable( receivingStation ) )
+                {
+                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ receivingStation ].push_back( observableTime );
+                    return false;
+                }
+                // Check if observation time is covered by ramp tables
+                if( observableTime < unprocessedRampStartTimesPerStation_[ receivingStation ].front( ) ||
+                    observableTime > unprocessedRampEndTimesPerStation_[ receivingStation ].back( ) )
+                {
+                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ receivingStation ].push_back( observableTime );
+                    return false;
+                }
             }
         }
 
@@ -753,6 +760,10 @@ private:
 
                 addOdfRawDataBlockToProcessedData(
                         rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
+            else
+            {
+                ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
             }
         }
     }
