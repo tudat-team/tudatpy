@@ -228,11 +228,11 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
         case velocity_observable:
         case relative_angular_position:
         case n_way_differenced_range:
-        case dsn_n_way_averaged_doppler:
         case dsn_n_way_range:
         case differenced_time_of_arrival:
             requiresFirstReceivingStation = false;
             break;
+        case dsn_n_way_averaged_doppler:
         case dsn_one_way_averaged_doppler:
             requiresFirstReceivingStation = true;
             break;

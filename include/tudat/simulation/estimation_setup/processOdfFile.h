@@ -629,6 +629,14 @@ private:
         {
             receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
 
+            int receiverExciterFlag =
+                    std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >( rawDataBlock->getObservableSpecificDataBlock( ) )
+                            ->getReceiverExciterFlag( );
+
+            // If receiver exciter flag is 0, the receiver reference frequency should be obtained from the ramp tables
+            // See TRK-2-18, Rev. E, Table 3-4d, Item 17
+            if( receiverExciterFlag == 0 )
+            {
             // Check if receiving station is in ramp tables
             if( rampInterpolators_.count( receivingStation ) == 0 )
             {
@@ -660,6 +668,7 @@ private:
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
             }
+        }
         }
 
         return true;
