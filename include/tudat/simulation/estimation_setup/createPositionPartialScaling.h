@@ -24,6 +24,8 @@
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 
+#include "tudat/simulation/environment_setup/body.h"
+
 namespace tudat
 {
 
@@ -277,7 +279,7 @@ public:
                 break;
             }
             case observation_models::camera_pixels: {
-                std::shared_ptr< cameras::Camera > camera =
+                std::shared_ptr< system_models::Camera > camera =
                         bodies.at( linkEnds.at( observation_models::observer ).bodyName_ )
                                 ->getCamera( linkEnds.at( observation_models::observer ).componentName_ );
                 positionPartialScaler = std::make_shared< CameraPixelsScaling >(

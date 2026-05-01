@@ -38,7 +38,7 @@
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
-#include "tudat/astro/cameras/camera.h"
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -1690,7 +1690,7 @@ public:
                 }
 
                 // Create observation model
-                std::shared_ptr< cameras::Camera > camera =
+                std::shared_ptr< system_models::Camera > camera =
                         bodies.at( linkEnds.at( observer ).bodyName_ )->getCamera( linkEnds.at( observer ).componentName_ );
 
                 observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(

@@ -80,15 +80,11 @@ namespace ground_stations
 class GroundStation;
 }  // namespace ground_stations
 
-namespace cameras
-{
-class Camera;
-}  // namespace cameras
-
 namespace system_models
 {
 class TimingSystem;
 class VehicleSystems;
+class Camera;
 }  // namespace system_models
 
 namespace simulation_setup
@@ -749,7 +745,7 @@ public:
      * \param cameraName Name of camera
      * \param camera Camera object that is to be set
      */
-    void addCamera( const std::string& cameraName, const std::shared_ptr< cameras::Camera >& camera );
+    void addCamera( const std::string& cameraName, const std::shared_ptr< system_models::Camera >& camera );
 
     //! Function to retrieve a ground station
     /*!
@@ -765,7 +761,7 @@ public:
      * \param cameraName Name of camera
      * \return Camera object that is retrieved
      */
-    std::shared_ptr< cameras::Camera > getCamera( const std::string& cameraName ) const;
+    std::shared_ptr< system_models::Camera > getCamera( const std::string& cameraName ) const;
 
     //! Function to retrieve full list of ground stations
     /*!
@@ -779,7 +775,7 @@ public:
      * Function to retrieve full list of cameras
      * \return Full list of cameras
      */
-    std::map< std::string, std::shared_ptr< cameras::Camera > > getCameraMap( ) const;
+    std::map< std::string, std::shared_ptr< system_models::Camera > > getCameraMap( ) const;
 
     //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
     /*!
@@ -931,7 +927,7 @@ private:
     std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStationMap;
 
     //! List of camera objects on Body
-    std::map< std::string, std::shared_ptr< cameras::Camera > > cameraMap;
+    std::map< std::string, std::shared_ptr< system_models::Camera > > cameraMap;
 
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;

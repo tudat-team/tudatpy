@@ -8,10 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/cameras/camera.h"
+#include "tudat/astro/system_models/camera.h"
 namespace tudat
 {
-namespace cameras
+namespace system_models
 {
 }
 }  // namespace tudat

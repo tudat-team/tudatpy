@@ -20,7 +20,7 @@
 namespace tudat
 {
 
-namespace cameras
+namespace system_models
 {
 
 class Camera
@@ -111,7 +111,7 @@ public:
      */
     Eigen::Vector2d calculateObservableFromBodyFixed( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
-        Eigen::Vector3d positionInCameraFrame = BodyFixedToCameraFrame_( positionOfObservedBodyInBodyFrame );
+        Eigen::Vector3d positionInCameraFrame = bodyFixedToCameraFrame_( positionOfObservedBodyInBodyFrame );
         return opticalCenter_ +
                 K_ *
                 Eigen::Vector2d( positionInCameraFrame.x( ) / positionInCameraFrame.z( ),
@@ -141,7 +141,7 @@ private:
      *  \param positionOfObservedBodyInBodyFrame Position of the observed body in the body-fixed frame.
      *  \return The position in the camera frame.
      */
-    Eigen::Vector3d BodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
+    Eigen::Vector3d bodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
         return rotationFromBodyFixedToCameraFrame_ * positionOfObservedBodyInBodyFrame;
     }
@@ -161,7 +161,7 @@ private:
     //! Shared pointer to a rotational ephemeris of the body, which can be used to determine the rotation from inertial to body fixed frame at a given time.
    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris_;
 };
-}  // namespace cameras
+}  // namespace system_models
 }  // namespace tudat
 
 #endif

@@ -30,7 +30,7 @@ namespace observation_models
  *  Class for simulating camera pixel observables, using light-time (with light-time corrections)
  *  to determine the states of the link ends (source and receiver).
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
- *  The mapping from relative inertial position to pixel coordinates can be obtained from a tudat::cameras::Camera object, or be defined as
+ *  The mapping from relative inertial position to pixel coordinates can be obtained from a tudat::system_models::Camera object, or be defined as
  * a custom function.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >

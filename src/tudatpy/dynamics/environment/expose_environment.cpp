@@ -52,7 +52,7 @@
 #include "scalarTypes.h"
 
 #include "tudat/astro/ground_stations/groundStation.h"
-#include "tudat/astro/cameras/camera.h"
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 

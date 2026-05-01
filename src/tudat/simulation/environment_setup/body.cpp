@@ -15,7 +15,7 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ground_stations/groundStation.h"
-#include "tudat/astro/cameras/camera.h"
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -628,12 +628,12 @@ std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > Body:
     return groundStationMap;
 }
 
-void Body::addCamera( const std::string& cameraName, const std::shared_ptr< cameras::Camera >& camera )
+void Body::addCamera( const std::string& cameraName, const std::shared_ptr< system_models::Camera >& camera )
 {
     cameraMap[ cameraName ] = camera;
 }
 
-std::shared_ptr< cameras::Camera > Body::getCamera( const std::string& cameraName ) const
+std::shared_ptr< system_models::Camera > Body::getCamera( const std::string& cameraName ) const
 {
     if( cameraMap.count( cameraName ) == 0 )
     {
@@ -642,7 +642,7 @@ std::shared_ptr< cameras::Camera > Body::getCamera( const std::string& cameraNam
     return cameraMap.at( cameraName );
 }
 
-std::map< std::string, std::shared_ptr< cameras::Camera > > Body::getCameraMap( ) const
+std::map< std::string, std::shared_ptr< system_models::Camera > > Body::getCameraMap( ) const
 {
     return cameraMap;
 }
