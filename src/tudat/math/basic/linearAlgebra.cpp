@@ -10,6 +10,8 @@
  */
 
 #include <cmath>
+#include <sstream>
+#include <stdexcept>
 
 #include <Eigen/LU>
 
