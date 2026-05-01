@@ -895,7 +895,8 @@ public:
                 // Create full-link light-time calculator
                 std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
                         fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList );
+                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
+                                singleLegsLightTimeConvergenceCriteriaList, multiLegLightTimeConvergenceCriteria );
 
                 std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                         uplinkDopplerCalculator;
