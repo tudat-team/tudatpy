@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -100,6 +101,9 @@ public:
     {
         return linkEnds_;
     }
+
+    virtual std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > >
+    getLegLightTimeCalculators( ) const = 0;
 
     //! Function to compute the observable without any corrections
     /*!

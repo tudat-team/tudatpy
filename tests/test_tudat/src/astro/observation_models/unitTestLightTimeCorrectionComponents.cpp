@@ -34,7 +34,7 @@ using namespace tudat::coordinate_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_light_time_correction_components )
 
-//! Helper: simulate a one-way range observable for Earth-Station1 → MoonOrbiter at a list of times,
+//! Helper: simulate a scalar range observable (one-way or n-way) at a list of times,
 //! with the given light-time corrections, and (optionally) record the per-correction contributions
 //! as a dependent variable. Returns the observation history and the dependent-variable history.
 struct SimulationOutputs
@@ -43,7 +43,8 @@ struct SimulationOutputs
     std::map< double, Eigen::VectorXd > dependentVariables;
 };
 
-SimulationOutputs simulateOneWayRange(
+SimulationOutputs simulateRangeObservable(
+        const ObservableType observableType,
         const SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const std::vector< double >& observationTimes,
@@ -51,12 +52,12 @@ SimulationOutputs simulateOneWayRange(
         const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings = nullptr )
 {
     std::shared_ptr< ObservationModelSettings > observationSettings =
-            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds, correctionSettings );
+            std::make_shared< ObservationModelSettings >( observableType, linkEnds, correctionSettings );
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( std::vector< std::shared_ptr< ObservationModelSettings > >{ observationSettings }, bodies );
 
     std::shared_ptr< TabulatedObservationSimulationSettings<> > simulationSettings =
-            std::make_shared< TabulatedObservationSimulationSettings<> >( one_way_range, linkEnds, observationTimes, receiver );
+            std::make_shared< TabulatedObservationSimulationSettings<> >( observableType, linkEnds, observationTimes, receiver );
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput{ simulationSettings };
 
     if( dependentVariableSettings != nullptr )
@@ -68,7 +69,7 @@ SimulationOutputs simulateOneWayRange(
     std::shared_ptr< ObservationCollection<> > collection =
             simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
     std::shared_ptr< SingleObservationSet< double, double > > singleSet =
-            collection->getSingleLinkAndTypeObservationSets( one_way_range, LinkDefinition( linkEnds ) ).at( 0 );
+            collection->getSingleLinkAndTypeObservationSets( observableType, LinkDefinition( linkEnds ) ).at( 0 );
 
     SimulationOutputs outputs;
     outputs.observations = singleSet->getObservationsHistory( );
@@ -142,24 +143,36 @@ BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsOneWayRange )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Jupiter" } );
 
     // 1. No corrections.
-    SimulationOutputs noCorrections = simulateOneWayRange( bodies, linkEnds, observationTimes, { } );
+    SimulationOutputs noCorrections = simulateRangeObservable( one_way_range, bodies, linkEnds, observationTimes, { } );
     // 2. Sun correction only.
-    SimulationOutputs sunOnly = simulateOneWayRange( bodies, linkEnds, observationTimes, { sunCorrection } );
+    SimulationOutputs sunOnly = simulateRangeObservable( one_way_range, bodies, linkEnds, observationTimes, { sunCorrection } );
     // 3. Jupiter correction only.
-    SimulationOutputs jupiterOnly = simulateOneWayRange( bodies, linkEnds, observationTimes, { jupiterCorrection } );
+    SimulationOutputs jupiterOnly = simulateRangeObservable( one_way_range, bodies, linkEnds, observationTimes, { jupiterCorrection } );
     // 4. Both corrections + dependent variable that saves per-correction components.
-    SimulationOutputs both = simulateOneWayRange(
-            bodies,
-            linkEnds,
-            observationTimes,
-            { sunCorrection, jupiterCorrection },
-            lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
+    SimulationOutputs both = simulateRangeObservable( one_way_range,
+                                                      bodies,
+                                                      linkEnds,
+                                                      observationTimes,
+                                                      { sunCorrection, jupiterCorrection },
+                                                      lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
+    // 5. Sun correction only + dependent variable.
+    SimulationOutputs sunOnlyWithDependent = simulateRangeObservable(
+            one_way_range, bodies, linkEnds, observationTimes, { sunCorrection }, lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
+    // 6. Jupiter correction only + dependent variable.
+    SimulationOutputs jupiterOnlyWithDependent = simulateRangeObservable( one_way_range,
+                                                                          bodies,
+                                                                          linkEnds,
+                                                                          observationTimes,
+                                                                          { jupiterCorrection },
+                                                                          lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
 
     BOOST_REQUIRE_EQUAL( noCorrections.observations.size( ), observationTimes.size( ) );
     BOOST_REQUIRE_EQUAL( sunOnly.observations.size( ), observationTimes.size( ) );
     BOOST_REQUIRE_EQUAL( jupiterOnly.observations.size( ), observationTimes.size( ) );
     BOOST_REQUIRE_EQUAL( both.observations.size( ), observationTimes.size( ) );
     BOOST_REQUIRE_EQUAL( both.dependentVariables.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( sunOnlyWithDependent.dependentVariables.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( jupiterOnlyWithDependent.dependentVariables.size( ), observationTimes.size( ) );
 
     const double c = physical_constants::SPEED_OF_LIGHT;
 
@@ -200,13 +213,109 @@ BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsOneWayRange )
         // Sum equivalence: sum of saved components reproduces the effect of enabling both corrections.
         BOOST_CHECK_SMALL(
                 std::fabs( c * ( components( 0 ) + components( 1 ) ) - ( rangeBoth - rangeNone ) ), rangeTolerance );
+
+        // Single-correction saves produce 1-entry vectors equal to their isolated range effect.
+        const Eigen::VectorXd& sunComponentOnly = sunOnlyWithDependent.dependentVariables.at( time );
+        const Eigen::VectorXd& jupiterComponentOnly = jupiterOnlyWithDependent.dependentVariables.at( time );
+        BOOST_REQUIRE_EQUAL( sunComponentOnly.size( ), 1 );
+        BOOST_REQUIRE_EQUAL( jupiterComponentOnly.size( ), 1 );
+        BOOST_CHECK_SMALL( std::fabs( c * sunComponentOnly( 0 ) - ( rangeSun - rangeNone ) ), rangeTolerance );
+        BOOST_CHECK_SMALL( std::fabs( c * jupiterComponentOnly( 0 ) - ( rangeJupiter - rangeNone ) ), rangeTolerance );
+        BOOST_CHECK_CLOSE_FRACTION( sunComponentOnly( 0 ), components( 0 ), std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                jupiterComponentOnly( 0 ), components( 1 ), std::numeric_limits< double >::epsilon( ) );
+    }
+}
+
+//! Verifies per-leg `light_time_correction_components` behaviour for a two-leg n-way range
+//! observable (transmitter -> retransmitter -> transmitter) with a single correction model.
+BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsTwoWayNWayRange )
+{
+    loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames{ "Earth", "Moon", "Sun" };
+    const double initialEphemerisTime = 1.0E7;
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation(
+            bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", "Station1" ) );
+    twoWayLinkEnds[ retransmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
+    twoWayLinkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", "Station1" ) );
+
+    std::vector< double > observationTimes{ initialEphemerisTime + 1000.0,
+                                            initialEphemerisTime + 1100.0,
+                                            initialEphemerisTime + 1200.0 };
+
+    std::shared_ptr< LightTimeCorrectionSettings > sunCorrection =
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Sun" } );
+
+    SimulationOutputs noCorrections =
+            simulateRangeObservable( n_way_range, bodies, twoWayLinkEnds, observationTimes, { } );
+    SimulationOutputs sunOnly =
+            simulateRangeObservable( n_way_range, bodies, twoWayLinkEnds, observationTimes, { sunCorrection } );
+
+    SimulationOutputs uplinkOnly = simulateRangeObservable(
+            n_way_range,
+            bodies,
+            twoWayLinkEnds,
+            observationTimes,
+            { sunCorrection },
+            lightTimeCorrectionComponentsDependentVariable(
+                    transmitter,
+                    retransmitter,
+                    LinkEndId( std::make_pair( "Earth", "Station1" ) ),
+                    LinkEndId( std::make_pair( "MoonOrbiter", "" ) ) ) );
+
+    SimulationOutputs downlinkOnly = simulateRangeObservable(
+            n_way_range,
+            bodies,
+            twoWayLinkEnds,
+            observationTimes,
+            { sunCorrection },
+            lightTimeCorrectionComponentsDependentVariable(
+                    retransmitter,
+                    receiver,
+                    LinkEndId( std::make_pair( "MoonOrbiter", "" ) ),
+                    LinkEndId( std::make_pair( "Earth", "Station1" ) ) ) );
+
+    BOOST_REQUIRE_EQUAL( noCorrections.observations.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( sunOnly.observations.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( uplinkOnly.dependentVariables.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( downlinkOnly.dependentVariables.size( ), observationTimes.size( ) );
+
+    const double c = physical_constants::SPEED_OF_LIGHT;
+    const double rangeTolerance = 1.0E-3;
+
+    for( const auto& entry : uplinkOnly.dependentVariables )
+    {
+        const double time = entry.first;
+        const Eigen::VectorXd& upComponent = entry.second;
+        const Eigen::VectorXd& downComponent = downlinkOnly.dependentVariables.at( time );
+
+        BOOST_REQUIRE_EQUAL( upComponent.size( ), 1 );
+        BOOST_REQUIRE_EQUAL( downComponent.size( ), 1 );
+
+        const double rangeNone = noCorrections.observations.at( time )( 0 );
+        const double rangeSun = sunOnly.observations.at( time )( 0 );
+        BOOST_CHECK_SMALL( std::fabs( c * ( upComponent( 0 ) + downComponent( 0 ) ) - ( rangeSun - rangeNone ) ), rangeTolerance );
     }
 }
 
 //! Verifies that the `correction_type_filter` argument selects a subset of the registered
-//! corrections by `LightTimeCorrectionType`. Two corrections of the same type (first-order
-//! relativistic, but with different perturbers) are registered, then filtered — the filter
-//! matches by type, so all registered corrections of the requested type are returned.
+//! corrections by `LightTimeCorrectionType`. Two first-order-relativistic corrections with
+//! different perturbers are registered, then filtered by type.
 BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
 {
     loadStandardSpiceKernels( );
@@ -239,16 +348,17 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Jupiter" } );
 
     // Full vector (no filter): 2 entries.
-    SimulationOutputs full = simulateOneWayRange(
-            bodies,
-            linkEnds,
-            observationTimes,
-            { sunCorrection, jupiterCorrection },
-            lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
+    SimulationOutputs full = simulateRangeObservable( one_way_range,
+                                                      bodies,
+                                                      linkEnds,
+                                                      observationTimes,
+                                                      { sunCorrection, jupiterCorrection },
+                                                      lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) );
 
-    // Filtered (first-order relativistic only): with two corrections of the same type, both are
-    // returned and match the full vector.
-    SimulationOutputs filtered = simulateOneWayRange(
+    // Filtered (first-order relativistic only): all selected entries must match the unfiltered
+    // vector for this setup, because all registered corrections are first-order relativistic.
+    SimulationOutputs filtered = simulateRangeObservable(
+            one_way_range,
             bodies,
             linkEnds,
             observationTimes,
@@ -266,11 +376,12 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
     for( auto it: filtered.dependentVariables )
     {
         const double time = it.first;
-        BOOST_REQUIRE_EQUAL( it.second.size( ), 2 );
-        BOOST_CHECK_CLOSE_FRACTION(
-                it.second( 0 ), full.dependentVariables.at( time )( 0 ), std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION(
-                it.second( 1 ), full.dependentVariables.at( time )( 1 ), std::numeric_limits< double >::epsilon( ) );
+        const Eigen::VectorXd& fullComponents = full.dependentVariables.at( time );
+        BOOST_REQUIRE_EQUAL( it.second.size( ), fullComponents.size( ) );
+        for( int i = 0; i < it.second.size( ); i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( it.second( i ), fullComponents( i ), std::numeric_limits< double >::epsilon( ) );
+        }
     }
 }
 

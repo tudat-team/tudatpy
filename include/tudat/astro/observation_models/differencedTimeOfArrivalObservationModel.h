@@ -161,6 +161,12 @@ public:
         return secondReceiverLightTimeCalculator_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), firstReceiverLightTimeCalculator_ },
+                 { std::make_pair( transmitter, receiver2 ), secondReceiverLightTimeCalculator_ } };
+    }
+
 private:
     //! Light time calculator to compute light time at the beginning of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > firstReceiverLightTimeCalculator_;

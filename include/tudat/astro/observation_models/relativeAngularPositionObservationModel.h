@@ -209,6 +209,12 @@ public:
         return secondLinkEnds;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), lightTimeCalculatorFirstTransmitter_ },
+                 { std::make_pair( transmitter2, receiver ), lightTimeCalculatorSecondTransmitter_ } };
+    }
+
 private:
     //! Object to calculate light time between the first transmitter and receiver.
     /*!

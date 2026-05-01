@@ -650,18 +650,23 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
         return std::make_pair( 0, 0 );
     }
 
-    // Defer `light_time_correction_components` whose size cannot be resolved without the
-    // observation model's LightTimeCalculator (i.e. no caller-supplied size override and an empty
-    // filter). The setting is kept in `deferredSettings_` and turned into a real entry by
-    // `ObservationDependentVariableCalculator` once the leg map is known.
+    // Defer `light_time_correction_components` whose size cannot be resolved robustly without the
+    // observation model's LightTimeCalculator (i.e. no caller-supplied size override). Even with
+    // a non-empty type filter, the final size depends on how many registered corrections match
+    // each requested type on the selected leg. The setting is kept in `deferredSettings_` and
+    // turned into a real entry by `ObservationDependentVariableCalculator` once the leg map is
+    // known.
     if( sizeOverride < 0 && variableSettings->variableType_ == light_time_correction_components )
     {
         auto lightTimeSettings = std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
-        if( lightTimeSettings == nullptr || lightTimeSettings->correctionTypeFilter_.empty( ) )
+        if( lightTimeSettings == nullptr )
         {
-            addDeferredSetting( variableSettings );
-            return std::make_pair( 0, 0 );
+            throw std::runtime_error(
+                    "Error when adding light_time_correction_components dependent variable to bookkeeping: "
+                    "settings object must be a LightTimeCorrectionComponentsDependentVariableSettings." );
         }
+        addDeferredSetting( variableSettings );
+        return std::make_pair( 0, 0 );
     }
 
     // Retrieve the current index in list of dependent variables and size of new parameter

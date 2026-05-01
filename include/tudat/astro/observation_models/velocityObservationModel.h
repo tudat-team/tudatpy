@@ -84,6 +84,11 @@ public:
         return currentState_.segment( 3, 3 );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { };
+    }
+
 private:
     //! Function that returns the Cartesian state of the observed body as a function of time.
     std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction_;

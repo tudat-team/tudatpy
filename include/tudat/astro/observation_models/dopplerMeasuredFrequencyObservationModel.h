@@ -222,6 +222,15 @@ public:
         return twoWayDopplerModel_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        if( twoWayDopplerModel_ != nullptr )
+        {
+            return twoWayDopplerModel_->getLegLightTimeCalculators( );
+        }
+        return { };
+    }
+
     // Doppler observation model associated with the measurement
     std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel_;
 

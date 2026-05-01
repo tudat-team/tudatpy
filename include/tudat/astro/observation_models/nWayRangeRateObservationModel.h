@@ -153,6 +153,11 @@ public:
         arcEndObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { };
+    }
+
 private:
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 

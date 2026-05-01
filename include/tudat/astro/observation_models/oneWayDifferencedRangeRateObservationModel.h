@@ -209,6 +209,11 @@ public:
         return arcEndLightTimeCalculator_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { };
+    }
+
 private:
     //! Light time calculator to compute light time at the beginning of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator_;

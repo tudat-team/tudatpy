@@ -98,6 +98,11 @@ public:
                 .template cast< ObservationScalarType >( );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    {
+        return { };
+    }
+
 private:
     //! Function that returns the rotation from inertial to body-fixed frame as a function of time
     std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction_;
