@@ -37,7 +37,6 @@
 #include "gravity_field/expose_gravity_field.h"
 #include "gravity_field_variation/expose_gravity_field_variation.h"
 #include "ground_station/expose_ground_station.h"
-#include "cameras/expose_cameras.h"
 #include "radiation_pressure/expose_radiation_pressure.h"
 #include "rigid_body/expose_rigid_body.h"
 #include "rotation_model/expose_rotation_model.h"
@@ -113,9 +112,6 @@ void expose_environment_setup( py::module &m )
 
     auto ground_station_setup = m.def_submodule( "ground_station" );
     ground_station::expose_ground_station_setup( ground_station_setup );
-
-    auto cameras_setup = m.def_submodule( "cameras" );
-    cameras::expose_cameras_setup( cameras_setup );
 
     auto rigid_body_setup = m.def_submodule( "rigid_body" );
     rigid_body::expose_rigid_body_setup( rigid_body_setup );
