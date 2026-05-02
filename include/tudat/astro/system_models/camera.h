@@ -106,7 +106,7 @@ public:
      * its own frame, and the focal plane is located at the camera frame x-y plane. The optical center and focal lengths are then used to
      * calculate the pixel coordinates from the position in the camera frame.
      * \param positionOfObservedBodyInBodyFrame Position of the
-     * observed body in the body-fixed frame. 
+     * observed body in the body-fixed frame.
      * \return The observable position in the camera frame.
      */
     Eigen::Vector2d calculateObservableFromBodyFixed( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
@@ -118,8 +118,8 @@ public:
                                  positionInCameraFrame.y( ) / positionInCameraFrame.z( ) );
     }
 
-    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the inertial frame and the time at which this position is valid.
-     *  \param positionOfObservedBodyInInertialFrame Position of the observed body in the inertial frame.
+    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the time at which this position is valid.
+     *  \param positionOfObservedBodyInInertialFrame Position of the observed body in the observer centered inertial frame.
      *  \param secondsSinceEpoch Seconds since Julian day reference epoch at which the position of the observed body is valid.
      *  \return The observable position in the camera frame.
      */
