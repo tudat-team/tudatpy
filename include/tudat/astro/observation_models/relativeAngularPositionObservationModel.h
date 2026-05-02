@@ -46,6 +46,28 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > PositionType;
 
+    static std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
+    createFullLinkLightTimeCalculators(
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                    lightTimeCalculatorFirstTransmitter,
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                    lightTimeCalculatorSecondTransmitter )
+    {
+        return std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculatorFirstTransmitter },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ),
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculatorSecondTransmitter },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) };
+    }
+
     //! Constructor.
     /*!
      *  Constructor,
@@ -63,9 +85,11 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                     lightTimeCalculatorSecondTransmitter,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 2, ObservationScalarType, TimeType >( relative_angular_position, linkEnds, observationBiasCalculator ),
-        lightTimeCalculatorFirstTransmitter_( lightTimeCalculatorFirstTransmitter ),
-        lightTimeCalculatorSecondTransmitter_( lightTimeCalculatorSecondTransmitter )
+        ObservationModel< 2, ObservationScalarType, TimeType >(
+                relative_angular_position,
+                linkEnds,
+                observationBiasCalculator,
+                createFullLinkLightTimeCalculators( lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter ) )
     {}
 
     //! Destructor
@@ -100,21 +124,32 @@ public:
                     "Error when calculating relative angular position observation, link end associated with time is not receiver." );
         }
 
-        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState;
-        Eigen::Matrix< ObservationScalarType, 6, 1 > firstTransmitterState;
-        Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState;
-
         // Compute light-times and receiver/transmitters states.
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        std::vector< double > firstLinkEndTimes;
+        std::vector< double > secondLinkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates;
+        std::vector< Eigen::Matrix< double, 6, 1 > > secondLinkEndStates;
+        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorFirstTransmitter =
+                getLightTimeCalculatorFirstTransmitter( );
+        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorSecondTransmitter =
+                getLightTimeCalculatorSecondTransmitter( );
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter_, ancillarySetingsInput, ancillarySetings );
-        ObservationScalarType lightTimeFirstTransmitter = lightTimeCalculatorFirstTransmitter_->calculateLightTimeWithLinkEndsStates(
-                receiverState, firstTransmitterState, time, true, ancillarySetings );
+                time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter, ancillarySetingsInput, ancillarySetings );
+        this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
+                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySetings );
 
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter_, ancillarySetingsInput, ancillarySetings );
-        ObservationScalarType lightTimeSecondTransmitter = lightTimeCalculatorSecondTransmitter_->calculateLightTimeWithLinkEndsStates(
-                receiverState, secondTransmitterState, time, true, ancillarySetings );
+                time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter, ancillarySetingsInput, ancillarySetings );
+        this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
+                time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySetings );
+
+        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState =
+                firstLinkEndStates.at( 1 ).template cast< ObservationScalarType >( );
+        Eigen::Matrix< ObservationScalarType, 6, 1 > firstTransmitterState =
+                firstLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
+        Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState =
+                secondLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
 
         // Compute spherical relative position for first transmitter / receiver
         //        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinatesFirstTransmitter =
@@ -159,13 +194,13 @@ public:
         linkEndTimes.clear( );
         linkEndStates.clear( );
 
-        linkEndStates.push_back( firstTransmitterState.template cast< double >( ) );
-        linkEndStates.push_back( secondTransmitterState.template cast< double >( ) );
-        linkEndStates.push_back( receiverState.template cast< double >( ) );
+        linkEndStates.push_back( firstLinkEndStates.at( 0 ) );
+        linkEndStates.push_back( secondLinkEndStates.at( 0 ) );
+        linkEndStates.push_back( firstLinkEndStates.at( 1 ) );
 
-        linkEndTimes.push_back( static_cast< double >( time - lightTimeFirstTransmitter ) );
-        linkEndTimes.push_back( static_cast< double >( time - lightTimeSecondTransmitter ) );
-        linkEndTimes.push_back( static_cast< double >( time ) );
+        linkEndTimes.push_back( firstLinkEndTimes.at( 0 ) );
+        linkEndTimes.push_back( secondLinkEndTimes.at( 0 ) );
+        linkEndTimes.push_back( firstLinkEndTimes.at( 1 ) );
 
         // Return observable
         return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscensionSecondTransmitter - rightAscensionFirstTransmitter,
@@ -180,7 +215,7 @@ public:
      */
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculatorFirstTransmitter( )
     {
-        return lightTimeCalculatorFirstTransmitter_;
+        return this->getSingleLegLightTimeCalculator( 0, 0 );
     }
 
     //! Function to get the object to calculate light time between second transmitter and receiver.
@@ -190,7 +225,7 @@ public:
      */
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculatorSecondTransmitter( )
     {
-        return lightTimeCalculatorSecondTransmitter_;
+        return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
     LinkEnds getFirstLinkEnds( )
@@ -209,20 +244,6 @@ public:
         return secondLinkEnds;
     }
 
-private:
-    //! Object to calculate light time between the first transmitter and receiver.
-    /*!
-     *  Object to calculate light time between the first transmitter and receiver, including possible corrections from troposphere,
-     * relativistic corrections, etc.
-     */
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorFirstTransmitter_;
-
-    //! Object to calculate light time between the second transmitter and receiver.
-    /*!
-     *  Object to calculate light time between the second transmitter and receiver, including possible corrections from troposphere,
-     * relativistic corrections, etc.
-     */
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorSecondTransmitter_;
 };
 
 }  // namespace observation_models

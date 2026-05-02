@@ -70,6 +70,25 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
 
+    static std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
+    createFullLinkLightTimeCalculators(
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator,
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator )
+    {
+        return std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                arcStartLightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ),
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{ arcEndLightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) };
+    }
+
     //! Constructor.
     /*!
      *  Constructor,
@@ -85,8 +104,11 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
-        arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator )
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                one_way_differenced_range,
+                linkEnds,
+                observationBiasCalculator,
+                createFullLinkLightTimeCalculators( arcStartLightTimeCalculator, arcEndLightTimeCalculator ) )
     {}
 
     //! Destructor
@@ -135,7 +157,14 @@ public:
         linkEndTimes.resize( 4 );
         linkEndStates.resize( 4 );
 
-        StateType transmitterStateAtArcStart, receiverStateAtArcStart, transmitterStateAtArcEnd, receiverStateAtArcEnd;
+        std::vector< double > arcStartLinkEndTimes;
+        std::vector< double > arcEndLinkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
+        std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
+        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator =
+                getArcStartLightTimeCalculator( );
+        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator =
+                getArcEndLightTimeCalculator( );
         if( linkEndAssociatedWithTime == receiver )
         {
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
@@ -145,18 +174,20 @@ public:
             // Calculate light times at the start of the reception interval
             std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ], 1, ancillarySetings );
+                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            lightTimeAtStartInterval = this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
+                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ], 1, ancillarySetings );
+                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            lightTimeAtEndInterval = this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
+                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
 
-            linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeAtStartInterval );
-            linkEndTimes[ 2 ] = linkEndTimes[ 3 ] - static_cast< double >( lightTimeAtEndInterval );
+            linkEndTimes[ 0 ] = arcStartLinkEndTimes.at( 0 );
+            linkEndTimes[ 1 ] = arcStartLinkEndTimes.at( 1 );
+            linkEndTimes[ 2 ] = arcEndLinkEndTimes.at( 0 );
+            linkEndTimes[ 3 ] = arcEndLinkEndTimes.at( 1 );
         }
         else if( linkEndAssociatedWithTime == transmitter )
         {
@@ -167,29 +198,30 @@ public:
             // Calculate light times at the start of the reception interval
             std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancillarySetings );
-
-            linkEndTimes[ 3 ] = linkEndTimes[ 2 ] + static_cast< double >( lightTimeAtEndInterval );
+                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            lightTimeAtEndInterval = this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
+                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancillarySetings );
+                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            lightTimeAtStartInterval = this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
+                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
 
-            linkEndTimes[ 1 ] = linkEndTimes[ 0 ] + static_cast< double >( lightTimeAtStartInterval );
+            linkEndTimes[ 0 ] = arcStartLinkEndTimes.at( 0 );
+            linkEndTimes[ 1 ] = arcStartLinkEndTimes.at( 1 );
+            linkEndTimes[ 2 ] = arcEndLinkEndTimes.at( 0 );
+            linkEndTimes[ 3 ] = arcEndLinkEndTimes.at( 1 );
         }
         else
         {
             throw std::runtime_error( "Error in differenced range rate observation model, reference link end not recognized" );
         }
 
-        linkEndStates[ 0 ] = transmitterStateAtArcStart.template cast< double >( );
-        linkEndStates[ 1 ] = receiverStateAtArcStart.template cast< double >( );
-        linkEndStates[ 2 ] = transmitterStateAtArcEnd.template cast< double >( );
-        linkEndStates[ 3 ] = receiverStateAtArcEnd.template cast< double >( );
+        linkEndStates[ 0 ] = arcStartLinkEndStates.at( 0 );
+        linkEndStates[ 1 ] = arcStartLinkEndStates.at( 1 );
+        linkEndStates[ 2 ] = arcEndLinkEndStates.at( 0 );
+        linkEndStates[ 3 ] = arcEndLinkEndStates.at( 1 );
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << ( lightTimeAtEndInterval - lightTimeAtStartInterval ) *
                          physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
@@ -200,21 +232,15 @@ public:
     //! Light time calculator to compute light time at the beginning of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcStartLightTimeCalculator( )
     {
-        return arcStartLightTimeCalculator_;
+        return this->getSingleLegLightTimeCalculator( 0, 0 );
     }
 
     //! Light time calculator to compute light time at the end of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcEndLightTimeCalculator( )
     {
-        return arcEndLightTimeCalculator_;
+        return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
-private:
-    //! Light time calculator to compute light time at the beginning of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator_;
-
-    //! Light time calculator to compute light time at the end of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator_;
 };
 
 }  // namespace observation_models
