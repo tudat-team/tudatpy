@@ -1683,15 +1683,19 @@ public:
                     throw std::runtime_error( "Error when making camera pixels model, no camera specified for observer" );
                 }
 
-                if( bodies.at( linkEnds.at( observer ).bodyName_ )->getCameraMap( ).count( linkEnds.at( observer ).componentName_ ) == 0 )
+                if( bodies.at( linkEnds.at( observer ).bodyName_ )
+                            ->getVehicleSystems( )
+                            ->getCameraMap( )
+                            .count( linkEnds.at( observer ).componentName_ ) == 0 )
                 {
                     throw std::runtime_error( "Error when making camera pixels model, observer " + linkEnds.at( observer ).bodyName_ +
                                               " does not have camera named " + linkEnds.at( observer ).componentName_ + "." );
                 }
 
                 // Create observation model
-                std::shared_ptr< system_models::Camera > camera =
-                        bodies.at( linkEnds.at( observer ).bodyName_ )->getCamera( linkEnds.at( observer ).componentName_ );
+                std::shared_ptr< system_models::Camera > camera = bodies.at( linkEnds.at( observer ).bodyName_ )
+                                                                          ->getVehicleSystems( )
+                                                                          ->getCamera( linkEnds.at( observer ).componentName_ );
 
                 observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,

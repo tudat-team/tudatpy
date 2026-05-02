@@ -84,7 +84,6 @@ namespace system_models
 {
 class TimingSystem;
 class VehicleSystems;
-class Camera;
 }  // namespace system_models
 
 namespace simulation_setup
@@ -739,14 +738,6 @@ public:
      */
     void addGroundStation( const std::string& stationName, const std::shared_ptr< ground_stations::GroundStation >& station );
 
-    //! Function to add a camera to the body
-    /*!
-     * Function to add a camera to the body
-     * \param cameraName Name of camera
-     * \param camera Camera object that is to be set
-     */
-    void addCamera( const std::string& cameraName, const std::shared_ptr< system_models::Camera >& camera );
-
     //! Function to retrieve a ground station
     /*!
      * Function to retrieve a ground station
@@ -755,27 +746,12 @@ public:
      */
     std::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const;
 
-    //! Function to retrieve a camera
-    /*!
-     * Function to retrieve a camera
-     * \param cameraName Name of camera
-     * \return Camera object that is retrieved
-     */
-    std::shared_ptr< system_models::Camera > getCamera( const std::string& cameraName ) const;
-
     //! Function to retrieve full list of ground stations
     /*!
      * Function to retrieve full list of ground stations
      * \return Full list of ground stations
      */
     std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const;
-
-    //! Function to retrieve full list of cameras
-    /*!
-     * Function to retrieve full list of cameras
-     * \return Full list of cameras
-     */
-    std::map< std::string, std::shared_ptr< system_models::Camera > > getCameraMap( ) const;
 
     //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
     /*!
@@ -925,9 +901,6 @@ private:
 
     //! List of ground station objects on Body
     std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStationMap;
-
-    //! List of camera objects on Body
-    std::map< std::string, std::shared_ptr< system_models::Camera > > cameraMap;
 
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;

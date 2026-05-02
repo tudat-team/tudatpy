@@ -63,7 +63,6 @@ namespace tr = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
-namespace tcam = tudat::cameras;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
@@ -1457,7 +1456,34 @@ bool
 
 
      )doc" )
-            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) );
+            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) )
+            .def( "get_camera",
+                  &tsm::VehicleSystems::getCamera,
+                  py::arg( "camera_name" ),
+                  R"doc(
+
+            This function extracts a camera object from the body.
+
+            This function extracts a camera object, for a camera of a given name, from the body.
+            If no camera of this name exists, an exception is thrown.
+
+            Parameters
+            ----------
+            camera_name : str
+                Name of the camera that is to be retrieved.
+            Returns
+            -------
+            Camera
+                Camera object of the camera of requested name
+        )doc" )
+            .def_property_readonly( "camera_dict",
+                                    &tsm::VehicleSystems::getCameraMap,
+                                    R"doc(
+
+         Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
+         and the camera object the value of the dictionary.
+            :type: dict[str,Camera]
+        )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
 
@@ -2441,13 +2467,13 @@ bool
 
      )doc" );
 
-    py::class_< tcam::Camera, std::shared_ptr< tcam::Camera > >( m, "Camera", R"doc(
+    py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera", R"doc(
         Object that defines a camera for use in observation models.
 
         Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
         and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
      )doc" )
-            .def_property_readonly( "id", &tcam::Camera::getCameraId, R"doc(
+            .def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
 
          **read-only**
 
@@ -2455,7 +2481,7 @@ bool
 
          :type: str
          )doc" )
-            .def_property_readonly( "focal_lengths", &tcam::Camera::getFocalLengthsMatrix, R"doc(
+            .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
 
             **read-only**
 
@@ -2464,7 +2490,7 @@ bool
             :type:: numpy.ndarray[numpy.float64[2, 2]]
             )doc" )
             .def( "calculateObservableBodyFixedPosition",
-                  &tcam::Camera::calculateObservableFromBodyFixed,
+                  &tsm::Camera::calculateObservableFromBodyFixed,
                   py::arg( "body_fixed_observable_position" ),
                   R"doc(
 
@@ -2483,7 +2509,7 @@ bool
              Observable position of the point in the camera frame, typically expressed in pixel coordinates.
         )doc" )
             .def( "calculateObservableInertialPosition",
-                  &tcam::Camera::calculateObservableFromInertial,
+                  &tsm::Camera::calculateObservableFromInertial,
                   py::arg( "inertial_observable_position" ),
                   py::arg( "current_time" ),
                   R"doc(
@@ -2505,12 +2531,13 @@ bool
          numpy.ndarray[numpy.float64[2, 1]]
              Observable position of the point in the camera frame, typically expressed in pixel coordinates.
         )doc" )
-        .def_property_readonly("quat", 
-            [](const tcam::Camera& self) -> Eigen::Vector4d {
-                Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame();
-                return Eigen::Vector4d(q.w(), q.x(), q.y(), q.z());
-            }, 
-            R"doc(
+            .def_property_readonly(
+                    "quat",
+                    []( const tsm::Camera& self ) -> Eigen::Vector4d {
+                        Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
+                        return Eigen::Vector4d( q.w( ), q.x( ), q.y( ), q.z( ) );
+                    },
+                    R"doc(
             **read-only**
 
             Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
@@ -3194,34 +3221,7 @@ bool
 
 
          :type: dict[str,GroundStation]
-      )doc" )
-            .def( "get_camera",
-                  &tss::Body::getCamera,
-                  py::arg( "camera_name" ),
-                  R"doc(
-
-            This function extracts a camera object from the body.
-
-            This function extracts a camera object, for a camera of a given name, from the body.
-            If no camera of this name exists, an exception is thrown.
-
-            Parameters
-            ----------
-            camera_name : str
-                Name of the camera that is to be retrieved.
-            Returns
-            -------
-            Camera
-                Camera object of the camera of requested name
-        )doc" )
-            .def_property_readonly( "camera_dict",
-                                    &tss::Body::getCameraMap,
-                                    R"doc(
-
-         Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
-         and the camera object the value of the dictionary.
-            :type: dict[str,Camera]
-        )doc" );
+      )doc" );
 
     py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >(
             m, "SpaceTimeProperties", R"doc(

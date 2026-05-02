@@ -10,6 +10,7 @@
 
 #include "tudat/simulation/environment_setup/createCameras.h"
 #include "tudat/math/basic/rotationRepresentations.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
@@ -20,7 +21,8 @@ namespace simulation_setup
 //! Function to create a camera from pre-defined camera settings object, and add it to a Body object
 void createCamera( const std::shared_ptr< Body > body, const std::shared_ptr< CameraSettings > cameraSettings )
 {
-    Eigen::Quaterniond rotationQuaternion = basic_mathematics::getQuaternionFrom313EulerAngles( cameraSettings->getCamera313EulerAngles( ) );
+    Eigen::Quaterniond rotationQuaternion =
+            basic_mathematics::getQuaternionFrom313EulerAngles( cameraSettings->getCamera313EulerAngles( ) );
     std::pair< double, double > focalLengths = cameraSettings->getFocalLengths( );
     std::pair< double, double > opticalCenter = cameraSettings->getOpticalCenter( );
     std::shared_ptr< tudat::ephemerides::RotationalEphemeris > rotationalEphemeris = body->getRotationalEphemeris( );
