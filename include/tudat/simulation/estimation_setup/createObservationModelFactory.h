@@ -46,6 +46,9 @@ namespace tudat
 
 namespace observation_models
 {
+// Keep factory/creator templates defined in only one header per translation unit.
+#ifndef TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
+#define TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -2279,6 +2282,8 @@ public:
         return std::make_pair( firstObservationModel, secondObservationModel );
     }
 };
+
+#endif  // TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
 
 
 }  // namespace observation_models

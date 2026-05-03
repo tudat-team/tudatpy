@@ -46,6 +46,9 @@ namespace tudat
 namespace observation_models
 {
 
+#ifndef TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
+#define TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
+
 //! Base class to define settings for creation of an observation bias model.
 /*!
  *  Base class to define settings for creation of an observation bias model. For each specific bias
@@ -1574,6 +1577,12 @@ inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCrite
     return std::make_shared< LightTimeConvergenceCriteria >(
             iterateCorrections, maximumNumberOfIterations, fractionOfLightTimeTolerance, failureHandling );
 }
+
+#endif  // TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
+
+// Keep factory/creator templates defined in only one header per translation unit.
+#ifndef TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
+#define TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
 
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
@@ -3964,6 +3973,8 @@ public:
         return std::make_pair( firstObservationModel, secondObservationModel );
     }
 };
+
+#endif  // TUDAT_OBSERVATION_MODEL_FACTORY_FUNCTIONS_DEFINED
 
 }  // namespace observation_models
 
