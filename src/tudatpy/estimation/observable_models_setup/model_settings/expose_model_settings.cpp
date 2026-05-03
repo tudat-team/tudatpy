@@ -1590,11 +1590,17 @@ Returns
                   Settings object that can be used to create a Doppler measured frequency observation model for the specified link.
            )doc" );
     m.def( "one_way_doppler_measured_frequency",
-           py::overload_cast< const tom::LinkDefinition&,
-                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
-                              const std::shared_ptr< tom::ObservationBiasSettings >,
-                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
-                   &tom::oneWayDopplerMeasuredFrequencyObservationSettings ),
+           []( const tom::LinkDefinition& link_ends,
+               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >& light_time_correction_settings,
+               const std::shared_ptr< tom::ObservationBiasSettings > bias_settings,
+               const std::shared_ptr< tom::LightTimeConvergenceCriteria > light_time_convergence_settings )
+           {
+               return tom::oneWayDopplerMeasuredFrequencySettings( link_ends,
+                                                                    light_time_correction_settings,
+                                                                    tba::tdb_scale,
+                                                                    bias_settings,
+                                                                    light_time_convergence_settings );
+           },
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
