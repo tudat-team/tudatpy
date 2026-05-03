@@ -20,7 +20,6 @@
 #include <vector>
 #include <stdexcept>
 
-#include "tudat/basics/testMacros.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
 #include "tudat/io/parseSolarActivityData.h"

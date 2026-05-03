@@ -67,6 +67,7 @@ class MomentumWheelDesaturationThrustAcceleration;
 namespace relativity
 {
 class RelativisticAccelerationCorrection;
+class DirectRelativisticAcceleration;
 }
 
 namespace system_models
@@ -524,6 +525,12 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
+        const SystemOfBodies& bodies );
+
+std::shared_ptr< relativity::DirectRelativisticAcceleration > createDirectRelativisticAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
         const SystemOfBodies& bodies );
 
 //! Function to create empirical acceleration model.

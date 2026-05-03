@@ -32,7 +32,8 @@ enum EnvironmentModelsToUpdate {
     vehicle_flight_conditions_update = 6,
     radiation_source_model_update = 7,
     cannonball_radiation_pressure_target_model_update = 8,
-    panelled_radiation_pressure_target_model_update = 9    
+    panelled_radiation_pressure_target_model_update = 9,
+    space_time_metric_update = 10
 };
 
 //! Function to extend existing list of required environment update types

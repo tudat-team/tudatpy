@@ -15,14 +15,12 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readTrackingTxtFile.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
@@ -99,7 +97,6 @@ public:
         linkEndsVector_.clear( );
 
         // Get information from raw data file
-        const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap( );
         const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows( );
 
         // Deduce linkends representation
@@ -162,8 +159,7 @@ public:
         // Clear any previous values
         observationTimes_.clear( );
 
-        // Get data map and time representation
-        const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows( );
+        // Get time representation
         TimeRepresentation timeRepresentation = getTimeRepresentation( );
 
         // Depending on the time representation, convert further to tdb seconds since j2000
@@ -639,19 +635,19 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
               std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
             observationSets;
 
-    for( unsigned int i = 0; i < processedTrackingTxtFileContents.size( ); i++ )
+    for( auto const& processedFileContent : processedTrackingTxtFileContents )
     {
         std::map< ObservableType,
                   std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
                 processedObervationSet = createTrackingTxtFileObservationSets< ObservationScalarType, TimeType >(
-                        processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings );
-        for( auto it : processedObervationSet )
+                        processedFileContent, observableTypesToProcess, ancillarySettings );
+        for( auto const& [ observableType, observationsPerLinkEnd ] : processedObervationSet )
         {
-            for( auto it2 : it.second )
+            for( auto const& [ linkEnds, observationSetsVector ] : observationsPerLinkEnd )
             {
-                for( unsigned int j = 0; j < it2.second.size( ); j++ )
+                for( auto const& observationSet : observationSetsVector )
                 {
-                    observationSets[ it.first ][ it2.first ].push_back( it2.second.at( j ) );
+                    observationSets[ observableType ][ linkEnds ].push_back( observationSet );
                 }
             }
         }
@@ -697,10 +693,20 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     return createTrackingTxtFileObservationCollection( processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings );
 }
 
-void setStationFrequenciesFromTrackingData(
-        const std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >&
-                rampInformation,
-        simulation_setup::SystemOfBodies& bodies );
+/*!
+ * @brief Container for transmitter frequency ramp information extracted from tracking data.
+ */
+struct FrequencyRampData {
+    std::vector< double > rampUtcTimes;        ///< reference epoch in seconds since J2000, in UTC time scale
+    std::vector< double > frequencyValues;     ///< transmitting frequency values
+    std::vector< double > frequencyRampRates;  ///< linear transmitting frequency ramp rates
+};
+
+using StationRampInformation = std::map< std::string, std::vector< FrequencyRampData > >;
+
+void setStationFrequenciesFromTrackingData( const StationRampInformation& rampInformation,
+                                            simulation_setup::SystemOfBodies& bodies,
+                                            const std::string& stationReferenceBodyName = "Earth" );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 void setStationFrequenciesFromTrackingData(
@@ -708,30 +714,26 @@ void setStationFrequenciesFromTrackingData(
                 processedTrackingTxtFileContents,
         simulation_setup::SystemOfBodies& bodies )
 {
-    std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >
-            rampInformation;
-    for( unsigned int i = 0; i < processedTrackingTxtFileContents.size( ); i++ )
+    StationRampInformation rampInformation;
+    for( auto const& processedFileContent : processedTrackingTxtFileContents )
     {
-        std::shared_ptr< input_output::TrackingTxtFileContents > fileContents =
-                processedTrackingTxtFileContents.at( i )->getRawTrackingTxtFileContents( );
+        std::shared_ptr< input_output::TrackingTxtFileContents > fileContents = processedFileContent->getRawTrackingTxtFileContents( );
         std::vector< double > rampUtcTimes = fileContents->getDoubleDataColumn( input_output::TrackingDataType::utc_ramp_referencee_j2000 );
         std::vector< double > frequencyRampRates =
                 fileContents->getDoubleDataColumn( input_output::TrackingDataType::transmission_frequency_linear_term );
         std::vector< double > frequencyValues =
                 fileContents->getDoubleDataColumn( input_output::TrackingDataType::transmission_frequency_constant_term );
 
-        std::string transmitterName;
-        if( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).size( ) != 1 )
+        if( processedFileContent->getLinkEndsSet( ).size( ) != 1 )
         {
             throw std::runtime_error( "Error when getting link ends from IFMS file, found multiple link ends sets." +
-                                      std::to_string( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).size( ) ) );
+                                      std::to_string( processedFileContent->getLinkEndsSet( ).size( ) ) );
         }
-        else
-        {
-            LinkEnds currentLinkEnds = *( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).begin( ) );
-            transmitterName = currentLinkEnds.at( transmitter ).stationName_;
-        }
-        rampInformation[ transmitterName ].push_back( std::make_tuple( rampUtcTimes, frequencyValues, frequencyRampRates ) );
+
+        LinkEnds currentLinkEnds = *( processedFileContent->getLinkEndsSet( ).begin( ) );
+        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).stationName_;
+
+        rampInformation[ transmitterName ].push_back( FrequencyRampData{ rampUtcTimes, frequencyValues, frequencyRampRates } );
     }
     setStationFrequenciesFromTrackingData( rampInformation, bodies );
 }

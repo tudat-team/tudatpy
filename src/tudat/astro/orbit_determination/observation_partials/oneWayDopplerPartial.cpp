@@ -102,7 +102,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
         if( computeStatePartials_ )
         {
             partialWrtPerturbedPositions_[ i ] = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) * currentGravitationalParameter_ /
+                    ( 1.0 + properTimeRateModel_->getEquivalencePrincipleLpiViolationParameter( ) ) * currentGravitationalParameter_ /
                     ( currentDistance_ * currentDistance_ ) *
                     ( ( computationPointState - perturberRelativeState ).segment( 0, 3 ).normalized( ) ).transpose( );
             if( !( static_cast< int >( i ) == skipBodyIndex_ ) )

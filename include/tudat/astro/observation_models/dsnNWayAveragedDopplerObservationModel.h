@@ -141,7 +141,13 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
             const bool subtractDopplerSignature = true ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler, linkEnds, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                dsn_n_way_averaged_doppler,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        arcStartObservationModel->getFullLinkLightTimeCalculator( ),
+                        arcEndObservationModel->getFullLinkLightTimeCalculator( ) } ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature )
     {
@@ -254,9 +260,9 @@ public:
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         // Set frequencies for ionosphere/corona
-        if( arcStartObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        if( arcStartObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( arcStartObservationModel_->getMultiLegLightTimeCalculator( ),
+            setTransmissionReceptionFrequencies( arcStartObservationModel_->getFullLinkLightTimeCalculator( ),
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  receptionTdbStartTime,
@@ -272,9 +278,9 @@ public:
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Set frequencies for ionosphere/corona
-        if( arcEndObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        if( arcEndObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( arcEndObservationModel_->getMultiLegLightTimeCalculator( ),
+            setTransmissionReceptionFrequencies( arcEndObservationModel_->getFullLinkLightTimeCalculator( ),
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  receptionTdbEndTime,

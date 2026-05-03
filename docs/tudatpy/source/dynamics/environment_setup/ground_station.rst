@@ -70,12 +70,16 @@ Functions
 
     custom_station_motion
 
+    get_approximate_dsn_ground_station_positions
 
+    get_vlbi_station_positions
 
+    get_vlbi_station_velocities
 
-   approximate_ground_stations_position
+    get_radio_telescope_positions
 
-   optical_telescope_stations
+    optical_telescope_stations
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.basic_station
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.dsn_station
@@ -98,7 +102,13 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.custom_station_motion
 
-.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.approximate_ground_stations_position
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_velocities
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ground_station.optical_telescope_stations
 
