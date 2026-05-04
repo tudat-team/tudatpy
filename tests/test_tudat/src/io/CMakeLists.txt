@@ -128,6 +128,9 @@ TUDAT_ADD_TEST_CASE(TrackingTxtFileReader
 TUDAT_ADD_TEST_CASE(IfmsFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(ObservationCollectionSerialization
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
 TUDAT_ADD_TEST_CASE(SingleObservationSetSerialization
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
