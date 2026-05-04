@@ -103,6 +103,8 @@ public:
 protected:
     // Default constructor for serialization
     RadiationPressureAccelerationSettings( int ): targetModelType_( undefined_target ) {}
+    //! Zero-arg default constructor for cereal
+    // (default-parameter constructor above is already default-constructible)
 
 private:
     friend class cereal::access;
@@ -359,6 +361,8 @@ protected:
     RelativisticAccelerationCorrectionSettings( int ):
         calculateSchwarzschildCorrection_( false ), calculateLenseThirringCorrection_( false ),
         calculateDeSitterCorrection_( false ), centralBodyAngularMomentum_( Eigen::Vector3d::Zero( ) ) {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameters above is already default-constructible)
 
 private:
     friend class cereal::access;
@@ -428,6 +432,8 @@ protected:
     EmpiricalAccelerationSettings( int ):
         constantAcceleration_( Eigen::Vector3d::Zero( ) ), sineAcceleration_( Eigen::Vector3d::Zero( ) ),
         cosineAcceleration_( Eigen::Vector3d::Zero( ) ) {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameters above is already default-constructible)
 
 private:
     friend class cereal::access;
@@ -472,6 +478,8 @@ public:
 protected:
     // Default constructor for serialization
     YarkovskyAccelerationSettings( int ): yarkovskyParameter_( 0.0 ) {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameter above is already default-constructible)
 
 private:
     friend class cereal::access;
@@ -743,6 +751,8 @@ public:
 protected:
     // Default constructor for serialization
     CustomAccelerationSettings( int ): accelerationFunction_( nullptr ) {}
+    //! Zero-arg default constructor for cereal
+    CustomAccelerationSettings( ): accelerationFunction_( nullptr ) {}
 
 private:
     friend class cereal::access;
@@ -791,6 +801,8 @@ protected:
     // Default constructor for serialization
     RTGAccelerationSettings( int ):
         bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
+    //! Zero-arg default constructor for cereal
+    RTGAccelerationSettings( ): bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
 
 private:
     friend class cereal::access;
@@ -904,6 +916,9 @@ protected:
     DirectTidalDissipationAccelerationSettings( int ):
         k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
         includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
+    //! Zero-arg default constructor for cereal
+    DirectTidalDissipationAccelerationSettings( ): k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
 
 private:
     friend class cereal::access;
@@ -990,6 +1005,8 @@ public:
 protected:
     // Default constructor for serialization
     MomentumWheelDesaturationAccelerationSettings( int ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
+    //! Zero-arg default constructor for cereal
+    MomentumWheelDesaturationAccelerationSettings( ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
 
 private:
     friend class cereal::access;
