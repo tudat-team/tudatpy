@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -40,12 +41,12 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerialization )
     using namespace simulation_setup;
 
     // Create simple test data
-    const ObservableType observableType = range;
+    const ObservableType observableType = one_way_range;
     
     // Create link definition: transmitter -> receiver
     LinkDefinition linkEnds;
-    linkEnds[ transmission_end ] = std::make_pair< std::string, std::string >( "Transmitter", "" );
-    linkEnds[ reception_end ] = std::make_pair< std::string, std::string >( "Receiver", "" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Transmitter", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Receiver", "" );
 
     // Create observation data: 5 observations of range values
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations;
@@ -69,7 +70,7 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerialization )
                 linkEnds,
                 observations,
                 observationTimes,
-                reception_end  // reference link end
+                receiver  // reference link end
             );
 
     // Serialize to binary stream
@@ -97,11 +98,11 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerialization )
     // Verify link ends
     LinkDefinition deserializedLinkEnds = deserializedObservationSet->getLinkEnds( );
     BOOST_CHECK_EQUAL( 
-        deserializedLinkEnds[ transmission_end ].first,
-        linkEnds[ transmission_end ].first );
+        deserializedLinkEnds[ transmitter ].getBodyName( ),
+        linkEnds[ transmitter ].getBodyName( ) );
     BOOST_CHECK_EQUAL( 
-        deserializedLinkEnds[ reception_end ].first,
-        linkEnds[ reception_end ].first );
+        deserializedLinkEnds[ receiver ].getBodyName( ),
+        linkEnds[ receiver ].getBodyName( ) );
 
     // Verify reference link end
     BOOST_CHECK_EQUAL( 
@@ -202,8 +203,8 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerializationVector )
     const ObservableType observableType = position_observable;
     
     LinkDefinition linkEnds;
-    linkEnds[ transmission_end ] = std::make_pair< std::string, std::string >( "Sat", "" );
-    linkEnds[ reception_end ] = std::make_pair< std::string, std::string >( "Station", "" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Sat", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Station", "" );
 
     // Create 3D position observations
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations;
@@ -226,7 +227,7 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerializationVector )
                 linkEnds,
                 observations,
                 observationTimes,
-                reception_end
+                receiver
             );
 
     // Serialize
