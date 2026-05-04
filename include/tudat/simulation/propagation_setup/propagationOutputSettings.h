@@ -17,6 +17,8 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
+#include <cereal/access.hpp>
+#include <cereal/types/string.hpp>
 #if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 #endif
@@ -192,6 +194,21 @@ public:
     int getComponentIndex( )
     {
         return componentIndex_;
+    }
+
+protected:
+    //! Default constructor for cereal deserialization
+    SingleDependentVariableSaveSettings( ):
+        VariableSettings( dependentVariable ), dependentVariableType_( mach_number_dependent_variable ),
+        associatedBody_( "" ), secondaryBody_( "" ), componentIndex_( -1 ) { }
+
+public:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( variableType_, dependentVariableType_, associatedBody_, secondaryBody_, componentIndex_ );
     }
 
     // Type of dependent variable that is to be saved.

@@ -19,6 +19,10 @@
 #include <tudat/math/root_finders/secantRootFinder.h>
 #include <tudat/math/root_finders/terminationConditions.h>
 
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+
+
 namespace tudat
 {
 
@@ -65,6 +69,21 @@ public:
     unsigned int maximumNumberOfIterations_;
 
     MaximumIterationHandling maximumIterationHandling_;
+protected:
+    //! Default constructor for cereal deserialization
+    RootFinderSettings( ): rootFinderType_( bisection_root_finder ), relativeIndependentVariableTolerance_( TUDAT_NAN ),
+        absoluteIndependentVariableTolerance_( TUDAT_NAN ), rootFunctionTolerance_( TUDAT_NAN ), maximumNumberOfIterations_( 0 ),
+        maximumIterationHandling_( throw_exception ) { }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( rootFinderType_, relativeIndependentVariableTolerance_, absoluteIndependentVariableTolerance_, rootFunctionTolerance_,
+            maximumNumberOfIterations_, maximumIterationHandling_ );
+    }
 };
 
 inline std::shared_ptr< RootFinderSettings > bisectionRootFinderSettings(
