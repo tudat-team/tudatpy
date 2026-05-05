@@ -6,7 +6,7 @@ from collections import defaultdict
 EXTENSIONS = (".h", ".hpp", ".hh", ".cpp", ".cc", ".cxx")
 TEST_PATTERNS = re.compile(r"(test|spec|fixture)", re.IGNORECASE)
 CLASS_RE = re.compile(r"\b(class|struct)\s+([A-Za-z_]\w*)")
-SERIALIZE_RE = re.compile(r"\bserialize\s*\(")
+SERIALIZE_RE = re.compile(r"\b(?:serialize|save|load)\s*\(")
 CEREAL_ARCHIVE_RE = re.compile(r"cereal::(Binary|JSON|XML|Portable)(Input|Output)Archive")
 
 def get_files():
