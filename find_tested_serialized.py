@@ -8,6 +8,7 @@ TEST_PATTERNS = re.compile(r"(test|spec|fixture)", re.IGNORECASE)
 CLASS_RE = re.compile(r"\b(class|struct)\s+([A-Za-z_]\w*)")
 SERIALIZE_RE = re.compile(r"\b(?:serialize|save|load)\s*\(")
 CEREAL_ARCHIVE_RE = re.compile(r"cereal::(Binary|JSON|XML|Portable)(Input|Output)Archive")
+PICKLE_RE = re.compile(r"(?:__getstate__|__setstate__|pickle|enable_pickling)", re.IGNORECASE)
 
 def get_files():
     p = subprocess.run(["rg", "--files"], stdout=subprocess.PIPE, text=True)
@@ -102,6 +103,35 @@ def find_serialize_tests(test_files, serializable_classes):
 
     return coverage
 
+def find_pickle_support(serializable_classes):
+    """Returns dict of {class_name: [expose_files_with_pickle_support]}"""
+    try:
+        result = subprocess.run(
+            ["find", ".", "-name", "expose*.cpp", "-o", "-name", "expose*.hpp"],
+            stdout=subprocess.PIPE,
+            text=True,
+            cwd="."
+        )
+        expose_files = [f for f in result.stdout.splitlines() if f]
+    except:
+        expose_files = []
+
+    pickle_coverage = defaultdict(list)
+    for cls in serializable_classes:
+        for expose_file in expose_files:
+            try:
+                content = Path(expose_file).read_text(errors="ignore")
+                # Look for class name near py::pickle patterns
+                cls_re = re.compile(rf"\b{re.escape(cls)}\b")
+                pickle_re = re.compile(r"py::pickle", re.IGNORECASE)
+                
+                if cls_re.search(content) and pickle_re.search(content):
+                    pickle_coverage[cls].append(expose_file)
+            except:
+                pass
+
+    return pickle_coverage
+
 def main():
     all_files = get_files()
     source_files = [f for f in all_files if not is_test_file(f)]
@@ -109,25 +139,31 @@ def main():
 
     serializable = find_classes_with_serialize(source_files)
     coverage = find_serialize_tests(test_files, serializable)
+    pickle_coverage = find_pickle_support(serializable)
 
     tested = {cls for cls in serializable if coverage[cls]}
     untested = {cls for cls in serializable if not coverage[cls]}
+    pickle_enabled = {cls for cls in serializable if pickle_coverage[cls]}
+    pickle_disabled = {cls for cls in serializable if not pickle_coverage[cls]}
 
     print(f"\n{'='*50}")
     print(f"  {len(tested)} tested / {len(untested)} untested / {len(serializable)} total")
+    print(f"  {len(pickle_enabled)} with pickle / {len(pickle_disabled)} without pickle")
     print(f"{'='*50}\n")
 
     if untested:
         print("❌ NO SERIALIZE TEST FOUND:")
         for cls in sorted(untested):
             sources = ", ".join(serializable[cls])
-            print(f"   {cls:<40} (defined in: {sources})")
+            pickle_status = "✓ pickle" if cls in pickle_enabled else "✗ no pickle"
+            print(f"   {cls:<40} {pickle_status:<15} (defined in: {sources})")
 
     if tested:
         print("\n✅ SERIALIZE TEST EXISTS:")
         for cls in sorted(tested):
+            pickle_status = "✓ pickle" if cls in pickle_enabled else "✗ no pickle"
             for tf in sorted(coverage[cls]):
-                print(f"   {cls:<40} → {tf}")
+                print(f"   {cls:<40} {pickle_status:<15} → {tf}")
 
 if __name__ == "__main__":
     main()
