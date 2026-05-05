@@ -131,6 +131,12 @@ TUDAT_ADD_TEST_CASE(IfmsFileReader
 TUDAT_ADD_TEST_CASE(ObservationCollectionSerialization
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(PropagationResultsSerialization
+    PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        ${Tudat_ESTIMATION_LIBRARIES}
+)
+
 TUDAT_ADD_TEST_CASE(SettingsSerialization
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
