@@ -51,22 +51,35 @@ namespace simulation_setup
 class AccelerationSettings
 {
 public:
-    // Constructor, sets type of acceleration.
-    /*
-     *  Constructor, sets type of acceleration.
-     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
-     */
-    AccelerationSettings( const basic_astrodynamics::AvailableAcceleration accelerationType ): accelerationType_( accelerationType ) { }
+    // Constructor
+    AccelerationSettings( const basic_astrodynamics::AvailableAcceleration accelerationType ): accelerationType_( accelerationType ) {}
 
-    // Destructor.
-    virtual ~AccelerationSettings( ) { }
+    virtual ~AccelerationSettings( ) = default;
 
-    // Type of acceleration from AvailableAcceleration enum.
+    // Type of acceleration
     basic_astrodynamics::AvailableAcceleration accelerationType_;
+
+    // Used for serialization testing
+    bool operator==( const AccelerationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const AccelerationSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
 
 protected:
     // Default constructor for serialization
     AccelerationSettings( ): accelerationType_( basic_astrodynamics::undefined_acceleration ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const AccelerationSettings& rhs ) const
+    {
+        return accelerationType_ == rhs.accelerationType_;
+    }
 
 private:
     friend class cereal::access;
@@ -96,15 +109,24 @@ public:
     }
 
     // Destructor.
-    virtual ~RadiationPressureAccelerationSettings( ) { }
+    virtual ~RadiationPressureAccelerationSettings( ) {}
 
     RadiationPressureTargetModelType targetModelType_;
 
 protected:
     // Default constructor for serialization
     RadiationPressureAccelerationSettings( int ): targetModelType_( undefined_target ) {}
-    //! Zero-arg default constructor for cereal
-    // (default-parameter constructor above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RadiationPressureAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return targetModelType_ == rhs->targetModelType_;
+    }
 
 private:
     friend class cereal::access;
@@ -184,6 +206,17 @@ protected:
     // Default constructor for serialization
     SphericalHarmonicAccelerationSettings( ): maximumDegree_( 0 ), maximumOrder_( 0 ), removePointMass_( false ) {}
 
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const SphericalHarmonicAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ && removePointMass_ == rhs->removePointMass_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -259,8 +292,25 @@ protected:
     // Default constructor for serialization
     MutualSphericalHarmonicAccelerationSettings( ):
         maximumDegreeOfBodyExertingAcceleration_( 0 ), maximumOrderOfBodyExertingAcceleration_( 0 ),
-        maximumDegreeOfBodyUndergoingAcceleration_( 0 ), maximumOrderOfBodyUndergoingAcceleration_( 0 ),
-        maximumDegreeOfCentralBody_( 0 ), maximumOrderOfCentralBody_( 0 ) {}
+        maximumDegreeOfBodyUndergoingAcceleration_( 0 ), maximumOrderOfBodyUndergoingAcceleration_( 0 ), maximumDegreeOfCentralBody_( 0 ),
+        maximumOrderOfCentralBody_( 0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const MutualSphericalHarmonicAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return maximumDegreeOfBodyExertingAcceleration_ == rhs->maximumDegreeOfBodyExertingAcceleration_ &&
+                maximumOrderOfBodyExertingAcceleration_ == rhs->maximumOrderOfBodyExertingAcceleration_ &&
+                maximumDegreeOfBodyUndergoingAcceleration_ == rhs->maximumDegreeOfBodyUndergoingAcceleration_ &&
+                maximumOrderOfBodyUndergoingAcceleration_ == rhs->maximumOrderOfBodyUndergoingAcceleration_ &&
+                maximumDegreeOfCentralBody_ == rhs->maximumDegreeOfCentralBody_ &&
+                maximumOrderOfCentralBody_ == rhs->maximumOrderOfCentralBody_;
+    }
 
 private:
     friend class cereal::access;
@@ -359,10 +409,25 @@ public:
 protected:
     // Default constructor for serialization
     RelativisticAccelerationCorrectionSettings( int ):
-        calculateSchwarzschildCorrection_( false ), calculateLenseThirringCorrection_( false ),
-        calculateDeSitterCorrection_( false ), centralBodyAngularMomentum_( Eigen::Vector3d::Zero( ) ) {}
+        calculateSchwarzschildCorrection_( false ), calculateLenseThirringCorrection_( false ), calculateDeSitterCorrection_( false ),
+        centralBodyAngularMomentum_( Eigen::Vector3d::Zero( ) )
+    {}
     //! Zero-arg default constructor for cereal
     // (constructor with default parameters above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RelativisticAccelerationCorrectionSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return calculateSchwarzschildCorrection_ == rhs->calculateSchwarzschildCorrection_ &&
+                calculateLenseThirringCorrection_ == rhs->calculateLenseThirringCorrection_ &&
+                calculateDeSitterCorrection_ == rhs->calculateDeSitterCorrection_ && primaryBody_ == rhs->primaryBody_ &&
+                centralBodyAngularMomentum_ == rhs->centralBodyAngularMomentum_;
+    }
 
 private:
     friend class cereal::access;
@@ -435,6 +500,18 @@ protected:
     //! Zero-arg default constructor for cereal
     // (constructor with default parameters above is already default-constructible)
 
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const EmpiricalAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return constantAcceleration_ == rhs->constantAcceleration_ && sineAcceleration_ == rhs->sineAcceleration_ &&
+                cosineAcceleration_ == rhs->cosineAcceleration_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -480,6 +557,17 @@ protected:
     YarkovskyAccelerationSettings( int ): yarkovskyParameter_( 0.0 ) {}
     //! Zero-arg default constructor for cereal
     // (constructor with default parameter above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const YarkovskyAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return yarkovskyParameter_ == rhs->yarkovskyParameter_;
+    }
 
 private:
     friend class cereal::access;
@@ -631,6 +719,18 @@ public:
 
     bool useAllEngines_;
 
+protected:
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const ThrustAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return engineIds_ == rhs->engineIds_ && useAllEngines_ == rhs->useAllEngines_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -758,11 +858,10 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void serialize( Archive& )
     {
-        ar( cereal::base_class< AccelerationSettings >( this ) );
-        // Warning: std::function member cannot be serialized
-        std::cerr << "Warning: serializing/deserializing CustomAccelerationSettings, std::function member 'accelerationFunction_' will not be preserved." << std::endl;
+        throw std::runtime_error(
+                "CustomAccelerationSettings cannot be serialized: std::function member 'accelerationFunction_' is not serializable." );
     }
 };
 
@@ -802,7 +901,21 @@ protected:
     RTGAccelerationSettings( int ):
         bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
     //! Zero-arg default constructor for cereal
-    RTGAccelerationSettings( ): bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
+    RTGAccelerationSettings( ):
+        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RTGAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return bodyFixedForceVectorAtReferenceEpoch_ == rhs->bodyFixedForceVectorAtReferenceEpoch_ &&
+                decayScaleFactor_ == rhs->decayScaleFactor_ && referenceEpoch_ == rhs->referenceEpoch_;
+    }
 
 private:
     friend class cereal::access;
@@ -917,8 +1030,30 @@ protected:
         k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
         includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
     //! Zero-arg default constructor for cereal
-    DirectTidalDissipationAccelerationSettings( ): k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
-        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
+    DirectTidalDissipationAccelerationSettings( ):
+        k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const DirectTidalDissipationAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+
+        // IEEE 754: NaN != NaN, so we must treat (NaN, NaN) as equal to correctly
+        // round-trip representation A (where these fields are intentionally NaN).
+        auto nanAwareEqual = []( double a, double b ) { return ( std::isnan( a ) && std::isnan( b ) ) || a == b; };
+
+        return k2LoveNumber_ == rhs->k2LoveNumber_ && nanAwareEqual( timeLag_, rhs->timeLag_ ) &&
+                nanAwareEqual( inverseTidalQualityFactor_, rhs->inverseTidalQualityFactor_ ) &&
+                nanAwareEqual( tidalPeriod_, rhs->tidalPeriod_ ) && includeDirectRadialComponent_ == rhs->includeDirectRadialComponent_ &&
+                useTideRaisedOnPlanet_ == rhs->useTideRaisedOnPlanet_ &&
+                explicitLibraionalTideOnSatellite_ == rhs->explicitLibraionalTideOnSatellite_;
+    }
 
 private:
     friend class cereal::access;
@@ -1007,6 +1142,18 @@ protected:
     MomentumWheelDesaturationAccelerationSettings( int ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
     //! Zero-arg default constructor for cereal
     MomentumWheelDesaturationAccelerationSettings( ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const MomentumWheelDesaturationAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return thrustMidTimes_ == rhs->thrustMidTimes_ && deltaVValues_ == rhs->deltaVValues_ &&
+                totalManeuverTime_ == rhs->totalManeuverTime_ && maneuverRiseTime_ == rhs->maneuverRiseTime_;
+    }
 
 private:
     friend class cereal::access;
