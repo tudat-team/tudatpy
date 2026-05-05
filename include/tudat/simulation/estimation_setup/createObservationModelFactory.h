@@ -20,6 +20,7 @@
 
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
+#include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/astro/observation_models/dopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/astro/observation_models/dsnNWayAveragedDopplerObservationModel.h"
 #include "tudat/astro/observation_models/dsnNWayRangeObservationModel.h"
@@ -1347,6 +1348,47 @@ public:
                 }
                 break;
             }
+            case one_way_doppler_measured_frequency: {
+                std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > settingsObject =
+                        std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyObservationSettings >( observationSettings );
+
+                if( settingsObject == nullptr )
+                {
+                    throw std::runtime_error(
+                            " Error when creating one way doppler measured frequency observation model: Settings object provided was "
+                            "invalid." );
+                }
+
+                std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayDopplerSettings = settingsObject->getDopplerModelSettings( );
+                if( oneWayDopplerSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating one way doppler measured frequency observation model: No one way doppler settings found "
+                            "in settings object." );
+                }
+                std::shared_ptr< OneWayDopplerObservationModel< ObservationScalarType, TimeType > > oneWayDopplerModel =
+                        std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        oneWayDopplerSettings, bodies, topLevelObservableType ) );
+                // createObservationModel( linkEnds, oneWayDopplerSettings, bodies );
+
+                // Check if transmitter has frequency calculator
+                std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                        getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
+                std::shared_ptr< ObservationBias< 1 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+
+                observationModel = std::make_shared< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds, oneWayDopplerModel, transmittingFrequencyInterpolator, observationBias, stationStates );
+                break;
+            }
             case doppler_measured_frequency: {
                 std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
                 try
@@ -2042,6 +2084,14 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             currentLightTimeCorrections.push_back(
                     oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->getLightTimeCorrection( ) );
 
+            break;
+        }
+        case observation_models::one_way_doppler_measured_frequency: {
+            std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >
+                    oneWayDopplerMeasuredFrequencyModel = std::dynamic_pointer_cast<
+                            observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            singleObservableCorrectionList = ( oneWayDopplerMeasuredFrequencyModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::differenced_time_of_arrival: {
