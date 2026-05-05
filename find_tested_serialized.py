@@ -1,5 +1,7 @@
 import subprocess
 import re
+import csv
+import argparse
 from pathlib import Path
 from collections import defaultdict
 
@@ -9,6 +11,8 @@ CLASS_RE = re.compile(r"\b(class|struct)\s+([A-Za-z_]\w*)")
 SERIALIZE_RE = re.compile(r"\b(?:serialize|save|load)\s*\(")
 CEREAL_ARCHIVE_RE = re.compile(r"cereal::(Binary|JSON|XML|Portable)(Input|Output)Archive")
 PICKLE_RE = re.compile(r"(?:__getstate__|__setstate__|pickle|enable_pickling)", re.IGNORECASE)
+
+DEFAULT_CSV_OUTPUT = Path(__file__).with_name("find_tested_serialized.csv")
 
 def get_files():
     p = subprocess.run(["rg", "--files"], stdout=subprocess.PIPE, text=True)
@@ -132,7 +136,40 @@ def find_pickle_support(serializable_classes):
 
     return pickle_coverage
 
+def write_csv_report(output_path, serializable, coverage, pickle_coverage):
+    rows = []
+    for cls in sorted(serializable):
+        rows.append(
+            {
+                "class_name": cls,
+                "tested": "yes" if coverage[cls] else "no",
+                "pickle_support": "yes" if pickle_coverage[cls] else "no",
+                "source_files": "; ".join(serializable[cls]),
+                "test_files": "; ".join(sorted(coverage[cls])),
+            }
+        )
+
+    with Path(output_path).open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(
+            csv_file,
+            fieldnames=["class_name", "tested", "pickle_support", "source_files", "test_files"],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return output_path
+
 def main():
+    parser = argparse.ArgumentParser(description="Find serializable classes and matching tests.")
+    parser.add_argument(
+        "--csv",
+        nargs="?",
+        const=str(DEFAULT_CSV_OUTPUT),
+        default=None,
+        help=f"Write a CSV report for Excel. Defaults to {DEFAULT_CSV_OUTPUT} when used without a path.",
+    )
+    args = parser.parse_args()
+
     all_files = get_files()
     source_files = [f for f in all_files if not is_test_file(f)]
     test_files = [f for f in all_files if is_test_file(f)]
@@ -164,6 +201,10 @@ def main():
             pickle_status = "✓ pickle" if cls in pickle_enabled else "✗ no pickle"
             for tf in sorted(coverage[cls]):
                 print(f"   {cls:<40} {pickle_status:<15} → {tf}")
+
+    if args.csv is not None:
+        output_path = write_csv_report(args.csv, serializable, coverage, pickle_coverage)
+        print(f"\nCSV written to: {output_path}")
 
 if __name__ == "__main__":
     main()
