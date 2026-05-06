@@ -261,6 +261,19 @@ void expose_acceleration_setup( py::module& m )
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
 
+    py::class_< tss::RadiationPressureAccelerationSettings,
+            std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
+            tss::AccelerationSettings >( m,
+                               "RadiationPressureAccelerationSettings",
+                               R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the radiation pressure acceleration.
+
+    )doc" )
+        .def( tse::make_pickle_polymorphic< tss::AccelerationSettings,
+                                tss::RadiationPressureAccelerationSettings >( ) )
+        .def( "__eq__", &tss::RadiationPressureAccelerationSettings::operator==, py::arg( "rhs" ) );
+
     py::class_< tss::SphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::SphericalHarmonicAccelerationSettings >,
                 tss::AccelerationSettings >( m,
@@ -335,6 +348,18 @@ void expose_acceleration_setup( py::module& m )
       )doc" )
             .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::RTGAccelerationSettings >( ) )
             .def( "__eq__", &tss::RTGAccelerationSettings::operator==, py::arg( "rhs" ) );
+
+    py::class_< tss::YarkovskyAccelerationSettings,
+            std::shared_ptr< tss::YarkovskyAccelerationSettings >,
+            tss::AccelerationSettings >( m,
+                               "YarkovskyAccelerationSettings",
+                               R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the Yarkovsky acceleration.
+
+    )doc" )
+        .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::YarkovskyAccelerationSettings >( ) )
+        .def( "__eq__", &tss::YarkovskyAccelerationSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
