@@ -183,9 +183,14 @@ public:
 
         // Get the frequency of the transmitter
         TimeType transmitterTime = time - lightTime;
+
+        Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
+
+        TimeType transmitterUtcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, transmitterPosition );
+
         ObservationScalarType transmittedFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
-                        transmitterTime );  // IN TDB
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime );
 
         // Calculate the Doppler observable
         ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
