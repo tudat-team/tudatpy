@@ -47,15 +47,17 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                   << std::endl;
     }
 
-    if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
+    const Eigen::VectorXd weightsMatrixDiagonals = estimationInput->getWeightsMatrixDiagonals( );
+    if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
     {
         throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
-                                  std::to_string( estimationInput->getWeightsMatrixDiagonals( ).rows( ) ) +
+                                  std::to_string( weightsMatrixDiagonals.rows( ) ) +
                                   ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
                                   ")" );
     }
     // Declare variables to be returned (i.e. results from best iteration)
-    double bestResidual = TUDAT_NAN;
+    double bestCostFunction = TUDAT_NAN;
+    double bestRmsResidual = TUDAT_NAN;
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
@@ -86,7 +88,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;
+    std::vector< double > costFunctionHistory;
     double residualRms;
+    std::map< observation_models::ObservableType, double > residualRmsPerType;
+    double costFunction;
 
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
@@ -169,7 +174,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
                     designMatrixEstimatedParameters,
                     residuals.template cast< double >( ),
-                    estimationInput->getWeightsMatrixDiagonals( ),
+                    weightsMatrixDiagonals,
                     normalizedInverseAprioriCovarianceMatrix,
                     conditionNumberCheck,
                     constraintStateMultiplier,
@@ -202,7 +207,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             covarianceContributionConsiderParameters =
                     linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
                                                                                        designMatrixEstimatedParameters,
-                                                                                       estimationInput->getWeightsMatrixDiagonals( ),
+                                                                                       weightsMatrixDiagonals,
                                                                                        designMatrixConsiderParameters,
                                                                                        normalizedConsiderCovariance );
         }
@@ -213,7 +218,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
+        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals,
+                                                                        residuals.template cast< double >( ) );
         rmsResidualHistory.push_back( residualRms );
+        costFunctionHistory.push_back( costFunction );
 
         if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
         {
@@ -226,13 +234,31 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         if( estimationInput->getPrintOutput( ) )
         {
-            std::cout << "Current residual: " << residualRms << std::endl;
+            std::map< observation_models::ObservableType, std::pair< int, int > > indicesPerObservableType =
+                    estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
+
+            if( indicesPerObservableType.size( ) > 1 )
+            {
+                for( auto it : indicesPerObservableType )
+                {
+                    double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare(
+                            residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
+                    residualRmsPerType[ it.first ] = currentTypeRms;
+                    std::cout << "Current residual for observable (" << observation_models::getObservableName( it.first )
+                              << "): " << currentTypeRms << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "Current residual: " << residualRms << std::endl;
+            }
         }
 
         // If current iteration is better than previous one, update 'best' data.
-        if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
+        if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
         {
-            bestResidual = residualRms;
+            bestCostFunction = costFunction;
+            bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
             estimationInput->getObservationCollection( )->setResiduals( residuals );
@@ -241,7 +267,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
             }
-            bestWeightsMatrixDiagonal = std::move( estimationInput->getWeightsMatrixDiagonals( ) );
+            bestWeightsMatrixDiagonal = weightsMatrixDiagonals;
             bestTransformationData = std::move( normalizationTerms );
             bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
             bestIteration = numberOfIterations;
@@ -287,7 +313,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     if( estimationInput->getPrintOutput( ) )
     {
-        std::cout << "Final residual: " << bestResidual << std::endl;
+        std::cout << "Best iteration: " << bestIteration << " out of " << numberOfIterations - 1 << std::endl;
+        std::cout << "Rms residual from best iteration: " << bestRmsResidual << std::endl;
+        std::cout << "Cost function from best iteration: " << bestCostFunction << std::endl;
     }
 
     // Create estimation output object
@@ -298,7 +326,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      bestWeightsMatrixDiagonal,
                                                                                      bestTransformationData,
                                                                                      bestInverseNormalizedCovarianceMatrix,
-                                                                                     bestResidual,
+                                                                                     bestRmsResidual,
                                                                                      bestIteration,
                                                                                      residualHistory,
                                                                                      parameterHistory,
