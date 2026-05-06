@@ -46,9 +46,9 @@ public:
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ), focalLengthsMatrix_( focalLengthsMatrix )
     {
         observerIndex_ =
-                observation_models::getSingleLinkStateEntryIndices( observation_models::camera_pixels ).at( observation_models::observer );
+                observation_models::getSingleLinkStateEntryIndices( observation_models::camera_pixels ).at( observation_models::receiver );
         observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::camera_pixels )
-                                     .at( observation_models::observed_body );
+                                     .at( observation_models::transmitter );
     }
 
     ~CameraPixelsScaling( ) {}
@@ -81,7 +81,7 @@ public:
      */
     Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        return realPositionScalingFactor_ * ( ( linkEndType == observation_models::observer ) ? ( 1.0 ) : ( -1.0 ) );
+        return realPositionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
 
     //! Get the position scaling factor (not accounting for light-time correction) for a given link end type
@@ -93,7 +93,7 @@ public:
      */
     Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        return positionScalingFactor_ * ( ( linkEndType == observation_models::observer ) ? ( 1.0 ) : ( -1.0 ) );
+        return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
 
     //! Get the factor by which the light-time partials should be scaled in one-way observation partial.

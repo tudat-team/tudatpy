@@ -1663,13 +1663,13 @@ public:
                             "Error when making camera pixels model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
                     throw std::runtime_error( errorMessage );
                 }
-                if( linkEnds.count( observer ) == 0 )
+                if( linkEnds.count( receiver ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no observer found" );
+                    throw std::runtime_error( "Error when making camera pixels model, no receiver found" );
                 }
-                if( linkEnds.count( observed_body ) == 0 )
+                if( linkEnds.count( transmitter ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no observed_body found" );
+                    throw std::runtime_error( "Error when making camera pixels model, no transmitter found" );
                 }
                 std::shared_ptr< ObservationBias< 2 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -1678,30 +1678,30 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                if( linkEnds.at( observer ).componentName_ == "" )
+                if( linkEnds.at( receiver ).componentName_ == "" )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for observer" );
+                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for receiver" );
                 }
 
-                if( bodies.at( linkEnds.at( observer ).bodyName_ )
+                if( bodies.at( linkEnds.at( receiver ).bodyName_ )
                             ->getVehicleSystems( )
                             ->getCameraMap( )
-                            .count( linkEnds.at( observer ).componentName_ ) == 0 )
+                            .count( linkEnds.at( receiver ).componentName_ ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, observer " + linkEnds.at( observer ).bodyName_ +
-                                              " does not have camera named " + linkEnds.at( observer ).componentName_ + "." );
+                    throw std::runtime_error( "Error when making camera pixels model, receiver " + linkEnds.at( receiver ).bodyName_ +
+                                              " does not have camera named " + linkEnds.at( receiver ).componentName_ + "." );
                 }
 
                 // Create observation model
-                std::shared_ptr< system_models::Camera > camera = bodies.at( linkEnds.at( observer ).bodyName_ )
+                std::shared_ptr< system_models::Camera > camera = bodies.at( linkEnds.at( receiver ).bodyName_ )
                                                                           ->getVehicleSystems( )
-                                                                          ->getCamera( linkEnds.at( observer ).componentName_ );
+                                                                          ->getCamera( linkEnds.at( receiver ).componentName_ );
 
                 observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
-                                                                                      observed_body,
-                                                                                      observer,
+                                                                                      transmitter,
+                                                                                      receiver,
                                                                                       bodies,
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,

@@ -280,9 +280,9 @@ public:
             }
             case observation_models::camera_pixels: {
                 std::shared_ptr< system_models::Camera > camera =
-                        bodies.at( linkEnds.at( observation_models::observer ).bodyName_ )
+                        bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ )
                                 ->getVehicleSystems( )
-                                ->getCamera( linkEnds.at( observation_models::observer ).componentName_ );
+                                ->getCamera( linkEnds.at( observation_models::receiver ).componentName_ );
                 positionPartialScaler = std::make_shared< CameraPixelsScaling >(
                         [ camera ]( const double time ) { return camera->getRotationFromInertialToCameraFrame( time ); },
                         camera->getFocalLengthsMatrix( ) );

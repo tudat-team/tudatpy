@@ -30,8 +30,8 @@ namespace observation_models
  *  Class for simulating camera pixel observables, using light-time (with light-time corrections)
  *  to determine the states of the link ends (source and receiver).
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
- *  The mapping from relative inertial position to pixel coordinates can be obtained from a tudat::system_models::Camera object, or be defined as
- * a custom function.
+ *  The mapping from relative inertial position to pixel coordinates can be obtained from a tudat::system_models::Camera object, or be
+ * defined as a custom function.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CameraPixelsObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
@@ -76,9 +76,9 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
-        if( linkEndAssociatedWithTime != observer )
+        if( linkEndAssociatedWithTime != receiver )
         {
-            throw std::runtime_error( "Error in CameraPixelsObservationModel, time must be associated with observer link end." );
+            throw std::runtime_error( "Error in CameraPixelsObservationModel, time must be associated with receiver link end." );
         }
 
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
@@ -103,15 +103,15 @@ public:
         linkEndTimes.clear( );
         linkEndStates.clear( );
 
-        // Link-end order for camera_pixels is [observed_body, observer].
+        // Link-end order for camera_pixels is [transmitter, receiver].
         linkEndStates.push_back( sourceState.template cast< double >( ) );
         linkEndStates.push_back( observerState.template cast< double >( ) );
 
         linkEndTimes.push_back( static_cast< double >( time - lightTime ) );
         linkEndTimes.push_back( static_cast< double >( time ) );
 
-        Eigen::Vector2d pixelCoordinates = camera_->calculateObservableFromInertial(
-                inertialRelativePosition.template cast< double >( ), static_cast< double >( time ) );
+        Eigen::Vector2d pixelCoordinates = camera_->calculateObservableFromInertial( inertialRelativePosition.template cast< double >( ),
+                                                                                     static_cast< double >( time ) );
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }
 

@@ -681,7 +681,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     ``observed_body`` and ``observer`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+     ``transmitter`` (body being observed) and ``receiver`` (body with camera) :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -1511,9 +1511,9 @@ Returns
 )doc" );
 
     m.def( "get_observable_size",
-       &tom::getObservableSize,
-       py::arg( "observable_type" ),
-       R"doc(
+           &tom::getObservableSize,
+           py::arg( "observable_type" ),
+           R"doc(
  Function to get the size of an observable of a given type.
 
  Parameters

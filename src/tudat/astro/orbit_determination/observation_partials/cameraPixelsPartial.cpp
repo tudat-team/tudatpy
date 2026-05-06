@@ -57,10 +57,10 @@ void CameraPixelsScaling::update( const std::vector< Eigen::Vector6d >& linkEndS
                                   const observation_models::LinkEndType fixedLinkEnd,
                                   const Eigen::VectorXd )
 {
-    if( fixedLinkEnd != observation_models::observer )
+    if( fixedLinkEnd != observation_models::receiver )
     {
         throw std::runtime_error(
-                "Error, only observer link end type is currently supported as fixed link end for camera pixels partial scaling." );
+                "Error, only receiver link end type is currently supported as fixed link end for camera pixels partial scaling." );
     }
 
     Eigen::Vector3d relativeRangeVector =
@@ -74,7 +74,7 @@ void CameraPixelsScaling::update( const std::vector< Eigen::Vector6d >& linkEndS
 
     positionScalingFactor_ = positionScalingFactor_ * rotationFromInertialToCameraFrame.toRotationMatrix( );
 
-    // Only because observer is currently the only supported fixed link end type for camera pixels observations.
+    // Only because receiver is currently the only supported fixed link end type for camera pixels observations.
     lightTimeCorrectionScalingFactor_ = positionScalingFactor_ * linkEndStates.at( observedBodyIndex_ ).segment( 3, 3 ) /
             ( physical_constants::SPEED_OF_LIGHT -
               linkEndStates.at( observedBodyIndex_ ).segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );

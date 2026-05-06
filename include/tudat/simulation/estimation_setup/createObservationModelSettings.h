@@ -1078,19 +1078,19 @@ inline std::shared_ptr< ObservationModelSettings > cameraPixelSettings(
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     const auto linkEndMap = linkEnds.getLinkEnds( );
-    if( linkEndMap.count( observed_body ) == 0 )
+    if( linkEndMap.count( transmitter ) == 0 )
     {
-        throw std::runtime_error( "Error when creating camera pixel settings, observed_body link end not provided." );
+        throw std::runtime_error( "Error when creating camera pixel settings, transmitter link end not provided." );
     }
-    if( linkEndMap.count( observer ) == 0 )
+    if( linkEndMap.count( receiver ) == 0 )
     {
-        throw std::runtime_error( "Error when creating camera pixel settings, observer link end not provided." );
+        throw std::runtime_error( "Error when creating camera pixel settings, receiver link end not provided." );
     }
-    if( linkEndMap.at( observer ).getReferencePointType( ) != LinkEndReferencePointType::body_component )
+    if( linkEndMap.at( receiver ).getReferencePointType( ) != LinkEndReferencePointType::body_component )
     {
-        throw std::runtime_error( "Error when creating camera pixel settings, observer reference point must be of type body_component." );
+        throw std::runtime_error( "Error when creating camera pixel settings, receiver reference point must be of type body_component." );
     }
-    if( linkEndMap.at( observer ).getReferencePointName( ).empty( ) )
+    if( linkEndMap.at( receiver ).getReferencePointName( ).empty( ) )
     {
         throw std::runtime_error( "Error when creating pixel coordinates settings, receiver reference point name is empty." );
     }

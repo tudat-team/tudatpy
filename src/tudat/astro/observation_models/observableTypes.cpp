@@ -1122,10 +1122,10 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
         case camera_pixels:
             switch( linkEndType )
             {
-                case observed_body:
+                case transmitter:
                     linkEndIndices.push_back( 0 );
                     break;
-                case observer:
+                case receiver:
                     linkEndIndices.push_back( 1 );
                     break;
                 default:
@@ -1194,7 +1194,7 @@ LinkEndType getDefaultReferenceLinkEndType( const ObservableType observableType 
             referenceLinkEndType = observed_body;
             break;
         case camera_pixels:
-            referenceLinkEndType = observer;
+            referenceLinkEndType = receiver;
             break;
         default:
             throw std::runtime_error( "Error, default reference link end not defined for observable " + std::to_string( observableType ) );
@@ -1548,14 +1548,14 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             throw std::runtime_error( "Error, parsed irrelevant relative position observable link end types for link end indices" );
             break;
         case camera_pixels:
-            if( ( linkEnds.at( observed_body ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( observed_body ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) &&
+            if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) &&
                   linkEndToCheck.componentName_ == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
-            else if( linkEnds.at( observer ) == linkEndToCheck ||
-                     ( ( linkEnds.at( observer ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" &&
+            else if( linkEnds.at( receiver ) == linkEndToCheck ||
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" &&
                        linkEndToCheck.componentName_ == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
@@ -1577,7 +1577,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
 {
     std::map< LinkEndType, int > singleLinkStateEntries;
-    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler )
+    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler || observableType == camera_pixels )
     {
         singleLinkStateEntries = oneWayLinkStateEntries;
     }
@@ -1586,7 +1586,7 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     {
         singleLinkStateEntries = observedBodyLinkStateEntries;
     }
-    else if( observableType == relative_position_observable || observableType == camera_pixels )
+    else if( observableType == relative_position_observable )
     {
         singleLinkStateEntries = observedObserverBodiesLinkStateEntries;
     }
@@ -1658,8 +1658,8 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
             break;
         }
         case camera_pixels: {
-            interlinks.push_back( std::make_pair( std::make_pair( observer, linkEnds.at( observer ) ),
-                                                  std::make_pair( observed_body, linkEnds.at( observed_body ) ) ) );
+            interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ),
+                                                  std::make_pair( transmitter, linkEnds.at( transmitter ) ) ) );
             break;
         }
         default:
