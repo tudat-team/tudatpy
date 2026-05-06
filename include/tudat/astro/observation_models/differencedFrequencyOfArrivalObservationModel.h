@@ -13,6 +13,7 @@
 
 #include <map>
 #include <iostream>
+#include <stdexcept>
 
 #include <functional>
 
@@ -58,10 +59,27 @@ public:
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation model, exactly 3 link ends required" );
         }
-        if( observableTimeScale_ != basic_astrodynamics::tdb_scale )
+        if( observableTimeScale_ != basic_astrodynamics::tdb_scale &&
+            observableTimeScale_ != basic_astrodynamics::utc_scale)
         {
             throw std::runtime_error(
-                    "Error when creating differenced frequency of arrival observation model, only TDB time scale is currently supported" );
+                    "Error when creating differenced frequency of arrival observation model, only TDB and UTC time scales are currently supported" );
+        }
+        if( observableTimeScale_ == basic_astrodynamics::utc_scale )
+        {
+            if( stationStates.count( receiver ) == 0 )
+            {
+                throw std::runtime_error(
+                        "Error when creating differenced frequency of arrival observation model, no state model found for receiver " +
+                        linkEnds.at( receiver ).bodyName_ + ", " + linkEnds.at( receiver ).stationName_ );
+            }
+
+            if( stationStates.count( receiver2 ) == 0 )
+            {
+                throw std::runtime_error(
+                        "Error when creating differenced frequency of arrival observation model, no state model found for receiver2 " +
+                        linkEnds.at( receiver2 ).bodyName_ + ", " + linkEnds.at( receiver2 ).stationName_ );
+            }
         }
         if( firstDopplerModel_ == nullptr || secondDopplerModel_ == nullptr )
         {
@@ -102,10 +120,10 @@ public:
         std::vector< double > firstLinkEndTimes, secondLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates, secondLinkEndStates;
         Eigen::Matrix< ObservationScalarType, 1, 1 > firstDopplerObservation = firstDopplerModel_->computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
+            time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
         Eigen::Matrix< ObservationScalarType, 1, 1 > secondDopplerObservation =
                 secondDopplerModel_->computeIdealObservationsWithLinkEndData(
-                        time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettingsInput );
+                time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettingsInput );
         // Combine link end times and states
         // Store all 4 link end times/states: first transmitter, first receiver, second transmitter, second receiver
         linkEndTimes.resize( 4 );

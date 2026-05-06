@@ -11,6 +11,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <cmath>
 #include <limits>
 #include <string>
 
@@ -62,10 +63,14 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
-    // Set frequency of transmitter (Mars) to X-Band: 8.4 GHz
+    // Set frequency of transmitter (Mars) to a time-varying X-Band ramp so UTC and TDB paths are distinguishable.
     double transmitterFrequency = 8.4e9;
     bodies.getBody( "Mars" )->getVehicleSystems( )->setTransmittedFrequencyCalculator(
-            std::make_shared< ground_stations::ConstantFrequencyInterpolator >( transmitterFrequency ) );
+            std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                    std::vector< Time >{ initialEphemerisTime - buffer },
+                    std::vector< Time >{ finalEphemerisTime + buffer },
+                    std::vector< double >{ 1.0 },
+                    std::vector< double >{ transmitterFrequency } ) );
 
     // Define link ends for observations.
     LinkEnds linkEnds1;
@@ -87,15 +92,20 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
     lightTimeCorrectionSettings.push_back(
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
-    // Create observation settings
-    std::shared_ptr< ObservationModelSettings > frequencyObservableSettings1 =
-            oneWayDopplerMeasuredFrequencySettings( linkEnds1, lightTimeCorrectionSettings );
+    double tdbDifferencedFrequencyOfArrival = std::numeric_limits< double >::quiet_NaN( );
+    double tdbFirstFrequency = std::numeric_limits< double >::quiet_NaN( );
+    double tdbSecondFrequency = std::numeric_limits< double >::quiet_NaN( );
 
-    std::shared_ptr< ObservationModelSettings > frequencyObservableSettings2 =
-            oneWayDopplerMeasuredFrequencySettings( linkEnds2, lightTimeCorrectionSettings );
-
-    for( int testTimeScale = 0; testTimeScale < 1; testTimeScale++ )
+    for( int testTimeScale = 0; testTimeScale < 2; testTimeScale++ )
     {
+        std::shared_ptr< ObservationModelSettings > frequencyObservableSettings1 = oneWayDopplerMeasuredFrequencySettings(
+                linkEnds1,
+                lightTimeCorrectionSettings,
+                ( testTimeScale == 0 ) ? basic_astrodynamics::tdb_scale : basic_astrodynamics::utc_scale );
+        std::shared_ptr< ObservationModelSettings > frequencyObservableSettings2 = oneWayDopplerMeasuredFrequencySettings(
+                linkEnds2,
+                lightTimeCorrectionSettings,
+                ( testTimeScale == 0 ) ? basic_astrodynamics::tdb_scale : basic_astrodynamics::utc_scale );
         std::shared_ptr< ObservationModelSettings > differencedObservableSettings = differencedFrequencyOfArrivalObservationSettings(
                 differencedLinkEnds,
                 lightTimeCorrectionSettings,
@@ -156,7 +166,26 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
 
         if( testTimeScale == 0 )
         {
+            tdbDifferencedFrequencyOfArrival = differencedFrequencyOfArrival;
+            tdbFirstFrequency = firstFrequency;
+            tdbSecondFrequency = secondFrequency;
             BOOST_CHECK_SMALL( ( firstFrequency - secondFrequency ) - differencedFrequencyOfArrival, 5.0E-13 );
+        }
+        else if( testTimeScale == 1 )
+        {
+            std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+            Time receptionUtcTime = defaultTimeConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, receiverObservationTime,
+                    getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
+            Time receptionTdbTime = defaultTimeConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcTime,
+                    getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
+
+            BOOST_CHECK_SMALL( static_cast< double >( receptionTdbTime - receiverObservationTime ), 5.0E-13 );
+            BOOST_CHECK_SMALL( ( firstFrequency - secondFrequency ) - differencedFrequencyOfArrival, 5.0E-13 );
+            BOOST_CHECK_GT( std::fabs( differencedFrequencyOfArrival - tdbDifferencedFrequencyOfArrival ), 1.0E-7 );
+            BOOST_CHECK_GT( std::fabs( firstFrequency - tdbFirstFrequency ), 1.0E-7 );
+            BOOST_CHECK_GT( std::fabs( secondFrequency - tdbSecondFrequency ), 1.0E-7 );
         }
     }
 }

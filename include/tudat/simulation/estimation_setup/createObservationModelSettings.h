@@ -1067,14 +1067,16 @@ public:
                                   linkEnds,
                                   lightTimeCorrections,
                                   biasSettings,
-                                  lightTimeConvergenceCriteria ),
+                                  lightTimeConvergenceCriteria,
+                                  differencedTimeScale ),
         differencedTimeScale_( differencedTimeScale ), dopplerModelSettings_( dopplerModelSettings )
     {
-        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale )
+        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale &&
+            differencedTimeScale_ != basic_astrodynamics::utc_scale )
         {
             throw std::runtime_error(
                     "Error when creating one-way Doppler measured frequency observation settings, "
-                    "only TDB time scale is currently supported" );
+                    "only TDB and UTC time scales are currently supported" );
         }
     }
 
@@ -1113,15 +1115,17 @@ public:
                                   linkEnds,
                                   lightTimeCorrections,
                                   biasSettings,
-                                  lightTimeConvergenceCriteria ),
+                                  lightTimeConvergenceCriteria,
+                                  differencedTimeScale ),
         differencedTimeScale_( differencedTimeScale ), firstDopplerModelSettings_( firstDopplerModelSettings ),
         secondDopplerModelSettings_( secondDopplerModelSettings )
     {
-        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale )
+        if( differencedTimeScale_ != basic_astrodynamics::tdb_scale &&
+            differencedTimeScale_ != basic_astrodynamics::utc_scale )
         {
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation settings, "
-                    "only TDB time scale is currently supported" );
+                    "only TDB and UTC time scales are currently supported" );
         }
     }
 

@@ -94,10 +94,19 @@ public:
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
-                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
+            const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler_measured_frequency, linkEnds, observationBiasCalculator ),
-        oneWayDopplerModel_( oneWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
+        oneWayDopplerModel_( oneWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ),
+        observableTimeScale_( observableTimeScale )
     {
+        if( observableTimeScale_ != basic_astrodynamics::tdb_scale &&
+            observableTimeScale_ != basic_astrodynamics::utc_scale )
+        {
+            throw std::runtime_error(
+                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: only TDB and UTC time scales are currently supported." );
+        }
+
         // Check if OneWayDopplerModel is not nullptr
         if( oneWayDopplerModel_ == nullptr )
         {
@@ -185,12 +194,19 @@ public:
         TimeType transmitterTime = time - lightTime;
 
         Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
+        Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
+                ? transmitterPosition
+                : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
-        TimeType transmitterUtcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, transmitterPosition );
+        TimeType transmitterFrequencyTime = transmitterTime;
+        if( observableTimeScale_ == basic_astrodynamics::utc_scale )
+        {
+            transmitterFrequencyTime = timeScaleConverter_->template getCurrentTime< TimeType >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
+        }
 
         ObservationScalarType transmittedFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterFrequencyTime );
 
         // Calculate the Doppler observable
         ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
@@ -238,6 +254,8 @@ private:
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
+
+    basic_astrodynamics::TimeScales observableTimeScale_;
 };
 
 }  // namespace observation_models

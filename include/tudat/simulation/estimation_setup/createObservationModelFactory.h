@@ -1385,9 +1385,28 @@ public:
                 }
 
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    for( auto it : linkEnds )
+                    {
+                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                    ->getGroundStationMap( )
+                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                        {
+                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getNominalStationState( );
+                        }
+                    }
+                }
 
                 observationModel = std::make_shared< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
-                        linkEnds, oneWayDopplerModel, transmittingFrequencyInterpolator, observationBias, stationStates );
+                        linkEnds,
+                        oneWayDopplerModel,
+                        transmittingFrequencyInterpolator,
+                        observationBias,
+                        stationStates,
+                        observationSettings->observableTimeScale_ );
                 break;
             }
             case doppler_measured_frequency: {
@@ -1614,6 +1633,20 @@ public:
                 }
 
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    for( auto it : linkEnds )
+                    {
+                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                    ->getGroundStationMap( )
+                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                        {
+                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getNominalStationState( );
+                        }
+                    }
+                }
 
                 std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > firstDopplerSettings =
                         differencedFrequencyObservationSettings->getFirstDopplerModelSettings( );
@@ -1634,7 +1667,8 @@ public:
                                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                                         secondDopplerSettings, bodies, topLevelObservableType ) ),
                                         observationBias,
-                                        stationStates );
+                                        stationStates,
+                                        observationSettings->observableTimeScale_ );
 
                 // Always set the frequency interpolator for FDOA - required for transmitter frequency computation
                 if( getTransmittingFrequencyInterpolator( bodies, linkEnds ) == nullptr )
