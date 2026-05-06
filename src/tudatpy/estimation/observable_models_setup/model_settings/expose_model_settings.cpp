@@ -1390,10 +1390,21 @@ Returns
 )doc" );
 
     m.def( "differenced_time_of_arrival",
-           &tom::differencedTimeOfArrivalObservationSettings,
+           []( const tom::LinkDefinition& link_ends,
+               const tba::TimeScales time_difference_time_scale = tba::tdb_scale,
+               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >& light_time_correction_settings = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+               const std::shared_ptr< tom::ObservationBiasSettings > bias_settings = nullptr,
+               const std::shared_ptr< tom::LightTimeConvergenceCriteria > light_time_convergence_settings = std::make_shared< tom::LightTimeConvergenceCriteria >( ) )
+           {
+               return tom::differencedTimeOfArrivalObservationSettings( link_ends,
+                                                                       light_time_correction_settings,
+                                                                       time_difference_time_scale,
+                                                                       bias_settings,
+                                                                       light_time_convergence_settings );
+           },
            py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
@@ -1446,10 +1457,21 @@ Returns
 )doc" );
 
     m.def( "differenced_frequency_of_arrival",
-           &tom::differencedFrequencyOfArrivalObservationSettings,
+           []( const tom::LinkDefinition& link_ends,
+               const tba::TimeScales time_difference_time_scale = tba::tdb_scale,
+               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >& light_time_correction_settings = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+               const std::shared_ptr< tom::ObservationBiasSettings > bias_settings = nullptr,
+               const std::shared_ptr< tom::LightTimeConvergenceCriteria > light_time_convergence_settings = std::make_shared< tom::LightTimeConvergenceCriteria >( ) )
+           {
+               return tom::differencedFrequencyOfArrivalObservationSettings( link_ends,
+                                                                            light_time_correction_settings,
+                                                                            time_difference_time_scale,
+                                                                            bias_settings,
+                                                                            light_time_convergence_settings );
+           },
            py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
