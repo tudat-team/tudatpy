@@ -29,6 +29,7 @@
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
 
 namespace tudat
 {
@@ -91,6 +92,19 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
 
     // Declare map of bodies that is to be returned.
     SystemOfBodies bodyList = SystemOfBodies( bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
+    std::shared_ptr< SpaceTimeProperties > spaceTimeProperties = std::make_shared< SpaceTimeProperties >( );
+    std::shared_ptr< SpaceTimePropertiesSettings > spaceTimePropertiesSettings = bodySettings.getSpaceTimeSettings( );
+    if( spaceTimePropertiesSettings != nullptr )
+    {
+        std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = spaceTimePropertiesSettings->getPpnParameterSet( );
+        if( ppnParameterSet != nullptr )
+        {
+            spaceTimeProperties->setPpnParameterSet( ppnParameterSet );
+        }
+        spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter(
+                spaceTimePropertiesSettings->getEquivalencePrincipleLpiViolationParameter( ) );
+    }
+    bodyList.setSpaceTimeProperties( spaceTimeProperties );
 
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
@@ -297,6 +311,11 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
     }
 
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
+
+    if( spaceTimePropertiesSettings != nullptr && spaceTimePropertiesSettings->getMetricSettings( ) != nullptr )
+    {
+        createBaseMetric( spaceTimePropertiesSettings->getMetricSettings( ), bodyList );
+    }
 
     return bodyList;
 }

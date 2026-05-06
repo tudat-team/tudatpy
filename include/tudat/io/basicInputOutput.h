@@ -115,6 +115,11 @@ static inline std::string getStationLocationDataPath( )
     return std::string( get_resource_path( ) ) + "/station_locations";
 }
 
+static inline std::string getNeQuick2DataPath( )
+{
+    return std::string( get_resource_path( ) ) + "/ionosphere/nequick2";
+}
+
 }  // namespace paths
 
 namespace input_output

@@ -48,6 +48,7 @@ set(estimation_HEADERS
         hybridArcVariationalEquationsSolver.h
         createNumericalSimulator.h
         createEulerAngleObservationPartials.h
+        createInverseAprioriCovariance.h
         createDopplerPartials.h
         createNWayRangePartials.h
         observationOutputSettings.h
@@ -79,6 +80,7 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createInverseAprioriCovariance.cpp
         createObservationViability.cpp
         observationSimulationSettings.cpp
         observationOutputSettings.cpp

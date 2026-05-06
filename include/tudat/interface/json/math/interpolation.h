@@ -28,8 +28,8 @@ static std::map< InterpolatorTypes, std::string > oneDimensionalInterpolatorType
                                                                                       { cubic_spline_interpolator, "cubicSpline" },
                                                                                       { lagrange_interpolator, "lagrange" },
                                                                                       { hermite_spline_interpolator, "hermiteSpline" },
-                                                                                      { piecewise_constant_interpolator,
-                                                                                        "piecewiseConstant" } };
+                                                                                      { piecewise_constant_interpolator, "piecewiseConstant" }
+                                                                                      { chebyshev_interpolator, "chebyshevInterpolator" } };
 
 //! `InterpolatorTypes` not supported by `json_interface`.
 static std::vector< InterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };

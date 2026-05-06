@@ -50,7 +50,13 @@ public:
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_differenced_range, linkEnds, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                n_way_differenced_range,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        arcStartObservationModel->getFullLinkLightTimeCalculator( ),
+                        arcEndObservationModel->getFullLinkLightTimeCalculator( ) } ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) )
     {}

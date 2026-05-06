@@ -77,7 +77,7 @@ void expose_ancillary_settings( py::module& m )
                     tom::ObservationAncillarySimulationVariable::link_ends_delays,
                     R"doc(
                     Retransmission delays at the retransmitter link ends (in seconds), typically for an n-way range or Doppler observation.
-                    For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter``->``retransmitter``->``receiver``
+                    For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter`` -> ``retransmitter`` -> ``receiver``
                     for :math:`N=2`, this ancillary setting is a list of length :math:`N-1` representing the time in seconds between
                     signal reception and subsequent retransmission/reflection at a link end. This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
@@ -127,6 +127,16 @@ void expose_ancillary_settings( py::module& m )
                     R"doc(
                     Lowest sequential ranging component :math:`n` used for the
                     :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range` observation model.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "range_conversion_factor",
+                    tom::ObservationAncillarySimulationVariable::range_conversion_factor,
+                    R"doc(
+                    Conversion factor to convert from range units (RU) to meter for the
+                    :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range` observation model.
+                    It is defined as :math:`\frac{c}{F}`, with :math:`c` the speed of light and :math:`F` the conversion factor depending on the frequency band, as defined in Moyer (2003), Section 13.5.2.
                     This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`

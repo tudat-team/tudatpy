@@ -143,12 +143,23 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                                        bodies.at( currentBodyName ),
                                        std::placeholders::_1 ) );
                 }
+                std::shared_ptr< simulation_setup::SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+                if( spaceTimeProperties == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating DirectFirstOrderDopplerProperTimeRateInterface: "
+                            "SystemOfBodies has no space-time properties." );
+                }
                 properTimeRateInterface = std::make_shared< DirectFirstOrderDopplerProperTimeRateInterface >(
                         linkEndForCalculator,
                         gravitationalParameterFunctions,
                         perturbingBodyStateFunctions,
                         perturbingBodyMatchLinkEnds,
-                        directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_ );
+                        directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_,
+                        [ spaceTimeProperties ]( )
+                        {
+                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
+                        } );
             }
             break;
         }
@@ -881,10 +892,11 @@ public:
                     }
                 }
 
-                // Create multi-leg light time calculator
-                std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                        multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList );
+                // Create full-link light-time calculator
+                std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                        fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
+                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
+                                singleLegsLightTimeConvergenceCriteriaList, multiLegLightTimeConvergenceCriteria );
 
                 std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                         uplinkDopplerCalculator;
@@ -921,13 +933,13 @@ public:
                 bool normalizeWithSpeedOfLight = false;
                 std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel =
                         std::make_shared< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >( linkEnds,
-                                                                                                              multiLegLightTimeCalculator,
+                                                                                                              fullLinkLightTimeCalculator,
                                                                                                               uplinkDopplerCalculator,
                                                                                                               downlinkDopplerCalculator,
                                                                                                               observationBias,
                                                                                                               normalizeWithSpeedOfLight );
 
-                if( multiLegLightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                if( fullLinkLightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     twoWayDopplerModel->setFrequencyInterpolatorAndTurnaroundRatio(
                             getTransmittingFrequencyInterpolator( bodies, linkEnds ), getTurnaroundFunction( bodies, linkEnds ) );
@@ -1052,9 +1064,9 @@ public:
                     }
                 }
 
-                // Create multi-leg light time calculator
-                std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                        multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
+                // Create full-link light-time calculator
+                std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                        fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds,
                                 bodies,
                                 topLevelObservableType,
@@ -1082,7 +1094,7 @@ public:
                 std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
                         std::make_shared< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                                 linkEnds,
-                                multiLegLightTimeCalculator,
+                                fullLinkLightTimeCalculator,
                                 observationBias,
                                 observationSettings->observableTimeScale_,
                                 stationStates );
@@ -1092,7 +1104,7 @@ public:
                     nWayRangeObservationModel->setTimeScaleConverter( );
                 }
 
-                if( multiLegLightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                if( fullLinkLightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     nWayRangeObservationModel->setFrequencyInterpolatorAndTurnaroundRatio(
                             getTransmittingFrequencyInterpolator( bodies, linkEnds ), getTurnaroundFunction( bodies, linkEnds ) );
@@ -1146,10 +1158,10 @@ public:
                                         linkEnds, arcStartObservationModel, arcEndObservationModel, observationBias );
 
                 if( nWayDifferencedRangeObservationModel->getArcStartObservationModel( )
-                            ->getMultiLegLightTimeCalculator( )
+                            ->getFullLinkLightTimeCalculator( )
                             ->doCorrectionsNeedFrequency( ) ||
                     nWayDifferencedRangeObservationModel->getArcEndObservationModel( )
-                            ->getMultiLegLightTimeCalculator( )
+                            ->getFullLinkLightTimeCalculator( )
                             ->doCorrectionsNeedFrequency( ) )
                 {
                     nWayDifferencedRangeObservationModel->setFrequencyInterpolatorAndTurnaroundRatio(
@@ -1281,8 +1293,8 @@ public:
                         }
                     }
 
-                    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                            multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
+                    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                            fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
                                     linkEnds,
                                     bodies,
                                     topLevelObservableType,
@@ -1319,7 +1331,7 @@ public:
 
                     observationModel = std::make_shared< DsnNWayRangeObservationModel< ObservationScalarType, TimeType > >(
                             linkEnds,
-                            multiLegLightTimeCalculator,
+                            fullLinkLightTimeCalculator,
                             transmittingFrequencyInterpolator,
                             turnaroundRatioFunction,
                             observationBias,

@@ -1413,15 +1413,32 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
 
             case ppn_parameter_gamma: {
-                doubleParameterToEstimate = std::make_shared< PPNParameterGamma >( relativity::ppnParameterSet );
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+                doubleParameterToEstimate = std::make_shared< PPNParameterGamma >( ppnParameterSet );
                 break;
             }
             case ppn_parameter_beta: {
-                doubleParameterToEstimate = std::make_shared< PPNParameterBeta >( relativity::ppnParameterSet );
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+                doubleParameterToEstimate = std::make_shared< PPNParameterBeta >( ppnParameterSet );
                 break;
             }
             case equivalence_principle_lpi_violation_parameter: {
-                doubleParameterToEstimate = std::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+                std::shared_ptr< simulation_setup::SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+                if( spaceTimeProperties == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating equivalence_principle_lpi_violation_parameter parameter: "
+                            "SystemOfBodies has no space-time properties." );
+                }
+                doubleParameterToEstimate = std::make_shared< EquivalencePrincipleLpiViolationParameter >(
+                        [ spaceTimeProperties ]( )
+                        {
+                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
+                        },
+                        [ spaceTimeProperties ]( const double parameterValue )
+                        {
+                            spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
+                        } );
                 break;
             }
             case direct_dissipation_tidal_time_lag: {

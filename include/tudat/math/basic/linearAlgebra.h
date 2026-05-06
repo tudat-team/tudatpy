@@ -21,6 +21,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/SparseCore>
 
 #include "tudat/basics/basicTypedefs.h"
 
@@ -214,6 +215,9 @@ void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4
                                                             std::vector< Eigen::Matrix3d >& partialDerivatives );
 
 double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual );
+double computeLeastSquaresCostFunctionFromFullWeights(
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::VectorXd& residual );
 
 }  // namespace linear_algebra
 

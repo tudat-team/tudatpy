@@ -103,6 +103,7 @@ TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
          Tudat::tudat_input_output
          Tudat::tudat_interpolators
          Tudat::tudat_basic_mathematics
+         Tudat::tudat_statistics
          Tudat::tudat_basic_astrodynamics
          Tudat::tudat_statistics
          )
@@ -112,6 +113,7 @@ TUDAT_ADD_TEST_CASE(HeatTransfer
         Tudat::tudat_aerodynamics
         Tudat::tudat_root_finders
         Tudat::tudat_basic_mathematics
+        Tudat::tudat_statistics
         Tudat::tudat_basic_astrodynamics
         Tudat::tudat_statistics
         )

@@ -59,6 +59,11 @@ set(ephemerides_HEADERS
         "tleEphemeris.h"
         "aeordynamicAngleRotationalEphemeris.h"
         "directionBasedRotationalEphemeris.h"
+        "timeEphemeris.h"
+        "timeEphemerisFromPostNewtonianExpansion.h"
+        "timeEphemerisWithFirstOrderDirectConversion.h"
+        "timeEphemerisWithSecondOrderDirectConversion.h"
+        "timeEphemerisDirectFromMetric.h"
         )
 
 TUDAT_ADD_LIBRARY("ephemerides"

@@ -34,6 +34,28 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
 
+    static std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
+    createFullLinkLightTimeCalculators(
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                    firstReceiverLightTimeCalculator,
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                    secondReceiverLightTimeCalculator )
+    {
+        return std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                firstReceiverLightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ),
+                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr<
+                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                secondReceiverLightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) };
+    }
+
     OneWayDifferencedTimeOfArrivalObservationModel(
             const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
@@ -44,9 +66,12 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >& stationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
             const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( differenced_time_of_arrival, linkEnds, observationBiasCalculator ),
-        firstReceiverLightTimeCalculator_( firstReceiverLightTimeCalculator ),
-        secondReceiverLightTimeCalculator_( secondReceiverLightTimeCalculator ), stationStates_( stationStates ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                differenced_time_of_arrival,
+                linkEnds,
+                observationBiasCalculator,
+                createFullLinkLightTimeCalculators( firstReceiverLightTimeCalculator, secondReceiverLightTimeCalculator ) ),
+        stationStates_( stationStates ),
         observableTimeScale_( observableTimeScale )
     {
         if( observableTimeScale_ == basic_astrodynamics::utc_scale || observableTimeScale_ == basic_astrodynamics::ut1_scale )
@@ -77,40 +102,48 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
     {
-        ObservationScalarType lightTimeForFirstReceiver;
-        ObservationScalarType lightTimeForSecondReceiver;
-
         linkEndTimes.resize( 3 );
         linkEndStates.resize( 3 );
 
-        StateType transmitterStateForFirstLink, receiverStateForFirstLink, transmitterStateForSecondLink, receiverStateForSecondLink;
         TimeType fullPrecisionTimeAtReceiver2;
         if( linkEndAssociatedWithTime == receiver )
         {
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 1 ] = static_cast< double >( time );
+            std::vector< double > firstLinkEndTimes;
+            std::vector< double > secondLinkEndTimes;
+            std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates;
+            std::vector< Eigen::Matrix< double, 6, 1 > > secondLinkEndStates;
 
             std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
-            this->setFrequencyProperties( time, receiver, firstReceiverLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeForFirstReceiver = firstReceiverLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateForFirstLink, transmitterStateForFirstLink, time, 1, ancillarySetings );
+            std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > firstReceiverLightTimeCalculator =
+                    getFirstReceiverLightTimeCalculator( );
+            std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > secondReceiverLightTimeCalculator =
+                    getSecondReceiverLightTimeCalculator( );
+            this->setFrequencyProperties( time, receiver, firstReceiverLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            ObservationScalarType lightTimeForFirstReceiver =
+                    this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
+                            time, receiver, firstLinkEndTimes, firstLinkEndStates, ancillarySetings );
+            TimeType fullPrecisionTransmissionTime = time - static_cast< TimeType >( lightTimeForFirstReceiver );
 
-            linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeForFirstReceiver );
+            linkEndTimes[ 0 ] = firstLinkEndTimes.at( 0 );
+            linkEndTimes[ 1 ] = firstLinkEndTimes.at( 1 );
 
-            this->setFrequencyProperties( time, receiver, secondReceiverLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
-            lightTimeForSecondReceiver = secondReceiverLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateForSecondLink, transmitterStateForSecondLink, time - lightTimeForFirstReceiver, 0, ancillarySetings );
-            fullPrecisionTimeAtReceiver2 = time - ( lightTimeForFirstReceiver - lightTimeForSecondReceiver );
-            linkEndTimes[ 2 ] = static_cast< double >( fullPrecisionTimeAtReceiver2 );
+            this->setFrequencyProperties( time, receiver, secondReceiverLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+            ObservationScalarType lightTimeForSecondReceiver =
+                    this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
+                            fullPrecisionTransmissionTime, transmitter, secondLinkEndTimes, secondLinkEndStates, ancillarySetings );
+            fullPrecisionTimeAtReceiver2 =
+                    fullPrecisionTransmissionTime + static_cast< TimeType >( lightTimeForSecondReceiver );
+            linkEndTimes[ 2 ] = secondLinkEndTimes.at( 1 );
+
+            linkEndStates[ 0 ] = firstLinkEndStates.at( 0 );
+            linkEndStates[ 1 ] = firstLinkEndStates.at( 1 );
+            linkEndStates[ 2 ] = secondLinkEndStates.at( 1 );
         }
         else
         {
             throw std::runtime_error( "Error in differenced time of arrival, reference link end not recognized" );
         }
-
-        linkEndStates[ 0 ] = transmitterStateForFirstLink.template cast< double >( );
-        linkEndStates[ 1 ] = receiverStateForFirstLink.template cast< double >( );
-        linkEndStates[ 2 ] = receiverStateForSecondLink.template cast< double >( );
 
         if( observableTimeScale_ == basic_astrodynamics::tdb_scale )
         {
@@ -152,22 +185,16 @@ public:
     //! Light time calculator to compute light time at the beginning of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getFirstReceiverLightTimeCalculator( )
     {
-        return firstReceiverLightTimeCalculator_;
+        return this->getSingleLegLightTimeCalculator( 0, 0 );
     }
 
     //! Light time calculator to compute light time at the end of the integration time
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getSecondReceiverLightTimeCalculator( )
     {
-        return secondReceiverLightTimeCalculator_;
+        return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
 private:
-    //! Light time calculator to compute light time at the beginning of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > firstReceiverLightTimeCalculator_;
-
-    //! Light time calculator to compute light time at the end of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > secondReceiverLightTimeCalculator_;
-
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 
     basic_astrodynamics::TimeScales observableTimeScale_;

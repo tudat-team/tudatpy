@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 namespace tudat
 {
@@ -34,80 +35,84 @@ std::vector< ObservableType > findAvailableObservableTypes( const std::vector< i
     return availableObservableTypes;
 }
 
-void setStationFrequenciesFromTrackingData(
-        const std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >&
-                rampInformation,
-        simulation_setup::SystemOfBodies& bodies )
+void setStationFrequenciesFromTrackingData( const StationRampInformation& rampInformation,
+                                            simulation_setup::SystemOfBodies& bodies,
+                                            const std::string& stationReferenceBodyName )
 {
     std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
 
-    for( auto it : rampInformation )
+    for( auto const& [ stationName, frequencyRampDataVector ] : rampInformation )
     {
         std::vector< Time > rampStartTimes;
         std::vector< Time > rampEndTimes;
         std::vector< double > rampRates;
         std::vector< double > rampStartFrequencies;
 
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
+        for( auto const& currentRampData : frequencyRampDataVector )
         {
-            std::vector< double > currentRampUtcTimes = std::get< 0 >( it.second.at( i ) );
-            std::vector< double > currentFrequencyValues = std::get< 1 >( it.second.at( i ) );
-            std::vector< double > currentFrequencyRampRates = std::get< 2 >( it.second.at( i ) );
+            rampStartTimes.emplace_back( currentRampData.rampUtcTimes.at( 0 ) );
+            rampEndTimes.emplace_back( currentRampData.rampUtcTimes.at( currentRampData.rampUtcTimes.size( ) - 1 ) );
 
-            rampStartTimes.push_back( currentRampUtcTimes.at( 0 ) );
-            rampEndTimes.push_back( currentRampUtcTimes.at( currentRampUtcTimes.size( ) - 1 ) );
-
-            if( std::adjacent_find( currentFrequencyValues.begin( ), currentFrequencyValues.end( ), std::not_equal_to<>( ) ) ==
-                currentFrequencyValues.end( ) )
+            if( std::adjacent_find( currentRampData.frequencyValues.begin( ),
+                                    currentRampData.frequencyValues.end( ),
+                                    std::not_equal_to<>( ) ) == currentRampData.frequencyValues.end( ) )
             {
-                double constantTransmitterFrequency = currentFrequencyValues.at( 0 );
-                if( !( std::adjacent_find( currentFrequencyRampRates.begin( ), currentFrequencyRampRates.end( ), std::not_equal_to<>( ) ) ==
-                       currentFrequencyRampRates.end( ) ) )
+                double constantTransmitterFrequency = currentRampData.frequencyValues.at( 0 );
+                if( !( std::adjacent_find( currentRampData.frequencyRampRates.begin( ),
+                                           currentRampData.frequencyRampRates.end( ),
+                                           std::not_equal_to<>( ) ) == currentRampData.frequencyRampRates.end( ) ) )
                 {
                     throw std::runtime_error(
                             "Error when reading IFMS transmitter frequencies, frequency is constant, but ramp is not constant" );
                 }
-                else if( currentFrequencyRampRates.at( 0 ) != 0.0 && currentFrequencyRampRates.at( 0 ) != -99999.999999 )
+                else if( currentRampData.frequencyRampRates.at( 0 ) != 0.0 && currentRampData.frequencyRampRates.at( 0 ) != -99999.999999 )
                 {
                     throw std::runtime_error(
                             "Error when reading IFMS transmitter frequencies, frequency is constant, but ramp is not zero" +
-                            std::to_string( currentFrequencyRampRates.at( 0 ) ) );
+                            std::to_string( currentRampData.frequencyRampRates.at( 0 ) ) );
                 }
                 rampRates.push_back( 0.0 );
                 rampStartFrequencies.push_back( constantTransmitterFrequency );
             }
             else
             {
-                std::cout << utilities::convertStlVectorToEigenVector( currentFrequencyValues ).transpose( ) << std::endl;
+                std::cout << utilities::convertStlVectorToEigenVector( currentRampData.frequencyValues ).transpose( ) << std::endl;
                 throw std::runtime_error( "Error when reading IFMS transmitter frequencies, only unramped data currently supported." );
             }
         }
 
-        rampInterpolators[ it.first ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+        rampInterpolators[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                 rampStartTimes, rampEndTimes, rampRates, rampStartFrequencies );
     }
 
-    for( auto it = rampInterpolators.begin( ); it != rampInterpolators.end( ); it++ )
+    if( bodies.count( stationReferenceBodyName ) == 0 )
     {
-        if( bodies.at( "Earth" )->getGroundStationMap( ).count( it->first ) == 0 )
+        throw std::runtime_error(
+                "Error when setting station frequencies, reference body \"" + stationReferenceBodyName +
+                "\" not found in system of bodies." );
+    }
+    auto stationReferenceBody = bodies.at( stationReferenceBodyName );
+
+    for( auto const& [ stationName, frequencyInterpolator ] : rampInterpolators )
+    {
+        if( stationReferenceBody->getGroundStationMap( ).count( stationName ) == 0 )
         {
-            throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
+            throw std::runtime_error( "Error when setting frequencies for station " + stationName + ", station not found." );
         }
-        if( !bodies.at( "Earth" )->getGroundStation( it->first )->hasFrequencyCalculator( ) )
+
+        auto groundStation = stationReferenceBody->getGroundStation( stationName );
+        if( !groundStation->hasFrequencyCalculator( ) )
         {
-            bodies.at( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+            groundStation->setTransmittingFrequencyCalculator( frequencyInterpolator );
         }
-        else if( std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                         bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) ) != nullptr )
+        else if( auto existingFrequencyInterpolator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                         groundStation->getTransmittingFrequencyCalculator( ) ) )
         {
-            std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
-                    std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                            bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) );
-            existingFrequencyInterpolator->addFrequencyInterpolator( it->second );
+            existingFrequencyInterpolator->addFrequencyInterpolator( frequencyInterpolator );
         }
         else
         {
-            throw std::runtime_error( "Error when adding ramp tables for station " + it->first +
+            throw std::runtime_error( "Error when adding ramp tables for station " + stationName +
                                       ", existing frequency calculator implemented, but not of correct type" );
         }
     }

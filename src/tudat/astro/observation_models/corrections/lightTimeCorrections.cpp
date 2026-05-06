@@ -32,6 +32,7 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         case jakowski_vtec_ionospheric:
         case ionex_vtec_ionospheric:
         case inverse_power_series_solar_corona:
+        case nequick2_ionospheric:
             requiresMultiLegIterations = true;
             break;
         default:
@@ -76,6 +77,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
             break;
         case ionex_vtec_ionospheric:
             name = "global IGS TEC maps ionospheric";
+            break;
+        case nequick2_ionospheric:
+            name = "NeQuick-2 path-integrated ionospheric";
             break;
         default:
             throw std::runtime_error(

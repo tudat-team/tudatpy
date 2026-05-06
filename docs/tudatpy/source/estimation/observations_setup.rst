@@ -9,9 +9,6 @@ The :ref:`observations_simulation_settings` module provides the top-level functi
 
 The main interfaces with the rest of Tudat for this module are the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` class, which are created by the various functions in the :ref:`observations_simulation_settings` module and define settings for simulating observations, and :class:`~tudatpy.estimation.observations.ObservationCollection` objects, which are produced by various functions in the :ref:`observations_wrapper` module and contain the actual observations used downstream in Tudat.
 
-``observations_setup``
-======================
-
 .. toctree::
    :maxdepth: 2
    :caption: Modules

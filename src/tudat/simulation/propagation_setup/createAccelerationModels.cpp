@@ -36,7 +36,10 @@
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannEquations.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/relativity/metric.h"
+#include "tudat/astro/relativity/schwarzschildMetric.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/utilities.h"
@@ -1367,6 +1370,8 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
                     std::bind( &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
         }
 
+        std::shared_ptr< PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+
         // Create acceleration model if only schwarzschild term is to be used.
         if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == false &&
             relativisticAccelerationSettings->calculateDeSitterCorrection_ == false )
@@ -1443,6 +1448,85 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
         }
     }
     return accelerationModel;
+}
+
+std::function< Eigen::Vector6d( ) > getAcceleratedBodyStateFunctionForMetric(
+        const std::shared_ptr< relativity::Metric >& metric,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const SystemOfBodies& bodies )
+{
+    if( metric == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating direct relativistic acceleration from metric on " +
+                nameOfBodyUndergoingAcceleration + ": metric pointer is null." );
+    }
+
+    std::shared_ptr< relativity::HarmonicSchwarzschildMetric > schwarzschildMetric =
+            std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metric );
+    if( schwarzschildMetric != nullptr )
+    {
+        const std::string centralBodyName = schwarzschildMetric->getCentralBodyName( );
+        if( !bodies.doesBodyExist( centralBodyName ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating direct relativistic acceleration from metric on " +
+                    nameOfBodyUndergoingAcceleration + ": central body " + centralBodyName +
+                    " of Schwarzschild metric is not present in the SystemOfBodies." );
+        }
+
+        std::shared_ptr< Body > centralBody = bodies.at( centralBodyName );
+        return [ bodyUndergoingAcceleration, centralBody ]( )
+        {
+            const Eigen::Vector6d bodyState = bodyUndergoingAcceleration->getState( );
+            const Eigen::Vector6d centralBodyState = centralBody->getState( );
+
+            Eigen::Vector6d relativeState = Eigen::Vector6d::Zero( );
+            relativeState.segment( 0, 3 ) = bodyState.segment( 0, 3 ) - centralBodyState.segment( 0, 3 );
+            relativeState.segment( 3, 3 ) = bodyState.segment( 3, 3 ) - centralBodyState.segment( 3, 3 );
+            return relativeState;
+        };
+    }
+
+    if( std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metric ) != nullptr )
+    {
+        return std::bind( &Body::getState, bodyUndergoingAcceleration );
+    }
+
+    throw std::runtime_error(
+            "Error when creating direct relativistic acceleration from metric on " +
+            nameOfBodyUndergoingAcceleration +
+            ": unsupported metric type for retrieving accelerated-body state in metric coordinates." );
+}
+
+std::shared_ptr< relativity::DirectRelativisticAcceleration > createDirectRelativisticAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const SystemOfBodies& bodies )
+{
+    if( nameOfBodyExertingAcceleration != "" )
+    {
+        throw std::runtime_error(
+                "Error when creating direct relativistic acceleration from metric on " + nameOfBodyUndergoingAcceleration +
+                ": body exerting acceleration must be an empty string." );
+    }
+
+    std::shared_ptr< relativity::Metric > baseMetric = bodies.getSpaceTimeProperties( )->getBaseMetric( );
+    if( baseMetric == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating direct relativistic acceleration from metric on " + nameOfBodyUndergoingAcceleration +
+                ": no base metric is defined in the SystemOfBodies space-time properties." );
+    }
+
+    std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction =
+            getAcceleratedBodyStateFunctionForMetric(
+                    baseMetric, bodyUndergoingAcceleration, nameOfBodyUndergoingAcceleration, bodies );
+
+    return std::make_shared< relativity::DirectRelativisticAcceleration >(
+            baseMetric->Clone( ), acceleratedBodyStateFunction );
 }
 
 //! Function to create empirical acceleration model.
@@ -1840,6 +1924,12 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                                  accelerationSettings,
                                                                                  bodies );
             break;
+        case relativistic_acceleration_from_metric:
+            accelerationModelPointer = createDirectRelativisticAcceleration( bodyUndergoingAcceleration,
+                                                                             nameOfBodyUndergoingAcceleration,
+                                                                             nameOfBodyExertingAcceleration,
+                                                                             bodies );
+            break;
         case empirical_acceleration:
             accelerationModelPointer = createEmpiricalAcceleration( bodyUndergoingAcceleration,
                                                                     bodyExertingAcceleration,
@@ -1976,6 +2066,7 @@ void addEihAccelerations( const SystemOfBodies& bodies,
         gravitationalParameterFunction.push_back( std::bind( &Body::getGravitationalParameter, bodies.at( eihExertingBodies.at( i ) ) ) );
         bodyStateFunctions.push_back( std::bind( &Body::getState, bodies.at( eihExertingBodies.at( i ) ) ) );
     }
+    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
 
     std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations =
             std::make_shared< relativity::EinsteinInfeldHoffmannEquations >(
@@ -1983,8 +2074,8 @@ void addEihAccelerations( const SystemOfBodies& bodies,
                     eihExertingBodies,
                     gravitationalParameterFunction,
                     bodyStateFunctions,
-                    std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
-                    std::bind( &relativity::PPNParameterSet::getParameterBeta, relativity::ppnParameterSet ) );
+                    std::bind( &relativity::PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                    std::bind( &relativity::PPNParameterSet::getParameterBeta, ppnParameterSet ) );
 
     for( unsigned int i = 0; i < eihUndergoingBodies.size( ); i++ )
     {
@@ -2155,13 +2246,34 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
         {
             // Retrieve name of body exerting acceleration.
             std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
+            const auto currentAccelerationType = accelerationsForBody.at( i ).second->accelerationType_;
+            const bool isDirectMetricRelativisticAcceleration =
+                    ( currentAccelerationType == basic_astrodynamics::relativistic_acceleration_from_metric );
 
-            // Check if body exerting acceleration is included in bodies
-            if( bodies.count( bodyExertingAcceleration ) == 0 )
+            std::shared_ptr< Body > bodyExertingAccelerationObject;
+            if( bodyExertingAcceleration == "" )
             {
-                throw std::runtime_error( std::string( "Error when making acceleration models, requested forces " ) + "acting on body " +
-                                          bodyUndergoingAcceleration + " due to body " + bodyExertingAcceleration +
-                                          ", but no such body found in map of bodies" );
+                if( !isDirectMetricRelativisticAcceleration )
+                {
+                    throw std::runtime_error( "Error when making acceleration models on body " + bodyUndergoingAcceleration +
+                                              ": empty body exerting acceleration is only permitted for "
+                                              "relativistic_acceleration_from_metric settings." );
+                }
+            }
+            else
+            {
+                if( isDirectMetricRelativisticAcceleration )
+                {
+                    throw std::runtime_error( "Error when making relativistic_acceleration_from_metric on body " +
+                                              bodyUndergoingAcceleration + ": body exerting acceleration must be empty." );
+                }
+                if( bodies.count( bodyExertingAcceleration ) == 0 )
+                {
+                    throw std::runtime_error( std::string( "Error when making acceleration models, requested forces " ) +
+                                              "acting on body " + bodyUndergoingAcceleration + " due to body " +
+                                              bodyExertingAcceleration + ", but no such body found in map of bodies" );
+                }
+                bodyExertingAccelerationObject = bodies.at( bodyExertingAcceleration );
             }
 
             if( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration )
@@ -2186,7 +2298,7 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const S
             else
             {
                 currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-                                                               bodies.at( bodyExertingAcceleration ),
+                                                               bodyExertingAccelerationObject,
                                                                accelerationsForBody.at( i ).second,
                                                                bodyUndergoingAcceleration,
                                                                bodyExertingAcceleration,
