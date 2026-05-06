@@ -38,6 +38,8 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -47,6 +49,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -133,7 +136,7 @@ namespace propagation_setup
 namespace acceleration
 {
 
-void expose_acceleration_setup( py::module &m )
+void expose_acceleration_setup( py::module& m )
 {
     /*
      * This contains the addition of IntegratorSettings and
@@ -244,18 +247,16 @@ void expose_acceleration_setup( py::module &m )
          Functional base class to define settings for accelerations.
 
          Class for providing settings for acceleration model. This class is a functional (base) class for
-         settings of acceleration models that  require no information in addition to their type.
+         settings of acceleration models that require no information in addition to their type.
          Classes defining settings for acceleration models requiring additional information must be derived from this class.
          Bodies exerting and undergoing acceleration are set externally from this class.
          This class can be used for the easy setup of acceleration models
          (see createAccelerationModels.h), but users may also chose to do so manually.
          (Derived) Class members are all public, for ease of access and modification.
 
-
-
-
-
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings >( ), R"doc(Pickle support for AccelerationSettings.)doc" )
+            .def( "__eq__", &tss::AccelerationSettings::operator==, py::arg( "rhs" ) );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
@@ -271,12 +272,10 @@ void expose_acceleration_setup( py::module &m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
-
-
-
-
-
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings >( ) )
+            .def( "__eq__", &tss::SphericalHarmonicAccelerationSettings::operator==, py::arg( "rhs" ) );
+    ;
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
@@ -297,7 +296,9 @@ void expose_acceleration_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings >( ) )
+            .def( "__eq__", &tss::MutualSphericalHarmonicAccelerationSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::EmpiricalAccelerationSettings, std::shared_ptr< tss::EmpiricalAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -329,7 +330,9 @@ void expose_acceleration_setup( py::module &m )
          force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
          to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::RTGAccelerationSettings >( ) )
+            .def( "__eq__", &tss::RTGAccelerationSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -381,7 +384,9 @@ void expose_acceleration_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings >( ) )
+            .def( "__eq__", &tss::DirectTidalDissipationAccelerationSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
                 std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
@@ -419,8 +424,10 @@ void expose_acceleration_setup( py::module &m )
                     &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
             .def_property_readonly(
                     "magnitude_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > );
-
+                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::ThrustAccelerationSettings >( ) )
+            .def( "__eq__", &tss::ThrustAccelerationSettings::operator==, py::arg( "rhs" ) );
+            
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
     //  py::arg("acceleration_type"));
