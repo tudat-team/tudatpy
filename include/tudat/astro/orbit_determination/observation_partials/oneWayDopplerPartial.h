@@ -455,11 +455,13 @@ public:
     /*!
      * Constructor
      * \param oneWayDopplerScaling The underlying one-way Doppler scaling object
-     * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time
+         * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time and
+         *        transmitter state. The time argument is the TDB transmission time; the function is responsible for converting
+         *        it to the time scale required by the frequency interpolator.
      */
     OneWayDopplerMeasuredFrequencyScaling(
             const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling,
-            const std::function< double( const double ) > transmittedFrequencyFunction ):
+             const std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction ):
         DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler_measured_frequency ),
         oneWayDopplerScaling_( oneWayDopplerScaling ),
         transmittedFrequencyFunction_( transmittedFrequencyFunction ),
@@ -487,8 +489,8 @@ public:
         // Update the underlying one-way Doppler scaling
         oneWayDopplerScaling_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
         
-        // Get the transmitted frequency at transmission time (index 0)
-        currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ) );
+        // Get the transmitted frequency at transmission time (index 0) using the transmitter state for TDB->UTC conversion.
+        currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ), linkEndStates.at( 0 ) );
     }
 
     //! Function to retrieve the position scaling factor for specific link end
@@ -598,8 +600,8 @@ private:
     //! The underlying one-way Doppler scaling object
     std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling_;
 
-    //! Function returning the transmitted frequency at a given transmission time
-    std::function< double( const double ) > transmittedFrequencyFunction_;
+    //! Function returning the transmitted frequency at a given transmission time and transmitter state
+    std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction_;
 
     //! Current transmitted frequency (updated in update() method)
     double currentTransmittedFrequency_;
