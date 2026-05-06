@@ -3145,7 +3145,9 @@ public:
                     throw std::runtime_error( "Error when making differenced frequency of arrival, no second receiver found" );
                 }
                 
-                if (differencedFrequencyObservationSettings->getFirstDopplerModelSettings() == nullptr || differencedFrequencyObservationSettings->getSecondDopplerModelSettings() == nullptr ) {
+                if( differencedFrequencyObservationSettings->getFirstDopplerModelSettings( ) == nullptr ||
+                    differencedFrequencyObservationSettings->getSecondDopplerModelSettings( ) == nullptr )
+                {
                     throw std::runtime_error( "Error when making differenced frequency of arrival, one of the doppler model settings is null" );
                 }
                 
