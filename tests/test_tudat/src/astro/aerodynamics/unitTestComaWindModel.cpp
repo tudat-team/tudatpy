@@ -1018,6 +1018,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         double windZ;
     };
     std::vector<ReferencePoint> allPoints;
+    int skippedNegativeSolarLongitudePoints = 0;
 
     std::string line;
     // Skip header line
@@ -1030,13 +1031,24 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         if (iss >> point.time >> point.radialDistance >> point.latitude >> point.longitude
                 >> point.solarLongitude >> point.windX >> point.windY >> point.windZ)
         {
-            allPoints.push_back(point);
+            // This legacy Python reference file contains values generated with signed solar longitudes.
+            // Only non-negative rows are valid for Tudat's normalized [0, 2*pi] convention.
+            if (point.solarLongitude >= 0.0)
+            {
+                allPoints.push_back(point);
+            }
+            else
+            {
+                skippedNegativeSolarLongitudePoints++;
+            }
         }
     }
     file.close();
 
     BOOST_REQUIRE_MESSAGE(allPoints.size() > 0, "No data points found in wind reference values file");
-    BOOST_TEST_MESSAGE("Loaded " << allPoints.size() << " wind reference data points");
+    BOOST_TEST_MESSAGE("Loaded " << allPoints.size() << " normalized-convention wind reference data points"
+                      << " (skipped " << skippedNegativeSolarLongitudePoints
+                      << " legacy signed-negative solar longitude points)");
 
     // Randomly select 100 points for testing (or all if less than 100)
     const int numTestPoints = 100;

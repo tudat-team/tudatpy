@@ -314,11 +314,6 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
                 throw std::runtime_error( "ComaWindModel: Unknown data type" );
         }
 
-        // Negate Z-component to convert from modified vertical frame (Z outward, as used internally
-        // and in user input data) to standard vertical frame (Z inward, as expected by Tudat's
-        // aerodynamics system for the vertical_frame reference frame)
-        cachedFinalWindVector_.z() = -cachedFinalWindVector_.z();
-
         // Cache the input parameters for future validation
         cachedRadius_ = radius;
         cachedLongitude_ = currentLongitude;
@@ -1029,11 +1024,10 @@ double ComaWindModel::calculateSolarLongitude( const double time ) const
     // Transform to comet body-fixed frame
     const Eigen::Vector3d sunDirectionBodyFixed = cachedRotationMatrix_.transpose() * sunDirection;
 
-    // Calculate solar longitude (angle from X-axis in XY plane)
+    // Calculate solar longitude (angle from X-axis in XY plane).
     cachedSolarLongitude_ = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
 
-    // Normalize to [0, 2π] range to match Stokes dataset storage convention
-    // atan2 returns values in [-π, π], but Stokes datasets store longitudes in [0, 2π]
+    // Normalize to [0, 2π] range to match Stokes dataset storage convention.
     if ( cachedSolarLongitude_ < 0.0 )
     {
         cachedSolarLongitude_ += 2.0 * mathematical_constants::PI;

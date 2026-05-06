@@ -44,13 +44,10 @@ class SphericalHarmonicsCalculator;
  * Class for computing the wind velocity vector from coma models. This class uses three separate datasets
  * for the wind velocity components in the modified vertical frame, each of which can be either polynomial or Stokes coefficients.
  *
- * The wind velocity components are INTERNALLY computed in a modified vertical frame:
+ * The wind velocity components are computed and returned in a modified vertical frame:
  *   - X-component: Meridional direction (North, in meridian plane)
  *   - Y-component: Zonal direction (West, completing the right-handed frame)
  *   - Z-component: Radial direction pointing OUTWARD from the nucleus
- *
- * The output is converted to standard vertical frame convention (Z inward) to match
- * the associatedFrame parameter (vertical_frame) used by Tudat's aerodynamics system.
  */
 class ComaWindModel : public WindModel
 {
