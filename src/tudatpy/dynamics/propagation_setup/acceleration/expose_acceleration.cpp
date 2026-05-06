@@ -317,7 +317,9 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::EmpiricalAccelerationSettings >( ) )
+            .def( "__eq__", &tss::EmpiricalAccelerationSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -350,7 +352,9 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings >( ) )
+            .def( "__eq__", &tss::RelativisticAccelerationCorrectionSettings::operator==, py::arg( "rhs" ) );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -403,7 +407,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings >( ) );
 
     py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -427,7 +432,7 @@ void expose_acceleration_setup( py::module& m )
                     &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
             .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::ThrustAccelerationSettings >( ) )
             .def( "__eq__", &tss::ThrustAccelerationSettings::operator==, py::arg( "rhs" ) );
-            
+
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
     //  py::arg("acceleration_type"));
