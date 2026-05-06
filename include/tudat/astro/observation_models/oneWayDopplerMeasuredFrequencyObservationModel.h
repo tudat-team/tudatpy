@@ -98,6 +98,20 @@ public:
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler_measured_frequency, linkEnds, observationBiasCalculator ),
         oneWayDopplerModel_( oneWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
+        // Check if OneWayDopplerModel is not nullptr
+        if( oneWayDopplerModel_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: input one-way Doppler model is nullptr." );
+        }
+        // Check if transmitting frequency calculator is not nullptr
+        if( transmittingFrequencyCalculator == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: input transmitting frequency calculator is "
+                    "nullptr." );
+        }
+
         this->setFrequencyInterpolator( transmittingFrequencyCalculator );
 
         if( numberOfLinkEnds_ != 2 )
@@ -214,7 +228,6 @@ private:
 
     // Number of link ends
     unsigned int numberOfLinkEnds_;
-
 
     // Light time calculator
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
