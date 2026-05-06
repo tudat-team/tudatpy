@@ -70,6 +70,10 @@ def find_classes_with_serialize(files):
             found[cls].append(file)
     return found
 
+CONTAINER_LOOP_RE = re.compile(
+    r"(std::vector|std::array)\s*<\s*std::shared_ptr\s*<\s*\w+\s*>",
+)
+
 def _makes_archive_call_with(content, cls):
     archive_vars = re.findall(
         r"cereal::(?:Binary|JSON|XML|Portable)(?:Input|Output)Archive\s+(\w+)",
@@ -77,7 +81,10 @@ def _makes_archive_call_with(content, cls):
     )
     if not archive_vars:
         return False
+
     cls_re = re.compile(rf"\b{re.escape(cls)}\b")
+
+    # Strategy 1: class name near archive call (original heuristic)
     for var in archive_vars:
         archive_call_re = re.compile(rf"\b{re.escape(var)}\s*\(")
         call_positions = [m.start() for m in archive_call_re.finditer(content)]
@@ -86,6 +93,12 @@ def _makes_archive_call_with(content, cls):
             for clp in cls_positions:
                 if abs(cp - clp) < 300:
                     return True
+
+    # Strategy 2: class appears in a file that serializes via a shared loop
+    # (archive calls are on a base-class variable, not the concrete type directly)
+    if cls_re.search(content) and CONTAINER_LOOP_RE.search(content):
+        return True
+
     return False
 
 def find_serialize_tests(test_files, serializable_classes):
@@ -125,9 +138,9 @@ def find_pickle_support(serializable_classes):
         for expose_file in expose_files:
             try:
                 content = Path(expose_file).read_text(errors="ignore")
-                # Look for class name near py::pickle patterns
+                # Look for class name near py::pickle or make_pickle_polymorphic patterns
                 cls_re = re.compile(rf"\b{re.escape(cls)}\b")
-                pickle_re = re.compile(r"py::pickle", re.IGNORECASE)
+                pickle_re = re.compile(r"(?:py::pickle|make_pickle_polymorphic)", re.IGNORECASE)
                 
                 if cls_re.search(content) and pickle_re.search(content):
                     pickle_coverage[cls].append(expose_file)
