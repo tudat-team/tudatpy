@@ -61,6 +61,22 @@ public:
 
     // Type of dependent variable that is to be saved.
     VariableType variableType_;
+
+    bool operator==( const VariableSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const VariableSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+protected:
+    virtual bool equals( const VariableSettings& rhs ) const
+    {
+        return variableType_ == rhs.variableType_;
+    }
 };
 
 // Enum listing the dependent variables that can be saved during the propagation.
@@ -203,14 +219,6 @@ protected:
         associatedBody_( "" ), secondaryBody_( "" ), componentIndex_( -1 ) { }
 
 public:
-    friend class cereal::access;
-
-    template< class Archive >
-    void serialize( Archive& ar )
-    {
-        ar( variableType_, dependentVariableType_, associatedBody_, secondaryBody_, componentIndex_ );
-    }
-
     // Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
 
@@ -225,6 +233,32 @@ public:
     // Only applicable to vectorial dependent variables.
     // If negative, all the components of the vector are saved.
     int componentIndex_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( VariableSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return variableType_ == rhsCast->variableType_ && dependentVariableType_ == rhsCast->dependentVariableType_ &&
+                associatedBody_ == rhsCast->associatedBody_ && secondaryBody_ == rhsCast->secondaryBody_ &&
+                componentIndex_ == rhsCast->componentIndex_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( variableType_, dependentVariableType_, associatedBody_, secondaryBody_, componentIndex_ );
+    }
 };
 
 // Class to define settings for saving a single acceleration (norm or vector) during propagation
@@ -266,6 +300,21 @@ public:
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleAccelerationDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationModelType_ == rhsCast->accelerationModelType_;
+    }
 };
 
 // Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
@@ -327,6 +376,21 @@ public:
 
     // List of degree/order terms that are to be saved
     std::vector< std::pair< int, int > > componentIndices_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SphericalHarmonicAccelerationTermsDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_;
+    }
 };
 
 // Class to define settings for saving a single torque (norm or vector) during propagation.
@@ -358,6 +422,21 @@ public:
 
     // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleTorqueDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return torqueModelType_ == rhsCast->torqueModelType_;
+    }
 };
 
 // Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
@@ -390,6 +469,21 @@ public:
 
     // Frame to which the rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const IntermediateAerodynamicRotationVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return baseFrame_ == rhsCast->baseFrame_ && targetFrame_ == rhsCast->targetFrame_;
+    }
 };
 
 // Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
@@ -413,6 +507,21 @@ public:
 
     // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const BodyAerodynamicAngleVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return angle_ == rhsCast->angle_;
+    }
 };
 
 class ControlSurfaceCoefficientDependentVariableSettings : public SingleDependentVariableSaveSettings
@@ -434,6 +543,21 @@ public:
 
     // Orientation angle that is to be saved.
     std::string controlSurfaceName_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const ControlSurfaceCoefficientDependentVariableSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return controlSurfaceName_ == rhsCast->controlSurfaceName_;
+    }
 };
 
 // Class to define variations in spherical harmonic acceleration due to single gravity field variation.
@@ -463,6 +587,21 @@ public:
 
     // Identifier for gravity field variation.
     std::string identifier_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleVariationSphericalHarmonicAccelerationSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return deformationType_ == rhsCast->deformationType_ && identifier_ == rhsCast->identifier_;
+    }
 };
 
 // Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
@@ -527,6 +666,22 @@ public:
 
     // Identifier for gravity field variation.
     std::string identifier_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_ && deformationType_ == rhsCast->deformationType_ &&
+                identifier_ == rhsCast->identifier_;
+    }
 };
 
 // Class to define .
@@ -558,6 +713,21 @@ public:
 
     // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const AccelerationPartialWrtStateSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationModelType_ == rhsCast->accelerationModelType_ && derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
+    }
 };
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
@@ -581,6 +751,20 @@ public:
 
     //! String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const TotalAccelerationPartialWrtStateSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )        {
+            return false;
+        }
+        return derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
+    }
 };
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
@@ -593,6 +777,20 @@ public:
     { }
 
     std::vector< std::string > bodiesToCheck_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const MinimumConstellationDistanceDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )        {
+            return false;
+        }
+        return bodiesToCheck_ == rhsCast->bodiesToCheck_;
+    }
 };
 
 class MinimumConstellationStationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -609,6 +807,20 @@ public:
     std::vector< std::string > bodiesToCheck_;
 
     double elevationAngleLimit_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const MinimumConstellationStationDistanceDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )        {
+            return false;
+        }
+        return bodiesToCheck_ == rhsCast->bodiesToCheck_ && elevationAngleLimit_ == rhsCast->elevationAngleLimit_;
+    }
 };
 
 class CustomDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -623,6 +835,22 @@ public:
     const std::function< Eigen::VectorXd( ) > customDependentVariableFunction_;
 
     const int dependentVariableSize_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const CustomDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        // Warn user that function cannot be compared
+        std::cerr << "Warning, comparing custom dependent variable settings, but function cannot be compared. Only size is compared." << std::endl;
+        return dependentVariableSize_ == rhsCast->dependentVariableSize_;
+    }
 };
 
 class TotalGravityFieldVariationSettings : public SingleDependentVariableSaveSettings
@@ -672,6 +900,21 @@ public:
     }
 
     std::vector< std::pair< int, int > > componentIndices_;
+    
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const TotalGravityFieldVariationSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return componentIndices_ == rhsCast->componentIndices_;
+    }
 };
 
 class IlluminatedPanelFractionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -684,6 +927,21 @@ public:
     { }
 
     std::string panelTypeId_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const IlluminatedPanelFractionDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return panelTypeId_ == rhsCast->panelTypeId_;
+    }
 };
 
 class CrossSectionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -697,6 +955,21 @@ public:
     { }
 
     std::string accelerationType_;
+
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const CrossSectionDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return accelerationType_ == rhsCast->accelerationType_;
+    }
 };
 
 // Function to get a string representing a 'named identification' of a variable type.

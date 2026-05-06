@@ -57,6 +57,18 @@ public:
 
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 
+    // Used for serialization testing
+    bool operator==( const SimulationResults& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SimulationResults& rhs ) const
+    {
+        return !equals( rhs );
+    }
+protected:
+    virtual bool equals( const SimulationResults& rhs ) const { return false; }
 private:
     friend class cereal::access;
     template< class Archive >
@@ -513,9 +525,41 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
+    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const SingleArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return is_variational == rhsDerived->is_variational && number_of_columns == rhsDerived->number_of_columns &&
+                    equationsOfMotionNumericalSolution_ == rhsDerived->equationsOfMotionNumericalSolution_ &&
+                    equationsOfMotionNumericalSolutionRaw_ == rhsDerived->equationsOfMotionNumericalSolutionRaw_ &&
+                    dependentVariableHistory_ == rhsDerived->dependentVariableHistory_ &&
+                    cumulativeComputationTimeHistory_ == rhsDerived->cumulativeComputationTimeHistory_ &&
+                    cumulativeNumberOfFunctionEvaluations_ == rhsDerived->cumulativeNumberOfFunctionEvaluations_ &&
+                    processedStateIds_ == rhsDerived->processedStateIds_ && propagatedStateIds_ == rhsDerived->propagatedStateIds_ &&
+                    integratedStateAndBodyList_ == rhsDerived->integratedStateAndBodyList_ &&
+                    outputSettings_ == rhsDerived->outputSettings_ &&
+                    dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ &&
+                    sequentialPropagation_ == rhsDerived->sequentialPropagation_ &&
+                    //    rawSolutionConversionFunction_ == rhsDerived->rawSolutionConversionFunction_ && Cannot evaluate std::function for
+                    //    equality
+                    propagationIsPerformed_ == rhsDerived->propagationIsPerformed_ &&
+                    solutionIsCleared_ == rhsDerived->solutionIsCleared_ &&
+                    onlyProcessedSolutionSet_ == rhsDerived->onlyProcessedSolutionSet_ &&
+                    ( ( propagationTerminationReason_ != nullptr && rhsDerived->propagationTerminationReason_ != nullptr )
+                              ? ( *propagationTerminationReason_ == *rhsDerived->propagationTerminationReason_ )
+                              : propagationTerminationReason_ == rhsDerived->propagationTerminationReason_ ) &&
+                    isPropagationOngoing_ == rhsDerived->isPropagationOngoing_;
+        }
+    }
+
 private:
     template< class Archive >
-    void serialize( Archive& ar )
+    void serialize( Archive& ar ) // @todo: split this into save/load to reconstruct non-serializable members (e.g. std::function, dependentVariableInterface) after loading
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( equationsOfMotionNumericalSolution_ );
@@ -526,7 +570,7 @@ private:
         ar( processedStateIds_ );
         ar( propagatedStateIds_ );
         ar( integratedStateAndBodyList_ );
-        // Skip: outputSettings_ (non-serializable processing settings)
+        // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
         ar( sequentialPropagation_ );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
@@ -692,6 +736,26 @@ protected:
 
 private:
     friend class cereal::access;
+
+    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const SingleArcVariationalSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return is_variational == rhsDerived->is_variational && number_of_columns == rhsDerived->number_of_columns &&
+                    stateTransitionMatrixSize_ == rhsDerived->stateTransitionMatrixSize_ &&
+                    sensitivityMatrixSize_ == rhsDerived->sensitivityMatrixSize_ &&
+                    stateTransitionSolution_ == rhsDerived->stateTransitionSolution_ &&
+                    sensitivitySolution_ == rhsDerived->sensitivitySolution_ &&
+                    ( ( singleArcDynamicsResults_ != nullptr && rhsDerived->singleArcDynamicsResults_ != nullptr )
+                              ? ( *singleArcDynamicsResults_ == *rhsDerived->singleArcDynamicsResults_ )
+                              : singleArcDynamicsResults_ == rhsDerived->singleArcDynamicsResults_ );
+        }
+    }
 
     template< class Archive >
     void serialize( Archive& ar )
@@ -1021,6 +1085,51 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
+    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const MultiArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            if( propagationIsPerformed_ != rhsDerived->propagationIsPerformed_ ||
+                solutionIsCleared_ != rhsDerived->solutionIsCleared_ ||
+                arcStartTimes_ != rhsDerived->arcStartTimes_ ||
+                arcEndTimes_ != rhsDerived->arcEndTimes_ )
+            {
+                return false;
+            }
+
+            if( singleArcResults_.size( ) != rhsDerived->singleArcResults_.size( ) )
+            {
+                return false;
+            }
+
+            for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+            {
+                const auto& lhsPtr = singleArcResults_.at( i );
+                const auto& rhsPtr = rhsDerived->singleArcResults_.at( i );
+                if( lhsPtr != nullptr && rhsPtr != nullptr )
+                {
+                    if( *lhsPtr != *rhsPtr )
+                    {
+                        return false;
+                    }
+                }
+                else if( lhsPtr != rhsPtr )
+                {
+                    return false;
+                }
+            }
+
+            return ( ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr )
+                             ? ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ )
+                             : dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ );
+        }
+    }
+
     template< class Archive >
     void serialize( Archive& ar )
     {
@@ -1031,6 +1140,17 @@ private:
         ar( arcStartTimes_ );
         ar( arcEndTimes_ );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        // Reconstruct dependentVariableInterface_ from single-arc interfaces if possible
+        if( dependentVariableInterface_ == nullptr )
+        {
+            std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces;
+            for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
+            {
+                singleArcInterfaces.push_back( singleArcResults_.at( i )->getSingleArcDependentVariablesInterface( ) );
+            }
+            dependentVariableInterface_ = std::make_shared< MultiArcDependentVariablesInterface< TimeType > >(
+                    singleArcInterfaces, arcStartTimes_, arcEndTimes_ );
+        }
     }
 };
 
@@ -1174,6 +1294,27 @@ protected:
 private:
     friend class cereal::access;
 
+    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const HybridArcSimulationResults* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        else
+        {
+            return ( ( singleArcResults_ != nullptr && rhsDerived->singleArcResults_ != nullptr )
+                              ? ( *singleArcResults_ == *rhsDerived->singleArcResults_ )
+                              : singleArcResults_ == rhsDerived->singleArcResults_ ) &&
+                    ( ( multiArcResults_ != nullptr && rhsDerived->multiArcResults_ != nullptr )
+                              ? ( *multiArcResults_ == *rhsDerived->multiArcResults_ )
+                              : multiArcResults_ == rhsDerived->multiArcResults_ ) &&
+                    ( ( dependentVariableInterface_ != nullptr && rhsDerived->dependentVariableInterface_ != nullptr )
+                              ? ( *dependentVariableInterface_ == *rhsDerived->dependentVariableInterface_ )
+                              : dependentVariableInterface_ == rhsDerived->dependentVariableInterface_ );
+        }
+    }
+
     template< class Archive >
     void serialize( Archive& ar )
     {
@@ -1181,6 +1322,16 @@ private:
         ar( singleArcResults_ );
         ar( multiArcResults_ );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        // Reconstruct hybrid dependentVariableInterface_ from constituent interfaces if possible
+        if( dependentVariableInterface_ == nullptr )
+        {
+            if( singleArcResults_ != nullptr && multiArcResults_ != nullptr )
+            {
+                dependentVariableInterface_ = std::make_shared< HybridArcDependentVariablesInterface< TimeType > >(
+                        singleArcResults_->getSingleArcDependentVariablesInterface( ),
+                        multiArcResults_->getMultiArcDependentVariablesInterface( ) );
+            }
+        }
     }
 };
 

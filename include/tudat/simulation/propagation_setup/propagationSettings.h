@@ -71,6 +71,20 @@ private:
     }
 };
 
+//! Equality comparison for PropagatorType
+inline bool operator==( const PropagatorType& a, const PropagatorType& b )
+{
+    return a.translationalPropagatorType_ == b.translationalPropagatorType_ &&
+           a.rotationalPropagatorType_ == b.rotationalPropagatorType_ &&
+           a.otherPropagator_ == b.otherPropagator_ &&
+           a.customStateSize_ == b.customStateSize_;
+}
+
+inline bool operator!=( const PropagatorType& a, const PropagatorType& b )
+{
+    return !( a == b );
+}
+
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
 template< typename StateScalarType = double >
 class PropagatorSettings

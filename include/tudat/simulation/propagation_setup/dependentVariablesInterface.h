@@ -58,7 +58,21 @@ public:
             const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const TimeType evaluationTime ) = 0;
 
+    bool operator==( const DependentVariablesInterface& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const DependentVariablesInterface& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
+    virtual bool equals( const DependentVariablesInterface& rhs ) const
+    {
+        return true;
+    }
 };
 
 //! Interface object of interpolation of numerically propagated dependent variables for single-arc propagation/estimation.
@@ -66,6 +80,8 @@ template< typename TimeType = double >
 class SingleArcDependentVariablesInterface : public DependentVariablesInterface< TimeType >
 {
 public:
+    using BaseType = ::tudat::propagators::DependentVariablesInterface< TimeType >;
+
     //! Constructor
     /*!
      * Constructor
@@ -230,6 +246,36 @@ public:
     std::map< std::string, int > getDependentVariablesIdsAndIndices( )
     {
         return dependentVariablesIdsAndIndices_;
+    }
+
+protected:
+    bool equals( const BaseType& rhs ) const override
+    {
+        const SingleArcDependentVariablesInterface< TimeType >* rhsSingleArc =
+                dynamic_cast< const SingleArcDependentVariablesInterface< TimeType >* >( &rhs );
+        if( rhsSingleArc == nullptr )
+        {
+            return false;
+        }
+
+        if( dependentVariablesSettings_.size( ) != rhsSingleArc->dependentVariablesSettings_.size( ) )
+        {
+            return false;
+        }
+
+        for( unsigned int i = 0; i < dependentVariablesSettings_.size( ); i++ )
+        {
+            if( dependentVariablesSettings_.at( i )->dependentVariableType_ !=
+                        rhsSingleArc->dependentVariablesSettings_.at( i )->dependentVariableType_ ||
+                dependentVariablesSettings_.at( i )->associatedBody_ != rhsSingleArc->dependentVariablesSettings_.at( i )->associatedBody_ ||
+                dependentVariablesSettings_.at( i )->secondaryBody_ != rhsSingleArc->dependentVariablesSettings_.at( i )->secondaryBody_ ||
+                dependentVariablesSettings_.at( i )->componentIndex_ != rhsSingleArc->dependentVariablesSettings_.at( i )->componentIndex_ )
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 private:

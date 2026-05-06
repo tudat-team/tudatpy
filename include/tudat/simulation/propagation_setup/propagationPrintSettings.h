@@ -254,6 +254,16 @@ public:
         reset( true, true, resultsPrintFrequencyInSeconds, resultsPrintFrequencyInSteps, true, true, true, true, true, true );
     }
 
+    bool operator==( const PropagationPrintSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const PropagationPrintSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 private:
     bool printNumberOfFunctionEvaluations_;
     bool printDependentVariableData_;
@@ -267,6 +277,19 @@ private:
     bool printProcessedStateData_;
 
     bool printArcIndex_;
+
+    bool equals( const PropagationPrintSettings& rhs ) const
+    {
+        return printNumberOfFunctionEvaluations_ == rhs.printNumberOfFunctionEvaluations_ &&
+                printDependentVariableData_ == rhs.printDependentVariableData_ &&
+                resultsPrintFrequencyInSeconds_ == rhs.resultsPrintFrequencyInSeconds_ &&
+                resultsPrintFrequencyInSteps_ == rhs.resultsPrintFrequencyInSteps_ &&
+                printTerminationReason_ == rhs.printTerminationReason_ && printPropagationTime_ == rhs.printPropagationTime_ &&
+                printPropagatedStateData_ == rhs.printPropagatedStateData_ &&
+                printInitialAndFinalConditions_ == rhs.printInitialAndFinalConditions_ &&
+                printDependentVariableDuringPropagation_ == rhs.printDependentVariableDuringPropagation_ &&
+                printProcessedStateData_ == rhs.printProcessedStateData_ && printArcIndex_ == rhs.printArcIndex_;
+    }
 };
 
 }  // namespace propagators

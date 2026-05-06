@@ -683,6 +683,15 @@ public:
         return baseString;
     }
 
+    bool operator==( const PropagationTerminationDetails& rhs ) const
+    {
+        return equals( rhs );
+    }
+    bool operator!=( const PropagationTerminationDetails& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     //! Reason for termination
     PropagationTerminationReason propagationTerminationReason_;
@@ -695,8 +704,13 @@ protected:
     bool terminationOnExactCondition_;
 
     //! Protected default constructor for deserialization (also accessible by derived classes)
-    PropagationTerminationDetails( ):
-        propagationTerminationReason_( propagation_never_run ), terminationOnExactCondition_( false ) {}
+    PropagationTerminationDetails( ): propagationTerminationReason_( propagation_never_run ), terminationOnExactCondition_( false ) {}
+
+    virtual bool equals( const PropagationTerminationDetails& rhs ) const
+    {
+        return ( propagationTerminationReason_ == rhs.propagationTerminationReason_ ) &&
+                ( terminationOnExactCondition_ == rhs.terminationOnExactCondition_ );
+    }
 
 private:
     friend class cereal::access;
@@ -743,6 +757,23 @@ public:
                       << std::endl;
         }
         return isConditionMetWhenStopping_;
+    }
+
+protected:
+    bool equals( const PropagationTerminationDetails& rhs ) const override
+    {
+        if( !PropagationTerminationDetails::equals( rhs ) )
+        {
+            return false;
+        }
+        
+        const auto* rhsCast = dynamic_cast< const PropagationTerminationDetailsFromHybridCondition* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+
+        return ( isConditionMetWhenStopping_ == rhsCast->isConditionMetWhenStopping_ );
     }
 
 private:
