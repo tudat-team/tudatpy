@@ -17,6 +17,8 @@
 #include <sstream>
 #include <tuple>
 #include <vector>
+#include <iostream>
+#include <typeinfo>
 
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
@@ -25,7 +27,6 @@
 
 #include "tudat/io/serialization/base.h"
 
-#include "tudat/basics/testMacros.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
@@ -38,18 +39,6 @@ namespace unit_tests
 
 namespace
 {
-
-template< typename MapType >
-void compareMaps( const MapType& left, const MapType& right )
-{
-    BOOST_REQUIRE_EQUAL( left.size( ), right.size( ) );
-    auto leftIterator = left.begin( );
-    auto rightIterator = right.begin( );
-    for( ; leftIterator != left.end( ); ++leftIterator, ++rightIterator )
-    {
-        BOOST_CHECK_EQUAL( leftIterator->first, rightIterator->first );
-    }
-}
 
 std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > createRawStateHistory( )
 {
@@ -86,9 +75,9 @@ std::map< double, unsigned int > createFunctionEvaluationHistory( )
 
 std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > createSingleArcSimulationResults( )
 {
-        std::map< tudat::propagators::IntegratedStateType,
-                            std::vector< std::tuple< std::string, std::string, tudat::propagators::PropagatorType > > >
-                        integratedStateAndBodyList;
+    std::map< tudat::propagators::IntegratedStateType,
+              std::vector< std::tuple< std::string, std::string, tudat::propagators::PropagatorType > > >
+            integratedStateAndBodyList;
 
     auto rawSolutionConversionFunction = []( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >& processedSolution,
                                              const std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >& rawSolution )
@@ -112,35 +101,20 @@ std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > cre
     return results;
 }
 
-void compareSingleArcResults( propagators::SingleArcSimulationResults< double, double >& left,
-                              propagators::SingleArcSimulationResults< double, double >& right )
+std::shared_ptr< propagators::SingleArcVariationalSimulationResults< double, double > >
+createSingleArcVariationalSimulationResults( )
 {
-    compareMaps( left.getEquationsOfMotionNumericalSolutionRaw( ), right.getEquationsOfMotionNumericalSolutionRaw( ) );
-    compareMaps( left.getEquationsOfMotionNumericalSolution( ), right.getEquationsOfMotionNumericalSolution( ) );
-    compareMaps( left.getDependentVariableHistory( ), right.getDependentVariableHistory( ) );
-    compareMaps( left.getCumulativeComputationTimeHistoryTimeType( ), right.getCumulativeComputationTimeHistoryTimeType( ) );
-    compareMaps( left.getCumulativeNumberOfFunctionEvaluationsTimeType( ), right.getCumulativeNumberOfFunctionEvaluationsTimeType( ) );
-    BOOST_CHECK_EQUAL( left.getPropagationIsPerformed( ), right.getPropagationIsPerformed( ) );
-    BOOST_CHECK_EQUAL( left.getSolutionIsCleared( ), right.getSolutionIsCleared( ) );
-    BOOST_CHECK_EQUAL( left.getPropagationTerminationReason( )->getPropagationTerminationReason( ),
-                       right.getPropagationTerminationReason( )->getPropagationTerminationReason( ) );
-    BOOST_CHECK_EQUAL( left.getPropagationTerminationReason( )->getTerminationOnExactCondition( ),
-                       right.getPropagationTerminationReason( )->getTerminationOnExactCondition( ) );
-}
-
-std::shared_ptr< propagators::SingleArcVariationalSimulationResults< double, double > > createSingleArcVariationalResults( )
-{
-    std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > singleArcResults = createSingleArcSimulationResults( );
+    auto singleArcResults = createSingleArcSimulationResults( );
     auto variationalResults = std::make_shared< propagators::SingleArcVariationalSimulationResults< double, double > >(
             singleArcResults, 2, 1 );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > fullSolution;
     Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > solutionAtT0( 2, 4 );
     solutionAtT0 << 1.0, 2.0, 3.0, 4.0,
-                    5.0, 6.0, 7.0, 8.0;
+            5.0, 6.0, 7.0, 8.0;
     Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > solutionAtT1( 2, 4 );
     solutionAtT1 << 9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0;
+            13.0, 14.0, 15.0, 16.0;
     fullSolution[ 0.0 ] = solutionAtT0;
     fullSolution[ 10.0 ] = solutionAtT1;
 
@@ -153,132 +127,132 @@ std::shared_ptr< propagators::SingleArcVariationalSimulationResults< double, dou
     return variationalResults;
 }
 
-void compareVariationalResults( propagators::SingleArcVariationalSimulationResults< double, double >& left,
-                                propagators::SingleArcVariationalSimulationResults< double, double >& right )
-{
-    compareSingleArcResults( *left.getDynamicsResults( ), *right.getDynamicsResults( ) );
-    compareMaps( left.getStateTransitionSolution( ), right.getStateTransitionSolution( ) );
-    compareMaps( left.getSensitivitySolution( ), right.getSensitivitySolution( ) );
-    BOOST_CHECK_EQUAL( left.getStateTransitionMatrixSize( ), right.getStateTransitionMatrixSize( ) );
-    BOOST_CHECK_EQUAL( left.getSensitivityMatrixSize( ), right.getSensitivityMatrixSize( ) );
-}
-
 std::shared_ptr< propagators::MultiArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >
-createMultiArcResults( )
+createMultiArcSimulationResults( )
 {
-    std::vector< std::shared_ptr< propagators::SingleArcDependentVariablesInterface< double > > > singleArcInterfaces;
-    std::vector< double > arcStartTimes;
-    std::vector< double > arcEndTimes;
+    std::vector< std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > > singleArcResults =
+            { createSingleArcSimulationResults( ), createSingleArcSimulationResults( ) };
+
+    std::vector< std::shared_ptr< propagators::SingleArcDependentVariablesInterface< double > > > singleArcInterfaces =
+            { singleArcResults.at( 0 )->getSingleArcDependentVariablesInterface( ),
+              singleArcResults.at( 1 )->getSingleArcDependentVariablesInterface( ) };
 
     auto dependentVariableInterface = std::make_shared< propagators::MultiArcDependentVariablesInterface< double > >(
-            singleArcInterfaces, arcStartTimes, arcEndTimes );
+            singleArcInterfaces, std::vector< double >( ), std::vector< double >( ) );
 
     auto results = std::make_shared< propagators::MultiArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >(
-            std::vector< std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > >( ),
-            dependentVariableInterface );
+            singleArcResults, dependentVariableInterface );
     results->setPropagationIsPerformed( );
     return results;
 }
 
 std::shared_ptr< propagators::HybridArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >
-createHybridArcResults( )
+createHybridArcSimulationResults( )
 {
-    auto singleArcResults = createSingleArcSimulationResults( );
-    auto multiArcResults = createMultiArcResults( );
     return std::make_shared< propagators::HybridArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >(
-            singleArcResults, multiArcResults );
+            createSingleArcSimulationResults( ), createMultiArcSimulationResults( ) );
+}
+
+template< typename ResultType >
+std::shared_ptr< ResultType > roundTripSerialize( const std::shared_ptr< ResultType >& originalResult )
+{
+    std::stringstream serializationStream;
+
+    {
+        cereal::BinaryOutputArchive outputArchive( serializationStream );
+        outputArchive( originalResult );
+    }
+
+    std::shared_ptr< ResultType > deserializedResult;
+
+    {
+        cereal::BinaryInputArchive inputArchive( serializationStream );
+        inputArchive( deserializedResult );
+    }
+
+    return deserializedResult;
 }
 
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_PropagationResults_serialization )
 
-BOOST_AUTO_TEST_CASE( test_SingleArcSimulationResultsSerialization )
+BOOST_AUTO_TEST_CASE( test_PropagationResultsSerialization )
 {
-    auto originalResults = createSingleArcSimulationResults( );
+    std::vector< std::shared_ptr< propagators::SimulationResults< double, double > > > resultsVector =
+            { createSingleArcSimulationResults( ),
+              createSingleArcVariationalSimulationResults( ),
+              createMultiArcSimulationResults( ),
+              createHybridArcSimulationResults( ) };
 
-    std::stringstream serializationStream;
+    for( const auto& results : resultsVector )
     {
-        cereal::BinaryOutputArchive outputArchive( serializationStream );
-        outputArchive( originalResults );
+        auto deserializedResults = roundTripSerialize( results );
+
+        BOOST_REQUIRE( deserializedResults != nullptr );
+        if( !( *results == *deserializedResults ) )
+        {
+            std::cout << "--- Serialization mismatch for type: " << typeid( *results ).name( ) << " ---\n";
+            // Single-arc
+            if( auto single = std::dynamic_pointer_cast< propagators::SingleArcSimulationResults< double, double > >( results ) )
+            {
+                auto sdes = std::dynamic_pointer_cast< propagators::SingleArcSimulationResults< double, double > >( deserializedResults );
+                if( sdes )
+                {
+                    std::cout << "single: rawSolution size (orig/deser): " << single->getEquationsOfMotionNumericalSolutionRaw().size()
+                              << " / " << sdes->getEquationsOfMotionNumericalSolutionRaw().size() << "\n";
+                    std::cout << "single: dependentVar size (orig/deser): " << single->getDependentVariableHistoryDouble().size()
+                              << " / " << sdes->getDependentVariableHistoryDouble().size() << "\n";
+                    std::cout << "single: compTime size (orig/deser): " << single->getCumulativeComputationTimeHistory().size()
+                              << " / " << sdes->getCumulativeComputationTimeHistory().size() << "\n";
+                    std::cout << "single: funcEval size (orig/deser): " << single->getCumulativeNumberOfFunctionEvaluations().size()
+                              << " / " << sdes->getCumulativeNumberOfFunctionEvaluations().size() << "\n";
+                }
+            }
+            // Variational
+            if( auto var = std::dynamic_pointer_cast< propagators::SingleArcVariationalSimulationResults< double, double > >( results ) )
+            {
+                auto vdes = std::dynamic_pointer_cast< propagators::SingleArcVariationalSimulationResults< double, double > >( deserializedResults );
+                if( vdes )
+                {
+                    std::cout << "variational: stateTrans size (orig/deser): " << var->getStateTransitionSolution().size()
+                              << " / " << vdes->getStateTransitionSolution().size() << "\n";
+                    std::cout << "variational: sens size (orig/deser): " << var->getSensitivitySolution().size()
+                              << " / " << vdes->getSensitivitySolution().size() << "\n";
+                    auto dyn = var->getDynamicsResults();
+                    auto ddyn = vdes->getDynamicsResults();
+                    if( dyn && ddyn )
+                    {
+                        std::cout << "variational->dynamics: rawSolution size (orig/deser): " << dyn->getEquationsOfMotionNumericalSolutionRaw().size()
+                                  << " / " << ddyn->getEquationsOfMotionNumericalSolutionRaw().size() << "\n";
+                    }
+                }
+            }
+            // Multi-arc
+            if( auto multi = std::dynamic_pointer_cast< propagators::MultiArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >( results ) )
+            {
+                auto mdes = std::dynamic_pointer_cast< propagators::MultiArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >( deserializedResults );
+                if( mdes )
+                {
+                    std::cout << "multi: single-arc count (orig/deser): " << multi->getSingleArcResults().size()
+                              << " / " << mdes->getSingleArcResults().size() << "\n";
+                }
+            }
+            // Hybrid
+            if( auto hyb = std::dynamic_pointer_cast< propagators::HybridArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >( results ) )
+            {
+                auto hdes = std::dynamic_pointer_cast< propagators::HybridArcSimulationResults< propagators::SingleArcSimulationResults, double, double > >( deserializedResults );
+                if( hdes )
+                {
+                    auto s = hyb->getSingleArcResults();
+                    auto sd = hdes->getSingleArcResults();
+                    std::cout << "hybrid: single raw size (orig/deser): " << s->getEquationsOfMotionNumericalSolutionRaw().size()
+                              << " / " << sd->getEquationsOfMotionNumericalSolutionRaw().size() << "\n";
+                }
+            }
+        }
+        BOOST_CHECK( *results == *deserializedResults );
     }
-
-    std::shared_ptr< propagators::SingleArcSimulationResults< double, double > > deserializedResults;
-    {
-        cereal::BinaryInputArchive inputArchive( serializationStream );
-        inputArchive( deserializedResults );
-    }
-
-    BOOST_REQUIRE( deserializedResults != nullptr );
-    compareSingleArcResults( *originalResults, *deserializedResults );
-}
-
-BOOST_AUTO_TEST_CASE( test_SingleArcVariationalSimulationResultsSerialization )
-{
-    auto originalResults = createSingleArcVariationalResults( );
-
-    std::stringstream serializationStream;
-    {
-        cereal::BinaryOutputArchive outputArchive( serializationStream );
-        outputArchive( originalResults );
-    }
-
-    std::shared_ptr< propagators::SingleArcVariationalSimulationResults< double, double > > deserializedResults;
-    {
-        cereal::BinaryInputArchive inputArchive( serializationStream );
-        inputArchive( deserializedResults );
-    }
-
-    BOOST_REQUIRE( deserializedResults != nullptr );
-    compareVariationalResults( *originalResults, *deserializedResults );
-}
-
-BOOST_AUTO_TEST_CASE( test_MultiArcSimulationResultsSerialization )
-{
-    auto originalResults = createMultiArcResults( );
-
-    std::stringstream serializationStream;
-    {
-        cereal::BinaryOutputArchive outputArchive( serializationStream );
-        outputArchive( originalResults );
-    }
-
-    std::shared_ptr< propagators::MultiArcSimulationResults< propagators::SingleArcSimulationResults, double, double > > deserializedResults;
-    {
-        cereal::BinaryInputArchive inputArchive( serializationStream );
-        inputArchive( deserializedResults );
-    }
-
-    BOOST_REQUIRE( deserializedResults != nullptr );
-    BOOST_CHECK_EQUAL( originalResults->getPropagationIsPerformed( ), deserializedResults->getPropagationIsPerformed( ) );
-    BOOST_CHECK_EQUAL( originalResults->getSolutionIsCleared( ), deserializedResults->getSolutionIsCleared( ) );
-    BOOST_CHECK_EQUAL( originalResults->getSingleArcResults( ).size( ), deserializedResults->getSingleArcResults( ).size( ) );
-    BOOST_CHECK_EQUAL( originalResults->getArcStartTimes( ).size( ), deserializedResults->getArcStartTimes( ).size( ) );
-    BOOST_CHECK_EQUAL( originalResults->getArcEndTimes( ).size( ), deserializedResults->getArcEndTimes( ).size( ) );
-}
-
-BOOST_AUTO_TEST_CASE( test_HybridArcSimulationResultsSerialization )
-{
-    auto originalResults = createHybridArcResults( );
-
-    std::stringstream serializationStream;
-    {
-        cereal::BinaryOutputArchive outputArchive( serializationStream );
-        outputArchive( originalResults );
-    }
-
-    std::shared_ptr< propagators::HybridArcSimulationResults< propagators::SingleArcSimulationResults, double, double > > deserializedResults;
-    {
-        cereal::BinaryInputArchive inputArchive( serializationStream );
-        inputArchive( deserializedResults );
-    }
-
-    BOOST_REQUIRE( deserializedResults != nullptr );
-    BOOST_CHECK_EQUAL( originalResults->getSingleArcResults( )->getPropagationIsPerformed( ),
-                       deserializedResults->getSingleArcResults( )->getPropagationIsPerformed( ) );
-    BOOST_CHECK_EQUAL( originalResults->getMultiArcResults( )->getPropagationIsPerformed( ),
-                       deserializedResults->getMultiArcResults( )->getPropagationIsPerformed( ) );
-    BOOST_CHECK_EQUAL( originalResults->integrationCompletedSuccessfully( ), deserializedResults->integrationCompletedSuccessfully( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
