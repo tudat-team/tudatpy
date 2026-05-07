@@ -22,6 +22,8 @@ The next steps outline how to get to a working version of Tudatpy. First we list
   - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
   - In the Ubuntu terminal environment under WSL, run the command `sudo apt-get install build-essential` to install the necessary compilation tools
 - Anaconda/Miniconda installation ([Installing Anaconda](https://docs.tudat.space/en/latest/getting-started/use-of-tools/conda.html))
+- CMake installation
+  - Inside the Ubuntu terminal, install CMake by calling `sudo apt install cmake`.
 
 ## Setup
 
@@ -108,10 +110,12 @@ Desired result:
 ````
 ### Running `tudat` tests
 
+Note that `tudat` tests are only built when using the `--tests` flag with `build.py`, for example `python build.py --tests -j4`.
+
 2. Enter the `tudatpy/build` directory and run the tests using `ctest`
 ````
 cd build
-ctest
+ctest -j <number-of-cores>
 ````
 
 Desired result:
@@ -120,3 +124,5 @@ Desired result:
 100% tests passed, 0 tests failed out of 224
 Total Test time (real) = 490.77 sec
 ````
+
+Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.
