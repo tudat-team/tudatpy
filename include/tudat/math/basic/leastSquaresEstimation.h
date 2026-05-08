@@ -34,13 +34,12 @@ namespace linear_algebra
  */
 double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
 
-//! Function to get condition number of matrix from SVD decomposition
-/*!
- *  Function to get condition number of matrix from SVD decomposition
- * \param singularValueDecomposition SVD decomposition of matrix
- * \return Condition number of matrix
- */
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition );
+template <int Options>
+double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd, Options >& singularValueDecomposition )
+{
+    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+}
 
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 /*!
