@@ -10,7 +10,7 @@
 # Set the source files.
 set(observation_partials_SOURCES
   "angularPositionPartial.cpp"
-  "cameraPixelsPartial.cpp"
+  "pixelCoordinatesPartial.cpp"
   "rotationMatrixPartial.cpp"
   "positionPartials.cpp"
   "differencedObservationPartial.cpp"
@@ -28,7 +28,7 @@ set(observation_partials_SOURCES
 # Set the header files.
 set(observation_partials_HEADERS
   "angularPositionPartial.h"
-  "cameraPixelsPartial.h"
+  "pixelCoordinatesPartial.h"
   "rotationMatrixPartial.h"
   "positionPartials.h"
   "oneWayRangePartial.h"

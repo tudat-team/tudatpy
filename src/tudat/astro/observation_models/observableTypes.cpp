@@ -72,7 +72,7 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
         case n_way_differenced_range:
             linkEndTypeDefinesId = false;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             break;
         default:
             throw std::runtime_error( "Error when determining if link end type defines id; observable " +
@@ -117,7 +117,7 @@ bool isObservableTypeMultiLink( const ObservableType observableType )
         case n_way_differenced_range:
             isIntegratedTypeisMultiLink = true;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             break;
         default:
             throw std::runtime_error( "Error when determining if observable type is multilink; observable " +
@@ -176,7 +176,7 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
         case dsn_n_way_averaged_doppler:
             isIntegratedType = true;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             isIntegratedType = false;
             break;
         default:
@@ -203,7 +203,7 @@ bool requiresTransmittingStation( const ObservableType observableType )
         case relative_angular_position:
         case n_way_differenced_range:
         case dsn_one_way_averaged_doppler:
-        case camera_pixels:
+        case pixel_coordinates:
         case differenced_time_of_arrival:
             requiresTransmittingStation = false;
             break;
@@ -239,7 +239,7 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
         case dsn_n_way_averaged_doppler:
         case dsn_n_way_range:
         case differenced_time_of_arrival:
-        case camera_pixels:
+        case pixel_coordinates:
             requiresFirstReceivingStation = false;
             break;
         case dsn_one_way_averaged_doppler:
@@ -271,7 +271,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_n_way_range:
-        case camera_pixels:
+        case pixel_coordinates:
         case dsn_one_way_averaged_doppler:
             requiresSecondReceivingStation = false;
             break;
@@ -310,7 +310,7 @@ bool isRadiometricObservableType( const ObservableType observableType )
         case undefined_observation_model:
             isRadiometric = false;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             isRadiometric = false;
             break;
         default:
@@ -343,7 +343,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
         case velocity_observable:
         case relative_angular_position:
         case differenced_time_of_arrival:
-        case camera_pixels:
+        case pixel_coordinates:
             isPhaseVelocityBased = false;
             break;
         default:
@@ -376,7 +376,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
         case velocity_observable:
         case relative_angular_position:
         case differenced_time_of_arrival:
-        case camera_pixels:
+        case pixel_coordinates:
             isGroupVelocityBased = false;
             break;
         default:
@@ -395,7 +395,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
             break;
         case angular_position:
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             break;
         case position_observable:
             break;
@@ -531,8 +531,8 @@ std::string getObservableName( const ObservableType observableType, const int nu
         case angular_position:
             observableName = "AngularPosition";
             break;
-        case camera_pixels:
-            observableName = "CameraPixels";
+        case pixel_coordinates:
+            observableName = "PixelCoordinates";
             break;
         case position_observable:
             observableName = "CartesianPosition";
@@ -613,9 +613,9 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = velocity_observable;
     }
-    else if( observableName == "CameraPixels" )
+    else if( observableName == "PixelCoordinates" )
     {
-        observableType = camera_pixels;
+        observableType = pixel_coordinates;
     }
     else if( observableName == "OneWayDoppler" )
     {
@@ -719,8 +719,8 @@ ObservableType getBaseObservableType( const ObservableType observableType )
         case relative_angular_position:
             baseObservableType = angular_position;
             break;
-        case camera_pixels:
-            baseObservableType = camera_pixels;
+        case pixel_coordinates:
+            baseObservableType = pixel_coordinates;
             break;
         default:
             throw std::runtime_error( "Error when getting base observable type for " + getObservableName( observableType ) +
@@ -842,7 +842,7 @@ int getObservableSize( const ObservableType observableType )
         case one_way_range:
             observableSize = 1;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
         case angular_position:
             observableSize = 2;
             break;
@@ -1119,7 +1119,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
                     throw std::runtime_error( errorMessage );
             }
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             switch( linkEndType )
             {
                 case transmitter:
@@ -1193,7 +1193,7 @@ LinkEndType getDefaultReferenceLinkEndType( const ObservableType observableType 
         case relative_position_observable:
             referenceLinkEndType = observed_body;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             referenceLinkEndType = receiver;
             break;
         default:
@@ -1259,7 +1259,7 @@ int getNumberOfLinksInObservable( const ObservableType observableType, const int
         case relative_position_observable:
             numberOfLinks = 0;
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             numberOfLinks = 1;
             break;
         default:
@@ -1547,7 +1547,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
 
             throw std::runtime_error( "Error, parsed irrelevant relative position observable link end types for link end indices" );
             break;
-        case camera_pixels:
+        case pixel_coordinates:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
                 ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
@@ -1575,7 +1575,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
 {
     std::map< LinkEndType, int > singleLinkStateEntries;
-    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler || observableType == camera_pixels )
+    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler || observableType == pixel_coordinates )
     {
         singleLinkStateEntries = oneWayLinkStateEntries;
     }
@@ -1655,7 +1655,7 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
                                                   std::make_pair( observed_body, linkEnds.at( observed_body ) ) ) );
             break;
         }
-        case camera_pixels: {
+        case pixel_coordinates: {
             interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ),
                                                   std::make_pair( transmitter, linkEnds.at( transmitter ) ) ) );
             break;

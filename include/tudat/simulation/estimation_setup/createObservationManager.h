@@ -658,7 +658,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
             break;
         case angular_position:
         case relative_angular_position:
-        case camera_pixels:
+        case pixel_coordinates:
             observationManager = createObservationManager< 2, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,

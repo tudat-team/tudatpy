@@ -43,7 +43,7 @@ enum ObservableType {
     doppler_measured_frequency = 14,
     dsn_n_way_range = 15,
     differenced_time_of_arrival = 16,
-    camera_pixels = 17
+    pixel_coordinates = 17
 };
 
 // std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,

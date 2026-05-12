@@ -77,7 +77,7 @@ Examples
             .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
             .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
             .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
-            .value( "camera_pixels_type", tom::ObservableType::camera_pixels )
+            .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
             .export_values( );
 
     py::class_< tom::DopplerProperTimeRateSettings, std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
@@ -634,17 +634,17 @@ Examples
 
      )doc" );
 
-    m.def( "camera_pixels",
-           &tom::cameraPixelSettings,
+    m.def( "pixel_coordinates",
+           &tom::pixelCoordinatesSettings,
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
- Function for creating settings for a camera pixels observable.
+ Function for creating settings for a pixel coordinates observable.
 
- Function for creating observation model settings of camera pixels type observables.
+ Function for creating observation model settings of pixel coordinates type observables.
  This observable provides the pixel coordinates of the observed object in the camera frame.
  The observable has size 2, and contains the :math:`x` and :math:`y` pixel coordinates.
  One of the link ends should lead to a camera object.

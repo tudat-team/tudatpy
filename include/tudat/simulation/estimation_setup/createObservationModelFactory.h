@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "tudat/astro/observation_models/cameraPixelsObservationModel.h"
+#include "tudat/astro/observation_models/pixelCoordinatesObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
 #include "tudat/astro/observation_models/dopplerMeasuredFrequencyObservationModel.h"
@@ -1657,21 +1657,21 @@ public:
 
                 break;
             }
-            case camera_pixels: {
+            case pixel_coordinates: {
                 // Check consistency input.
                 if( linkEnds.size( ) != 2 )
                 {
                     std::string errorMessage =
-                            "Error when making camera pixels model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
+                            "Error when making pixel coordinates model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
                     throw std::runtime_error( errorMessage );
                 }
                 if( linkEnds.count( receiver ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no receiver found" );
+                    throw std::runtime_error( "Error when making pixel coordinates model, no receiver found" );
                 }
                 if( linkEnds.count( transmitter ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no transmitter found" );
+                    throw std::runtime_error( "Error when making pixel coordinates model, no transmitter found" );
                 }
                 std::shared_ptr< ObservationBias< 2 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -1682,7 +1682,7 @@ public:
 
                 if( linkEnds.at( receiver ).getReferencePointName( ) == "" )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for receiver link end for body " +
+                    throw std::runtime_error( "Error when making pixel coordinates model, no camera specified for receiver link end for body " +
                                               linkEnds.at( receiver ).bodyName_ + "." );
                 }
 
@@ -1691,7 +1691,7 @@ public:
                             ->getCameraMap( )
                             .count( linkEnds.at( receiver ).getReferencePointName( ) ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, receiver " + linkEnds.at( receiver ).bodyName_ +
+                    throw std::runtime_error( "Error when making pixel coordinates model, receiver " + linkEnds.at( receiver ).bodyName_ +
                                               " does not have camera named " + linkEnds.at( receiver ).getReferencePointName( ) + "." );
                 }
 
@@ -1700,7 +1700,7 @@ public:
                                                                           ->getVehicleSystems( )
                                                                           ->getCamera( linkEnds.at( receiver ).getReferencePointName( ) );
 
-                observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
+                observationModel = std::make_shared< PixelCoordinatesObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
                                                                                       transmitter,
@@ -2089,11 +2089,11 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             singleObservableCorrectionList = ( angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
-        case observation_models::camera_pixels: {
-            std::shared_ptr< observation_models::CameraPixelsObservationModel< ObservationScalarType, TimeType > > cameraPixelsModel =
-                    std::dynamic_pointer_cast< observation_models::CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
+        case observation_models::pixel_coordinates: {
+            std::shared_ptr< observation_models::PixelCoordinatesObservationModel< ObservationScalarType, TimeType > > pixelCoordinatesModel =
+                    std::dynamic_pointer_cast< observation_models::PixelCoordinatesObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );
-            singleObservableCorrectionList = ( cameraPixelsModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+            singleObservableCorrectionList = ( pixelCoordinatesModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::one_way_differenced_range: {

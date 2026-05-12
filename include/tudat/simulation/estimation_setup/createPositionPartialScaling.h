@@ -18,7 +18,7 @@
 
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/cameraPixelsPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
@@ -278,12 +278,12 @@ public:
                 positionPartialScaler = std::make_shared< AngularPositionScaling >( angularPositionModel->getNormalizeRightAscension( ) );
                 break;
             }
-            case observation_models::camera_pixels: {
+            case observation_models::pixel_coordinates: {
                 std::shared_ptr< system_models::Camera > camera =
                         bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ )
                                 ->getVehicleSystems( )
                                 ->getCamera( linkEnds.at( observation_models::receiver ).getReferencePointName() );
-                positionPartialScaler = std::make_shared< CameraPixelsScaling >(
+                positionPartialScaler = std::make_shared< PixelCoordinatesScaling >(
                         [ camera ]( const double time ) { return camera->getRotationFromInertialToCameraFrame( time ); },
                         camera->getFocalLengthsMatrix( ) );
                 break;

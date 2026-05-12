@@ -9,7 +9,7 @@
  */
 
 #include <cmath>
-#include "tudat/astro/orbit_determination/observation_partials/cameraPixelsPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
 
 namespace tudat
 {
@@ -52,7 +52,7 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
     return partial;
 }
 
-void CameraPixelsScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
+void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                   const std::vector< double >& times,
                                   const observation_models::LinkEndType fixedLinkEnd,
                                   const Eigen::VectorXd )
@@ -60,7 +60,7 @@ void CameraPixelsScaling::update( const std::vector< Eigen::Vector6d >& linkEndS
     if( fixedLinkEnd != observation_models::receiver )
     {
         throw std::runtime_error(
-                "Error, only receiver link end type is currently supported as fixed link end for camera pixels partial scaling." );
+                "Error, only receiver link end type is currently supported as fixed link end for pixel coordinates partial scaling." );
     }
 
     Eigen::Vector3d relativeRangeVector =
@@ -74,7 +74,7 @@ void CameraPixelsScaling::update( const std::vector< Eigen::Vector6d >& linkEndS
 
     positionScalingFactor_ = positionScalingFactor_ * rotationFromInertialToCameraFrame.toRotationMatrix( );
 
-    // Only because receiver is currently the only supported fixed link end type for camera pixels observations.
+    // Only because receiver is currently the only supported fixed link end type for pixel coordinates observations.
     lightTimeCorrectionScalingFactor_ = positionScalingFactor_ * linkEndStates.at( observedBodyIndex_ ).segment( 3, 3 ) /
             ( physical_constants::SPEED_OF_LIGHT -
               linkEndStates.at( observedBodyIndex_ ).segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );

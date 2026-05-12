@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_CAMERA_PIXELS_PARTIAL_H
-#define TUDAT_CAMERA_PIXELS_PARTIAL_H
+#ifndef TUDAT_PIXEL_COORDINATES_PARTIAL_H
+#define TUDAT_PIXEL_COORDINATES_PARTIAL_H
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
@@ -37,21 +37,21 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
                                                                                      Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix,
                                                                                      const bool isLinkEndObserver );
 
-class CameraPixelsScaling : public DirectPositionPartialScaling< 2 >
+class PixelCoordinatesScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
-    CameraPixelsScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
-                         Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix ):
-        DirectPositionPartialScaling< 2 >( observation_models::camera_pixels ),
+    PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
+                             Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix ):
+        DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ), focalLengthsMatrix_( focalLengthsMatrix )
     {
         observerIndex_ =
-                observation_models::getSingleLinkStateEntryIndices( observation_models::camera_pixels ).at( observation_models::receiver );
-        observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::camera_pixels )
+                observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates ).at( observation_models::receiver );
+        observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
                                      .at( observation_models::transmitter );
     }
 
-    ~CameraPixelsScaling( ) {}
+    ~PixelCoordinatesScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!
@@ -127,4 +127,4 @@ private:
 };
 }  // namespace observation_partials
 }  // namespace tudat
-#endif  // TUDAT_CAMERA_PIXELS_PARTIAL_H
+#endif  // TUDAT_PIXEL_COORDINATES_PARTIAL_H

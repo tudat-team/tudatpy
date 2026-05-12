@@ -1069,7 +1069,7 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
             basic_astrodynamics::tdb_scale, normalizeRightAscension );
 }
 
-inline std::shared_ptr< ObservationModelSettings > cameraPixelSettings(
+inline std::shared_ptr< ObservationModelSettings > pixelCoordinatesSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
@@ -1092,7 +1092,7 @@ inline std::shared_ptr< ObservationModelSettings > cameraPixelSettings(
     }
 
     return std::make_shared< ObservationModelSettings >(
-            camera_pixels, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+            pixel_coordinates, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(

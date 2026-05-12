@@ -276,7 +276,7 @@ public:
                                                                                                    isPartialForDifferencedObservable,
                                                                                                    isPartialForConcatenatedObservable );
                 break;
-            case observation_models::camera_pixels:
+            case observation_models::pixel_coordinates:
                 observationPartials =
                         createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >( observationModel,
                                                                                                    bodies,

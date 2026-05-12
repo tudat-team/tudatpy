@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_CAMERA_PIXELS_OBSERVATION_MODEL_H
-#define TUDAT_CAMERA_PIXELS_OBSERVATION_MODEL_H
+#ifndef TUDAT_PIXEL_COORDINATES_OBSERVATION_MODEL_H
+#define TUDAT_PIXEL_COORDINATES_OBSERVATION_MODEL_H
 
 #include <map>
 #include <functional>
@@ -34,7 +34,7 @@ namespace observation_models
  * defined as a custom function.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class CameraPixelsObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
+class PixelCoordinatesObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
@@ -48,17 +48,17 @@ public:
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
-    CameraPixelsObservationModel(
+    PixelCoordinatesObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< system_models::Camera > camera,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 2, ObservationScalarType, TimeType >( camera_pixels, linkEnds, observationBiasCalculator ),
+        ObservationModel< 2, ObservationScalarType, TimeType >( pixel_coordinates, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), camera_( camera )
     {}
 
     //! Destructor
-    ~CameraPixelsObservationModel( ) {}
+    ~PixelCoordinatesObservationModel( ) {}
 
     //! Function to compute ideal camera pixel observation at given time.
     /*!
@@ -78,7 +78,7 @@ public:
     {
         if( linkEndAssociatedWithTime != receiver )
         {
-            throw std::runtime_error( "Error in CameraPixelsObservationModel, time must be associated with receiver link end." );
+            throw std::runtime_error( "Error in PixelCoordinatesObservationModel, time must be associated with receiver link end." );
         }
 
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
@@ -87,7 +87,7 @@ public:
 
         if( ancillarySetings != nullptr )
         {
-            throw std::runtime_error( "Error in CameraPixelsObservationModel, ancillary settings are not supported." );
+            throw std::runtime_error( "Error in PixelCoordinatesObservationModel, ancillary settings are not supported." );
         }
 
         Eigen::Matrix< ObservationScalarType, 6, 1 > sourceState;
@@ -103,7 +103,7 @@ public:
         linkEndTimes.clear( );
         linkEndStates.clear( );
 
-        // Link-end order for camera_pixels is [transmitter, receiver].
+        // Link-end order for pixel coordinates is [transmitter, receiver].
         linkEndStates.push_back( sourceState.template cast< double >( ) );
         linkEndStates.push_back( observerState.template cast< double >( ) );
 
@@ -131,4 +131,4 @@ protected:
 
 }  // namespace tudat
 
-#endif  // TUDAT_CAMERA_PIXELS_OBSERVATION_MODEL_H
+#endif  // TUDAT_PIXEL_COORDINATES_OBSERVATION_MODEL_H

@@ -27,7 +27,7 @@ set(observation_models_SOURCES
 # Set the header files.
 set(observation_models_HEADERS
         "angularPositionObservationModel.h"
-        "cameraPixelsObservationModel.h"
+        "pixelCoordinatesObservationModel.h"
         "lightTimeSolution.h"
         "linkTypeDefs.h"
         "observableTypes.h"
