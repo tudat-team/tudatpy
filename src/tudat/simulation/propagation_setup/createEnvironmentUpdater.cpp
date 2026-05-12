@@ -1313,6 +1313,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case aerodynamic_coefficients:
             break;
+        case proper_time_rate_kinematic_term:
+        case proper_time_rate_potential_term:
+            break;
         default:
             throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                       std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
