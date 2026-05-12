@@ -221,8 +221,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             }
                             if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
                             {
-                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
-                                                    "not found when making ground station position position partial" );
+                                throw std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
+                                                          "not found when making ground station position position partial" );
                             }
 
                             // Create partial object.
