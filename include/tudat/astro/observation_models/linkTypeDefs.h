@@ -86,7 +86,7 @@ struct LinkEndId {
         {
             return false;
         }
-        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
+        else if( linkEnd1.referencePointName_ < linkEnd2.referencePointName_ )
         {
             return true;
         }

@@ -1430,6 +1430,8 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
         }
         else
         {
+            // A tabulated ephemeris is needed both when integrated results are written back
+            // and when translational state processors are created (frame translations).
             if( setIntegratedResult )
             {
                 if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
