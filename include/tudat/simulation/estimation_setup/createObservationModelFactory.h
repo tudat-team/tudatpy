@@ -158,10 +158,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                         perturbingBodyStateFunctions,
                         perturbingBodyMatchLinkEnds,
                         directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_,
-                        [ spaceTimeProperties ]( )
-                        {
-                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
-                        } );
+                        [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); } );
             }
             break;
         }
@@ -478,10 +475,10 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
             observationBias = std::make_shared< TwoWayTimeScaleRangeBias< ObservationSize > >(
                     earth_orientation::createDefaultTimeConverter( ),
                     bodies.at( linkEnds.at( transmitter ).bodyName_ )
-                            ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                            ->getGroundStation( linkEnds.at( transmitter ).getReferencePointName( ) )
                             ->getNominalStationState( ),
                     bodies.at( linkEnds.at( transmitter ).bodyName_ )
-                            ->getGroundStation( linkEnds.at( receiver ).stationName_ )
+                            ->getGroundStation( linkEnds.at( receiver ).getReferencePointName( ) )
                             ->getNominalStationState( ) );
 
             break;
@@ -713,10 +710,10 @@ public:
                     {
                         if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                     ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                         {
                             stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                                 ->getNominalStationState( );
                         }
                     }
@@ -897,8 +894,12 @@ public:
                 // Create full-link light-time calculator
                 std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
                         fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
-                                singleLegsLightTimeConvergenceCriteriaList, multiLegLightTimeConvergenceCriteria );
+                                linkEnds,
+                                bodies,
+                                topLevelObservableType,
+                                lightTimeCorrectionsList,
+                                singleLegsLightTimeConvergenceCriteriaList,
+                                multiLegLightTimeConvergenceCriteria );
 
                 std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                         uplinkDopplerCalculator;
@@ -1084,10 +1085,10 @@ public:
                     {
                         if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                     ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                         {
                             stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                                 ->getNominalStationState( );
                         }
                     }
@@ -1224,10 +1225,10 @@ public:
                 {
                     if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                 ->getGroundStationMap( )
-                                .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
                         stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                            ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                             ->getNominalStationState( );
                     }
                 }
@@ -1237,7 +1238,7 @@ public:
                         arcStartObservationModel,
                         arcEndObservationModel,
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )
-                                ->getGroundStation( linkEnds.at( observation_models::transmitter ).stationName_ )
+                                ->getGroundStation( linkEnds.at( observation_models::transmitter ).getReferencePointName( ) )
                                 ->getTransmittingFrequencyCalculator( ),
                         turnaroundRatioFunction,
                         observationBias,
@@ -1323,10 +1324,10 @@ public:
                     {
                         if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                     ->getGroundStationMap( )
-                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                    .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                         {
                             stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                                 ->getNominalStationState( );
                         }
                     }
@@ -1421,10 +1422,10 @@ public:
                 {
                     if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                 ->getGroundStationMap( )
-                                .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                     {
                         stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                            ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                            ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                             ->getNominalStationState( );
                     }
                 }
@@ -1483,10 +1484,10 @@ public:
                         {
                             if( bodies.at( linkEnds.at( it.first ).bodyName_ )
                                         ->getGroundStationMap( )
-                                        .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                                        .count( linkEnds.at( it.first ).getReferencePointName( ) ) > 0 )
                             {
                                 stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
-                                                                    ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                    ->getGroundStation( linkEnds.at( it.first ).getReferencePointName( ) )
                                                                     ->getNominalStationState( );
                             }
                         }
@@ -1599,8 +1600,9 @@ public:
                                                                                       bodies,
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
-                                                                                      observationSettings->lightTimeConvergenceCriteria_),
-                                                                                      observationBias, observationSettings->useNormalization_  );
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        observationBias,
+                        observationSettings->useNormalization_ );
 
                 break;
             }
@@ -1678,24 +1680,25 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                if( linkEnds.at( receiver ).componentName_ == "" )
+                if( linkEnds.at( receiver ).getReferencePointName( ) == "" )
                 {
-                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for receiver" );
+                    throw std::runtime_error( "Error when making camera pixels model, no camera specified for receiver link end for body " +
+                                              linkEnds.at( receiver ).bodyName_ + "." );
                 }
 
                 if( bodies.at( linkEnds.at( receiver ).bodyName_ )
                             ->getVehicleSystems( )
                             ->getCameraMap( )
-                            .count( linkEnds.at( receiver ).componentName_ ) == 0 )
+                            .count( linkEnds.at( receiver ).getReferencePointName( ) ) == 0 )
                 {
                     throw std::runtime_error( "Error when making camera pixels model, receiver " + linkEnds.at( receiver ).bodyName_ +
-                                              " does not have camera named " + linkEnds.at( receiver ).componentName_ + "." );
+                                              " does not have camera named " + linkEnds.at( receiver ).getReferencePointName( ) + "." );
                 }
 
                 // Create observation model
                 std::shared_ptr< system_models::Camera > camera = bodies.at( linkEnds.at( receiver ).bodyName_ )
                                                                           ->getVehicleSystems( )
-                                                                          ->getCamera( linkEnds.at( receiver ).componentName_ );
+                                                                          ->getCamera( linkEnds.at( receiver ).getReferencePointName( ) );
 
                 observationModel = std::make_shared< CameraPixelsObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
@@ -1767,7 +1770,7 @@ public:
                             "Error when making position observable model, found light time "
                             "corrections" );
                 }
-                if( linkEnds.at( observed_body ).stationName_ != "" )
+                if( linkEnds.at( observed_body ).getReferencePointName( ) != "" )
                 {
                     throw std::runtime_error( "Error, cannot yet create position function for reference point" );
                 }
@@ -1817,7 +1820,7 @@ public:
                             "Error when making relative position observable model, found light "
                             "time corrections" );
                 }
-                if( linkEnds.at( observed_body ).stationName_ != "" )
+                if( linkEnds.at( observed_body ).getReferencePointName( ) != "" )
                 {
                     throw std::runtime_error( "Error, cannot yet create position function for reference point" );
                 }
@@ -1863,7 +1866,7 @@ public:
                             "Error when making euler angle observable model, found light time "
                             "corrections" );
                 }
-                if( linkEnds.at( observed_body ).stationName_ != "" )
+                if( linkEnds.at( observed_body ).getReferencePointName( ) != "" )
                 {
                     throw std::runtime_error( "Error, cannot yet create euler angle function for reference point" );
                 }
@@ -1913,7 +1916,7 @@ public:
                             "Error when making velocity observable model, found light time "
                             "corrections" );
                 }
-                if( linkEnds.at( observed_body ).stationName_ != "" )
+                if( linkEnds.at( observed_body ).getReferencePointName( ) != "" )
                 {
                     throw std::runtime_error( "Error, cannot yet create velocity function for reference point" );
                 }

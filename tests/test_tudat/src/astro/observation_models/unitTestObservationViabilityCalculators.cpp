@@ -270,7 +270,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             if( linkEnds.at( transmitter ).bodyName_ == referenceBody )
             {
                 currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                          ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                                                          ->getGroundStation( linkEnds.at( transmitter ).getReferencePointName( ) )
                                                           ->getPointingAnglesCalculator( );
                 elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
                         ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -278,7 +278,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             else if( linkEnds.at( receiver ).bodyName_ == referenceBody )
             {
                 currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                          ->getGroundStation( linkEnds.at( receiver ).stationName_ )
+                                                          ->getGroundStation( linkEnds.at( receiver ).getReferencePointName( ) )
                                                           ->getPointingAnglesCalculator( );
                 elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
                         ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -290,7 +290,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             //        if( linkEnds.at( transmitter ).bodyName_ == referenceBody )
             //        {
             //            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-            //                        linkEnds.at( transmitter ).stationName_ )->getPointingAnglesCalculator( );
+            //                        linkEnds.at( transmitter ).getReferencePointName( ) )->getPointingAnglesCalculator( );
             //            elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
             //                                           ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at(
             //                                           0 ) ) );
@@ -302,7 +302,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             //        else if( linkEnds.at( receiver ).bodyName_ == referenceBody )
             //        {
             //            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-            //                        linkEnds.at( receiver ).stationName_ )->getPointingAnglesCalculator( );
+            //                        linkEnds.at( receiver ).getReferencePointName( ) )->getPointingAnglesCalculator( );
             //            elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
             //                                           ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at(
             //                                           1 ) ) );
@@ -319,7 +319,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
                 if( linkEndIterator->second.bodyName_ == referenceBody )
                 {
                     currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                              ->getGroundStation( linkEndIterator->second.stationName_ )
+                                                              ->getGroundStation( linkEndIterator->second.getReferencePointName() )
                                                               ->getPointingAnglesCalculator( );
                     if( linkEndIndex != 0 )
                     {

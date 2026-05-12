@@ -91,11 +91,11 @@ public:
         std::string identifier = ", link end";
         if( linkEndId_ != LinkEndId( "", "" ) && linkEndType_ != unidentified_link_end )
         {
-            identifier += ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ") as " + getLinkEndTypeString( linkEndType_ );
+            identifier += ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.getReferencePointName() + ") as " + getLinkEndTypeString( linkEndType_ );
         }
         else if( linkEndId_ != LinkEndId( "", "" ) )
         {
-            identifier = ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ")";
+            identifier = ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.getReferencePointName() + ")";
         }
         else if( linkEndType_ != unidentified_link_end )
         {
@@ -104,12 +104,12 @@ public:
 
         if( originatingLinkEndId_ != LinkEndId( "", "" ) && originatingLinkEndType_ != unidentified_link_end )
         {
-            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.stationName_ + ") as " +
+            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.getReferencePointName() + ") as " +
                     getLinkEndTypeString( originatingLinkEndType_ );
         }
         else if( originatingLinkEndId_ != LinkEndId( "", "" ) )
         {
-            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.stationName_ + ")";
+            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.getReferencePointName() + ")";
         }
         else if( originatingLinkEndType_ != unidentified_link_end )
         {

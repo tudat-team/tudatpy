@@ -27,13 +27,13 @@ std::string createObsBiasSecondaryIdentifier( const observation_models::Observab
     auto transmitterIt = linkEnds.find( observation_models::transmitter );
     if( transmitterIt != linkEnds.end( ) )
     {
-        transmitterStr = transmitterIt->second.stationName_;
+        transmitterStr = transmitterIt->second.getReferencePointName( );
     }
 
     auto receiverIt = linkEnds.find( observation_models::receiver );
     if( receiverIt != linkEnds.end( ) )
     {
-        receiverStr = receiverIt->second.stationName_;
+        receiverStr = receiverIt->second.getReferencePointName( );
     }
 
     return transmitterStr + " --> " + receiverStr + " , " + observation_models::getObservableName( observableType );

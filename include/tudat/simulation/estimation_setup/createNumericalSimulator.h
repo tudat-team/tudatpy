@@ -90,7 +90,7 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
     }
     else
     {
-        throw std::runtime_error( "Error when creating variational equations solver, dynamics type not recognized" );
+        throw std::runtime_error( "Error when creating dynamics simulator, dynamics type not recognized" );
     }
 }
 
@@ -190,7 +190,8 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                 totalParameterSize,
                 std::vector< std::vector< std::pair< int, int > > >( ) );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         throw std::runtime_error( "Error, cannot yet create empty hybrid arc state transition interface" );
         return nullptr;

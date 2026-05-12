@@ -371,11 +371,11 @@ public:
                 for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
                     // Check if linkEndId is a ground station
-                    if( linkEndId.stationName_ != "" && linkEndId.bodyName_ != spacecraftName_ )
+                    if( linkEndId.getReferencePointName() != "" && linkEndId.bodyName_ != spacecraftName_ )
                     {
-                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.stationName_ ) )
+                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.getReferencePointName() ) )
                         {
-                            groundStations.push_back( linkEndId.stationName_ );
+                            groundStations.push_back( linkEndId.getReferencePointName() );
                         }
                     }
                 }
@@ -594,7 +594,7 @@ private:
 
         if( requiresTransmittingStation( currentObservableType ) )
         {
-            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
+            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( );
 
             // Check if transmitting station is in ramp tables
             if( rampInterpolators_.count( transmittingStation ) == 0 )
@@ -627,7 +627,7 @@ private:
         }
         if( requiresFirstReceivingStation( currentObservableType ) )
         {
-            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
+            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( );
 
             // Check if receiving station is in ramp tables
             if( rampInterpolators_.count( receivingStation ) == 0 )
@@ -727,16 +727,16 @@ private:
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileDopplerData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         case observation_models::ObservableType::dsn_n_way_range: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileSequentialRangeData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         default: {
@@ -1349,7 +1349,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
     Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_ );
+            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( ) );
 
     std::vector< TimeType > originalObservationTimesUtc =
             timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
@@ -1393,7 +1393,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         }
     }
 
-    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_;
+    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( );
     if( simulation_setup::getCombinedApproximateGroundStationPositions( ).count( stationName ) == 0 )
     {
         throw std::runtime_error(

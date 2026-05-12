@@ -505,10 +505,10 @@ public:
             {
                 for( auto it : linkEndsIt.first )
                 {
-                    if( ( it.second.stationName_ != "" ) &&
-                        ( std::count( referencePoints.begin( ), referencePoints.end( ), it.second.stationName_ ) == 0 ) )
+                    if( ( it.second.getReferencePointName() != "" ) &&
+                        ( std::count( referencePoints.begin( ), referencePoints.end( ), it.second.getReferencePointName() ) == 0 ) )
                     {
-                        referencePoints.push_back( it.second.stationName_ );
+                        referencePoints.push_back( it.second.getReferencePointName() );
                     }
                 }
             }
@@ -1423,7 +1423,7 @@ public:
                                     {
                                         isBodyInLinkEnds = true;
                                     }
-                                    if( it.second.stationName_ == name )
+                                    if( it.second.getReferencePointName() == name )
                                     {
                                         isGroundStationInLinkEnds = true;
                                     }

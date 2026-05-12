@@ -440,9 +440,9 @@ std::shared_ptr< ephemerides::Ephemeris > getLinkEndCompleteEphemeris( const obs
     if( bodies.count( linkEndId.bodyName_ ) == 0 )
     {
         std::string errorMessage;
-        if( linkEndId.stationName_ != "" )
+        if( linkEndId.getReferencePointName() != "" )
         {
-            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ", station " + linkEndId.stationName_ +
+            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ", station " + linkEndId.getReferencePointName() +
                     ": body not found.";
         }
         else
@@ -457,11 +457,11 @@ std::shared_ptr< ephemerides::Ephemeris > getLinkEndCompleteEphemeris( const obs
 
     std::shared_ptr< ephemerides::Ephemeris > linkEndEphemeris;
     // Checking transmitter if a reference point is to be used
-    if( linkEndId.stationName_ != "" )
+    if( linkEndId.getReferencePointName() != "" )
     {
         // Retrieve function to calculate state of transmitter S/C
         linkEndEphemeris =
-                createReferencePointEphemerisFromId< TimeType, StateScalarType >( bodyWithLinkEnd, linkEndId.stationName_, bodies );
+                createReferencePointEphemerisFromId< TimeType, StateScalarType >( bodyWithLinkEnd, linkEndId.getReferencePointName(), bodies );
     }
     // Else, create state function for center of mass
     else

@@ -161,7 +161,7 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
     {
         if( linkEndIterator->second == linkEndId ||
             ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) &&
-              linkEndId.stationName_ == "" && linkEndId.componentName_ == "" ) )
+              linkEndId.getReferencePointName() == "") )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }

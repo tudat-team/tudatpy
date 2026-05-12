@@ -432,12 +432,15 @@ public:
     //! Function to add a camera to the vehicle systems
     /*!
      * Function to add a camera to the vehicle systems
+     * Also creates a reference point at the camera location with the same name as the camera.
+     * In the future this can be extended to allow camera to be at a different location in the body.
      * \param cameraName Name of camera
      * \param camera Camera object that is to be set
      */
     void addCamera( const std::string& cameraName, const std::shared_ptr< system_models::Camera >& camera )
     {
         cameraMap[ cameraName ] = camera;
+        this -> setReferencePointPosition( cameraName, Eigen::Vector3d::Zero( ), camera -> getCameraId( ), "" );
     }
 
     //! Function to retrieve a camera

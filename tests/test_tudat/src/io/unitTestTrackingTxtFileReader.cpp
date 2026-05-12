@@ -58,7 +58,7 @@ std::ostream& operator<<( std::ostream& os, const observation_models::LinkEnds& 
     for( auto& linkEnd: linkEnds )
     {
         os << "\t{type: " << std::to_string( linkEnd.first ) << ", body: " << linkEnd.second.getBodyName( )
-           << ", station: " << linkEnd.second.getStationName( ) << "}\n";
+           << ", station: " << linkEnd.second.getReferencePointName( ) << "}\n";
     }
     os << "}";
     return os;

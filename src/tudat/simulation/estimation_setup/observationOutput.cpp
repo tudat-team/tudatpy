@@ -27,7 +27,7 @@ void checkObservationDependentVariableEnvironment(
     if( isObservationDependentVariableGroundStationProperty( variableSettings->variableType_ ) && variableSettings->isLinkEndDefined_ )
     {
         std::string bodyName = variableSettings->linkEndId_.bodyName_;
-        std::string stationName = variableSettings->linkEndId_.stationName_;
+        std::string stationName = variableSettings->linkEndId_.getReferencePointName( );
 
         if( bodies.count( bodyName ) == 0 )
         {
@@ -59,7 +59,7 @@ std::pair< int, int > getLinkEndStateTimeIndices( const observation_models::Obse
     if( currentStateTimeIndex.size( ) == 0 )
     {
         throw std::runtime_error( "Error in getting link and state ID for " + observation_models::getObservableName( observableType ) +
-                                  " Could not find link end: (" + linkEndId.bodyName_ + ", " + linkEndId.stationName_ + ")" );
+                                  " Could not find link end: (" + linkEndId.bodyName_ + ", " + linkEndId.getReferencePointName() + ")" );
     }
 
     // Filter list of indices by link end role
@@ -165,7 +165,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     }
 
     std::string bodyName = linkEndIdToUse.bodyName_;
-    std::string stationName = linkEndIdToUse.stationName_;
+    std::string stationName = linkEndIdToUse.getReferencePointName();
 
     if( bodies.count( bodyName ) == 0 )
     {

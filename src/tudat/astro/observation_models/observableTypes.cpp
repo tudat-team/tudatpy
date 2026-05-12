@@ -1307,12 +1307,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
     {
         case one_way_range:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }
@@ -1323,12 +1323,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case one_way_doppler:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }
@@ -1340,20 +1340,20 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
         case two_way_doppler:
         case doppler_measured_frequency:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
 
             if( linkEnds.at( reflector1 ) == linkEndToCheck ||
-                ( ( linkEnds.at( reflector1 ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                ( ( linkEnds.at( reflector1 ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 2, 3 ) );
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }
 
             if( linkEnds.at( receiver ) == linkEndToCheck ||
-                ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 3, 2 ) );
             }
@@ -1365,13 +1365,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case one_way_differenced_range:
             if( linkEnds.at( transmitter ) == linkEndToCheck ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
                 linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
                 linkEndIndices.push_back( std::make_pair( 3, 2 ) );
@@ -1384,13 +1384,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case dsn_one_way_averaged_doppler:
             if( linkEnds.at( transmitter ) == linkEndToCheck ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
                 linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
                 linkEndIndices.push_back( std::make_pair( 3, 2 ) );
@@ -1472,12 +1472,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
         }
         case angular_position:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }
@@ -1500,17 +1500,17 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case relative_angular_position:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 2 ) );
             }
             else if( ( linkEnds.at( transmitter2 ) == linkEndToCheck ) ||
-                     ( ( linkEnds.at( transmitter2 ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                     ( ( linkEnds.at( transmitter2 ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 2 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 2, 0 ) );
                 linkEndIndices.push_back( std::make_pair( 2, 1 ) );
@@ -1522,18 +1522,18 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case differenced_time_of_arrival:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
                 linkEndIndices.push_back( std::make_pair( 0, 2 ) );
             }
             else if( ( linkEnds.at( receiver ) == linkEndToCheck ) ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }
             else if( linkEnds.at( receiver2 ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver2 ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" ) )
+                     ( ( linkEnds.at( receiver2 ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 2, 0 ) );
             }
@@ -1549,14 +1549,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         case camera_pixels:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) &&
-                  linkEndToCheck.componentName_ == "" ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.getReferencePointName() == "" ) ) )
             {
                 linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             }
             else if( linkEnds.at( receiver ) == linkEndToCheck ||
-                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.stationName_ == "" &&
-                       linkEndToCheck.componentName_ == "" ) )
+                     ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) && linkEndToCheck.getReferencePointName() == "" ) )
             {
                 linkEndIndices.push_back( std::make_pair( 1, 0 ) );
             }

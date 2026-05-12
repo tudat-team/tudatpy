@@ -35,9 +35,7 @@ ObservationViabilitySettingsList filterObservationViabilitySettings( const Obser
             // Check if present viabilitytt setting is relevant
             if( linkEndIterator->second == observationViabilitySettings.at( i )->getAssociatedLinkEnd( ) ||
                 ( ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).second == "" ) &&
-                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) ) ||
-                ( ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) &&
-                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).second == linkEndIterator->second.componentName_ ) ) )
+                  ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.bodyName_ ) ) )
             {
                 filteredViabilitySettings.push_back( observationViabilitySettings.at( i ) );
                 break;
@@ -229,10 +227,10 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 {
                     if( linkEndIterator->second.bodyName_ == relevantObservationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first )
                     {
-                        if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.stationName_ ) ==
+                        if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.getReferencePointName() ) ==
                             listOfGroundStations.end( ) )
                         {
-                            listOfGroundStations.push_back( linkEndIterator->second.stationName_ );
+                            listOfGroundStations.push_back( linkEndIterator->second.getReferencePointName() );
                         }
                     }
                 }

@@ -47,57 +47,19 @@ enum LinkEndType {
     receiver2 = 9,
 };
 
-//! Enum defining the type of reference point represented by a LinkEndId.
-enum class LinkEndReferencePointType { undefined = -1, ground_station = 0, body_component = 1 };
-
 ////! Typedef for the identifier of a given link-end (body and reference points)
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ):
-        bodyName_( "" ), stationName_( "" ), componentName_( "" ),
-        referencePointType_( LinkEndReferencePointType::undefined )
+    LinkEndId( ): bodyName_( "" ), referencePointName_( "" ) {}
+
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), referencePointName_( linkEnd.second ) {}
+
+    LinkEndId( const std::string& bodyName, const std::string& referencePointName ):
+        bodyName_( bodyName ), referencePointName_( referencePointName )
     {}
 
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd ):
-        bodyName_( linkEnd.first ), stationName_( linkEnd.second ), componentName_( "" ),
-        referencePointType_( linkEnd.second.empty( ) ? LinkEndReferencePointType::undefined : LinkEndReferencePointType::ground_station )
-    {}
-
-    LinkEndId( const std::string& bodyName, const std::string& stationName ):
-        bodyName_( bodyName ), stationName_( stationName ), componentName_( "" ),
-        referencePointType_( stationName.empty( ) ? LinkEndReferencePointType::undefined : LinkEndReferencePointType::ground_station )
-    {}
-
-    LinkEndId( const std::string& bodyName, const std::string& referencePointName, const LinkEndReferencePointType referencePointType ):
-        bodyName_( bodyName ), stationName_( "" ), componentName_( "" ), referencePointType_( referencePointType )
-    {
-        if( referencePointType_ == LinkEndReferencePointType::ground_station )
-        {
-            stationName_ = referencePointName;
-        }
-        if( referencePointType_ == LinkEndReferencePointType::body_component )
-        {
-            componentName_ = referencePointName;
-        }
-    }
-
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd, const LinkEndReferencePointType referencePointType ):
-        bodyName_( linkEnd.first ), stationName_( "" ), componentName_( "" ), referencePointType_( referencePointType )
-    {
-        if( referencePointType_ == LinkEndReferencePointType::ground_station )
-        {
-            stationName_ = linkEnd.second;
-        }
-        else if( referencePointType_ == LinkEndReferencePointType::body_component )
-        {
-            componentName_ = linkEnd.second;
-        }
-    }
-
-    LinkEndId( const std::string& bodyName ):
-        bodyName_( bodyName ), stationName_( "" ), componentName_( "" ), referencePointType_( LinkEndReferencePointType::undefined )
-    {}
+    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), referencePointName_( "" ) {}
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
@@ -106,9 +68,7 @@ struct LinkEndId {
 
     friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
-        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.stationName_ == linkEnd2.stationName_ ) &&
-                 ( linkEnd1.componentName_ == linkEnd2.componentName_ ) &&
-                 ( linkEnd1.referencePointType_ == linkEnd2.referencePointType_ ) );
+        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.referencePointName_ == linkEnd2.referencePointName_ ) );
     }
 
     friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
@@ -126,25 +86,13 @@ struct LinkEndId {
         {
             return false;
         }
-        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
+        else if( linkEnd1.referencePointName_ < linkEnd2.referencePointName_ )
         {
             return true;
         }
-        else if( linkEnd1.stationName_ > linkEnd2.stationName_ )
+        else if( linkEnd1.referencePointName_ > linkEnd2.referencePointName_ )
         {
             return false;
-        }
-        else if( linkEnd1.componentName_ < linkEnd2.componentName_ )
-        {
-            return true;
-        }
-        else if( linkEnd1.componentName_ > linkEnd2.componentName_ )
-        {
-            return false;
-        }
-        else if( static_cast< int >( linkEnd1.referencePointType_ ) < static_cast< int >( linkEnd2.referencePointType_ ) )
-        {
-            return true;
         }
         else
         {
@@ -154,53 +102,27 @@ struct LinkEndId {
 
     std::string bodyName_;
 
-    std::string stationName_;
-
-    std::string componentName_;
-
-    LinkEndReferencePointType referencePointType_;
+    std::string referencePointName_;
 
     std::string getBodyName( ) const
     {
         return bodyName_;
     }
 
-    std::string getStationName( ) const
-    {
-        return stationName_;
-    }
-
-    std::string getComponentName( ) const
-    {
-        return componentName_;
-    }
-
-    LinkEndReferencePointType getReferencePointType( ) const
-    {
-        return referencePointType_;
-    }
-
     std::string getReferencePointName( ) const
     {
-        return ( stationName_ != "" ) ? stationName_ : componentName_;
+        return referencePointName_;
     }
 };
 
-inline LinkEndId linkEndId( const std::string& bodyName, const std::string& stationName )
+inline LinkEndId linkEndId( const std::string& bodyName, const std::string& referencePointName )
 {
-    return LinkEndId( bodyName, stationName );
+    return LinkEndId( bodyName, referencePointName );
 }
 
-inline LinkEndId linkEndId( const std::string& bodyName,
-                            const std::string& referencePointName,
-                            const LinkEndReferencePointType referencePointType )
+inline LinkEndId linkEndId( const std::pair< std::string, std::string >& linkEnd )
 {
-    return LinkEndId( bodyName, referencePointName, referencePointType );
-}
-
-inline LinkEndId linkEndId( const std::pair< std::string, std::string >& linkEnd, const LinkEndReferencePointType referencePointType )
-{
-    return LinkEndId( linkEnd, referencePointType );
+    return LinkEndId( linkEnd );
 }
 
 inline LinkEndId linkEndId( const std::string& bodyName )
