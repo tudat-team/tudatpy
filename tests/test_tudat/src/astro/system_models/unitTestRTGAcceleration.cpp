@@ -215,7 +215,6 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     rtgAccelerationModel->updateMembers( newTestTime );
 
     rotationMatrixFromFunction = timeDependentRotationFunction( newTestTime );
-    std::exp( -decayScaleFactor * ( newTestTime - referenceEpoch ) );
     expectedAcceleration = rtgForceVector * std::exp( -decayScaleFactor * ( newTestTime - referenceEpoch ) );
     expectedAcceleration = rotationMatrixFromFunction * expectedAcceleration / initialVehicleMass;
 

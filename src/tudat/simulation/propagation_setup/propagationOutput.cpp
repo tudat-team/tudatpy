@@ -632,6 +632,12 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case aerodynamic_coefficients:
             variableSize = 3;
             break;
+        case proper_time_rate_kinematic_term:
+            variableSize = 1;
+            break;
+        case proper_time_rate_potential_term:
+            variableSize = 1;
+            break;
         default:
             std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );

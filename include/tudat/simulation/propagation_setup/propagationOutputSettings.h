@@ -143,9 +143,11 @@ enum PropagationDependentVariables {
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
     solar_longitude = 78,
-    vehicle_part_rotation_matrix_dependent_variable = 79,
-    number_density = 80,
-    local_wind_velocity_dependent_variable = 81
+    proper_time_rate_kinematic_term = 79,
+    proper_time_rate_potential_term = 80,
+    vehicle_part_rotation_matrix_dependent_variable = 81,
+    number_density = 82,
+    local_wind_velocity_dependent_variable = 83
 
 };
 
@@ -1452,6 +1454,66 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > numberDensityDepen
                                                                                                const std::string& bodyWithAtmosphere )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( number_density, associatedBody, bodyWithAtmosphere );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the kinematic (special-relativistic,
+//! second-order Doppler) contribution to the proper-time-rate integrand of an observer.
+//!
+//! The observer is the reference point of one of the relativistic-time propagator settings:
+//!   - \ref FirstOrderBodycentricRelativisticTimePropagatorSettings (and its second-order
+//!     subclass) for a body centre, where the integrand follows Soffel et al. 2003 Eq. (58):
+//!     \f$ d\Delta_{BC}/dt_B = -(v_C^2/2 + w_{0,\mathrm{ext}})/c^2 \f$. This dependent variable
+//!     returns the \f$-v_C^2/(2c^2)\f$ contribution.
+//!   - \ref DirectRelativisticTimePropagatorSettings, where the integrand is the series
+//!     expansion \f$ d\tau/dt - 1 = -\varepsilon/2 - \varepsilon^2/8 \f$ with
+//!     \f$\varepsilon = (u^\mu h_{\mu\nu} u^\nu + v^2)/c^2\f$. This dependent variable returns
+//!     the leading kinematic part \f$-v^2/(2c^2)\f$ where \f$v\f$ is the reference-point BCRS
+//!     speed.
+//!   - \ref BodycenteredToTopocentricTimePropagatorSettings for a ground station, where the
+//!     integrand follows Turyshev et al. 2013 Eq. (22). This dependent variable returns the
+//!     \f$-v_0^2/(2c^2)\f$ contribution where \f$v_0\f$ is the reference-point velocity in
+//!     the body-centred frame.
+//!
+//! \param bodyName Body whose relativistic-time state is being propagated.
+//! \param referencePoint Optional ground-station / topocentric reference point on the body.
+//!        Leave empty (default) for body-centre proper time (TCG-like conversions).
+//! @get_docstring(properTimeRateKinematicTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRateKinematicTermDependentVariable(
+        const std::string& bodyName,
+        const std::string& referencePoint = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            proper_time_rate_kinematic_term, bodyName, referencePoint );
+}
+
+//! Build a SingleDependentVariableSaveSettings for the potential (general-relativistic,
+//! gravitational redshift) contribution to the proper-time-rate integrand of an observer.
+//!
+//! As for the kinematic term, the observer is the reference point of one of the
+//! relativistic-time propagator settings; the variable returns the \f$-U/c^2\f$ piece of the
+//! corresponding integrand:
+//!   - \ref FirstOrderBodycentricRelativisticTimePropagatorSettings (and its second-order
+//!     subclass): \f$U = w_{0,\mathrm{ext}}\f$, the cached external scalar potential at the
+//!     body centre summed over all configured perturbing bodies.
+//!   - \ref DirectRelativisticTimePropagatorSettings: \f$U\f$ is the SolarSystemMetric's
+//!     current total scalar potential at the reference-point BCRS position. **Throws** at
+//!     run time if the metric is not a SolarSystemMetric (e.g. SchwarzschildMetric is not
+//!     supported by this dependent variable).
+//!   - \ref BodycenteredToTopocentricTimePropagatorSettings: \f$U = U_E(\mathbf{y}) +
+//!     \sum_i \frac{GM_i}{2 r_i^3}(3(\hat{\mathbf{n}}_i\cdot\mathbf{y})^2 - \mathbf{y}^2) +
+//!     \mathbf{a}_E\cdot\mathbf{y}\f$, the local scalar plus tidal plus optional
+//!     centre-of-mass acceleration term from Turyshev et al. 2013 Eq. (22).
+//!
+//! \param bodyName Body whose relativistic-time state is being propagated.
+//! \param referencePoint Optional ground-station / topocentric reference point on the body.
+//!        Leave empty (default) for body-centre proper time (TCG-like conversions).
+//! @get_docstring(properTimeRatePotentialTermDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePotentialTermDependentVariable(
+        const std::string& bodyName,
+        const std::string& referencePoint = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            proper_time_rate_potential_term, bodyName, referencePoint );
 }
 
 }  // namespace propagators

@@ -342,6 +342,12 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case number_density:
             variableName = "Number density";
             break;
+        case proper_time_rate_kinematic_term:
+            variableName = "Proper-time-rate kinematic term -v^2/(2 c^2)";
+            break;
+        case proper_time_rate_potential_term:
+            variableName = "Proper-time-rate potential term -U_ext/c^2";
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
                     "not found when retrieving parameter name ";
