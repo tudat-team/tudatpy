@@ -10,6 +10,9 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
 
+#include <cmath>
+#include <limits>
+
 namespace tudat
 {
 
@@ -23,6 +26,11 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedB
     const Eigen::Vector3d currentVelocity = relativeState.segment( 3, 3 );
 
     const double currentDistance = currentPosition.norm( );
+    if( currentDistance <= std::numeric_limits< double >::epsilon( ) )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
     const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
     const Eigen::Matrix3d radialProjectionMatrix =
             Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
@@ -30,6 +38,13 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedB
     const double radialVelocity = currentVelocity.dot( radialUnitVector );
     const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
     const double transverseSpeed = transverseVelocity.norm( );
+    const double transverseSpeedTolerance =
+            std::sqrt( std::numeric_limits< double >::epsilon( ) ) * currentVelocity.norm( );
+    if( transverseSpeed <= transverseSpeedTolerance )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
     const Eigen::Vector3d transverseUnitVector = transverseVelocity / transverseSpeed;
 
     const double yarkovskyMagnitude =
@@ -50,12 +65,24 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedB
     const Eigen::Vector3d currentVelocity = relativeState.segment( 3, 3 );
 
     const double currentDistance = currentPosition.norm( );
+    if( currentDistance <= std::numeric_limits< double >::epsilon( ) )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
     const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
     const Eigen::Matrix3d radialProjectionMatrix =
             Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
 
     const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
     const double transverseSpeed = transverseVelocity.norm( );
+    const double transverseSpeedTolerance =
+            std::sqrt( std::numeric_limits< double >::epsilon( ) ) * currentVelocity.norm( );
+    if( transverseSpeed <= transverseSpeedTolerance )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
     const Eigen::Vector3d transverseUnitVector = transverseVelocity / transverseSpeed;
 
     return yarkovskyParameter * ( physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT ) /
@@ -75,7 +102,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > YarkovskyAcceleratio
     if( parameter->getParameterName( ).first == estimatable_parameters::yarkovsky_parameter &&
         parameter->getParameterName( ).second.first == this->getAcceleratedBody( ) )
     {
-        // If parameter is gravitational parameter, check and create dependency function .
+        // If parameter is Yarkovsky parameter, check and create dependency function.
         partialFunctionPair =
                 std::make_pair( std::bind( &YarkovskyAccelerationPartial::wrtYarkovskyParameter, this, std::placeholders::_1 ), 1 );
     }

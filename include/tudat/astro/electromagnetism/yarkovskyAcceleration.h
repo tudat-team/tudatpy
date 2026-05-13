@@ -26,7 +26,7 @@ namespace tudat
 namespace electromagnetism
 {
 
-//! Compute Yarkovsky Acceleration using a simplified tangential model.
+//! Compute Yarkovsky acceleration using the transverse direction of the RTN frame.
 /*!
  * \param yarkovskyParameter Yarkovsky Parameter N2                                          [m/s^2]
  * \param stateVector is the state vector pointing from the source to the body
