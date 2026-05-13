@@ -120,9 +120,6 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableName = "Rotation matrix to body-fixed frame ";
             break;
-        case vehicle_part_rotation_matrix_dependent_variable:
-            variableName = "Vehicle part rotation matrix ";
-            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableName = "Rotation matrix from ";
             break;
@@ -157,9 +154,6 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
             break;
         case body_fixed_groundspeed_based_velocity_variable:
             variableName = "Groundspeed-based velocity ";
-            break;
-        case local_wind_velocity_dependent_variable:
-            variableName = "Local wind velocity ";
             break;
         case total_aerodynamic_g_load_variable:
             variableName = "Aerodynamic g-load ";
@@ -338,9 +332,6 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
             break;
         case solar_longitude:
             variableName = "Solar longitude";
-            break;
-        case number_density:
-            variableName = "Number density";
             break;
         case proper_time_rate_kinematic_term:
             variableName = "Proper-time-rate kinematic term -v^2/(2 c^2)";

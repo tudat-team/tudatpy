@@ -13,7 +13,6 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
-#include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
@@ -529,18 +528,6 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
-                        }
-
-                        // Check if atmosphere model is a ComaModel (requires Sun state for solar longitude calculation)
-                        auto atmosphericFlightConditions = aerodynamicAcceleration->getFlightConditions();
-                        if( atmosphericFlightConditions != nullptr )
-                        {
-                            auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >(
-                                    atmosphericFlightConditions->getAtmosphereModel() );
-                            if( comaModel != nullptr )
-                            {
-                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
-                            }
                         }
                         break;
                     }
@@ -1086,9 +1073,6 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case inertial_to_body_fixed_rotation_matrix_variable:
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
-        case vehicle_part_rotation_matrix_dependent_variable:
-            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -1144,12 +1128,6 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             break;
         case body_fixed_groundspeed_based_velocity_variable:
-            variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
-            break;
-        case local_wind_velocity_dependent_variable:
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
@@ -1305,15 +1283,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case solar_longitude:
-            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( "Sun" );
-            break;
-        case number_density:
-            variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case vehicle_panel_inertial_surface_normals:
             variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );

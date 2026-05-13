@@ -31,7 +31,6 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
-#include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
@@ -1097,60 +1096,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
-        case local_wind_velocity_dependent_variable: {
-            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                        bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
-            {
-                simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
-            }
-
-            if( bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
-            {
-                std::string errorMessage =
-                        "Error, no aerodynamic angle calculator when creating dependent variable function of type "
-                        "local_wind_velocity_dependent_variable";
-                throw std::runtime_error( errorMessage );
-            }
-
-            // Get the target frame from settings
-            std::shared_ptr< LocalWindVelocityDependentVariableSaveSettings > windVelocitySettings =
-                    std::dynamic_pointer_cast< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings );
-
-            if( windVelocitySettings == nullptr )
-            {
-                throw std::runtime_error( "Error: could not cast to LocalWindVelocityDependentVariableSaveSettings" );
-            }
-
-            reference_frames::AerodynamicsReferenceFrames targetFrame = windVelocitySettings->targetFrame_;
-
-            // If target frame is corotating frame, return wind velocity directly
-            if( targetFrame == reference_frames::corotating_frame )
-            {
-                variableFunction = std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
-                                              bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
-            }
-            else
-            {
-                // Create function to transform wind velocity to target frame
-                std::function< Eigen::Vector3d( ) > windVelocityCorotatingFunction =
-                        std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
-                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
-
-                std::function< Eigen::Matrix3d( ) > rotationMatrixFunction =
-                        std::bind( &reference_frames::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
-                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
-                                   reference_frames::corotating_frame,
-                                   targetFrame );
-
-                variableFunction = [windVelocityCorotatingFunction, rotationMatrixFunction]( )
-                {
-                    return rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
-                };
-            }
-
-            parameterSize = 3;
-            break;
-        }
         case tnw_to_inertial_frame_rotation_dependent_variable: {
             std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                     std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );
@@ -1195,28 +1140,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             };
             variableFunction = std::bind( &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
 
-            parameterSize = 9;
-
-            break;
-        }
-        case vehicle_part_rotation_matrix_dependent_variable: {
-            // Check if body has vehicle systems
-            if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
-            {
-                throw std::runtime_error( "Error when getting vehicle part rotation matrix for body " + bodyWithProperty +
-                                          ", body does not have vehicle systems." );
-            }
-
-            // Get the part name from secondaryBody_ field
-            std::string partName = dependentVariableSettings->secondaryBody_;
-
-            // Create function to get rotation quaternion from vehicle systems
-            std::function< Eigen::Quaterniond( ) > rotationFunction = std::bind(
-                    &system_models::VehicleSystems::getPartRotationToBaseFrame,
-                    bodies.at( bodyWithProperty )->getVehicleSystems( ),
-                    partName );
-
-            variableFunction = std::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
             parameterSize = 9;
 
             break;
@@ -2082,40 +2005,6 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                                       bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
                 break;
-            case number_density:
-            {
-                if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                            bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
-                {
-                    simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
-                }
-                auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                        bodies.at( bodyWithProperty )->getFlightConditions( ) );
-                auto centralBody = bodies.at( secondaryBody );
-
-                // Use lambda to get number density
-                variableFunction = [flightConditions, centralBody]( ) -> double
-                {
-                    auto atmosphereModel = flightConditions->getAtmosphereModel( );
-
-                    // Check if it's a ComaModel and use its specific getNumberDensity method
-                    auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
-                    if( comaModel != nullptr )
-                    {
-                        double radius = flightConditions->getCurrentAltitude( ) + centralBody->getShapeModel( )->getAverageRadius( );
-                        return comaModel->getNumberDensity(
-                            radius,
-                            flightConditions->getCurrentLongitude( ),
-                            flightConditions->getCurrentLatitude( ),
-                            flightConditions->getCurrentTime( ) );
-                    }
-                    else
-                    {
-                        throw std::runtime_error( "Number density dependent variable is currently only supported for ComaModel atmospheres." );
-                    }
-                };
-                break;
-            }
             case radiation_pressure_dependent_variable: {
                 auto radiationPressureAccelerationList = getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
                                                                                        dependentVariableSettings->secondaryBody_,
@@ -3086,27 +2975,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             case solar_longitude:
             {
-                // Try ComaModel first
-                auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
-                if ( comaModel != nullptr )
-                {
-                    variableFunction = std::bind( &::tudat::aerodynamics::ComaModel::getSolarLongitude, comaModel );
-                }
-                else
-                {
-                    // Fall back to MarsDtmAtmosphereModel
-                    auto marsDtmModel = std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
-                    if ( marsDtmModel != nullptr )
-                    {
-                        variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude, marsDtmModel );
-                    }
-                    else
-                    {
-                        std::string errorMessage = "Error when making solar longitude dependent variable for body " + bodyWithProperty +
-                                                  ". Body does not have a ComaModel or MarsDtmAtmosphereModel atmosphere.";
-                        throw std::runtime_error( errorMessage );
-                    }
-                }
+                variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
+                                              std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
                 break;
             }
             case proper_time_rate_kinematic_term:

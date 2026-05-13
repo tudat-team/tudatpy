@@ -140,7 +140,7 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setAtmosphereModel( createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
-                                                                 orderedBodySettings.at( i ).first, bodyList ) );
+                                                                 orderedBodySettings.at( i ).first ) );
         }
     }
 

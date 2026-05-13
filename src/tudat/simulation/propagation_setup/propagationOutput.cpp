@@ -258,9 +258,6 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableSize = 9;
             break;
-        case vehicle_part_rotation_matrix_dependent_variable:
-            variableSize = 9;
-            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableSize = 9;
             break;
@@ -271,9 +268,6 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             variableSize = 3;
             break;
         case body_fixed_groundspeed_based_velocity_variable:
-            variableSize = 3;
-            break;
-        case local_wind_velocity_dependent_variable:
             variableSize = 3;
             break;
         case total_aerodynamic_g_load_variable:
@@ -483,9 +477,6 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case solar_longitude:
             variableSize = 1;
             break;
-        case number_density:
-            variableSize = 1;
-            break;
         case vehicle_panel_inertial_surface_normals:
         case vehicle_panel_body_fixed_surface_normals: {
             std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
@@ -656,9 +647,6 @@ std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDe
         case inertial_to_body_fixed_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
-        case vehicle_part_rotation_matrix_dependent_variable:
-            dependentVariableShape = { 3, 3 };
-            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
@@ -726,9 +714,6 @@ bool isMatrixDependentVariable( const std::shared_ptr< SingleDependentVariableSa
     switch( dependentVariableSettings->dependentVariableType_ )
     {
         case inertial_to_body_fixed_rotation_matrix_variable:
-            isMatrixVariable = true;
-            break;
-        case vehicle_part_rotation_matrix_dependent_variable:
             isMatrixVariable = true;
             break;
         case intermediate_aerodynamic_rotation_matrix_variable:
