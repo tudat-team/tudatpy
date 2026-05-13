@@ -28,10 +28,10 @@ BOOST_AUTO_TEST_CASE( testPoleTideSiteDisplacement )
     std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel = createStandardEarthOrientationCalculator( );
     std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );
 
-    std::bind( static_cast< Eigen::Vector2d ( OneDimensionalInterpolator< double, Eigen::Vector2d >::* )( const double ) >(
-                       &OneDimensionalInterpolator< double, Eigen::Vector2d >::interpolate ),
-               standardPolarMotionCalculator->getDailyIersValueInterpolator( ),
-               std::placeholders::_1 );
+    static_cast< void >( std::bind( static_cast< Eigen::Vector2d ( OneDimensionalInterpolator< double, Eigen::Vector2d >::* )( const double ) >(
+                                            &OneDimensionalInterpolator< double, Eigen::Vector2d >::interpolate ),
+                                    standardPolarMotionCalculator->getDailyIersValueInterpolator( ),
+                                    std::placeholders::_1 ) );
 
     PoleTideDeformation poleTideDeformationModel = PoleTideDeformation( standardPolarMotionCalculator );
 
