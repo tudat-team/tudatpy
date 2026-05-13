@@ -5,7 +5,7 @@ channels:
 dependencies:
   - cmake
   - make
-  - eigen=3.4.0
+  - eigen=5.0.0
   - boost-cpp=1.84.0
   - tudat-resources
   - sofa-cmake
