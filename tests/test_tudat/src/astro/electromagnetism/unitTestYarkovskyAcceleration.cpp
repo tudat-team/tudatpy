@@ -16,8 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <cmath>
-#include <limits>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -50,22 +48,9 @@ Eigen::Vector3d computeExpectedYarkovskyAcceleration( const double A2, const Eig
 {
     const double r0 = AU;
     const double rSun = state.head( 3 ).norm( );
-    if( rSun <= std::numeric_limits< double >::epsilon( ) )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
-
     const Eigen::Vector3d radialUnitVector = state.head( 3 ) / rSun;
     const Eigen::Vector3d transverseVelocity = state.tail( 3 ) - state.tail( 3 ).dot( radialUnitVector ) * radialUnitVector;
-    const double transverseSpeed = transverseVelocity.norm( );
-    const double transverseSpeedTolerance =
-            std::sqrt( std::numeric_limits< double >::epsilon( ) ) * state.tail( 3 ).norm( );
-    if( transverseSpeed <= transverseSpeedTolerance )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
-
-    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * transverseVelocity / transverseSpeed;
+    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * transverseVelocity.normalized( );
     return acceleration;
 }
 

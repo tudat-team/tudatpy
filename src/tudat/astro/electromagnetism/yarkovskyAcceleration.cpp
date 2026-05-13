@@ -11,9 +11,6 @@
 
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 
-#include <cmath>
-#include <limits>
-
 namespace tudat
 {
 namespace electromagnetism
@@ -26,25 +23,12 @@ Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const E
     const Eigen::Vector3d currentVelocity = stateVector.segment( 3, 3 );
 
     const double currentDistance = currentPosition.norm( );
-    if( currentDistance <= std::numeric_limits< double >::epsilon( ) )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
-
     const double auOverDistance = physical_constants::ASTRONOMICAL_UNIT / currentDistance;
     const double yarkovskyMagnitude = yarkovskyParameter * auOverDistance * auOverDistance;
 
     const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
     const Eigen::Vector3d transverseVelocity = currentVelocity - currentVelocity.dot( radialUnitVector ) * radialUnitVector;
-    const double transverseSpeed = transverseVelocity.norm( );
-    const double transverseSpeedTolerance =
-            std::sqrt( std::numeric_limits< double >::epsilon( ) ) * currentVelocity.norm( );
-    if( transverseSpeed <= transverseSpeedTolerance )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
-
-    const Eigen::Vector3d yarkovskyDirection = transverseVelocity / transverseSpeed;
+    const Eigen::Vector3d yarkovskyDirection = transverseVelocity.normalized( );
 
     return yarkovskyMagnitude * yarkovskyDirection;
 }
