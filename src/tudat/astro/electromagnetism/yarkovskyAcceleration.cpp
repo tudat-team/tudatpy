@@ -16,7 +16,7 @@ namespace tudat
 namespace electromagnetism
 {
 
-//! Compute Yarkovsky Acceleration using a simplified tangential model.
+//! Compute Yarkovsky acceleration using the transverse direction of the RTN frame.
 Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const Eigen::Vector6d& stateVector )
 {
     const Eigen::Vector3d currentPosition = stateVector.segment( 0, 3 );
