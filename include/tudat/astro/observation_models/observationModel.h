@@ -63,8 +63,13 @@ public:
      */
     ObservationModel( const ObservableType observableType,
                       const LinkEnds linkEnds,
-                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
-        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator )
+                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
+                      const std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
+                              lightTimeCalculators =
+                                      std::vector< std::shared_ptr<
+                                              FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >( ) ):
+        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator ),
+        lightTimeCalculators_( lightTimeCalculators )
     {
         // Check if bias is empty
         if( observationBiasCalculator_ != nullptr )
@@ -99,6 +104,17 @@ public:
     LinkEnds getLinkEnds( )
     {
         return linkEnds_;
+    }
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getObservationLightTimeCalculator(
+            const unsigned int pathIndex = 0 )
+    {
+        return getFullLinkLightTimeCalculatorFromBase( pathIndex );
+    }
+
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > getObservationLightTimeCalculators( )
+    {
+        return lightTimeCalculators_;
     }
 
     //! Function to compute the observable without any corrections
@@ -308,6 +324,37 @@ public:
     }
 
 protected:
+    std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getSingleLegLightTimeCalculator(
+            const unsigned int pathIndex = 0,
+            const unsigned int legIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving single-leg light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getSingleLegLightTimeCalculator( legIndex );
+    }
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculatorFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving full-link light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex );
+    }
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculatorsFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving light-time calculators: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getLightTimeCalculators( );
+    }
+
     bool setFrequencyProperties( const TimeType time,
                                  const LinkEndType linkEndAssociatedWithTime,
                                  const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
@@ -351,7 +398,7 @@ protected:
     bool setFrequencyProperties(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+            const std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator,
             const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
             std::shared_ptr< ObservationAncillarySimulationSettings > &ancillarySetingsToUse )
     {
@@ -374,7 +421,7 @@ protected:
                     ancillarySetingsToUse = inputAncillarySetings;
                 }
 
-                setTransmissionReceptionFrequencies( multiLegLightTimeCalculator,
+                setTransmissionReceptionFrequencies( fullLinkLightTimeCalculator,
                                                      timeScaleConverter_,
                                                      frequencyInterpolator_,
                                                      time,
@@ -429,8 +476,10 @@ protected:
     /*!
      *  Object for calculating system-dependent errors in the observable, i.e.
      * deviations from the physically true observable
-     */
+    */
     std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
+
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
 
     //! Boolean set by constructor to denote whether observationBiasCalculator_ is nullptr.
     bool isBiasNullptr_;

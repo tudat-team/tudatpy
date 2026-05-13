@@ -18,7 +18,9 @@
 #include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
@@ -2975,6 +2977,162 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             {
                 variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
                                               std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
+                break;
+            }
+            case proper_time_rate_kinematic_term:
+            case proper_time_rate_potential_term:
+            {
+                // The dependent variable is keyed by ``(bodyWithProperty, secondaryBody)``,
+                // where ``secondaryBody`` is the optional reference-point name (empty for the
+                // body centre itself). We locate the matching relativistic-time state
+                // derivative among ``stateDerivativeModels[proper_time]`` and produce a
+                // closure that returns the requested -v^2/(2 c^2) (kinematic) or -U/c^2
+                // (potential) component every step. Three propagator pipelines are supported:
+                //   (1) FirstOrderBarycentricToBodyCentricTimeStateDerivative (and its
+                //       second-order subclass): Soffel et al. 2003 Eq. (58), reference point
+                //       is the body centre (secondaryBody == "").
+                //   (2) DirectProperTimeRateStateDerivative: series expansion from the
+                //       SolarSystemMetric, applicable to any reference point that has a state
+                //       function bound at construction.
+                //   (3) FirstOrderBodyCentricToTopoCentricTimeCalculator: Turyshev et al.
+                //       2013 Eq. (22), for ground stations identified by (body, station).
+                std::shared_ptr< ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                        StateScalarType, TimeType > > pnStateDerivative;
+                std::shared_ptr< ::tudat::DirectProperTimeRateStateDerivative<
+                        StateScalarType, TimeType > > directStateDerivative;
+                std::shared_ptr< ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator<
+                        StateScalarType, TimeType > > topoStateDerivative;
+
+                const auto properTimeIt = stateDerivativeModels.find( proper_time );
+                if( properTimeIt != stateDerivativeModels.end( ) )
+                {
+                    for( const auto& candidate : properTimeIt->second )
+                    {
+                        if( !secondaryBody.empty( ) )
+                        {
+                            auto topoCandidate = std::dynamic_pointer_cast<
+                                    ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator<
+                                            StateScalarType, TimeType > >( candidate );
+                            if( topoCandidate != nullptr &&
+                                topoCandidate->getReferencePoint( ) ==
+                                    std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                topoStateDerivative = topoCandidate;
+                                break;
+                            }
+                            auto directCandidate = std::dynamic_pointer_cast<
+                                    ::tudat::DirectProperTimeRateStateDerivative<
+                                            StateScalarType, TimeType > >( candidate );
+                            if( directCandidate != nullptr &&
+                                directCandidate->getReferencePoint( ) ==
+                                    std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                directStateDerivative = directCandidate;
+                            }
+                            continue;
+                        }
+                        auto pnCandidate = std::dynamic_pointer_cast<
+                                ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( pnCandidate != nullptr && pnCandidate->getCentralBody( ) == bodyWithProperty )
+                        {
+                            pnStateDerivative = pnCandidate;
+                            break;
+                        }
+                        auto directCandidate = std::dynamic_pointer_cast<
+                                ::tudat::DirectProperTimeRateStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( directCandidate != nullptr && directCandidate->getCentralBody( ) == bodyWithProperty &&
+                            directCandidate->getReferencePoint( ).second.empty( ) )
+                        {
+                            directStateDerivative = directCandidate;
+                        }
+                    }
+                }
+
+                const double invSquareC = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                const bool wantKinematic =
+                        ( dependentVariableSettings->dependentVariableType_ == proper_time_rate_kinematic_term );
+
+                if( pnStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            const double v = pnStateDerivative->getCurrentCentralBodySpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            return -pnStateDerivative->getCurrentExternalScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else if( topoStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            const double v = topoStateDerivative->getCurrentReferencePointSpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            return -topoStateDerivative->getCurrentLocalPotentialAndTidalContribution( )
+                                    * invSquareC;
+                        };
+                    }
+                }
+                else if( directStateDerivative != nullptr )
+                {
+                    auto referenceStateFunction = directStateDerivative->getReferencePointStateFunction( );
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ referenceStateFunction, invSquareC ]( ) {
+                            const Eigen::Vector6d state = referenceStateFunction( );
+                            return -0.5 * state.segment( 3, 3 ).squaredNorm( ) * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        // Only the SolarSystemMetric currently exposes a cached total scalar
+                        // potential at the evaluation point (via getCurrentScalarPotential).
+                        // Other Metric subclasses (e.g. SchwarzschildMetric) would need a
+                        // dedicated dependent variable; rather than silently returning 0 we
+                        // throw so that users see the limitation.
+                        auto solarMetric = std::dynamic_pointer_cast< relativity::SolarSystemMetric >(
+                                directStateDerivative->getSpaceTimeMetric( ) );
+                        if( solarMetric == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating proper_time_rate_potential_term dependent "
+                                    "variable for body " + bodyWithProperty +
+                                    ( secondaryBody.empty( ) ? std::string( "" ) :
+                                            std::string( ":" ) + secondaryBody ) +
+                                    ": direct-from-metric state derivative is not backed by a "
+                                    "SolarSystemMetric, which is required to expose the current "
+                                    "scalar potential." );
+                        }
+                        variableFunction = [ solarMetric, invSquareC ]( ) {
+                            return -solarMetric->getCurrentScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error(
+                            "Error when creating proper-time-rate dependent variable: "
+                            "no relativistic-time state derivative found for body " +
+                            bodyWithProperty +
+                            ( secondaryBody.empty( ) ? std::string( "" ) :
+                                    std::string( " with reference point " ) + secondaryBody ) +
+                            ". Make sure this body is being propagated as a post-Newtonian, "
+                            "topocentric, or direct-from-metric relativistic time state." );
+                }
                 break;
             }
             default:

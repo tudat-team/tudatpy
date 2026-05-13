@@ -110,10 +110,12 @@ Desired result:
 ````
 ### Running `tudat` tests
 
+Note that `tudat` tests are only built when using the `--tests` flag with `build.py`, for example `python build.py --tests -j4`.
+
 2. Enter the `tudatpy/build` directory and run the tests using `ctest`
 ````
 cd build
-ctest
+ctest -j <number-of-cores>
 ````
 
 Desired result:
@@ -122,3 +124,5 @@ Desired result:
 100% tests passed, 0 tests failed out of 224
 Total Test time (real) = 490.77 sec
 ````
+
+Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.
