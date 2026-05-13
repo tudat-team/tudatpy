@@ -1778,7 +1778,7 @@ private:
  * that are used together to construct a ComaWindModel. All three datasets must be of
  * the same type (either all polynomial or all Stokes coefficients).
  *
- * The wind velocity components are defined in a modified vertical frame:
+ * The wind velocity components in these input datasets are defined in a modified vertical frame:
  *   - X-component: Meridional direction (North, in meridian plane)
  *   - Y-component: Zonal direction (West, completing the right-handed frame)
  *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
@@ -2461,13 +2461,16 @@ protected:
  * \class ComaWindModelSettings
  * \brief Configuration settings for coma wind models
  *
- * This class handles three separate datasets for wind velocity components in the modified vertical frame.
+ * This class handles three separate input datasets for wind velocity components in the modified vertical frame.
  * Each dataset can contain either polynomial coefficients or pre-computed Stokes coefficients.
  *
- * The wind velocity components are defined in a modified vertical frame where:
+ * The wind velocity components in these input datasets are defined in a modified vertical frame where:
  *   - X-component: Meridional direction (North, in meridian plane)
  *   - Y-component: Zonal direction (West, completing the right-handed frame)
  *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
+ *
+ * The constructed ComaWindModel converts the radial component to Tudat's standard vertical_frame
+ * convention before returning it to the aerodynamic-angle pipeline.
  */
 class ComaWindModelSettings : public WindModelSettings
 {
@@ -2480,7 +2483,7 @@ public:
      * \param datasetCollection Collection containing wind component datasets in modified vertical frame (X=meridional/North, Y=zonal/West, Z=radial outward)
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
-     * \param associatedFrame Reference frame for the wind model (uses modified vertical frame with Z pointing outward)
+     * \param associatedFrame Reference frame for the returned wind model vector.
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     explicit ComaWindModelSettings( const ComaWindDatasetCollection& datasetCollection,

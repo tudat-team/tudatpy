@@ -753,15 +753,17 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_computation, WindTestDataPaths)
             BOOST_CHECK_SMALL(windVelocity[0], 1e-10);
             BOOST_CHECK_SMALL(windVelocity[1], 1e-10);
 
-            // Verify Z component matches SH evaluation (within tolerance)
+            // Residual SH files use the old outward-positive radial convention. The wind model
+            // returns Tudat's vertical-frame Z component, which is inward-positive.
             if (std::abs(point.shEvaluation) > 1e-10)
             {
-                double relError = std::abs((windVelocity[2] - point.shEvaluation) / point.shEvaluation) * 100.0;
+                const double expectedWindZ = -point.shEvaluation;
+                double relError = std::abs((windVelocity[2] - expectedWindZ) / expectedWindZ) * 100.0;
                 if (relError < 1.0)  // Within 1% tolerance
                 {
                     numZMatch++;
                 }
-                BOOST_CHECK_CLOSE(windVelocity[2], point.shEvaluation, 0.01);  // 0.01% tolerance
+                BOOST_CHECK_CLOSE(windVelocity[2], expectedWindZ, 0.01);  // 0.01% tolerance
             }
         }
 
@@ -853,12 +855,13 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_computation, WindTestDataPaths)
 
             if (std::abs(point.shEvaluation) > 1e-10)
             {
-                double relError = std::abs((windVelocity[2] - point.shEvaluation) / point.shEvaluation) * 100.0;
+                const double expectedWindZ = -point.shEvaluation;
+                double relError = std::abs((windVelocity[2] - expectedWindZ) / expectedWindZ) * 100.0;
                 if (relError < 1.0)
                 {
                     numZMatch++;
                 }
-                BOOST_CHECK_CLOSE(windVelocity[2], point.shEvaluation, 1.0);
+                BOOST_CHECK_CLOSE(windVelocity[2], expectedWindZ, 1.0);
             }
         }
 
@@ -933,16 +936,18 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_computation, WindTestDataPaths)
 
             numChecked++;
 
-            // All three components should match the SH evaluation
+            // X/Y are used directly, but the returned vertical-frame Z component has the
+            // opposite sign of the old outward-positive residual SH files.
             if (std::abs(point.shEvaluation) > 1e-10)
             {
+                const double expectedWindZ = -point.shEvaluation;
                 BOOST_CHECK_CLOSE(windVelocity[0], point.shEvaluation, 1.0);
                 BOOST_CHECK_CLOSE(windVelocity[1], point.shEvaluation, 1.0);
-                BOOST_CHECK_CLOSE(windVelocity[2], point.shEvaluation, 1.0);
+                BOOST_CHECK_CLOSE(windVelocity[2], expectedWindZ, 1.0);
 
                 double relError0 = std::abs((windVelocity[0] - point.shEvaluation) / point.shEvaluation) * 100.0;
                 double relError1 = std::abs((windVelocity[1] - point.shEvaluation) / point.shEvaluation) * 100.0;
-                double relError2 = std::abs((windVelocity[2] - point.shEvaluation) / point.shEvaluation) * 100.0;
+                double relError2 = std::abs((windVelocity[2] - expectedWindZ) / expectedWindZ) * 100.0;
 
                 if (relError0 < 1.0 && relError1 < 1.0 && relError2 < 1.0)
                 {
@@ -964,8 +969,8 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
     using namespace mathematical_constants;
 
     // This test validates the entire pipeline by using reference values computed from the Python interface.
-    // The wind_reference_values.txt file contains: time, radial distance, latitude, longitude, solar longitude,
-    // and wind velocity components (X, Y, Z) in the vertical frame.
+    // The reference_values.txt file contains: time, radial distance, latitude, longitude, solar longitude,
+    // density, and wind velocity components (X, Y, Z) in the vertical frame.
     // We use these values as input to calculate wind velocity with the verified code and validate against the reference.
 
     std::cout << "\n=== Testing Wind Model Validation from Python Interface ===" << std::endl;
@@ -1000,8 +1005,8 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
     const ComaStokesDataset& yStokes = windDatasets.getYStokesDataset();
     const ComaStokesDataset& zStokes = windDatasets.getZStokesDataset();
 
-    // Construct path to wind reference values file
-    const boost::filesystem::path referenceFile = windDataDir / "wind_reference_values.txt";
+    // Construct path to combined density/wind reference values file
+    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
 
     // Read reference values file
     std::ifstream file(referenceFile.string());
@@ -1013,12 +1018,12 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         double latitude;
         double longitude;
         double solarLongitude;
+        double density;
         double windX;
         double windY;
         double windZ;
     };
     std::vector<ReferencePoint> allPoints;
-    int skippedNegativeSolarLongitudePoints = 0;
 
     std::string line;
     // Skip header line
@@ -1029,26 +1034,15 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         std::istringstream iss(line);
         ReferencePoint point;
         if (iss >> point.time >> point.radialDistance >> point.latitude >> point.longitude
-                >> point.solarLongitude >> point.windX >> point.windY >> point.windZ)
+                >> point.solarLongitude >> point.density >> point.windX >> point.windY >> point.windZ)
         {
-            // This legacy Python reference file contains values generated with signed solar longitudes.
-            // Only non-negative rows are valid for Tudat's normalized [0, 2*pi] convention.
-            if (point.solarLongitude >= 0.0)
-            {
-                allPoints.push_back(point);
-            }
-            else
-            {
-                skippedNegativeSolarLongitudePoints++;
-            }
+            allPoints.push_back(point);
         }
     }
     file.close();
 
     BOOST_REQUIRE_MESSAGE(allPoints.size() > 0, "No data points found in wind reference values file");
-    BOOST_TEST_MESSAGE("Loaded " << allPoints.size() << " normalized-convention wind reference data points"
-                      << " (skipped " << skippedNegativeSolarLongitudePoints
-                      << " legacy signed-negative solar longitude points)");
+    BOOST_TEST_MESSAGE("Loaded " << allPoints.size() << " combined density/wind reference data points");
 
     // Randomly select 100 points for testing (or all if less than 100)
     const int numTestPoints = 100;
@@ -1149,14 +1143,16 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         // reference values (order 1e-13 in Python dataset) do not trigger spurious failures.
         const double relativeTolerance = 1e-8;
         const double absoluteTolerance = 1e-12;
+        // The combined reference file already uses Tudat's inward-positive vertical-frame Z convention.
+        const double expectedWindZ = point.windZ;
 
         const double absoluteErrorX = std::abs(computedWindVelocity[0] - point.windX);
         const double absoluteErrorY = std::abs(computedWindVelocity[1] - point.windY);
-        const double absoluteErrorZ = std::abs(computedWindVelocity[2] - point.windZ);
+        const double absoluteErrorZ = std::abs(computedWindVelocity[2] - expectedWindZ);
 
         const double relativeErrorX = absoluteErrorX / std::max(std::abs(point.windX), 1e-30);
         const double relativeErrorY = absoluteErrorY / std::max(std::abs(point.windY), 1e-30);
-        const double relativeErrorZ = absoluteErrorZ / std::max(std::abs(point.windZ), 1e-30);
+        const double relativeErrorZ = absoluteErrorZ / std::max(std::abs(expectedWindZ), 1e-30);
 
         const bool withinToleranceX = (absoluteErrorX <= absoluteTolerance) || (relativeErrorX <= relativeTolerance);
         const bool withinToleranceY = (absoluteErrorY <= absoluteTolerance) || (relativeErrorY <= relativeTolerance);
@@ -1191,7 +1187,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
                                   << "sol=" << point.solarLongitude * 180.0 / PI << "°, "
                                   << "computed=(" << computedWindVelocity[0] << ", "
                                   << computedWindVelocity[1] << ", " << computedWindVelocity[2] << ") m/s, "
-                                  << "expected=(" << point.windX << ", " << point.windY << ", " << point.windZ << ") m/s, "
+                                  << "expected=(" << point.windX << ", " << point.windY << ", " << expectedWindZ << ") m/s, "
                                   << "abs_errors=(" << absoluteErrorX << ", " << absoluteErrorY << ", " << absoluteErrorZ << ") m/s, "
                                   << "rel_errors=(" << relativeErrorX << ", " << relativeErrorY << ", " << relativeErrorZ << ")");
             }

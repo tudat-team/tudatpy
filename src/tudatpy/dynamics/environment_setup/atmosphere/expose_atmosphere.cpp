@@ -440,7 +440,7 @@ The values in this class may be recomputed every time step to reflect changing a
        x_file_paths, y_file_paths, z_file_paths)
 
    # Create dataset collection with Stokes coefficients
-   wind_datasets = wind_processor.create_sh_datasets(
+   wind_datasets = wind_processor.create_coma_stokes_dataset(
        radii_m=[1000, 2000, 3000],
        sol_longitudes_deg=[0, 90, 180, 270])
 
@@ -1440,7 +1440,7 @@ Examples
    # Create wind dataset collection from polynomial files and convert to Stokes
    processor = environment_setup.atmosphere.coma_wind_file_processor(
        x_file_paths, y_file_paths, z_file_paths)
-   wind_datasets = processor.create_sh_datasets(
+   wind_datasets = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
 
@@ -1962,7 +1962,7 @@ Examples
 
 
       )doc")
-        .def("create_sh_datasets",
+        .def("create_coma_stokes_dataset",
              py::overload_cast<>(&tss::ComaWindModelFileProcessor::createSHDatasets, py::const_),
              R"doc(
 
@@ -1981,7 +1981,7 @@ Examples
  ------
  RuntimeError
      If the processor was constructed from polynomial coefficient files. Use the parameterized version
-     :meth:`create_sh_datasets(radii_m, sol_longitudes_deg, ...)` for polynomial files instead.
+     :meth:`create_coma_stokes_dataset(radii_m, sol_longitudes_deg, ...)` for polynomial files instead.
 
  Examples
  --------
@@ -1995,7 +1995,7 @@ Examples
        prefix="stokes")
 
    # Load Stokes datasets (no parameters needed)
-   stokes_datasets = wind_processor.create_sh_datasets()
+   stokes_datasets = wind_processor.create_coma_stokes_dataset()
 
    # Use in coma wind model
    coma_wind = environment_setup.atmosphere.coma_wind_model(
@@ -2004,7 +2004,7 @@ Examples
        requested_max_order=10)
 
       )doc")
-        .def("create_sh_datasets",
+        .def("create_coma_stokes_dataset",
              py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int>(
                  &tss::ComaWindModelFileProcessor::createSHDatasets, py::const_),
              py::arg("radii_m"),
@@ -2043,7 +2043,7 @@ Examples
  ------
  RuntimeError
      If the processor was constructed from Stokes CSV files. Use the parameterless version
-     :meth:`create_sh_datasets()` for Stokes CSV files instead.
+     :meth:`create_coma_stokes_dataset()` for Stokes CSV files instead.
 
  Examples
  --------
@@ -2056,7 +2056,7 @@ Examples
        z_file_paths=["wind_z.txt"])
 
    # Transform to Stokes coefficients at specific radii and solar longitudes
-   stokes_datasets = wind_processor.create_sh_datasets(
+   stokes_datasets = wind_processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
        requested_max_degree=10,
@@ -2220,7 +2220,7 @@ Examples
        z_file_paths=z_files)
 
    # Transform to Stokes coefficients
-   wind_datasets = wind_processor.create_sh_datasets(
+   wind_datasets = wind_processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
        requested_max_degree=10,
@@ -2329,7 +2329,7 @@ Examples
        prefix="stokes")
 
    # Load Stokes datasets (radii and longitudes are read from files)
-   wind_datasets = wind_processor.create_sh_datasets(
+   wind_datasets = wind_processor.create_coma_stokes_dataset(
        radii_m=[],  # Ignored when loading from CSV files
        sol_longitudes_deg=[])  # Ignored when loading from CSV files
 
@@ -2363,7 +2363,7 @@ Examples
        y_input_dir="wind_stokes/y",
        z_input_dir="wind_stokes/z",
        prefix="stokes")
-   wind_datasets = stokes_processor.create_sh_datasets(
+   wind_datasets = stokes_processor.create_coma_stokes_dataset(
        radii_m=[],
        sol_longitudes_deg=[])
 

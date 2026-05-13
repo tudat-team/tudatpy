@@ -314,6 +314,12 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
                 throw std::runtime_error( "ComaWindModel: Unknown data type" );
         }
 
+        // The coma wind datasets use a modified vertical-frame convention in which
+        // +Z is radial outward from the nucleus. Tudat's standard vertical_frame has
+        // +Z along local gravity, i.e. radial inward, so convert the radial component
+        // before the aerodynamic-frame machinery interprets this vector as vertical_frame data.
+        cachedFinalWindVector_.z() = -cachedFinalWindVector_.z();
+
         // Cache the input parameters for future validation
         cachedRadius_ = radius;
         cachedLongitude_ = currentLongitude;

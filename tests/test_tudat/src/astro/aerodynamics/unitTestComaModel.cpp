@@ -2,12 +2,17 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
+#include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/io/basicInputOutput.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -182,7 +187,7 @@ struct StokesTestData
  *
  * Tests the core data model functionality including dataset creation,
  * coefficient storage/retrieval, and bounds checking. These tests verify
- * that the underlying data structure correctly manages spherical harmonic
+ * that the underlying data structure correctly manages spherical harmonicple
  * coefficient data.
  */
 BOOST_AUTO_TEST_SUITE(test_data_models)
@@ -1007,6 +1012,53 @@ BOOST_AUTO_TEST_SUITE_END()
  */
 BOOST_AUTO_TEST_SUITE(test_coma_model)
 
+BOOST_AUTO_TEST_CASE(test_solar_longitude_dependent_variable_update_requirements)
+{
+    const std::string cometName = "Churyumov_Gerasimenko";
+    const std::string sunName = "Sun";
+
+    SystemOfBodies bodies("SSB", "ECLIPJ2000");
+    bodies.createEmptyBody(cometName);
+    bodies.createEmptyBody(sunName);
+
+    bodies.at(cometName)->setEphemeris(std::make_shared<ephemerides::ConstantEphemeris>(Eigen::Vector6d::Zero()));
+    bodies.at(cometName)->setRotationalEphemeris(
+        std::make_shared<ephemerides::ConstantRotationalEphemeris>(
+            Eigen::Quaterniond::Identity(), "ECLIPJ2000", "Churyumov_Gerasimenko_Fixed"));
+
+    Eigen::Vector6d sunState = Eigen::Vector6d::Zero();
+    sunState(0) = 1.0E11;
+    bodies.at(sunName)->setEphemeris(std::make_shared<ephemerides::ConstantEphemeris>(sunState));
+
+    const std::shared_ptr<propagators::SingleDependentVariableSaveSettings> dependentVariableSettings =
+        propagators::solarLongitudeDependentVariable(cometName);
+
+    const std::map<propagators::EnvironmentModelsToUpdate, std::vector<std::string>> updateSettings =
+        propagators::createEnvironmentUpdaterSettingsForDependentVariables(dependentVariableSettings, bodies);
+
+    BOOST_CHECK_NO_THROW(propagators::checkValidityOfRequiredEnvironmentUpdates(updateSettings, bodies));
+    BOOST_CHECK_EQUAL(updateSettings.count(propagators::vehicle_flight_conditions_update), 0);
+
+    const auto containsBody = [](const std::vector<std::string>& bodyList, const std::string& bodyName) {
+        return std::find(bodyList.begin(), bodyList.end(), bodyName) != bodyList.end();
+    };
+
+    BOOST_REQUIRE_EQUAL(updateSettings.count(propagators::body_translational_state_update), 1);
+    const std::vector<std::string>& translationalUpdates =
+        updateSettings.at(propagators::body_translational_state_update);
+    BOOST_CHECK_EQUAL(translationalUpdates.size(), 2);
+    BOOST_CHECK(containsBody(translationalUpdates, cometName));
+    BOOST_CHECK(containsBody(translationalUpdates, sunName));
+    BOOST_CHECK(!containsBody(translationalUpdates, ""));
+
+    BOOST_REQUIRE_EQUAL(updateSettings.count(propagators::body_rotational_state_update), 1);
+    const std::vector<std::string>& rotationalUpdates = updateSettings.at(propagators::body_rotational_state_update);
+    BOOST_CHECK_EQUAL(rotationalUpdates.size(), 1);
+    BOOST_CHECK(containsBody(rotationalUpdates, cometName));
+    BOOST_CHECK(!containsBody(rotationalUpdates, sunName));
+    BOOST_CHECK(!containsBody(rotationalUpdates, ""));
+}
+
 /**
  * @brief Verifies ComaModel::getNumberDensity returns correct log2(density) values.
  *
@@ -1375,7 +1427,8 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
 BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestDataPaths)
 {
     // This test validates the entire pipeline by using reference values computed from the Python interface.
-    // The reference_values.txt file contains: time, radial distance, latitude, longitude, solar longitude, and density.
+    // The reference_values.txt file contains: time, radial distance, latitude, longitude, solar longitude,
+    // density, and wind velocity components. This test only uses the density column.
     // We use these values as input to calculate density with the verified code and validate against the reference density.
 
     // Load polynomial coefficients from test data file
@@ -1404,7 +1457,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestData
 
     const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
 
-    const boost::filesystem::path referenceFile = dataDir / "density" / "reference_values.txt";
+    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
 
     // Read reference values file
     std::ifstream file(referenceFile.string());
