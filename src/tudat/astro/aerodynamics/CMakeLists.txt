@@ -25,6 +25,8 @@ set(aerodynamics_SOURCES
         "equilibriumWallTemperature.cpp"
         "gasSurfaceInteractionModel.cpp"
         "marsDtmAtmosphereModel.cpp"
+        "comaModel.cpp"
+        "comaWindModel.cpp"
         "nrlmsise00Atmosphere.cpp"
         "nrlmsise00InputFunctions.cpp"
 )
@@ -51,8 +53,10 @@ set(aerodynamics_HEADERS
         "aerodynamicGuidance.h"
         "equilibriumWallTemperature.h"
         "windModel.h"
+        "comaWindModel.h"
         "gasSurfaceInteractionModel.h"
         "marsDtmAtmosphereModel.h"
+        "comaModel.h"
         "nrlmsise00Atmosphere.h"
         "nrlmsise00InputFunctions.h"
 )
@@ -75,17 +79,17 @@ TUDAT_ADD_LIBRARY("aerodynamics"
 if(TUDAT_BUILD_WITH_MCD)
     # Link the MCD Fortran library
     target_link_libraries(tudat_aerodynamics PRIVATE mcd_fortran)
-    
+
     # Include MCD directories for building tudat_aerodynamics only
     # These are not propagated to consumers of tudat_aerodynamics
     target_include_directories(tudat_aerodynamics PRIVATE
         ${CMAKE_BINARY_DIR}/mcd_modules
         ${CMAKE_SOURCE_DIR}/third_parties/mcd
     )
-    
+
         # Get the MCD_DATA_PATH from mcd_fortran target
     get_target_property(MCD_DATA_PATH_DEF mcd_fortran INTERFACE_COMPILE_DEFINITIONS)
-    
+
     # Propagate MCD_DATA_PATH to tudat_aerodynamics
     # The path is already set by mcd_fortran's INTERFACE_COMPILE_DEFINITIONS
     # but we explicitly add it here for clarity
@@ -93,7 +97,7 @@ if(TUDAT_BUILD_WITH_MCD)
     target_compile_definitions(tudat_aerodynamics PRIVATE
         MCD_DATA_PATH="${MCD_DATA_DIR}/"
     )
-    
+
     message(STATUS "MCD library linked to tudat_aerodynamics")
     message(STATUS "MCD data path for tudat_aerodynamics: ${MCD_DATA_DIR}/")
 endif()

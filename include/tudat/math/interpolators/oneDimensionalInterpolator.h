@@ -64,13 +64,17 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param period Period for periodic/angular interpolation. If period > 0, the interpolator will
+     *      use shortest-path interpolation suitable for angular coordinates. If period = 0 (default),
+     *      standard non-periodic interpolation is used. Example: period = 2*pi for angles in radians.
      */
     OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                 const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
                                         std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                                        IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    {}
+                                                        IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
+                                const IndependentVariableType period = IndependentVariableType( 0 ) ):
+        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue ), period_( period )
+    { }
 
     //! Constructor.
     /*!throw_exception_at_boundary
@@ -79,16 +83,21 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
+     *  \param period Period for periodic/angular interpolation. If period > 0, the interpolator will
+     *      use shortest-path interpolation suitable for angular coordinates. If period = 0 (default),
+     *      standard non-periodic interpolation is used.
      */
-    OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling, const DependentVariableType& defaultExtrapolationValue ):
-        OneDimensionalInterpolator( boundaryHandling, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    {}
+    OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling,
+                                const DependentVariableType& defaultExtrapolationValue,
+                                const IndependentVariableType period = IndependentVariableType( 0 ) ):
+        OneDimensionalInterpolator( boundaryHandling, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ), period )
+    { }
 
     //! Destructor.
     /*!
      * Destructor.
      */
-    virtual ~OneDimensionalInterpolator( ) {}
+    virtual ~OneDimensionalInterpolator( ) { }
 
     //! Function to perform interpolation.
     /*!
@@ -231,7 +240,86 @@ public:
         return std::make_pair( static_cast< double >( validRange.first ), static_cast< double >( validRange.second ) );
     }
 
+    //! Function to get the period for periodic interpolation.
+    /*!
+     *  Function to get the period for periodic interpolation.
+     *  \return Period value (0 for non-periodic interpolation).
+     */
+    IndependentVariableType getPeriod( ) const
+    {
+        return period_;
+    }
+
+    //! Function to check if interpolator is configured for periodic interpolation.
+    /*!
+     *  Function to check if interpolator is configured for periodic interpolation.
+     *  \return True if period > 0, false otherwise.
+     */
+    bool isPeriodic( ) const
+    {
+        return period_ > IndependentVariableType( 0 );
+    }
+
 protected:
+    //! Function to normalize a value to the periodic range [0, period).
+    /*!
+     *  Function to normalize a value to the periodic range [0, period) for periodic interpolation.
+     *  If the interpolator is not periodic (period <= 0), returns the value unchanged.
+     *  \param value Value to be normalized.
+     *  \return Normalized value in [0, period) range, or original value if non-periodic.
+     */
+    IndependentVariableType normalizePeriodicValue( const IndependentVariableType& value ) const
+    {
+        if( !isPeriodic( ) )
+        {
+            return value;
+        }
+
+        IndependentVariableType normalized = std::fmod( value, period_ );
+        if( normalized < IndependentVariableType( 0 ) )
+        {
+            normalized += period_;
+        }
+        return normalized;
+    }
+
+    //! Function to compute the shortest angular distance between two values.
+    /*!
+     *  Function to compute the shortest angular distance between two values, considering periodicity.
+     *  For periodic interpolation (period > 0), this returns the distance via the shortest path,
+     *  which may wrap around the periodic boundary. For non-periodic interpolation, returns val2 - val1.
+     *  \param val1 First value.
+     *  \param val2 Second value.
+     *  \return Shortest distance from val1 to val2, considering periodicity.
+     */
+    IndependentVariableType getShortestDistance( const IndependentVariableType& val1,
+                                                  const IndependentVariableType& val2 ) const
+    {
+        if( !isPeriodic( ) )
+        {
+            return val2 - val1;
+        }
+
+        IndependentVariableType diff = val2 - val1;
+        // Compute half period - handle division for custom types by converting to double
+        IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
+            static_cast< double >( period_ ) / 2.0 );
+        IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
+            static_cast< double >( period_ ) / -2.0 );
+
+        // Wrap to [-period/2, period/2] for shortest path
+        while( diff > halfPeriod )
+        {
+            diff -= period_;
+        }
+        while( diff < negativeHalfPeriod )
+        {
+            diff += period_;
+        }
+
+        return diff;
+    }
+
     //! Function to return the condition of the current independent variable.
     /*!
      *  Function to return the condition of the current independent variable, i.e. whether the
@@ -448,6 +536,14 @@ protected:
      * Default value to be used for extrapolation.
      */
     std::pair< DependentVariableType, DependentVariableType > defaultExtrapolationValue_;
+
+    //! Period for periodic/angular interpolation.
+    /*!
+     * Period for periodic/angular interpolation. If period > 0, the interpolator uses shortest-path
+     * interpolation suitable for angular coordinates (e.g., period = 2*pi for radians). If period = 0,
+     * standard non-periodic interpolation is used.
+     */
+    IndependentVariableType period_;
 };
 
 }  // namespace interpolators
