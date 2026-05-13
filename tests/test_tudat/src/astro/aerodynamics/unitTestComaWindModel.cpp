@@ -993,13 +993,13 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
         radii_m.push_back(4000.0 + i * (10000.0 - 4000.0) / 99.0);
     }
 
-    std::vector<double> lons_deg;
+    std::vector<double> longitudes_deg;
     for (int i = 0; i < 37; ++i)
     {
-        lons_deg.push_back(i * 360.0 / 36.0);
+        longitudes_deg.push_back(i * 360.0 / 36.0);
     }
 
-    ComaWindDatasetCollection windDatasets = processor.createSHDatasets(radii_m, lons_deg, maxDegree, maxOrder);
+    ComaWindDatasetCollection windDatasets = processor.createSHDatasets(radii_m, longitudes_deg, maxDegree, maxOrder);
 
     const ComaStokesDataset& xStokes = windDatasets.getXStokesDataset();
     const ComaStokesDataset& yStokes = windDatasets.getYStokesDataset();
@@ -1074,7 +1074,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
     const std::vector<std::string> densityFiles = {densityPolyFile.string()};
     const ComaModelFileProcessor densityProcessor(densityFiles);
     const double molecularWeight = 0.018;  // kg/mol (water vapor)
-    const ComaStokesDataset densityStokes = densityProcessor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
+    const ComaStokesDataset densityStokes = densityProcessor.createSHDataset(radii_m, longitudes_deg, maxDegree, maxOrder);
 
     // Test with Stokes dataset
     int failCount = 0;

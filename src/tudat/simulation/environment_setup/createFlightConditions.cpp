@@ -41,7 +41,7 @@ std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynami
     }
     else
     {
-        // Create function to rotate state from intertial to body-fixed frame.
+        // Create functions to express the relative state in the central-body-fixed frame.
         std::function< Eigen::Quaterniond( ) > rotationToFrameFunction = std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
         std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
                 std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
@@ -49,17 +49,15 @@ std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynami
         std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
         std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
 
-        std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-                std::bind( &ephemerides::transformRelativeStateToFrame< double >,
-                           bodyStateFunction,
-                           centralBodyStateFunction,
-                           rotationToFrameFunction,
-                           rotationMatrixToFrameDerivativeFunction );
+        std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeStateFunction = [ = ]( ) {
+            return bodyStateFunction( ) - centralBodyStateFunction( );
+        };
 
         // Create aerodynamic angles calculator and set in flight conditions.
         return std::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                relativeBodyFixedStateFunction,
-                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                relativeStateFunction,
+                rotationToFrameFunction,
+                rotationMatrixToFrameDerivativeFunction,
                 nameOfBodyExertingAcceleration,
                 1 );
     }
@@ -104,10 +102,6 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     {
         aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
     }
-
-    // Set rotation matrix derivative function for proper handling of non-rotating atmosphere
-    aerodynamicAngleCalculator->setRotationMatrixDerivativeFunction(
-            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody ) );
 
     // Set atmospheric rotation flag from wind model
     aerodynamicAngleCalculator->setIncludeAtmosphericRotation(

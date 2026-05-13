@@ -76,7 +76,11 @@ void testAerodynamicAngleCalculation( const Eigen::Vector6d& testState,
 {
     // Create angle calculator
     AerodynamicAngleCalculator aerodynamicAngleCalculator(
-            [ & ]( ) { return testState; }, [ & ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "", 1 );
+            [ & ]( ) { return testState; },
+            [ & ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+            [ & ]( ) { return Eigen::Matrix3d::Zero( ); },
+            "",
+            1 );
 
     aerodynamicAngleCalculator.setBodyFixedAngleInterface( std::make_shared< ManualAerodynamicAngleInterface >(
             [ = ]( const double ) { return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } ) );

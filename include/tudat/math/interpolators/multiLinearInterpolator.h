@@ -95,9 +95,15 @@ public:
                              const std::vector< IndependentVariableType >& periods =
                                      std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
         MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >( boundaryHandling,
-                                                                                                            defaultExtrapolationValue,
-                                                                                                            periods )
+                                                                                                            defaultExtrapolationValue ),
+        periods_( periods )
     {
+        if( periods_.size( ) != NumberOfDimensions )
+        {
+            throw std::runtime_error( "Error when making multi-linear interpolator, periods vector size is incompatible "
+                                      "with template parameter." );
+        }
+
         // Save (in)dependent variables
         independentValues_ = independentValues;
         dependentData_.resize( reinterpret_cast<
@@ -170,6 +176,31 @@ public:
      *  Default destructor.
      */
     ~MultiLinearInterpolator( ) { }
+
+    //! Function to get the periods vector for periodic interpolation.
+    /*!
+     *  Function to get the periods vector for periodic interpolation.
+     *  \return Vector of period values (0 for non-periodic dimensions).
+     */
+    std::vector< IndependentVariableType > getPeriods( ) const
+    {
+        return periods_;
+    }
+
+    //! Function to check if a specific dimension is configured for periodic interpolation.
+    /*!
+     *  Function to check if a specific dimension is configured for periodic interpolation.
+     *  \param dimensionIndex Index of the dimension to check.
+     *  \return True if periods_[dimensionIndex] > 0, false otherwise.
+     */
+    bool isPeriodic( const unsigned int dimensionIndex ) const
+    {
+        if( dimensionIndex >= NumberOfDimensions )
+        {
+            throw std::runtime_error( "MultiLinearInterpolator::isPeriodic: dimensionIndex out of range" );
+        }
+        return periods_.at( dimensionIndex ) > IndependentVariableType( 0 );
+    }
 
     //! Structure to cache interpolation state for batch operations
     struct InterpolationState
@@ -425,6 +456,44 @@ public:
     }
 
 private:
+    //! Function to compute the shortest angular distance between two values for a specific dimension.
+    /*!
+     *  Function to compute the shortest angular distance between two values, considering periodicity.
+     *  For periodic dimensions (periods_[dimensionIndex] > 0), this returns the distance via the shortest path,
+     *  which may wrap around the periodic boundary. For non-periodic dimensions, returns val2 - val1.
+     *  \param dimensionIndex Index of the dimension.
+     *  \param val1 First value.
+     *  \param val2 Second value.
+     *  \return Shortest distance from val1 to val2, considering periodicity.
+     */
+    IndependentVariableType getShortestDistance( const unsigned int dimensionIndex,
+                                                 const IndependentVariableType& val1,
+                                                 const IndependentVariableType& val2 ) const
+    {
+        if( !isPeriodic( dimensionIndex ) )
+        {
+            return val2 - val1;
+        }
+
+        const IndependentVariableType period = periods_.at( dimensionIndex );
+        IndependentVariableType diff = val2 - val1;
+        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
+                    static_cast< double >( period ) / 2.0 );
+        const IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
+                    static_cast< double >( period ) / -2.0 );
+
+        while( diff > halfPeriod )
+        {
+            diff -= period;
+        }
+        while( diff < negativeHalfPeriod )
+        {
+            diff += period;
+        }
+
+        return diff;
+    }
+
     //! Optimized 2D bilinear interpolation (non-recursive implementation).
     /*!
      * This function performs bilinear interpolation for 2D case without recursion,
@@ -667,6 +736,9 @@ private:
         DependentVariableType returnValue = upperFraction * upperContribution + lowerFraction * lowerContribution;
         return returnValue;
     }
+
+    //! Vector of periods for periodic/angular interpolation.
+    std::vector< IndependentVariableType > periods_;
 };
 
 // extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;

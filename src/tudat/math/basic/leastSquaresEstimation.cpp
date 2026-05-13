@@ -26,7 +26,7 @@ namespace linear_algebra
 //! Function to get condition number of matrix (using SVD decomposition)
 double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix )
 {
-    return getConditionNumberOfDecomposedMatrix( ( designMatrix.jacobiSvd<Eigen::ComputeThinU | Eigen::ComputeFullV>( ) ) );
+    return getConditionNumberOfDecomposedMatrix( designMatrix.jacobiSvd( ) );
 }
 
 //! Solve system of equations with SVD decomposition, checking condition number in the process
@@ -34,7 +34,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
                                                const Eigen::VectorXd rightHandSideVector,
                                                const double limitConditionNumberForWarning )
 {
-    Eigen::JacobiSVD< Eigen::MatrixXd, Eigen::ComputeThinU | Eigen::ComputeThinV > svdDecomposition = matrixToInvert.jacobiSvd<Eigen::ComputeThinU | Eigen::ComputeThinV>( );
+    Eigen::JacobiSVD< Eigen::MatrixXd > svdDecomposition = matrixToInvert.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV );
     if( limitConditionNumberForWarning == limitConditionNumberForWarning )
     {
         double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );

@@ -93,10 +93,11 @@ public:
     //! Constructor
     /*!
      *  Constructor.
-     *  \param bodyFixedStateFunction Vehicle state in a frame fixed w.r.t. the central body.  Note
-     *  that this state is w.r.t. the body itself, not w.r.t. the local atmosphere.
-     *  \param rotationFromCorotatingToInertialFrame Function returning the quaternion that rotates from the corotating to
-     *  the inertial frame.
+     *  \param relativeStateFunction Vehicle state relative to the central body, expressed in the global frame.
+     *  \param rotationToLocalFrameFunction Function returning the quaternion that rotates from the global frame to the
+     *  central-body-fixed frame.
+     *  \param rotationMatrixDerivativeToLocalFrameFunction Function returning the time derivative of the rotation matrix
+     *  from the global frame to the central-body-fixed frame.
      *  \param centralBodyName Name of central body w.r.t. which the angles are computed.
      *  \param calculateVerticalToAerodynamicFrame Boolean to determine whether to determine
      *  vertical <-> aerodynamic frame conversion when calling update function.
@@ -105,13 +106,15 @@ public:
      *  \param bankAngleFunction Function to determine the bank angle of the vehicle.
      * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
      */
-    AerodynamicAngleCalculator( const std::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
-                                const std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
+    AerodynamicAngleCalculator( const std::function< Eigen::Vector6d( ) > relativeStateFunction,
+                                const std::function< Eigen::Quaterniond( ) > rotationToLocalFrameFunction,
+                                const std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction,
                                 const std::string centralBodyName,
                                 const bool calculateVerticalToAerodynamicFrame = false ):
         //        DependentOrientationCalculator( ),
-        bodyFixedStateFunction_( bodyFixedStateFunction ), rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
-        centralBodyName_( centralBodyName ), calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
+        relativeStateFunction_( relativeStateFunction ), rotationToLocalFrameFunction_( rotationToLocalFrameFunction ),
+        rotationMatrixDerivativeToLocalFrameFunction_( rotationMatrixDerivativeToLocalFrameFunction ), centralBodyName_( centralBodyName ),
+        calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
         currentBodyAngleTime_( TUDAT_NAN ), currentTime_( TUDAT_NAN ), aerodynamicAngleClosureIsIncomplete_( false )
     {
         currentAerodynamicAngles_.resize( 7 );
@@ -142,16 +145,6 @@ public:
     void setIncludeAtmosphericRotation( const bool includeAtmosphericRotation )
     {
         includeAtmosphericRotation_ = includeAtmosphericRotation;
-    }
-
-    //! Function to set the rotation matrix derivative function
-    /*!
-     * Function to set the rotation matrix derivative function for the central body
-     * \param rotationMatrixDerivativeFunction Function returning the time derivative of rotation matrix from inertial to body-fixed frame
-     */
-    void setRotationMatrixDerivativeFunction( const std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeFunction )
-    {
-        rotationMatrixDerivativeToLocalFrameFunction_ = rotationMatrixDerivativeFunction;
     }
 
     //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
@@ -191,7 +184,7 @@ public:
     //! Function to update the orientation angles to the current state.
     /*!
      *  This function updates all requires orientation angles to the current state of the vehicle.
-     *  The current state is retrieved from the bodyFixedStateFunction_ member variable
+     *  The current state is retrieved from the relativeStateFunction_ member variable
      *  function pointer.
      *  \param currentTime Time to which angle calculator is to be updated.
      *  \param updateBodyOrientation Boolean denoting whether the trajectory<->body-fixed angles are to be updated.
@@ -263,7 +256,7 @@ public:
      */
     std::function< Eigen::Quaterniond( ) > getRotationFromCorotatingToInertialFrame( )
     {
-        return rotationFromCorotatingToInertialFrame_;
+        return [ = ]( ) { return rotationToLocalFrameFunction_( ).inverse( ); };
     }
 
     //! Function to get the name of central body w.r.t. which the angles are computed.
@@ -380,18 +373,33 @@ private:
     //! Current groundspeed-based body-fixed state of vehicle, as set by previous call to update( ).
     Eigen::Vector6d currentBodyFixedGroundSpeedBasedState_;
 
+    //! Current relative state of vehicle w.r.t. central body in the global frame, as set by previous call to update( ).
+    Eigen::Vector6d currentRelativeState_ = Eigen::Vector6d::Zero( );
+
+    //! Current rotation from global frame to central-body-fixed frame, as set by previous call to update( ).
+    Eigen::Quaterniond currentRotationToLocalFrame_ = Eigen::Quaterniond::Identity( );
+
+    //! Current rotation matrix from global frame to central-body-fixed frame, as set by previous call to update( ).
+    Eigen::Matrix3d currentRotationMatrixToLocalFrame_ = Eigen::Matrix3d::Identity( );
+
+    //! Current derivative of rotation matrix from global frame to central-body-fixed frame, as set by previous call to update( ).
+    Eigen::Matrix3d currentRotationMatrixDerivativeToLocalFrame_ = Eigen::Matrix3d::Zero( );
+
     //! Current rotation from central-body-corotating to inertial frame, as set by previous call to update( ).
     Eigen::Quaterniond currentRotationFromCorotatingToInertialFrame_;
 
-    //! Vehicle state in a frame fixed w.r.t. the central body.
+    //! Vehicle state relative to the central body, expressed in the global frame.
     /*!
-     *  Vehicle state in a frame fixed w.r.t. the central body.
-     *  Note that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
+     *  Vehicle state relative to the central body, expressed in the global frame.
+     *  Note that this state is w.r.t. the body itself, not w.r.t. the local atmosphere.
      */
-    std::function< Eigen::Vector6d( ) > bodyFixedStateFunction_;
+    std::function< Eigen::Vector6d( ) > relativeStateFunction_;
 
-    //! Function returning the quaternion that rotates from the corotating to the inertial frame.
-    std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
+    //! Function returning the quaternion that rotates from the global frame to the central-body-fixed frame.
+    std::function< Eigen::Quaterniond( ) > rotationToLocalFrameFunction_;
+
+    //! Function returning the time derivative of the rotation matrix from the global frame to the central-body-fixed frame.
+    std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction_;
 
     //! Name of central body w.r.t. which the angles are computed.
     std::string centralBodyName_;
@@ -416,8 +424,6 @@ private:
     //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
     bool includeAtmosphericRotation_ = true;
 
-    //! Function returning the time derivative of the rotation matrix from inertial to body-fixed frame
-    std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction_;
 };
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

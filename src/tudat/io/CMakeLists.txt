@@ -11,6 +11,7 @@
 # Add source files.
 set(io_SOURCES
         "basicInputOutput.cpp"
+        "comaModelInputOutput.cpp"
         "dictionaryComparer.cpp"
         "dictionaryTools.cpp"
         "fieldValue.cpp"
@@ -48,6 +49,7 @@ set(io_SOURCES
 # Add header files.
 set(io_HEADERS
         "basicInputOutput.h"
+        "comaModelInputOutput.h"
         "dictionaryComparer.h"
         "dictionaryEntry.h"
         "dictionaryTools.h"
