@@ -19,12 +19,16 @@ namespace electromagnetism
 //! Compute Yarkovsky Acceleration using a simplified tangential model.
 Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const Eigen::Vector6d& stateVector )
 {
-    const double currentDistance = stateVector.segment( 0, 3 ).norm( );
+    const Eigen::Vector3d currentPosition = stateVector.segment( 0, 3 );
+    const Eigen::Vector3d currentVelocity = stateVector.segment( 3, 3 );
+
+    const double currentDistance = currentPosition.norm( );
     const double auOverDistance = physical_constants::ASTRONOMICAL_UNIT / currentDistance;
     const double yarkovskyMagnitude = yarkovskyParameter * auOverDistance * auOverDistance;
 
-    // Find the direction (tangential to the orbit and thus parallel to the velocity)
-    const Eigen::Vector3d yarkovskyDirection = stateVector.segment( 3, 3 ).normalized( );
+    const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
+    const Eigen::Vector3d transverseVelocity = currentVelocity - currentVelocity.dot( radialUnitVector ) * radialUnitVector;
+    const Eigen::Vector3d yarkovskyDirection = transverseVelocity.normalized( );
 
     return yarkovskyMagnitude * yarkovskyDirection;
 }

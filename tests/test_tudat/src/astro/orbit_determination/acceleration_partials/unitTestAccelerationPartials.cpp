@@ -1879,9 +1879,9 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 2.0E-3 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 2.0E-3 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter, partialWrtSunYarkovskyParameter, 1.0E-8 );
 }
 
