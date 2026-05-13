@@ -1857,7 +1857,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
     Eigen::Vector3d positionPerturbation;
     positionPerturbation << 10000.0, 10000.0, 10000.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation << 1.0E2, 1.0E-1, 1.0E-2;
+    velocityPerturbation << 1.0E2, 1.0E-2, 1.0E-2;
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector6d ) > earthStateSetFunction = std::bind( &Body::setState, earth, std::placeholders::_1 );
