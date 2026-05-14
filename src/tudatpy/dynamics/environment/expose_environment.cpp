@@ -2481,6 +2481,14 @@ bool
 
          :type: str
          )doc" )
+            .def_property_readonly( "optical_center", &tsm::Camera::getOpticalCenter, R"doc(
+
+         **read-only**
+
+         Optical center of the camera, typically expressed in pixel coordinates.
+
+         :type: numpy.ndarray[numpy.float64[2, 1]]
+         )doc" )
             .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
 
             **read-only**

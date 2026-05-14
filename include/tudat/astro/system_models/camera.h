@@ -81,6 +81,11 @@ public:
         return K_;
     }
 
+    Eigen::Vector2d getOpticalCenter( )
+    {
+        return opticalCenter_;
+    }
+    
     /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
      *  \return The rotation from body-fixed to camera frame.
      */
