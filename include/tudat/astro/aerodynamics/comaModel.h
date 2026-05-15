@@ -20,7 +20,7 @@ namespace tudat
 {
 namespace aerodynamics
 {
-class SphericalHarmonicsCalculator;
+class SurfaceSphericalHarmonicsCalculator;
 
 /*!
  * \brief Enumeration for the type of coefficient data used in coma models.
@@ -162,10 +162,13 @@ public:
     inline ComaDataType getDataType() const { return dataType_; }
 
     /*!
-     * \brief Get a pointer to the spherical harmonics calculator for sharing.
-     * \return Pointer to the spherical harmonics calculator (non-owning)
+     * \brief Get the spherical harmonics calculator for sharing.
+     * \return Shared pointer to the spherical harmonics calculator
      */
-    inline SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
+    inline std::shared_ptr<SurfaceSphericalHarmonicsCalculator> getSurfaceSphericalHarmonicsCalculator() const
+    {
+        return sphericalHarmonicsCalculator_;
+    }
 
     /*!
      * \brief Get the current solar longitude value.
@@ -182,47 +185,47 @@ private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 
     //! Cached solar longitude value to avoid redundant state function calls [rad]
-    mutable double cachedSolarLongitude_;
+    double cachedSolarLongitude_;
 
     //! Time at which solar longitude was last cached [s]
-    mutable double cachedTime_;
+    double cachedTime_;
 
     //! Pre-allocated coefficient matrices to avoid repeated allocations
-    mutable Eigen::MatrixXd cachedCosineCoefficients_;
-    mutable Eigen::MatrixXd cachedSineCoefficients_;
+    Eigen::MatrixXd cachedCosineCoefficients_;
+    Eigen::MatrixXd cachedSineCoefficients_;
 
     //! Cached file index from last time interval search (optimization hint)
-    mutable int lastFileIndex_;
+    int lastFileIndex_;
 
     //! Cached interpolation point (radius, solar longitude) to detect when cache is valid
-    mutable double cachedRadius_;
-    mutable double cachedInterpolationSolarLongitude_;
+    double cachedRadius_;
+    double cachedInterpolationSolarLongitude_;
 
     //! Flag to track if coefficient matrices have been sized (optimization to avoid repeated size checks)
-    mutable bool coefficientMatricesSized_;
+    bool coefficientMatricesSized_;
 
     //! Cached latitude/longitude
-    mutable double cachedLatitude_;
-    mutable double cachedLongitude_;
+    double cachedLatitude_;
+    double cachedLongitude_;
 
     //! Cached final density result to avoid repeated exp2 calls
-    mutable double cachedFinalDensity_;
+    double cachedFinalDensity_;
 
     //! Cached final temperature result to avoid repeated calculations
-    mutable double cachedFinalTemperature_;
+    double cachedFinalTemperature_;
 
     //! Cached temperature coefficient matrices (only allocated if temperature dataset provided)
-    mutable Eigen::MatrixXd cachedTemperatureCosineCoefficients_;
-    mutable Eigen::MatrixXd cachedTemperatureSineCoefficients_;
+    Eigen::MatrixXd cachedTemperatureCosineCoefficients_;
+    Eigen::MatrixXd cachedTemperatureSineCoefficients_;
 
     //! Cached state function results
-    mutable Eigen::Vector6d cachedSunState_;
-    mutable Eigen::Vector6d cachedCometState_;
-    mutable Eigen::Matrix3d cachedRotationMatrix_;
+    Eigen::Vector6d cachedSunState_;
+    Eigen::Vector6d cachedCometState_;
+    Eigen::Matrix3d cachedRotationMatrix_;
 
     //! Pre-allocated interpolation point vectors to avoid repeated allocations
-    mutable std::vector<double> interpolationPoint2D_;
-    mutable std::vector<double> interpolationPoint1D_;
+    std::vector<double> interpolationPoint2D_;
+    std::vector<double> interpolationPoint1D_;
 
     //! Cache validity flags packed into a bitfield for memory efficiency
     struct CacheFlags {
@@ -237,7 +240,7 @@ private:
                        trigValid(false), densityValid(false), stateValid(false),
                        temperatureValid(false) {}
     };
-    mutable CacheFlags cacheFlags_;
+    CacheFlags cacheFlags_;
 
     // ========== Configuration: Model parameters (small, accessed during initialization and queries) ==========
 
@@ -289,7 +292,7 @@ private:
     std::function<Eigen::Matrix3d()> cometRotationFunction_;
 
     //! Spherical harmonics calculator with cached computations for efficient evaluation
-    std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
+    std::shared_ptr<SurfaceSphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
@@ -303,11 +306,11 @@ private:
 
     //! Cache for fallback interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackStokesInterpolators_;
 
     //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
-    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedStokesInterpolators_;
 
     //! Pre-initialized interpolators for temperature Stokes coefficients (only used if temperature dataset provided)
@@ -322,11 +325,11 @@ private:
 
     //! Cache for fallback temperature interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackTemperatureStokesInterpolators_;
 
     //! Cache for fallback reduced temperature interpolators (created on-demand, then cached for reuse)
-    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedTemperatureStokesInterpolators_;
 
     /*!
@@ -339,7 +342,7 @@ private:
      *
      * @throws std::runtime_error If no matching time interval is found.
      */
-    int findTimeIntervalIndex( double time ) const;
+    int findTimeIntervalIndex( double time );
 
     /*!
      * \brief Compute number density from polynomial coefficients.
@@ -350,7 +353,7 @@ private:
      * \return Coma number density [m^-3]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * \brief Compute number density from Stokes coefficients using pre-initialized interpolators.
@@ -361,7 +364,7 @@ private:
      * \return Coma number density [m^-3]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * \brief Compute temperature from polynomial coefficients.
@@ -372,7 +375,7 @@ private:
      * \return Coma temperature [K]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * \brief Compute temperature from Stokes coefficients.
@@ -383,14 +386,14 @@ private:
      * \return Coma temperature [K]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * @brief Calculate solar longitude in comet body-fixed frame with caching.
      * @param time Time at which to compute solar longitude [s]
      * @return Solar longitude [rad]
      */
-    double calculateSolarLongitude( double time ) const;
+    double calculateSolarLongitude( double time );
 
     /*!
      * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
@@ -414,7 +417,7 @@ private:
      */
     void createFallback2DInterpolator( int fileIndex, int n, int m,
                                        double& cosineCoeff, double& sineCoeff,
-                                       double radius, double solarLongitude ) const;
+                                       double radius, double solarLongitude );
 
     /*!
      * @brief Helper to create 1D reduced interpolator for Stokes coefficients on-the-fly (fallback)
@@ -427,7 +430,7 @@ private:
      */
     void createFallback1DInterpolator( int fileIndex, int n, int m,
                                        double& cosineCoeff, double& sineCoeff,
-                                       double solarLongitude ) const;
+                                       double solarLongitude );
 
 };
 
@@ -440,17 +443,17 @@ private:
  * It is designed to be shared between multiple models (e.g., ComaModel and
  * ComaWindModel) to avoid redundant computations.
  */
-class SphericalHarmonicsCalculator
+class SurfaceSphericalHarmonicsCalculator
 {
 public:
     /*!
      * \brief Constructor for spherical harmonics calculator.
      * \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional)
      */
-    explicit SphericalHarmonicsCalculator( std::string fixedReferenceFrame = "" );
+    explicit SurfaceSphericalHarmonicsCalculator( std::string fixedReferenceFrame = "" );
 
     //! Destructor
-    ~SphericalHarmonicsCalculator( ) = default;
+    ~SurfaceSphericalHarmonicsCalculator( ) = default;
 
 
     /*!

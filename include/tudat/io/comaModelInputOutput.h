@@ -23,7 +23,6 @@
 #include <regex>
 #include <set>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -53,29 +52,29 @@ using StokesBlock = Eigen::Matrix< double, Eigen::Dynamic, 2, Eigen::RowMajor >;
 struct FileMeta
 {
     // Epochs in seconds since J2000 (or your preferred convention)
-    double start_epoch{};
-    double end_epoch{};
-    std::string source_tag; // filename / description
+    double startEpoch{};
+    double endEpoch{};
+    std::string sourceTag; // filename / description
 };
 
 // Degree-major mapping (n = 0..nmax, m = 0..n)
-inline std::size_t nm_to_index_deg_major( int n, int m )
+inline std::size_t getDegreeMajorIndex( int n, int m )
 {
     // index(n,m) = n(n+1)/2 + m
     if(n < 0 || m < 0 || m > n) throw std::out_of_range( "nm_to_index: invalid (n,m)" );
     return static_cast< std::size_t >(n * ( n + 1 ) / 2 + m);
 }
 
-inline int index_to_n_deg_major( std::size_t k )
+inline int getDegreeFromDegreeMajorIndex( std::size_t k )
 {
     // invert k = n(n+1)/2 + m  => n = floor((sqrt(8k+1)-1)/2)
     const double nd = ( std::sqrt( 8.0 * static_cast< double >(k) + 1.0 ) - 1.0 ) * 0.5;
     return static_cast< int >(std::floor( nd + 1e-12 ));
 }
 
-inline std::pair< int, int > index_to_nm_deg_major( std::size_t k )
+inline std::pair< int, int > getDegreeOrderFromDegreeMajorIndex( std::size_t k )
 {
-    const int n = index_to_n_deg_major( k );
+    const int n = getDegreeFromDegreeMajorIndex( k );
     const std::size_t base = static_cast< std::size_t >(n * ( n + 1 ) / 2);
     const int m = static_cast< int >(k - base);
     return { n, m };
@@ -89,9 +88,9 @@ class ComaStokesDataset
 public:
     struct FileMeta
     {
-        double start_epoch{};
-        double end_epoch{};
-        std::string source_tag;
+        double startEpoch{};
+        double endEpoch{};
+        std::string sourceTag;
         double referenceRadius{};
     };
 
@@ -181,23 +180,23 @@ public:
         ComaStokesDataset g;
         g.files_ = std::move( files );
         g.radii_ = std::move( validRadii );
-        g.lons_ = std::move( solLongs );
-        g.nmax_ = nmax;
+        g.longitudes_ = std::move( solLongs );
+        g.maximumDegree_ = nmax;
         g.hasReducedCoeffs_ = computeReducedCoeffs;
 
-        g.n_files_ = g.files_.size( );
-        g.n_radii_ = g.radii_.size( );
-        g.n_lons_ = g.lons_.size( );
-        g.n_coeffs_ = static_cast< std::size_t >(( nmax + 1 ) * ( nmax + 2 ) / 2);
+        g.numberOfFiles_ = g.files_.size( );
+        g.numberOfRadii_ = g.radii_.size( );
+        g.numberOfLongitudes_ = g.longitudes_.size( );
+        g.numberOfCoefficients_ = static_cast< std::size_t >(( nmax + 1 ) * ( nmax + 2 ) / 2);
 
-        const std::size_t totalRows = g.n_files_ * g.n_radii_ * g.n_lons_ * g.n_coeffs_;
+        const std::size_t totalRows = g.numberOfFiles_ * g.numberOfRadii_ * g.numberOfLongitudes_ * g.numberOfCoefficients_;
         g.data_.setZero( static_cast< Eigen::Index >(totalRows), 2 );
 
         // Only allocate reduced coefficient storage if needed
         if( computeReducedCoeffs )
         {
-            const std::size_t reducedTotalRows = g.n_files_ * g.n_lons_ * g.n_coeffs_;
-            g.reduced_data_.setZero( static_cast< Eigen::Index >(reducedTotalRows), 2 );
+            const std::size_t reducedTotalRows = g.numberOfFiles_ * g.numberOfLongitudes_ * g.numberOfCoefficients_;
+            g.reducedData_.setZero( static_cast< Eigen::Index >(reducedTotalRows), 2 );
         }
 
         return g;
@@ -206,27 +205,27 @@ public:
     // Pure data accessors
     std::size_t nFiles( ) const
     {
-        return n_files_;
+        return numberOfFiles_;
     }
 
     std::size_t nRadii( ) const
     {
-        return n_radii_;
+        return numberOfRadii_;
     }
 
     std::size_t nLongitudes( ) const
     {
-        return n_lons_;
+        return numberOfLongitudes_;
     }
 
     std::size_t nCoeffs( ) const
     {
-        return n_coeffs_;
+        return numberOfCoefficients_;
     }
 
     int nmax( ) const
     {
-        return nmax_;
+        return maximumDegree_;
     }
 
     const std::vector< double >& radii( ) const
@@ -236,7 +235,7 @@ public:
 
     const std::vector< double >& lons( ) const
     {
-        return lons_;
+        return longitudes_;
     }
 
     const std::vector< FileMeta >& files( ) const
@@ -252,26 +251,26 @@ public:
     // Convenience accessor for reference radius
     double getReferenceRadius( std::size_t f = 0 ) const
     {
-        if(f >= n_files_) throw std::out_of_range( "File index out of range" );
+        if(f >= numberOfFiles_) throw std::out_of_range( "File index out of range" );
         return files_[ f ].referenceRadius;
     }
 
     // Block access
     auto block( std::size_t f, std::size_t r, std::size_t l )
     {
-        const std::size_t start = startRow_( f, r, l );
+        const std::size_t start = getStartRow( f, r, l );
         return data_.block( static_cast< Eigen::Index >(start),
                             0,
-                            static_cast< Eigen::Index >(n_coeffs_),
+                            static_cast< Eigen::Index >(numberOfCoefficients_),
                             2 );
     }
 
     auto block( std::size_t f, std::size_t r, std::size_t l ) const
     {
-        const std::size_t start = startRow_( f, r, l );
+        const std::size_t start = getStartRow( f, r, l );
         return data_.block( static_cast< Eigen::Index >(start),
                             0,
-                            static_cast< Eigen::Index >(n_coeffs_),
+                            static_cast< Eigen::Index >(numberOfCoefficients_),
                             2 );
     }
 
@@ -279,13 +278,13 @@ public:
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
     getCoefficientMatrices( std::size_t f, std::size_t r, std::size_t l ) const
     {
-        Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( nmax_ + 1, nmax_ + 1 );
-        Eigen::MatrixXd sine = Eigen::MatrixXd::Zero( nmax_ + 1, nmax_ + 1 );
+        Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero( maximumDegree_ + 1, maximumDegree_ + 1 );
+        Eigen::MatrixXd sine = Eigen::MatrixXd::Zero( maximumDegree_ + 1, maximumDegree_ + 1 );
 
         const auto blk = block( f, r, l );
-        for(std::size_t k = 0; k < n_coeffs_; ++k)
+        for(std::size_t k = 0; k < numberOfCoefficients_; ++k)
         {
-            auto nm = index_to_nm_deg_major( k );
+            auto nm = getDegreeOrderFromDegreeMajorIndex( k );
             int n = nm.first;
             int m = nm.second;
             cosine( n, m ) = blk( static_cast< Eigen::Index >(k), 0 );
@@ -303,9 +302,9 @@ public:
                    double C,
                    double S )
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "setCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = startRow_( f, r, l ) + k;
+        const std::size_t k = getDegreeMajorIndex( n, m );
+        if(k >= numberOfCoefficients_) throw std::out_of_range( "setCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = getStartRow( f, r, l ) + k;
         data_( static_cast< Eigen::Index >(row), 0 ) = C;
         data_( static_cast< Eigen::Index >(row), 1 ) = S;
     }
@@ -316,9 +315,9 @@ public:
                                           int n,
                                           int m ) const
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "getCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = startRow_( f, r, l ) + k;
+        const std::size_t k = getDegreeMajorIndex( n, m );
+        if(k >= numberOfCoefficients_) throw std::out_of_range( "getCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = getStartRow( f, r, l ) + k;
         return { data_( static_cast< Eigen::Index >(row), 0 ),
                  data_( static_cast< Eigen::Index >(row), 1 ) };
     }
@@ -336,75 +335,75 @@ public:
     // Reduced coefficient access methods (no radius dimension)
     auto reducedBlock( std::size_t f, std::size_t l )
     {
-        const std::size_t start = reducedStartRow_( f, l );
-        return reduced_data_.block( static_cast< Eigen::Index >(start),
+        const std::size_t start = getReducedStartRow( f, l );
+        return reducedData_.block( static_cast< Eigen::Index >(start),
                                     0,
-                                    static_cast< Eigen::Index >(n_coeffs_),
+                                    static_cast< Eigen::Index >(numberOfCoefficients_),
                                     2 );
     }
 
     auto reducedBlock( std::size_t f, std::size_t l ) const
     {
-        const std::size_t start = reducedStartRow_( f, l );
-        return reduced_data_.block( static_cast< Eigen::Index >(start),
+        const std::size_t start = getReducedStartRow( f, l );
+        return reducedData_.block( static_cast< Eigen::Index >(start),
                                     0,
-                                    static_cast< Eigen::Index >(n_coeffs_),
+                                    static_cast< Eigen::Index >(numberOfCoefficients_),
                                     2 );
     }
 
     void setReducedCoeff( std::size_t f, std::size_t l, int n, int m, double C, double S )
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "setReducedCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = reducedStartRow_( f, l ) + k;
-        reduced_data_( static_cast< Eigen::Index >(row), 0 ) = C;
-        reduced_data_( static_cast< Eigen::Index >(row), 1 ) = S;
+        const std::size_t k = getDegreeMajorIndex( n, m );
+        if(k >= numberOfCoefficients_) throw std::out_of_range( "setReducedCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = getReducedStartRow( f, l ) + k;
+        reducedData_( static_cast< Eigen::Index >(row), 0 ) = C;
+        reducedData_( static_cast< Eigen::Index >(row), 1 ) = S;
     }
 
     std::pair< double, double > getReducedCoeff( std::size_t f, std::size_t l, int n, int m ) const
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "getReducedCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = reducedStartRow_( f, l ) + k;
-        return { reduced_data_( static_cast< Eigen::Index >(row), 0 ),
-                 reduced_data_( static_cast< Eigen::Index >(row), 1 ) };
+        const std::size_t k = getDegreeMajorIndex( n, m );
+        if(k >= numberOfCoefficients_) throw std::out_of_range( "getReducedCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = getReducedStartRow( f, l ) + k;
+        return { reducedData_( static_cast< Eigen::Index >(row), 0 ),
+                 reducedData_( static_cast< Eigen::Index >(row), 1 ) };
     }
 
     const StokesBlock& reducedData( ) const
     {
-        return reduced_data_;
+        return reducedData_;
     }
 
     StokesBlock& reducedData( )
     {
-        return reduced_data_;
+        return reducedData_;
     }
 
 private:
-    std::size_t startRow_( std::size_t f, std::size_t r, std::size_t l ) const
+    std::size_t getStartRow( std::size_t f, std::size_t r, std::size_t l ) const
     {
-        if(f >= n_files_ || r >= n_radii_ || l >= n_lons_)
+        if(f >= numberOfFiles_ || r >= numberOfRadii_ || l >= numberOfLongitudes_)
             throw std::out_of_range( "StokesDataset: index out of range." );
-        const std::size_t cell = ( ( f * n_radii_ ) + r ) * n_lons_ + l;
-        return cell * n_coeffs_;
+        const std::size_t cell = ( ( f * numberOfRadii_ ) + r ) * numberOfLongitudes_ + l;
+        return cell * numberOfCoefficients_;
     }
 
-    std::size_t reducedStartRow_( std::size_t f, std::size_t l ) const
+    std::size_t getReducedStartRow( std::size_t f, std::size_t l ) const
     {
-        if(f >= n_files_ || l >= n_lons_)
+        if(f >= numberOfFiles_ || l >= numberOfLongitudes_)
             throw std::out_of_range( "StokesDataset: reduced index out of range." );
-        const std::size_t cell = f * n_lons_ + l;
-        return cell * n_coeffs_;
+        const std::size_t cell = f * numberOfLongitudes_ + l;
+        return cell * numberOfCoefficients_;
     }
 
     std::vector< FileMeta > files_;
     std::vector< double > radii_;
-    std::vector< double > lons_;
-    int nmax_{};
-    std::size_t n_files_{}, n_radii_{}, n_lons_{}, n_coeffs_{};
+    std::vector< double > longitudes_;
+    int maximumDegree_{};
+    std::size_t numberOfFiles_{}, numberOfRadii_{}, numberOfLongitudes_{}, numberOfCoefficients_{};
     bool hasReducedCoeffs_{ true }; // Flag indicating if reduced coefficients are computed/stored
     StokesBlock data_;
-    StokesBlock reduced_data_; // For reduced coefficients (n_files × n_lons × n_coeffs)
+    StokesBlock reducedData_; // For reduced coefficients.
 };
 
 // ---- Poly Dataset ----
@@ -427,50 +426,50 @@ public:
     // Simple accessors
     std::size_t getNumFiles( ) const
     {
-        return numPolyCoefFiles_;
+        return numberOfPolyCoefficientFiles_;
     }
 
     const FileMeta& getFileMeta( std::size_t f ) const
     {
-        boundsCheck_( f );
+        checkBounds( f );
         return fileMeta_[ f ];
     }
 
     const Eigen::MatrixXd& getPolyCoefficients( std::size_t f ) const
     {
-        boundsCheck_( f );
+        checkBounds( f );
         return polyCoefficients_[ f ];
     }
 
     const Eigen::ArrayXXi& getSHDegreeAndOrderIndices( std::size_t f ) const
     {
-        boundsCheck_( f );
-        return SHDegreeAndOrderIndices_[ f ];
+        checkBounds( f );
+        return sphericalHarmonicDegreeAndOrderIndices_[ f ];
     }
 
     // Convenience accessors
     double getReferenceRadius( std::size_t f ) const
     {
-        boundsCheck_( f );
+        checkBounds( f );
         return fileMeta_[ f ].referenceRadius;
     }
 
     const Eigen::ArrayXd& getPowersInvRadius( std::size_t f ) const
     {
-        boundsCheck_( f );
+        checkBounds( f );
         return fileMeta_[ f ].powersInvRadius;
     }
 
     int getMaxDegreeSH( std::size_t f ) const
     {
-        boundsCheck_( f );
+        checkBounds( f );
         return fileMeta_[ f ].maxDegreeSH;
     }
 
     // Column access methods
     Eigen::VectorXd columnForNM( std::size_t f, int n, int m ) const
     {
-        auto result = findColumn_( f, n, m );
+        auto result = findColumn( f, n, m );
         bool ok = result.first;
         int col = result.second;
         if(!ok) throw std::out_of_range( "columnForNM: (n,m) not found" );
@@ -479,7 +478,7 @@ public:
 
     double value( std::size_t f, Eigen::Index termIndex, int n, int m ) const
     {
-        auto result = findColumn_( f, n, m );
+        auto result = findColumn( f, n, m );
         bool ok = result.first;
         int col = result.second;
         if(!ok) throw std::out_of_range( "value: (n,m) not found" );
@@ -490,11 +489,11 @@ public:
 
     void clear( )
     {
-        numPolyCoefFiles_ = 0;
+        numberOfPolyCoefficientFiles_ = 0;
         polyCoefficients_.clear( );
-        SHDegreeAndOrderIndices_.clear( );
+        sphericalHarmonicDegreeAndOrderIndices_.clear( );
         fileMeta_.clear( );
-        nmToColCache_.clear( );
+        degreeOrderToColumnCache_.clear( );
     }
 
 protected:
@@ -506,15 +505,15 @@ protected:
                   std::vector< Eigen::ArrayXXi > shIndices,
                   std::vector< FileMeta > meta )
     {
-        numPolyCoefFiles_ = numFiles;
+        numberOfPolyCoefficientFiles_ = numFiles;
         polyCoefficients_ = std::move( polyCoeffs );
-        SHDegreeAndOrderIndices_ = std::move( shIndices );
+        sphericalHarmonicDegreeAndOrderIndices_ = std::move( shIndices );
         fileMeta_ = std::move( meta );
 
         // Build caches
-        nmToColCache_.resize( numFiles );
+        degreeOrderToColumnCache_.resize( numFiles );
         for(std::size_t f = 0; f < numFiles; ++f)
-            buildNmMap_( f );
+            buildDegreeOrderMap( f );
     }
 
 private:
@@ -527,38 +526,38 @@ private:
         }
     };
 
-    void boundsCheck_( std::size_t f ) const
+    void checkBounds( std::size_t f ) const
     {
-        if(f >= numPolyCoefFiles_)
+        if(f >= numberOfPolyCoefficientFiles_)
             throw std::out_of_range( "file index out of range" );
     }
 
-    void buildNmMap_( std::size_t f )
+    void buildDegreeOrderMap( std::size_t f )
     {
-        nmToColCache_[ f ].clear( );
-        const auto& sh = SHDegreeAndOrderIndices_[ f ];
+        degreeOrderToColumnCache_[ f ].clear( );
+        const auto& sh = sphericalHarmonicDegreeAndOrderIndices_[ f ];
         for(Eigen::Index c = 0; c < sh.cols( ); ++c)
         {
             int n = sh( 0, c );
             int m = sh( 1, c );
-            nmToColCache_[ f ][ { n, m } ] = static_cast< int >(c);
+            degreeOrderToColumnCache_[ f ][ { n, m } ] = static_cast< int >(c);
         }
     }
 
-    std::pair< bool, int > findColumn_( std::size_t f, int n, int m ) const
+    std::pair< bool, int > findColumn( std::size_t f, int n, int m ) const
     {
-        boundsCheck_( f );
-        const auto& map = nmToColCache_[ f ];
+        checkBounds( f );
+        const auto& map = degreeOrderToColumnCache_[ f ];
         auto it = map.find( { n, m } );
         if(it == map.end( )) return { false, -1 };
         return { true, it->second };
     }
 
-    std::size_t numPolyCoefFiles_{ 0 };
+    std::size_t numberOfPolyCoefficientFiles_{ 0 };
     std::vector< Eigen::MatrixXd > polyCoefficients_;
-    std::vector< Eigen::ArrayXXi > SHDegreeAndOrderIndices_;
+    std::vector< Eigen::ArrayXXi > sphericalHarmonicDegreeAndOrderIndices_;
     std::vector< FileMeta > fileMeta_;
-    std::vector< std::unordered_map< std::pair< int, int >, int, PairHash > > nmToColCache_;
+    std::vector< std::unordered_map< std::pair< int, int >, int, PairHash > > degreeOrderToColumnCache_;
 };
 
 // ============= I/O Components (Separate from data) =============
@@ -873,8 +872,8 @@ public:
         // Row 1: metadata
         os << "meta";
         set_sci( );
-        os << ",start_epoch=" << fm.start_epoch;
-        os << ",end_epoch=" << fm.end_epoch;
+        os << ",start_epoch=" << fm.startEpoch;
+        os << ",end_epoch=" << fm.endEpoch;
         os << ",max_degree=" << dataset.nmax( );
         os << ",max_order=" << dataset.nmax( );
         os << ",n_radii=" << dataset.nRadii( );
@@ -882,7 +881,7 @@ public:
         os << ",n_coeffs=" << dataset.nCoeffs( );
         os << ",has_reduced_coeffs=" << ( dataset.hasReducedCoeffs( ) ? "true" : "false" );
         os << ",source=";
-        csvEscape( os, fm.source_tag );
+        csvEscape( os, fm.sourceTag );
         os << '\n';
 
         // Row 2: radii
@@ -922,14 +921,14 @@ public:
                 const auto blk = dataset.reducedBlock( f, li );
                 for(std::size_t k = 0; k < dataset.nCoeffs( ); ++k)
                 {
-                    const auto nm = index_to_nm_deg_major( k );
+                    const auto nm = getDegreeOrderFromDegreeMajorIndex( k );
                     const double C = blk( static_cast< Eigen::Index >(k), 0 );
                     const double S = blk( static_cast< Eigen::Index >(k), 1 );
-                os << nm.first << ',' << nm.second << ',';
-                set_sci( );
-                os << C << ',' << S << '\n';
+                    os << nm.first << ',' << nm.second << ',';
+                    set_sci( );
+                    os << C << ',' << S << '\n';
+                }
             }
-        }
         } // End of if( dataset.hasReducedCoeffs( ) )
 
         // REGULAR COEFFICIENTS SECTION (for radius <= ref_radius)
@@ -940,9 +939,9 @@ public:
         {
             for(std::size_t li = 0; li < dataset.nLongitudes( ); ++li)
             {
-                const std::size_t block_id = ri * dataset.nLongitudes( ) + li;
+                const std::size_t blockId = ri * dataset.nLongitudes( ) + li;
 
-                os << "ID," << block_id << ',';
+                os << "ID," << blockId << ',';
                 set_def( );
                 os << "r_0=" << dataset.radii( )[ ri ] << ','
                         << "l_0=" << dataset.lons( )[ li ] << '\n';
@@ -952,7 +951,7 @@ public:
                 const auto blk = dataset.block( f, ri, li );
                 for(std::size_t k = 0; k < dataset.nCoeffs( ); ++k)
                 {
-                    const auto nm = index_to_nm_deg_major( k );
+                    const auto nm = getDegreeOrderFromDegreeMajorIndex( k );
                     const double C = blk( static_cast< Eigen::Index >(k), 0 );
                     const double S = blk( static_cast< Eigen::Index >(k), 1 );
                     os << nm.first << ',' << nm.second << ',';
@@ -999,48 +998,52 @@ public:
         auto parseMeta = []( const std::string& metaLine ) -> std::tuple< double, double, int, int, int, int, int, bool, double, std::string > {
             std::istringstream ss( metaLine );
             std::string token;
-            double start_epoch = 0, end_epoch = 0, ref_radius = 0.0;
-            int max_degree = 0, max_order = 0, n_radii = 0, n_lons = 0, n_coeffs = 0;
-            bool has_reduced_coeffs = false;
+            double startEpoch = 0, endEpoch = 0, referenceRadius = 0.0;
+            int maximumDegree = 0, maximumOrder = 0, numberOfRadii = 0, numberOfLongitudes = 0, numberOfCoefficients = 0;
+            bool hasReducedCoefficients = false;
             std::string source;
 
             while(std::getline( ss, token, ',' ))
             {
                 if(token.find( "start_epoch=" ) == 0)
-                    start_epoch = std::stod( token.substr( 12 ) );
+                    startEpoch = std::stod( token.substr( 12 ) );
                 else if(token.find( "end_epoch=" ) == 0)
-                    end_epoch = std::stod( token.substr( 10 ) );
+                    endEpoch = std::stod( token.substr( 10 ) );
                 else if(token.find( "max_degree=" ) == 0)
-                    max_degree = std::stoi( token.substr( 11 ) );
+                    maximumDegree = std::stoi( token.substr( 11 ) );
                 else if(token.find( "max_order=" ) == 0)
-                    max_order = std::stoi( token.substr( 10 ) );
+                    maximumOrder = std::stoi( token.substr( 10 ) );
                 else if(token.find( "n_radii=" ) == 0)
-                    n_radii = std::stoi( token.substr( 8 ) );
+                    numberOfRadii = std::stoi( token.substr( 8 ) );
                 else if(token.find( "n_lons=" ) == 0)
-                    n_lons = std::stoi( token.substr( 7 ) );
+                    numberOfLongitudes = std::stoi( token.substr( 7 ) );
                 else if(token.find( "n_coeffs=" ) == 0)
-                    n_coeffs = std::stoi( token.substr( 9 ) );
+                    numberOfCoefficients = std::stoi( token.substr( 9 ) );
                 else if(token.find( "has_reduced_coeffs=" ) == 0)
-                    has_reduced_coeffs = (token.substr( 19 ) == "true");
+                    hasReducedCoefficients = (token.substr( 19 ) == "true");
                 else if(token.find( "ref_radius=" ) == 0)
-                    ref_radius = std::stod( token.substr( 11 ) );
+                    referenceRadius = std::stod( token.substr( 11 ) );
                 else if(token.find( "source=" ) == 0)
                     source = token.substr( 7 );
             }
-            return { start_epoch, end_epoch, max_degree, max_order, n_radii, n_lons, n_coeffs, has_reduced_coeffs, ref_radius, source };
+            return { startEpoch, endEpoch, maximumDegree, maximumOrder, numberOfRadii,
+                     numberOfLongitudes, numberOfCoefficients, hasReducedCoefficients, referenceRadius, source };
         };
 
         auto meta = parseMeta( line );
-        double start_epoch = std::get<0>( meta );
-        double end_epoch = std::get<1>( meta );
-        int max_degree = std::get<2>( meta );
-        int max_order = std::get<3>( meta );
-        int n_radii = std::get<4>( meta );
-        int n_lons = std::get<5>( meta );
-        int n_coeffs = std::get<6>( meta );
-        bool has_reduced_coeffs = std::get<7>( meta );
-        double ref_radius = std::get<8>( meta );
+        double startEpoch = std::get<0>( meta );
+        double endEpoch = std::get<1>( meta );
+        int maximumDegree = std::get<2>( meta );
+        int maximumOrder = std::get<3>( meta );
+        int numberOfRadii = std::get<4>( meta );
+        int numberOfLongitudes = std::get<5>( meta );
+        int numberOfCoefficients = std::get<6>( meta );
+        bool hasReducedCoefficients = std::get<7>( meta );
+        double referenceRadius = std::get<8>( meta );
         std::string source = std::get<9>( meta );
+        static_cast< void >( maximumOrder );
+        static_cast< void >( numberOfRadii );
+        static_cast< void >( hasReducedCoefficients );
 
         // Parse radii line
         std::getline( ifs, line );
@@ -1061,12 +1064,12 @@ public:
 
         // Create dataset with single file
         std::vector< ComaStokesDataset::FileMeta > files( 1 );
-        files[ 0 ].start_epoch = start_epoch;
-        files[ 0 ].end_epoch = end_epoch;
-        files[ 0 ].source_tag = source;
-        files[ 0 ].referenceRadius = ref_radius;
+        files[ 0 ].startEpoch = startEpoch;
+        files[ 0 ].endEpoch = endEpoch;
+        files[ 0 ].sourceTag = source;
+        files[ 0 ].referenceRadius = referenceRadius;
 
-        ComaStokesDataset dataset = ComaStokesDataset::create( std::move( files ), radii, lons, max_degree );
+        ComaStokesDataset dataset = ComaStokesDataset::create( std::move( files ), radii, lons, maximumDegree );
 
         // Parse coefficient blocks (handles both reduced and regular coefficients in any order)
         while(std::getline( ifs, line ))
@@ -1083,8 +1086,8 @@ public:
                 std::istringstream idStream( line );
                 std::string idToken;
                 std::getline( idStream, idToken, ',' ); // skip "ID"
-                std::getline( idStream, idToken, ',' ); // block_id
-                int block_id = std::stoi( idToken );
+                std::getline( idStream, idToken, ',' ); // block id
+                int blockId = std::stoi( idToken );
 
                 // Skip header line "n,m,C,S"
                 std::getline( ifs, line );
@@ -1092,9 +1095,9 @@ public:
                 if(isReduced)
                 {
                     // Reduced coefficients: ID is just the longitude index
-                    std::size_t li = block_id;
+                    std::size_t li = blockId;
 
-                    for(int k = 0; k < n_coeffs; ++k)
+                    for(int k = 0; k < numberOfCoefficients; ++k)
                     {
                         std::getline( ifs, line );
                         std::istringstream coeffStream( line );
@@ -1114,11 +1117,11 @@ public:
                 }
                 else
                 {
-                    // Regular coefficients: ID is ri * n_lons + li
-                    std::size_t ri = block_id / n_lons;
-                    std::size_t li = block_id % n_lons;
+                    // Regular coefficients: ID is ri * numberOfLongitudes + li
+                    std::size_t ri = blockId / numberOfLongitudes;
+                    std::size_t li = blockId % numberOfLongitudes;
 
-                    for(int k = 0; k < n_coeffs; ++k)
+                    for(int k = 0; k < numberOfCoefficients; ++k)
                     {
                         std::getline( ifs, line );
                         std::istringstream coeffStream( line );
@@ -1649,17 +1652,17 @@ private:
         for(std::size_t fileIndex = 0; fileIndex < polyDataset.getNumFiles( ); ++fileIndex)
         {
             ComaStokesDataset::FileMeta fileMeta{};
-            fileMeta.source_tag = polyDataset.getFileMeta( fileIndex ).sourcePath;
+            fileMeta.sourceTag = polyDataset.getFileMeta( fileIndex ).sourcePath;
             fileMeta.referenceRadius = polyDataset.getFileMeta( fileIndex ).referenceRadius;
             if(!polyDataset.getFileMeta( fileIndex ).timePeriods.empty( ))
             {
-                fileMeta.start_epoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).first;
-                fileMeta.end_epoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).second;
+                fileMeta.startEpoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).first;
+                fileMeta.endEpoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).second;
             }
             else
             {
-                fileMeta.start_epoch = 0.0;
-                fileMeta.end_epoch = 0.0;
+                fileMeta.startEpoch = 0.0;
+                fileMeta.endEpoch = 0.0;
             }
             files.push_back( std::move( fileMeta ) );
         }
@@ -1725,7 +1728,7 @@ private:
                         {
                             if(degree >= cosineCoefficients.rows( ) || order >= cosineCoefficients.cols( ))
                                 throw std::runtime_error( "Evaluator returned C/S smaller than requested (nmax,mmax)." );
-                            const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
+                            const std::size_t coefficientIndex = getDegreeMajorIndex( degree, order );
                             coeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = cosineCoefficients( degree, order );
                             coeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = sineCoefficients( degree, order );
                         }
@@ -1764,7 +1767,7 @@ private:
                         {
                             if(degree >= reducedCosineCoefficients.rows( ) || order >= reducedCosineCoefficients.cols( ))
                                 throw std::runtime_error( "Evaluator returned reducedC/S smaller than requested (nmax,mmax)." );
-                            const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
+                            const std::size_t coefficientIndex = getDegreeMajorIndex( degree, order );
                             reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = reducedCosineCoefficients( degree, order );
                             reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = reducedSineCoefficients( degree, order );
                         }
@@ -2275,25 +2278,7 @@ private:
     bool isPolyType_;
 };
 
-// Factory functions for ComaWindModelFileProcessor
-inline std::shared_ptr<ComaWindModelFileProcessor> comaWindModelFileProcessorFromPolyFiles(
-    const std::vector<std::string>& xFilePaths,
-    const std::vector<std::string>& yFilePaths,
-    const std::vector<std::string>& zFilePaths)
-{
-    return std::make_shared<ComaWindModelFileProcessor>(xFilePaths, yFilePaths, zFilePaths);
-}
-
-inline std::shared_ptr<ComaWindModelFileProcessor> comaWindModelFileProcessorFromSHFiles(
-    const std::string& xInputDir,
-    const std::string& yInputDir,
-    const std::string& zInputDir,
-    const std::string& prefix = "stokes")
-{
-    return std::make_shared<ComaWindModelFileProcessor>(xInputDir, yInputDir, zInputDir, prefix);
-}
-
-// === Coma processing: factory-style helpers (header-inline) ===
+// Factory functions for ComaModelFileProcessor
 inline std::shared_ptr< ComaModelFileProcessor > comaModelFileProcessorFromPolyFiles(
         const std::vector< std::string >& filePaths )
 {
@@ -2307,8 +2292,27 @@ inline std::shared_ptr< ComaModelFileProcessor > comaModelFileProcessorFromSHFil
     return std::make_shared< ComaModelFileProcessor >( inputDir, prefix );
 }
 
-}  // namespace simulation_setup
+// Factory functions for ComaWindModelFileProcessor
+inline std::shared_ptr< ComaWindModelFileProcessor > comaWindModelFileProcessorFromPolyFiles(
+        const std::vector< std::string >& xFilePaths,
+        const std::vector< std::string >& yFilePaths,
+        const std::vector< std::string >& zFilePaths )
+{
+    return std::make_shared< ComaWindModelFileProcessor >( xFilePaths, yFilePaths, zFilePaths );
+}
 
-}  // namespace tudat
+inline std::shared_ptr< ComaWindModelFileProcessor > comaWindModelFileProcessorFromSHFiles(
+        const std::string& xInputDir,
+        const std::string& yInputDir,
+        const std::string& zInputDir,
+        const std::string& prefix = "stokes" )
+{
+    return std::make_shared< ComaWindModelFileProcessor >( xInputDir, yInputDir, zInputDir, prefix );
+}
+
+
+} // namespace simulation_setup
+
+} // namespace tudat
 
 #endif // TUDAT_COMA_MODEL_INPUT_OUTPUT_H

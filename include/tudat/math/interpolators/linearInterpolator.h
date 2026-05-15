@@ -19,6 +19,7 @@
 #define TUDAT_LINEAR_INTERPOLATOR_H
 
 #include <memory>
+#include <cmath>
 
 #include <Eigen/Core>
 
@@ -76,7 +77,8 @@ public:
                                 std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
                                                 IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
                         const IndependentVariableType period = IndependentVariableType( 0 ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue, period )
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
+        period_( period )
     {
         // Verify that the initialization variables are not empty.
         if( dataMap.size( ) == 0 )
@@ -160,7 +162,8 @@ public:
                                 std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
                                                 IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
                         const IndependentVariableType period = IndependentVariableType( 0 ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue, period )
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
+        period_( period )
     {
         // Verify that the initialization variables are not empty.
         if( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
@@ -299,6 +302,65 @@ public:
     {
         return linear_interpolator;
     }
+
+    //! Function to get the period for periodic interpolation.
+    /*!
+     *  Function to get the period for periodic interpolation.
+     *  \return Period value (0 for non-periodic interpolation).
+     */
+    IndependentVariableType getPeriod( ) const
+    {
+        return period_;
+    }
+
+    //! Function to check if interpolator is configured for periodic interpolation.
+    /*!
+     *  Function to check if interpolator is configured for periodic interpolation.
+     *  \return True if period > 0, false otherwise.
+     */
+    bool isPeriodic( ) const
+    {
+        return period_ > IndependentVariableType( 0 );
+    }
+
+private:
+    //! Function to compute the shortest angular distance between two values.
+    /*!
+     *  Function to compute the shortest angular distance between two values, considering periodicity.
+     *  For periodic interpolation (period > 0), this returns the distance via the shortest path,
+     *  which may wrap around the periodic boundary. For non-periodic interpolation, returns val2 - val1.
+     *  \param val1 First value.
+     *  \param val2 Second value.
+     *  \return Shortest distance from val1 to val2, considering periodicity.
+     */
+    IndependentVariableType getShortestDistance( const IndependentVariableType& val1,
+                                                 const IndependentVariableType& val2 ) const
+    {
+        if( !isPeriodic( ) )
+        {
+            return val2 - val1;
+        }
+
+        IndependentVariableType diff = val2 - val1;
+        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
+                    static_cast< double >( period_ ) / 2.0 );
+        const IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
+                    static_cast< double >( period_ ) / -2.0 );
+
+        while( diff > halfPeriod )
+        {
+            diff -= period_;
+        }
+        while( diff < negativeHalfPeriod )
+        {
+            diff += period_;
+        }
+
+        return diff;
+    }
+
+    //! Period for periodic/angular interpolation.
+    IndependentVariableType period_;
 };
 
 // extern template class LinearInterpolator< double, Eigen::VectorXd >;
