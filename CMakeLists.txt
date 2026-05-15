@@ -18,9 +18,19 @@ endif ()
 # Policies
 cmake_policy(SET CMP0069 NEW)  # Missing documentation
 cmake_policy(SET CMP0048 NEW)  # Missing documentation
+# Temporary compatibility setting: keep the legacy Python discovery behavior while
+# this project still relies on older find_package usage elsewhere in the build.
+# Migration path: replace legacy Python discovery with
+# `find_package(Python COMPONENTS Interpreter Development)` and then switch
+# CMP0148 to NEW.
 if(POLICY CMP0148)
     cmake_policy(SET CMP0148 OLD)
 endif()
+# Temporary compatibility setting: keep the legacy Boost discovery behavior while
+# this project still relies on older Boost / Boost.Python package discovery
+# elsewhere in the build.
+# Migration path: update to the modern Boost package/config-based discovery
+# approach and then switch CMP0167 to NEW.
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
 endif()
