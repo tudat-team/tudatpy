@@ -49,10 +49,6 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Vector of pairs of default values to be used for extrapolation, in case of
      *      use_default_value or use_default_value_with_warning as methods for boundaryHandling.
-     *  \param periods Vector of periods for periodic/angular interpolation, one per dimension. If periods[i] > 0,
-     *      dimension i uses shortest-path interpolation suitable for angular coordinates. If periods[i] = 0 (default),
-     *      dimension i uses standard non-periodic interpolation. Example: periods = {0, 2*pi} for radius (non-periodic)
-     *      and solar longitude (periodic) interpolation.
      */
     MultiDimensionalInterpolator(
             const std::vector< BoundaryInterpolationType >& boundaryHandling =
@@ -61,10 +57,8 @@ public:
                     std::vector< std::pair< DependentVariableType, DependentVariableType > >(
                             NumberOfDimensions,
                             std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ),
-            const std::vector< IndependentVariableType >& periods =
-                    std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
-        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue ), periods_( periods )
+                                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ):
+        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         // Check that the user-defined default value does not correspond to a boundary method that does not use the
         // default value
@@ -94,16 +88,12 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
-     *  \param periods Vector of periods for periodic/angular interpolation.
      */
     MultiDimensionalInterpolator( const std::vector< BoundaryInterpolationType >& boundaryHandling,
-                                  const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue,
-                                  const std::vector< IndependentVariableType >& periods =
-                                          std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
+                                  const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue ):
         MultiDimensionalInterpolator(
                 boundaryHandling,
-                std::vector< std::pair< DependentVariableType, DependentVariableType > >( NumberOfDimensions, defaultExtrapolationValue ),
-                periods )
+                std::vector< std::pair< DependentVariableType, DependentVariableType > >( NumberOfDimensions, defaultExtrapolationValue ) )
     { }
 
     //! Constructor taking single default value.
@@ -113,17 +103,13 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
-     *  \param periods Vector of periods for periodic/angular interpolation.
      */
     MultiDimensionalInterpolator( const std::vector< BoundaryInterpolationType >& boundaryHandling,
-                                  const DependentVariableType& defaultExtrapolationValue,
-                                  const std::vector< IndependentVariableType >& periods =
-                                          std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
+                                  const DependentVariableType& defaultExtrapolationValue ):
         MultiDimensionalInterpolator( boundaryHandling,
                                       std::vector< std::pair< DependentVariableType, DependentVariableType > >(
                                               NumberOfDimensions,
-                                              std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ),
-                                      periods )
+                                              std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) )
     { }
 
     //! Destructor.
@@ -183,98 +169,7 @@ public:
         return dependentData_;
     }
 
-    //! Function to get the periods vector for periodic interpolation.
-    /*!
-     *  Function to get the periods vector for periodic interpolation.
-     *  \return Vector of period values (0 for non-periodic dimensions).
-     */
-    std::vector< IndependentVariableType > getPeriods( ) const
-    {
-        return periods_;
-    }
-
-    //! Function to check if a specific dimension is configured for periodic interpolation.
-    /*!
-     *  Function to check if a specific dimension is configured for periodic interpolation.
-     *  \param dimensionIndex Index of the dimension to check.
-     *  \return True if periods_[dimensionIndex] > 0, false otherwise.
-     */
-    bool isPeriodic( const unsigned int dimensionIndex ) const
-    {
-        if( dimensionIndex >= NumberOfDimensions )
-        {
-            throw std::runtime_error( "MultiDimensionalInterpolator::isPeriodic: dimensionIndex out of range" );
-        }
-        return periods_.at( dimensionIndex ) > IndependentVariableType( 0 );
-    }
-
 protected:
-    //! Function to normalize a value to the periodic range [0, period) for a specific dimension.
-    /*!
-     *  Function to normalize a value to the periodic range [0, period) for periodic interpolation.
-     *  If the specified dimension is not periodic (periods_[dimensionIndex] <= 0), returns the value unchanged.
-     *  \param dimensionIndex Index of the dimension.
-     *  \param value Value to be normalized.
-     *  \return Normalized value in [0, period) range, or original value if non-periodic.
-     */
-    IndependentVariableType normalizePeriodicValue( const unsigned int dimensionIndex,
-                                                     const IndependentVariableType& value ) const
-    {
-        if( !isPeriodic( dimensionIndex ) )
-        {
-            return value;
-        }
-
-        IndependentVariableType period = periods_.at( dimensionIndex );
-        IndependentVariableType normalized = std::fmod( value, period );
-        if( normalized < IndependentVariableType( 0 ) )
-        {
-            normalized += period;
-        }
-        return normalized;
-    }
-
-    //! Function to compute the shortest angular distance between two values for a specific dimension.
-    /*!
-     *  Function to compute the shortest angular distance between two values, considering periodicity.
-     *  For periodic dimensions (periods_[dimensionIndex] > 0), this returns the distance via the shortest path,
-     *  which may wrap around the periodic boundary. For non-periodic dimensions, returns val2 - val1.
-     *  \param dimensionIndex Index of the dimension.
-     *  \param val1 First value.
-     *  \param val2 Second value.
-     *  \return Shortest distance from val1 to val2, considering periodicity.
-     */
-    IndependentVariableType getShortestDistance( const unsigned int dimensionIndex,
-                                                  const IndependentVariableType& val1,
-                                                  const IndependentVariableType& val2 ) const
-    {
-        if( !isPeriodic( dimensionIndex ) )
-        {
-            return val2 - val1;
-        }
-
-        IndependentVariableType period = periods_.at( dimensionIndex );
-        IndependentVariableType diff = val2 - val1;
-        // Compute half period - handle division for custom types by converting to double
-        IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
-            static_cast< double >( period ) / 2.0 );
-        IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
-            static_cast< double >( period ) / -2.0 );
-
-        // Wrap to [-period/2, period/2] for shortest path
-        while( diff > halfPeriod )
-        {
-            diff -= period;
-        }
-        while( diff < negativeHalfPeriod )
-        {
-            diff += period;
-        }
-
-        return diff;
-    }
-
-
     //! Function to return the condition of the current independent variable.
     /*!
      *  Function to return the condition of the current independent variable, i.e. whether the
@@ -473,13 +368,6 @@ protected:
      */
     std::vector< std::pair< DependentVariableType, DependentVariableType > > defaultExtrapolationValue_;
 
-    //! Vector of periods for periodic/angular interpolation.
-    /*!
-     *  Vector of periods for periodic/angular interpolation, one per dimension. If periods_[i] > 0,
-     *  dimension i uses shortest-path interpolation suitable for angular coordinates (e.g., periods_[i] = 2*pi
-     *  for radians). If periods_[i] = 0, dimension i uses standard non-periodic interpolation.
-     */
-    std::vector< IndependentVariableType > periods_;
 };
 
 }  // namespace interpolators
