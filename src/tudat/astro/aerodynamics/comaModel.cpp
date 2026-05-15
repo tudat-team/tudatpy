@@ -71,7 +71,7 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     sunStateFunction_( std::move( sunStateFunction ) ),
     cometStateFunction_( std::move( cometStateFunction ) ),
     cometRotationFunction_( std::move( cometRotationFunction ) ),
-    sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
+    sphericalHarmonicsCalculator_( std::make_shared<SurfaceSphericalHarmonicsCalculator>() )
 {
     // Validate input parameters
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
@@ -157,7 +157,7 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     sunStateFunction_( std::move( sunStateFunction ) ),
     cometStateFunction_( std::move( cometStateFunction ) ),
     cometRotationFunction_( std::move( cometRotationFunction ) ),
-    sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
+    sphericalHarmonicsCalculator_( std::make_shared<SurfaceSphericalHarmonicsCalculator>() )
 {
     // Validate input parameters
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
@@ -421,7 +421,7 @@ double ComaModel::getSpeedOfSound( const double radius,
  * \return The index of the time period in which the given time falls
  * \throws std::runtime_error If no matching time interval is found
  */
-int ComaModel::findTimeIntervalIndex( const double time ) const
+int ComaModel::findTimeIntervalIndex( const double time )
 {
     if ( dataType_ == ComaDataType::POLYNOMIAL_COEFFICIENTS )
     {
@@ -461,7 +461,7 @@ int ComaModel::findTimeIntervalIndex( const double time ) const
         if ( lastFileIndex_ >= 0 && lastFileIndex_ < static_cast<int>( numFiles ) )
         {
             const auto& fileMeta = stokesDataset_->files()[lastFileIndex_];
-            if ( time >= fileMeta.start_epoch && time <= fileMeta.end_epoch )
+            if ( time >= fileMeta.startEpoch && time <= fileMeta.endEpoch )
             {
                 return lastFileIndex_;
             }
@@ -476,11 +476,11 @@ int ComaModel::findTimeIntervalIndex( const double time ) const
             const int mid = left + ( right - left ) / 2;
             const auto& fileMeta = stokesDataset_->files()[mid];
 
-            if ( time < fileMeta.start_epoch )
+            if ( time < fileMeta.startEpoch )
             {
                 right = mid - 1;
             }
-            else if ( time > fileMeta.end_epoch )
+            else if ( time > fileMeta.endEpoch )
             {
                 left = mid + 1;
             }
@@ -505,7 +505,7 @@ int ComaModel::findTimeIntervalIndex( const double time ) const
  * \return Solar longitude angle from X-axis in XY plane [rad]
  * \throws std::runtime_error If state functions are not initialized
  */
-double ComaModel::calculateSolarLongitude( const double time ) const
+double ComaModel::calculateSolarLongitude( const double time )
 {
     constexpr double timeTolerance = 1e-10;
     constexpr double timeToleranceSq = timeTolerance * timeTolerance;
@@ -564,7 +564,7 @@ double ComaModel::calculateSolarLongitude( const double time ) const
  * \return Coma density in log2 [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time )
 {
     if ( !polyDataset_ )
     {
@@ -638,7 +638,7 @@ double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, doubl
  * \return Coma density in log2 [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time )
 {
     if ( !stokesDataset_ )
     {
@@ -1131,7 +1131,7 @@ void ComaModel::initializeTemperatureStokesInterpolators()
  */
 void ComaModel::createFallback2DInterpolator( const int fileIndex, const int degree, const int order,
                                               double& cosineCoeff, double& sineCoeff,
-                                              const double radius, const double solarLongitude ) const
+                                              const double radius, const double solarLongitude )
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 
@@ -1223,7 +1223,7 @@ void ComaModel::createFallback2DInterpolator( const int fileIndex, const int deg
  */
 void ComaModel::createFallback1DInterpolator( const int fileIndex, const int degree, const int order,
                                               double& cosineCoeff, double& sineCoeff,
-                                              const double solarLongitude ) const
+                                              const double solarLongitude )
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 
@@ -1312,7 +1312,7 @@ void ComaModel::createFallback1DInterpolator( const int fileIndex, const int deg
  * \return Coma temperature [K]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time )
 {
     if ( !temperaturePolyDataset_ )
     {
@@ -1380,7 +1380,7 @@ double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double 
  * \return Coma temperature [K]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time )
 {
     if ( !temperatureStokesDataset_ )
     {
@@ -1494,7 +1494,7 @@ double ComaModel::computeTemperatureFromStokesCoefficients( double radius, doubl
 }
 
 //=============================================================================
-// SphericalHarmonicsCalculator Class Implementation
+// SurfaceSphericalHarmonicsCalculator Class Implementation
 //=============================================================================
 
 /*!
@@ -1503,7 +1503,7 @@ double ComaModel::computeTemperatureFromStokesCoefficients( double radius, doubl
  * and trigonometric functions to optimize repeated evaluations.
  * \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional)
  */
-SphericalHarmonicsCalculator::SphericalHarmonicsCalculator( std::string fixedReferenceFrame ) :
+SurfaceSphericalHarmonicsCalculator::SurfaceSphericalHarmonicsCalculator( std::string fixedReferenceFrame ) :
     fixedReferenceFrame_( std::move( fixedReferenceFrame ) ),
     sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( true, true) )
 {
@@ -1522,7 +1522,7 @@ SphericalHarmonicsCalculator::SphericalHarmonicsCalculator( std::string fixedRef
  * \return Evaluated surface field value at the given latitude and longitude
  * \throws std::runtime_error If coefficient matrices have incompatible sizes
  */
-double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
+double SurfaceSphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
         const Eigen::MatrixXd& sineCoefficients,
         const Eigen::MatrixXd& cosineCoefficients,
         const double latitude,

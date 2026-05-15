@@ -2091,10 +2091,9 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 }
                 auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) );
-                auto centralBody = bodies.at( secondaryBody );
 
                 // Use lambda to get number density
-                variableFunction = [flightConditions, centralBody]( ) -> double
+                variableFunction = [flightConditions]( ) -> double
                 {
                     auto atmosphereModel = flightConditions->getAtmosphereModel( );
 
@@ -2102,9 +2101,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
                     if( comaModel != nullptr )
                     {
-                        double radius = flightConditions->getCurrentAltitude( ) + centralBody->getShapeModel( )->getAverageRadius( );
                         return comaModel->getNumberDensity(
-                            radius,
+                            flightConditions->getCurrentRadius( ),
                             flightConditions->getCurrentLongitude( ),
                             flightConditions->getCurrentLatitude( ),
                             flightConditions->getCurrentTime( ) );

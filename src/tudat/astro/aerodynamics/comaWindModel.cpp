@@ -64,7 +64,6 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         cometStateFunction_( std::move( cometStateFunction ) ),
         cometRotationFunction_( std::move( cometRotationFunction ) ),
         sphericalHarmonicsCalculator_( nullptr ),
-        sharedSphericalHarmonicsCalculator_( nullptr ),
         cachedSolarLongitude_( 0.0 ),
         cachedTime_( -std::numeric_limits<double>::infinity() ),
         lastXFileIndex_( 0 ),
@@ -100,16 +99,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
         }
 
-        // Share the ComaModel's calculator if available — the grow-only resize logic
+        // Share the ComaModel's calculator; the grow-only resize logic
         // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
-        {
-            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
-        }
-        else
-        {
-            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
-        }
+        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator();
 
         // Pre-allocate coefficient matrices based on maximum degree/order from dataset
         const int maxDegreeAvailable = xPolyDataset_->getMaxDegreeSH( 0 );
@@ -187,7 +179,6 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
         cometStateFunction_( std::move( cometStateFunction ) ),
         cometRotationFunction_( std::move( cometRotationFunction ) ),
         sphericalHarmonicsCalculator_( nullptr ),
-        sharedSphericalHarmonicsCalculator_( nullptr ),
         cachedSolarLongitude_( 0.0 ),
         cachedTime_( -std::numeric_limits<double>::infinity() ),
         lastXFileIndex_( 0 ),
@@ -223,16 +214,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
         }
 
-        // Share the ComaModel's calculator if available — the grow-only resize logic
+        // Share the ComaModel's calculator; the grow-only resize logic
         // in calculateSurfaceSphericalHarmonics ensures the cache never shrinks.
-        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
-        {
-            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
-        }
-        else
-        {
-            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
-        }
+        sphericalHarmonicsCalculator_ = comaModel_->getSurfaceSphericalHarmonicsCalculator();
 
         // Pre-allocate coefficient matrices based on nmax from dataset
         const int nmax = xStokesDataset_->nmax();
@@ -342,7 +326,7 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
  * \throws std::runtime_error If datasets are null or time is out of range
  */
 Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
-    double radius, double longitude, double latitude, double time ) const
+    double radius, double longitude, double latitude, double time )
 {
     if ( !xStokesDataset_ || !yStokesDataset_ || !zStokesDataset_ )
     {
@@ -516,7 +500,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
 
     // Step 5: Compute wind components using spherical harmonics expansion
     // Note: This step always runs (can't cache because lat/lon may change between calls)
-    auto* shCalc = getActiveSphericalHarmonicsCalculator();
+    auto shCalc = getActiveSurfaceSphericalHarmonicsCalculator();
 
     const double windX = shCalc->calculateSurfaceSphericalHarmonics(
         cachedXSineCoefficients_, cachedXCosineCoefficients_,
@@ -554,7 +538,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
  * \throws std::runtime_error If datasets are null or time is out of range
  */
 Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
-    double radius, double longitude, double latitude, double time ) const
+    double radius, double longitude, double latitude, double time )
 {
     if ( !xPolyDataset_ || !yPolyDataset_ || !zPolyDataset_ )
     {
@@ -632,7 +616,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
         maximumDegree_, maximumOrder_, isLog2Data_ );
 
     // Compute wind components using spherical harmonics (shared calculator benefits from cache)
-    auto* shCalc = getActiveSphericalHarmonicsCalculator();
+    auto shCalc = getActiveSurfaceSphericalHarmonicsCalculator();
 
     const double windX = shCalc->calculateSurfaceSphericalHarmonics(
         cachedXSineCoefficients_, cachedXCosineCoefficients_,
@@ -668,7 +652,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
  * \return Index of the time interval containing the given time
  * \throws std::runtime_error If no matching time interval is found
  */
-int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset ) const
+int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset )
 {
     // Determine which cached file index to use based on dataset pointer
     int& cachedFileIndex = (dataset == xPolyDataset_) ? lastXFileIndex_ :
@@ -715,7 +699,7 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
  * \return Index of the time interval containing the given time
  * \throws std::runtime_error If no matching time interval is found
  */
-int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset ) const
+int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset )
 {
     // Determine which cached file index to use based on dataset pointer
     int& cachedFileIndex = (dataset == xStokesDataset_) ? lastXFileIndex_ :
@@ -727,7 +711,7 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
     if ( cachedFileIndex >= 0 && cachedFileIndex < static_cast<int>( numFiles ) )
     {
         const auto& fileMeta = dataset->files()[cachedFileIndex];
-        if ( time >= fileMeta.start_epoch && time <= fileMeta.end_epoch )
+        if ( time >= fileMeta.startEpoch && time <= fileMeta.endEpoch )
         {
             return cachedFileIndex;
         }
@@ -742,11 +726,11 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
         const int mid = left + ( right - left ) / 2;
         const auto& fileMeta = dataset->files()[mid];
 
-        if ( time < fileMeta.start_epoch )
+        if ( time < fileMeta.startEpoch )
         {
             right = mid - 1;
         }
-        else if ( time > fileMeta.end_epoch )
+        else if ( time > fileMeta.endEpoch )
         {
             left = mid + 1;
         }
@@ -776,7 +760,7 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
  */
 double ComaWindModel::computeWindComponentFromPolyCoefficients(
     std::shared_ptr<simulation_setup::ComaPolyDataset> dataset,
-    double radius, double longitude, double latitude, double time ) const
+    double radius, double longitude, double latitude, double time )
 {
     if ( !dataset )
     {
@@ -830,7 +814,7 @@ double ComaWindModel::computeWindComponentFromPolyCoefficients(
         maximumDegree_,
         maximumOrder_ );
 
-    return getActiveSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
+    return getActiveSurfaceSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
         maximumDegree_ > 0 ? maximumDegree_ : cosineCoefficients.rows() - 1,
@@ -854,7 +838,7 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
     std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
     const std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                                  std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>& interpolators,
-    double radius, double longitude, double latitude, double time ) const
+    double radius, double longitude, double latitude, double time )
 {
     if ( !dataset )
     {
@@ -986,7 +970,7 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
 
     // Step 5: Compute wind component using spherical harmonics expansion
     // Note: This step always runs (can't cache because lat/lon may change)
-    return getActiveSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
+    return getActiveSurfaceSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
         effectiveMaxDegree, effectiveMaxOrder
@@ -1003,7 +987,7 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
  * \return Solar longitude angle from X-axis in XY plane [rad]
  * \throws std::runtime_error If state functions are not initialized
  */
-double ComaWindModel::calculateSolarLongitude( const double time ) const
+double ComaWindModel::calculateSolarLongitude( const double time )
 {
     constexpr double timeTolerance = 1e-10;
     constexpr double timeToleranceSq = timeTolerance * timeTolerance;
@@ -1051,12 +1035,16 @@ double ComaWindModel::calculateSolarLongitude( const double time ) const
  * Returns the shared calculator from ComaModel if available, otherwise
  * returns the owned calculator. This allows efficient sharing of computation
  * resources when both wind and density models use spherical harmonics.
- * \return Pointer to the active spherical harmonics calculator (non-owning)
+ * \return Shared pointer to the active spherical harmonics calculator
  */
-SphericalHarmonicsCalculator* ComaWindModel::getActiveSphericalHarmonicsCalculator() const
+std::shared_ptr<SurfaceSphericalHarmonicsCalculator> ComaWindModel::getActiveSurfaceSphericalHarmonicsCalculator()
 {
-    // Return shared calculator if available, otherwise use our own
-    return sharedSphericalHarmonicsCalculator_ != nullptr ? sharedSphericalHarmonicsCalculator_ : sphericalHarmonicsCalculator_.get();
+    if ( !sphericalHarmonicsCalculator_ )
+    {
+        sphericalHarmonicsCalculator_ = std::make_shared<SurfaceSphericalHarmonicsCalculator>();
+    }
+
+    return sphericalHarmonicsCalculator_;
 }
 
 /*!
@@ -1391,7 +1379,7 @@ void ComaWindModel::createFallback2DInterpolator(
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>>& fallbackCache,
     const int fileIndex, const int degree, const int order,
     double& cosineCoeff, double& sineCoeff,
-    const double radius, const double solarLongitude ) const
+    const double radius, const double solarLongitude )
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 
@@ -1487,7 +1475,7 @@ void ComaWindModel::createFallback1DInterpolator(
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>>& fallbackCache,
     const int fileIndex, const int degree, const int order,
     double& cosineCoeff, double& sineCoeff,
-    const double solarLongitude ) const
+    const double solarLongitude )
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 

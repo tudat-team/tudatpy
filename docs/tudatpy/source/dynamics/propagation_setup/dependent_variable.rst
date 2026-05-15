@@ -56,7 +56,11 @@ Functions
 
    body_fixed_groundspeed_velocity
 
+   local_wind_velocity
+
    density
+
+   number_density
 
    temperature
 
@@ -105,6 +109,8 @@ Functions
    geodetic_latitude
 
    longitude
+
+   solar_longitude
 
    heading_angle
 
@@ -221,7 +227,11 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.local_wind_velocity
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.density
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.number_density
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.temperature
 
@@ -270,6 +280,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.geodetic_latitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.longitude
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.solar_longitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.heading_angle
 
