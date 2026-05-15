@@ -5,6 +5,7 @@ set(_TUDAT_BOOST_MINIMUM_VERSION 1.72.0)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
+set(Boost_NO_WARN_NEW_VERSIONS ON)
 find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} QUIET REQUIRED)
 
 if(_TUDAT_FIND_BOOST_PYTHON)
@@ -29,6 +30,7 @@ if(NOT TARGET Boost::boost)
     message(STATUS "The 'Boost::boost' target is missing, creating it.")
     add_library(Boost::boost INTERFACE IMPORTED)
     set_target_properties(Boost::boost PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
+    set_target_properties(Boost::boost PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
 endif()
 if(NOT TARGET Boost::disable_autolinking)
     message(STATUS "The 'Boost::disable_autolinking' target is missing, creating it.")
@@ -48,6 +50,8 @@ foreach(_TUDAT_BOOST_COMPONENT ${_TUDAT_REQUIRED_BOOST_LIBS})
         endif()
         set_target_properties(Boost::${_TUDAT_BOOST_COMPONENT} PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
+        set_target_properties(Boost::${_TUDAT_BOOST_COMPONENT} PROPERTIES
+                INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
         set_target_properties(Boost::${_TUDAT_BOOST_COMPONENT} PROPERTIES
                 IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
                 IMPORTED_LOCATION "${Boost_${_TUDAT_BOOST_UPPER_COMPONENT}_LIBRARY}")

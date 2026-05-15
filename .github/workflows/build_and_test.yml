@@ -87,7 +87,9 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
            activate-environment: tudat
-           auto-activate-base: false
+           auto-activate: false
+           channels: conda-forge,tudat-team
+           conda-remove-defaults: true
 
     # - name: Get date
     #   # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
