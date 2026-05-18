@@ -3193,7 +3193,6 @@ public:
                                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                                         secondDopplerSettings, bodies, topLevelObservableType ) ),
                                         observationBias,
-                                        stationStates,
                                         observationSettings->observableTimeScale_ );
 
                 // Always set the frequency interpolator for FDOA - required for transmitter frequency computation

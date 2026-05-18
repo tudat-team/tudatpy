@@ -11,7 +11,6 @@
 #ifndef TUDAT_DIFFERENCEDFREQUENCYOFARRIVALOBSERVATIONMODEL_H
 #define TUDAT_DIFFERENCEDFREQUENCYOFARRIVALOBSERVATIONMODEL_H
 
-#include <map>
 #include <iostream>
 #include <stdexcept>
 
@@ -47,12 +46,9 @@ public:
             const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > > firstDopplerModel,
             const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > > secondDopplerModel,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >& stationStates =
-                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
             const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
         ObservationModel< 1, ObservationScalarType, TimeType >( differenced_frequency_of_arrival, linkEnds, observationBiasCalculator ),
-        firstDopplerModel_( firstDopplerModel ), secondDopplerModel_( secondDopplerModel ), stationStates_( stationStates ),
-        observableTimeScale_( observableTimeScale )
+        firstDopplerModel_( firstDopplerModel ), secondDopplerModel_( secondDopplerModel ), observableTimeScale_( observableTimeScale )
     {
         if( linkEnds.size() != 3 )
         {
@@ -64,22 +60,6 @@ public:
         {
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation model, only TDB and UTC time scales are currently supported" );
-        }
-        if( observableTimeScale_ == basic_astrodynamics::utc_scale )
-        {
-            if( stationStates.count( receiver ) == 0 )
-            {
-                throw std::runtime_error(
-                        "Error when creating differenced frequency of arrival observation model, no state model found for receiver " +
-                        linkEnds.at( receiver ).bodyName_ + ", " + linkEnds.at( receiver ).stationName_ );
-            }
-
-            if( stationStates.count( receiver2 ) == 0 )
-            {
-                throw std::runtime_error(
-                        "Error when creating differenced frequency of arrival observation model, no state model found for receiver2 " +
-                        linkEnds.at( receiver2 ).bodyName_ + ", " + linkEnds.at( receiver2 ).stationName_ );
-            }
         }
         if( firstDopplerModel_ == nullptr || secondDopplerModel_ == nullptr )
         {
@@ -156,8 +136,6 @@ public:
 private:
     const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > > firstDopplerModel_;
     const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > > secondDopplerModel_;
-
-    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 
     basic_astrodynamics::TimeScales observableTimeScale_;
 };
