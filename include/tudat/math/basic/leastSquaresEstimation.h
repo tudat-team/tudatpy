@@ -96,10 +96,10 @@ template <typename M>
 M multiplyDesignMatrixByDiagonalWeightMatrix( const M& designMatrix,
                                               const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix )
 {
-    return designMatrix * diagonalOfWeightMatrix.asDiagonal();
+    return diagonalOfWeightMatrix.asDiagonal() * designMatrix;
 }
 
-
+// TODO: ask dominic about replacing arguments with std::optional.
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
@@ -114,10 +114,44 @@ template <typename M>
 M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
                                              const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
                                              const M& inverseOfAPrioriCovarianceMatrix,
-                                             const M& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-                                             const typename from_eigen<M>::dense_vector_type& constraintRightHandside =
-                                                from_eigen<M>::dense_vector_type( 0 ),
-                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
+                                             const std::optional<M> &constraintMultiplier = std::nullopt,
+                                             const std::optional<typename from_eigen<M>::dense_vector_type> &constraintRightHandside =
+                                                std::nullopt,
+                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
+{
+    // Add constraints to inverse covariance matrix if required
+    Eigen::MatrixXd inverseOfCovarianceMatrix = inverseOfAPrioriCovarianceMatrix +
+            designMatrix.transpose( ) * diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
+
+    if ( constraintMultiplier )
+    {
+        if ( !constraintRightHandside ) {
+            throw std::runtime_error( "Error when performing constrained least-squares, both multiplier and right-hand-side should be given." );
+        }
+
+        if( constraintMultiplier->rows( ) != constraintRightHandside->rows( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible" );
+        }
+
+        if( constraintMultiplier->cols( ) != designMatrix.cols( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
+        }
+
+        int numberOfConstraints = constraintMultiplier->rows( );
+        int numberOfParameters = constraintMultiplier->cols( );
+
+        // TODO: Figure out what this does and replace with sparse compatible operations
+        inverseOfCovarianceMatrix.conservativeResize( numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
+        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) = constraintMultiplier;
+        inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) =
+                constraintMultiplier.transpose( );
+        inverseOfCovarianceMatrix.block( numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
+    }
+
+    return inverseOfCovarianceMatrix;
+}
 
 //! Function to compute inverse of covariance matrix at current iteration
 /*!

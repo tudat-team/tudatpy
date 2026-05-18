@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include <Eigen/LU>
-
 #include "tudat/math/basic/leastSquaresEstimation.h"
 
 namespace tudat
@@ -143,6 +142,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                           Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
                                                           limitConditionNumberForWarning );
 }
+
 
 //! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
 Eigen::VectorXd nonLinearLeastSquaresFit(
