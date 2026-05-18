@@ -230,8 +230,8 @@ def trajectory_3d(
             _color = colors[i_c]
             _linestyle = linestyles[i_ls]
             # Increment color and linestyle indexes
-            i_c = i_c + 1 if i_c != len(colors) else 0
-            i_ls = i_ls + 1 if i_ls != len(linestyles) else 0
+            i_c = i_c + 1 if i_c != len(colors)-1 else 0
+            i_ls = i_ls + 1 if i_ls != len(linestyles)-1 else 0
             # Plot the trajectory of the vehicle
             ax.plot(vehicles_positions[i][:,0], vehicles_positions[i][:,1], vehicles_positions[i][:,2], label=vehicle_name, color=_color, linestyle=_linestyle)
 
@@ -247,8 +247,8 @@ def trajectory_3d(
         _color = colors[i_c]
         _linestyle = linestyles[i_ls]
         # Increment color and linestyle indexes
-        i_c = i_c + 1 if i_c != len(colors) else 0
-        i_ls = i_ls + 1 if i_ls != len(linestyles) else 0
+        i_c = i_c + 1 if i_c != len(colors)-1 else 0
+        i_ls = i_ls + 1 if i_ls != len(linestyles)-1 else 0
         # Plot the trajectory of the body
         ax.plot(body_state_array[:,0], body_state_array[:,1], body_state_array[:,2], label=spice_body, color=_color, linestyle=_linestyle)
 
