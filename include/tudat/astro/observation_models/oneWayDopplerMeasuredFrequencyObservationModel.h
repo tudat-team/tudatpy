@@ -100,11 +100,18 @@ public:
         oneWayDopplerModel_( oneWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ),
         observableTimeScale_( observableTimeScale )
     {
-        if( observableTimeScale_ != basic_astrodynamics::tdb_scale &&
-            observableTimeScale_ != basic_astrodynamics::utc_scale )
+        if( observableTimeScale_ != basic_astrodynamics::tdb_scale && observableTimeScale_ != basic_astrodynamics::utc_scale )
         {
             throw std::runtime_error(
-                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: only TDB and UTC time scales are currently supported." );
+                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: only TDB and UTC time scales are currently "
+                    "supported." );
+        }
+
+        if( oneWayDopplerModel->getLightTimeCalculator( ) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating OneWayDopplerMeasuredFrequencyObservationModel: input one-way Doppler model has no light-time "
+                    "calculator." );
         }
 
         // Check if OneWayDopplerModel is not nullptr

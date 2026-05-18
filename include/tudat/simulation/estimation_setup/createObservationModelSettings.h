@@ -1078,6 +1078,12 @@ public:
                     "Error when creating one-way Doppler measured frequency observation settings, "
                     "only TDB and UTC time scales are currently supported" );
         }
+
+        if( dopplerModelSettings_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating one-way Doppler measured frequency observation settings, input Doppler model settings are null" );
+        }
     }
 
     [[nodiscard]] std::shared_ptr< OneWayDopplerObservationModelSettings > getDopplerModelSettings( )
@@ -1126,6 +1132,19 @@ public:
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation settings, "
                     "only TDB and UTC time scales are currently supported" );
+        }
+
+        if( firstDopplerModelSettings_ == nullptr || secondDopplerModelSettings_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating differenced frequency of arrival observation settings, input Doppler model settings are null" );
+        }
+
+        if( firstDopplerModelSettings_->observableTimeScale_ != differencedTimeScale_ ||
+            secondDopplerModelSettings_->observableTimeScale_ != differencedTimeScale_ )
+        {
+            throw std::runtime_error(
+                    "Error when creating differenced frequency of arrival observation settings, the child measured-frequency models must use the same time scale as the wrapper" );
         }
     }
 
