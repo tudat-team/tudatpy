@@ -206,14 +206,15 @@ public:
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         TimeType transmitterFrequencyTime = transmitterTime;
-        if( observableTimeScale_ == basic_astrodynamics::utc_scale )
+        if( observableTimeScale_ == basic_astrodynamics::tdb_scale )
         {
             transmitterFrequencyTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                     basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
         }
 
         ObservationScalarType transmittedFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterFrequencyTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
+                        transmitterFrequencyTime );
 
         // Calculate the Doppler observable
         ObservationScalarType dopplerMultiplicationTerm = oneWayDopplerModel_->getMultiplicationTerm( );
@@ -248,6 +249,11 @@ public:
     std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
+    }
+
+    [[nodiscard]] basic_astrodynamics::TimeScales getObservableTimeScale( ) const
+    {
+        return observableTimeScale_;
     }
 
 private:

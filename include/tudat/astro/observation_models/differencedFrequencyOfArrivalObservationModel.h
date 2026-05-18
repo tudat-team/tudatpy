@@ -56,7 +56,7 @@ public:
                     "Error when creating differenced frequency of arrival observation model, exactly 3 link ends required" );
         }
         if( observableTimeScale_ != basic_astrodynamics::tdb_scale &&
-            observableTimeScale_ != basic_astrodynamics::utc_scale)
+            observableTimeScale_ != basic_astrodynamics::utc_scale )
         {
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation model, only TDB and UTC time scales are currently supported" );
@@ -66,15 +66,12 @@ public:
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation model, null doppler model pointer" );
         }
-        if( firstDopplerModel_->frequencyInterpolator_ == nullptr || secondDopplerModel_->frequencyInterpolator_ == nullptr )
+
+        if( firstDopplerModel_->getObservableTimeScale( ) != observableTimeScale_ ||
+            secondDopplerModel_->getObservableTimeScale( ) != observableTimeScale_ )
         {
-            if( frequencyInterpolator_ == nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when creating differenced frequency of arrival observation model, no frequency interpolator found" );
-            }
-            firstDopplerModel_->setFrequencyInterpolator( frequencyInterpolator_ );
-            secondDopplerModel_->setFrequencyInterpolator( frequencyInterpolator_ );
+            throw std::runtime_error(
+                    "Error when creating differenced frequency of arrival observation model, child measured-frequency models must use the same time scale as the wrapper" );
         }
     }
 
@@ -131,6 +128,11 @@ public:
     [[nodiscard]] auto getSecondDopplerMeasuredFrequencyModel( )
     {
         return secondDopplerModel_;
+    }
+
+    [[nodiscard]] basic_astrodynamics::TimeScales getObservableTimeScale( ) const
+    {
+        return observableTimeScale_;
     }
 
 private:
