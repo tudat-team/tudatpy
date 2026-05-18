@@ -14,7 +14,6 @@
 
 #include <Eigen/LU>
 
-#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 
 namespace tudat
@@ -22,45 +21,6 @@ namespace tudat
 
 namespace linear_algebra
 {
-
-//! Function to get condition number of matrix (using SVD decomposition)
-double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix )
-{
-    return getConditionNumberOfDecomposedMatrix( designMatrix.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeFullV ) );
-}
-
-//! Solve system of equations with SVD decomposition, checking condition number in the process
-Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
-                                               const Eigen::VectorXd rightHandSideVector,
-                                               const double limitConditionNumberForWarning )
-{
-    auto svdDecomposition = matrixToInvert.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV );
-    if( limitConditionNumberForWarning == limitConditionNumberForWarning )
-    {
-        double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
-
-        if( conditionNumber > limitConditionNumberForWarning )
-        {
-            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
-        }
-    }
-    return svdDecomposition.solve( rightHandSideVector );
-}
-
-//! Function to multiply information matrix by diagonal weights matrix
-Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
-                                                            const Eigen::VectorXd& diagonalOfWeightMatrix )
-{
-    Eigen::MatrixXd weightedDesignMatrix = Eigen::MatrixXd::Zero( designMatrix.rows( ), designMatrix.cols( ) );
-
-    for( int i = 0; i < designMatrix.cols( ); i++ )
-    {
-        weightedDesignMatrix.block( 0, i, designMatrix.rows( ), 1 ) =
-                designMatrix.block( 0, i, designMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
-    }
-
-    return weightedDesignMatrix;
-}
 
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
                                                            const Eigen::VectorXd& diagonalOfWeightMatrix,
@@ -182,54 +142,6 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                           observationResiduals,
                                                           Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
                                                           limitConditionNumberForWarning );
-}
-
-Eigen::VectorXd evaluatePolynomial( const Eigen::VectorXd& independentValues,
-                                    const Eigen::VectorXd& polynomialCoefficients,
-                                    const std::vector< double >& polynomialPowers )
-{
-    Eigen::VectorXd polynomial = Eigen::VectorXd::Zero( independentValues.rows( ) );
-    for( unsigned int i = 0; i < polynomialPowers.size( ); i++ )
-    {
-        polynomial += polynomialCoefficients( i ) * independentValues.array( ).pow( polynomialPowers.at( i ) ).matrix( );
-    }
-    return polynomial;
-}
-
-//! Function to fit a univariate polynomial through a set of data
-Eigen::VectorXd getLeastSquaresPolynomialFit( const Eigen::VectorXd& independentValues,
-                                              const Eigen::VectorXd& dependentValues,
-                                              const std::vector< double >& polynomialPowers )
-{
-    if( independentValues.rows( ) != dependentValues.rows( ) )
-    {
-        throw std::runtime_error(
-                "Error when doing least squares polynomial fit, size of dependent and independent "
-                "variable vectors is not equal." );
-    }
-
-    Eigen::MatrixXd designMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
-
-    // Compute information matrix
-    for( int i = 0; i < independentValues.rows( ); i++ )
-    {
-        for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
-        {
-            designMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
-        }
-    }
-
-    return performLeastSquaresAdjustmentFromDesignMatrix( designMatrix, dependentValues ).first;
-}
-
-//! Function to fit a univariate polynomial through a set of data
-std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, double >& independentDependentValueMap,
-                                                    const std::vector< double >& polynomialPowers )
-{
-    return utilities::convertEigenVectorToStlVector( getLeastSquaresPolynomialFit(
-            utilities::convertStlVectorToEigenVector( utilities::createVectorFromMapKeys( independentDependentValueMap ) ),
-            utilities::convertStlVectorToEigenVector( utilities::createVectorFromMapValues( independentDependentValueMap ) ),
-            polynomialPowers ) );
 }
 
 //! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.

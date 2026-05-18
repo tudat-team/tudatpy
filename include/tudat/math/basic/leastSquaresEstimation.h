@@ -15,10 +15,12 @@
 #ifndef TUDAT_LEASTSQUARESESTIMATION_H
 #define TUDAT_LEASTSQUARESESTIMATION_H
 
-#include <map>
+#include <iostream>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
+
+#include "leastSquaresTraits.h"
 
 namespace tudat
 {
@@ -32,8 +34,12 @@ namespace linear_algebra
  * \param designMatrix Matrix for which condition number is to be computed
  * \return Condition number of matrix
  */
-double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
+template <typename M>
+typename from_eigen<M>::value_type getConditionNumberOfDesignMatrix( const M &designMatrix ) {
+    return getConditionNumberOfDesignMatrix(designMatrix.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeFullV));
+}
 
+// TODO: This function is only used internally, so it shouldn't be in the header file.
 //! Function to get condition number of matrix from SVD decomposition
 /*!
  *  Function to get condition number of matrix from SVD decomposition
@@ -41,10 +47,11 @@ double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
  * \tparam Options Options for the underlying Eigen JacobiSVD decomposition
  * \return Condition number of matrix
  */
-template< int Options >
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd, Options >& singularValueDecomposition )
+template <typename M, int Options>
+typename from_eigen<M>::value_type getConditionNumberOfDecomposedMatrix(
+    const Eigen::JacobiSVD< M, Options >& singularValueDecomposition )
 {
-    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    typename from_eigen<M>::dense_vector_type singularValues = singularValueDecomposition.singularValues( );
     return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
 }
 
@@ -58,9 +65,24 @@ double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::Matr
  * (warning printed when exceeded)
  * \return Solution x of matrix equation A*x=b
  */
-Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
-                                               const Eigen::VectorXd rightHandSideVector,
-                                               const double limitConditionNumberForWarning = 1.0E8 );
+template <typename M>
+typename from_eigen<M>::dense_vector_type solveSystemOfEquationsWithSvd(
+    const M& matrixToInvert,
+    const typename from_eigen<M>::dense_vector_type& rightHandSideVector,
+    typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 )
+{
+    auto svdDecomposition = matrixToInvert.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV );
+    if( limitConditionNumberForWarning == limitConditionNumberForWarning )
+    {
+        double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
+
+        if( conditionNumber > limitConditionNumberForWarning )
+        {
+            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
+        }
+    }
+    return svdDecomposition.solve( rightHandSideVector );
+}
 
 //! Function to multiply information matrix by diagonal weights matrix
 /*!
@@ -70,8 +92,13 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \return designMatrix, premultiplied by square matrix with diagonalOfWeightMatrix as diagonal elements
  */
-Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
-                                                            const Eigen::VectorXd& diagonalOfWeightMatrix );
+template <typename M>
+M multiplyDesignMatrixByDiagonalWeightMatrix( const M& designMatrix,
+                                              const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix )
+{
+    return designMatrix * diagonalOfWeightMatrix.asDiagonal();
+}
+
 
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
@@ -83,13 +110,14 @@ Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixX
  * (warning printed when exceeded)
  * \return Inverse of covariance matrix at current iteration
  */
-
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
-                                                           const Eigen::VectorXd& diagonalOfWeightMatrix,
-                                                           const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-                                                           const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-                                                           const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
-                                                           const double limitConditionNumberForWarning = 1.0E8 );
+template <typename M>
+M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
+                                             const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
+                                             const M& inverseOfAPrioriCovarianceMatrix,
+                                             const M& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+                                             const typename from_eigen<M>::dense_vector_type& constraintRightHandside =
+                                                from_eigen<M>::dense_vector_type( 0 ),
+                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to compute inverse of covariance matrix at current iteration
 /*!
@@ -99,15 +127,17 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \return Inverse of covariance matrix at current iteration
  */
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
-                                                           const Eigen::VectorXd& diagonalOfWeightMatrix,
-                                                           const double limitConditionNumberForWarning = 1.0E8 );
+template <typename M>
+M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
+                                             const typename from_eigen<M>::dense_vector& diagonalOfWeightMatrix,
+                                             typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
 
-Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
-                                                                   const Eigen::MatrixXd& designMatrix,
-                                                                   const Eigen::VectorXd& diagonalOfWeightMatrix,
-                                                                   const Eigen::MatrixXd& considerDesignMatrix,
-                                                                   const Eigen::MatrixXd& considerCovariance );
+template <typename M>
+M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarianceMatrix,
+                                                     const M& designMatrix,
+                                                     const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
+                                                     const M& considerDesignMatrix,
+                                                     const M& considerCovariance );
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
@@ -126,16 +156,19 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::
  * \param constraintRightHandside Right-hand side estimation linear constraint
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const double limitConditionNumberForWarning = 1.0E8,
-        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
-        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+template <typename M>
+std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+        const M& designMatrix,
+        const typename from_eigen<M>::dense_vector_type& observationResiduals,
+        const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
+        const M& inverseOfAPrioriCovarianceMatrix,
+        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8,
+        const M& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const typename from_eigen<M>::dense_vector_type& constraintRightHandside =
+            from_eigen<M>::dense_vector_type(0),
+        const M& designMatrixConsiderParameters = M( 0, 0 ),
+        const typename from_eigen<M>::dense_vector_type& considerParametersDeviations =
+            from_eigen<M>::dense_vector_type(0));
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
@@ -149,11 +182,12 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const double limitConditionNumberForWarning = 1.0E8 );
+template <typename M>
+std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+        const M& designMatrix,
+        const M& observationResiduals,
+        const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
+        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 /*!
@@ -166,42 +200,11 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const double limitConditionNumberForWarning = 1.0E8 );
-
-Eigen::VectorXd evaluatePolynomial( const Eigen::VectorXd& independentValues,
-                                    const Eigen::VectorXd& polynomialCoefficients,
-                                    const std::vector< double >& polynomialPowers );
-
-//! Function to fit a univariate polynomial through a set of data
-/*!
- *  Function to fit a univariate polynomial through a set of data. User must provide independent variables and observations
- *  (dependent variables), as well as a list of polynomial powers for which the coefficients are to be estimated.
- *  \param independentValues Independent variables of input data (e.g. time for observations as a function fo time). This
- *  variable becomes the polynomial argument.
- *  \param dependentValues Observations through which the polynomial is to be fitted, with entries defined at the
- *  corresponding entries of independentValues
- *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
- *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
- */
-Eigen::VectorXd getLeastSquaresPolynomialFit( const Eigen::VectorXd& independentValues,
-                                              const Eigen::VectorXd& dependentValues,
-                                              const std::vector< double >& polynomialPowers );
-
-//! Function to fit a univariate polynomial through a set of data
-/*!
- *  Function to fit a univariate polynomial through a set of data. User must provide independent variables and observations
- *  (dependent variables), as well as a list of polynomial powers for which the coefficients are to be estimated.
- *  \param independentDependentValueMap Map with key: independent variables of input data (e.g. time for observations as a
- *  function fo time), this variable becomes the polynomial argument. Map value: Observations through which the polynomial
- *  is to be fitted.
- *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
- *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
- */
-std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, double >& independentDependentValueMap,
-                                                    const std::vector< double >& polynomialPowers );
+template <typename M>
+std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+        const M& designMatrix,
+        const typename from_eigen<M>::dense_vector_type& observationResiduals,
+        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
 /*!
@@ -222,10 +225,12 @@ std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, doub
  *  \param maximumNumberOfIterations Integer denoting the maximum number of iterations.
  *  \return Optimal value of the model parameters that minimize the least squares error between expected and actual observations.
  */
-Eigen::VectorXd nonLinearLeastSquaresFit(
-        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
-        const Eigen::VectorXd& initialEstimate,
-        const Eigen::VectorXd& actualObservations,
+template <typename Fn, typename Vec>
+Vec nonLinearLeastSquaresFit(
+        // std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >&
+        Fn observationAndJacobianFunctions,
+        const Vec& initialEstimate,
+        const Vec& actualObservations,
         const double initialScaling = 1.0e-6,
         const double convergenceTolerance = 1.0e-8,
         const unsigned int maximumNumberOfIterations = 25 );

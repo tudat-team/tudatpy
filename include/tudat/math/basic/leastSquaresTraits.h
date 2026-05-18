@@ -35,9 +35,34 @@ struct SolverClass {};
 struct SVD: public SolverClass {};
 struct QR: public SolverClass {};
 
+/*! Traits class generalizing over different possible matrix representations.
+ * Mainly used to control whether operations are performed on Dense or Sparse
+ * matrices, but can also be used to switch to single precision.
+ */
 template <typename Real, typename Storage>
 struct MatrixTraits {};
 
+/*! Convenience traits class to get `MatrixTraits` from an Eigen matrix type.
+ */
+template <typename E>
+struct from_eigen {};
+
+template <typename T>
+struct from_eigen<Eigen::MatrixX<T>> {
+   using traits = MatrixTraits<T, Dense>;
+   using value_type = typename traits::value_type;
+   using dense_vector_type = Eigen::VectorX<T>;
+};
+
+template <typename T>
+struct from_eigen<Eigen::SparseMatrix<T>> {
+    using traits = MatrixTraits<T, Sparse>;
+    using value_type = typename traits::value_type;
+    using dense_vector_type = Eigen::VectorX<T>;
+};
+
+/*! Traits class generalizing over different solvers implemented in Eigen.
+ */
 template <typename Matrix, typename Solver>
 struct SolverTraits {};
 
