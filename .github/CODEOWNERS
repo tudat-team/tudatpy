@@ -11,4 +11,4 @@
 # Astrometry-dev/mpc team owns any files in the /src/tudatpy/data/mpc
 # directory at the root of the repository and any of its
 # subdirectories.
-/src/tudatpy/data/mpc/ @tudat-team/astrometry-dev/mpc
+/src/tudatpy/data/mpc/ @tudat-team/astrometry-dev/
