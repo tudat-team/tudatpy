@@ -85,6 +85,43 @@ struct MatrixTraits<Real, Dense>
         A(i, j) = value;
     }
 
+    inline static void set_zero(matrix_type &A, unsigned i, unsigned j) {
+        A(i, j) = value_type(0);
+    }
+
+    /*! Extends a square matrix with a second one in a symmetric way. The matrix `A` is
+     * grown to fit `B` in the extended rows, and `B^T` in the extended columns.
+     */
+    matrix_type extend_symmetric( matrix_type &A, matrix_type const &B ) {
+        unsigned a_n     = A->cols( );
+        unsigned b_nrows = B->rows( );
+        unsigned b_ncols = B->cols( );
+
+        if ( A->cols( ) != A.rows( ) )
+        {
+            std::ostringstream msg;
+            msg << "Internal error: expected square matrix, got size " << A->rows() << " x " << A->cols();
+            throw std::runtime_error( msg.str( ) );
+        }
+
+        if ( b_ncols != a_n )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
+        }
+
+        A.conservativeResize( a_n + b_nrows, a_n + b_nrows );
+        A.block( a_n,   0, b_nrows, b_ncols ) = B;
+        A.block(   0, a_n, b_ncols, b_nrows ) = B.transpose( );
+        A.block( a_n, a_n, b_nrows, b_nrows ).setZero( );
+    }
+
+    template <typename SparseRange>  // requires std::range<R>
+    inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
+        for (auto &[i, j, v] : rng) {
+            A(i, j) = v;
+        }
+    }
+
     /*! Function to generate a matrix from a function.
      *
      * This creates a matrix and only fills those elements for which the given
@@ -152,6 +189,17 @@ struct MatrixTraits<Real, Sparse>
      */
     inline static void set_element(matrix_type &A, unsigned i, unsigned j, double value) {
         A.insert(i, j) = value;
+    }
+
+    /*! Function to set an element to zero.
+     *
+     * In sparse matrices this is a noop.
+     */
+    inline static void set_zero(matrix_type &A, unsigned i, unsigned j) {}
+
+    template <typename SparseRange>  // requires std::range<R>
+    inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
+        A.setFromTriplets(rng.begin(), rng.end());
     }
 
     //! Function that compresses a sparse matrix. Empty for dense matrices.
