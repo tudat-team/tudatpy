@@ -1917,6 +1917,18 @@ bool
      **************   ROTATION MODELS  ******************
      */
 
+    py::enum_< te::EarthOrientationIntermediateFrame >( m, "EarthOrientationIntermediateFrame", R"doc(
+
+         Intermediate frame in the IERS Earth-orientation rotation chain.
+
+         The ``icrs`` value denotes the GCRS-side endpoint of the IERS 2010 ITRS->TIRS->CIRS->GCRS rotation sequence used by Tudat's high-accuracy Earth rotation model.
+
+     )doc" )
+            .value( "itrs", te::EarthOrientationIntermediateFrame::itrs )
+            .value( "tirs", te::EarthOrientationIntermediateFrame::tirs )
+            .value( "cirs", te::EarthOrientationIntermediateFrame::cirs )
+            .value( "icrs", te::EarthOrientationIntermediateFrame::icrs );
+
     py::class_< te::RotationalEphemeris, std::shared_ptr< te::RotationalEphemeris > >( m, "RotationalEphemeris", R"doc(
 
          Object that stores the rotational state of the bodies.
@@ -2226,6 +2238,36 @@ bool
 
 
          :type: EarthOrientationAnglesCalculator
+
+     )doc" )
+            .def( "get_rotation_between_intermediate_frames",
+                  []( te::GcrsToItrsRotationModel& self,
+                      const te::EarthOrientationIntermediateFrame originalFrame,
+                      const te::EarthOrientationIntermediateFrame targetFrame,
+                      const double epoch ) {
+                      return self.getRotationBetweenIntermediateFrames( originalFrame, targetFrame, epoch ).toRotationMatrix( );
+                  },
+                  py::arg( "original_frame" ),
+                  py::arg( "target_frame" ),
+                  py::arg( "epoch" ),
+                  R"doc(
+
+         Function to compute a rotation matrix between two IERS Earth-orientation intermediate frames.
+
+
+         Parameters
+         ----------
+         original_frame : EarthOrientationIntermediateFrame
+             Frame from which the rotation is computed.
+         target_frame : EarthOrientationIntermediateFrame
+             Frame to which the rotation is computed.
+         epoch : float
+             Seconds since J2000 at which the rotation matrix is evaluated.
+
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix from ``original_frame`` to ``target_frame``.
 
      )doc" );
 
