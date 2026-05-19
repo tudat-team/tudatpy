@@ -608,8 +608,11 @@ public:
 //! Function to create a dependent variable saving the individual light-time correction
 //! contributions on a single observation leg (transmitter → receiver). The output is a vector
 //! with one entry per registered `LightTimeCorrection` on that leg, in registration order. If
-//! `correctionTypeFilter` is supplied, only corrections whose type appears in the filter are
-//! returned, in the order of the filter.
+//! `correctionTypeFilter` is supplied, all registered corrections whose type appears in the
+//! filter are returned. The output is grouped by the first occurrence of each distinct filter
+//! type, while preserving registration order within each type group, so multiple registered
+//! corrections of the same type produce multiple output entries. Repeated types in
+//! `correctionTypeFilter` do not create duplicate groups or additional entries.
 inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeCorrectionComponentsDependentVariable(
         const LinkEndType transmitterLinkEndType = unidentified_link_end,
         const LinkEndType receiverLinkEndType = unidentified_link_end,
