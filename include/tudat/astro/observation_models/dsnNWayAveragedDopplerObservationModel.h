@@ -350,9 +350,18 @@ public:
         return subtractDopplerSignature_;
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
     {
-        return { };
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap =
+                arcStartObservationModel_->getLegLightTimeCalculators( );
+        const std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > endLegMap =
+                arcEndObservationModel_->getLegLightTimeCalculators( );
+        for( const auto& endLegEntry : endLegMap )
+        {
+            legMap[ endLegEntry.first ].insert(
+                    legMap[ endLegEntry.first ].end( ), endLegEntry.second.begin( ), endLegEntry.second.end( ) );
+        }
+        return legMap;
     }
 
 private:

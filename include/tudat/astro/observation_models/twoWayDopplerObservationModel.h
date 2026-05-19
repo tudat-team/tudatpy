@@ -180,16 +180,16 @@ public:
         return multiplicationTerm_;
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
     {
-        std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > legMap;
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
         const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
         const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
         for( unsigned int i = 0; i < legCalculators.size( ); i++ )
         {
             const auto fromType = getNWayLinkEnumFromIndex( static_cast< int >( i ), numberOfLinkEnds );
             const auto toType = getNWayLinkEnumFromIndex( static_cast< int >( i ) + 1, numberOfLinkEnds );
-            legMap[ std::make_pair( fromType, toType ) ] = legCalculators.at( i );
+            legMap[ std::make_pair( fromType, toType ) ].push_back( legCalculators.at( i ) );
         }
         return legMap;
     }

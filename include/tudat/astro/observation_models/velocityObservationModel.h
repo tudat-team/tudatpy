@@ -84,7 +84,7 @@ public:
         return currentState_.segment( 3, 3 );
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
     {
         return { };
     }

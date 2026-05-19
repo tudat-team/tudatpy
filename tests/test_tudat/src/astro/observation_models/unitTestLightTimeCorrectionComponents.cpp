@@ -43,26 +43,37 @@ struct SimulationOutputs
     std::map< double, Eigen::VectorXd > dependentVariables;
 };
 
-SimulationOutputs simulateRangeObservable(
+SimulationOutputs simulateRangeObservableWithDependentVariables(
         const ObservableType observableType,
         const SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const std::vector< double >& observationTimes,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& correctionSettings,
-        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings = nullptr )
+        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
+        const LinkEndType referenceLinkEnd = receiver )
 {
-    std::shared_ptr< ObservationModelSettings > observationSettings =
-            std::make_shared< ObservationModelSettings >( observableType, linkEnds, correctionSettings );
+    std::shared_ptr< ObservationModelSettings > observationSettings;
+    if( observableType == n_way_differenced_range )
+    {
+        observationSettings =
+                std::make_shared< NWayDifferencedRangeObservationModelSettings >( linkEnds, correctionSettings, nullptr );
+    }
+    else
+    {
+        observationSettings = std::make_shared< ObservationModelSettings >( observableType, linkEnds, correctionSettings );
+    }
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( std::vector< std::shared_ptr< ObservationModelSettings > >{ observationSettings }, bodies );
 
     std::shared_ptr< TabulatedObservationSimulationSettings<> > simulationSettings =
-            std::make_shared< TabulatedObservationSimulationSettings<> >( observableType, linkEnds, observationTimes, receiver );
+            std::make_shared< TabulatedObservationSimulationSettings<> >(
+                    observableType, linkEnds, observationTimes, referenceLinkEnd, std::vector< std::shared_ptr< ObservationViabilitySettings > >{ },
+                    nullptr, ancillarySettings );
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput{ simulationSettings };
 
-    if( dependentVariableSettings != nullptr )
+    if( dependentVariablesList.empty( ) == false )
     {
-        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList{ dependentVariableSettings };
         addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariablesList, bodies );
     }
 
@@ -73,11 +84,29 @@ SimulationOutputs simulateRangeObservable(
 
     SimulationOutputs outputs;
     outputs.observations = singleSet->getObservationsHistory( );
-    if( dependentVariableSettings != nullptr )
+    if( dependentVariablesList.empty( ) == false )
     {
         outputs.dependentVariables = singleSet->getDependentVariableHistory( );
     }
     return outputs;
+}
+
+SimulationOutputs simulateRangeObservable(
+        const ObservableType observableType,
+        const SystemOfBodies& bodies,
+        const LinkEnds& linkEnds,
+        const std::vector< double >& observationTimes,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& correctionSettings,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings = nullptr )
+{
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList;
+    if( dependentVariableSettings != nullptr )
+    {
+        dependentVariablesList.push_back( dependentVariableSettings );
+    }
+
+    return simulateRangeObservableWithDependentVariables(
+            observableType, bodies, linkEnds, observationTimes, correctionSettings, dependentVariablesList );
 }
 
 //! Verifies that clearing dependent-variable settings also clears deferred settings whose size
@@ -370,6 +399,118 @@ BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsTwoWayNWayRange )
         const double rangeNone = noCorrections.observations.at( time )( 0 );
         const double rangeSun = sunOnly.observations.at( time )( 0 );
         BOOST_CHECK_SMALL( std::fabs( c * ( upComponent( 0 ) + downComponent( 0 ) ) - ( rangeSun - rangeNone ) ), rangeTolerance );
+    }
+}
+
+//! Verifies that each leg of an n-way differenced range exposes the light-time correction
+//! components from both its arc-start and arc-end range calculators.
+BOOST_AUTO_TEST_CASE( testPerCorrectionComponentsNWayDifferencedRange )
+{
+    loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames{ "Earth", "Moon", "Sun" };
+    const double initialEphemerisTime = 1.0E7;
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation(
+            bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEndId earthStation( std::make_pair( "Earth", "Station1" ) );
+    LinkEndId moonOrbiter( std::make_pair( "MoonOrbiter", "" ) );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = earthStation;
+    twoWayLinkEnds[ retransmitter ] = moonOrbiter;
+    twoWayLinkEnds[ receiver ] = earthStation;
+
+    const double integrationTime = 60.0;
+    std::vector< double > observationTimes{ initialEphemerisTime + 1000.0,
+                                            initialEphemerisTime + 1100.0,
+                                            initialEphemerisTime + 1200.0 };
+
+    std::vector< double > rangeObservationTimes;
+    for( double observationTime: observationTimes )
+    {
+        rangeObservationTimes.push_back( observationTime - integrationTime / 2.0 );
+        rangeObservationTimes.push_back( observationTime + integrationTime / 2.0 );
+    }
+
+    std::shared_ptr< LightTimeCorrectionSettings > sunCorrection =
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Sun" } );
+
+    SimulationOutputs rangeNoCorrections =
+            simulateRangeObservable( n_way_range, bodies, twoWayLinkEnds, rangeObservationTimes, { } );
+    SimulationOutputs rangeSunOnly =
+            simulateRangeObservable( n_way_range, bodies, twoWayLinkEnds, rangeObservationTimes, { sunCorrection } );
+
+    SimulationOutputs differencedNoCorrections = simulateRangeObservableWithDependentVariables(
+            n_way_differenced_range,
+            bodies,
+            twoWayLinkEnds,
+            observationTimes,
+            { },
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > >{ },
+            getAveragedDopplerAncillarySettings( integrationTime ) );
+
+    SimulationOutputs differencedSunOnly = simulateRangeObservableWithDependentVariables(
+            n_way_differenced_range,
+            bodies,
+            twoWayLinkEnds,
+            observationTimes,
+            { sunCorrection },
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > >{
+                    lightTimeCorrectionComponentsDependentVariable( transmitter, retransmitter, earthStation, moonOrbiter ),
+                    lightTimeCorrectionComponentsDependentVariable( retransmitter, receiver, moonOrbiter, earthStation ) },
+            getAveragedDopplerAncillarySettings( integrationTime ) );
+
+    BOOST_REQUIRE_EQUAL( rangeNoCorrections.observations.size( ), rangeObservationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( rangeSunOnly.observations.size( ), rangeObservationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( differencedNoCorrections.observations.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( differencedSunOnly.observations.size( ), observationTimes.size( ) );
+    BOOST_REQUIRE_EQUAL( differencedSunOnly.dependentVariables.size( ), observationTimes.size( ) );
+
+    const double c = physical_constants::SPEED_OF_LIGHT;
+    const double rangeTolerance = 1.0E-3;
+    const double differencedRangeTolerance = 1.0E-4;
+
+    for( const auto& entry: differencedSunOnly.dependentVariables )
+    {
+        const double time = entry.first;
+        const Eigen::VectorXd& components = entry.second;
+
+        BOOST_REQUIRE_EQUAL( components.size( ), 4 );
+        for( int i = 0; i < components.size( ); i++ )
+        {
+            BOOST_CHECK( components( i ) == components( i ) );
+            BOOST_CHECK_GT( components( i ), 0.0 );
+        }
+
+        const double startTime = time - integrationTime / 2.0;
+        const double endTime = time + integrationTime / 2.0;
+        const double startRangeCorrection =
+                rangeSunOnly.observations.at( startTime )( 0 ) - rangeNoCorrections.observations.at( startTime )( 0 );
+        const double endRangeCorrection =
+                rangeSunOnly.observations.at( endTime )( 0 ) - rangeNoCorrections.observations.at( endTime )( 0 );
+
+        const double startDependentCorrection = c * ( components( 0 ) + components( 2 ) );
+        const double endDependentCorrection = c * ( components( 1 ) + components( 3 ) );
+        BOOST_CHECK_SMALL( std::fabs( startDependentCorrection - startRangeCorrection ), rangeTolerance );
+        BOOST_CHECK_SMALL( std::fabs( endDependentCorrection - endRangeCorrection ), rangeTolerance );
+
+        const double differencedCorrection =
+                differencedSunOnly.observations.at( time )( 0 ) - differencedNoCorrections.observations.at( time )( 0 );
+        const double dependentDifferencedCorrection =
+                ( endDependentCorrection - startDependentCorrection ) / integrationTime;
+        BOOST_CHECK_SMALL( std::fabs( dependentDifferencedCorrection - differencedCorrection ), differencedRangeTolerance );
     }
 }
 
