@@ -316,11 +316,15 @@ int getObservationDependentVariableSize( const std::shared_ptr< ObservationDepen
                 break;
             case light_time_correction_components: {
                 // Size depends on the LightTimeCalculator for this leg (= number of registered
-                // `LightTimeCorrection` objects, or the filter length if specified). The filter
-                // size is known here; if empty, the size is resolved later by
-                // `ObservationDependentVariableCalculator::addDependentVariable` from the calculator.
+                // `LightTimeCorrection` objects matching the optional type filter). A single
+                // requested type may match multiple registered corrections, so the resolved size
+                // is stored on the settings once the calculator is available.
                 auto lightTimeSettings = std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
-                if( lightTimeSettings != nullptr && !lightTimeSettings->correctionTypeFilter_.empty( ) )
+                if( lightTimeSettings != nullptr && lightTimeSettings->resolvedSize_ >= 0 )
+                {
+                    variableSize = lightTimeSettings->resolvedSize_;
+                }
+                else if( lightTimeSettings != nullptr && !lightTimeSettings->correctionTypeFilter_.empty( ) )
                 {
                     variableSize = static_cast< int >( lightTimeSettings->correctionTypeFilter_.size( ) );
                 }
@@ -697,8 +701,10 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
 
             // Check if inverting the receiving/originating ends of the link would lead to compatible link definitions (for dependent
             // variables that are independent of the link "direction").
-            bool revertedLinksMatch = areInterlinksCompatible(
-                    receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
+            bool revertedLinksMatch =
+                    !directLinksMatch &&
+                    areInterlinksCompatible(
+                            receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
             if( revertedLinksMatch )
             {
                 interlink = std::make_pair( interlink.second, interlink.first );

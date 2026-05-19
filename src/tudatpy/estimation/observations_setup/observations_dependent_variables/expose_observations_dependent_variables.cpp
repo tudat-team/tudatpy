@@ -516,11 +516,11 @@ void expose_observations_dependent_variables( py::module& m )
         on the selected leg, in registration order. If ``correction_type_filter`` is supplied,
         only contributions whose type appears in the filter are returned, in the order of the filter.
 
-        Supported for observables whose light-time computation is extracted by the simulator
-        (one-way range, n-way range, DSN n-way range, one-way Doppler). Requesting this
-        dependent variable for an unsupported observable, or for a transmitter/receiver pair
-        that does not correspond to an actual leg of the chosen observable, raises a
-        ``RuntimeError`` when the observation is simulated (i.e. on the first call to
+        Supported for observables that expose their light-time leg calculators through the
+        observation-model interface. Requesting this dependent variable for an unsupported
+        observable, or for a transmitter/receiver pair that does not correspond to an actual
+        leg of the chosen observable, raises a ``RuntimeError`` when the observation is
+        simulated (i.e. on the first call to
         :func:`~tudatpy.estimation.observations.simulate_observations` for that
         :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`),
         not silently dropped.

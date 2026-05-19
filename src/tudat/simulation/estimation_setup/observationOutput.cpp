@@ -739,6 +739,13 @@ ObservationDependentVariableAddFunction makeLightTimeCorrectionComponentsAddFunc
         const std::shared_ptr< observation_models::LightTimeCalculatorBase >& lightTimeCalculator,
         const std::vector< int >& sourceIndices )
 {
+    if( parameterSize != static_cast< int >( sourceIndices.size( ) ) )
+    {
+        throw std::runtime_error(
+                "Error when saving light_time_correction_components: resolved source count does not match "
+                "the dependent-variable bookkeeping size." );
+    }
+
     return [ currentIndex, parameterSize, lightTimeCalculator, sourceIndices ](
                    Eigen::VectorXd &dependentVariables,
                    const std::vector< double > & /*linkEndTimes*/,
@@ -793,9 +800,10 @@ void ObservationDependentVariableCalculator::registerLightTimeCorrectionComponen
 
     std::shared_ptr< observation_models::LightTimeCalculatorBase > lightTimeCalculator = calculatorIt->second;
     const std::vector< int > sourceIndices = resolveLightTimeCorrectionSourceIndices( lightTimeSettings, lightTimeCalculator );
+    lightTimeSettings->resolvedSize_ = static_cast< int >( sourceIndices.size( ) );
 
     const std::pair< int, int > indices =
-            dependentVariableBookkeeping_->addDependentVariable( variableSettings, static_cast< int >( sourceIndices.size( ) ) );
+            dependentVariableBookkeeping_->addDependentVariable( variableSettings, lightTimeSettings->resolvedSize_ );
     if( indices.second == 0 )
     {
         // Leg does not apply to this observable (shouldn't normally happen for a correctly-typed leg).

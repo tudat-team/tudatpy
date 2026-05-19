@@ -125,6 +125,7 @@ public:
         settingsList_.clear( );
         dependentVariableStartIndices_.clear( );
         dependentVariableSizes_.clear( );
+        deferredSettings_.clear( );
         totalDependentVariableSize_ = 0;
     }
 

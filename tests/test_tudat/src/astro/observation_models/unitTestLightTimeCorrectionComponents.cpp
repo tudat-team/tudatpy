@@ -80,6 +80,66 @@ SimulationOutputs simulateRangeObservable(
     return outputs;
 }
 
+//! Verifies that clearing dependent-variable settings also clears deferred settings whose size
+//! has not yet been resolved from an observation model.
+BOOST_AUTO_TEST_CASE( testClearSettingsClearsDeferredLightTimeComponents )
+{
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", "Station1" ) );
+    linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
+
+    std::shared_ptr< ObservationDependentVariableBookkeeping > bookkeeping =
+            std::make_shared< ObservationDependentVariableBookkeeping >( one_way_range, LinkDefinition( linkEnds ) );
+    bookkeeping->addDependentVariables( { lightTimeCorrectionComponentsDependentVariable( transmitter, receiver ) } );
+    BOOST_REQUIRE_EQUAL( bookkeeping->getDeferredSettings( ).size( ), 1 );
+
+    bookkeeping->clearSettings( );
+    BOOST_CHECK( bookkeeping->getDeferredSettings( ).empty( ) );
+    BOOST_CHECK_EQUAL( bookkeeping->getDependentVariableSettings( ).size( ), 0 );
+    BOOST_CHECK_EQUAL( bookkeeping->getTotalDependentVariableSize( ), 0 );
+}
+
+//! Verifies that an unspecified light-time correction component request expands to the direct
+//! observable leg, not to the reversed leg.
+BOOST_AUTO_TEST_CASE( testUnspecifiedLightTimeComponentLegUsesDirectLeg )
+{
+    loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames{ "Earth", "Moon", "Sun" };
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth" );
+
+    bodySettings.addSettings( "MoonOrbiter" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings =
+            keplerEphemerisSettings( keplerElements, 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    createGroundStation(
+            bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", "Station1" ) );
+    linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
+
+    std::shared_ptr< LightTimeCorrectionSettings > sunCorrection =
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >{ "Sun" } );
+
+    SimulationOutputs outputs = simulateRangeObservable(
+            one_way_range,
+            bodies,
+            linkEnds,
+            { 1.0E7 + 1000.0 },
+            { sunCorrection },
+            lightTimeCorrectionComponentsDependentVariable( ) );
+
+    BOOST_REQUIRE_EQUAL( outputs.dependentVariables.size( ), 1 );
+    BOOST_REQUIRE_EQUAL( outputs.dependentVariables.begin( )->second.size( ), 1 );
+    BOOST_CHECK_GT( outputs.dependentVariables.begin( )->second( 0 ), 0.0 );
+}
+
 //! Verifies that the `light_time_correction_components` dependent variable on a one-way range
 //! observable reproduces the individual light-time correction contributions. Two relativistic
 //! corrections are used (perturbers: Sun and Jupiter), so the vector has two entries.
@@ -385,11 +445,9 @@ BOOST_AUTO_TEST_CASE( testCorrectionTypeFilter )
     }
 }
 
-//! Verifies that requesting `light_time_correction_components` for an observable whose leg
-//! structure is not extracted by the simulator (here: angular position, ObservationSize == 2)
-//! raises a clear `std::runtime_error` when the simulator builds the dependent-variable
-//! calculator, instead of silently dropping the request and returning an empty vector.
-BOOST_AUTO_TEST_CASE( testUnsupportedObservableRaises )
+//! Verifies that angular position exposes its light-time leg through the generic observation-model
+//! accessor and can therefore save `light_time_correction_components`.
+BOOST_AUTO_TEST_CASE( testAngularPositionCorrectionComponents )
 {
     loadStandardSpiceKernels( );
 
@@ -431,10 +489,16 @@ BOOST_AUTO_TEST_CASE( testUnsupportedObservableRaises )
     };
     addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariablesList, bodies );
 
-    auto runSimulation = [ & ]( ) {
-        return simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
-    };
-    BOOST_CHECK_THROW( runSimulation( ), std::runtime_error );
+    std::shared_ptr< ObservationCollection<> > collection =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< SingleObservationSet< double, double > > singleSet =
+            collection->getSingleLinkAndTypeObservationSets( angular_position, LinkDefinition( linkEnds ) ).at( 0 );
+
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = singleSet->getDependentVariableHistory( );
+    BOOST_REQUIRE_EQUAL( dependentVariableHistory.size( ), 1 );
+    BOOST_REQUIRE_EQUAL( dependentVariableHistory.begin( )->second.size( ), 1 );
+    BOOST_CHECK( dependentVariableHistory.begin( )->second( 0 ) == dependentVariableHistory.begin( )->second( 0 ) );
+    BOOST_CHECK_GT( dependentVariableHistory.begin( )->second( 0 ), 0.0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

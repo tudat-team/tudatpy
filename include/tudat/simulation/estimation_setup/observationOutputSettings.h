@@ -577,7 +577,8 @@ public:
                                               receiverLinkEndType,
                                               transmitterLinkEndId,
                                               transmitterLinkEndType ),
-        correctionTypeFilter_( correctionTypeFilter )
+        correctionTypeFilter_( correctionTypeFilter ),
+        resolvedSize_( -1 )
     { }
 
     ~LightTimeCorrectionComponentsDependentVariableSettings( ) { }
@@ -598,6 +599,10 @@ public:
     }
 
     std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter_;
+
+    //! Size resolved from the actual LightTimeCalculator on the selected leg. A negative value
+    //! means the settings have not yet been registered with an observation model.
+    int resolvedSize_;
 };
 
 //! Function to create a dependent variable saving the individual light-time correction
