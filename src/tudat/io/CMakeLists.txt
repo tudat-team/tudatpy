@@ -43,6 +43,7 @@ set(io_SOURCES
         "readIonexFile.cpp"
         "readInpopEphemerisFile.cpp"
         "readNeQuick2Data.cpp"
+        "comaModelInputOutput.cpp"
 )
 
 # Add header files.
@@ -87,6 +88,7 @@ set(io_HEADERS
         "readTrackingTxtFile.h"
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
+        "comaModelInputOutput.h"
         )
 
 # Add library.

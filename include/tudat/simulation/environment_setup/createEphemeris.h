@@ -1067,17 +1067,17 @@ inline std::shared_ptr< EphemerisSettings > customEphemerisSettings(
     return std::make_shared< CustomEphemerisSettings >( customStateFunction, frameOrigin, frameOrientation );
 }
 
-inline std::shared_ptr< EphemerisSettings > directTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle,
-                                                                        const std::string frameOrigin = "Earth",
-                                                                        const std::string frameOrientation = "J2000" )
+inline std::shared_ptr< DirectTleEphemerisSettings > directTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle,
+                                                                                 const std::string frameOrigin = "Earth",
+                                                                                 const std::string frameOrientation = "J2000" )
 {
     return std::make_shared< DirectTleEphemerisSettings >( tle, frameOrigin, frameOrientation );
 }
 
-inline std::shared_ptr< EphemerisSettings > directTleEphemerisSettingsFromTleLines( const std::string& tleLine1,
-                                                                                    const std::string& tleLine2,
-                                                                                    const std::string frameOrigin = "Earth",
-                                                                                    const std::string frameOrientation = "J2000" )
+inline std::shared_ptr< DirectTleEphemerisSettings > directTleEphemerisSettingsFromTleLines( const std::string& tleLine1,
+                                                                                             const std::string& tleLine2,
+                                                                                             const std::string frameOrigin = "Earth",
+                                                                                             const std::string frameOrientation = "J2000" )
 {
     return std::make_shared< DirectTleEphemerisSettings >(
             std::make_shared< ephemerides::Tle >( tleLine1, tleLine2 ), frameOrigin, frameOrientation );

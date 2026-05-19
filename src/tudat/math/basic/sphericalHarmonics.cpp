@@ -36,6 +36,10 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
     sinesOfLongitude_.resize( maximumOrder_ + 1 );
     cosinesOfLongitude_.resize( maximumOrder_ + 1 );
     referenceRadiusRatioPowers_.resize( maximumDegree_ + 2 );
+
+    // Force recomputation of sine/cosine arrays on next updateSines() call,
+    // since resize may have added zero-initialized elements at higher orders.
+    currentLongitude_ = TUDAT_NAN;
 }
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.

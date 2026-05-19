@@ -323,7 +323,98 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
     BOOST_CHECK_SMALL( std::fabs( minimumDifference ), 5.0E-12 );
 
     std::cout<< "maximumDifference" << maximumDifference << std::endl;
-    
+
+    // ------------------------------------------------------------------------
+    // Direct-from-metric pipeline: same INPOP19a body fixtures, but propagate
+    // (tau_Earth - TCB) through DirectRelativisticTimePropagatorSettings driven
+    // by a SolarSystemMetric that sources from all the bodies above. The
+    // metric's self-coincidence guard zeros Earth's contribution at Earth's
+    // own evaluation point, so the integrand reduces to the external scalar
+    // potential plus the BCRS-velocity term - the same physical content that
+    // the PN-chain block above propagates from Soffel et al. 2003 Eq. (58).
+    // ------------------------------------------------------------------------
+    // The metric sources only the external bodies (Earth is the reference point and would
+    // otherwise be skipped by the SolarSystemMetric self-coincidence guard at its own
+    // evaluation point - leaving it out yields the same physical content without exercising
+    // the guard). useBodyAccelerations is disabled to avoid optional body-acceleration
+    // queries that some of the asteroid bodies do not provide here.
+    auto solarSystemMetricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
+            externalBodies,
+            std::vector< std::string >( ),
+            std::map< std::string, std::pair< int, int > >( ),
+            std::vector< std::string >( ),
+            false /* useBodyAccelerations */ );
+    createBaseMetric( solarSystemMetricSettings, bodies );
+
+    auto directIntegratorSettings = numerical_integrators::rungeKutta4Settings( timeStep );
+    directIntegratorSettings->initialTimeDeprecated_ = startTime;
+
+    auto directSettings = std::make_shared< propagators::DirectRelativisticTimePropagatorSettings< double, double > >(
+            std::make_pair( centralBody, "" ),
+            startTime,
+            directIntegratorSettings,
+            terminationSettings );
+    // setIntegratedResult is intentionally left at its default (false): we read the propagation
+    // history off `getEquationsOfMotionNumericalSolution` directly, and enabling the
+    // result-reset machinery would try (and noisily fail) to push the direct-from-metric state
+    // into a TimeEphemerisDirectFromMetric attached to the Earth body that we do not need here.
+
+    SingleArcDynamicsSimulator< > directPropagator( bodies, directSettings );
+
+    // Build an interpolator over the propagated tau_Earth - TCB state history.
+    const std::map< double, Eigen::VectorXd > directStateHistory =
+            directPropagator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, double > directStateScalar;
+    for( const auto& entry : directStateHistory )
+    {
+        directStateScalar[ entry.first ] = entry.second( 0 );
+    }
+    auto directStateInterpolator = interpolators::createOneDimensionalInterpolator< double, double >(
+            directStateScalar,
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
+
+    std::map< double, double > directDifferences;
+    int directCounter = 0;
+    long double directInitialDifference = 0.0L;
+    long double directRawDifference;
+    double directCurrentTime = initialEphemerisTime + 5.0 * timeStep;
+    while( directCurrentTime < finalEphemerisTime - 5.0 * timeStep )
+    {
+        directRawDifference = timeEphemerisInterpolator->interpolate( directCurrentTime ) -
+                static_cast< long double >( directStateInterpolator->interpolate( directCurrentTime ) );
+        if( directCounter == 0 )
+        {
+            directInitialDifference = directRawDifference;
+            directCounter += 1;
+        }
+        directDifferences[ directCurrentTime ] = static_cast< double >( directRawDifference - directInitialDifference );
+        directCurrentTime += testTimeStep;
+    }
+
+    Eigen::VectorXd directTimesVector = utilities::convertStlVectorToEigenVector(
+                utilities::createVectorFromMapKeys( directDifferences ) );
+    Eigen::VectorXd directDifferenceVector = utilities::convertStlVectorToEigenVector(
+                utilities::createVectorFromMapValues( directDifferences ) );
+    Eigen::VectorXd directTrendFit = linear_algebra::getLeastSquaresPolynomialFit(
+                directTimesVector, directDifferenceVector, dummy );
+
+    // Assert that the long-term drift between INPOP and the direct-from-metric
+    // propagation is at the same level as the PN comparison above.
+    BOOST_CHECK_SMALL( std::fabs( directTrendFit[ 1 ] ), 5.0E-18 );
+
+    Eigen::VectorXd directDifferenceWithoutTrend = directDifferenceVector - (
+        Eigen::VectorXd::Constant( directDifferenceVector.rows( ), directTrendFit[ 0 ] ) +
+        directTrendFit[ 1 ] * directTimesVector );
+
+    double directMaximumDifference = directDifferenceWithoutTrend.maxCoeff( );
+    double directMinimumDifference = directDifferenceWithoutTrend.minCoeff( );
+    const double directMaxAbsDifference = std::max(
+            std::fabs( directMaximumDifference ), std::fabs( directMinimumDifference ) );
+    std::cout << "[test_tcb_to_tcg_conversion / direct-from-metric] max_abs_diff="
+              << directMaxAbsDifference << std::endl;
+
+    BOOST_CHECK_SMALL( directMaximumDifference, 5.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( directMinimumDifference ), 5.0E-12 );
 }
 
 BOOST_AUTO_TEST_CASE( test_concatenated_conversions )

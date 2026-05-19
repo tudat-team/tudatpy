@@ -82,6 +82,7 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
     { total_torque_dependent_variable, "totalTorque" },
     { single_torque_dependent_variable, "torque" },
     { body_fixed_groundspeed_based_velocity_variable, "bodyFixedGroundspeedBasedVelocity" },
+    { local_wind_velocity_dependent_variable, "localWindVelocity" },
     { keplerian_state_dependent_variable, "keplerElements" },
     { modified_equinocial_state_dependent_variable, "modifiedEquinoctialElements" },
     { spherical_harmonic_acceleration_terms_dependent_variable, "sphericalHarmonicsAccelerationTerms" },

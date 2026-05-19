@@ -155,6 +155,25 @@ void expose_ephemeris_setup( py::module& m )
          :type: EphemerisType
       )doc" );
 
+    py::class_< tss::DirectTleEphemerisSettings, std::shared_ptr< tss::DirectTleEphemerisSettings >, tss::EphemerisSettings >(
+            m, "DirectTleEphemerisSettings", R"doc(
+
+         Class for defining settings of an ephemeris linked directly to TLE data.
+
+         `EphemerisSettings` derived class for ephemeris which are directly linked to TLE data.
+         This is typically created through the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function, which creates TLE ephemeris settings objects from TLE data.
+         
+         )doc" )
+            .def_property_readonly( "tle", &tss::DirectTleEphemerisSettings::getTle, R"doc(
+                
+            **read-only**
+
+            TLE object containing the TLE data from which the ephemeris is to be created.
+
+            :type: Tle
+                
+                )doc" );
+
     py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
             m,
             "DirectSpiceEphemerisSettings",

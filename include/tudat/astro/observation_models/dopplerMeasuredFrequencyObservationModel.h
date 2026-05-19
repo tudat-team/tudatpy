@@ -84,7 +84,12 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( doppler_measured_frequency, linkEnds, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                doppler_measured_frequency,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        twoWayDopplerModel->getFullLinkLightTimeCalculator( ) } ),
         twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
@@ -99,16 +104,6 @@ public:
 
         uplinkDopplerModel_ = twoWayDopplerModel_->getUplinkDopplerCalculator( );
         downlinkDopplerModel_ = twoWayDopplerModel_->getDownlinkDopplerCalculator( );
-
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > uplinkLightTimeCalculator =
-                uplinkDopplerModel_->getLightTimeCalculator( );
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > downlinkLightTimeCalculator =
-                downlinkDopplerModel_->getLightTimeCalculator( );
-
-        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
-                lightTimeCalculators = { uplinkLightTimeCalculator, downlinkLightTimeCalculator };
-        lighTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
-                lightTimeCalculators );
     }
 
     //! Destructor
@@ -174,9 +169,11 @@ public:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
-        if( lighTimeCalculator_->doCorrectionsNeedFrequency( ) )
+        std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
+                getLightTimeCalculator( );
+        if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( lighTimeCalculator_,
+            setTransmissionReceptionFrequencies( lightTimeCalculator,
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  time,
@@ -185,7 +182,7 @@ public:
                                                  currentTurnAroundRatio );
         }
         // Calculate the light time
-        TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+        TimeType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         // Get the time when the signal left the transmitter
@@ -231,6 +228,11 @@ public:
         return { };
     }
 
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
+    {
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
     // Doppler observation model associated with the measurement
     std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel_;
 
@@ -241,9 +243,6 @@ public:
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerModel_;
 
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > downlinkDopplerModel_;
-
-    // Light time calculator
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lighTimeCalculator_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };

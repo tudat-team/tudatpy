@@ -251,11 +251,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
                 // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( twoWayObservationModel )
-                                      ->getMultiLegLightTimeCalculator( )
+                                      ->getFullLinkLightTimeCalculator( )
                                       ->getNumberOfMultiLegIterations( );
                 bool iterateMultipleLegs =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( twoWayObservationModel )
-                                ->getMultiLegLightTimeCalculator( )
+                                ->getFullLinkLightTimeCalculator( )
                                 ->getIterateMultiLegLightTime( );
                 BOOST_CHECK_EQUAL( numIter, 0 );
                 BOOST_CHECK_EQUAL( iterateMultipleLegs, false );
@@ -444,11 +444,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
                 // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( fourWayObservationModel )
-                                      ->getMultiLegLightTimeCalculator( )
+                                      ->getFullLinkLightTimeCalculator( )
                                       ->getNumberOfMultiLegIterations( );
                 bool iterateMultipleLegs =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( fourWayObservationModel )
-                                ->getMultiLegLightTimeCalculator( )
+                                ->getFullLinkLightTimeCalculator( )
                                 ->getIterateMultiLegLightTime( );
                 BOOST_CHECK_EQUAL( numIter, 0 );
                 BOOST_CHECK_EQUAL( iterateMultipleLegs, false );

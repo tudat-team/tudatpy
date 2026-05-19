@@ -273,6 +273,17 @@ public:
         return currentProperTimeDerivative_;
     }
 
+    //! Function returning the reference-point Cartesian state used at each evaluation.
+    /*!
+     *  Wraps the function bound at construction (either the body's own state or, for a ground
+     *  station reference, the topocentric state). Used by GR/SR-split dependent variables to
+     *  read out the BCRS velocity that drives the kinematic time-dilation term.
+     */
+    std::function< Eigen::Vector6d( ) > getReferencePointStateFunction( ) const
+    {
+        return referencePointStateFunction_;
+    }
+
 
 protected:
     std::shared_ptr< relativity::Metric > spaceTimeMetric_;
@@ -495,6 +506,30 @@ public:
     {
         stateDerivative( 0, 0 ) = relativity::calculateFirstOrderTcbToTcgIntegrand(
             this->currentVelocity_, this->currentExternalPotential_ );
+    }
+
+    //! Get last-evaluated central-body BCRS speed |v_E|.
+    /*!
+     *  Returns the central-body barycentric speed used in the most recent integrand evaluation.
+     *  Set by updateStateDerivativeModel(); valid after at least one update. Inherited unchanged
+     *  by the second-order subclass.
+     */
+    double getCurrentCentralBodySpeed( ) const
+    {
+        return this->currentVelocity_;
+    }
+
+    //! Get last-evaluated external scalar potential U_ext at the central body.
+    /*!
+     *  Returns Sigma_i (mu_i / r_iE) over the configured external bodies (with optional
+     *  higher-order spherical-harmonic gravity contributions if requested at construction time).
+     *  Used together with the central-body speed to split the first-order proper-time-rate
+     *  integrand into kinematic (-v^2/(2 c^2)) and potential (-U/c^2) contributions for
+     *  diagnostics. Inherited unchanged by the second-order subclass.
+     */
+    double getCurrentExternalScalarPotential( ) const
+    {
+        return this->currentExternalPotential_;
     }
 
     //! Function to update all environment variables to current time.
@@ -939,6 +974,48 @@ public:
     Eigen::Vector3d getGroundStationPositionInBodyCenteredInertialFrame( const double time )
     {
         return toInertialFrameTransformation_( time ) * pointPositionFunctionInPcrs_( time );
+    }
+
+    //! Get the latest cached reference-point speed in the body-centred inertial frame.
+    /*!
+     *  Returns \f$\lVert\mathbf{v}_0\rVert\f$, with \f$\mathbf{v}_0=\boldsymbol{\omega}\times\mathbf{y}\f$
+     *  the inertial velocity of the topocentric reference point relative to the body centre as
+     *  used in Turyshev et al. 2013 Eq. (22). Set by ``updateStateDerivativeModel``; valid after
+     *  at least one update.
+     */
+    double getCurrentReferencePointSpeed( ) const
+    {
+        return currentPointVelocityInPcrs_.norm( );
+    }
+
+    //! Get the latest cached scalar potential at the topocentric reference point.
+    /*!
+     *  Returns \f$U_E(\mathbf{y}) + \sum_{i\neq E}\frac{GM_i}{2 r_{iE}^3}(3(\hat{\mathbf{n}}_{iE}\cdot
+     *  \mathbf{y})^2-\mathbf{y}^2) + \mathbf{a}_E\cdot\mathbf{y}\f$, the local body potential plus
+     *  the third-body tidal sum and (optional) acceleration term that together form the
+     *  potential-like contribution to the Turyshev et al. 2013 Eq. (22) integrand.
+     *  Reproduces the term that ``calculateFirstOrderPlanetocentricToTopocentricConversion``
+     *  multiplies by \f$-1/c^2\f$.
+     */
+    double getCurrentLocalPotentialAndTidalContribution( ) const
+    {
+        double total = currentLocalPotential_;
+        total += currentBarycentricAccelerationOfCentralBody_.dot( currentPointPositionInPcrs_ );
+        for( unsigned int i = 0; i < currentExternalBodyRelativePositions_.size( ); ++i )
+        {
+            const double distance = currentExternalBodyRelativePositions_[ i ].norm( );
+            if( distance == 0.0 )
+            {
+                continue;
+            }
+            const Eigen::Vector3d unitVector = currentExternalBodyRelativePositions_[ i ] / distance;
+            const double dotProduct = currentPointPositionInPcrs_.dot( unitVector );
+            const double pointPositionMagnitude = currentPointPositionInPcrs_.norm( );
+            total += this->currentExternalBodyGravitationalParameters_[ i ] /
+                    ( 2.0 * distance * distance * distance ) *
+                    ( 3.0 * dotProduct * dotProduct - pointPositionMagnitude * pointPositionMagnitude );
+        }
+        return total;
     }
 
 

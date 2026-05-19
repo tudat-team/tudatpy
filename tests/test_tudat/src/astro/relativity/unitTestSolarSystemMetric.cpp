@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
 
     auto firstOrderSchwarzschildSettings =
             std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", false );
-    [[maybe_unused]] auto secondOrderSchwarzschildSettings =
+    auto secondOrderSchwarzschildSettings =
             std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", true );
 
     auto firstOrderSolarSystemSettings =
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     //                 ppnParameterSet );
 
     auto firstOrderSchwarzschildMetric = createSpaceTimeMetric( firstOrderSchwarzschildSettings, bodies );
-    [[maybe_unused]] auto secondOrderSchwarzschildMetric = createSpaceTimeMetric( secondOrderSchwarzschildSettings, bodies );
+    auto secondOrderSchwarzschildMetric = createSpaceTimeMetric( secondOrderSchwarzschildSettings, bodies );
     auto firstOrderSolarSystemMetric = createSpaceTimeMetric( firstOrderSolarSystemSettings, bodies );
 
     Eigen::Vector6d keplerianElements;

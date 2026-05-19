@@ -18,7 +18,9 @@
 #include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
@@ -29,6 +31,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
@@ -1094,6 +1097,60 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
+        case local_wind_velocity_dependent_variable: {
+            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+            {
+                simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+            }
+
+            if( bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Error, no aerodynamic angle calculator when creating dependent variable function of type "
+                        "local_wind_velocity_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+
+            // Get the target frame from settings
+            std::shared_ptr< LocalWindVelocityDependentVariableSaveSettings > windVelocitySettings =
+                    std::dynamic_pointer_cast< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( windVelocitySettings == nullptr )
+            {
+                throw std::runtime_error( "Error: could not cast to LocalWindVelocityDependentVariableSaveSettings" );
+            }
+
+            reference_frames::AerodynamicsReferenceFrames targetFrame = windVelocitySettings->targetFrame_;
+
+            // If target frame is corotating frame, return wind velocity directly
+            if( targetFrame == reference_frames::corotating_frame )
+            {
+                variableFunction = std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
+                                              bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+            }
+            else
+            {
+                // Create function to transform wind velocity to target frame
+                std::function< Eigen::Vector3d( ) > windVelocityCorotatingFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
+                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+
+                std::function< Eigen::Matrix3d( ) > rotationMatrixFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
+                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                   reference_frames::corotating_frame,
+                                   targetFrame );
+
+                variableFunction = [windVelocityCorotatingFunction, rotationMatrixFunction]( )
+                {
+                    return rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
+                };
+            }
+
+            parameterSize = 3;
+            break;
+        }
         case tnw_to_inertial_frame_rotation_dependent_variable: {
             std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                     std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );
@@ -1138,6 +1195,28 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             };
             variableFunction = std::bind( &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
 
+            parameterSize = 9;
+
+            break;
+        }
+        case vehicle_part_rotation_matrix_dependent_variable: {
+            // Check if body has vehicle systems
+            if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when getting vehicle part rotation matrix for body " + bodyWithProperty +
+                                          ", body does not have vehicle systems." );
+            }
+
+            // Get the part name from secondaryBody_ field
+            std::string partName = dependentVariableSettings->secondaryBody_;
+
+            // Create function to get rotation quaternion from vehicle systems
+            std::function< Eigen::Quaterniond( ) > rotationFunction = std::bind(
+                    &system_models::VehicleSystems::getPartRotationToBaseFrame,
+                    bodies.at( bodyWithProperty )->getVehicleSystems( ),
+                    partName );
+
+            variableFunction = std::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
             parameterSize = 9;
 
             break;
@@ -2003,6 +2082,38 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                                       bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
                 break;
+            case number_density:
+            {
+                if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                            bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+                {
+                    simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+                }
+                auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) );
+
+                // Use lambda to get number density
+                variableFunction = [flightConditions]( ) -> double
+                {
+                    auto atmosphereModel = flightConditions->getAtmosphereModel( );
+
+                    // Check if it's a ComaModel and use its specific getNumberDensity method
+                    auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
+                    if( comaModel != nullptr )
+                    {
+                        return comaModel->getNumberDensity(
+                            flightConditions->getCurrentRadius( ),
+                            flightConditions->getCurrentLongitude( ),
+                            flightConditions->getCurrentLatitude( ),
+                            flightConditions->getCurrentTime( ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Number density dependent variable is currently only supported for ComaModel atmospheres." );
+                    }
+                };
+                break;
+            }
             case radiation_pressure_dependent_variable: {
                 auto radiationPressureAccelerationList = getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
                                                                                        dependentVariableSettings->secondaryBody_,
@@ -2973,8 +3084,183 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             case solar_longitude:
             {
-                variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
-                                              std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
+                // Try ComaModel first
+                auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                if ( comaModel != nullptr )
+                {
+                    variableFunction = std::bind( &::tudat::aerodynamics::ComaModel::getSolarLongitude, comaModel );
+                }
+                else
+                {
+                    // Fall back to MarsDtmAtmosphereModel
+                    auto marsDtmModel = std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                    if ( marsDtmModel != nullptr )
+                    {
+                        variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude, marsDtmModel );
+                    }
+                    else
+                    {
+                        std::string errorMessage = "Error when making solar longitude dependent variable for body " + bodyWithProperty +
+                                                  ". Body does not have a ComaModel or MarsDtmAtmosphereModel atmosphere.";
+                        throw std::runtime_error( errorMessage );
+                    }
+                }
+                break;
+            }
+            case proper_time_rate_kinematic_term:
+            case proper_time_rate_potential_term:
+            {
+                // The dependent variable is keyed by ``(bodyWithProperty, secondaryBody)``,
+                // where ``secondaryBody`` is the optional reference-point name (empty for the
+                // body centre itself). We locate the matching relativistic-time state
+                // derivative among ``stateDerivativeModels[proper_time]`` and produce a
+                // closure that returns the requested -v^2/(2 c^2) (kinematic) or -U/c^2
+                // (potential) component every step. Three propagator pipelines are supported:
+                //   (1) FirstOrderBarycentricToBodyCentricTimeStateDerivative (and its
+                //       second-order subclass): Soffel et al. 2003 Eq. (58), reference point
+                //       is the body centre (secondaryBody == "").
+                //   (2) DirectProperTimeRateStateDerivative: series expansion from the
+                //       SolarSystemMetric, applicable to any reference point that has a state
+                //       function bound at construction.
+                //   (3) FirstOrderBodyCentricToTopoCentricTimeCalculator: Turyshev et al.
+                //       2013 Eq. (22), for ground stations identified by (body, station).
+                std::shared_ptr< ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                        StateScalarType, TimeType > > pnStateDerivative;
+                std::shared_ptr< ::tudat::DirectProperTimeRateStateDerivative<
+                        StateScalarType, TimeType > > directStateDerivative;
+                std::shared_ptr< ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator<
+                        StateScalarType, TimeType > > topoStateDerivative;
+
+                const auto properTimeIt = stateDerivativeModels.find( proper_time );
+                if( properTimeIt != stateDerivativeModels.end( ) )
+                {
+                    for( const auto& candidate : properTimeIt->second )
+                    {
+                        if( !secondaryBody.empty( ) )
+                        {
+                            auto topoCandidate = std::dynamic_pointer_cast<
+                                    ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator<
+                                            StateScalarType, TimeType > >( candidate );
+                            if( topoCandidate != nullptr &&
+                                topoCandidate->getReferencePoint( ) ==
+                                    std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                topoStateDerivative = topoCandidate;
+                                break;
+                            }
+                            auto directCandidate = std::dynamic_pointer_cast<
+                                    ::tudat::DirectProperTimeRateStateDerivative<
+                                            StateScalarType, TimeType > >( candidate );
+                            if( directCandidate != nullptr &&
+                                directCandidate->getReferencePoint( ) ==
+                                    std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                directStateDerivative = directCandidate;
+                            }
+                            continue;
+                        }
+                        auto pnCandidate = std::dynamic_pointer_cast<
+                                ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( pnCandidate != nullptr && pnCandidate->getCentralBody( ) == bodyWithProperty )
+                        {
+                            pnStateDerivative = pnCandidate;
+                            break;
+                        }
+                        auto directCandidate = std::dynamic_pointer_cast<
+                                ::tudat::DirectProperTimeRateStateDerivative<
+                                        StateScalarType, TimeType > >( candidate );
+                        if( directCandidate != nullptr && directCandidate->getCentralBody( ) == bodyWithProperty &&
+                            directCandidate->getReferencePoint( ).second.empty( ) )
+                        {
+                            directStateDerivative = directCandidate;
+                        }
+                    }
+                }
+
+                const double invSquareC = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                const bool wantKinematic =
+                        ( dependentVariableSettings->dependentVariableType_ == proper_time_rate_kinematic_term );
+
+                if( pnStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            const double v = pnStateDerivative->getCurrentCentralBodySpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            return -pnStateDerivative->getCurrentExternalScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else if( topoStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            const double v = topoStateDerivative->getCurrentReferencePointSpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            return -topoStateDerivative->getCurrentLocalPotentialAndTidalContribution( )
+                                    * invSquareC;
+                        };
+                    }
+                }
+                else if( directStateDerivative != nullptr )
+                {
+                    auto referenceStateFunction = directStateDerivative->getReferencePointStateFunction( );
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ referenceStateFunction, invSquareC ]( ) {
+                            const Eigen::Vector6d state = referenceStateFunction( );
+                            return -0.5 * state.segment( 3, 3 ).squaredNorm( ) * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        // Only the SolarSystemMetric currently exposes a cached total scalar
+                        // potential at the evaluation point (via getCurrentScalarPotential).
+                        // Other Metric subclasses (e.g. SchwarzschildMetric) would need a
+                        // dedicated dependent variable; rather than silently returning 0 we
+                        // throw so that users see the limitation.
+                        auto solarMetric = std::dynamic_pointer_cast< relativity::SolarSystemMetric >(
+                                directStateDerivative->getSpaceTimeMetric( ) );
+                        if( solarMetric == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating proper_time_rate_potential_term dependent "
+                                    "variable for body " + bodyWithProperty +
+                                    ( secondaryBody.empty( ) ? std::string( "" ) :
+                                            std::string( ":" ) + secondaryBody ) +
+                                    ": direct-from-metric state derivative is not backed by a "
+                                    "SolarSystemMetric, which is required to expose the current "
+                                    "scalar potential." );
+                        }
+                        variableFunction = [ solarMetric, invSquareC ]( ) {
+                            return -solarMetric->getCurrentScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error(
+                            "Error when creating proper-time-rate dependent variable: "
+                            "no relativistic-time state derivative found for body " +
+                            bodyWithProperty +
+                            ( secondaryBody.empty( ) ? std::string( "" ) :
+                                    std::string( " with reference point " ) + secondaryBody ) +
+                            ". Make sure this body is being propagated as a post-Newtonian, "
+                            "topocentric, or direct-from-metric relativistic time state." );
+                }
                 break;
             }
             default:

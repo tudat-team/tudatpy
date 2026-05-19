@@ -32,6 +32,8 @@
 #include "tudat/io/readVariousPdsFiles.h"
 #include "tudat/io/solarActivityData.h"
 
+#include "coma_model/expose_coma_model.h"
+
 namespace py = pybind11;
 namespace tio = tudat::input_output;
 
@@ -43,6 +45,9 @@ namespace data
 
 void expose_data( py::module& m )
 {
+    auto comaModel = m.def_submodule( "coma_model" );
+    tudatpy::data::coma_model::expose_coma_model( comaModel );
+
     py::module_::import( "tudatpy.kernel.math.interpolators" ).attr( "InterpolatorSettings" );
     // py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
     // py::object cubic_spline_interpolation =
