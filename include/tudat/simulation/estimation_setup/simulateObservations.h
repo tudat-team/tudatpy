@@ -239,7 +239,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             std::make_shared< ObservationDependentVariableCalculator >(
                     observationsToSimulate->getObservationDependentVariableBookkeeping( ),
                     bodies,
-                    getLegLightTimeCalculatorsFromObservationModel< ObservationSize, ObservationScalarType, TimeType >( observationModel ) );
+                    observationModel != nullptr ? observationModel->getLegLightTimeCalculators( )
+                                                : ObservationDependentVariableCalculator::LegLightTimeCalculatorMap( ) );
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -404,7 +405,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 std::make_shared< ObservationDependentVariableCalculator >(
                         tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ),
                         bodies,
-                        getLegLightTimeCalculatorsFromObservationModel< ObservationSize, ObservationScalarType, TimeType >( observationModel ) );
+                        observationModel != nullptr ? observationModel->getLegLightTimeCalculators( )
+                                                    : ObservationDependentVariableCalculator::LegLightTimeCalculatorMap( ) );
 
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(

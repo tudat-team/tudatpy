@@ -1982,25 +1982,6 @@ createSortedObservationSimulators( const std::vector< std::shared_ptr< Observati
     return sortedObservationSimulators;
 }
 
-//! Type-erased map from n-way/one-way leg identifier (from link-end type, to link-end type) to
-//! the corresponding light-time calculator used by an observation model.
-using LegLightTimeCalculatorMap = std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                                            std::shared_ptr< observation_models::LightTimeCalculatorBase > >;
-
-//! Extract, from an observation model, the LightTimeCalculator associated with each light-time leg.
-//!
-//! Dispatches to ObservationModel::getLegLightTimeCalculators().
-template< int ObservationSize, typename ObservationScalarType, typename TimeType >
-LegLightTimeCalculatorMap getLegLightTimeCalculatorsFromObservationModel(
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel )
-{
-    if( observationModel == nullptr )
-    {
-        return { };
-    }
-    return observationModel->getLegLightTimeCalculators( );
-}
-
 //! Typedef for list of light time corrections for a list of link ends
 typedef std::map< observation_models::LinkEnds, std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
         PerLinkEndPerLightTimeSolutionCorrections;
