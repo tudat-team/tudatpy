@@ -514,7 +514,12 @@ void expose_observations_dependent_variables( py::module& m )
 
         The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
         on the selected leg, in registration order. If ``correction_type_filter`` is supplied,
-        only contributions whose type appears in the filter are returned, in the order of the filter.
+        all registered contributions whose type matches any requested type are returned.
+        Matching contributions are grouped by the order in which each distinct type first appears
+        in the filter; repeated occurrences of the same type in the filter do not duplicate output
+        entries. Consequently, the returned vector does not necessarily have the same length as
+        ``correction_type_filter`` and may be longer if multiple registered corrections share a
+        requested type.
 
         Supported for observables that expose their light-time leg calculators through the
         observation-model interface. Requesting this dependent variable for an unsupported

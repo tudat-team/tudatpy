@@ -759,7 +759,7 @@ ObservationDependentVariableAddFunction makeLightTimeCorrectionComponentsAddFunc
                 throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
             }
         }
-        const std::vector< double > components = lightTimeCalculator->getCurrentLightTimeCorrectionComponents( );
+        const std::vector< double >& components = lightTimeCalculator->getCurrentLightTimeCorrectionComponents( );
         for( int i = 0; i < parameterSize; i++ )
         {
             const int srcIdx = sourceIndices[ static_cast< size_t >( i ) ];

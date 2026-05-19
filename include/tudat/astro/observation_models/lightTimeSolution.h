@@ -257,7 +257,7 @@ public:
 
     //! Returns the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
     //! Order matches `getLightTimeCorrectionList()`.
-    virtual std::vector< double > getCurrentLightTimeCorrectionComponents( ) const = 0;
+    virtual const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const = 0;
 
     //! Returns the list of light-time correction objects registered on this calculator.
     virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
@@ -701,7 +701,7 @@ public:
     //! native return type of `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`
     //! — the values are computed in `double` regardless of `ObservationScalarType`, so a wider
     //! cache would not buy precision.
-    std::vector< double > getCurrentLightTimeCorrectionComponents( ) const override
+    const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const override
     {
         return currentCorrectionComponents_;
     }

@@ -69,6 +69,7 @@ to select which correction contributions are saved individually.)doc" )
 breakdown from the last light-time evaluation.)doc" )
             .def( "get_current_light_time_correction_components",
                   &tom::LightTimeCalculatorBase::getCurrentLightTimeCorrectionComponents,
+                  py::return_value_policy::copy,
                   R"doc(Return the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
 The returned list's order matches `get_light_time_correction_list()`.)doc" )
             .def( "get_light_time_correction_list",
