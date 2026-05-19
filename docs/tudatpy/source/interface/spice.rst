@@ -63,10 +63,6 @@ Functions
 
    check_body_property_in_kernel_pool
 
-
-
-   compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames
-
    continue_after_errors
 
    convert_naif_id_to_body_name
@@ -110,8 +106,6 @@ Functions
 .. autofunction:: tudatpy.interface.spice.convert_body_name_to_naif_id
 
 .. autofunction:: tudatpy.interface.spice.check_body_property_in_kernel_pool
-
-.. autofunction:: tudatpy.interface.spice.compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames
 
 .. autofunction:: tudatpy.interface.spice.continue_after_errors
 

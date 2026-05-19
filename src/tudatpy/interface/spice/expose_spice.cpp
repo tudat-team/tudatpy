@@ -448,14 +448,6 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-    m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
-           &tudat::spice_interface::
-                   computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
-           py::arg( "original_frame" ),
-           py::arg( "new_frame" ),
-           py::arg( "ephemeris_time" ),
-           R"doc(No documentation found.)doc" );
-
     m.def( "get_body_properties",
            &tudat::spice_interface::getBodyProperties,
            py::arg( "body_name" ),
