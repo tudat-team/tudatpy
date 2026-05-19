@@ -49,6 +49,8 @@ Functions
 
    compute_rotation_matrix_between_frames
 
+   compute_state_rotation_matrix_between_frames
+
    compute_rotation_matrix_derivative_between_frames
 
    get_angular_velocity_vector_of_frame_in_original_frame
@@ -93,6 +95,8 @@ Functions
 
 .. autofunction:: tudatpy.interface.spice.compute_rotation_matrix_between_frames
 
+.. autofunction:: tudatpy.interface.spice.compute_state_rotation_matrix_between_frames
+
 .. autofunction:: tudatpy.interface.spice.compute_rotation_matrix_derivative_between_frames
 
 .. autofunction:: tudatpy.interface.spice.get_angular_velocity_vector_of_frame_in_original_frame
@@ -113,4 +117,3 @@ Functions
 
 
 .. autofunction:: tudatpy.interface.spice.suppress_error_output
-

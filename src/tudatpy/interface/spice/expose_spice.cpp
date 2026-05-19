@@ -373,6 +373,41 @@ void expose_spice( py::module &m )
 
      )doc" );
 
+    m.def( "compute_state_rotation_matrix_between_frames",
+           &tudat::spice_interface::computeStateRotationMatrixBetweenFrames,
+           py::arg( "original_frame" ),
+           py::arg( "new_frame" ),
+           py::arg( "ephemeris_time" ),
+           R"doc(
+
+ Computes state rotation matrix between two frames.
+
+ This function computes the 6-by-6 state rotation matrix between
+ two frames at a given time instant. Kernels defining the two frames,
+ as well as any required intermediate frames, at the requested time
+ must have been loaded. Wrapper for `sxform_c`_ spice function.
+
+ .. _`sxform_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html
+
+ Parameters
+ ----------
+ original_frame
+     Reference frame from which the rotation is made.
+ new_frame
+     Reference frame to which the rotation is made.
+ ephemeris_time
+     Value of ephemeris time at which rotation is to be determined.
+ Returns
+ -------
+ State rotation matrix from original to new frame at given time.
+
+
+
+
+
+
+     )doc" );
+
     //   m.def("compute_rotation_quaternion_between_frames",
     //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
     //         py::arg("original_frame"),
