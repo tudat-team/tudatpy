@@ -153,7 +153,7 @@ public:
     std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > getLegLightTimeCalculators( ) const override
     {
         std::map< std::pair< LinkEndType, LinkEndType >, std::shared_ptr< LightTimeCalculatorBase > > legMap;
-        const auto legCalculators = multiLegLightTimeCalculator_->getLightTimeCalculators( );
+        const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
         const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
         for( unsigned int i = 0; i < legCalculators.size( ); i++ )
         {
