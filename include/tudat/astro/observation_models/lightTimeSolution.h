@@ -13,10 +13,12 @@
 
 #include <memory>
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <numeric>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -692,7 +694,12 @@ public:
         return currentCorrection_;
     }
 
-
+    //! Function to get the values of the individual light-time corrections that were summed into
+    //! `currentCorrection_` during the last call to `setTotalLightTimeCorrection`. Order matches
+    //! `correctionFunctions_` / `getLightTimeCorrection()`. Stored as `double` to match the
+    //! native return type of `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`
+    //! — the values are computed in `double` regardless of `ObservationScalarType`, so a wider
+    //! cache would not buy precision.
     std::vector< double > getCurrentLightTimeCorrectionComponents( ) const override
     {
         return currentCorrectionComponents_;
@@ -769,7 +776,8 @@ protected:
     ObservationScalarType currentCorrection_;
 
     //! Per-correction values from the last `setTotalLightTimeCorrection` call (same order as
-    //! `correctionFunctions_`). Populated alongside `currentCorrection_`.
+    //! `correctionFunctions_`). Stored as `double` (the native type returned by
+    //! `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`).
     std::vector< double > currentCorrectionComponents_;
 
     // Number of iterations until light time convergence
@@ -831,6 +839,9 @@ protected:
             linkEndStatesDouble.at( i ) = linkEndStates.at( i ).template cast< double >( );
         }
 
+        // Cache each correction's contribution; they are returned as `double` regardless of
+        // `ObservationScalarType`. The cumulative total is then formed by widening to the
+        // calculator's working precision.
         currentCorrectionComponents_.resize( correctionFunctions_.size( ) );
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
