@@ -20,6 +20,7 @@
 
 #include "scalarTypes.h"
 #include "tudat/io/serialization/base.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
@@ -506,6 +507,54 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the link-end epochs.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "light_time_correction_components_dependent_variable",
+           &tss::lightTimeCorrectionComponentsDependentVariable,
+           py::arg( "transmitter_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "receiver_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "transmitter_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "receiver_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
+           R"doc(
+        Function to create a dependent variable that saves each light-time correction contribution
+        individually for a single leg (transmitter → receiver) of the observable.
+
+        The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
+        on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,
+        all registered contributions whose type matches any requested type are returned.
+        Matching contributions are grouped by the order in which each distinct type first appears
+        in the filter; repeated occurrences of the same type in the filter do not duplicate output
+        entries. Consequently, the returned vector does not necessarily have the same length as
+        ``correction_type_filter`` and may be longer if multiple registered corrections share a
+        requested type.
+
+        Supported for observables that expose their light-time leg calculators through the
+        observation-model interface. Requesting this dependent variable for an unsupported
+        observable, or for a transmitter/receiver pair that does not correspond to an actual
+        leg of the chosen observable, raises a ``RuntimeError`` when the observation is
+        simulated (i.e. on the first call to
+        :func:`~tudatpy.estimation.observations.simulate_observations` for that
+        :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`),
+        not silently dropped.
+
+        Parameters
+        ----------
+        transmitter_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the transmitting side of the leg (e.g. ``transmitter``, ``retransmitter``).
+        receiver_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the receiving side of the leg.
+        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the transmitting side (body/station).
+        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the receiving side.
+        correction_type_filter : list[tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionType], optional
+            Subset of correction types to save. Empty list = save all registered corrections.
 
         Returns
         -------

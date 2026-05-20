@@ -10,6 +10,8 @@
  */
 
 #include <cmath>
+#include <sstream>
+#include <stdexcept>
 
 #include <Eigen/LU>
 
@@ -217,6 +219,30 @@ double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, c
     }
 
     return 0.5 * weightDiagonal.cwiseProduct( residual ).dot( residual );
+}
+
+double computeLeastSquaresCostFunctionFromFullWeights(
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::VectorXd& residual )
+{
+    if( weightMatrix.rows( ) != weightMatrix.cols( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunctionFromFullWeights: weight matrix must be square: " << "weightMatrix.rows() = "
+                << weightMatrix.rows( ) << ", weightMatrix.cols() = " << weightMatrix.cols( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    if( weightMatrix.rows( ) != residual.size( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunctionFromFullWeights: size mismatch: " << "weightMatrix.rows() = "
+                << weightMatrix.rows( )
+                << ", residual.size() = " << residual.size( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    return 0.5 * residual.dot( weightMatrix * residual );
 }
 
 }  // namespace linear_algebra

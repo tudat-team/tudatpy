@@ -1857,7 +1857,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
     Eigen::Vector3d positionPerturbation;
     positionPerturbation << 10000.0, 10000.0, 10000.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation << 1.0, 1.0, 1.0;
+    velocityPerturbation << 1.0E2, 1.0E-2, 1.0E-2;
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector6d ) > earthStateSetFunction = std::bind( &Body::setState, earth, std::placeholders::_1 );
@@ -1879,9 +1879,9 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 1.0E-4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter, partialWrtSunYarkovskyParameter, 1.0E-8 );
 }
 

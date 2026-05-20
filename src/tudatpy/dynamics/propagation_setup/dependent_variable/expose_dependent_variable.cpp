@@ -237,6 +237,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
                     R"doc(
       )doc" )
+            .value( "local_wind_velocity_type",
+                    tp::PropagationDependentVariables::local_wind_velocity_dependent_variable,
+                    R"doc(
+      )doc" )
             .value( "keplerian_state_type",
                     tp::PropagationDependentVariables::keplerian_state_dependent_variable,
                     R"doc(
@@ -307,6 +311,18 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
                     R"doc(
       )doc" )
+            .value( "vehicle_part_rotation_matrix_type",
+                    tp::PropagationDependentVariables::vehicle_part_rotation_matrix_dependent_variable,
+                    R"doc(
+      )doc" )
+            .value( "solar_longitude_type",
+                    tp::PropagationDependentVariables::solar_longitude,
+                    R"doc(
+      )doc" )
+            .value( "number_density_type",
+                    tp::PropagationDependentVariables::number_density,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -328,7 +344,45 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" );
+    )doc" );
+
+    m.def( "local_wind_velocity",
+           &tp::localWindVelocityVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           py::arg( "target_frame" ) = trf::corotating_frame,
+           R"doc(
+
+Function to add the local wind velocity vector to the dependent variables to save.
+
+Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
+
+Parameters
+----------
+body : str
+    Body whose dependent variable should be saved.
+body_with_atmosphere : str
+    Body with atmosphere with respect to which the local wind velocity is computed.
+target_frame : AerodynamicsReferenceFrames, default=corotating_frame
+    Reference frame in which the wind velocity should be expressed. Available frames:
+    - corotating_frame: Body-fixed corotating frame (default)
+    - vertical_frame: Local vertical frame
+    - trajectory_frame: Velocity-aligned trajectory frame
+    - aerodynamic_frame: Aerodynamic frame
+    - body_frame: Vehicle body frame
+    - inertial_frame: Inertial frame
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Dependent variable settings object.
+Variable Size
+-------------
+3
+
+
+
+
+    )doc" );
 
     py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
             m,
@@ -2592,6 +2646,187 @@ The type of the acceleration that is to be saved.
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
+
+    m.def( "vehicle_part_rotation_matrix",
+           &tp::vehiclePartRotationMatrixVariable,
+           py::arg( "body" ),
+           py::arg( "part_name" ) = "",
+           R"doc(
+
+ Function to add the vehicle part rotation matrix to the dependent variables to save.
+
+ Function to add the rotation matrix of a vehicle part (relative to the body-fixed frame) to the dependent variables to save.
+ The rotation matrix is stored at each time step and represents the orientation of the specified vehicle part.
+
+ Parameters
+ ----------
+ body : str
+     Body (vehicle) whose part rotation should be saved.
+ part_name : str
+     Name of the vehicle part whose rotation is to be saved. Empty string for main body.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 9 (3x3 matrix stored as vector)
+
+
+
+
+     )doc" );
+
+    m.def( "solar_longitude",
+           &tp::solarLongitudeDependentVariable,
+           py::arg( "body" ),
+           R"doc(
+
+ Function to add the solar longitude to the dependent variables to save.
+
+ Function to add the solar longitude (angle from body-fixed X-axis to Sun direction in the XY plane) to the dependent variables to save.
+ This dependent variable is available for bodies with a ComaModel or MarsDtmAtmosphereModel atmosphere.
+ For ComaModel, the solar longitude is computed from the Sun-comet direction in the comet body-fixed frame.
+ The value is cached during atmosphere density computations for efficiency.
+
+ Parameters
+ ----------
+ body : str
+     Body whose solar longitude is to be saved (must have ComaModel or MarsDtmAtmosphereModel atmosphere).
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+ Examples
+ --------
+
+ To create settings for saving the solar longitude of a comet with a coma model:
+
+ .. code-block:: python
+
+    # Define save settings for solar longitude
+    propagation_setup.dependent_variable.solar_longitude( "Comet" )
+
+
+     )doc" );
+
+    m.def( "number_density",
+           &tp::numberDensityDependentVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           R"doc(
+
+ Function to add the local freestream number density to the dependent variables to save.
+
+ Function to add the freestream number density (at a body's position) to the dependent variables to save. The calculation of the number density uses the atmosphere model of the central body, and the current state of the body for which the number density is to be calculated.
+
+ Parameters
+ ----------
+ body : str
+     Body whose dependent variable should be saved.
+ body_with_atmosphere : str
+     Body with atmosphere with respect to which the number density is computed.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+
+
+
+     )doc" );
+
+    m.def( "proper_time_rate_kinematic_term",
+           &tp::properTimeRateKinematicTermDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "reference_point" ) = "",
+           R"doc(Save the kinematic (special-relativistic, second-order Doppler) contribution
+to the proper-time-rate integrand of an observer that is being propagated as a
+relativistic-time state.
+
+The propagator setting determines which integrand the dependent variable refers to:
+
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
+  (and the second-order variant) - integrand from Soffel et al. 2003 Eq. (58),
+  :math:`d\Delta_{BC}/dt_B = -(v_C^2/2 + w_{0,\text{ext}})/c^2`.
+  This dependent variable returns the :math:`-v_C^2/(2c^2)` piece, where
+  :math:`v_C` is the body's BCRS speed.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`
+  - series expansion :math:`d\tau/dt - 1 = -\varepsilon/2 - \varepsilon^2/8`,
+  :math:`\varepsilon = (u^\mu h_{\mu\nu} u^\nu + v^2)/c^2`. This dependent
+  variable returns :math:`-v^2/(2c^2)` evaluated at the reference-point BCRS
+  speed.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`
+  - integrand from Turyshev et al. 2013 Eq. (22). This dependent variable returns
+  :math:`-v_0^2/(2c^2)` evaluated at the topocentric reference-point velocity in
+  the body-centred non-rotating frame.
+
+Parameters
+----------
+body_name : str
+    Body whose relativistic-time state is being propagated.
+reference_point : str, optional
+    Topocentric reference-point name (ground station) on the body, when relevant.
+    Leave empty (default) for the body centre itself (TCG-like conversions).
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the kinematic term at every integrator step.
+)doc" );
+
+    m.def( "proper_time_rate_potential_term",
+           &tp::properTimeRatePotentialTermDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "reference_point" ) = "",
+           R"doc(Save the potential (general-relativistic, gravitational redshift) contribution
+to the proper-time-rate integrand of an observer.
+
+As for the kinematic term, the propagator setting determines the integrand the
+dependent variable refers to; this dependent variable returns the
+:math:`-U/c^2` piece:
+
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`
+  (and the second-order variant): :math:`U = w_{0,\text{ext}}`, the external
+  scalar potential at the body centre summed over the configured perturbing
+  bodies.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`:
+  :math:`U` is the SolarSystemMetric's current total scalar potential at the
+  reference-point BCRS position.
+
+  .. warning::
+
+     This dependent variable currently requires that the underlying metric is a
+     :class:`~tudatpy.dynamics.environment_setup.space_time.SolarSystemSpaceTimeMetricSettings`-
+     created metric. With any other Metric subclass (for example a Schwarzschild
+     metric) the dependent-variable creation **raises a runtime error** rather
+     than returning an undefined value.
+* :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`:
+  :math:`U = U_E(\mathbf{y}) + \sum_i \frac{GM_i}{2 r_i^3} (3(\hat{\mathbf{n}}_i\cdot
+  \mathbf{y})^2 - \mathbf{y}^2) + \mathbf{a}_E\cdot\mathbf{y}`, the local body
+  potential plus the third-body tidal sum and (optional) acceleration term from
+  Turyshev et al. 2013 Eq. (22).
+
+Parameters
+----------
+body_name : str
+    Body whose relativistic-time state is being propagated.
+reference_point : str, optional
+    Topocentric reference-point name (ground station) on the body, when relevant.
+    Leave empty (default) for the body centre itself (TCG-like conversions).
+
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Settings to save the potential term at every integrator step.
+)doc" );
 }
 
 }  // namespace dependent_variable

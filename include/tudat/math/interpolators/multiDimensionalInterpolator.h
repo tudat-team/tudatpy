@@ -367,6 +367,7 @@ protected:
      *  Default value to be used for extrapolation.
      */
     std::vector< std::pair< DependentVariableType, DependentVariableType > > defaultExtrapolationValue_;
+
 };
 
 }  // namespace interpolators

@@ -121,9 +121,18 @@ public:
         }
         else
         {
-            if( weights.size( ) != observationTimes.size( ) * singleObservationSize_ )
+            if( weights.size( ) != observationTimes.size( ) )
             {
                 throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
+            }
+
+            for( std::size_t k = 0; k < weights.size( ); ++k )
+            {
+                if( weights.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating observation set with weights; individual weight size is incompatible" );
+                }
             }
         }
 
@@ -137,9 +146,18 @@ public:
         }
         else
         {
-            if( residuals.size( ) != observationTimes.size( ) * singleObservationSize_ )
+            if( residuals.size( ) != observationTimes.size( ) )
             {
                 throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
+            }
+
+            for( std::size_t k = 0; k < residuals.size( ); ++k )
+            {
+                if( residuals.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating observation set with residuals; individual residual size is incompatible" );
+                }
             }
         }
 
