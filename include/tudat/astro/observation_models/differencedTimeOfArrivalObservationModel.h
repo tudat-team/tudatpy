@@ -194,6 +194,12 @@ public:
         return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( 0, 0 ) } },
+                 { std::make_pair( transmitter, receiver2 ), { this->getSingleLegLightTimeCalculator( 1, 0 ) } } };
+    }
+
 private:
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 

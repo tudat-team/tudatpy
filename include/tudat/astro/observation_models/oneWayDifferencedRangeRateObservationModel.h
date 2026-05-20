@@ -241,6 +241,11 @@ public:
         return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ),
+                   { this->getSingleLegLightTimeCalculator( 0, 0 ), this->getSingleLegLightTimeCalculator( 1, 0 ) } } };
+    }
 };
 
 }  // namespace observation_models

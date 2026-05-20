@@ -135,6 +135,11 @@ public:
         return this->getSingleLegLightTimeCalculator( );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( ) } } };
+    }
+
     bool getNormalizeRightAscension( )
     {
         return normalizeRightAscension_;
