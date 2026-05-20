@@ -133,9 +133,6 @@ public:
         totalDependentVariableSize_ = 0;
     }
 
-protected:
-    // Default constructor for serialization
-    ObservationDependentVariableBookkeeping( ): observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 ) {}
     //! Store a setting whose size depends on state not yet available (e.g.
     //! `light_time_correction_components` with an empty type-filter — its size equals the
     //! number of registered light-time corrections, which is only known once the observation
@@ -172,9 +169,13 @@ protected:
         return deferredSettings_;
     }
 
+protected:
+    // Default constructor for serialization
+    ObservationDependentVariableBookkeeping( ): observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 ) {}
+
+
 private:
     friend class cereal::access;
-    friend class ObservationDependentVariableCalculator;
 
     template< class Archive >
     void serialize( Archive& ar )
