@@ -174,6 +174,7 @@ protected:
 
 private:
     friend class cereal::access;
+    friend class ObservationDependentVariableCalculator;
 
     template< class Archive >
     void serialize( Archive& ar )
