@@ -38,6 +38,7 @@ class McdAtmosphereModel : public AtmosphereModel
 public:
 
     McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel ) :
+        AtmosphereModel( false, false, true ),
         marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel ) 
     {
         requiredExtVar_ = { 

@@ -24,34 +24,40 @@ namespace aerodynamics
 // Get density
 double McdAtmosphereModel::getDensity( double altitude, double longitude, double latitude, double time)
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     return  marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->density_;
 }
 
 // Get pressure
 double McdAtmosphereModel::getPressure( double altitude, double longitude, double latitude, double time)
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->pressure_;
 }
 
 // Get temperature
 double McdAtmosphereModel::getTemperature( double altitude, double longitude, double latitude, double time)
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->temperature_;
 }
 
 double McdAtmosphereModel::getZonalWind( double altitude, double longitude, double latitude, double time) const
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->zonalWind_;
 }
 
 double McdAtmosphereModel::getMeridionalWind( double altitude, double longitude, double latitude, double time) const
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->meridionalWind_;
 }
 
 // Get speed of sound
 double McdAtmosphereModel::getSpeedOfSound( double altitude, double longitude, double latitude, double time)
 {
+    marsClimateDatabaseClimateModel_->updateCache( altitude, longitude, latitude, time );
     // Get gamma and R from extra variables
     double gamma = marsClimateDatabaseClimateModel_->getExtraVariable( 
         mcd_interface::ExtVar::ratio_of_specific_heats, {longitude, latitude, time} ); // extvar(60): gamma

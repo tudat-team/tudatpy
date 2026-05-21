@@ -32,8 +32,9 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/MCD.F90)
 endif()
 
 # Check if mcd.h exists
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mcd.h)
-    message(WARNING "mcd.h not found at ${CMAKE_CURRENT_SOURCE_DIR}/mcd.h")
+set(MCD_C_INTERFACE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/c_interfaces)
+if(NOT EXISTS ${MCD_C_INTERFACE_DIR}/mcd.h)
+    message(WARNING "mcd.h not found at ${MCD_C_INTERFACE_DIR}/mcd.h")
 endif()
 
 # Create MCD library with OBJECT library type first to avoid export issues
@@ -50,6 +51,7 @@ set_target_properties(mcd_fortran_obj PROPERTIES
 # Make modules accessible - use PRIVATE to avoid export issues
 target_include_directories(mcd_fortran_obj PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${MCD_C_INTERFACE_DIR}
     ${CMAKE_BINARY_DIR}/mcd_modules
 )
 
@@ -74,7 +76,7 @@ add_library(mcd_fortran STATIC $<TARGET_OBJECTS:mcd_fortran_obj>)
 # Set properties for the final library
 set_target_properties(mcd_fortran PROPERTIES
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mcd_modules
-    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/mcd.h"
+    PUBLIC_HEADER "${MCD_C_INTERFACE_DIR}/mcd.h"
 )
 
 # NO include directories on mcd_fortran itself - handled at link time by consumers
@@ -127,6 +129,7 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/mcd_modules/
 target_include_directories(mcd_fortran
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${MCD_C_INTERFACE_DIR}>
         $<INSTALL_INTERFACE:include/tudat/external/mcd>
 )
 
@@ -134,5 +137,5 @@ message(STATUS "MCD Fortran library configured:")
 message(STATUS "  Library target: mcd_fortran")
 message(STATUS "  Source: ${CMAKE_CURRENT_SOURCE_DIR}/MCD.F90")
 message(STATUS "  Module dir: ${CMAKE_BINARY_DIR}/mcd_modules")
-message(STATUS "  Header: ${CMAKE_CURRENT_SOURCE_DIR}/mcd.h")
+message(STATUS "  Header: ${MCD_C_INTERFACE_DIR}/mcd.h")
 message(STATUS "  Compiler flags: ${CMAKE_Fortran_FLAGS}")

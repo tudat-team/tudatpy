@@ -27,6 +27,7 @@ TUDAT_ADD_LIBRARY("mcd_interface"
         PRIVATE_INCLUDES
         ${CMAKE_BINARY_DIR}/mcd_modules
         ${CMAKE_SOURCE_DIR}/third_parties/mcd
+        ${CMAKE_SOURCE_DIR}/third_parties/mcd/interfaces/c_interfaces
         )
 
 # Expose MCD headers to dependent targets (e.g., tudat_propagation_setup)
@@ -35,6 +36,7 @@ target_include_directories(tudat_mcd_interface
         SYSTEM PUBLIC 
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/mcd_modules>
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd/interfaces/c_interfaces>
         )
 
 target_link_libraries(tudat_mcd_interface PRIVATE mcd_fortran)

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <tuple>
 #include "mcd.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 
@@ -178,6 +179,11 @@ public:
 
     void update( double currentTime ) override;
 
+    void updateCache( const double positionInput,
+                      const double longitude,
+                      const double latitude,
+                      const double time );
+
     int* getExtraVariableKeys( )
     {
         return extraVariableKeys_;
@@ -195,12 +201,12 @@ public:
 
     double getMeanVariable( MeanVar variable, std::tuple< double, double, double > input ) const
     {
-        return mcdCache_.at( input )->meanVariables_[ variable ];
+        return mcdCache_.at( input )->meanVariables_[ static_cast< std::size_t >( variable ) ];
     }
 
     double getExtraVariable( ExtVar variable, std::tuple< double, double, double > input ) const
     {
-        return mcdCache_.at( input )->extraVariables_[ variable ];
+        return mcdCache_.at( input )->extraVariables_[ static_cast< std::size_t >( variable ) ];
     }
 
     void addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables );
