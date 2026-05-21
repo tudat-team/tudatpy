@@ -1801,11 +1801,12 @@ inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
     return std::make_shared< MarsDtmAtmosphereSettings >( "" );
 }
 
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
 inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( )
 {
     return std::make_shared< McdAtmosphereSettings >( );
 }
-
+#endif
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,0)

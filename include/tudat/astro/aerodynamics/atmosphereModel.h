@@ -228,9 +228,9 @@ protected:
 
     bool useUtc_;
 
-    bool requiresClimateModel_;
-
     bool useRadius_;
+
+    bool requiresClimateModel_;
 
 private:
 };

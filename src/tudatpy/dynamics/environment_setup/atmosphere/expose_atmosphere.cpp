@@ -1320,6 +1320,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 )doc" );
 
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
     m.def( "mars_climate_database",
            &tss::mcdAtmosphereSettings,
            R"doc(
@@ -1343,6 +1344,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 	:func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
 
 	)doc" );
+#endif
 }
 
 }  // namespace atmosphere
