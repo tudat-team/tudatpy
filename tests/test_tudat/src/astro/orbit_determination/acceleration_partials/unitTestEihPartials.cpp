@@ -19,8 +19,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -39,9 +37,9 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
@@ -681,8 +679,10 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
     std::vector< std::function< void( Eigen::Vector6d ) > > stateSetFunctions;
     std::vector< std::function< Eigen::Vector6d( ) > > stateGetFunctions;
     std::vector< std::shared_ptr< EstimatableParameter< double > > > gravitationalParameters;
-    std::shared_ptr< EstimatableParameter< double > > gammaParameter = std::make_shared< PPNParameterGamma >( );
-    std::shared_ptr< EstimatableParameter< double > > betaParameter = std::make_shared< PPNParameterBeta >( );
+    std::shared_ptr< EstimatableParameter< double > > gammaParameter =
+            std::make_shared< PPNParameterGamma >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) );
+    std::shared_ptr< EstimatableParameter< double > > betaParameter =
+            std::make_shared< PPNParameterBeta >( bodies.getSpaceTimeProperties( )->getPpnParameterSet( ) );
 
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {

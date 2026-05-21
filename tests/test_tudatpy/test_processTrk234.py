@@ -278,7 +278,7 @@ def test_reader():
         spacecraft_name="-202",
     )
     observationCollection = trkProcessor.process()
-    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalr type tudat::Time
+    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalar type tudat::Time
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
@@ -286,7 +286,7 @@ def test_reader():
     obs_set = single_obs_sets[0]
 
     # Check doppler integration time.
-    dopplerCount = obs_set.ancilliary_settings.get_float_settings(
+    dopplerCount = obs_set.ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
     assert (
@@ -294,7 +294,7 @@ def test_reader():
     ), f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
-    linkEndDelays = obs_set.ancilliary_settings.get_float_list_settings(
+    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]
@@ -316,7 +316,7 @@ def test_reader():
     
     # Check observation times and values.
     obsTimes = obs_set.observation_times
-    # This requires tudatpy to be compiled with time scalr type tudat::Time
+    # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"

@@ -79,7 +79,8 @@ public:
             currentTimeDelta_ = currentTime - referenceEpoch_;
             currentDecayTerm_ = std::exp(-decayScaleFactor_ * currentTimeDelta_);
             currentBodyFixedForceVector_ = bodyFixedForceVectorAtReferenceEpoch_ * currentDecayTerm_;
-            currentAcceleration_ = rotationToIntegrationFrame_ * currentBodyFixedForceVector_ / bodyMassFunction_();
+            currentAccelerationInBodyFixedFrame_ = currentBodyFixedForceVector_ / bodyMassFunction_();
+            currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
         }
     }
 

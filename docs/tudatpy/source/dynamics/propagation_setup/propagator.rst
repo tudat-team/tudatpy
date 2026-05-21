@@ -19,8 +19,7 @@ dependent variables to save and many more options. The full options and structur
 <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup.html>`_
 
 In addition to settings for the full propagation, this module also contains function to create settings for the termination
-of a propagation (stored in instances of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings
-and its derived class). These objects are passed to the propagator settings function in this module to define the
+of a propagation (stored in instances of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings` and its derived class). These objects are passed to the propagator settings function in this module to define the
 propagation termination.
 
 
@@ -69,10 +68,18 @@ Functions
 
    non_sequential_termination
 
+   first_order_bodycentric_relativistic_time_settings
+
+   bodycentered_to_topocentric_time_settings
+
+   direct_relativistic_time_settings
+
    add_dependent_variable_settings
 
 
 
+
+   custom_termination_with_state_input
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.translational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational
@@ -99,7 +106,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.non_sequential_termination
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.add_dependent_variable_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.custom_termination_with_state_input
 
 
 
@@ -155,6 +170,14 @@ Classes
 
    MultiTypePropagatorSettings
 
+   RelativisticTimePropagatorSettings
+
+   FirstOrderBodycentricRelativisticTimePropagatorSettings
+
+   BodycenteredToTopocentricTimePropagatorSettings
+
+   DirectRelativisticTimePropagatorSettings
+
    PropagationTerminationSettings
 
    PropagationDependentVariableTerminationSettings
@@ -200,6 +223,18 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.MultiTypePropagatorSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.RelativisticTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.FirstOrderBodycentricRelativisticTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.BodycenteredToTopocentricTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.DirectRelativisticTimePropagatorSettings
+   :members:
+
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings
    :members:
 
@@ -232,6 +267,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.HybridArcPropagatorProcessingSettings
    :members:
-
-
-

@@ -19,8 +19,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
@@ -28,9 +26,9 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/simulation/estimation_setup/createTorquePartials.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat

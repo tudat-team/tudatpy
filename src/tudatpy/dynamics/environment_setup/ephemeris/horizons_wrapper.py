@@ -32,14 +32,16 @@ class HorizonsQuery:
     There are some notable differences:
 
     Time input has been simplified to reduce ambiguities:
+
     - List of times are given in seconds since J2000 TDB.
     - Start can be given in datetime format or seconds since J2000 TDB.
     - Timesteps like months and years are not permitted.
 
     And some additional features:
-    - Extended query allows data retrieval limits
-    to be broken by automatically splitting up a query into multiple subqueries
-    and combining the data.
+
+    - Extended query allows data retrieval limits to be broken by
+      automatically splitting up a query into multiple subqueries and
+      combining the data.
     - Ephemeris settings can automatically be generated using Vectors API.
 
 
@@ -79,15 +81,15 @@ class HorizonsQuery:
             Here are some examples for the default behaviour:
 
             - `Earth` - ambiguous, will
-            suggest 3 (Earth-Moon Barycentre) and 399 (Earth).
+              suggest 3 (Earth-Moon Barycentre) and 399 (Earth).
 
             - `3` - will retrieve Earth-Moon Barycentre.
 
-            - `3;` - semi-colon searches for minor planets.\
-            In this case it will search for the minor planet with MPC code 3: Juno.
+            - `3;` - semi-colon searches for minor planets.
+              In this case it will search for the minor planet with MPC code 3: Juno.
 
             - `-3` - A minus sign searches for spacecraft.
-            In this case the Mars Orbiter Mission.
+              In this case the Mars Orbiter Mission.
 
             See the Horizons System manual
             for an extensive explanation on this parameter and the timespans
@@ -108,13 +110,13 @@ class HorizonsQuery:
             - `@10` or `@Sun` - if no site is given, the geocenter will be taken.
 
             - `500@399` or `@399` or `500` - Geocentric. The site defaults to `500`.
-            The body defaults to `@399`.
+              The body defaults to `@399`.
 
             - `@0` or `@SSB` - The solar system barycentre.
 
             - `0` - without the `@` symbol, this location is equivalent to `0@399`
-            which is the observatory with MPC code 0 on Earth and not the SSB.
-            In this case: Greenwich Observatory.
+              which is the observatory with MPC code 0 on Earth and not the SSB.
+              In this case: Greenwich Observatory.
 
             - `Greenwich` - Equivalent to `Greenwich@399`, Greenwich Observatory.
 
@@ -311,7 +313,7 @@ class HorizonsQuery:
             raise ValueError(txt)
 
         # query is smaller than limit -> one batch
-        # seperate check for list as the num lines is smaller
+        # separate check for list as the num lines is smaller
         elif (
             (self.epoch_type != "list")
             and (num_lines < HorizonsQuery.query_limit)
@@ -454,10 +456,10 @@ class HorizonsQuery:
     @property
     def name(self) -> Union[str, None]:
         """Retrieve the name of the query's object.
-        The name is infered from the data retrieved and will return none
+        The name is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Unnamed minor planets will use their designation instead.
-        If a name can not be infered, the raw name from Horizons will be returned.
+        If a name can not be inferred, the raw name from Horizons will be returned.
         Please consider raising an issue on the Tudat github in such cases."""
         try:
             self._infer_name()
@@ -471,7 +473,7 @@ class HorizonsQuery:
     @property
     def MPC_number(self) -> Union[str, None]:
         """Retrieve the MPC (Minor Planet Centre) number of the object.
-        The MPC number is infered from data retrieved and will return none
+        The MPC number is inferred from data retrieved and will return none
         if data has not been retrieved yet.
         The MPC number is only relevant to minor planets such as asteroids, TNOs and
         Near-Earth Asteroids."""
@@ -484,7 +486,7 @@ class HorizonsQuery:
     @property
     def designation(self) -> Union[str, None]:
         """Retrieve the relevant designation of the query's object.
-        The designation is infered from the data retrieved and will return none
+        The designation is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Minor planets and Comets will return their provisional designation
         (1898 DQ for Eros, 1982 HG1 for Halley).
@@ -631,7 +633,7 @@ class HorizonsQuery:
 
         ambiguoustxt = (
             "Time intervals like month and year "
-            + "are ambigious, please reformulate the timestep in days instead"
+            + "are ambiguous, please reformulate the timestep in days instead"
         )
         if alpha_part.startswith("y") or alpha_part.startswith("mo"):
             raise ValueError(ambiguoustxt)
@@ -784,7 +786,7 @@ class HorizonsQuery:
                 )
             )
             .assign(
-                epochJ2000secondsTDB=lambda x: (
+                epoch_seconds_TDB=lambda x: (
                     (
                         Time(x.epoch_dt, format="datetime64").jd1
                         - constants.JULIAN_DAY_ON_J2000
@@ -814,7 +816,7 @@ class HorizonsQuery:
                 * constants.ASTRONOMICAL_UNIT
                 / constants.JULIAN_DAY
             )
-            .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
+            .loc[:, ["epoch_seconds_TDB", "x", "y", "z", "vx", "vy", "vz"]]
         )
 
         return tab.to_numpy()
@@ -990,8 +992,8 @@ class HorizonsQuery:
             ]
             res["datetime_str_UTC"] = iso_strings_utc
             res["datetime_jd"] = tudat_julian_days
-            res["epochJ2000secondsTDB"] = tdb_seconds
-            res["epochJ2000secondsUTC"] = utc_seconds
+            res["epoch_seconds_TDB"] = tdb_seconds
+            res["epoch_seconds_UTC"] = utc_seconds
 
             res_list.append(res)
 
@@ -1036,7 +1038,7 @@ class HorizonsQuery:
         )
 
         # Use the correct TDB time column
-        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+        res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "RA", "DEC"]]
 
         if not degrees:
             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
@@ -1085,7 +1087,7 @@ class HorizonsQuery:
             **kwargs,
         )
 
-        res = raw.to_pandas().loc[:, ["epochJ2000secondsUTC", "AZ", "EL"]]
+        res = raw.to_pandas().loc[:, ["epoch_seconds_UTC", "AZ", "EL"]]
 
         if not degrees:
             res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)
@@ -1183,7 +1185,7 @@ class HorizonsBatch:
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
     ) -> None:
-        """Uses the data queried to add ephemerides of the bodies querried
+        """Uses the data queried to add ephemerides of the bodies queried
         to the body_settings. The names of the bodies added can be retrieved
         using the names property.
 
@@ -1238,11 +1240,11 @@ def jpl_horizons(
     """Factory function for creating ephemeris model settings from tabulated JPL Horizons vectors.
 
     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
-    including asteriuds, comets, planets, moons and select spacecraft.
+    including asteroids, comets, planets, moons and select spacecraft.
 
     This function is a wrapper for the tudatpy.data.horizons functionality.
     That api is not available on the api documentation yet.
-    For now, visit the HorizonsQuery souce code for extensive documentation:
+    For now, visit the HorizonsQuery source code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/horizons.py
 
     For more information on the Horizons System, visit: https://ssd.jpl.nasa.gov/horizons/manual.html

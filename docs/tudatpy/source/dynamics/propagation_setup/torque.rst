@@ -27,6 +27,8 @@ Functions
 
 
 
+
+   radiation_pressure_torque
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.aerodynamic
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.spherical_harmonic_gravitational
@@ -34,6 +36,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.second_degree_gravitational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.custom_torque
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.radiation_pressure_torque
 
 
 

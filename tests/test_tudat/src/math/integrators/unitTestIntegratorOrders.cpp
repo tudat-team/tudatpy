@@ -13,8 +13,11 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <iostream>
 #include <limits>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -22,8 +25,6 @@
 
 #include "tudat/basics/utilityMacros.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
 
 using namespace tudat;
 using namespace tudat::numerical_integrators;
@@ -253,7 +254,7 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
             {
                 BOOST_CHECK( meanOrder > expectedHigherOrders.at( j ) - 0.5 );
                 BOOST_CHECK( meanOrder < expectedHigherOrders.at( j ) + 1.0 );
-                BOOST_CHECK( standardDeviationOrder < ( j == 6 ) ? 1.0 : 0.4 );
+                BOOST_CHECK( standardDeviationOrder < ( ( j == 6 ) ? 1.0 : 0.4 ) );
             }
         }
     }

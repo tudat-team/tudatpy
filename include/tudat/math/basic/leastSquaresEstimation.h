@@ -20,8 +20,6 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
-#include <boost/function.hpp>
-
 namespace tudat
 {
 
@@ -40,9 +38,15 @@ double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
 /*!
  *  Function to get condition number of matrix from SVD decomposition
  * \param singularValueDecomposition SVD decomposition of matrix
+ * \tparam Options Options for the underlying Eigen JacobiSVD decomposition
  * \return Condition number of matrix
  */
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition );
+template< int Options >
+double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd, Options >& singularValueDecomposition )
+{
+    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+}
 
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 /*!

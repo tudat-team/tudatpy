@@ -17,12 +17,11 @@
 #ifndef TUDAT_INTEGRATEEQUATIONS_H
 #define TUDAT_INTEGRATEEQUATIONS_H
 
-#include <Eigen/Core>
-#include <boost/lambda/lambda.hpp>
 #include <chrono>
 #include <limits>
-
 #include <map>
+
+#include <Eigen/Core>
 
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/astro/basic_astro/timeConversions.h"

@@ -14,7 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/estimation_setup.h"
+#include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 
 namespace tudat
 {
@@ -22,6 +22,7 @@ namespace unit_tests
 {
 
 using namespace observation_models;
+using namespace physical_constants;
 
 BOOST_AUTO_TEST_SUITE( test_solar_corona_corrections )
 
@@ -71,9 +72,9 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     InversePowerSeriesSolarCoronaCorrection coronaCorrectionNumerical = InversePowerSeriesSolarCoronaCorrection(
             observation_models::n_way_range, sunStateFunction, coefficients, doublePositiveExponents );
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > dummyAncillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    dummyAncillarySettings->setAncillaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
     // Define frequency function. They say X-band, i.e. 7 to 8 GHz
     // Morley and Budnik (2007) say they use X-band

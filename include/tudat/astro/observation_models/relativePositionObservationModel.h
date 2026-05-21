@@ -46,10 +46,10 @@ public:
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >( relative_position_observable, linkEnds, observationBiasCalculator ),
         stateFunctionTarget_( stateFunctionTarget ), stateFunctionObserver_( stateFunctionObserver )
-    { }
+    {}
 
     //! Destructor
-    ~RelativePositionObservationModel( ) { }
+    ~RelativePositionObservationModel( ) {}
 
     //! Function to compute ideal position observation at given time.
     /*!
@@ -67,7 +67,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check link end
         if( ( linkEndAssociatedWithTime != observed_body ) && ( linkEndAssociatedWithTime != observer ) )
@@ -89,6 +89,11 @@ public:
 
         // Retrieve position
         return ( currentStateTarget_.segment( 0, 3 ) - currentStateObserver_.segment( 0, 3 ) );
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        return { };
     }
 
 private:

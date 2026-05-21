@@ -12,6 +12,10 @@
 set(propagation_HEADERS
         createAccelerationModels.h
         dynamicsSimulator.h
+        dynamicsSimulatorBase.h
+        singleArcDynamicsSimulator.h
+        multiArcDynamicsSimulator.h
+        hybridArcDynamicsSimulator.h
         createTorqueModel.h
         createStateDerivativeModel.h
         createEnvironmentUpdater.h
@@ -51,6 +55,15 @@ set(PUBLIC_LINKS_LIST)
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     list(APPEND PUBLIC_LINKS_LIST tudat_mcd_interface)
 endif()
+
+if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    list(APPEND propagation_SOURCES
+            dynamicsSimulatorDoubleDoubleInstantiation.cpp
+            singleArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            multiArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            hybridArcDynamicsSimulatorDoubleDoubleInstantiation.cpp
+            )
+endif ()
 
 # Add library.
 TUDAT_ADD_LIBRARY("propagation_setup"

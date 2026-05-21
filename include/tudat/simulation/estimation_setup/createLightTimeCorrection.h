@@ -16,7 +16,6 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
@@ -25,6 +24,13 @@
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+
+class SystemOfBodies;
+
+}  // namespace simulation_setup
 
 namespace observation_models
 {
@@ -221,10 +227,18 @@ public:
      */
     VMF3TroposphericCorrectionSettings( const std::string& bodyWithAtmosphere = "Earth",
                                         const bool useGradientCorrection = true,
-                                        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3 ):
-        LightTimeCorrectionSettings( vmf3_tropospheric ), bodyWithAtmosphere_( bodyWithAtmosphere ),
-        useGradientCorrection_( useGradientCorrection ), troposphericMappingModelType_( troposphericMappingModel )
-    { }
+                                        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3,
+                                        const LightTimeCorrectionType correctionType = vmf3_tropospheric,
+                                        const double observationWavelengthNm = 532.0 ):
+        LightTimeCorrectionSettings( correctionType ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        useGradientCorrection_( useGradientCorrection ), troposphericMappingModelType_( troposphericMappingModel ),
+        observationWavelengthNm_( observationWavelengthNm )
+    {
+        if( correctionType == vmf3o_tropospheric && observationWavelengthNm_ <= 0.0 )
+        {
+            throw std::runtime_error( "Error when creating VMF3o correction settings: wavelength must be positive." );
+        }
+    }
 
     //! Get the body with atmosphere
     std::string getBodyWithAtmosphere( ) const
@@ -244,10 +258,16 @@ public:
         return troposphericMappingModelType_;
     }
 
+    double getObservationWavelengthNm( ) const
+    {
+        return observationWavelengthNm_;
+    }
+
 private:
     std::string bodyWithAtmosphere_;
     bool useGradientCorrection_;
     TroposphericMappingModel troposphericMappingModelType_;
+    double observationWavelengthNm_;
 };
 
 // Class defining settings for tabulated ionospheric corrections
@@ -394,6 +414,46 @@ private:
     const double firstOrderDelayCoefficient_;
 };
 
+//! Settings for NeQuick-2 path-integrated ionospheric correction
+class NeQuick2IonosphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    NeQuick2IonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere = "Earth",
+        bool useIonexRescaling = true,
+        double firstOrderDelayCoefficient = 40.3,
+        int quadratureOrder = 50,
+        const std::string& ccirDataPath = "",
+        const std::string& solarActivityDataPath = "",
+        double ionexRmsBiasTecu = 0.0 ):
+        LightTimeCorrectionSettings( nequick2_ionospheric ),
+        bodyWithIonosphere_( bodyWithIonosphere ),
+        useIonexRescaling_( useIonexRescaling ),
+        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+        quadratureOrder_( quadratureOrder ),
+        ccirDataPath_( ccirDataPath ),
+        solarActivityDataPath_( solarActivityDataPath ),
+        ionexRmsBiasTecu_( ionexRmsBiasTecu )
+    {}
+
+    std::string getBodyWithIonosphere( ) const { return bodyWithIonosphere_; }
+    bool getUseIonexRescaling( ) const { return useIonexRescaling_; }
+    double getFirstOrderDelayCoefficient( ) const { return firstOrderDelayCoefficient_; }
+    int getQuadratureOrder( ) const { return quadratureOrder_; }
+    std::string getCcirDataPath( ) const { return ccirDataPath_; }
+    std::string getSolarActivityDataPath( ) const { return solarActivityDataPath_; }
+    double getIonexRmsBiasTecu( ) const { return ionexRmsBiasTecu_; }
+
+private:
+    std::string bodyWithIonosphere_;
+    bool useIonexRescaling_;
+    double firstOrderDelayCoefficient_;
+    int quadratureOrder_;
+    std::string ccirDataPath_;
+    std::string solarActivityDataPath_;
+    double ionexRmsBiasTecu_;
+};
+
 // Class defining settings for tabulated ionospheric corrections
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -514,12 +574,45 @@ inline std::shared_ptr< LightTimeCorrectionSettings > ionexIonosphericCorrection
     return std::make_shared< IonexIonosphericCorrectionSettings >( bodyWithIonosphere, ionosphereHeight, firstOrderDelayCoefficient );
 }
 
+inline std::shared_ptr< LightTimeCorrectionSettings > nequick2IonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere = "Earth",
+        bool useIonexRescaling = true,
+        double firstOrderDelayCoefficient = 40.3,
+        int quadratureOrder = 50,
+        const std::string& ccirDataPath = "",
+        const std::string& solarActivityDataPath = "",
+        double ionexRmsBiasTecu = 0.0 )
+{
+    return std::make_shared< NeQuick2IonosphericCorrectionSettings >(
+        bodyWithIonosphere, useIonexRescaling, firstOrderDelayCoefficient, quadratureOrder,
+        ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
+}
+
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(
         const std::string& bodyWithAtmosphere = "Earth",
         const bool useGradientCorrection = true,
         const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3 )
 {
-    return std::make_shared< VMF3TroposphericCorrectionSettings >( bodyWithAtmosphere, useGradientCorrection, troposphericMappingModel );
+    return std::make_shared< VMF3TroposphericCorrectionSettings >(
+            bodyWithAtmosphere,
+            useGradientCorrection,
+            troposphericMappingModel,
+            vmf3_tropospheric,
+            532.0 );
+}
+
+inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectionSettings(
+        const std::string& bodyWithAtmosphere = "Earth",
+        const bool useGradientCorrection = true,
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3,
+        const double observationWavelengthNm = 532.0 )
+{
+    return std::make_shared< VMF3TroposphericCorrectionSettings >(
+            bodyWithAtmosphere,
+            useGradientCorrection,
+            troposphericMappingModel,
+            vmf3o_tropospheric,
+            observationWavelengthNm );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
@@ -565,7 +658,8 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
         const LinkEndId& receiver,
-        const bool isUplinkCorrection );
+        const bool isUplinkCorrection,
+        const LightTimeCorrectionType vmfCorrectionType = vmf3_tropospheric );
 
 void setVmfTroposphereCorrections(
         const std::vector< std::string >& dataFiles,
@@ -574,11 +668,14 @@ void setVmfTroposphereCorrections(
         const simulation_setup::SystemOfBodies& bodies,
         const bool setTropospherData = true,
         const bool setMeteoData = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ),
+        const bool retrieveMappingInternally = false );
 
 void setIonosphereModelFromIonex( const std::vector< std::string >& dataFiles,
                                   const simulation_setup::SystemOfBodies& bodies,
-                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr,
+                                  const std::vector< std::pair< std::string, std::string > >& stationSubset = {},
+                                  double subsetPaddingDeg = 30.0 );
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link

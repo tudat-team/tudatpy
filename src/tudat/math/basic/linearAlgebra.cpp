@@ -10,6 +10,8 @@
  */
 
 #include <cmath>
+#include <sstream>
+#include <stdexcept>
 
 #include <Eigen/LU>
 
@@ -204,6 +206,43 @@ void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4
     partialDerivatives[ 3 ] << -quaternionVector( 3 ), -quaternionVector( 0 ), quaternionVector( 1 ), quaternionVector( 0 ),
             -quaternionVector( 3 ), quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 );
     partialDerivatives[ 3 ] *= 2.0;
+}
+
+double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, const Eigen::VectorXd& residual )
+{
+    if( weightDiagonal.size( ) != residual.size( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunction: size mismatch: " << "weightDiagonal.size() = " << weightDiagonal.size( )
+                << ", residual.size() = " << residual.size( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    return 0.5 * weightDiagonal.cwiseProduct( residual ).dot( residual );
+}
+
+double computeLeastSquaresCostFunctionFromFullWeights(
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::VectorXd& residual )
+{
+    if( weightMatrix.rows( ) != weightMatrix.cols( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunctionFromFullWeights: weight matrix must be square: " << "weightMatrix.rows() = "
+                << weightMatrix.rows( ) << ", weightMatrix.cols() = " << weightMatrix.cols( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    if( weightMatrix.rows( ) != residual.size( ) )
+    {
+        std::ostringstream message;
+        message << "computeLeastSquaresCostFunctionFromFullWeights: size mismatch: " << "weightMatrix.rows() = "
+                << weightMatrix.rows( )
+                << ", residual.size() = " << residual.size( ) << ".";
+        throw std::runtime_error( message.str( ) );
+    }
+
+    return 0.5 * residual.dot( weightMatrix * residual );
 }
 
 }  // namespace linear_algebra

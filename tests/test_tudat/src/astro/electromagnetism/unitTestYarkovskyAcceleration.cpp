@@ -27,9 +27,9 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {
@@ -43,13 +43,14 @@ const double AU = physical_constants::ASTRONOMICAL_UNIT;
 const double JD = physical_constants::JULIAN_DAY;
 const double yarkovskyParameter = -2.899e-14 * AU / ( JD * JD );  // A2 for Apophis (Pérez-Hernández & Benet, 2022)
 
-//! Yarkovsky acceleration is A2 * (AU / rSun)^2 in the direction of the velocity vector (unit length)
+//! Yarkovsky acceleration is A2 * (AU / rSun)^2 in the transverse direction of the RTN frame
 Eigen::Vector3d computeExpectedYarkovskyAcceleration( const double A2, const Eigen::Vector6d& state )
 {
     const double r0 = AU;
     const double rSun = state.head( 3 ).norm( );
-    const Eigen::Vector3d velocityUnitVector = state.tail( 3 ).normalized( );
-    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * velocityUnitVector;
+    const Eigen::Vector3d radialUnitVector = state.head( 3 ) / rSun;
+    const Eigen::Vector3d transverseVelocity = state.tail( 3 ) - state.tail( 3 ).dot( radialUnitVector ) * radialUnitVector;
+    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * transverseVelocity.normalized( );
     return acceleration;
 }
 
@@ -242,9 +243,13 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
                                             yarkovskyAcceleration.norm( ),
                                             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-                // Check parallel with velocity vector
-                BOOST_CHECK_CLOSE_FRACTION( std::abs( yarkovskyAcceleration.dot( velocity ) ),
-                                            yarkovskyAcceleration.norm( ) * velocity.norm( ),
+                // Check that the acceleration is in the transverse direction of the RTN frame.
+                const Eigen::Vector3d radialUnitVector = state.head( 3 ).normalized( );
+                const Eigen::Vector3d transverseVelocity = velocity - velocity.dot( radialUnitVector ) * radialUnitVector;
+                BOOST_CHECK_SMALL( std::abs( yarkovskyAcceleration.dot( radialUnitVector ) ),
+                                   yarkovskyAcceleration.norm( ) * 10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_CLOSE_FRACTION( std::abs( yarkovskyAcceleration.dot( transverseVelocity ) ),
+                                            yarkovskyAcceleration.norm( ) * transverseVelocity.norm( ),
                                             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
             }
         }

@@ -20,6 +20,7 @@ set(observation_models_SOURCES
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
+        "corrections/neQuick2IonosphericCorrection.cpp"
         "observationFrequencies.cpp"
         )
 

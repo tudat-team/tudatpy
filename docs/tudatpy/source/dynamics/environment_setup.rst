@@ -33,6 +33,7 @@ a numerical propagation (for instance for custom models) see `here <https://docs
    /dynamics/environment_setup/rotation_model
    /dynamics/environment_setup/shape
    /dynamics/environment_setup/shape_deformation
+   /dynamics/environment_setup/space_time
    /dynamics/environment_setup/vehicle_systems
 
 
@@ -56,6 +57,10 @@ Functions
 
    create_simplified_system_of_bodies
 
+   direct_relativistic_time_converter_settings
+
+   set_relativistic_time_converters
+
    create_body_ephemeris
 
    add_aerodynamic_coefficient_interface
@@ -76,6 +81,18 @@ Functions
 
 
 
+
+   add_empty_tabulated_ephemeris
+
+   add_gravity_field_model
+
+   add_ground_station
+
+   convert_ground_station_state_between_itrf_frames
+
+   create_aerodynamic_coefficient_interface
+
+   get_default_single_alternate_body_settings_time_limited
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings
 
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings_time_limited
@@ -89,6 +106,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.create_system_of_bodies
 
 .. autofunction:: tudatpy.dynamics.environment_setup.create_simplified_system_of_bodies
+
+.. autofunction:: tudatpy.dynamics.environment_setup.direct_relativistic_time_converter_settings
+
+.. autofunction:: tudatpy.dynamics.environment_setup.set_relativistic_time_converters
 
 .. autofunction:: tudatpy.dynamics.environment_setup.create_body_ephemeris
 
@@ -108,6 +129,18 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.add_variable_direction_engine_model
 
+.. autofunction:: tudatpy.dynamics.environment_setup.add_empty_tabulated_ephemeris
+
+.. autofunction:: tudatpy.dynamics.environment_setup.add_gravity_field_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.add_ground_station
+
+.. autofunction:: tudatpy.dynamics.environment_setup.convert_ground_station_state_between_itrf_frames
+
+.. autofunction:: tudatpy.dynamics.environment_setup.create_aerodynamic_coefficient_interface
+
+.. autofunction:: tudatpy.dynamics.environment_setup.get_default_single_alternate_body_settings_time_limited
+
 
 
 
@@ -123,6 +156,8 @@ Classes
 
    BodySettings
 
+   DirectRelativisticTimeConverterSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.BodyListSettings
@@ -134,5 +169,6 @@ Classes
    :members:
    :exclude-members: radiation_pressure_settings
 
-
+.. autoclass:: tudatpy.dynamics.environment_setup.DirectRelativisticTimeConverterSettings
+   :members:
 

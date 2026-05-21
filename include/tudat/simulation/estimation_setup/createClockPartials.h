@@ -3,12 +3,11 @@
 
 #include <vector>
 #include <map>
-
-#include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <stdexcept>
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"

@@ -11,11 +11,7 @@
 #ifndef TUDATPY_EXPOSE_MODEL_SETTINGS_H
 #define TUDATPY_EXPOSE_MODEL_SETTINGS_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
 
 
 namespace py = pybind11;

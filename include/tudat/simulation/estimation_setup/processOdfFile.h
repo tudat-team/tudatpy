@@ -18,12 +18,14 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
-#include "tudat/math/quadrature/trapezoidQuadrature.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
@@ -346,6 +348,7 @@ public:
         {
             extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
         }
+        printExtractionWarnings( );
         // Compute the processed observation times (i.e. TDB time from J2000)
         updateProcessedObservationTimes( );
     }
@@ -361,20 +364,18 @@ public:
     {
         std::vector< std::string > groundStations;
 
-        for( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( ); ++observableIt )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
-            for( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( ); ++linkEndIt )
+            for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                observation_models::LinkEnds linkEnd = linkEndIt->first;
-
-                for( auto linkEndTypeIt = linkEnd.begin( ); linkEndTypeIt != linkEnd.end( ); ++linkEndTypeIt )
+                for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
                     // Check if linkEndId is a ground station
-                    if( linkEndTypeIt->second.stationName_ != "" && linkEndTypeIt->second.bodyName_ != spacecraftName_ )
+                    if( linkEndId.stationName_ != "" && linkEndId.bodyName_ != spacecraftName_ )
                     {
-                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndTypeIt->second.stationName_ ) )
+                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.stationName_ ) )
                         {
-                            groundStations.push_back( linkEndTypeIt->second.stationName_ );
+                            groundStations.push_back( linkEndId.stationName_ );
                         }
                     }
                 }
@@ -389,9 +390,9 @@ public:
     {
         std::vector< observation_models::ObservableType > observableTypes;
 
-        for( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( ); ++observableIt )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
-            observableTypes.push_back( observableIt->first );
+            observableTypes.push_back( observableType );
         }
 
         return observableTypes;
@@ -405,19 +406,17 @@ public:
         double endTimeTdbSinceJ2000 = TUDAT_NAN;
 
         // Loop over data
-        for( auto observableIt = processedDataBlocks_.begin( ); observableIt != processedDataBlocks_.end( ); ++observableIt )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
-            for( auto linkEndIt = observableIt->second.begin( ); linkEndIt != observableIt->second.end( ); ++linkEndIt )
+            for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > processedSingleLinkData = linkEndIt->second;
-
                 // Extract the start and end times
-                std::vector< TimeType > timeVectorTimeType = processedSingleLinkData->processedObservationTimes_;
+                std::vector< TimeType > timeVectorTimeType = singleLinkDataBlock->processedObservationTimes_;
 
                 std::vector< double > timeVector;
-                for( unsigned int k = 0; k < timeVectorTimeType.size( ); k++ )
+                for( auto const& timeTimeType : timeVectorTimeType )
                 {
-                    timeVector.push_back( double( timeVectorTimeType[ k ] ) );
+                    timeVector.push_back( double( timeTimeType ) );
                 }
 
                 if( timeVector.front( ) < startTimeTdbSinceJ2000 || std::isnan( startTimeTdbSinceJ2000 ) )
@@ -475,20 +474,19 @@ public:
                   std::map< observation_models::LinkEnds, std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > > >
                 reprocessedDataBlocks;
 
-        for( auto observationIterator : processedDataBlocks_ )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
-            for( auto linkEndIterator : observationIterator.second )
+            for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                LinkEnds oldLinkEnds = linkEndIterator.first;
-                LinkEnds newLinkEnds = oldLinkEnds;
-                for( auto idIterator : oldLinkEnds )
+                LinkEnds newLinkEnds = linkEnd;
+                for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
-                    if( idIterator.second.bodyName_ == spacecraft )
+                    if( linkEndId.bodyName_ == spacecraft )
                     {
-                        newLinkEnds[ idIterator.first ] = LinkEndId( spacecraft, antennaName );
+                        newLinkEnds[ linkEndType ] = LinkEndId( spacecraft, antennaName );
                     }
                 }
-                reprocessedDataBlocks[ observationIterator.first ][ newLinkEnds ] = linkEndIterator.second;
+                reprocessedDataBlocks[ observableType ][ newLinkEnds ] = singleLinkDataBlock;
             }
         }
         processedDataBlocks_ = reprocessedDataBlocks;
@@ -500,8 +498,7 @@ public:
     {
         // Create lookup scheme to find closest time interval
         std::vector< double > timeIntervalStarts = utilities::createVectorFromMapKeys( timeIntervals );
-        std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_ =
-                std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( timeIntervalStarts );
+        auto lookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( timeIntervalStarts );
 
         // Define new data blocks
         std::map< observation_models::ObservableType,
@@ -509,16 +506,13 @@ public:
                 reprocessedDataBlocks;
 
         // Iterate over all observable types
-        for( auto observationIterator : processedDataBlocks_ )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
             // Iterate over all link ends
-            for( auto linkEndIterator : observationIterator.second )
+            for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                // Get current data block
-                std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > currentDataBlock = linkEndIterator.second;
-
                 // Get start and end times of current block
-                std::pair< double, double > timeBounds = currentDataBlock->getTimeBounds( );
+                std::pair< double, double > timeBounds = singleLinkDataBlock->getTimeBounds( );
 
                 // Get start and end time of nearest interval
                 double timeIntervalStart = TUDAT_NAN;
@@ -536,16 +530,15 @@ public:
                 // Copy entire block
                 if( timeIntervalStart < timeBounds.first && timeIntervalEnd > timeBounds.second )
                 {
-                    LinkEnds oldLinkEnds = linkEndIterator.first;
-                    LinkEnds newLinkEnds = oldLinkEnds;
-                    for( auto idIterator : oldLinkEnds )
+                    LinkEnds newLinkEnds = linkEnd;
+                    for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                     {
-                        if( idIterator.second.bodyName_ == spacecraft )
+                        if( linkEndId.bodyName_ == spacecraft )
                         {
-                            newLinkEnds[ idIterator.first ] = LinkEndId( spacecraft, antennaName );
+                            newLinkEnds[ linkEndType ] = LinkEndId( spacecraft, antennaName );
                         }
                     }
-                    reprocessedDataBlocks[ observationIterator.first ][ newLinkEnds ] = linkEndIterator.second;
+                    reprocessedDataBlocks[ observableType ][ newLinkEnds ] = singleLinkDataBlock;
                 }
                 else if( timeIntervalEnd > timeBounds.second )
                 {
@@ -566,16 +559,16 @@ private:
     {
         unsigned int spacecraftId = rawOdfDataVector.front( )->spacecraftId_;
 
-        for( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
+        for( auto const& rawOdfData : rawOdfDataVector )
         {
             // Check if spacecraft ID is valid
-            if( rawOdfDataVector.at( i )->spacecraftId_ != spacecraftId )
+            if( rawOdfData->spacecraftId_ != spacecraftId )
             {
                 throw std::runtime_error(
                         "Error when creating processed ODF object from raw data: multiple "
                         "spacecraft IDs"
                         "found (" +
-                        std::to_string( spacecraftId ) + " and " + std::to_string( rawOdfDataVector.at( i )->spacecraftId_ ) + ")." );
+                        std::to_string( spacecraftId ) + " and " + std::to_string( rawOdfData->spacecraftId_ ) + ")." );
             }
         }
 
@@ -601,7 +594,7 @@ private:
 
         if( requiresTransmittingStation( currentObservableType ) )
         {
-            transmittingStation = linkEnds.at( transmitter ).stationName_;
+            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
 
             // Check if transmitting station is in ramp tables
             if( rampInterpolators_.count( transmittingStation ) == 0 )
@@ -625,8 +618,8 @@ private:
             {
                 if( verbose_ )
                 {
-                    std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by ramp table of station " << transmittingStation << ", ignoring it." << std::endl;
+                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back(
+                            rawDataBlock->getCommonDataBlock( )->getObservableTime( ) );
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
@@ -634,7 +627,7 @@ private:
         }
         if( requiresFirstReceivingStation( currentObservableType ) )
         {
-            receivingStation = linkEnds.at( receiver ).stationName_;
+            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
 
             // Check if receiving station is in ramp tables
             if( rampInterpolators_.count( receivingStation ) == 0 )
@@ -730,19 +723,20 @@ private:
                 {
                     switch( currentObservableType )
                     {
-                        case observation_models::dsn_n_way_averaged_doppler: {
+                        case observation_models::ObservableType::dsn_n_way_averaged_doppler: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
-                                    std::make_shared< ProcessedOdfFileDopplerData< TimeType > >( currentObservableType,
-                                                                                                 linkEnds.at( receiver ).stationName_,
-                                                                                                 linkEnds.at( transmitter ).stationName_ );
+                                    std::make_shared< ProcessedOdfFileDopplerData< TimeType > >(
+                                            currentObservableType,
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
                             break;
                         }
-                        case observation_models::dsn_n_way_range: {
+                        case observation_models::ObservableType::dsn_n_way_range: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileSequentialRangeData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( receiver ).stationName_,
-                                            linkEnds.at( transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
                             break;
                         }
                         default: {
@@ -755,6 +749,20 @@ private:
 
                 addOdfRawDataBlockToProcessedData(
                         rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
+        }
+    }
+
+    void printExtractionWarnings( )
+    {
+        for( auto it : noRampDataItems_ )
+        {
+            for( auto it2 : it.second )
+            {
+                std::cerr << "Warning: observation of ODF type " << it.first << ", " << it2.second.size( )
+                          << " observations with transmitting station " << it2.first
+                          << " not covered by ramp table of station. These observations are ignored and not processed further."
+                          << std::endl;
             }
         }
     }
@@ -833,17 +841,15 @@ private:
     {
         std::map< std::string, std::vector< double > > rampRatesPerStation, startFrequenciesPerStation;
 
-        for( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
+        for( auto const& rawOdfData : rawOdfDataVector )
         {
             std::map< int, std::vector< std::shared_ptr< input_output::OdfRampBlock > > > rampBlocksPerStation =
-                    rawOdfDataVector.at( i )->getRampBlocks( );
-            for( auto it = rampBlocksPerStation.begin( ); it != rampBlocksPerStation.end( ); it++ )
+                    rawOdfData->getRampBlocks( );
+            for( auto const& [ stationId, rampBlocks ] : rampBlocksPerStation )
             {
-                std::string stationName = getStationNameFromStationId( 0, it->first );
+                std::string stationName = getStationNameFromStationId( 0, stationId );
 
-                std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlocks = it->second;
-
-                for( unsigned int j = 0; j < it->second.size( ); j++ )
+                for( unsigned int j = 0; j < rampBlocks.size( ); j++ )
                 {
                     // Check if zero time ramp
                     if( rampBlocks.at( j )->getRampStartTime( ) == rampBlocks.at( j )->getRampEndTime( ) )
@@ -893,14 +899,12 @@ private:
     void updateProcessedObservationTimes( )
     {
         // Loop over saved data and convert time to TDB wrt J2000
-        for( auto observableTypeIterator = processedDataBlocks_.begin( ); observableTypeIterator != processedDataBlocks_.end( );
-             ++observableTypeIterator )
+        for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
         {
-            for( auto linkEndsIterator = observableTypeIterator->second.begin( ); linkEndsIterator != observableTypeIterator->second.end( );
-                 ++linkEndsIterator )
+            for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                linkEndsIterator->second->processedObservationTimes_ = computeObservationTimesTdbFromJ2000(
-                        linkEndsIterator->second->receivingStation_, linkEndsIterator->second->unprocessedObservationTimes_ );
+                singleLinkDataBlock->processedObservationTimes_ = computeObservationTimesTdbFromJ2000(
+                        singleLinkDataBlock->receivingStation_, singleLinkDataBlock->unprocessedObservationTimes_ );
             }
         }
     }
@@ -1004,6 +1008,8 @@ private:
     // Flag indicating whether to print warnings
     bool verbose_;
 
+    std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
+
     // TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way
     // Doppler) is implemented
     friend class ProcessedOdfFileContentsPrivateFunctionTest;
@@ -1088,7 +1094,7 @@ inline std::shared_ptr< ProcessedOdfFileContents< TimeType > > processOdfData(
  * @return Ancillary settings
  */
 template< typename TimeType = double >
-observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySettings(
+observation_models::ObservationAncillarySimulationSettings createOdfAncillarySettings(
         std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > odfDataContents,
         unsigned int dataIndex )
 {
@@ -1099,8 +1105,8 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
                 "than data size." );
     }
 
-    observation_models::ObservationAncilliarySimulationSettings ancillarySettings =
-            observation_models::ObservationAncilliarySimulationSettings( );
+    observation_models::ObservationAncillarySimulationSettings ancillarySettings =
+            observation_models::ObservationAncillarySimulationSettings( );
 
     observation_models::ObservableType currentObservableType = odfDataContents->getObservableType( );
 
@@ -1110,50 +1116,46 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
         getFrequencyBandForOdfId( odfDataContents->downlinkBandIds_.at( dataIndex ) )
     };
 
-    ancillarySettings.setAncilliaryDoubleVectorData( observation_models::frequency_bands,
-                                                     convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings.setAncillaryDoubleVectorData( observation_models::ObservationAncillarySimulationVariable::frequency_bands,
+                                                    convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
-    ancillarySettings.setAncilliaryDoubleData(
-            observation_models::reception_reference_frequency_band,
+    ancillarySettings.setAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::reception_reference_frequency_band,
             convertFrequencyBandToDouble( getFrequencyBandForOdfId( odfDataContents->referenceBandIds_.at( dataIndex ) ) ) );
 
-    if( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( odfDataContents ) != nullptr )
+    if( auto dopplerDataBlock = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( odfDataContents ) )
     {
-        std::shared_ptr< ProcessedOdfFileDopplerData< TimeType > > dopplerDataBlock =
-                std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( odfDataContents );
+        ancillarySettings.setAncillaryDoubleData( observation_models::ObservationAncillarySimulationVariable::doppler_integration_time,
+                                                  dopplerDataBlock->countInterval_.at( dataIndex ) );
 
-        ancillarySettings.setAncilliaryDoubleData( observation_models::doppler_integration_time,
-                                                   dopplerDataBlock->countInterval_.at( dataIndex ) );
+        ancillarySettings.setAncillaryDoubleData( observation_models::ObservationAncillarySimulationVariable::doppler_reference_frequency,
+                                                  dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
 
-        ancillarySettings.setAncilliaryDoubleData( observation_models::doppler_reference_frequency,
-                                                   dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
-
-        if( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
+        if( currentObservableType == observation_models::ObservableType::dsn_n_way_averaged_doppler )
         {
-            ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::link_ends_delays,
+            ancillarySettings.setAncillaryDoubleVectorData(
+                    observation_models::ObservationAncillarySimulationVariable::link_ends_delays,
                     std::vector< double >{ dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
                                            0.0,
                                            dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }
         else
         {
-            ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::link_ends_delays,
+            ancillarySettings.setAncillaryDoubleVectorData(
+                    observation_models::ObservationAncillarySimulationVariable::link_ends_delays,
                     std::vector< double >{ dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
                                            dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }
     }
-    else if( std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents ) != nullptr )
+    else if( auto sequentialRangeDataBlock =
+                     std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents ) )
     {
-        std::shared_ptr< ProcessedOdfFileSequentialRangeData< TimeType > > sequentialRangeDataBlock =
-                std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents );
+        ancillarySettings.setAncillaryDoubleData(
+                observation_models::ObservationAncillarySimulationVariable::sequential_range_lowest_ranging_component,
+                sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
 
-        ancillarySettings.setAncilliaryDoubleData( observation_models::sequential_range_lowest_ranging_component,
-                                                   sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
-
-        ancillarySettings.setAncilliaryDoubleVectorData(
-                observation_models::link_ends_delays,
+        ancillarySettings.setAncillaryDoubleVectorData(
+                observation_models::ObservationAncillarySimulationVariable::link_ends_delays,
                 std::vector< double >{ sequentialRangeDataBlock->transmitterUplinkDelay_.at( dataIndex ),
                                        0.0,
                                        sequentialRangeDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
@@ -1182,7 +1184,7 @@ void separateSingleLinkOdfData( observation_models::ObservableType currentObserv
                                 std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > odfSingleLinkData,
                                 std::vector< std::vector< TimeType > >& observationTimes,
                                 std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
-                                std::vector< observation_models::ObservationAncilliarySimulationSettings >& ancillarySettings )
+                                std::vector< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
 {
     // Initialize vectors
     observationTimes.clear( );
@@ -1195,7 +1197,7 @@ void separateSingleLinkOdfData( observation_models::ObservableType currentObserv
 
     for( unsigned int i = 0; i < odfSingleLinkData->unprocessedObservationTimes_.size( ); ++i )
     {
-        observation_models::ObservationAncilliarySimulationSettings currentAncillarySettings =
+        observation_models::ObservationAncillarySimulationSettings currentAncillarySettings =
                 createOdfAncillarySettings< TimeType >( odfSingleLinkData, i );
 
         bool newAncillarySettings = true;
@@ -1234,7 +1236,8 @@ template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
         std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
-        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ) )
+        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
+        const bool allowDuplicateObservationsWithinSingleObservationSet = true )
 {
     // Set observables to process
     if( observableTypesToProcess.empty( ) )
@@ -1248,30 +1251,21 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                         std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > >
             sortedObservationSets;
 
-    for( auto observableTypeIterator = processedOdfFileContents->getProcessedDataBlocks( ).begin( );
-         observableTypeIterator != processedOdfFileContents->getProcessedDataBlocks( ).end( );
-         ++observableTypeIterator )
+    for( auto const& [ currentObservableType, linkDataBlocks ] : processedOdfFileContents->getProcessedDataBlocks( ) )
     {
-        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
-
         // Check if an observation set should be created for the current observable type
         if( std::count( observableTypesToProcess.begin( ), observableTypesToProcess.end( ), currentObservableType ) == 0 )
         {
             continue;
         }
 
-        for( auto linkEndsIterator = observableTypeIterator->second.begin( ); linkEndsIterator != observableTypeIterator->second.end( );
-             ++linkEndsIterator )
+        for( auto const& [ currentLinkEnds, currentOdfSingleLinkData ] : linkDataBlocks )
         {
-            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
-
-            std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > currentOdfSingleLinkData = linkEndsIterator->second;
-
             // Get vectors of times, observations, and ancillary settings for the current observable
             // type and link ends
             std::vector< std::vector< TimeType > > observationTimes;
             std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observables;
-            std::vector< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings;
+            std::vector< observation_models::ObservationAncillarySimulationSettings > ancillarySettings;
 
             // Fill vectors
             separateSingleLinkOdfData( currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings );
@@ -1294,14 +1288,19 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
                     for( unsigned int j = 0; j < observationTimes.at( i ).size( ); ++j )
                     {
-                        if( ( ( !std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) &&
-                                observationTimes.at( i ).at( j ) >= startAndEndTimesToProcess.first ) ||
-                              std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) ) &&
-                            ( ( !std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) &&
-                                observationTimes.at( i ).at( j ) <= startAndEndTimesToProcess.second ) ||
-                              std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) ) )
+                        TimeType observationTime = observationTimes.at( i ).at( j );
+
+                        bool observationTimeAfterIntervalStart =
+                                ( !std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) &&
+                                  observationTime >= startAndEndTimesToProcess.first ) ||
+                                std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) );
+                        bool observationTimeBeforeIntervalEnd =
+                                ( ( !std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) &&
+                                    observationTime <= startAndEndTimesToProcess.second ) ||
+                                  std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) );
+                        if( observationTimeAfterIntervalStart && observationTimeBeforeIntervalEnd )
                         {
-                            singleTruncatedObservationTimes.push_back( observationTimes.at( i ).at( j ) );
+                            singleTruncatedObservationTimes.push_back( observationTime );
                             singleTruncatedObservables.push_back( observables.at( i ).at( j ) );
                         }
                     }
@@ -1322,8 +1321,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                 observation_models::receiver,
                                 std::vector< Eigen::VectorXd >( ),
                                 nullptr,
-                                std::make_shared< observation_models::ObservationAncilliarySimulationSettings >(
-                                        ancillarySettings.at( i ) ) ) );
+                                std::make_shared< observation_models::ObservationAncillarySimulationSettings >( ancillarySettings.at( i ) ),
+                                std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),                 // weights
+                                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),  // residuals
+                                !allowDuplicateObservationsWithinSingleObservationSet ) );
             }
         }
     }
@@ -1339,7 +1340,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     ObservationScalarType floatingCompressionRatio =
             mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
 
-    double currentCompressionTime = originalDopplerData->getAncilliarySettings( )->getAncilliaryDoubleData( doppler_integration_time );
+    double currentCompressionTime = originalDopplerData->getAncillarySettings( )->getAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations =
             originalDopplerData->getObservationsReference( );
@@ -1347,17 +1349,20 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
     Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-            originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ );
+            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_ );
 
-    std::vector< TimeType > originalObservationTimesUtc = timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >(
-            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, originalObservationTimesTdb, stationPosition );
+    std::vector< TimeType > originalObservationTimesUtc =
+            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
+                                                                              basic_astrodynamics::TimeScales::utc_scale,
+                                                                              originalObservationTimesTdb,
+                                                                              stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
 
     for( unsigned int i = 0; i < originalObservations.size( ); i += compressionRatio )
     {
-        if( originalObservations.size( ) - i > compressionRatio )
+        if( originalObservations.size( ) - i >= compressionRatio )
         {
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( i );
             TimeType newTime = originalObservationTimesUtc.at( i );
@@ -1365,8 +1370,9 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             bool skipObservation = false;
             for( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
             {
-                if( ( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) - currentCompressionTime ) <
-                    10.0 * std::numeric_limits< double >::epsilon( ) * static_cast< double >( originalObservationTimesUtc.at( i + j ) ) )
+                if( std::fabs(
+                            static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) -
+                            currentCompressionTime ) < 0.01 )
                 {
                     newObservable += originalObservations.at( i + j );
                     newTime += originalObservationTimesUtc.at( i + j );
@@ -1387,7 +1393,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         }
     }
 
-    std::string stationName = originalDopplerData->getLinkEnds( ).at( receiver ).stationName_;
+    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_;
     if( simulation_setup::getCombinedApproximateGroundStationPositions( ).count( stationName ) == 0 )
     {
         throw std::runtime_error(
@@ -1401,14 +1407,19 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     {
         compressedEarthFixedPositions.push_back( stationPosition );
     }
-    std::vector< TimeType > compressedObservationTimesTdb = timeScaleConverter.getCurrentTimes< TimeType >(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, compressedObservationTimesUtc, compressedEarthFixedPositions );
+    std::vector< TimeType > compressedObservationTimesTdb =
+            timeScaleConverter.getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
+                                                            basic_astrodynamics::TimeScales::tdb_scale,
+                                                            compressedObservationTimesUtc,
+                                                            compressedEarthFixedPositions );
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySimulationSettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( *( originalDopplerData->getAncilliarySettings( ) ) );
-    double originalIntegrationTime = ancilliarySimulationSettings->getAncilliaryDoubleData( doppler_integration_time );
-    ancilliarySimulationSettings->setAncilliaryDoubleData( doppler_integration_time,
-                                                           originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySimulationSettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( *( originalDopplerData->getAncillarySettings( ) ) );
+    double originalIntegrationTime = ancillarySimulationSettings->getAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
+    ancillarySimulationSettings->setAncillaryDoubleData(
+            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time,
+            originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
             originalDopplerData->getObservableType( ),
             originalDopplerData->getLinkEnds( ),
@@ -1417,32 +1428,33 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             originalDopplerData->getReferenceLinkEnd( ),
             std::vector< Eigen::VectorXd >( ),
             originalDopplerData->getDependentVariableBookkeeping( ),
-            ancilliarySimulationSettings );
+            ancillarySimulationSettings );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10 )
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
 {
     // Split Doppler observation sets into arcs
-    double compressionRatioFloat = mathematical_constants::getFloatingInteger< double >( compressionRatio );
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
             splitObservationSets( originalDopplerData,
-                                  observationSetSplitter( time_interval_splitter, compressionRatioFloat, minNumberObservations ),
-                                  observationParser( dsn_n_way_averaged_doppler ) );
+                                  observationSetSplitter( time_interval_splitter, maxArcGap, minNumberObservations ),
+                                  observationParser( observation_models::ObservableType::dsn_n_way_averaged_doppler ) );
 
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > >
-            uncompressedObservationSets = compressedData->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
+            uncompressedObservationSets =
+                    compressedData->getObservationsSets( ).at( observation_models::ObservableType::dsn_n_way_averaged_doppler );
 
     std::map< LinkEnds, std::vector< unsigned int > > indicesSetsToRemove;
-    for( auto it : uncompressedObservationSets )
+    for( auto const& [ linkEnds, observationSets ] : uncompressedObservationSets )
     {
-        for( unsigned int index = 0; index < it.second.size( ); index++ )
+        for( unsigned int index = 0; index < observationSets.size( ); index++ )
         {
             std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
-                    compressDopplerData< ObservationScalarType, TimeType >( it.second.at( index ), compressionRatio );
+                    compressDopplerData< ObservationScalarType, TimeType >( observationSets.at( index ), compressionRatio );
 
             if( compressedDataSet->getObservationTimes( ).size( ) )
             {
@@ -1450,13 +1462,14 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             }
             else
             {
-                indicesSetsToRemove[ it.first ].push_back( index );
+                indicesSetsToRemove[ linkEnds ].push_back( index );
             }
         }
     }
 
     // Remove empty compressed sets if any
-    compressedData->removeSingleObservationSets( { { dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
+    compressedData->removeSingleObservationSets(
+            { { observation_models::ObservableType::dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
 
     return compressedData;
 }
@@ -1501,15 +1514,13 @@ template< typename TimeType = Time >
 inline void setTransmittingFrequenciesInGroundStations( std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
                                                         std::shared_ptr< simulation_setup::Body > bodyWithGroundStations )
 {
-    for( auto it = processedOdfFileContents->getRampInterpolators( ).begin( );
-         it != processedOdfFileContents->getRampInterpolators( ).end( );
-         it++ )
+    for( auto const& [ stationName, transmittingFrequencyCalculator ] : processedOdfFileContents->getRampInterpolators( ) )
     {
-        if( bodyWithGroundStations->getGroundStationMap( ).count( it->first ) == 0 )
+        if( bodyWithGroundStations->getGroundStationMap( ).count( stationName ) == 0 )
         {
-            throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
+            throw std::runtime_error( "Error when setting frequencies for station " + stationName + ", station not found." );
         }
-        bodyWithGroundStations->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+        bodyWithGroundStations->getGroundStation( stationName )->setTransmittingFrequencyCalculator( transmittingFrequencyCalculator );
     }
 }
 
@@ -1547,7 +1558,8 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
                                                 const std::string& targetName,
                                                 const bool verboseOutput = true,
                                                 const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                        simulation_setup::getApproximateDsnGroundStationPositions( ) )
+                                                        simulation_setup::getApproximateDsnGroundStationPositions( ),
+                                                const bool allowDuplicateObservationsWithinSingleObservationSet = true )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFileName : odfFileNames )
@@ -1561,7 +1573,11 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create observed observation collection
-    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >( processedOdfFileContents );
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
+            processedOdfFileContents,
+            std::vector< observation_models::ObservableType >( ),
+            std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
+            allowDuplicateObservationsWithinSingleObservationSet );
 }
 
 }  // namespace observation_models

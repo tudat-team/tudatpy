@@ -27,11 +27,19 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
@@ -247,8 +255,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         {
             for( int j = 0; j < currentMatrix.cols( ); j++ )
             {
-                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 3 ).norm( ) * 1.0E-10 );
-                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 3 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 1 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 1 ).norm( ) * 1.0E-10 );
             }
         }
     }

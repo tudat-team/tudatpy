@@ -62,8 +62,9 @@ enum AtmosphericCompositionSpecies { he_species, o_species, n2_species, o2_speci
 class AtmosphereModel
 {
 public:
-    AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false ):
-        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), requiresClimateModel_( false )
+
+    AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
+        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ), requiresClimateModel_( false )
     { }
 
     //! Default destructor.
@@ -184,6 +185,15 @@ public:
         useUtc_ = useUtc;
     }
 
+    /*!
+     * Setter for useRadius
+     * \param useRadius Boolean indicating whether radius is used for density computation instead of altitude
+     */
+    void setUseRadius( const bool useRadius )
+    {
+        useRadius_ = useRadius;
+    }
+
     bool getUseGeodeticLatitude( )
     {
         return useGeodeticLatitude_;
@@ -193,6 +203,7 @@ public:
     {
         return useUtc_;
     }
+
 
     void setRequiresClimateModel( )
     {
@@ -204,6 +215,11 @@ public:
         return requiresClimateModel_;
     }
 
+    bool getUseRadius( )
+    {
+        return useRadius_;
+    }
+
 protected:
     //! Model describing the wind velocity vector of the atmosphere
     std::shared_ptr< WindModel > windModel_;
@@ -213,6 +229,8 @@ protected:
     bool useUtc_;
 
     bool requiresClimateModel_;
+
+    bool useRadius_;
 
 private:
 };

@@ -12,10 +12,13 @@
 #ifndef TUDAT_HYBRID_METHOD_MODEL_H
 #define TUDAT_HYBRID_METHOD_MODEL_H
 
-#include "tudat/simulation/simulation.h"
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
+
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/simulation/environment_setup/thrustSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
 {

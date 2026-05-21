@@ -15,6 +15,17 @@
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
+
+#include "tudat/astro/relativity/metric.h"
+#include "tudat/astro/relativity/schwarzschildMetric.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
+#include <stdexcept>
+
 
 namespace tudat
 {
@@ -173,9 +184,12 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         if( climateModel == nullptr )
                         {
                             throw std::runtime_error(
-                                    "Error when making environment model update settings, could not find climate model of body " +
-                                    updateIterator->second.at( i ) );
+                                            "Error when making environment model update settings, could not find climate model of body " +
+                                            updateIterator->second.at( i ) );
                         }
+                        break;
+                    }
+                    case space_time_metric_update: {
                         break;
                     }
                 }
@@ -245,6 +259,8 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     //                }
                     break;
                 case custom_state:
+                    break;
+                case proper_time:
                     break;
                 default:
                     throw std::runtime_error( "Error when removing propagated states from environment updates, state type " +
@@ -326,6 +342,137 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     return environmentModelsToUpdate;
 }
 
+template< typename StateScalarType, typename TimeType >
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createProperTimeEquationEnvironmentUpdaterSettings(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > stateDerivativeModel,
+        const simulation_setup::SystemOfBodies& bodyMap )
+{
+    using namespace relativity;
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    environmentModelsToUpdate[ body_translational_state_update ].push_back( stateDerivativeModel->getReferencePointId( ).first );
+
+    switch( stateDerivativeModel->getRelativisticStateDerivativeType( ) )
+    {
+    case first_order_barycentric_to_bodycentric:
+    {
+        std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
+                std::dynamic_pointer_cast< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >( stateDerivativeModel );
+        for( unsigned int i = 0; i < firstOrderSettings->getExternalBodyList( ).size( ); i++ )
+        {
+            environmentModelsToUpdate[ body_translational_state_update ].push_back( firstOrderSettings->getExternalBodyList( ).at( i ) );
+        }
+
+        std::map< std::string, std::pair< int, int > > shOrders = firstOrderSettings->getSphericalHarmonicGravityExpansions( );
+        for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( );
+             shIterator != shOrders.end( ); shIterator++ )
+        {
+            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
+        }
+
+        break;
+    }
+    case second_order_barycentric_to_bodycentric:
+    {
+        std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > > secondOrderSettings =
+                std::dynamic_pointer_cast< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >( stateDerivativeModel );
+        for( unsigned int i = 0; i < secondOrderSettings->getExternalBodyList( ).size( ); i++ )
+        {
+            environmentModelsToUpdate[ body_translational_state_update ].push_back( secondOrderSettings->getExternalBodyList( ).at( i ) );
+        }
+
+        std::map< std::string, std::pair< int, int > > shOrders = secondOrderSettings->getSphericalHarmonicGravityExpansions( );
+        for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( ); shIterator != shOrders.end( );
+             shIterator++ )
+        {
+            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
+        }
+
+        break;
+    }
+    case first_order_bodycentric_to_topocentric:
+    {
+        std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
+                std::dynamic_pointer_cast< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >( stateDerivativeModel );
+        for( unsigned int i = 0; i < firstOrderSettings->getTopocentricExternalBodies( ).size( ); i++ )
+        {
+            environmentModelsToUpdate[ body_translational_state_update ].push_back( firstOrderSettings->getTopocentricExternalBodies( ).at( i ) );
+        }
+
+        if( firstOrderSettings->getMaximumSphericalHarmonicDegree( ) > 0 )
+        {
+            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( firstOrderSettings->getReferencePointId( ).first );
+        }
+
+        break;
+    }
+    case direct_from_metric:
+    {
+        if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
+        {
+            std::shared_ptr< Metric > baseMetric = bodyMap.getSpaceTimeProperties( )->getBaseMetric( );
+            if( baseMetric == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when making proper-time updater direct from metric: baseMetric is nullptr." );
+            }
+            evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ] = baseMetric->Clone( );
+        }
+        std::shared_ptr< Metric > metricToUse = evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ];
+
+        std::vector< std::string > bodyList;
+        std::vector< std::string > shList;
+
+        if( std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse ) != nullptr )
+        {
+            std::shared_ptr< SolarSystemMetric > solarSystemMetric =
+                    std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse );
+            bodyList = solarSystemMetric->getBodyList( );
+            std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > shFunctionList =
+                    solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
+            for( std::map< int, std::shared_ptr< SphericalHarmonicWrapper > >::const_iterator shIterator = shFunctionList.begin( );
+                 shIterator != shFunctionList.end( ); shIterator++ )
+            {
+                if( shIterator->first < static_cast< int >( bodyList.size( ) ) )
+                {
+                    shList.push_back( bodyList.at( shIterator->first ) );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making proper time updater direct from metric, sh index is too high" );
+                }
+            }
+        }
+        else if( std::dynamic_pointer_cast< HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
+        {
+
+        }
+        else
+        {
+            throw std::runtime_error( "Error when making proper time updater direct from metric, did not recognize metric type" );
+        }
+
+        for( unsigned int i = 0; i < bodyList.size( ); i++ )
+        {
+            environmentModelsToUpdate[ body_translational_state_update ].push_back( bodyList.at( i ) );
+        }
+
+        for( unsigned int i = 0; i < shList.size( ); i++ )
+        {
+            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shList.at( i ) );
+        }
+
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when making proper time updater, did not recognize equation type: " +
+                                  std::to_string( static_cast< int >( stateDerivativeModel->getRelativisticStateDerivativeType( ) ) ) );
+    }
+    checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
+
+    return environmentModelsToUpdate;
+}
+
 //! Get list of required environment model update settings from translational acceleration models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
@@ -401,6 +548,18 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         if( bodies.at( accelerationModelIterator->first )->getAtmosphereModel( )->getRequiresClimateModel( ) )
                         {
                             singleAccelerationUpdateNeeds[ climate_model_update ].push_back( accelerationModelIterator->first );
+                        }
+
+                        // Check if atmosphere model is a ComaModel (requires Sun state for solar longitude calculation)
+                        auto atmosphericFlightConditions = aerodynamicAcceleration->getFlightConditions();
+                        if( atmosphericFlightConditions != nullptr )
+                        {
+                            auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >(
+                                    atmosphericFlightConditions->getAtmosphereModel() );
+                            if( comaModel != nullptr )
+                            {
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
+                            }
                         }
                         break;
                     }
@@ -633,6 +792,67 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( primaryBody );
                             }
+                        }
+                        break;
+                    }
+                    case relativistic_acceleration_from_metric: {
+                        std::shared_ptr< relativity::DirectRelativisticAcceleration > directRelativisticAcceleration =
+                                std::dynamic_pointer_cast< relativity::DirectRelativisticAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( directRelativisticAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "acceleration object is incompatible." );
+                        }
+
+                        std::shared_ptr< relativity::Metric > metricToUse = directRelativisticAcceleration->getSpaceTimeMetric( );
+                        if( metricToUse == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "metric pointer is null." );
+                        }
+
+                        if( std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metricToUse ) != nullptr )
+                        {
+                            std::shared_ptr< relativity::SolarSystemMetric > solarSystemMetric =
+                                    std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metricToUse );
+                            std::vector< std::string > bodyList = solarSystemMetric->getBodyList( );
+                            for( const auto& bodyName: bodyList )
+                            {
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
+                            }
+
+                            std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > shFunctionList =
+                                    solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
+                            for( auto shIterator = shFunctionList.begin( ); shIterator != shFunctionList.end( ); ++shIterator )
+                            {
+                                if( shIterator->first < static_cast< int >( bodyList.size( ) ) )
+                                {
+                                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                            bodyList.at( shIterator->first ) );
+                                }
+                                else
+                                {
+                                    throw std::runtime_error(
+                                            "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                            "spherical-harmonic index exceeds body list size." );
+                                }
+                            }
+                        }
+                        else if( std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
+                        {
+                            std::shared_ptr< relativity::HarmonicSchwarzschildMetric > schwarzschildMetric =
+                                    std::dynamic_pointer_cast< relativity::HarmonicSchwarzschildMetric >( metricToUse );
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    schwarzschildMetric->getCentralBodyName( ) );
+                        }
+                        else
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting environment updates for relativistic_acceleration_from_metric: "
+                                    "metric type is not recognized." );
                         }
                         break;
                     }
@@ -885,6 +1105,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case inertial_to_body_fixed_rotation_matrix_variable:
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -940,6 +1163,12 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             break;
         case body_fixed_groundspeed_based_velocity_variable:
+            variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            break;
+        case local_wind_velocity_dependent_variable:
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
@@ -1095,7 +1324,15 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case solar_longitude:
-            variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( "Sun" );
+            break;
+        case number_density:
+            variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             break;
         case vehicle_panel_inertial_surface_normals:
             variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
@@ -1124,6 +1361,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case full_body_paneled_geometry:
             break;
         case aerodynamic_coefficients:
+            break;
+        case proper_time_rate_kinematic_term:
+        case proper_time_rate_potential_term:
             break;
         default:
             throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
@@ -1275,6 +1515,24 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     return environmentModelsToUpdate;
 }
 
+// Explicit instantiation
+template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
+createProperTimeEquationEnvironmentUpdaterSettings< double, double >(
+    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, double > >,
+    const simulation_setup::SystemOfBodies& );
+template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
+createProperTimeEquationEnvironmentUpdaterSettings< double, tudat::Time >(
+    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, tudat::Time > >,
+    const simulation_setup::SystemOfBodies& );
+template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
+createProperTimeEquationEnvironmentUpdaterSettings< long double, double >(
+    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, double > >,
+    const simulation_setup::SystemOfBodies& );
+template std::map< tudat::propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createProperTimeEquationEnvironmentUpdaterSettings< long double, tudat::Time >(
+    const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< long double, tudat::Time > >,
+    const tudat::simulation_setup::SystemOfBodies& );
+    
 }  // namespace propagators
 
 }  // namespace tudat

@@ -1,4 +1,6 @@
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 
 #include <pybind11/pybind11.h>
 #include <tudat/config.hpp>

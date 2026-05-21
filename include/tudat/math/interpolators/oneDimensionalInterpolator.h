@@ -39,7 +39,8 @@ enum InterpolatorTypes {
     lagrange_interpolator = 3,
     hermite_spline_interpolator = 4,
     piecewise_constant_interpolator = 5,
-    discrete_jump_linear_interpolator = 6
+    discrete_jump_linear_interpolator = 6,
+    chebyshev_interpolator = 7
 
 };
 
@@ -69,7 +70,7 @@ public:
                                         std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
                                                         IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    {}
+    { }
 
     //! Constructor.
     /*!throw_exception_at_boundary
@@ -79,15 +80,16 @@ public:
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
      */
-    OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling, const DependentVariableType& defaultExtrapolationValue ):
+    OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling,
+                                const DependentVariableType& defaultExtrapolationValue ):
         OneDimensionalInterpolator( boundaryHandling, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    {}
+    { }
 
     //! Destructor.
     /*!
      * Destructor.
      */
-    virtual ~OneDimensionalInterpolator( ) {}
+    virtual ~OneDimensionalInterpolator( ) { }
 
     //! Function to perform interpolation.
     /*!
@@ -447,6 +449,7 @@ protected:
      * Default value to be used for extrapolation.
      */
     std::pair< DependentVariableType, DependentVariableType > defaultExtrapolationValue_;
+
 };
 
 }  // namespace interpolators

@@ -12,6 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <thread>
 
 #include <limits>
@@ -19,10 +21,17 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include <tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h>
-#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 namespace tudat
 {
@@ -161,7 +170,7 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 
     std::vector< double > observationTimes;
     double dataPointInterval = 1.;
-    for( int k = 0; k < integrationArcStartTimes.size( ); k++ )
+    for( unsigned int k = 0; k < integrationArcStartTimes.size( ); k++ )
     {
         double currentTime = integrationArcStartTimes.at( k ) + 5.0;
         while( currentTime < integrationArcEndTimes.at( k ) - 5.0 )

@@ -17,9 +17,14 @@ set(environment_HEADERS
         createAerodynamicControlSurfaces.h
         createRotationModel.h
         defaultBodies.h
+        defaultGroundStationSettings.h
         createBodies.h
+        createBodiesFactory.h
+        createBodiesSettings.h
         createGroundStations.h
         createBodyDeformationModel.h
+        baseStateInterface.h
+        rigidBodyProperties.h
         body.h
         createRadiationPressureInterface.h
         createGravityFieldVariations.h
@@ -33,6 +38,8 @@ set(environment_HEADERS
         createThrustModelGuidance.h
         thrustSettings.h
         createClimateModel.h
+        createRelativisticTimeConverter.h
+        createMetric.h
         )
 
 # Add header files.
@@ -40,6 +47,7 @@ set(environment_SOURCES
         createRadiationPressureInterface.cpp
         createEphemeris.cpp
         createRotationModel.cpp
+        createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
         createBodies.cpp
         createGravityField.cpp
@@ -50,6 +58,9 @@ set(environment_SOURCES
         createAerodynamicCoefficientInterface.cpp
         createAerodynamicControlSurfaces.cpp
         defaultBodies.cpp
+        defaultGroundStationSettings.cpp
+        baseStateInterface.cpp
+        rigidBodyProperties.cpp
         body.cpp
         createAtmosphereModel.cpp
         createSystemModel.cpp
@@ -60,6 +71,8 @@ set(environment_SOURCES
         createOccultationModel.cpp
         createSurfacePropertyDistribution.cpp
         createClimateModel.cpp
+        createRelativisticTimeConverter.cpp
+        createMetric.cpp
         )
 
 # Add library.

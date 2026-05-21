@@ -12,6 +12,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <vector>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -20,6 +21,7 @@
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat
 {
@@ -35,10 +37,20 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
     using namespace tudat;
     using namespace tudat::ephemerides;
 
+    spice_interface::loadStandardSpiceKernels( );
     // Dummy two line element set from Vallado (2013), page 234
     std::string elements =
             "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753\n"
             "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667";
+
+    SpiceChar lines[ 2 ][ 70 ];
+    std::strcpy( lines[ 0 ], "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753" );
+
+    std::strcpy( lines[ 1 ], "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667" );
+
+    SpiceDouble epoch;
+    SpiceDouble elems[ 10 ];
+    getelm_c( 1960, 70, lines, &epoch, elems );
 
     // Create TLE object from element set
     std::shared_ptr< Tle > tlePtr = std::make_shared< Tle >( elements );
@@ -47,9 +59,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
     std::shared_ptr< TleEphemeris > tleEphemeris = std::make_shared< TleEphemeris >( "Earth", "J2000", tlePtr, false );
 
     // Propagate TLE for 3 Julian days to be able to compare state to the one given in Vallado
-    double utcEpoch = 3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch( );
-    double tdbEpoch = earth_orientation::createDefaultTimeConverter( )->getCurrentTime(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcEpoch );
+    double tdbEpoch = 3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch( );
 
     Eigen::Vector6d propagatedState = tleEphemeris->getCartesianState( tdbEpoch );
     Eigen::Vector3d propagatedPosition = propagatedState.head( 3 );
@@ -100,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisGehly )
     BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 3, 3 ).norm( ), 0.05 );
 }
 
-BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroke )
+BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroek )
 {
     using namespace tudat;
     using namespace tudat::ephemerides;
@@ -168,6 +178,66 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroke )
         // Check if difference within tolerances
         BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 0, 3 ).norm( ), 1.0 );
         BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 3, 3 ).norm( ), 0.2 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testTwoLineElementsParsing )
+{
+    using namespace tudat;
+    using namespace tudat::ephemerides;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    struct TleFixture {
+        std::string line1;
+        std::string line2;
+    };
+    // Two line element set from https://naif.jpl.nasa.gov/pub/naif/misc/toolkit_docs_N0067/C/cspice/getelm_c.html
+    const std::vector< TleFixture > tleSets = { { "1 43908U 18111AJ  20146.60805006  .00000806  00000-0  34965-4 0  9999",
+                                                  "2 43908  97.2676  47.2136 0020001 220.6050 139.3698 15.24999521 78544" },
+                                                { "1 18123U 87 53  A 87324.61041692 -.00000023  00000-0 -75103-5 0 00675",
+                                                  "2 18123  98.8296 152.0074 0014950 168.7820 191.3688 14.12912554 21686" } };
+
+    // Tolerances in the same order as the elements returned by getelm_c
+    const std::vector< double > tleTolerances = { 1e-10, 1e-6, 1e-7, 1e-6, 1e-6, 1e-9, 1e-6, 1e-6, 1e-10, 1e-13 };
+
+    for( const auto& tleSet : tleSets )
+    {
+        const std::string combined = tleSet.line1 + "\n" + tleSet.line2;
+
+        SpiceChar lines[ 2 ][ 70 ] = { { 0 }, { 0 } };
+        std::strcpy( lines[ 0 ], tleSet.line1.c_str( ) );
+        std::strcpy( lines[ 1 ], tleSet.line2.c_str( ) );
+        SpiceDouble epoch = 0.0;
+        SpiceDouble elems[ 10 ] = { 0.0 };
+        getelm_c( 1957, 70, lines, &epoch, elems );
+
+        auto tleFromCombined = std::make_shared< Tle >( combined );
+
+        // Tle element implicitly uses the same units as spice
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getMeanMotionFirstDerivative( ), elems[ 0 ], tleTolerances[ 0 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getMeanMotionSecondDerivative( ), elems[ 1 ], tleTolerances[ 1 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getBStar( ), elems[ 2 ], tleTolerances[ 2 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getInclination( ), elems[ 3 ], tleTolerances[ 3 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getRightAscension( ), elems[ 4 ], tleTolerances[ 4 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getEccentricity( ), elems[ 5 ], tleTolerances[ 5 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getArgOfPerigee( ), elems[ 6 ], tleTolerances[ 6 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getMeanAnomaly( ), elems[ 7 ], tleTolerances[ 7 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getMeanMotion( ), elems[ 8 ], tleTolerances[ 8 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromCombined->getEpoch( ), elems[ 9 ], tleTolerances[ 9 ] );
+
+        auto tleFromSeparateLines = std::make_shared< Tle >( tleSet.line1, tleSet.line2 );
+
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getMeanMotionFirstDerivative( ), elems[ 0 ], tleTolerances[ 0 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getMeanMotionSecondDerivative( ), elems[ 1 ], tleTolerances[ 1 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getBStar( ), elems[ 2 ], tleTolerances[ 2 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getInclination( ), elems[ 3 ], tleTolerances[ 3 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getRightAscension( ), elems[ 4 ], tleTolerances[ 4 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getEccentricity( ), elems[ 5 ], tleTolerances[ 5 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getArgOfPerigee( ), elems[ 6 ], tleTolerances[ 6 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getMeanAnomaly( ), elems[ 7 ], tleTolerances[ 7 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getMeanMotion( ), elems[ 8 ], tleTolerances[ 8 ] );
+        BOOST_CHECK_CLOSE_FRACTION( tleFromSeparateLines->getEpoch( ), elems[ 9 ], tleTolerances[ 9 ] );
     }
 }
 

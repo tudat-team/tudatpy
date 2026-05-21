@@ -11,7 +11,7 @@
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/math/quadrature.h"
+#include "tudat/math/quadrature/gaussianQuadrature.h"
 
 namespace tudat
 {
@@ -66,7 +66,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d legTransmitterState, legReceiverState;

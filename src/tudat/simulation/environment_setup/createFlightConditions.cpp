@@ -12,11 +12,11 @@
 #include <string>
 #include <iostream>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/basics/deprecationWarnings.h"
 
@@ -94,19 +94,24 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator = createAerodynamicAngleCalculator(
             bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration );
 
-    // Add wind model if present
-    if( centralBody->getAtmosphereModel( )->getWindModel( ) != nullptr )
+    // Add wind model (always exists)
+    if( centralBody->getShapeModel( ) == nullptr )
     {
-        if( centralBody->getShapeModel( ) == nullptr )
-        {
-            std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration
-                      << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
-        }
-        else
-        {
-            aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
-        }
+        std::cerr << "Warning, body " << nameOfBodyExertingAcceleration
+                  << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
     }
+    else
+    {
+        aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
+    }
+
+    // Set rotation matrix derivative function for proper handling of non-rotating atmosphere
+    aerodynamicAngleCalculator->setRotationMatrixDerivativeFunction(
+            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody ) );
+
+    // Set atmospheric rotation flag from wind model
+    aerodynamicAngleCalculator->setIncludeAtmosphericRotation(
+            centralBody->getAtmosphereModel( )->getWindModel( )->getIncludeCorotation( ) );
 
     // Create flight conditions.
     std::function< double( const std::string& ) > controlSurfaceDeflectionFunction;

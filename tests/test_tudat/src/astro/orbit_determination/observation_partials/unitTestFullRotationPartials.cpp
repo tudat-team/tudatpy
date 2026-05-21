@@ -14,8 +14,6 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"

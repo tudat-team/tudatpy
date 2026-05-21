@@ -18,8 +18,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "tudat/simulation/simulation.h"
-
+#include "tudat/astro/ground_stations/groundStationState.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
@@ -58,15 +58,15 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
     double integrationTime;
     std::vector< FrequencyBands > frequencyBands;
     try
     {
-        integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+        integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -141,7 +141,13 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
             const bool subtractDopplerSignature = true ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler, linkEnds, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                dsn_n_way_averaged_doppler,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        arcStartObservationModel->getFullLinkLightTimeCalculator( ),
+                        arcEndObservationModel->getFullLinkLightTimeCalculator( ) } ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature )
     {
@@ -182,7 +188,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -207,11 +213,11 @@ public:
         FrequencyBands referenceUplinkBand;
         try
         {
-            integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-            referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
+            referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
             referenceUplinkBand =
-                    convertDoubleToFrequencyBand( ancillarySettings->getAncilliaryDoubleData( reception_reference_frequency_band ) );
+                    convertDoubleToFrequencyBand( ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -254,9 +260,9 @@ public:
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         // Set frequencies for ionosphere/corona
-        if( arcStartObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        if( arcStartObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( arcStartObservationModel_->getMultiLegLightTimeCalculator( ),
+            setTransmissionReceptionFrequencies( arcStartObservationModel_->getFullLinkLightTimeCalculator( ),
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  receptionTdbStartTime,
@@ -272,9 +278,9 @@ public:
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Set frequencies for ionosphere/corona
-        if( arcEndObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+        if( arcEndObservationModel_->getFullLinkLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( arcEndObservationModel_->getMultiLegLightTimeCalculator( ),
+            setTransmissionReceptionFrequencies( arcEndObservationModel_->getFullLinkLightTimeCalculator( ),
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  receptionTdbEndTime,
@@ -342,6 +348,20 @@ public:
     bool getSubtractDopplerSignature( )
     {
         return subtractDopplerSignature_;
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap =
+                arcStartObservationModel_->getLegLightTimeCalculators( );
+        const std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > endLegMap =
+                arcEndObservationModel_->getLegLightTimeCalculators( );
+        for( const auto& endLegEntry : endLegMap )
+        {
+            legMap[ endLegEntry.first ].insert(
+                    legMap[ endLegEntry.first ].end( ), endLegEntry.second.begin( ), endLegEntry.second.end( ) );
+        }
+        return legMap;
     }
 
 private:

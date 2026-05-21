@@ -4,9 +4,13 @@ cmake_minimum_required(VERSION 3.20)
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
-# Remove caches if present [Trick to recompile changes for BUILD-TREE]
-# From tudat cmake, might not be needed.
-if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
+# Optional cache reset toggle (kept OFF by default for incremental configure/build stability).
+option(
+    TUDAT_FORCE_CMAKE_CACHE_RESET
+    "Remove CMakeCache.txt from CMAKE_BINARY_DIR during configure."
+    OFF
+)
+if (TUDAT_FORCE_CMAKE_CACHE_RESET AND EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
 
@@ -14,6 +18,25 @@ endif ()
 # Policies
 cmake_policy(SET CMP0069 NEW)  # Missing documentation
 cmake_policy(SET CMP0048 NEW)  # Missing documentation
+# Temporary compatibility setting: keep the legacy Python discovery behavior while
+# this project still relies on older find_package usage elsewhere in the build.
+# Migration path: replace legacy Python discovery with
+# `find_package(Python COMPONENTS Interpreter Development)` and then switch
+# CMP0148 to NEW.
+if(POLICY CMP0148)
+    cmake_policy(SET CMP0148 OLD)
+endif()
+# Temporary compatibility setting: keep the legacy Boost discovery behavior while
+# this project still relies on older Boost / Boost.Python package discovery
+# elsewhere in the build.
+# Migration path: update to the modern Boost package/config-based discovery
+# approach and then switch CMP0167 to NEW.
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
+if(POLICY CMP0175)
+    cmake_policy(SET CMP0175 NEW)
+endif()
 
 # Get version from file
 file(STRINGS "version" VERSION_LABEL)
@@ -26,6 +49,16 @@ string(
 # Project declaration.
 project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# Enable ccache if available (dramatically speeds up rebuilds)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache: ${CCACHE_PROGRAM} — enabling compiler caching")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message(STATUS "ccache not found — install it for faster rebuilds")
+endif()
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -41,7 +74,9 @@ list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat/yolo")
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudatpy")
 
 # Additional statements from original cmake files (might not be needed)
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+if (NOT MSVC)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+endif ()
 enable_testing()
 if (MINGW)
     # https://github.com/tudat-team/tudatpy-feedstock/issues/3
@@ -56,8 +91,6 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
 
 # +============================================================================
@@ -70,9 +103,29 @@ option(
     ON
 )
 option(
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    "Downloads and builds boost"
+    TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
+    ON
+)
+option(
+    TUDAT_BUILD_WITH_PCH
+    "Enable precompiled headers for supported targets."
+    ON
+)
+option(
+    TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS
+    "Enable PYBIND11_DETAILED_ERROR_MESSAGES for TudatPy bindings."
     OFF
+)
+option(
+    TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME
+    "Force optimization independently of CMAKE_BUILD_TYPE: ON uses -O1 (/O1); OFF uses -O3 (/O2) with -Og (/Od) for Debug."
+    OFF
+)
+option(
+    TUDAT_BUILD_WITH_TEST_PCH
+    "Enable precompiled headers for selected unit tests."
+    ON
 )
 option(
     TUDAT_BUILD_WITH_PROPAGATION_TESTS
@@ -169,8 +222,6 @@ if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
     endif()
 endif()
 
-include(show_build_configuration)
-
 # +============================================================================
 # TUDAT DEFINITIONS (Based on user configuration)
 # +============================================================================
@@ -210,6 +261,11 @@ if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
+if (NOT TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS=1)
+endif ()
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
@@ -237,31 +293,6 @@ set(
 #     # Add the unit test framework, if needed.
 #     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
 # endif ()
-
-# Download boost if option is used.
-if (
-    TUDAT_DOWNLOAD_AND_BUILD_BOOST
-    OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-)
-    set(TUDAT_DOWNLOAD_AND_BUILD_BOOST ON)
-    # Set the required boost components (for tudat)
-    set(BoostComponents ${_TUDAT_REQUIRED_BOOST_LIBS})
-    # Pick a boost version
-    if (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
-        set(BoostVersion ${TUDAT_BOOST_VERSION})
-        set(BoostSHA1 ${TUDAT_BOOST_SHA1})
-    else ()
-        set(BoostVersion 1.67.0)
-        set(BoostSHA1 694ae3f4f899d1a80eb7a3b31b33be73c423c1ae)
-    endif ()
-    message(STATUS "Downloading Boost Version ${BoostVersion}")
-    include(cmake_modules/add_boost.cmake)
-    message(STATUS "Downloading Boost Version ${BoostVersion} - done")
-    #    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
-    #    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-    #    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-endif ()
 
 # Set cmake build-type.
 # If not supplied by the user (either directly as an argument of through
@@ -327,6 +358,7 @@ else ()
     message(STATUS "_GLIBCXX_USE_CXX11_ABI was not found.")
 endif ()
 
+include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 if (UNIX OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\"")
 endif ()
@@ -338,9 +370,23 @@ include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
-include_directories(SYSTEM "${EIGEN3_INCLUDE_DIR}")
+set(_TUDAT_EIGEN_INCLUDE_DIRS "")
+if(TARGET Eigen3::Eigen)
+    get_target_property(_TUDAT_EIGEN_INCLUDE_DIRS Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+endif()
+if(NOT _TUDAT_EIGEN_INCLUDE_DIRS AND EIGEN3_INCLUDE_DIRS)
+    set(_TUDAT_EIGEN_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIRS}")
+endif()
+if(NOT _TUDAT_EIGEN_INCLUDE_DIRS AND EIGEN3_INCLUDE_DIR)
+    set(_TUDAT_EIGEN_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
+endif()
+if(NOT _TUDAT_EIGEN_INCLUDE_DIRS)
+    message(FATAL_ERROR "Eigen3 was found, but no Eigen include directory was detected.")
+endif()
+include_directories(AFTER SYSTEM ${_TUDAT_EIGEN_INCLUDE_DIRS})
 if (APPLE OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${EIGEN3_INCLUDE_DIR}\"")
+    list(GET _TUDAT_EIGEN_INCLUDE_DIRS 0 _TUDAT_EIGEN_PRIMARY_INCLUDE_DIR)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${_TUDAT_EIGEN_PRIMARY_INCLUDE_DIR}\"")
 endif ()
 
 # PAGMO dependency
@@ -371,7 +417,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     if(NOT APPLE)
         find_package(FFTW3)
         message(STATUS "FFTW " ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM "${FFTW3_INCLUDE_DIRS}")
+        include_directories(AFTER SYSTEM "${FFTW3_INCLUDE_DIRS}")
         if(WIN32)
             set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
         else()
@@ -381,7 +427,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     else( )
         find_package(FFTW3)
         message(STATUS ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM "${FFTW3_INCLUDE_DIRS}")
+        include_directories(AFTER SYSTEM "${FFTW3_INCLUDE_DIRS}")
         set(
             CMAKE_CXX_FLAGS
             "${CMAKE_CXX_FLAGS} -I\"${FFTW3_INCLUDE_DIR}\""
@@ -460,14 +506,29 @@ configure_file(
 
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-# Add Tudat subdirectories
-add_subdirectory(src/tudat/interface)
+# +============================================================================
+# Unity build for C++ libraries (reduces header re-parsing across TUs).
+# Respect user/cache values from -DCMAKE_UNITY_BUILD=... and only set defaults
+# when these variables are not provided.
+# +============================================================================
+if (NOT DEFINED CMAKE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD OFF)
+endif ()
+if (NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+endif ()
+
+include(show_build_configuration)
+
+# Add Tudat subdirectories (libraries — built with unity)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
+add_subdirectory(src/tudat/interface)
 add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
+
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()

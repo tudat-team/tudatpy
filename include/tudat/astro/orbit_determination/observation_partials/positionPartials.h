@@ -362,7 +362,7 @@ private:
 //! Derived class for scaling three-dimensional velocity partial to velocity observable partial
 /*!
  *  Derived class for scaling three-dimensional velocity partial to velocity observable partial. Although the implementation
- *  is trivial for non-relativistic reference frames, it is included in teh architecture pending future implementation
+ *  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
  *  of more rigorous reference frames.
  */
 class VelocityObservationScaling : public DirectPositionPartialScaling< 3 >

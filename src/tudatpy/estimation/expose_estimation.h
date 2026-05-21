@@ -11,20 +11,7 @@
 #ifndef TUDATPY_EXPOSE_ESTIMATION_H
 #define TUDATPY_EXPOSE_ESTIMATION_H
 
-#include <pybind11/chrono.h>
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "observable_models/expose_observable_models.h"
-#include "observable_models_setup/expose_observable_models_setup.h"
-#include "observations/expose_observations.h"
-#include "observations_setup/expose_observations_setup.h"
-#include "estimation_analysis/expose_estimation_analysis.h"
-#include "estimation_analysis/expose_estimation_analysis_estimator.h"
-#include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
 
 namespace py = pybind11;
 

@@ -140,13 +140,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             }
             else
             {
-                // Check which parameter is requested and create position partial if direct dependency between position and
-                // parameter exists.
-                switch( parameterToEstimate->getParameterName( ).first )
-                {
-                    default:
-                        break;
-                }
+                // No direct dependency exists for this parameter type.
             }
         }
     }
@@ -221,8 +215,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             }
                             if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
                             {
-                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
-                                                    "not found when making ground station position position partial" );
+                                throw std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
+                                                          "not found when making ground station position position partial" );
                             }
 
                             // Create partial object.

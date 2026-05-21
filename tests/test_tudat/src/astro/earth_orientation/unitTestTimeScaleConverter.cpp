@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
 BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 {
     std::vector< basic_astrodynamics::DateTime > testDateTimes = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
-                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 0, 60.0 ),
+                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 1, 0.0 ),
                                                                    basic_astrodynamics::DateTime( 1961, 12, 31, 23, 0, 0.0 ) };
 
     std::vector< double > referenceUTDifference = { -0.0454859, 0.0326338, 0.0 };

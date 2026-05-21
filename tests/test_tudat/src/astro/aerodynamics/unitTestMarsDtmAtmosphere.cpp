@@ -24,13 +24,14 @@
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 using namespace tudat::aerodynamics;
 
@@ -58,11 +59,16 @@ BOOST_AUTO_TEST_CASE(testMarsDtmAtmosphere)
     double tolerance = 1.0E-15;
     std::shared_ptr<AtmosphereSettings> marsDtmAtmosphereSettings;
     marsDtmAtmosphereSettings = std::make_shared<MarsDtmAtmosphereSettings>();
+
+    // Create a minimal SystemOfBodies for the atmosphere model
+    SystemOfBodies bodies;
+    bodies.createEmptyBody("Mars");
+
     std::shared_ptr<aerodynamics::AtmosphereModel> marsAtmosphereModel = createAtmosphereModel(
-            marsDtmAtmosphereSettings, "Mars");
+            marsDtmAtmosphereSettings, "Mars", bodies);
     std::shared_ptr<MarsDtmAtmosphereModel> atmosphereModel =
             std::dynamic_pointer_cast<MarsDtmAtmosphereModel>(
-                    createAtmosphereModel(marsDtmAtmosphereSettings, "Mars"));
+                    createAtmosphereModel(marsDtmAtmosphereSettings, "Mars", bodies));
     int alt_km = 400E3;
     int time = 86400;
     double latitude = unit_conversions::convertDegreesToRadians(15.0);

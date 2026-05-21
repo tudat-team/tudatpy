@@ -16,9 +16,6 @@
 
 #include <functional>
 #include <memory>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #include <Eigen/Core>
 
@@ -26,6 +23,7 @@
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/astro/propagators/variationalEquations.h"
 
@@ -504,6 +502,8 @@ public:
                 case body_mass_state:
                     break;
                 case custom_state:
+                    break;
+                case proper_time:
                     break;
                 default:
                     throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
@@ -1067,7 +1067,7 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
     return modelForBody;
 }
 
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 /*!
  * Function to retrieve specific acceleration partial object from list of state derivative partials

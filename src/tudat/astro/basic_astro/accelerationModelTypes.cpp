@@ -11,6 +11,28 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
+#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
+#include "tudat/astro/basic_astro/customAccelerationModel.h"
+#include "tudat/astro/basic_astro/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
+#include "tudat/astro/gravitation/centralGravityModel.h"
+#include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
+#include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityModel.h"
+#include "tudat/astro/gravitation/ringGravityModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
+#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
+#include "tudat/astro/propulsion/massRateFromThrust.h"
+#include "tudat/astro/propulsion/thrustAccelerationModel.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
+
+#include <stdexcept>
+
 namespace tudat
 {
 
@@ -85,7 +107,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case rtg_acceleration:
             accelerationName = "rtg anisotropic radiation acceleration";
-        break;
+            break;
+        case relativistic_acceleration_from_metric:
+            accelerationName = "direct relativistic acceleration from metric";
+            break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
@@ -165,6 +190,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = relativistic_correction_acceleration;
     }
+    else if( std::dynamic_pointer_cast< relativity::DirectRelativisticAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = relativistic_acceleration_from_metric;
+    }
     else if( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = empirical_acceleration;
@@ -236,6 +265,7 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case einstein_infeld_hoffmann_acceleration:
         case yarkovsky_acceleration:
         case rtg_acceleration:
+        case relativistic_acceleration_from_metric:
             return false;
         case aerodynamic:
         case cannon_ball_radiation_pressure:
@@ -270,11 +300,11 @@ AvailableMassRateModels getMassRateModelType( const std::shared_ptr< MassRateMod
 }
 
 //! Function to get all acceleration models of a given type from a list of models
-std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
-        const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
+std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > getAccelerationModelsOfType(
+        const std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > >& fullList,
         const AvailableAcceleration modelType )
 {
-    std::vector< std::shared_ptr< AccelerationModel3d > > accelerationList;
+    std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > accelerationList;
     for( unsigned int i = 0; i < fullList.size( ); i++ )
     {
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )

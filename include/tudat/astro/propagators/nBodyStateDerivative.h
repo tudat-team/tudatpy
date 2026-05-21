@@ -21,6 +21,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/propagators/centralBodyData.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 

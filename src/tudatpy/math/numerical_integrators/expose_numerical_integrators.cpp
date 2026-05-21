@@ -7,11 +7,14 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_numerical_integrators.h"
 
 #include <pybind11/pybind11.h>
-#include <tudat/math/integrators.h>
+
+#include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"
 
 namespace tni = tudat::numerical_integrators;
 namespace py = pybind11;

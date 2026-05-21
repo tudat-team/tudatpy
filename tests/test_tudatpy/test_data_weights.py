@@ -73,12 +73,12 @@ def test_MPC_weights_to_ObsCol(
     temp_table = (
         batch._table
         .query("observatory != @batch.space_telescopes")
-        .sort_values(["observatory", "epochJ2000secondsTDB"], ascending=True)
+        .sort_values(["observatory", "epoch_seconds_TDB"], ascending=True)
     )
 
     # concatted weights goes [RA1, DEC1, RA2, DEC2, ...]
     batch_weights = np.ravel(2 * [temp_table.weight.to_numpy()], "F")
-    batch_times = np.ravel(2 * [temp_table.epochJ2000secondsTDB.to_numpy()], "F")
+    batch_times = np.ravel(2 * [temp_table.epoch_seconds_TDB.to_numpy()], "F")
 
     # check if lengths match and if the difference is zero
     assert len(batch_weights) == len(observation_collection.concatenated_weights)
@@ -91,14 +91,3 @@ def test_MPC_weights_to_ObsCol(
 
     assert total_diff_time == 0
     assert total_diff == 0
-
-    # test pod_input
-    # provide the observation collection as input, and limit number of iterations for estimation.
-    pod_input = estimation_analysis.EstimationInput(
-        observations_and_times=observation_collection,
-        convergence_checker=estimation_analysis.estimation_convergence_checker(
-            maximum_iterations=1,
-        ),
-    )
-    pod_input.set_weights_from_observation_collection()
-

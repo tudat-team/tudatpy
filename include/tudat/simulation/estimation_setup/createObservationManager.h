@@ -18,7 +18,7 @@
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -36,13 +36,14 @@ namespace observation_models
  *  to be finalized, in the case link properties are estimated (e.g. observation biases).
  */
 template< int ObservationSize = 1 >
-void performObservationParameterEstimationClosureForSingleModelSet(
+bool performObservationParameterEstimationClosureForSingleModelSet(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const std::shared_ptr< ObservationBias< ObservationSize > > observationBias,
         const LinkEnds linkEnds,
         const ObservableType observableType )
 {
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
+    bool isParameterLinked = false;
 
     // Check if bias type is multi-type
     if( biasType == multiple_observation_biases )
@@ -58,8 +59,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         // Perform closure for each constituent bias object
         for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
-            performObservationParameterEstimationClosureForSingleModelSet(
-                    parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType );
+            isParameterLinked =
+                    performObservationParameterEstimationClosureForSingleModelSet(
+                            parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType ) || isParameterLinked;
         }
     }
     else
@@ -69,8 +71,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         {
             case estimatable_parameters::constant_additive_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
@@ -90,14 +92,15 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            constantBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arcwise_constant_additive_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for arc-wise additive bias, inconsistent bias types" );
@@ -133,6 +136,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                constantBiasObject,
                                                std::placeholders::_1 ) );
                             biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -140,8 +144,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             case estimatable_parameters::constant_relative_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
@@ -161,14 +165,15 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            constantBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arcwise_constant_relative_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for arc-wise relative bias, inconsistent bias types" );
@@ -206,6 +211,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                constantBiasObject,
                                                std::placeholders::_1 ) );
                             biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -234,6 +240,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantTimeDriftBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            timeBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
@@ -280,6 +287,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                timeBiasObject,
                                                std::placeholders::_1 ) );
                             timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
@@ -287,8 +295,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             case estimatable_parameters::constant_time_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ConstantTimeBiasParameter > biasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::SingleArcTimeBiasParameter > biasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::SingleArcTimeBiasParameter >( parameter );
                 if( biasParameter == nullptr )
                 {
                     throw std::runtime_error( "Error, cannot perform bias closure for time bias, inconsistent bias types" );
@@ -307,14 +315,15 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantTimeBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                            timeBiasObject,
                                            std::placeholders::_1 ) );
+                        isParameterLinked = true;
                     }
                 }
                 break;
             }
             case estimatable_parameters::arc_wise_time_observation_bias: {
                 // Test input consistency
-                std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > timeBiasParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameter );
+                std::shared_ptr< estimatable_parameters::MultiArcTimeBiasParameter > timeBiasParameter =
+                        std::dynamic_pointer_cast< estimatable_parameters::MultiArcTimeBiasParameter >( parameter );
 
                 if( timeBiasParameter == nullptr )
                 {
@@ -353,20 +362,90 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                                timeBiasObject,
                                                std::placeholders::_1 ) );
                             timeBiasParameter->setLookupScheme( timeBiasObject->getLookupScheme( ) );
+                            isParameterLinked = true;
                         }
                     }
                 }
                 break;
             }
             case estimatable_parameters::global_polynomial_clock_corrections:
+                isParameterLinked = true;
                 break;
             case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+                isParameterLinked = true;
                 break;
             default:
                 std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                         std::to_string( parameter->getParameterName( ).first );
                 throw std::runtime_error( errorMessage );
         }
+    }
+
+    return isParameterLinked;
+}
+
+inline bool doesObservationParameterRequireBiasModelLinkage(
+        const estimatable_parameters::EstimatebleParametersEnum parameterType )
+{
+    switch( parameterType )
+    {
+        case estimatable_parameters::global_polynomial_clock_corrections:
+        case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+            return false;
+        default:
+            return true;
+    }
+}
+
+//! Check if a bias parameter belongs to the observable currently handled by an observation simulator.
+inline bool doesObservationParameterMatchObservable(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >& parameter,
+        const ObservableType observableType )
+{
+    switch( parameter->getParameterName( ).first )
+    {
+        case estimatable_parameters::constant_additive_observation_bias:
+        case estimatable_parameters::constant_relative_observation_bias:
+        case estimatable_parameters::constant_time_drift_observation_bias: {
+            std::shared_ptr< estimatable_parameters::SingleArcObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::SingleArcObservationBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for single-arc bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::arcwise_constant_additive_observation_bias:
+        case estimatable_parameters::arcwise_constant_relative_observation_bias:
+        case estimatable_parameters::arc_wise_time_drift_observation_bias: {
+            std::shared_ptr< estimatable_parameters::MultiArcObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::MultiArcObservationBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for arc-wise bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::constant_time_observation_bias: {
+            std::shared_ptr< estimatable_parameters::SingleArcTimeBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::SingleArcTimeBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for single-arc time bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        case estimatable_parameters::arc_wise_time_observation_bias: {
+            std::shared_ptr< estimatable_parameters::MultiArcTimeBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::MultiArcTimeBiasParameter >( parameter );
+            if( biasParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when checking observable consistency for arc-wise time bias parameter." );
+            }
+            return ( biasParameter->getObservableType( ) == observableType );
+        }
+        default:
+            return true;
     }
 }
 
@@ -440,15 +519,36 @@ void performObservationParameterEstimationClosure(
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
+            const estimatable_parameters::EstimatebleParametersEnum parameterType =
+                    vectorBiasParameters.at( i )->getParameterName( ).first;
+            const bool requiresBiasModelLinkage = doesObservationParameterRequireBiasModelLinkage( parameterType );
+
+            // Skip parameters belonging to other observables; they are linked by the corresponding simulator.
+            if( requiresBiasModelLinkage &&
+                !doesObservationParameterMatchObservable( vectorBiasParameters.at( i ), observationSimulator->getObservableType( ) ) )
+            {
+                continue;
+            }
+
+            bool isCurrentBiasParameterLinked = !requiresBiasModelLinkage;
             for( typename std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator biasIterator =
                          observationBiases.begin( );
                  biasIterator != observationBiases.end( );
                  biasIterator++ )
             {
-                performObservationParameterEstimationClosureForSingleModelSet( vectorBiasParameters.at( i ),
-                                                                               biasIterator->second,
-                                                                               biasIterator->first,
-                                                                               observationSimulator->getObservableType( ) );
+                isCurrentBiasParameterLinked =
+                        performObservationParameterEstimationClosureForSingleModelSet( vectorBiasParameters.at( i ),
+                                                                                       biasIterator->second,
+                                                                                       biasIterator->first,
+                                                                                       observationSimulator->getObservableType( ) ) ||
+                        isCurrentBiasParameterLinked;
+            }
+
+            if( !isCurrentBiasParameterLinked )
+            {
+                throw std::runtime_error( "Error, failed to link estimated observation bias parameter " +
+                                          vectorBiasParameters.at( i )->getParameterDescription( ) +
+                                          " to any observation bias model." );
             }
         }
     }
@@ -511,8 +611,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                                                                                                        observationSimulator,
                                                                                                        observationPartials,
                                                                                                        observationPartialScalers,
-                                                                                                       stateTransitionMatrixInterface,
-                                                                                                       dependentVariablesInterface );
+                                                                                                       stateTransitionMatrixInterface );
 }
 
 //! Function to create an object to simulate observations of a given type and associated partials
@@ -615,6 +714,25 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     }
     return observationManagers;
 }
+
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
+        const ObservableType observableType,
+        const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
+        const simulation_setup::SystemOfBodies &bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+
+extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > > createObservationManagersBase<
+        double,
+        double >(
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > &observationSettingsList,
+        const simulation_setup::SystemOfBodies &bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+        const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
+#endif
 
 }  // namespace observation_models
 

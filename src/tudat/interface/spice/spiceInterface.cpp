@@ -10,7 +10,6 @@
  */
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/interface/spice/spiceException.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/paths.hpp"
@@ -210,8 +209,9 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
 
     // TODO: convert elements to units required by CSpice (?)
     double elements[ 10 ];
-    elements[ 0 ] = 0.0;  // This element is mandatory as input to ev2lin_ but not used internally (used to be accessed in SGP).
-    elements[ 1 ] = 0.0;  // Idem dito.
+    elements[ 0 ] = tle->getMeanMotionFirstDerivative( );  // This element is mandatory as input to ev2lin_ but not used internally (used to
+                                                           // be accessed in SGP).
+    elements[ 1 ] = tle->getMeanMotionSecondDerivative( );  // Idem dito.
     elements[ 2 ] = tle->getBStar( );
     elements[ 3 ] = tle->getInclination( );
     elements[ 4 ] = tle->getRightAscension( );
@@ -620,13 +620,26 @@ void loadSpiceKernelInTudat( const std::string &fileName )
 {
     setSpiceErrorHandling( );
 
-    setSpiceErrorHandling( );
+    SpiceChar kernelType[ 33 ];
+    SpiceChar kernelSource[ 256 ];
+    SpiceInt kernelHandle = 0;
+    SpiceBoolean isKernelLoaded = SPICEFALSE;
 
-    furnsh_c( fileName.c_str( ) );
+    kinfo_c( fileName.c_str( ), 33, 256, kernelType, kernelSource, &kernelHandle, &isKernelLoaded );
 
     if( failed_c( ) )
     {
         handleSpiceException( );
+    }
+
+    if( !static_cast< bool >( isKernelLoaded ) )
+    {
+        furnsh_c( fileName.c_str( ) );
+
+        if( failed_c( ) )
+        {
+            handleSpiceException( );
+        }
     }
 }
 

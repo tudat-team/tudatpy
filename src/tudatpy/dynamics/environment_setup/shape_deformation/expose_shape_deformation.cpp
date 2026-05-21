@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_shape_deformation.h"
 
 #include <pybind11/complex.h>
@@ -15,6 +17,8 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
 namespace py = pybind11;

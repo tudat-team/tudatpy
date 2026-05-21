@@ -72,8 +72,6 @@ createDifferencedObservablePartials(
         const bool isPartialForDifferencedObservable = false,
         const bool isPartialForConcatenatedObservable = false );
 
-
-
 //! Interface class for creating observation partials
 /*!
  *  Interface class for creating observation partials. This class is used instead of a single
@@ -420,8 +418,6 @@ createObservablePartialsList(
     return partialsList;
 }
 
-
-
 template< int ObservationSize, typename ScalarType, typename TimeType >
 class DifferencedObservationPartialCreator
 {
@@ -615,7 +611,7 @@ public:
                 const std::function< double( const observation_models::LinkEndType,
                                              const std::vector< Eigen::Vector6d >&,
                                              const std::vector< double >&,
-                                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >,
                                              const bool ) >
                         scalingFactorFunction = std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor< ScalarType >,
                                                            receivedFrequencyFunction,

@@ -11,7 +11,14 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include <memory>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 
 namespace tudat
 {
@@ -30,7 +37,9 @@ enum ObservationDependentVariables {
     link_limb_distance,
     link_angle_with_orbital_plane,
     integration_time_dependent_variable,
-    retransmission_delays_dependent_variable
+    retransmission_delays_dependent_variable,
+    link_end_epochs_dependent_variable,
+    light_time_correction_components
 };
 
 //! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
@@ -44,7 +53,7 @@ bool areInterlinksCompatible( const std::pair< LinkEndType, LinkEndId >& firstRe
 std::string getObservationDependentVariableName( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is related to some ancillary settings
-bool isObservationDependentVariableAncilliarySetting( const ObservationDependentVariables variableType );
+bool isObservationDependentVariableAncillarySetting( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is an interlink property
 bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType );
@@ -72,9 +81,9 @@ public:
                                           const LinkEndType originatingLinkEndType = unidentified_link_end ):
         variableType_( variableType ), linkEndId_( linkEndId ), linkEndType_( linkEndType ), originatingLinkEndId_( originatingLinkEndId ),
         originatingLinkEndType_( originatingLinkEndType )
-    { }
+    {}
 
-    virtual ~ObservationDependentVariableSettings( ) { }
+    virtual ~ObservationDependentVariableSettings( ) {}
 
     ObservationDependentVariables variableType_;
 
@@ -195,7 +204,7 @@ public:
         ObservationDependentVariableSettings( variableType, relevantLinkEnd, linkEndRole, originatingLinkEndId, originatingLinkEndRole ),
         integratedObservableHandling_( integratedObservableHandling ),
         isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
-    { }
+    {}
 
     std::string getIdentifier( )
     {
@@ -254,9 +263,9 @@ public:
             const std::string relativeBody = "" ):
         ObservationDependentVariableSettings( variableType, endLinkEndId, endLinkEndType, startLinkEndId, startLinkEndType ),
         integratedObservableHandling_( integratedObservableHandling ), relativeBody_( relativeBody )
-    { }
+    {}
 
-    ~InterlinkObservationDependentVariableSettings( ) { }
+    ~InterlinkObservationDependentVariableSettings( ) {}
 
     std::string getIdentifier( )
     {
@@ -331,7 +340,7 @@ public:
         isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType );
     }
 
-    ~AncillaryObservationDependentVariableSettings( ) { }
+    ~AncillaryObservationDependentVariableSettings( ) {}
 
     std::string getIdentifier( )
     {
@@ -537,6 +546,83 @@ inline std::shared_ptr< ObservationDependentVariableSettings > retransmissionDel
         const ObservableType observableType = undefined_observation_model )
 {
     return std::make_shared< AncillaryObservationDependentVariableSettings >( retransmission_delays_dependent_variable, observableType );
+}
+
+//! Function to create link-end epochs dependent variable
+inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDependentVariable(
+        const ObservableType observableType = undefined_observation_model )
+{
+    return std::make_shared< AncillaryObservationDependentVariableSettings >( link_end_epochs_dependent_variable, observableType );
+}
+
+//! Settings for saving the per-type light-time correction contributions on a single leg
+//! (transmitter → receiver) of an observable. The receiving link end is stored in the base
+//! `linkEndId_` / `linkEndType_` members; the originating (transmitting) end is stored in the
+//! base `originatingLinkEndId_` / `originatingLinkEndType_` members. An optional filter selects
+//! a subset of correction types by `LightTimeCorrectionType` (empty = keep all registered
+//! corrections). Useful e.g. for separating code vs. carrier corrections, which can have opposite
+//! signs (ionospheric correction flips sign between group delay and phase advance).
+class LightTimeCorrectionComponentsDependentVariableSettings : public ObservationDependentVariableSettings
+{
+public:
+    LightTimeCorrectionComponentsDependentVariableSettings(
+            const LinkEndType transmitterLinkEndType = unidentified_link_end,
+            const LinkEndType receiverLinkEndType = unidentified_link_end,
+            const LinkEndId transmitterLinkEndId = LinkEndId( "", "" ),
+            const LinkEndId receiverLinkEndId = LinkEndId( "", "" ),
+            const std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter =
+                    std::vector< observation_models::LightTimeCorrectionType >( ) ):
+        ObservationDependentVariableSettings( light_time_correction_components,
+                                              receiverLinkEndId,
+                                              receiverLinkEndType,
+                                              transmitterLinkEndId,
+                                              transmitterLinkEndType ),
+        correctionTypeFilter_( correctionTypeFilter ),
+        resolvedSize_( -1 )
+    { }
+
+    ~LightTimeCorrectionComponentsDependentVariableSettings( ) { }
+
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
+    {
+        std::shared_ptr< LightTimeCorrectionComponentsDependentVariableSettings > castSettings =
+                std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( otherSettings );
+        if( castSettings == nullptr )
+        {
+            return false;
+        }
+        if( !areBaseSettingsCompatible( otherSettings, false ) )
+        {
+            return false;
+        }
+        return correctionTypeFilter_ == castSettings->correctionTypeFilter_;
+    }
+
+    std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter_;
+
+    //! Size resolved from the actual LightTimeCalculator on the selected leg. A negative value
+    //! means the settings have not yet been registered with an observation model.
+    int resolvedSize_;
+};
+
+//! Function to create a dependent variable saving the individual light-time correction
+//! contributions on a single observation leg (transmitter → receiver). The output is a vector
+//! with one entry per registered `LightTimeCorrection` on that leg, in registration order. If
+//! `correctionTypeFilter` is supplied, all registered corrections whose type appears in the
+//! filter are returned. The output is grouped by the first occurrence of each distinct filter
+//! type, while preserving registration order within each type group, so multiple registered
+//! corrections of the same type produce multiple output entries. Repeated types in
+//! `correctionTypeFilter` do not create duplicate groups or additional entries.
+inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeCorrectionComponentsDependentVariable(
+        const LinkEndType transmitterLinkEndType = unidentified_link_end,
+        const LinkEndType receiverLinkEndType = unidentified_link_end,
+        const LinkEndId transmitterLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId receiverLinkEndId = LinkEndId( "", "" ),
+        const std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter =
+                std::vector< observation_models::LightTimeCorrectionType >( ) )
+{
+    return std::make_shared< LightTimeCorrectionComponentsDependentVariableSettings >(
+            transmitterLinkEndType, receiverLinkEndType, transmitterLinkEndId, receiverLinkEndId, correctionTypeFilter );
 }
 
 }  // namespace simulation_setup

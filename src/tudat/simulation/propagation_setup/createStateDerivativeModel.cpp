@@ -10,8 +10,6 @@
 
 #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
 
-#include <tudat/simulation/estimation.h>
-
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -94,6 +92,7 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
     }
     return stateHistory;
 }
+
 
 }  // namespace propagators
 

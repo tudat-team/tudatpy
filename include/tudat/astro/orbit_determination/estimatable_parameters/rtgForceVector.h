@@ -14,6 +14,7 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
 
 namespace tudat

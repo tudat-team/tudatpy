@@ -12,10 +12,14 @@
 #ifndef TUDAT_SIMS_FLANAGAN_MODEL_H
 #define TUDAT_SIMS_FLANAGAN_MODEL_H
 
-#include "tudat/simulation/simulation.h"
 #include <cmath>
+#include <map>
 #include <vector>
 #include <Eigen/Dense>
+
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
 
 namespace tudat
 {

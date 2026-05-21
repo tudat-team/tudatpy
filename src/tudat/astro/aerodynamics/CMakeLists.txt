@@ -25,6 +25,10 @@ set(aerodynamics_SOURCES
         "equilibriumWallTemperature.cpp"
         "gasSurfaceInteractionModel.cpp"
         "marsDtmAtmosphereModel.cpp"
+        "comaModel.cpp"
+        "comaWindModel.cpp"
+        "nrlmsise00Atmosphere.cpp"
+        "nrlmsise00InputFunctions.cpp"
 )
 
 # Set the header files.
@@ -49,8 +53,12 @@ set(aerodynamics_HEADERS
         "aerodynamicGuidance.h"
         "equilibriumWallTemperature.h"
         "windModel.h"
+        "comaWindModel.h"
         "gasSurfaceInteractionModel.h"
         "marsDtmAtmosphereModel.h"
+        "comaModel.h"
+        "nrlmsise00Atmosphere.h"
+        "nrlmsise00InputFunctions.h"
 )
 
 # Conditionally add MCD sources and headers
@@ -58,17 +66,6 @@ if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
     list(APPEND aerodynamics_HEADERS "mcdAtmosphereModel.h")
 endif()
-
-set(aerodynamics_SOURCES
-            "${aerodynamics_SOURCES}"
-            "nrlmsise00Atmosphere.cpp"
-            "nrlmsise00InputFunctions.cpp"
-            )
-set(aerodynamics_HEADERS
-            "${aerodynamics_HEADERS}"
-            "nrlmsise00Atmosphere.h"
-            "nrlmsise00InputFunctions.h"
-            )
 
 set(PUBLIC_LINKS_LIST)
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)

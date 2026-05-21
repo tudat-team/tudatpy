@@ -14,8 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -120,7 +118,7 @@ std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eige
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEndType linkEndOfFixedTime,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
         const Eigen::Matrix< double, ObservableSize, Eigen::Dynamic > currentObservation =
                 Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >::Constant( ObservableSize, TUDAT_NAN ) )
 {
@@ -132,7 +130,7 @@ std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eige
          partialIterator++ )
     {
         partialList.push_back(
-                partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime, ancilliarySettings, currentObservation ) );
+                partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime, ancillarySettings, currentObservation ) );
     }
     return partialList;
 }
@@ -157,10 +155,15 @@ void testObservationPartials(
         const bool testParameterPartial = 1,
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
         double observationTime = 1.1E7,
         const double gammaToleranceWeakening = 1.0 )
 {
+    bool isNormalized = false;
+    if( std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel ) != nullptr )
+    {
+        isNormalized = std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel )->getNormalizeRightAscension(  );
+    }
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
     // Retrieve double and vector parameters and estimate body states
@@ -220,10 +223,10 @@ void testObservationPartials(
 
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
+        std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > modifiedAncillarySettings;
         if( observableType == n_way_range && ( linkEndIterator->first != receiver && linkEndIterator->first != transmitter ) )
         {
-            std::vector< double > delays = ancilliarySettings->getAncilliaryDoubleVectorData( link_ends_delays, false );
+            std::vector< double > delays = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
             // If delays are specified including transmission, retransmission and reception
             if( delays.size( ) == currentLinkEnds.size( ) )
             {
@@ -234,12 +237,12 @@ void testObservationPartials(
             {
                 delays.at( static_cast< int >( linkEndIterator->first ) - 1 ) = 0.0;
             }
-            modifiedAncilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-            modifiedAncilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, delays );
+            modifiedAncillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            modifiedAncillarySettings->setAncillaryDoubleVectorData( link_ends_delays, delays );
         }
         else
         {
-            modifiedAncilliarySettings = ancilliarySettings;
+            modifiedAncillarySettings = ancillarySettings;
         }
 
         if( runSimulation )
@@ -248,7 +251,7 @@ void testObservationPartials(
             std::vector< Eigen::Vector6d > vectorOfStates;
             std::vector< double > vectorOfTimes;
             Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
-                    observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, modifiedAncilliarySettings );
+                    observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, modifiedAncillarySettings );
 
             // Calculate analytical observation partials.
             if( positionPartialScaler != nullptr )
@@ -264,7 +267,7 @@ void testObservationPartials(
                                                                    vectorOfStates,
                                                                    vectorOfTimes,
                                                                    linkEndIterator->first,
-                                                                   modifiedAncilliarySettings,
+                                                                   modifiedAncillarySettings,
                                                                    currentObservation );
 
             // Set and test expected partial size and time
@@ -314,7 +317,7 @@ void testObservationPartials(
                                observationModel,
                                std::placeholders::_1,
                                linkEndIterator->first,
-                               modifiedAncilliarySettings );
+                               modifiedAncillarySettings );
 
             if( testPositionPartial )
             {
@@ -344,7 +347,7 @@ void testObservationPartials(
                     }
 
                     // Test position partial
-                    if( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
+                    if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) && ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
@@ -452,11 +455,10 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
-
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
-                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial
-                                  << " " << numericalPartialsWrtDoubleParameters.at( i ) << " "
+                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << ", " << currentParameterPartial
+                                  << ", " << numericalPartialsWrtDoubleParameters.at( i ) << ", "
                                   << ( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) /
                                         numericalPartialsWrtDoubleParameters.at( i )( 0 )
                                   << std::endl;
@@ -478,7 +480,7 @@ void testObservationPartials(
                                        observationModel,
                                        std::placeholders::_1,
                                        linkEndIterator->first,
-                                       modifiedAncilliarySettings );
+                                       modifiedAncillarySettings );
 
                     // Settings for parameter partial functions.
                     std::vector< Eigen::VectorXd > parameterPerturbations;

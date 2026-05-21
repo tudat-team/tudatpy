@@ -37,7 +37,6 @@ Functions
    propagate_kepler_orbit
    compute_escape_or_capture_delta_v
 
-
 Lambert Problem Solvers
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

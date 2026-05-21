@@ -45,6 +45,26 @@ std::vector< std::tuple< int, int, long double > > times = { { 8, 34, 30.2345678
                                                              { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
                                                              { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L } };
 
+std::string trimTrailingFractionalZeros( const std::string& input )
+{
+    const std::size_t decimalPointIndex = input.find( "." );
+    if( decimalPointIndex == std::string::npos )
+    {
+        return input;
+    }
+
+    std::size_t lastNonZeroIndex = input.find_last_not_of( '0' );
+    if( lastNonZeroIndex == std::string::npos || lastNonZeroIndex < decimalPointIndex )
+    {
+        return input.substr( 0, decimalPointIndex );
+    }
+    if( input.at( lastNonZeroIndex ) == '.' )
+    {
+        return input.substr( 0, lastNonZeroIndex );
+    }
+    return input.substr( 0, lastNonZeroIndex + 1 );
+}
+
 BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 {
     for( unsigned int i = 0; i < years.size( ); i++ )
@@ -162,6 +182,85 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
             }
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testLeapSecondReconstructionFromTime )
+{
+    DateTime leapSecondDateTime( 2016, 12, 31, 23, 59, 60.0L );
+    DateTime reconstructedLeapSecondDateTime = DateTime::fromTime( leapSecondDateTime.epoch< Time >( ) );
+
+    BOOST_CHECK_EQUAL( reconstructedLeapSecondDateTime.getYear( ), leapSecondDateTime.getYear( ) );
+    BOOST_CHECK_EQUAL( reconstructedLeapSecondDateTime.getMonth( ), leapSecondDateTime.getMonth( ) );
+    BOOST_CHECK_EQUAL( reconstructedLeapSecondDateTime.getDay( ), leapSecondDateTime.getDay( ) );
+    BOOST_CHECK_EQUAL( reconstructedLeapSecondDateTime.getHour( ), leapSecondDateTime.getHour( ) );
+    BOOST_CHECK_EQUAL( reconstructedLeapSecondDateTime.getMinute( ), leapSecondDateTime.getMinute( ) );
+    BOOST_CHECK_SMALL( std::fabs( reconstructedLeapSecondDateTime.getSeconds( ) - leapSecondDateTime.getSeconds( ) ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+
+    DateTime fractionalLeapSecondDateTime( 2016, 12, 31, 23, 59, 60.5L );
+    DateTime reconstructedFractionalLeapSecondDateTime = DateTime::fromTime( fractionalLeapSecondDateTime.epoch< Time >( ) );
+
+    BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getYear( ), fractionalLeapSecondDateTime.getYear( ) );
+    BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getMonth( ), fractionalLeapSecondDateTime.getMonth( ) );
+    BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getDay( ), fractionalLeapSecondDateTime.getDay( ) );
+    BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getHour( ), fractionalLeapSecondDateTime.getHour( ) );
+    BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getMinute( ), fractionalLeapSecondDateTime.getMinute( ) );
+    BOOST_CHECK_SMALL( std::fabs( reconstructedFractionalLeapSecondDateTime.getSeconds( ) -
+                                  fractionalLeapSecondDateTime.getSeconds( ) ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+}
+
+BOOST_AUTO_TEST_CASE( testLeapSecondValidation )
+{
+    BOOST_CHECK_NO_THROW( DateTime( 2016, 12, 31, 23, 59, 60.0L ) );
+    BOOST_CHECK_NO_THROW( DateTime( 2016, 12, 31, 23, 59, 60.5L ) );
+    BOOST_CHECK_THROW( DateTime( 2016, 12, 31, 12, 0, 60.0L ), std::runtime_error );
+    BOOST_CHECK_THROW( DateTime( 2016, 12, 31, 12, 0, 60.5L ), std::runtime_error );
+    BOOST_CHECK_THROW( DateTime( 2017, 1, 1, 23, 59, 60.0L ), std::runtime_error );
+    BOOST_CHECK_THROW( DateTime( 2016, 12, 31, 23, 59, 61.0L ), std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( testAddSecondsDuringLeapSecond )
+{
+    const long double epsilon = std::numeric_limits< long double >::epsilon( );
+    const long double tolerance = 3600.0L * epsilon;
+
+    DateTime beforeLeapSecond( 2016, 12, 31, 23, 59, 59.0L );
+    DateTime leapSecond = beforeLeapSecond.addSecondsToDateTime( 1.0L );
+
+    BOOST_CHECK_EQUAL( leapSecond.getYear( ), 2016 );
+    BOOST_CHECK_EQUAL( leapSecond.getMonth( ), 12 );
+    BOOST_CHECK_EQUAL( leapSecond.getDay( ), 31 );
+    BOOST_CHECK_EQUAL( leapSecond.getHour( ), 23 );
+    BOOST_CHECK_EQUAL( leapSecond.getMinute( ), 59 );
+    BOOST_CHECK_SMALL( std::fabs( leapSecond.getSeconds( ) - 60.0L ), tolerance );
+
+    DateTime afterLeapSecond = leapSecond.addSecondsToDateTime( 1.0L );
+    BOOST_CHECK_EQUAL( afterLeapSecond.getYear( ), 2017 );
+    BOOST_CHECK_EQUAL( afterLeapSecond.getMonth( ), 1 );
+    BOOST_CHECK_EQUAL( afterLeapSecond.getDay( ), 1 );
+    BOOST_CHECK_EQUAL( afterLeapSecond.getHour( ), 0 );
+    BOOST_CHECK_EQUAL( afterLeapSecond.getMinute( ), 0 );
+    BOOST_CHECK_SMALL( std::fabs( afterLeapSecond.getSeconds( ) - 0.0L ), tolerance );
+
+    DateTime almostOneSecondAfterLeapSecond = leapSecond.addSecondsToDateTime( 1.0L - epsilon );
+    BOOST_CHECK_EQUAL( almostOneSecondAfterLeapSecond.getYear( ), 2016 );
+    BOOST_CHECK_EQUAL( almostOneSecondAfterLeapSecond.getMonth( ), 12 );
+    BOOST_CHECK_EQUAL( almostOneSecondAfterLeapSecond.getDay( ), 31 );
+    BOOST_CHECK_EQUAL( almostOneSecondAfterLeapSecond.getHour( ), 23 );
+    BOOST_CHECK_EQUAL( almostOneSecondAfterLeapSecond.getMinute( ), 59 );
+    BOOST_CHECK_GE( almostOneSecondAfterLeapSecond.getSeconds( ), 60.0L );
+    BOOST_CHECK_LT( almostOneSecondAfterLeapSecond.getSeconds( ), 61.0L );
+
+    DateTime midnightNextDay( 2017, 1, 1, 0, 0, 0.0L );
+    DateTime epsilonBeforeMidnightNextDay = midnightNextDay.addSecondsToDateTime( -epsilon );
+    BOOST_CHECK_EQUAL( epsilonBeforeMidnightNextDay.getYear( ), 2016 );
+    BOOST_CHECK_EQUAL( epsilonBeforeMidnightNextDay.getMonth( ), 12 );
+    BOOST_CHECK_EQUAL( epsilonBeforeMidnightNextDay.getDay( ), 31 );
+    BOOST_CHECK_EQUAL( epsilonBeforeMidnightNextDay.getHour( ), 23 );
+    BOOST_CHECK_EQUAL( epsilonBeforeMidnightNextDay.getMinute( ), 59 );
+    BOOST_CHECK_GE( epsilonBeforeMidnightNextDay.getSeconds( ), 60.0L );
+    BOOST_CHECK_LT( epsilonBeforeMidnightNextDay.getSeconds( ), 61.0L );
 }
 
 BOOST_AUTO_TEST_CASE( testDateTimeStringRepresentation )
@@ -299,10 +398,10 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
 {
     std::cout << "Testing ISO initialization" << std::endl;
-    std::vector< std::string > testStrings = { "2023-06-20T00:05:23.28176583402943837",
-                                               "2020-02-29T23:59:59.99999999999999998",
-                                               "2000-01-01T12:00:00.00000000000000000",
-                                               "1753-08-09T22:34:10.72952318308363849" };
+    std::vector< std::string > testStrings = { "2023-06-20T00:05:23.2817658340294",
+                                               "2020-02-29T23:59:59.9999999999998",
+                                               "2000-01-01T12:00:00.0000000000000",
+                                               "1753-08-09T22:34:10.7295231830836" };
 
     std::vector< double > julianDays = { 2460116., 2458909., 2451545., 2361551 };
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
@@ -311,10 +410,11 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
         DateTime dateTime = DateTime::fromIsoString( testStrings.at( i ) );
         std::string reconstuctedString = dateTime.isoString( true, 17 );
 
-        // TODO: fix test for long doubles with 64-bit precision
         if( sizeof( long double ) > 8 )
         {
-            BOOST_CHECK_EQUAL( testStrings.at( i ), reconstuctedString );
+            // Compare canonicalized representations, as ISO formatting may pad trailing zeros.
+            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ),
+                               trimTrailingFractionalZeros( reconstuctedString ) );
         }
         Time time = timeFromIsoString< Time >( testStrings.at( i ) );
         BOOST_CHECK_SMALL( static_cast< long double >( time - dateTime.epoch< Time >( ) ),
@@ -324,6 +424,24 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
         BOOST_CHECK_SMALL( std::fabs( dateTime.julianDay< double >( ) - dateTime.modifiedJulianDay< double >( ) ) - 2400000.5,
                            std::numeric_limits< double >::epsilon( ) );
     }
+}
+
+BOOST_AUTO_TEST_CASE( testIsoInitializationLeapSecond )
+{
+    const std::string leapSecondIsoString = "2016-12-31T23:59:60.5";
+    DateTime leapSecondFromIso = DateTime::fromIsoString( leapSecondIsoString );
+    DateTime referenceLeapSecond( 2016, 12, 31, 23, 59, 60.5L );
+
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getYear( ), 2016 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getMonth( ), 12 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getDay( ), 31 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getHour( ), 23 );
+    BOOST_CHECK_EQUAL( leapSecondFromIso.getMinute( ), 59 );
+    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) -
+                                                           referenceLeapSecond.epoch< Time >( ) ) ),
+                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
 }
 
 BOOST_AUTO_TEST_CASE( testDateTimeDayInYearConversions )

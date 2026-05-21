@@ -11,6 +11,7 @@
 #ifndef TUDAT_MASSRATEPARTIAL_H
 #define TUDAT_MASSRATEPARTIAL_H
 
+#include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 
 namespace tudat

@@ -299,6 +299,11 @@ inline std::shared_ptr< AccelerationSettings > relativisticAccelerationCorrectio
                                                                            centralBodyAngularMomentum );
 }
 
+inline std::shared_ptr< AccelerationSettings > relativisticAccelerationFromMetric( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::relativistic_acceleration_from_metric );
+}
+
 // Class to define settings for empirical accelerations
 //! @get_docstring(EmpiricalAccelerationSettings.__docstring__)
 class EmpiricalAccelerationSettings : public AccelerationSettings

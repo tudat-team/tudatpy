@@ -21,7 +21,8 @@
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"  // Include this header
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"  // Include this header
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/ground_stations/groundStationState.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 namespace tudat
 {
@@ -34,13 +35,13 @@ inline double getMeasuredFrequencyDopplerScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 {
     double integrationTime;
     std::vector< FrequencyBands > frequencyBands;
     try
     {
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -83,7 +84,19 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( doppler_measured_frequency, linkEnds, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                doppler_measured_frequency,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        [ &twoWayDopplerModel ]( ) {
+                            if( twoWayDopplerModel == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when defining Doppler Measured Frequency Model: two-way Doppler model is nullptr." );
+                            }
+                            return twoWayDopplerModel->getFullLinkLightTimeCalculator( );
+                        }( ) } ),
         twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
@@ -98,16 +111,6 @@ public:
 
         uplinkDopplerModel_ = twoWayDopplerModel_->getUplinkDopplerCalculator( );
         downlinkDopplerModel_ = twoWayDopplerModel_->getDownlinkDopplerCalculator( );
-
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > uplinkLightTimeCalculator =
-                uplinkDopplerModel_->getLightTimeCalculator( );
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > downlinkLightTimeCalculator =
-                downlinkDopplerModel_->getLightTimeCalculator( );
-
-        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
-                lightTimeCalculators = { uplinkLightTimeCalculator, downlinkLightTimeCalculator };
-        lighTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
-                lightTimeCalculators );
     }
 
     //! Destructor
@@ -127,7 +130,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -150,7 +153,7 @@ public:
 
         try
         {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -173,9 +176,11 @@ public:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
-        if( lighTimeCalculator_->doCorrectionsNeedFrequency( ) )
+        std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
+                getLightTimeCalculator( );
+        if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( lighTimeCalculator_,
+            setTransmissionReceptionFrequencies( lightTimeCalculator,
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  time,
@@ -184,7 +189,7 @@ public:
                                                  currentTurnAroundRatio );
         }
         // Calculate the light time
-        TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+        TimeType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         // Get the time when the signal left the transmitter
@@ -221,6 +226,16 @@ public:
         return twoWayDopplerModel_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    {
+        return twoWayDopplerModel_->getLegLightTimeCalculators( );
+    }
+
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
+    {
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
     // Doppler observation model associated with the measurement
     std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel_;
 
@@ -231,9 +246,6 @@ public:
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerModel_;
 
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > downlinkDopplerModel_;
-
-    // Light time calculator
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lighTimeCalculator_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };

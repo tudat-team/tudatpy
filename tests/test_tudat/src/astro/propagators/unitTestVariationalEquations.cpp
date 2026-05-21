@@ -13,6 +13,7 @@
 
 #include <string>
 #include <thread>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -28,12 +29,14 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {
