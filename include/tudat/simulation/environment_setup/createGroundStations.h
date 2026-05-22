@@ -188,6 +188,11 @@ public:
         return stationMotionSettings_;
     }
 
+    void setStationMotionSettings( const std::vector< std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings )
+    {
+        stationMotionSettings_ = stationMotionSettings;
+    }
+
     void addStationMotionSettings( const std::shared_ptr< GroundStationMotionSettings > stationMotionSetting )
     {
         stationMotionSettings_.push_back( stationMotionSetting );

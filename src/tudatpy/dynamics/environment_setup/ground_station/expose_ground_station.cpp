@@ -135,11 +135,46 @@ void expose_ground_station_setup( py::module& m )
       )doc" )
             .def_property( "station_position",
                            &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition )
+                           &tss::GroundStationSettings::resetGroundStationPosition, R"doc(
+                           Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
+                           
+                           :type: numpy.ndarray([3,1])
+                           
+                           )doc" )
 
-            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName )
-            .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType )
-            .def_property_readonly( "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings );
+            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName, R"doc(
+                Name of the ground station.
+
+                :type: str
+
+                )doc" )
+            .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType, R"doc(
+                
+            Element type of the ground station position, defining the interpretation of the ``station_position`` property.
+
+            :type: ~tudatpy.astro.element_conversion.PositionElementTypes
+                
+                )doc" )
+            .def_property(
+                    "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings, &tss::GroundStationSettings::setStationMotionSettings, R"doc(
+                    
+                List of motion settings for the ground station, defining time-variations of the station position.
+
+                :type: list[ GroundStationMotionSettings ]
+                    
+                    )doc" )
+            .def( "add_station_motion_settings",
+                  &tss::GroundStationSettings::addStationMotionSettings,
+                  py::arg( "station_motion_settings" ),
+                  R"doc(Add a motion model to the existing motion models of the station.
+
+ Parameters
+ ----------
+
+ station_motion_settings: GroundStationMotionSettings
+     GroundStationMotionSettings object defining the motion model to be added
+
+)doc" );
 
     m.def( "add_motion_model_to_each_groun_station",
            &tss::addStationMotionModelToEachGroundStation,
