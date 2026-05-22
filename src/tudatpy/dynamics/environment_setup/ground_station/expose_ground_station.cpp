@@ -141,7 +141,7 @@ void expose_ground_station_setup( py::module& m )
             .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType )
             .def_property_readonly( "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings );
 
-    m.def( "add_motion_model_to_each_groun_station",
+    m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
            py::arg( "station_motion_setting" ) );
