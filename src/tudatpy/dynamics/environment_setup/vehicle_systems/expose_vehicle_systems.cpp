@@ -260,7 +260,7 @@ Panel surface area
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "panel_material_properties" ) = nullptr,
+           py::arg_v( "panel_material_properties", std::shared_ptr< tss::MaterialProperties >( ), "None" ).none( true ),
            R"doc(
 
  Function for creating settings for a full panel

@@ -117,8 +117,8 @@ void expose_rigid_body_setup( py::module &m )
     m.def( "custom_time_dependent_rigid_body_properties",
            tss::fromFunctionRigidBodyPropertiesSettings,
            py::arg( "mass_function" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ).none( true ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -151,8 +151,8 @@ void expose_rigid_body_setup( py::module &m )
     m.def( "custom_mass_dependent_rigid_body_properties",
            tss::massDependentMassDistributionSettings,
            py::arg( "mass" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ).none( true ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.

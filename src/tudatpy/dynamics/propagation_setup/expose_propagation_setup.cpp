@@ -212,7 +212,7 @@ void expose_propagation_setup( py::module& m )
            &tss::createMassRateModelsMap,
            py::arg( "body_system" ),
            py::arg( "selected_mass_rates_per_body" ),
-           py::arg( "acceleration_models" ) = nullptr,
+           py::arg( "acceleration_models" ) = tba::AccelerationMap( ),
            R"doc(
 
  Function to create a set of mass-rate models from associated settings.

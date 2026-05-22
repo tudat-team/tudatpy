@@ -176,7 +176,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            &tss::createParametersToEstimate< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "parameter_settings" ),
            py::arg( "bodies" ),
-           py::arg( "propagator_settings" ) = nullptr,
+           py::arg_v( "propagator_settings", std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >( ), "None" ).none( true ),
            py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
            py::arg( "print_parameter_order_warning" ) = true,
            R"doc(

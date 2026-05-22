@@ -1193,7 +1193,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "single_arc_ephemeris_settings" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "default_ephemeris_settings" ) = nullptr,
+           py::arg_v( "default_ephemeris_settings", std::shared_ptr< te::EphemerisSettings >( ), "None" ).none( true ),
            R"doc(
 
  Function for creating multi-arc ephemeris model settings.
