@@ -2658,6 +2658,13 @@ bool
     py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
             m, "TransmittingFrequencyCalculator", R"doc(No documentation found.)doc" );
 
+    py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
+            .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
+            .value( "throw_exception_at_gaps", tgs::throw_exception_at_gaps )
+            .value( "print_error_at_gaps", tgs::print_error_at_gaps )
+            .value( "print_error_once_at_gaps", tgs::print_error_once_at_gaps )
+            .export_values( );
+
     py::class_< tgs::ConstantFrequencyInterpolator,
                 std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
                 tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
@@ -2669,11 +2676,13 @@ bool
             .def( py::init< const std::vector< tudat::Time >&,
                             const std::vector< tudat::Time >&,
                             const std::vector< double >&,
-                            const std::vector< double >& >( ),
+                            const std::vector< double >&,
+                            const tgs::FrequencyGapHandling >( ),
                   py::arg( "start_times" ),
                   py::arg( "end_times" ),
                   py::arg( "ramp_rates" ),
-                  py::arg( "start_frequency" ) )
+                  py::arg( "start_frequency" ),
+                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps )
             .def_property_readonly( "start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
             .def_property_readonly( "end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
             .def_property_readonly( "ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
