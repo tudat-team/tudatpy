@@ -103,7 +103,6 @@ public:
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
-
     CustomGroundStationMotionSettings( const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
         GroundStationMotionSettings( custom_station_motion ), customDisplacementModel_( [ = ]( const double time ) {
             return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( );
@@ -116,7 +115,7 @@ public:
 };
 
 inline std::shared_ptr< LinearGroundStationMotionSettings > linearGroundStationMotionSettings( const Eigen::Vector3d& linearVelocity,
-                                                                                         const double referenceEpoch = 0.0 )
+                                                                                               const double referenceEpoch = 0.0 )
 {
     return std::make_shared< LinearGroundStationMotionSettings >( linearVelocity, referenceEpoch );
 }
