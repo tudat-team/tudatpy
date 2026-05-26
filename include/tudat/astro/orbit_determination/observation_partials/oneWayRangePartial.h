@@ -37,10 +37,10 @@ namespace observation_partials
 class OneWayRangeScaling : public DirectPositionPartialScaling< 1 >
 {
 public:
-    OneWayRangeScaling( ): DirectPositionPartialScaling< 1 >( observation_models::one_way_range ) { }
+    OneWayRangeScaling( ): DirectPositionPartialScaling< 1 >( observation_models::one_way_range ) {}
 
     //! Destructor
-    ~OneWayRangeScaling( ) { }
+    ~OneWayRangeScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!

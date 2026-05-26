@@ -126,7 +126,7 @@ namespace observation_models
 template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );

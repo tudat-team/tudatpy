@@ -51,13 +51,13 @@ enum LinkEndType {
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ) { }
+    LinkEndId( ) {}
 
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) { }
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) {}
 
-    LinkEndId( const std::string& bodyName, const std::string& stationName ): bodyName_( bodyName ), stationName_( stationName ) { }
+    LinkEndId( const std::string& bodyName, const std::string& stationName ): bodyName_( bodyName ), stationName_( stationName ) {}
 
-    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) { }
+    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) {}
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
@@ -131,13 +131,13 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType );
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
 struct LinkDefinition {
-    LinkDefinition( ) { }
+    LinkDefinition( ) {}
 
-    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ): linkEnds_( linkEnds ) { }
+    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ): linkEnds_( linkEnds ) {}
 
     LinkDefinition( const std::map< LinkEndType, std::pair< std::string, std::string > >& linkEnds )
     {
-        for( auto it: linkEnds )
+        for( auto it : linkEnds )
         {
             linkEnds_[ it.first ] = LinkEndId( it.second );
         }

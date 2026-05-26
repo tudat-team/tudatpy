@@ -37,8 +37,7 @@ public:
      * \param useGeodesyNormalization Parameter defining whether the cache is used for a normalized or unnormalized
      * gravity field.
      */
-    SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 , const bool anglesOnly = 0):
-    anglesOnly_( anglesOnly )
+    SphericalHarmonicsCache( const bool useGeodesyNormalization = 1, const bool anglesOnly = 0 ): anglesOnly_( anglesOnly )
     {
         legendreCache_ = LegendreCache( useGeodesyNormalization );
         currentLongitude_ = TUDAT_NAN;
@@ -55,8 +54,10 @@ public:
      * \param useGeodesyNormalization Parameter defining whether the cache is used for a normalized or unnormalized
      * gravity field.
      */
-    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1, const bool anglesOnly = 0 ):
-    anglesOnly_( anglesOnly )
+    SphericalHarmonicsCache( const int maximumDegree,
+                             const int maximumOrder,
+                             const bool useGeodesyNormalization = 1,
+                             const bool anglesOnly = 0 ): anglesOnly_( anglesOnly )
     {
         legendreCache_ = LegendreCache( maximumDegree, maximumOrder, useGeodesyNormalization );
 
@@ -88,13 +89,12 @@ public:
                  const double referenceRadius,
                  const bool checkConsistency = true )
     {
-        if(anglesOnly_)
+        if( anglesOnly_ )
         {
             throw std::invalid_argument(
                     "SphericalHarmonicsCache::update() called on angles-only cache. "
                     "Use updateAnglesOnly() instead, or create cache with anglesOnly=false "
-                    "to enable radius calculations."
-                    );
+                    "to enable radius calculations." );
         }
         legendreCache_.update( polynomialParameter, checkConsistency );
         updateSines( longitude );
@@ -107,23 +107,19 @@ public:
      * \param polynomialParameter Input parameter to Legendre polynomials (sine of latitude)
      * \param longitude Current longitude
      */
-    void updateAnglesOnly( const double polynomialParameter,
-                           const double longitude,
-                           const bool checkConsistency = true )
+    void updateAnglesOnly( const double polynomialParameter, const double longitude, const bool checkConsistency = true )
     {
-        if(!anglesOnly_)
+        if( !anglesOnly_ )
         {
             throw std::invalid_argument(
                     "SphericalHarmonicsCache::updateAnglesOnly() called on full cache. "
                     "Use update() instead, or create cache with anglesOnly=true "
-                    "to disable radius calculations."
-                    );
+                    "to disable radius calculations." );
         }
 
         legendreCache_.update( polynomialParameter, checkConsistency );
         updateSines( longitude );
     }
-
 
     //! Function to retrieve the current sine of m times the longitude.
     /*!

@@ -44,10 +44,10 @@ public:
      * Constructor
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
-    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) { }
+    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) {}
 
     //! Destructor
-    ~VehicleSystems( ) { }
+    ~VehicleSystems( ) {}
 
     //! Function to retrieve the engine models
     /*!
@@ -188,13 +188,13 @@ public:
     {
         if( !( time == currentOrientationTime_ ) )
         {
-            for( auto it: vehiclePartOrientation_ )
+            for( auto it : vehiclePartOrientation_ )
             {
                 currentVehiclePartRotationToBodyFixedFrame_[ it.first ] = it.second->getRotationToBaseFrame( time );
             }
             currentVehiclePartRotationToBodyFixedFrame_[ "" ] = Eigen::Quaterniond::Identity( );
             unsigned int buffer = 0;
-            for( auto it: vehicleExteriorPanels_ )
+            for( auto it : vehicleExteriorPanels_ )
             {
                 for( unsigned int i = 0; i < it.second.size( ); i++ )
                 {
@@ -234,7 +234,7 @@ public:
         vehicleExteriorPanels_ = vehicleExteriorPanels;
         // group all panels in a vector
         totalNumberOfPanels_ = 0;
-        for( auto it: vehicleExteriorPanels_ )
+        for( auto it : vehicleExteriorPanels_ )
         {
             allPanels_.insert( allPanels_.end( ), it.second.begin( ), it.second.end( ) );
             totalNumberOfPanels_ += it.second.size( );
@@ -305,7 +305,7 @@ public:
     int getTotalNumberOfPanels( )
     {
         int numberOfPanels = 0;
-        for( auto it: vehicleExteriorPanels_ )
+        for( auto it : vehicleExteriorPanels_ )
         {
             numberOfPanels += it.second.size( );
         }
@@ -391,7 +391,7 @@ public:
     std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > getFixedReferencePoints( )
     {
         std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > fixedReferencePoints;
-        for( auto it: referencePoints_ )
+        for( auto it : referencePoints_ )
         {
             if( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second ) != nullptr )
             {

@@ -108,10 +108,8 @@ void expose_parameters_setup( py::module& m )
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
             .value( "arc_wise_exponential_atmosphere_scale_height_type",
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
-            .value( "specular_reflectivity_type",
-                    tep::EstimatebleParametersEnum::specular_reflectivity )
-            .value( "diffuse_reflectivity_type",
-                    tep::EstimatebleParametersEnum::diffuse_reflectivity )
+            .value( "specular_reflectivity_type", tep::EstimatebleParametersEnum::specular_reflectivity )
+            .value( "diffuse_reflectivity_type", tep::EstimatebleParametersEnum::diffuse_reflectivity )
 
             .export_values( );
 

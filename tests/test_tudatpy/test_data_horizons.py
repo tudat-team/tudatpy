@@ -10,7 +10,6 @@ import numpy as np
 import pytest
 import datetime
 
-
 spice.load_standard_kernels()
 
 # 87% test coverage for tudatpy/data/horizons.py. Remainder is rare user input validation
@@ -39,9 +38,7 @@ def test_compare_horizons_spice(pos_tolerance=1e3, vel_tolerance=1e-3):
 
     for time in times:
         # from spice
-        state_spice = spice.get_body_cartesian_state_at_epoch(
-            "Venus", "Earth", ref, "NONE", time
-        )
+        state_spice = spice.get_body_cartesian_state_at_epoch("Venus", "Earth", ref, "NONE", time)
         spice_states.append(state_spice)
 
     diff = np.abs(horizons_states - spice_states)
@@ -62,16 +59,16 @@ targets = [
 user_input = [
     # start end stepsize + epoch formats
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
-        datetime.datetime(2022, 2, 1,0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
+        datetime.datetime(2022, 2, 1, 0, 0, 0),
         "5d",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
-        datetime.datetime(2022, 5, 1,0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
+        datetime.datetime(2022, 5, 1, 0, 0, 0),
         "1m",
         None,
         True,
@@ -79,7 +76,7 @@ user_input = [
     ),
     (
         694267200.000,
-        datetime.datetime(2022, 5, 1, 0,0,0),
+        datetime.datetime(2022, 5, 1, 0, 0, 0),
         "1m",
         None,
         True,
@@ -87,14 +84,14 @@ user_input = [
     ),
     (
         694267200.000,
-        datetime.datetime(2022, 2, 1, 0,0,0),
+        datetime.datetime(2022, 2, 1, 0, 0, 0),
         "5d",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
         696945600.000,
         "5d",
         None,
@@ -111,16 +108,16 @@ user_input = [
     ),
     # start end num steps
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
-        datetime.datetime(2022, 2, 1, 0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
+        datetime.datetime(2022, 2, 1, 0, 0, 0),
         "20",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
-        datetime.datetime(2022, 2, 1, 0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
+        datetime.datetime(2022, 2, 1, 0, 0, 0),
         "100000",
         None,
         True,
@@ -163,8 +160,8 @@ user_input = [
 
 user_input_short = [
     (
-        datetime.datetime(2022, 1, 1, 0,0,0),
-        datetime.datetime(2022, 2, 1, 0,0,0),
+        datetime.datetime(2022, 1, 1, 0, 0, 0),
+        datetime.datetime(2022, 2, 1, 0, 0, 0),
         "5d",
         None,
         False,
@@ -259,8 +256,8 @@ def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_or
         horizons_location=location,
         frame_origin=frame_origin,  # tudat frame origin and orientation
         frame_orientation=frame_orientation,
-        epoch_start=datetime.datetime(2020, 1, 1,0,0,0),
-        epoch_end=datetime.datetime(2023, 1, 1,0,0,0),
+        epoch_start=datetime.datetime(2020, 1, 1, 0, 0, 0),
+        epoch_end=datetime.datetime(2023, 1, 1, 0, 0, 0),
         epoch_step="1d",
         extended_query=True,
     )

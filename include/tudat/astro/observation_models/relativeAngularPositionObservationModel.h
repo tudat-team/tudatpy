@@ -47,25 +47,23 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > PositionType;
 
     static std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
-    createFullLinkLightTimeCalculators(
-            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-                    lightTimeCalculatorFirstTransmitter,
-            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-                    lightTimeCalculatorSecondTransmitter )
+    createFullLinkLightTimeCalculators( const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                                                lightTimeCalculatorFirstTransmitter,
+                                        const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+                                                lightTimeCalculatorSecondTransmitter )
     {
         return std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                        std::vector< std::shared_ptr<
-                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
-                                lightTimeCalculatorFirstTransmitter },
-                        std::make_shared< LightTimeConvergenceCriteria >( ),
-                        false ),
-                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                        std::vector< std::shared_ptr<
-                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
-                                lightTimeCalculatorSecondTransmitter },
-                        std::make_shared< LightTimeConvergenceCriteria >( ),
-                        false ) };
+            std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                            lightTimeCalculatorFirstTransmitter },
+                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                    false ),
+            std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                            lightTimeCalculatorSecondTransmitter },
+                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                    false )
+        };
     }
 
     //! Constructor.
@@ -144,8 +142,7 @@ public:
         this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySetings );
 
-        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState =
-                firstLinkEndStates.at( 1 ).template cast< ObservationScalarType >( );
+        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState = firstLinkEndStates.at( 1 ).template cast< ObservationScalarType >( );
         Eigen::Matrix< ObservationScalarType, 6, 1 > firstTransmitterState =
                 firstLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
         Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState =
@@ -244,7 +241,8 @@ public:
         return secondLinkEnds;
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
     {
         return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( 0, 0 ) } },
                  { std::make_pair( transmitter2, receiver ), { this->getSingleLegLightTimeCalculator( 1, 0 ) } } };

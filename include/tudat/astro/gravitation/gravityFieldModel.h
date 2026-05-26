@@ -39,13 +39,13 @@ public:
     GravityFieldModel( const double gravitationalParameter,
                        const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
         gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~GravityFieldModel( ) { }
+    virtual ~GravityFieldModel( ) {}
 
     //! Set the gravitational parameter.
     /*!

@@ -217,7 +217,7 @@ public:
                                       const std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
         polarMotionCalculator_( polarMotionCalculator ), precessionNutationCalculator_( precessionNutationCalculator ),
         terrestrialTimeScaleConverter_( terrestrialTimeScaleConverter )
-    { }
+    {}
 
     //! Calculate rotation angles from ITRS to GCRS at given time value.
     /*!

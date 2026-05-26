@@ -17,7 +17,6 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
@@ -32,11 +31,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationParti
         switch( parameter->getParameterName( ).first )
         {
             case rtg_force_vector: {
-                    partialFunction =
-                            std::bind( &RTGAccelerationPartial::wrtRTGForceVector,
-                                       this,
-                                       std::placeholders::_1 );
-                    numberOfRows = parameter->getParameterSize( );
+                partialFunction = std::bind( &RTGAccelerationPartial::wrtRTGForceVector, this, std::placeholders::_1 );
+                numberOfRows = parameter->getParameterSize( );
                 break;
             }
             default:
@@ -46,7 +42,6 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationParti
 
     return std::make_pair( partialFunction, numberOfRows );
 }
-
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
@@ -62,10 +57,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationParti
         switch( parameter->getParameterName( ).first )
         {
             case rtg_force_vector_magnitude: {
-                partialFunction =
-                        std::bind( &RTGAccelerationPartial::wrtRTGForceVectorMagnitude,
-                                   this,
-                                   std::placeholders::_1 );
+                partialFunction = std::bind( &RTGAccelerationPartial::wrtRTGForceVectorMagnitude, this, std::placeholders::_1 );
                 numberOfRows = parameter->getParameterSize( );
 
                 break;
@@ -89,7 +81,6 @@ void RTGAccelerationPartial::update( const double currentTime )
         rtgAcceleration_->updateMembers( currentTime );
 
         currentTime_ = currentTime;
-
     }
 }
 
@@ -98,18 +89,17 @@ void RTGAccelerationPartial::wrtRTGForceVector( Eigen::MatrixXd& partialDerivati
 {
     // Compute partial derivative w.r.t. reference force vector
     double partialWrtReferenceForceVector = rtgAcceleration_->getCurrentDecayTerm( ) / rtgAcceleration_->evaluateBodyMassFunction( );
-    partialDerivativeMatrix = partialWrtReferenceForceVector * rtgAcceleration_->getCurrentRotationToIntegrationFrameMatrix(  );
-
+    partialDerivativeMatrix = partialWrtReferenceForceVector * rtgAcceleration_->getCurrentRotationToIntegrationFrameMatrix( );
 }
 
 //! Function to compute the partial w.r.t. magnitude of reference force vector
-void RTGAccelerationPartial::wrtRTGForceVectorMagnitude(Eigen::MatrixXd& partialDerivativeMatrix )
+void RTGAccelerationPartial::wrtRTGForceVectorMagnitude( Eigen::MatrixXd& partialDerivativeMatrix )
 {
     // Compute partial derivative w.r.t. magnitude of reference force vector
     Eigen::Vector3d partialWrtReferenceForceMagnitude = rtgAcceleration_->getCurrentDecayTerm( ) /
-            rtgAcceleration_->evaluateBodyMassFunction( ) * rtgAcceleration_->getCurrentRotationToIntegrationFrameMatrix(  ) * rtgAcceleration_->getBodyFixedForceUnitVectorAtReferenceEpoch( );
+            rtgAcceleration_->evaluateBodyMassFunction( ) * rtgAcceleration_->getCurrentRotationToIntegrationFrameMatrix( ) *
+            rtgAcceleration_->getBodyFixedForceUnitVectorAtReferenceEpoch( );
     partialDerivativeMatrix = partialWrtReferenceForceMagnitude;
-
 }
 
 }  // namespace acceleration_partials

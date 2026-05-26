@@ -84,7 +84,7 @@ int main( )
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection;
 
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
+    for( std::string odfFile : odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
 
     std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );

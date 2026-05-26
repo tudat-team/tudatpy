@@ -319,7 +319,8 @@ int getObservationDependentVariableSize( const std::shared_ptr< ObservationDepen
                 // `LightTimeCorrection` objects matching the optional type filter). A single
                 // requested type may match multiple registered corrections, so the resolved size
                 // is stored on the settings once the calculator is available.
-                auto lightTimeSettings = std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
+                auto lightTimeSettings =
+                        std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
                 if( lightTimeSettings != nullptr && lightTimeSettings->resolvedSize_ >= 0 )
                 {
                     variableSize = lightTimeSettings->resolvedSize_;
@@ -701,8 +702,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
 
             // Check if inverting the receiving/originating ends of the link would lead to compatible link definitions (for dependent
             // variables that are independent of the link "direction").
-            bool revertedLinksMatch =
-                    !directLinksMatch &&
+            bool revertedLinksMatch = !directLinksMatch &&
                     areInterlinksCompatible(
                             receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
             if( revertedLinksMatch )

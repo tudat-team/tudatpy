@@ -123,9 +123,9 @@ AtmosphericCorrectionPerStationAndSpacecraftType extractAtmosphericCorrection(
         {
             std::vector< observation_models::ObservableType > observableTypes = input_output::getBaseObservableTypes( observableIt->first );
 
-            for( const std::string& groundStation: groundStations )
+            for( const std::string& groundStation : groundStations )
             {
-                for( const observation_models::ObservableType& observableType: observableTypes )
+                for( const observation_models::ObservableType& observableType : observableTypes )
                 {
                     troposphericCorrection[ std::make_pair( groundStation, source ) ][ observableType ] =
                             correctionsPerStationsAndSourcePerType.at( stationsAndSourceIt->first ).at( observableIt->first );

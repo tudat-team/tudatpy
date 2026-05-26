@@ -53,8 +53,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                             gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->minimumAmplitude_,
                             gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->amplitudesFiles_,
                             gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_,
-                            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst,
-                                       std::placeholders::_1 ),
+                            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
                             gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
 
     // Create full polar motion calculator
@@ -75,8 +74,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
                     gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->minimumAmplitude_,
                     gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->amplitudesFiles_,
                     gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_,
-                    std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst,
-                               std::placeholders::_1 ),
+                    std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
                     gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > dailyUtcUt1CorrectionInterpolator =
@@ -100,9 +98,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
             std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >(
                     polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
     return std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-            earthOrientationCalculator,
-            gcrsToItrsRotationSettings->getInputTimeScale( ),
-            gcrsToItrsRotationSettings->getOriginalFrame( ) );
+            earthOrientationCalculator, gcrsToItrsRotationSettings->getInputTimeScale( ), gcrsToItrsRotationSettings->getOriginalFrame( ) );
 }
 
 }  // namespace simulation_setup

@@ -76,25 +76,24 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
     const auto buffer = initial_state.request( );
     if( buffer.ndim == 1 )
     {
-        state_vector = Eigen::Map< const Eigen::VectorXd >(
-            static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] ).template cast< STATE_SCALAR_TYPE >( );
+        state_vector = Eigen::Map< const Eigen::VectorXd >( static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] )
+                               .template cast< STATE_SCALAR_TYPE >( );
     }
     else if( buffer.ndim == 2 )
     {
         if( buffer.shape[ 1 ] == 1 )
         {
-            state_vector = Eigen::Map< const Eigen::VectorXd >(
-                static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] ).template cast< STATE_SCALAR_TYPE >( );
+            state_vector = Eigen::Map< const Eigen::VectorXd >( static_cast< const double* >( buffer.ptr ), buffer.shape[ 0 ] )
+                                   .template cast< STATE_SCALAR_TYPE >( );
         }
         else if( buffer.shape[ 0 ] == 1 )
         {
-            state_vector = Eigen::Map< const Eigen::VectorXd >(
-                static_cast< const double* >( buffer.ptr ), buffer.shape[ 1 ] ).template cast< STATE_SCALAR_TYPE >( );
+            state_vector = Eigen::Map< const Eigen::VectorXd >( static_cast< const double* >( buffer.ptr ), buffer.shape[ 1 ] )
+                                   .template cast< STATE_SCALAR_TYPE >( );
         }
         else
         {
-            throw std::runtime_error(
-                "initial_state must be a vector (shape [m] or [m,1] or [1,m])." );
+            throw std::runtime_error( "initial_state must be a vector (shape [m] or [m,1] or [1,m])." );
         }
     }
     else
@@ -102,19 +101,18 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
         throw std::runtime_error( "initial_state must be a vector (1D) or column/row vector (2D)." );
     }
 
-    return tp::bodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >(
-                reference_point_id,
-                use_acceleration_term,
-                maximum_spherical_harmonic_degree,
-                use_time_dependent_body_fixed_position,
-                topocentric_external_bodies,
-                state_vector,
-                initial_time,
-                integrator_settings,
-                termination_settings );
+    return tp::bodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >( reference_point_id,
+                                                                                                use_acceleration_term,
+                                                                                                maximum_spherical_harmonic_degree,
+                                                                                                use_time_dependent_body_fixed_position,
+                                                                                                topocentric_external_bodies,
+                                                                                                state_vector,
+                                                                                                initial_time,
+                                                                                                integrator_settings,
+                                                                                                termination_settings );
 }
 
-void expose_propagator_setup( py::module &m )
+void expose_propagator_setup( py::module& m )
 {
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -1805,16 +1803,15 @@ HybridArcPropagatorSettings
 
      )doc" );
 
-    m.def(
-        "first_order_bodycentric_relativistic_time_settings",
-        &tp::firstOrderBodycentricRelativisticTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-        py::arg( "body" ),
-        py::arg( "perturbing_bodies" ),
-        py::arg( "initial_time" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "termination_settings" ),
-        py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
-        R"doc(
+    m.def( "first_order_bodycentric_relativistic_time_settings",
+           &tp::firstOrderBodycentricRelativisticTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "body" ),
+           py::arg( "perturbing_bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
+           R"doc(
 
  Creates settings for first-order barycentric↔body-centered relativistic time conversion.
 
@@ -1884,19 +1881,18 @@ HybridArcPropagatorSettings
 
         )doc" );
 
-    m.def(
-        "bodycentered_to_topocentric_time_settings",
-        &bodycenteredToTopocentricTimePropagatorSettingsFromArray,
-        py::arg( "reference_point_id" ),
-        py::arg( "use_acceleration_term" ),
-        py::arg( "maximum_spherical_harmonic_degree" ),
-        py::arg( "use_time_dependent_body_fixed_position" ),
-        py::arg( "topocentric_external_bodies" ),
-        py::arg( "initial_state" ),
-        py::arg( "initial_time" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "termination_settings" ),
-        R"doc(
+    m.def( "bodycentered_to_topocentric_time_settings",
+           &bodycenteredToTopocentricTimePropagatorSettingsFromArray,
+           py::arg( "reference_point_id" ),
+           py::arg( "use_acceleration_term" ),
+           py::arg( "maximum_spherical_harmonic_degree" ),
+           py::arg( "use_time_dependent_body_fixed_position" ),
+           py::arg( "topocentric_external_bodies" ),
+           py::arg( "initial_state" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           R"doc(
 
  Creates settings for body-centered↔topocentric relativistic time conversion.
 
@@ -1969,18 +1965,16 @@ HybridArcPropagatorSettings
 
         )doc" );
 
-    m.def(
-        "direct_relativistic_time_settings",
-        &tp::directRelativisticTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-        py::arg( "reference_point_id" ),
-        py::arg( "initial_time" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "termination_settings" ),
-        py::arg( "distance_scaling_factor" ) = 1.0,
-        py::arg( "dependent_variables_to_save" ) =
-            std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-        py::arg( "output_settings" ) = nullptr,
-        R"doc(
+    m.def( "direct_relativistic_time_settings",
+           &tp::directRelativisticTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "reference_point_id" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "distance_scaling_factor" ) = 1.0,
+           py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "output_settings" ) = nullptr,
+           R"doc(
 
  Creates settings for direct metric-based relativistic time conversion.
 

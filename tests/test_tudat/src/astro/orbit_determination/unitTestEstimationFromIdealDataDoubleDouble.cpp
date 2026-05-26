@@ -19,7 +19,6 @@
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterParameterEstimationTestCase.h"
 
-
 namespace tudat
 {
 namespace unit_tests

@@ -32,9 +32,9 @@ namespace simulation_setup
 {
 
 std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAnglesAndRangeVector(
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::pair< std::string, std::string > groundStationId,
-        const std::string &targetBody,
+        const std::string& targetBody,
         const std::vector< double > times,
         const bool transmittingToTarget )
 {
@@ -57,7 +57,7 @@ namespace observations
 namespace observations_geometry
 {
 
-void expose_observations_geometry( py::module &m )
+void expose_observations_geometry( py::module& m )
 {
     m.def( "compute_target_angles_and_range_vectors",
            &tss::getTargetAnglesAndRangeVector,

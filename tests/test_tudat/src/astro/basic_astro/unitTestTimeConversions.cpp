@@ -91,7 +91,8 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
         // Test is run at reduced tolerance, because the final digits of the seconds were lost
         // when converting to Julian day.
 #if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-        BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch, 1.0E5 * std::numeric_limits< long double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                computedSecondsSinceEpoch, expectedSecondsSinceEpoch, 1.0E5 * std::numeric_limits< long double >::epsilon( ) );
 #endif
     }
 
@@ -416,7 +417,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     BOOST_CHECK_CLOSE_FRACTION(
             testJulianDay,
             convertSecondsSinceEpochToJulianDay< long double >( secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD_LONG ),
-          20.0 * std::numeric_limits< long double >::epsilon( ) );
+            20.0 * std::numeric_limits< long double >::epsilon( ) );
 
     // Test whether TCG and TT are both 0 at synchronization time.
     long double secondsSinceJ2000Synchronization = getTimeOfTaiSynchronizationSinceJ2000< long double >( );

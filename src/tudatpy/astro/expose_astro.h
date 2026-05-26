@@ -20,7 +20,7 @@ namespace tudatpy
 namespace astro
 {
 
-void expose_astro( py::module &m );
+void expose_astro( py::module& m );
 
 }  // namespace astro
 }  // namespace tudatpy

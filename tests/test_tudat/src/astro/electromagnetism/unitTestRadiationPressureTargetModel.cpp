@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
         std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d( 0, -1, -4 ).normalized( ), 1.0, "", reflectionLaw )
     };
     PaneledRadiationPressureTargetModel targetModel( allPanels, allPanels );
-    for( auto it: allPanels )
+    for( auto it : allPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellatio
         std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d( 0, -1, 1 ).normalized( ), 1.0, "", reflectionLaw )
     };
     PaneledRadiationPressureTargetModel targetModel( allPanels, allPanels );
-    for( auto it: allPanels )
+    for( auto it : allPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSinglePanel )
                                                                  bodyFixedPanelLocation )
     };
     auto paneledModel = PaneledRadiationPressureTargetModel( allPanels, allPanels );
-    for( auto it: allPanels )
+    for( auto it : allPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
     const auto azimuthAngles = std::get< 1 >( pairOfAngleVectors );
     const auto reflectionLaw = reflectionLawFromSpecularAndDiffuseReflectivity( 0, 1 );
 
-    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels{ };
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels{};
 
     for( unsigned int i = 0; i < numberOfPanels; ++i )
     {
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
     }
 
     auto paneledModel = PaneledRadiationPressureTargetModel( panels, panels );
-    for( auto it: panels )
+    for( auto it : panels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }

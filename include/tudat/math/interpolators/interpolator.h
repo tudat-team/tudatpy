@@ -59,7 +59,7 @@ public:
     /*!
      * Destructor.
      */
-    virtual ~Interpolator( ) { }
+    virtual ~Interpolator( ) {}
 
     //! Interpolate.
     /*!

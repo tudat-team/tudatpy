@@ -38,9 +38,9 @@ std::shared_ptr< tudat::electromagnetism::OccultationModel > createOccultationMo
             break;
         }
         default: {
-            std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions{ };
+            std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions{};
             std::vector< std::shared_ptr< basic_astrodynamics::BodyShapeModel > > occultingBodyShapeModels;
-            for( const auto& occultingBodyName: occultingBodies )
+            for( const auto& occultingBodyName : occultingBodies )
             {
                 auto occultingBody = bodies.at( occultingBodyName );
                 occultingBodyPositionFunctions.emplace_back( std::bind( &Body::getPosition, occultingBody ) );

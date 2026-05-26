@@ -48,13 +48,13 @@ TimeType timeFromDecomposedDateTime( const int year,
 }
 
 //! Function to get Time from an ISO time string
-inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
-                                             int &year,
-                                             int &month,
-                                             int &days,
-                                             int &hours,
-                                             int &minutes,
-                                             long double &seconds )
+inline void decomposedDateTimeFromIsoString( const std::string& isoTime,
+                                             int& year,
+                                             int& month,
+                                             int& days,
+                                             int& hours,
+                                             int& minutes,
+                                             long double& seconds )
 {
     try
     {
@@ -79,7 +79,7 @@ inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
         minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
         seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
     }
-    catch( std::runtime_error &caughtException )
+    catch( std::runtime_error& caughtException )
     {
         throw std::runtime_error( "Error when parsing iso datetime string " + isoTime +
                                   ". Caught exception is: " + caughtException.what( ) );
@@ -88,7 +88,7 @@ inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
 
 //! Function to get Time from an ISO time string
 template< typename TimeType >
-TimeType timeFromIsoString( const std::string &isoTime )
+TimeType timeFromIsoString( const std::string& isoTime )
 {
     int year, month, days, hours, minutes;
     long double seconds;
@@ -97,15 +97,15 @@ TimeType timeFromIsoString( const std::string &isoTime )
     return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
 }
 
-inline constexpr std::array< std::array< int, 3 >, 27 > leapSecondIntroductionDays = {{
-        { 1972, 7, 1 }, { 1973, 1, 1 }, { 1974, 1, 1 }, { 1975, 1, 1 }, { 1976, 1, 1 }, { 1977, 1, 1 }, { 1978, 1, 1 },
-        { 1979, 1, 1 }, { 1980, 1, 1 }, { 1981, 7, 1 }, { 1982, 7, 1 }, { 1983, 7, 1 }, { 1985, 7, 1 }, { 1988, 1, 1 },
-        { 1990, 1, 1 }, { 1991, 1, 1 }, { 1992, 7, 1 }, { 1993, 7, 1 }, { 1994, 7, 1 }, { 1996, 1, 1 }, { 1997, 7, 1 },
-        { 1999, 1, 1 }, { 2006, 1, 1 }, { 2009, 1, 1 }, { 2012, 7, 1 }, { 2015, 7, 1 }, { 2017, 1, 1 } }};
+inline constexpr std::array< std::array< int, 3 >, 27 > leapSecondIntroductionDays = {
+    { { 1972, 7, 1 }, { 1973, 1, 1 }, { 1974, 1, 1 }, { 1975, 1, 1 }, { 1976, 1, 1 }, { 1977, 1, 1 }, { 1978, 1, 1 },
+      { 1979, 1, 1 }, { 1980, 1, 1 }, { 1981, 7, 1 }, { 1982, 7, 1 }, { 1983, 7, 1 }, { 1985, 7, 1 }, { 1988, 1, 1 },
+      { 1990, 1, 1 }, { 1991, 1, 1 }, { 1992, 7, 1 }, { 1993, 7, 1 }, { 1994, 7, 1 }, { 1996, 1, 1 }, { 1997, 7, 1 },
+      { 1999, 1, 1 }, { 2006, 1, 1 }, { 2009, 1, 1 }, { 2012, 7, 1 }, { 2015, 7, 1 }, { 2017, 1, 1 } }
+};
 
 template< std::size_t NumberOfIntroductionDates >
-constexpr bool areLeapSecondIntroductionDaysValid(
-        const std::array< std::array< int, 3 >, NumberOfIntroductionDates >& introductionDays )
+constexpr bool areLeapSecondIntroductionDaysValid( const std::array< std::array< int, 3 >, NumberOfIntroductionDates >& introductionDays )
 {
     for( const auto& introductionDay : introductionDays )
     {
@@ -398,7 +398,7 @@ public:
                                       std::to_string( minimumChronoEpoch ) + ", upper limit: " + std::to_string( maximumChronoEpoch ) );
         }
 
-        std::tm tm = { };
+        std::tm tm = {};
         tm.tm_sec = static_cast< int >( this->getSeconds( ) );
         tm.tm_min = this->getMinute( );
         tm.tm_hour = this->getHour( );
@@ -443,7 +443,7 @@ public:
     }
 
     template< typename TimeType >
-    static DateTime fromTime( const TimeType &timeInput )
+    static DateTime fromTime( const TimeType& timeInput )
     {
         Time time = Time( timeInput );
 
@@ -496,7 +496,7 @@ public:
         return DateTime( year, month, day, hour, minute, seconds );
     }
 
-    static DateTime fromIsoString( const std::string &isoTime )
+    static DateTime fromIsoString( const std::string& isoTime )
     {
         int year, month, days, hours, minutes;
         long double seconds;
@@ -580,16 +580,17 @@ protected:
 
         if( seconds_ >= 60.0L && ( hour_ != 23 || minute_ != 59 || !basic_astrodynamics::isLeapSecondDay( year_, month_, day_ ) ) )
         {
-            throw std::runtime_error( "Error when creating Tudat DateTime, a value of 60 <= seconds < 61 is only valid for leap "
-                                      "second dates at 23:59:60 <= seconds < 61. Input was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) +
-                                      ", " + std::to_string( day_ ) + ", " + std::to_string( hour_ ) + ", " +
-                                      std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
+            throw std::runtime_error(
+                    "Error when creating Tudat DateTime, a value of 60 <= seconds < 61 is only valid for leap "
+                    "second dates at 23:59:60 <= seconds < 61. Input was " +
+                    std::to_string( year_ ) + ", " + std::to_string( month_ ) + ", " + std::to_string( day_ ) + ", " +
+                    std::to_string( hour_ ) + ", " + std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
         }
     }
 };
 
 template< typename TimeType >
-DateTime addSecondsToDateTime( const DateTime &dateTime, const TimeType timeToAdd )
+DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
 {
     utilities::printDeprecationWarning( "add_seconds_to_datetime", "DateTime.add_seconds" );
 
@@ -597,7 +598,7 @@ DateTime addSecondsToDateTime( const DateTime &dateTime, const TimeType timeToAd
 }
 
 template< typename TimeType >
-DateTime addDaysToDateTime( const DateTime &dateTime, const TimeType daysToAdd )
+DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
 {
     utilities::printDeprecationWarning( "add_days_to_datetime", "DateTime.add_days" );
     return DateTime::fromTime< Time >( dateTime.epoch< Time >( ) +
@@ -605,7 +606,7 @@ DateTime addDaysToDateTime( const DateTime &dateTime, const TimeType daysToAdd )
 }
 
 template< typename TimeType >
-TimeType getTimeDifferenceBetweenDateTimes( const DateTime &firstDateTime, const DateTime &secondDateTime )
+TimeType getTimeDifferenceBetweenDateTimes( const DateTime& firstDateTime, const DateTime& secondDateTime )
 {
     return firstDateTime.epoch< TimeType >( ) - secondDateTime.epoch< TimeType >( );
 }

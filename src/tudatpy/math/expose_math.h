@@ -20,7 +20,7 @@ namespace tudatpy
 namespace math
 {
 
-void expose_math( py::module &m );
+void expose_math( py::module& m );
 
 }
 };  // namespace tudatpy

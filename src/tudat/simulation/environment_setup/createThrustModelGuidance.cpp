@@ -184,7 +184,7 @@ namespace simulation_setup
 /// std::bind( &simulation_setup::Body::getState, /                                     bodies.at(
 /// meeCostateBasedThrustSettings->relativeBody_ ) ); /                std::function< double( ) > centralBodyGravitationalParameterFunction
 /// = /                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, / bodies.at(
-///meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+/// meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
 
 ////                thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
 ////                            thrustingBodyStateFunction, centralBodyStateFunction,

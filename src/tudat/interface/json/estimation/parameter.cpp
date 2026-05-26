@@ -347,7 +347,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< EstimatablePa
                     parameterSet = true;
                 }
                 catch( ... )
-                { }
+                {}
             }
 
             return;
@@ -385,7 +385,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< EstimatablePa
                     parameterSet = true;
                 }
                 catch( ... )
-                { }
+                {}
             }
 
             return;

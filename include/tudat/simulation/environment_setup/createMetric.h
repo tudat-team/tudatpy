@@ -28,11 +28,7 @@ extern std::map< std::pair< std::string, std::string >, std::shared_ptr< relativ
 namespace simulation_setup
 {
 
-enum SpaceTimeMetricTypes
-{
-    schwarzschild_metric,
-    solar_system_metric
-};
+enum SpaceTimeMetricTypes { schwarzschild_metric, solar_system_metric };
 
 //! Base settings class for space-time metric construction.
 class SpaceTimeMetricSettings
@@ -42,8 +38,7 @@ public:
     /*!
      *  \param metricType Identifier of metric model to construct.
      */
-    explicit SpaceTimeMetricSettings( const SpaceTimeMetricTypes metricType )
-        : metricType_( metricType ) { }
+    explicit SpaceTimeMetricSettings( const SpaceTimeMetricTypes metricType ): metricType_( metricType ) {}
 
     virtual ~SpaceTimeMetricSettings( ) = default;
 
@@ -69,12 +64,10 @@ public:
      *  \param bodyName Central body used in the Schwarzschild metric.
      *  \param includeSecondPostNewtonianOrder If true, include second post-Newtonian terms.
      */
-    SchwarzschildSpaceTimeMetricSettings(
-            const std::string& bodyName,
-            const bool includeSecondPostNewtonianOrder = false )
-        : SpaceTimeMetricSettings( schwarzschild_metric ),
-          bodyName_( bodyName ),
-          includeSecondPostNewtonianOrder_( includeSecondPostNewtonianOrder ) { }
+    SchwarzschildSpaceTimeMetricSettings( const std::string& bodyName, const bool includeSecondPostNewtonianOrder = false ):
+        SpaceTimeMetricSettings( schwarzschild_metric ), bodyName_( bodyName ),
+        includeSecondPostNewtonianOrder_( includeSecondPostNewtonianOrder )
+    {}
 
     //! Get central body name.
     std::string getBodyName( ) const
@@ -105,18 +98,16 @@ public:
      *  \param angularMomentumBodies Bodies for which angular momentum terms are included.
      *  \param useBodyAccelerations If true, include explicit body acceleration terms where required.
      */
-    SolarSystemSpaceTimeMetricSettings(
-            const std::vector< std::string >& bodiesWithFirstOrderExpansion,
-            const std::vector< std::string >& bodiesWithSecondOrderExpansion = { },
-            const std::map< std::string, std::pair< int, int > >& bodySphericalHarmonicExpansions = { },
-            const std::vector< std::string >& angularMomentumBodies = { },
-            const bool useBodyAccelerations = true )
-        : SpaceTimeMetricSettings( solar_system_metric ),
-          bodiesWithFirstOrderExpansion_( bodiesWithFirstOrderExpansion ),
-          bodiesWithSecondOrderExpansion_( bodiesWithSecondOrderExpansion ),
-          bodySphericalHarmonicExpansions_( bodySphericalHarmonicExpansions ),
-          angularMomentumBodies_( angularMomentumBodies ),
-          useBodyAccelerations_( useBodyAccelerations ) { }
+    SolarSystemSpaceTimeMetricSettings( const std::vector< std::string >& bodiesWithFirstOrderExpansion,
+                                        const std::vector< std::string >& bodiesWithSecondOrderExpansion = {},
+                                        const std::map< std::string, std::pair< int, int > >& bodySphericalHarmonicExpansions = {},
+                                        const std::vector< std::string >& angularMomentumBodies = {},
+                                        const bool useBodyAccelerations = true ):
+        SpaceTimeMetricSettings( solar_system_metric ), bodiesWithFirstOrderExpansion_( bodiesWithFirstOrderExpansion ),
+        bodiesWithSecondOrderExpansion_( bodiesWithSecondOrderExpansion ),
+        bodySphericalHarmonicExpansions_( bodySphericalHarmonicExpansions ), angularMomentumBodies_( angularMomentumBodies ),
+        useBodyAccelerations_( useBodyAccelerations )
+    {}
 
     //! Get list of first-order bodies.
     std::vector< std::string > getBodiesWithFirstOrderExpansion( ) const
@@ -164,9 +155,8 @@ private:
  *  ``bodyMap.getSpaceTimeProperties()->getPpnParameterSet()``.
  *  \return Shared pointer to metric instance.
  */
-std::shared_ptr< relativity::Metric > createSpaceTimeMetric(
-        const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
-        const simulation_setup::SystemOfBodies& bodyMap );
+std::shared_ptr< relativity::Metric > createSpaceTimeMetric( const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
+                                                             const simulation_setup::SystemOfBodies& bodyMap );
 
 //! Factory function for Schwarzschild metric settings.
 /*!
@@ -178,8 +168,7 @@ inline std::shared_ptr< SchwarzschildSpaceTimeMetricSettings > schwarzschildSpac
         const std::string& bodyName,
         const bool includeSecondPostNewtonianOrder = false )
 {
-    return std::make_shared< SchwarzschildSpaceTimeMetricSettings >(
-                bodyName, includeSecondPostNewtonianOrder );
+    return std::make_shared< SchwarzschildSpaceTimeMetricSettings >( bodyName, includeSecondPostNewtonianOrder );
 }
 
 //! Factory function for solar-system metric settings.
@@ -193,17 +182,16 @@ inline std::shared_ptr< SchwarzschildSpaceTimeMetricSettings > schwarzschildSpac
  */
 inline std::shared_ptr< SolarSystemSpaceTimeMetricSettings > solarSystemSpaceTimeMetricSettings(
         const std::vector< std::string >& bodiesWithFirstOrderExpansion,
-        const std::vector< std::string >& bodiesWithSecondOrderExpansion = { },
-        const std::map< std::string, std::pair< int, int > >& bodySphericalHarmonicExpansions = { },
-        const std::vector< std::string >& angularMomentumBodies = { },
+        const std::vector< std::string >& bodiesWithSecondOrderExpansion = {},
+        const std::map< std::string, std::pair< int, int > >& bodySphericalHarmonicExpansions = {},
+        const std::vector< std::string >& angularMomentumBodies = {},
         const bool useBodyAccelerations = true )
 {
-    return std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-                bodiesWithFirstOrderExpansion,
-                bodiesWithSecondOrderExpansion,
-                bodySphericalHarmonicExpansions,
-                angularMomentumBodies,
-                useBodyAccelerations );
+    return std::make_shared< SolarSystemSpaceTimeMetricSettings >( bodiesWithFirstOrderExpansion,
+                                                                   bodiesWithSecondOrderExpansion,
+                                                                   bodySphericalHarmonicExpansions,
+                                                                   angularMomentumBodies,
+                                                                   useBodyAccelerations );
 }
 
 //! Create and assign base metric in a SystemOfBodies from metric settings.
@@ -214,15 +202,14 @@ inline std::shared_ptr< SolarSystemSpaceTimeMetricSettings > solarSystemSpaceTim
  *  \param spaceTimeMetricSettings Metric settings defining model type and configuration.
  *  \param bodyMap System of bodies providing required environment models/functions.
  */
-inline void createBaseMetric(
-        const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
-        simulation_setup::SystemOfBodies& bodyMap )
+inline void createBaseMetric( const std::shared_ptr< SpaceTimeMetricSettings >& spaceTimeMetricSettings,
+                              simulation_setup::SystemOfBodies& bodyMap )
 {
     bodyMap.getSpaceTimeProperties( )->setBaseMetric( createSpaceTimeMetric( spaceTimeMetricSettings, bodyMap ) );
     evaluatedMetricObjects.clear( );
 }
 
-} // namespace simulation_setup
-} // namespace tudat
+}  // namespace simulation_setup
+}  // namespace tudat
 
-#endif // TUDAT_CREATE_METRIC_H
+#endif  // TUDAT_CREATE_METRIC_H

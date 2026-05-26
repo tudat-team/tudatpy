@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -23,7 +22,7 @@ namespace dynamics
 namespace parameters
 {
 
-void expose_parameters( py::module &m );
+void expose_parameters( py::module& m );
 
 }  // namespace parameters
 }  // namespace dynamics

@@ -64,7 +64,7 @@ public:
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
 
-    ~DummyGuidanceSystem( ) { }
+    ~DummyGuidanceSystem( ) {}
 
     Eigen::Vector3d computeAndGetAerodynamicAngles( const double currentTime )
     {

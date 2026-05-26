@@ -135,7 +135,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~FilterBase( ) { }
+    virtual ~FilterBase( ) {}
 
     //! Function to update the filter with the data from the new time step.
     /*!
@@ -417,7 +417,7 @@ protected:
      *  Function to clear the history of stored variables for derived class-specific variables. This function can be overwritten in
      *  a derived class, to add other variables to the list of variables to be cleared.
      */
-    virtual void clearSpecificFilterHistory( ) { }
+    virtual void clearSpecificFilterHistory( ) {}
 
     //! Function to revert to the previous time step for derived class-specific variables.
     /*!

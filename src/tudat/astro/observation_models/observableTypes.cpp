@@ -653,7 +653,6 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
     return undifferencedObservableType;
 }
 
-
 ObservableType getUnconcatenatedObservableType( const ObservableType observableType )
 {
     ObservableType unconcatenatedObservableType = undefined_observation_model;
@@ -1223,7 +1222,7 @@ int getNumberOfLinksInObservable( const ObservableType observableType, const int
 std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId( const LinkEnds& linkEnds, const LinkEndId linkEndToCheck )
 {
     std::vector< LinkEndType > linkEndTypeList;
-    for( auto linkEndIterator: linkEnds )
+    for( auto linkEndIterator : linkEnds )
     {
         if( linkEndToCheck == linkEndIterator.second )
         {
@@ -1554,7 +1553,7 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         case doppler_measured_frequency: {
             // Retrieve link indices
             std::map< int, std::pair< LinkEndType, LinkEndId > > linkIndices;
-            for( auto linkEndIt: linkEnds )
+            for( auto linkEndIt : linkEnds )
             {
                 linkIndices[ getNWayLinkIndexFromLinkEndType( linkEndIt.first, linkEnds.size( ) ) ] =
                         std::make_pair( linkEndIt.first, linkEndIt.second );
