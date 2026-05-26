@@ -1,0 +1,30 @@
+# Derived from official pre-commit action, which is maintenance only but no longer merges PRs: https://github.com/pre-commit/action/blob/1b06ec171f2f6faa71ed760c4042bd969e4f8b43/action.yml
+
+name: pre-commit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - run: python -m pip install pre-commit
+
+      - run: python -m pip freeze --local
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - run: pre-commit run --show-diff-on-failure --color=always --all-files
