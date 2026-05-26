@@ -568,8 +568,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
                         .template lpNorm< Eigen::Infinity >( );
         if( !( maximumDifference < 1.0E-14 ) )
         {
-            throw std::runtime_error(
-                    "Error when testing deferred bias reset: pre-closure values were not applied after closure." );
+            throw std::runtime_error( "Error when testing deferred bias reset: pre-closure values were not applied after closure." );
         }
     }
 

@@ -74,7 +74,7 @@ public:
                               std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
     //! Destructor
-    virtual ~FlightConditions( ) { }
+    virtual ~FlightConditions( ) {}
 
     std::string getCentralBody( )
     {
@@ -287,8 +287,7 @@ protected:
     //! Function to compute and set the current radius
     void computeRadius( )
     {
-        scalarFlightConditions_[ radius_flight_condition ] =
-                currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ).norm( );
+        scalarFlightConditions_[ radius_flight_condition ] = currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ).norm( );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ radius_flight_condition ] = true;

@@ -57,8 +57,7 @@ public:
                 observationBiasCalculator,
                 std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
                         fullLinkLightTimeCalculator } ),
-        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
-        downlinkDopplerCalculator_( downlinkDopplerCalculator )
+        uplinkDopplerCalculator_( uplinkDopplerCalculator ), downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
@@ -180,7 +179,8 @@ public:
         return multiplicationTerm_;
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
     {
         std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
         const auto legCalculators = this->getLightTimeCalculatorsFromBase( );

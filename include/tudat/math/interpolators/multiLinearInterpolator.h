@@ -100,8 +100,9 @@ public:
     {
         if( periods_.size( ) != NumberOfDimensions )
         {
-            throw std::runtime_error( "Error when making multi-linear interpolator, periods vector size is incompatible "
-                                      "with template parameter." );
+            throw std::runtime_error(
+                    "Error when making multi-linear interpolator, periods vector size is incompatible "
+                    "with template parameter." );
         }
 
         // Save (in)dependent variables
@@ -169,13 +170,13 @@ public:
                                          NumberOfDimensions,
                                          std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ),
                                  periods )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~MultiLinearInterpolator( ) { }
+    ~MultiLinearInterpolator( ) {}
 
     //! Function to get the periods vector for periodic interpolation.
     /*!
@@ -203,8 +204,7 @@ public:
     }
 
     //! Structure to cache interpolation state for batch operations
-    struct InterpolationState
-    {
+    struct InterpolationState {
         std::vector< unsigned int > nearestLowerIndices;
         std::vector< IndependentVariableType > localIndependentValues;
         bool isValid = false;
@@ -270,7 +270,7 @@ public:
         }
 
         // Pre-compute 2D interpolation fractions if applicable
-        if ( NumberOfDimensions == 2 )
+        if( NumberOfDimensions == 2 )
         {
             state.i0 = state.nearestLowerIndices[ 0 ];
             state.i1 = state.nearestLowerIndices[ 1 ];
@@ -342,7 +342,7 @@ public:
         }
 
         // Use optimized 2D implementation if available
-        if ( NumberOfDimensions == 2 )
+        if( NumberOfDimensions == 2 )
         {
             // Access the four corner values directly using pre-computed indices (with wrap-around)
             boost::array< unsigned int, 2 > indices;
@@ -364,10 +364,8 @@ public:
             const DependentVariableType v11 = dependentData_( indices );
 
             // Perform bilinear interpolation using pre-computed fractions
-            return state.one_minus_tx * state.one_minus_ty * v00 +
-                   state.tx * state.one_minus_ty * v10 +
-                   state.one_minus_tx * state.ty * v01 +
-                   state.tx * state.ty * v11;
+            return state.one_minus_tx * state.one_minus_ty * v00 + state.tx * state.one_minus_ty * v10 +
+                    state.one_minus_tx * state.ty * v01 + state.tx * state.ty * v11;
         }
         else
         {
@@ -435,7 +433,7 @@ public:
         }
 
         // Use optimized 2D implementation if available (avoids recursion overhead)
-        if ( NumberOfDimensions == 2 )
+        if( NumberOfDimensions == 2 )
         {
             return interpolate2DOptimized( localIndependentValues, nearestLowerIndices );
         }
@@ -477,10 +475,8 @@ private:
 
         const IndependentVariableType period = periods_.at( dimensionIndex );
         IndependentVariableType diff = val2 - val1;
-        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
-                    static_cast< double >( period ) / 2.0 );
-        const IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
-                    static_cast< double >( period ) / -2.0 );
+        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >( static_cast< double >( period ) / 2.0 );
+        const IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >( static_cast< double >( period ) / -2.0 );
 
         while( diff > halfPeriod )
         {
@@ -503,9 +499,8 @@ private:
      * \param nearestLowerIndices Indices of nearest lower neighbors in each dimension
      * \return Interpolated value of dependent variable
      */
-    DependentVariableType interpolate2DOptimized(
-        const std::vector< IndependentVariableType >& independentValues,
-        const std::vector< unsigned int >& nearestLowerIndices )
+    DependentVariableType interpolate2DOptimized( const std::vector< IndependentVariableType >& independentValues,
+                                                  const std::vector< unsigned int >& nearestLowerIndices )
     {
         // Pre-compute interpolation fractions for both dimensions
         const unsigned int i0 = nearestLowerIndices[ 0 ];
@@ -597,10 +592,7 @@ private:
 
         // Perform bilinear interpolation using the formula:
         // f(x,y) = (1-tx)*(1-ty)*v00 + tx*(1-ty)*v10 + (1-tx)*ty*v01 + tx*ty*v11
-        return one_minus_tx * one_minus_ty * v00 +
-               tx * one_minus_ty * v10 +
-               one_minus_tx * ty * v01 +
-               tx * ty * v11;
+        return one_minus_tx * one_minus_ty * v00 + tx * one_minus_ty * v10 + one_minus_tx * ty * v01 + tx * ty * v11;
     }
 
     //! Make the lookup scheme that is to be used.

@@ -20,27 +20,20 @@ namespace tudat
 namespace observation_models
 {
 
-NeQuick2IonosphericCorrection::NeQuick2IonosphericCorrection(
-    std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
-    std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
-    std::shared_ptr< environment::IonosphereModel > ionexModel,
-    const ObservableType observableType,
-    std::function< Eigen::Vector6d( double ) > earthStateFunction,
-    std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
-    double earthEquatorialRadius,
-    double firstOrderDelayCoefficient,
-    int quadratureOrder,
-    double ionexRmsBiasTecu )
-    : LightTimeCorrection( nequick2_ionospheric ),
-      neQuick2Model_( neQuick2Model ),
-      rescaledModel_( rescaledModel ),
-      ionexModel_( ionexModel ),
-      earthStateFunction_( earthStateFunction ),
-      earthRotationToBodyFixedFunction_( earthRotationToBodyFixedFunction ),
-      earthEquatorialRadius_( earthEquatorialRadius ),
-      firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
-      quadratureOrder_( quadratureOrder ),
-      ionexRmsBiasTecu_( ionexRmsBiasTecu )
+NeQuick2IonosphericCorrection::NeQuick2IonosphericCorrection( std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
+                                                              std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
+                                                              std::shared_ptr< environment::IonosphereModel > ionexModel,
+                                                              const ObservableType observableType,
+                                                              std::function< Eigen::Vector6d( double ) > earthStateFunction,
+                                                              std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
+                                                              double earthEquatorialRadius,
+                                                              double firstOrderDelayCoefficient,
+                                                              int quadratureOrder,
+                                                              double ionexRmsBiasTecu ):
+    LightTimeCorrection( nequick2_ionospheric ), neQuick2Model_( neQuick2Model ), rescaledModel_( rescaledModel ),
+    ionexModel_( ionexModel ), earthStateFunction_( earthStateFunction ),
+    earthRotationToBodyFixedFunction_( earthRotationToBodyFixedFunction ), earthEquatorialRadius_( earthEquatorialRadius ),
+    firstOrderDelayCoefficient_( firstOrderDelayCoefficient ), quadratureOrder_( quadratureOrder ), ionexRmsBiasTecu_( ionexRmsBiasTecu )
 {
     if( isRadiometricObservableType( observableType ) )
     {
@@ -54,22 +47,20 @@ NeQuick2IonosphericCorrection::NeQuick2IonosphericCorrection(
         }
         else
         {
-            throw std::runtime_error(
-                "Error when creating NeQuick-2 ionospheric correction: radiometric type not recognized." );
+            throw std::runtime_error( "Error when creating NeQuick-2 ionospheric correction: radiometric type not recognized." );
         }
     }
     else
     {
-        throw std::runtime_error(
-            "Error when creating NeQuick-2 ionospheric correction: only valid for radiometric observable types." );
+        throw std::runtime_error( "Error when creating NeQuick-2 ionospheric correction: only valid for radiometric observable types." );
     }
 }
 
 double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-    const std::vector< Eigen::Vector6d >& linkEndsStates,
-    const std::vector< double >& linkEndsTimes,
-    const unsigned int currentMultiLegTransmitterIndex,
-    const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
+        const std::vector< Eigen::Vector6d >& linkEndsStates,
+        const std::vector< double >& linkEndsTimes,
+        const unsigned int currentMultiLegTransmitterIndex,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Extract transmitter/receiver states and times
     Eigen::Vector6d legTransmitterState, legReceiverState;
@@ -94,9 +85,8 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
     }
     else
     {
-        throw std::runtime_error(
-            "Error when computing NeQuick-2 ionospheric correction: unsupported link index " +
-            std::to_string( currentMultiLegTransmitterIndex ) );
+        throw std::runtime_error( "Error when computing NeQuick-2 ionospheric correction: unsupported link index " +
+                                  std::to_string( currentMultiLegTransmitterIndex ) );
     }
 
     // Use the average time for the correction
@@ -126,7 +116,7 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
     if( rescaledModel_ != nullptr )
     {
         stec = rescaledModel_->computeRescaledSlantTec(
-            txBodyFixed, rxBodyFixed, correctionTime, earthEquatorialRadius_, quadratureOrder_ );
+                txBodyFixed, rxBodyFixed, correctionTime, earthEquatorialRadius_, quadratureOrder_ );
     }
     else
     {
@@ -139,32 +129,28 @@ double NeQuick2IonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLi
         Eigen::Vector3d rayDir = rxBodyFixed - txBodyFixed;
         double pathLength = rayDir.norm( );
 
-        std::function< double( double ) > electronDensityAlongRay =
-            [ this, &txBodyFixed, &rayDir, month, flx, ut ]( double t ) {
-                Eigen::Vector3d pos = txBodyFixed + t * rayDir;
-                double radius = pos.norm( );
-                double heightKm = ( radius - earthEquatorialRadius_ ) / 1.0e3;
-                if( heightKm < 0.0 ) return 0.0;
+        std::function< double( double ) > electronDensityAlongRay = [ this, &txBodyFixed, &rayDir, month, flx, ut ]( double t ) {
+            Eigen::Vector3d pos = txBodyFixed + t * rayDir;
+            double radius = pos.norm( );
+            double heightKm = ( radius - earthEquatorialRadius_ ) / 1.0e3;
+            if( heightKm < 0.0 ) return 0.0;
 
-                double latRad = std::asin( pos.z( ) / radius );
-                double lonRad = std::atan2( pos.y( ), pos.x( ) );
-                double latDeg = latRad * 180.0 / mathematical_constants::PI;
-                double lonDeg = lonRad * 180.0 / mathematical_constants::PI;
+            double latRad = std::asin( pos.z( ) / radius );
+            double lonRad = std::atan2( pos.y( ), pos.x( ) );
+            double latDeg = latRad * 180.0 / mathematical_constants::PI;
+            double lonDeg = lonRad * 180.0 / mathematical_constants::PI;
 
-                return neQuick2Model_->computeElectronDensity(
-                    heightKm, latDeg, lonDeg, month, flx, ut );
-            };
+            return neQuick2Model_->computeElectronDensity( heightKm, latDeg, lonDeg, month, flx, ut );
+        };
 
-        numerical_quadrature::GaussianQuadrature< double, double > quadrature(
-            electronDensityAlongRay, 0.0, 1.0, quadratureOrder_ );
+        numerical_quadrature::GaussianQuadrature< double, double > quadrature( electronDensityAlongRay, 0.0, 1.0, quadratureOrder_ );
 
         stec = quadrature.getQuadrature( ) * pathLength;
     }
 
     // Compute the correction
-    double correction = sign_ * firstOrderDelayCoefficient_ * stec /
-           std::pow( currentFrequency, 2.0 ) /
-           physical_constants::getSpeedOfLight< double >( );
+    double correction = sign_ * firstOrderDelayCoefficient_ * stec / std::pow( currentFrequency, 2.0 ) /
+            physical_constants::getSpeedOfLight< double >( );
 
     // Compute 1-sigma uncertainty from IONEX RMS + bias
     lastCorrectionUncertaintySigma_ = 0.0;

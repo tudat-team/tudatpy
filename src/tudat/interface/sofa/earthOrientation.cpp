@@ -133,7 +133,7 @@ Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const
             .finished( );
 }
 
-void getPrecessionAngles( double &zeta, double &z, double &theta, const double terrestrialTime, const double referenceJulianDay )
+void getPrecessionAngles( double& zeta, double& z, double& theta, const double terrestrialTime, const double referenceJulianDay )
 {
     iauPrec76( referenceJulianDay, terrestrialTime, referenceJulianDay, 0, &zeta, &z, &theta );
 }

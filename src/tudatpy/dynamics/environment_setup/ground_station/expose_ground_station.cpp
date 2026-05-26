@@ -135,7 +135,8 @@ void expose_ground_station_setup( py::module& m )
       )doc" )
             .def_property( "station_position",
                            &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition, R"doc(
+                           &tss::GroundStationSettings::resetGroundStationPosition,
+                           R"doc(
                            Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
 
                            :type: numpy.ndarray([3,1])
@@ -155,8 +156,10 @@ void expose_ground_station_setup( py::module& m )
             :type: ~tudatpy.astro.element_conversion.PositionElementTypes
 
                 )doc" )
-            .def_property(
-                    "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings, &tss::GroundStationSettings::setStationMotionSettings, R"doc(
+            .def_property( "station_motion_settings",
+                           &tss::GroundStationSettings::getStationMotionSettings,
+                           &tss::GroundStationSettings::setStationMotionSettings,
+                           R"doc(
 
                 List of motion settings for the ground station, defining time-variations of the station position.
 

@@ -56,7 +56,7 @@ namespace propagation_setup
 namespace integrator
 {
 
-void expose_integrator( py::module &m )
+void expose_integrator( py::module& m )
 {
     // ENUMS
     py::enum_< tni::MinimumIntegrationTimeStepHandling >( m, "MinimumIntegrationTimeStepHandling", R"doc(

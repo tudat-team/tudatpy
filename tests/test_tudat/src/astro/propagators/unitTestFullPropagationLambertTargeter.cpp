@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeterBasic )
                                             dependentVariableResult,
                                             false );
 
-    for( auto stateIterator: lambertTargeterResult )
+    for( auto stateIterator : lambertTargeterResult )
     {
         for( int i = 0; i < 3; i++ )
         {

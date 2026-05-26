@@ -20,7 +20,6 @@ namespace tudat
 namespace unit_tests
 {
 
-
 Eigen::VectorXd getDefaultInitialParameterPerturbation( );
 
 }  // namespace unit_tests

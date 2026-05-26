@@ -71,7 +71,7 @@ public:
      * \param terminationFunction The function specifying the termination conditions of the
      *          root-finding process. \sa RootFinderCore::terminationFunction
      */
-    HalleyRootFinder( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) { }
+    HalleyRootFinder( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) {}
 
     //! Constructor taking typical convergence criteria.
     /*!
@@ -94,13 +94,13 @@ public:
                            std::placeholders::_3,
                            std::placeholders::_4,
                            std::placeholders::_5 ) )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~HalleyRootFinder( ) { }
+    ~HalleyRootFinder( ) {}
 
     //! Find a root of the function provided as input.
     /*!

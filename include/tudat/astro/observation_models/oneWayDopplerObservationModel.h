@@ -270,7 +270,7 @@ public:
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
             const std::vector< LinkEndType >& perturbingBodyMatchLinkEnds,
             const std::vector< std::string >& perturbingBodyNames,
-            const std::function< double( ) >& equivalencePrincipleLpiViolationParameterFunction = [ ]( ){ return 0.0; } ):
+            const std::function< double( ) >& equivalencePrincipleLpiViolationParameterFunction = []( ) { return 0.0; } ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ), gravitationalParameterFunctions_( gravitationalParameterFunctions ),
         perturbingBodyStateFunctions_( perturbingBodyStateFunctions ), perturbingBodyMatchLinkEnds_( perturbingBodyMatchLinkEnds ),
         perturbingBodyNames_( perturbingBodyNames ),
@@ -481,12 +481,12 @@ public:
                 one_way_doppler,
                 linkEnds,
                 observationBiasCalculator,
-                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                        std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                                std::vector< std::shared_ptr<
-                                        observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{ lightTimeCalculator },
-                                std::make_shared< LightTimeConvergenceCriteria >( ),
-                                false ) } ),
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ std::make_shared<
+                        FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) } ),
         transmitterProperTimeRateCalculator_(
                 ( transmitterProperTimeRateFunction == nullptr )
                         ? nullptr
@@ -523,12 +523,12 @@ public:
                 one_way_doppler,
                 linkEnds,
                 observationBiasCalculator,
-                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                        std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                                std::vector< std::shared_ptr<
-                                        observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{ lightTimeCalculator },
-                                std::make_shared< LightTimeConvergenceCriteria >( ),
-                                false ) } ),
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ std::make_shared<
+                        FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) } ),
         transmitterProperTimeRateCalculator_( transmitterProperTimeRateCalculator ),
         receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )
     {
@@ -635,7 +635,8 @@ public:
         return this->getSingleLegLightTimeCalculator( );
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
     {
         return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( ) } } };
     }

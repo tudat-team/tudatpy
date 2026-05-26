@@ -46,7 +46,7 @@ class ApplicationOptions
 {
 public:
     //! Constructor.
-    ApplicationOptions( ) { }
+    ApplicationOptions( ) {}
 
     //! Whether a message should be printed when the propagation starts.
     bool notifyOnPropagationStart_ = false;

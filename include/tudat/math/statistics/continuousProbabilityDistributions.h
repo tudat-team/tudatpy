@@ -63,7 +63,7 @@ class ContinuousProbabilityDistribution
 {
 public:
     //! Destructor
-    virtual ~ContinuousProbabilityDistribution( ) { }
+    virtual ~ContinuousProbabilityDistribution( ) {}
 
     //! Function to evaluate pdf of distribution
     /*!
@@ -91,7 +91,7 @@ public:
     using ContinuousProbabilityDistribution< IndependentVariableType >::evaluateCdf;
 
     //! Destructor
-    virtual ~InvertibleContinuousProbabilityDistribution( ) { }
+    virtual ~InvertibleContinuousProbabilityDistribution( ) {}
 
     //! Function to evaluate inverse cdf of distribution
     /*!

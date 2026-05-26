@@ -33,9 +33,9 @@ enum StationMotionModelTypes {
 class GroundStationMotionSettings
 {
 public:
-    GroundStationMotionSettings( const StationMotionModelTypes& modelType ): modelType_( modelType ) { }
+    GroundStationMotionSettings( const StationMotionModelTypes& modelType ): modelType_( modelType ) {}
 
-    virtual ~GroundStationMotionSettings( ) { }
+    virtual ~GroundStationMotionSettings( ) {}
 
     StationMotionModelTypes getModelType( )
     {
@@ -51,9 +51,9 @@ class BodyDeformationStationMotionSettings : public GroundStationMotionSettings
 public:
     BodyDeformationStationMotionSettings( const bool throwExceptionWhenNotAvailable = true ):
         GroundStationMotionSettings( body_deformation_station_motion ), throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable )
-    { }
+    {}
 
-    virtual ~BodyDeformationStationMotionSettings( ) { }
+    virtual ~BodyDeformationStationMotionSettings( ) {}
 
     bool throwExceptionWhenNotAvailable_;
 };
@@ -63,9 +63,9 @@ class LinearGroundStationMotionSettings : public GroundStationMotionSettings
 public:
     LinearGroundStationMotionSettings( const Eigen::Vector3d& linearVelocity, const double referenceEpoch = 0.0 ):
         GroundStationMotionSettings( linear_station_motion ), linearVelocity_( linearVelocity ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
-    virtual ~LinearGroundStationMotionSettings( ) { }
+    virtual ~LinearGroundStationMotionSettings( ) {}
 
     Eigen::Vector3d linearVelocity_;
 
@@ -77,9 +77,9 @@ class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionS
 public:
     PiecewiseConstantGroundStationMotionSettings( const std::map< double, Eigen::Vector3d >& displacementList ):
         GroundStationMotionSettings( piecewise_constant_station_motion ), displacementList_( displacementList )
-    { }
+    {}
 
-    virtual ~PiecewiseConstantGroundStationMotionSettings( ) { }
+    virtual ~PiecewiseConstantGroundStationMotionSettings( ) {}
 
     std::map< double, Eigen::Vector3d > displacementList_;
 };
@@ -91,9 +91,9 @@ public:
                                                          const bool useGeneralRelativisticCorrection = true ):
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ), centralBodyName_( centralBodyName ),
         useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
-    { }
+    {}
 
-    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) { }
+    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ) {}
 
     std::string centralBodyName_;
 
@@ -112,9 +112,9 @@ public:
         GroundStationMotionSettings( custom_station_motion ), customDisplacementModel_( [ = ]( const double time ) {
             return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( );
         } )
-    { }
+    {}
 
-    virtual ~CustomGroundStationMotionSettings( ) { }
+    virtual ~CustomGroundStationMotionSettings( ) {}
 
     const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
 };
@@ -161,7 +161,7 @@ public:
                     stationMotionSettings = { std::make_shared< BodyDeformationStationMotionSettings >( true ) } ):
         stationName_( stationName ), groundStationPosition_( groundStationPosition ), positionElementType_( positionElementType ),
         stationMotionSettings_( stationMotionSettings )
-    { }
+    {}
 
     std::string getStationName( )
     {
@@ -188,7 +188,7 @@ public:
         return stationMotionSettings_;
     }
 
-    void setStationMotionSettings(const std::vector < std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings )
+    void setStationMotionSettings( const std::vector< std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings )
     {
         stationMotionSettings_ = stationMotionSettings;
     }
@@ -492,23 +492,22 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
             &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, linkEndEphemeris, std::placeholders::_1 );
 }
 
-
 template< typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, 6, 1 > calculateCurrentInertialReferencePointStateDuringPropagation(
         const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) >& bodyStateFunction,
         const std::function< Eigen::Quaterniond( ) >& bodyRotationFunction,
         const std::function< Eigen::Vector3d( ) >& bodyFixedReferencePointStateFunction,
-        const std::function< Eigen::Matrix3d( ) >& bodyDerivativeRotationFunction = [](){ return Eigen::Matrix3d::Zero(); } )
+        const std::function< Eigen::Matrix3d( ) >& bodyDerivativeRotationFunction = []( ) { return Eigen::Matrix3d::Zero( ); } )
 {
     Eigen::Matrix< StateScalarType, 6, 1 > localReferencePointState;
-    localReferencePointState << bodyFixedReferencePointStateFunction().template cast< StateScalarType >(),
-                                Eigen::Matrix< StateScalarType, 3, 1 >::Zero();
+    localReferencePointState << bodyFixedReferencePointStateFunction( ).template cast< StateScalarType >( ),
+            Eigen::Matrix< StateScalarType, 3, 1 >::Zero( );
 
     Eigen::Matrix< StateScalarType, 6, 1 > inertialReferencePointState =
             ephemerides::transformStateToFrameFromRotationFunctions< StateScalarType >(
-                localReferencePointState, bodyRotationFunction, bodyDerivativeRotationFunction );
+                    localReferencePointState, bodyRotationFunction, bodyDerivativeRotationFunction );
 
-    return bodyStateFunction() + inertialReferencePointState;
+    return bodyStateFunction( ) + inertialReferencePointState;
 }
 
 template< typename StateScalarType = double >
@@ -527,12 +526,11 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > createReferencePointS
     std::function< Eigen::Matrix3d( ) > bodyRotationDerivativeFunction =
             std::bind( &simulation_setup::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, bodyWithReferencePoint );
 
-    return std::bind(
-        &calculateCurrentInertialReferencePointStateDuringPropagation< StateScalarType >,
-        bodyStateFunction,
-        bodyRotationFunction,
-        bodyFixedReferencePointStateFunction,
-        bodyRotationDerivativeFunction );
+    return std::bind( &calculateCurrentInertialReferencePointStateDuringPropagation< StateScalarType >,
+                      bodyStateFunction,
+                      bodyRotationFunction,
+                      bodyFixedReferencePointStateFunction,
+                      bodyRotationDerivativeFunction );
 }
 
 template< typename StateScalarType = double >
@@ -551,16 +549,14 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCur
         }
 
         auto referencePoint = celestialBody->getGroundStation( linkEndId.second );
-        auto nominalStateFunction = std::bind(
-            &ground_stations::GroundStationState::getNominalCartesianPosition,
-            referencePoint->getNominalStationState( ) );
+        auto nominalStateFunction =
+                std::bind( &ground_stations::GroundStationState::getNominalCartesianPosition, referencePoint->getNominalStationState( ) );
 
         linkEndCompleteStateFunction = createReferencePointStateFunctionDuringPropagation( bodyWithLinkEnd, nominalStateFunction );
     }
     else  // center of mass
     {
-        linkEndCompleteStateFunction = std::bind(
-            &simulation_setup::Body::getState, bodyWithLinkEnd );
+        linkEndCompleteStateFunction = std::bind( &simulation_setup::Body::getState, bodyWithLinkEnd );
     }
 
     return linkEndCompleteStateFunction;
@@ -576,15 +572,8 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > getLinkEndCompleteCur
         throw std::runtime_error( "Error: body " + linkEndId.first + " not found in SystemOfBodies." );
     }
 
-    return getLinkEndCompleteCurrentStateFunctionDuringPropagation< StateScalarType >(
-        bodyMap.at( linkEndId.first ), linkEndId );
+    return getLinkEndCompleteCurrentStateFunctionDuringPropagation< StateScalarType >( bodyMap.at( linkEndId.first ), linkEndId );
 }
-
-
-
-
-
-
 
 // std::vector< double >  getTargetElevationAngles(
 //         const std::shared_ptr< Body > observingBody,

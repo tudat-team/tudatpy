@@ -103,7 +103,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyGaussModifiedEquinictialStateDerivative( ) { }
+    ~NBodyGaussModifiedEquinictialStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for MEE
     /*!

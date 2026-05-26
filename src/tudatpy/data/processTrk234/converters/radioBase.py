@@ -6,7 +6,7 @@ from tudatpy.dynamics.environment_setup.ground_station import (
     # from tudatpy.dynamics.environment import (
     get_approximate_dsn_ground_station_positions,
 )
-from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type:ignore
+from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type: ignore
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.astro import time_representation
 from . import Converter
@@ -144,9 +144,7 @@ class RadioBase(Converter):
         if link_end_tuple[0] == "nan":
             return {
                 links.transmitter: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id(
-                    "Earth", link_end_tuple[2]
-                ),
+                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
             }
         else:
             return {
@@ -154,9 +152,7 @@ class RadioBase(Converter):
                     "Earth", link_end_tuple[0]
                 ),
                 links.reflector1: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id(
-                    "Earth", link_end_tuple[2]
-                ),
+                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
             }
 
     def from_datetime_UTC_to_TDB(self, datetime_utc: datetime, station: str) -> float:
@@ -176,9 +172,7 @@ class RadioBase(Converter):
         if station not in self.stationDict:
             raise KeyError(
                 "Error when processing TNF file, converting time from UTC to TDB: \n"
-                + "the position of the ground station {} was not specified.".format(
-                    station
-                )
+                + "the position of the ground station {} was not specified.".format(station)
             )
 
         epoch_utc = time_representation.DateTime.from_python_datetime(datetime_utc).to_epoch()

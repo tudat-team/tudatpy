@@ -57,7 +57,8 @@ public:
                 observationBiasCalculator,
                 std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
                         std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                                lightTimeCalculators, lightTimeConvergenceCriteria ) } ),
+                                lightTimeCalculators,
+                                lightTimeConvergenceCriteria ) } ),
         scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
     {}
 
@@ -74,8 +75,7 @@ public:
                 observationBiasCalculator,
                 std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
                         fullLinkLightTimeCalculator } ),
-        scaleForTimeDifference_( scaleForTimeDifference ),
-        stationStates_( groundStationStates )
+        scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
     {}
 
     //! Destructor
@@ -150,7 +150,8 @@ public:
         return this->getFullLinkLightTimeCalculatorFromBase( );
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
     {
         std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
         const auto legCalculators = this->getLightTimeCalculatorsFromBase( );

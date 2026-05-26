@@ -147,7 +147,7 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
 
     // Collect original source body names
     std::set< std::string > originalSourceBodyNames;
-    for( auto& radiosityModelSetting: modelSettings )
+    for( auto& radiosityModelSetting : modelSettings )
     {
         auto originalSourceDependentRadiosityModelSetting =
                 std::dynamic_pointer_cast< OriginalSourceDependentPanelRadiosityModelSettings >( radiosityModelSetting );
@@ -162,7 +162,7 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
     std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > > originalSourceBodyShapeModels;
     std::map< std::string, std::function< Eigen::Vector3d( ) > > originalSourcePositionFunctions;
     std::map< std::string, std::shared_ptr< electromagnetism::OccultationModel > > originalSourceToSourceOccultationModels;
-    for( auto& originalSourceBodyName: originalSourceBodyNames )
+    for( auto& originalSourceBodyName : originalSourceBodyNames )
     {
         auto originalSourceBody = bodies.at( originalSourceBodyName );
 
@@ -185,7 +185,7 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
                                       " (original source) has no isotropic point radiation source model." );
         }
 
-        std::vector< std::string > originalSourceToSourceOccultingBodies = { };
+        std::vector< std::string > originalSourceToSourceOccultingBodies = {};
         if( originalSourceToSourceOccultingBodiesMap.count( originalSourceBodyName ) > 0 )
         {
             originalSourceToSourceOccultingBodies = originalSourceToSourceOccultingBodiesMap.at( originalSourceBodyName );
@@ -197,7 +197,7 @@ std::unique_ptr< electromagnetism::SourcePanelRadiosityModelUpdater > createSour
         }
 
         // Check if occulting bodies are not original source or source
-        for( auto& occultingBodyName: originalSourceToSourceOccultingBodies )
+        for( auto& occultingBodyName : originalSourceToSourceOccultingBodies )
         {
             if( occultingBodyName == originalSourceBodyName )
             {
@@ -271,7 +271,7 @@ std::shared_ptr< electromagnetism::RadiationSourceModel > createRadiationSourceM
             auto sourceBody = bodies.getBody( sourceBodyName );
 
             std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels;
-            for( auto& radiosityModelSetting: paneledModelSettings->getPanelRadiosityModelSettings( ) )
+            for( auto& radiosityModelSetting : paneledModelSettings->getPanelRadiosityModelSettings( ) )
             {
                 radiosityModels.push_back( createPanelRadiosityModel( radiosityModelSetting, sourceBodyName ) );
             }

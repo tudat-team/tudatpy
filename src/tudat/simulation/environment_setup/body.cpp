@@ -77,7 +77,8 @@ void Body::setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
 Eigen::Vector7d Body::getRotationalStateVector( )
 {
     Eigen::Vector7d rotationalStateVector;
-    rotationalStateVector.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
+    rotationalStateVector.segment( 0, 4 ) =
+            linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
     rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
     return rotationalStateVector;
 }
@@ -740,7 +741,7 @@ std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( auto bodyIterator: bodies.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
@@ -767,7 +768,7 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 {
     // Get ephemerides from bodies
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
-    for( auto bodyIterator: bodies )
+    for( auto bodyIterator : bodies )
     {
         if( bodyIterator.second->getEphemeris( ) != nullptr )
         {
@@ -780,7 +781,7 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 //! Function to set whether the bodies are currently being propagated, or not
 void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator: bodies.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }

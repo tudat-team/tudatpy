@@ -40,10 +40,10 @@ public:
      */
     OneWayDopplerProperTimeComponentScaling( const observation_models::LinkEndType linkEndWithPartial ):
         linkEndWithPartial_( linkEndWithPartial )
-    { }
+    {}
 
     //! Destructor
-    virtual ~OneWayDopplerProperTimeComponentScaling( ) { }
+    virtual ~OneWayDopplerProperTimeComponentScaling( ) {}
 
     //! Function to retrieve the scaling factor for the derivative w.r.t. the position of a given link end
     /*!
@@ -231,7 +231,7 @@ public:
     }
 
     //! Destructor
-    ~OneWayDopplerScaling( ) { }
+    ~OneWayDopplerScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!

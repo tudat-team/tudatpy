@@ -38,10 +38,10 @@ public:
     ConstantRotationalOrientation( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
                                    const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( rotation_pole_position, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantRotationalOrientation( ) { }
+    ~ConstantRotationalOrientation( ) {}
 
     //! Get value of pole right ascension and declination (in that order)
     /*!

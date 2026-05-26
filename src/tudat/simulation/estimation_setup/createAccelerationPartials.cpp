@@ -95,7 +95,7 @@ std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationParti
     {
         std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations = eihAccelerations.begin( )->second->getEihEquations( );
 
-        for( auto it: eihAccelerations )
+        for( auto it : eihAccelerations )
         {
             if( it.second->getEihEquations( ) != eihEquations )
             {
@@ -106,7 +106,7 @@ std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationParti
         std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartials =
                 std::make_shared< acceleration_partials::EihEquationsPartials >( eihEquations );
 
-        for( auto it: eihAccelerations )
+        for( auto it : eihAccelerations )
         {
             partialsList[ it.first ] = std::make_shared< acceleration_partials::EihAccelerationPartial >( eihPartials, it.first );
         }

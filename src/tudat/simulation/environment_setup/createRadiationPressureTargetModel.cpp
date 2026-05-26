@@ -176,7 +176,7 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
             std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
 
-            for( auto it: sortedBodyPanelMap )
+            for( auto it : sortedBodyPanelMap )
             {
                 if( it.first != "" )
                 {

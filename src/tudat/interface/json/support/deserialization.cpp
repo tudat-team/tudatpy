@@ -399,7 +399,7 @@ void parseModularJSON( nlohmann::json& jsonObject,
                     }
                     else
                     {
-                        for( const std::string variable: split( vars, ',' ) )
+                        for( const std::string variable : split( vars, ',' ) )
                         {
                             const std::vector< std::string > keyVar = split( variable, ':' );
                             if( keyVar.size( ) == 2 )
@@ -423,7 +423,7 @@ void parseModularJSON( nlohmann::json& jsonObject,
                             try
                             {
                                 // Recursively update jsonObject for every key in keyPath
-                                for( const std::string key: keyPath )
+                                for( const std::string key : keyPath )
                                 {
                                     subJsonObject = valueAt( subJsonObject, key );
                                     parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );

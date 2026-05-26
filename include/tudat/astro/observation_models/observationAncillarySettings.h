@@ -49,7 +49,7 @@ public:
 
     virtual ~ObservationAncillarySimulationSettings( ) {}
 
-    void setAncillaryDoubleData( const ObservationAncillarySimulationVariable &variableType, const double variable )
+    void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {
         switch( variableType )
         {
@@ -68,7 +68,7 @@ public:
         }
     }
 
-    void setAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable &variableType, const std::vector< double > &variable )
+    void setAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable& variableType, const std::vector< double >& variable )
     {
         switch( variableType )
         {
@@ -84,7 +84,7 @@ public:
         }
     }
 
-    double getAncillaryDoubleData( const ObservationAncillarySimulationVariable &variableType, const bool throwException = true )
+    double getAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const bool throwException = true )
     {
         double returnVariable = TUDAT_NAN;
         try
@@ -122,7 +122,7 @@ public:
         return returnVariable;
     }
 
-    std::vector< double > getAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable &variableType,
+    std::vector< double > getAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable& variableType,
                                                         const bool throwException = true )
     {
         std::vector< double > returnVariable;
@@ -158,7 +158,7 @@ public:
         return returnVariable;
     }
 
-    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable &variableType )
+    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable& variableType )
     {
         std::string name;
 
@@ -195,7 +195,7 @@ public:
         return name;
     }
 
-    void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const double variable )
+    void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable& variableType, const double variable )
     {
         switch( variableType )
         {
@@ -211,7 +211,7 @@ public:
         }
     }
 
-    double getIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const bool throwException = true )
+    double getIntermediateDoubleData( const ObservationIntermediateSimulationVariable& variableType, const bool throwException = true )
     {
         double returnVariable = TUDAT_NAN;
         try
@@ -246,7 +246,7 @@ public:
         return returnVariable;
     }
 
-    bool operator==( const ObservationAncillarySimulationSettings &rightSettings ) const
+    bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
         return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
     }
@@ -278,7 +278,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopp
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAncillarySettings(
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
@@ -290,7 +290,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAnc
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
-        const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
+        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
@@ -313,7 +313,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayAverag
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const std::vector< FrequencyBands > &frequencyBands,
+        const std::vector< FrequencyBands >& frequencyBands,
         const FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
         const double integrationTime = 60.0,
@@ -334,7 +334,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAvera
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRangeAncillarySettings(
-        const std::vector< FrequencyBands > &frequencyBands,
+        const std::vector< FrequencyBands >& frequencyBands,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -351,7 +351,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRange
 }
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getDopplerMeasuredFrequencyAncillarySettings(
-        const std::vector< FrequencyBands > &frequencyBands )
+        const std::vector< FrequencyBands >& frequencyBands )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );

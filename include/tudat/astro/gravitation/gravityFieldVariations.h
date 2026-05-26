@@ -67,7 +67,7 @@ public:
             const int numberOfOrders ):
         cosineSineInterpolator_( cosineSineInterpolator ), startDegree_( startDegree ), startOrder_( startOrder ),
         numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders )
-    { }
+    {}
 
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!
@@ -155,7 +155,7 @@ public:
     /*!
      *  Virtual destructor
      */
-    virtual ~GravityFieldVariations( ) { }
+    virtual ~GravityFieldVariations( ) {}
 
     //! Pure virtual function for calculating corrections.
     /*!

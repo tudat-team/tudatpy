@@ -609,10 +609,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithCorrections );
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithoutCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =

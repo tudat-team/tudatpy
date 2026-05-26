@@ -26,7 +26,7 @@ static std::map< RadiationPressureType, std::string > radiationPressureTypes = {
                                                                                    "cannonBall" } };
 
 //! `RadiationPressureType`s not supported by `json_interface`.
-static std::vector< RadiationPressureType > unsupportedRadiationPressureTypes = { };
+static std::vector< RadiationPressureType > unsupportedRadiationPressureTypes = {};
 
 //! Convert `RadiationPressureType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const RadiationPressureType& radiationPressureType )

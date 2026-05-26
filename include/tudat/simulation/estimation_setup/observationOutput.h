@@ -186,9 +186,11 @@ private:
 class ObservationDependentVariableCalculator
 {
 public:
-    ObservationDependentVariableCalculator( const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
-                                            const SystemOfBodies& bodies,
-                                            const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >, std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators ):
+    ObservationDependentVariableCalculator(
+            const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+            const SystemOfBodies& bodies,
+            const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators ):
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), legLightTimeCalculators_( legLightTimeCalculators )
     {
         // First, build add-functions for whatever settings already live on the bookkeeping. This
@@ -231,7 +233,9 @@ public:
         return dependentVariableBookkeeping_;
     }
 
-    const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >, std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& getLegLightTimeCalculators( ) const
+    const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >&
+    getLegLightTimeCalculators( ) const
     {
         return legLightTimeCalculators_;
     }
@@ -253,7 +257,9 @@ private:
 
     //! Per-leg light-time calculators used only for `light_time_correction_components`. Populated
     //! at simulate-time by the simulator (or left empty if no leg-specific variables are requested).
-    std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >, std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > > legLightTimeCalculators_;
+    std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+              std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
+            legLightTimeCalculators_;
 
     //! Worker function that registers a single `light_time_correction_components` setting. Assumes
     //! `legLightTimeCalculators_` is already populated.

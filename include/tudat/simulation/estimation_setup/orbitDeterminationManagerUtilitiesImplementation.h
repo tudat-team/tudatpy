@@ -31,8 +31,7 @@ template< typename ObservationScalarType,
 std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getObservationSimulators( ) const
 {
-    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
-            observationSimulators;
+    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
     for( typename std::map< observation_models::ObservableType,
                             std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::
@@ -136,8 +135,8 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getNor
     else if( unnormalizedConsiderCovariance.rows( ) != numberConsiderParameters_ &&
              unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
     {
-        throw std::runtime_error( "Error, consider covariance size: [" + std::to_string( unnormalizedConsiderCovariance.rows( ) ) +
-                                  ", " + std::to_string( unnormalizedConsiderCovariance.cols( ) ) +
+        throw std::runtime_error( "Error, consider covariance size: [" + std::to_string( unnormalizedConsiderCovariance.rows( ) ) + ", " +
+                                  std::to_string( unnormalizedConsiderCovariance.cols( ) ) +
                                   "] does not match number of consider parameters: " + std::to_string( numberConsiderParameters_ ) );
     }
     normalizedConsiderCovariance = normalizeCovariance( unnormalizedConsiderCovariance, considerNormalizationTerms );
