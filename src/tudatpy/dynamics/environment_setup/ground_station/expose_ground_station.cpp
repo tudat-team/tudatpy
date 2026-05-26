@@ -82,9 +82,24 @@ void expose_ground_station_setup( py::module& m )
                   py::arg( "reference_epoch" ) = 0.,
                   R"doc(Define linear motion settings for ground station
 
-                  :param linear_velocity: Constant velocity of the station in body-fixed reference frame
-                  :param reference_epoch: Epoch at which the position of the station is known
-                  )doc" );
+Parameters
+----------
+
+linear_velocity: 
+    Constant velocity of the station in body-fixed reference frame
+reference_epoch:
+    Epoch at which the position of the station is known
+                  )doc" )
+            .def_readwrite( "linear_velocity", &tss::LinearGroundStationMotionSettings::linearVelocity_, R"doc(
+                Constant velocity of the station in body-fixed reference frame.
+
+                :type: numpy.ndarray([3,1])
+                )doc" )
+            .def_readwrite( "reference_epoch", &tss::LinearGroundStationMotionSettings::referenceEpoch_, R"doc(
+                Epoch at which the position of the station is defined.
+
+                :type: float
+                )doc" );
 
     py::class_< tss::PiecewiseConstantGroundStationMotionSettings,
                 std::shared_ptr< tss::PiecewiseConstantGroundStationMotionSettings >,
@@ -135,11 +150,12 @@ void expose_ground_station_setup( py::module& m )
       )doc" )
             .def_property( "station_position",
                            &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition, R"doc(
+                           &tss::GroundStationSettings::resetGroundStationPosition,
+                           R"doc(
                            Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
-
+                           
                            :type: numpy.ndarray([3,1])
-
+                           
                            )doc" )
 
             .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName, R"doc(
@@ -149,19 +165,21 @@ void expose_ground_station_setup( py::module& m )
 
                 )doc" )
             .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType, R"doc(
-
+                
             Element type of the ground station position, defining the interpretation of the ``station_position`` property.
 
             :type: ~tudatpy.astro.element_conversion.PositionElementTypes
-
+                
                 )doc" )
-            .def_property(
-                    "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings, &tss::GroundStationSettings::setStationMotionSettings, R"doc(
-
+            .def_property( "station_motion_settings",
+                           &tss::GroundStationSettings::getStationMotionSettings,
+                           &tss::GroundStationSettings::setStationMotionSettings,
+                           R"doc(
+                    
                 List of motion settings for the ground station, defining time-variations of the station position.
 
                 :type: list[ GroundStationMotionSettings ]
-
+                    
                     )doc" )
             .def( "add_station_motion_settings",
                   &tss::GroundStationSettings::addStationMotionSettings,
@@ -202,9 +220,11 @@ void expose_ground_station_setup( py::module& m )
      Type of elements for ``station_nominal_position``.
  station_nominal_position : numpy.ndarray([3,1])
      Nominal position of the station in a body-fixed frame. Depending on the choice of ``station_position_element_type`` input, this vector must contain
-     * Cartesian (for ``cartesian_position`` input) - :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass)
-     * Spherical (for ``spherical_position`` input) - - :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude
-     * Geodetic (for ``geodetic_position`` input) - - :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude. Note that, in this case, the conversion to Cartesian position depends on the body's shape model
+
+     * Cartesian (for ``cartesian_position`` input): :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass)
+     * Spherical (for ``spherical_position`` input): :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude
+     * Geodetic (for ``geodetic_position`` input): :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude. Note that, in this case, the conversion to Cartesian position depends on the body's shape model
+
  station_motion_settings : list[ GroundStationMotionSettings ], default = None
      List of settings defining time-variations of the individual ground station
  Returns
