@@ -42,6 +42,41 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
+    py::enum_< tom::LightTimeCorrectionType >(
+            m,
+            "LightTimeCorrectionType",
+            R"doc(Enum identifying each type of light-time correction registered on a link.
+
+Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
+to select which correction contributions are saved individually.)doc" )
+            .value( "first_order_relativistic", tom::first_order_relativistic )
+            .value( "function_wrapper_light_time_correction", tom::function_wrapper_light_time_correction )
+            .value( "tabulated_tropospheric", tom::tabulated_tropospheric )
+            .value( "saastamoinen_tropospheric", tom::saastamoinen_tropospheric )
+            .value( "vmf3_tropospheric", tom::vmf3_tropospheric )
+            .value( "vmf3o_tropospheric", tom::vmf3o_tropospheric )
+            .value( "tabulated_ionospheric", tom::tabulated_ionospheric )
+            .value( "jakowski_vtec_ionospheric", tom::jakowski_vtec_ionospheric )
+            .value( "inverse_power_series_solar_corona", tom::inverse_power_series_solar_corona )
+            .value( "ionex_vtec_ionospheric", tom::ionex_vtec_ionospheric )
+            .value( "nequick2_ionospheric", tom::nequick2_ionospheric )
+            .export_values( );
+
+    py::class_< tom::LightTimeCalculatorBase, std::shared_ptr< tom::LightTimeCalculatorBase > >(
+            m,
+            "LightTimeCalculatorBase",
+            R"doc(Non-templated view over a light-time calculator, primarily exposing access to the per-correction
+breakdown from the last light-time evaluation.)doc" )
+            .def( "get_current_light_time_correction_components",
+                  &tom::LightTimeCalculatorBase::getCurrentLightTimeCorrectionComponents,
+                  py::return_value_policy::copy,
+                  R"doc(Return the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
+The returned list's order matches `get_light_time_correction_list()`.)doc" )
+            .def( "get_light_time_correction_list",
+                  &tom::LightTimeCalculatorBase::getLightTimeCorrectionList,
+                  R"doc(Return the list of light-time correction objects registered on this calculator.
+Order corresponds to the values returned by `get_current_light_time_correction_components`.)doc" );
+
     py::class_< tom::LightTimeConvergenceCriteria, std::shared_ptr< tom::LightTimeConvergenceCriteria > >( m,
                                                                                                            "LightTimeConvergenceCriteria",
                                                                                                            R"doc(

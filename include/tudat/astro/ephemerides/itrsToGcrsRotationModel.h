@@ -26,6 +26,15 @@ namespace tudat
 namespace ephemerides
 {
 
+//! Intermediate frames in the IERS Earth-orientation rotation chain.
+enum class EarthOrientationIntermediateFrame
+{
+    itrs,
+    tirs,
+    cirs,
+    icrs
+};
+
 //! Class for rotation from ITRS to GCRS, according to IERS 2010 models.
 /*!
  *  Class for rotation from ITRS to GCRS, according to IERS 2010 models and rotation angle corrections. Angles may be provided by an
@@ -166,6 +175,81 @@ public:
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )
     {
         return getDerivativeOfRotationToBaseFrame( ephemerisTime ).transpose( );
+    }
+
+    //! Function to calculate the rotation quaternion between intermediate Earth-orientation frames.
+    /*!
+     *  Function to calculate the rotation quaternion from an original intermediate frame to a target intermediate frame at a
+     *  specified time. The ICRS enum value denotes the GCRS-side endpoint of the IERS 2010 ITRS->TIRS->CIRS->GCRS rotation
+     *  sequence used by this model.
+     *  \param originalFrame Frame from which the rotation is calculated.
+     *  \param targetFrame Frame to which the rotation is calculated.
+     *  \param ephemerisTime Time at which rotation is to be calculated.
+     *  \return Rotation quaternion from originalFrame to targetFrame at specified time.
+     */
+    Eigen::Quaterniond getRotationBetweenIntermediateFrames( const EarthOrientationIntermediateFrame originalFrame,
+                                                             const EarthOrientationIntermediateFrame targetFrame,
+                                                             const double ephemerisTime )
+    {
+        std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
+                anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ );
+
+        auto getFrameIndex = [ ]( const EarthOrientationIntermediateFrame frame ) {
+            switch( frame )
+            {
+                case EarthOrientationIntermediateFrame::itrs:
+                    return 0;
+                case EarthOrientationIntermediateFrame::tirs:
+                    return 1;
+                case EarthOrientationIntermediateFrame::cirs:
+                    return 2;
+                case EarthOrientationIntermediateFrame::icrs:
+                    return 3;
+                default:
+                    throw std::runtime_error( "Error when getting Earth rotation between intermediate frames, frame not recognized" );
+            }
+        };
+
+        auto getForwardRotationForChainLink = [ & ]( const int lowerFrameIndex ) {
+            switch( lowerFrameIndex )
+            {
+                case 0:
+                    return earth_orientation::calculateRotationFromItrsToTirs(
+                            rotationAnglesAndUt1.first[ 3 ],
+                            rotationAnglesAndUt1.first[ 4 ],
+                            earth_orientation::getApproximateTioLocator( ephemerisTime ) );
+                case 1:
+                    return earth_orientation::calculateRotationFromTirsToCirs(
+                            sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) );
+                case 2:
+                    return earth_orientation::calculateRotationFromCirsToGcrs( rotationAnglesAndUt1.first[ 0 ],
+                                                                               rotationAnglesAndUt1.first[ 1 ],
+                                                                               rotationAnglesAndUt1.first[ 2 ] );
+                default:
+                    throw std::runtime_error( "Error when getting Earth rotation between intermediate frames, chain link not recognized" );
+            }
+        };
+
+        int originalFrameIndex = getFrameIndex( originalFrame );
+        int targetFrameIndex = getFrameIndex( targetFrame );
+        Eigen::Quaterniond rotationBetweenFrames = Eigen::Quaterniond::Identity( );
+
+        if( originalFrameIndex < targetFrameIndex )
+        {
+            for( int currentFrameIndex = originalFrameIndex; currentFrameIndex < targetFrameIndex; currentFrameIndex++ )
+            {
+                rotationBetweenFrames = getForwardRotationForChainLink( currentFrameIndex ) * rotationBetweenFrames;
+            }
+        }
+        else
+        {
+            for( int currentFrameIndex = originalFrameIndex - 1; currentFrameIndex >= targetFrameIndex; currentFrameIndex-- )
+            {
+                rotationBetweenFrames = getForwardRotationForChainLink( currentFrameIndex ).inverse( ) * rotationBetweenFrames;
+            }
+        }
+
+        return rotationBetweenFrames;
     }
 
     //! Function to retrieve object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)

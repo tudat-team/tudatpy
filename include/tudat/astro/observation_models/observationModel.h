@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -105,6 +106,9 @@ public:
     {
         return linkEnds_;
     }
+
+    virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const = 0;
 
     std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getObservationLightTimeCalculator(
             const unsigned int pathIndex = 0 )
