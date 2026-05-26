@@ -176,7 +176,7 @@ void expose_ground_station_setup( py::module& m )
 
 )doc" );
 
-    m.def( "add_motion_model_to_each_groun_station",
+    m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
            py::arg( "station_motion_setting" ) );
@@ -474,7 +474,7 @@ void expose_ground_station_setup( py::module& m )
      )doc" );
 
     m.def( "get_approximate_dsn_ground_station_positions", &tss::getApproximateDsnGroundStationPositions, R"doc(
-        
+
     This function returns the approximate positions of the DSN ground stations.
 
     The function returns ground station positions for all present ground stations specified in `DSN 810-005, 301 Coverage and Geometry, Revision O (2024), DSN/JPL <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301O.pdf>`__. Additionally, historic positions for DSS-12, DSS-42 and DSS-61 are provided, retrieved from `NAIF <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt>`__. The positions of the ground stations are specified at 2003.0 with respect to ITRF93.
@@ -483,11 +483,11 @@ void expose_ground_station_setup( py::module& m )
     -------
     dict[str, numpy.ndarray([3,1])]
         Dictionary mapping DSN station names (str, format: "DSS-<id>") to approximate positions.
-        
+
         )doc" );
 
     m.def( "get_radio_telescope_positions", &tss::getCombinedApproximateGroundStationPositions, R"doc(
-        
+
     This function returns the positions of DSN ground stations and VLBI stations.
 
     The function returns ground station positions for all DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) and VLBI stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions`).
@@ -496,13 +496,13 @@ void expose_ground_station_setup( py::module& m )
     -------
     dict[str, numpy.ndarray([3,1])]
         Dictionary mapping station name to positions.
-        
+
         )doc" );
 
     m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
 
     m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions, R"doc(
-        
+
     This function returns the positions of VLBI stations.
 
     The VLBI station positions are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
@@ -514,7 +514,7 @@ void expose_ground_station_setup( py::module& m )
 
         )doc" );
     m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities, R"doc(
-        
+
     This function returns the velocities of VLBI stations.
 
     The VLBI station velocities are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
