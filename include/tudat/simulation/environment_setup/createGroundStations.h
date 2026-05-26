@@ -103,10 +103,6 @@ public:
 class CustomGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
-    //    CustomGroundStationMotionSettings(
-    //            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
-    //        GroundStationMotionSettings( custom_station_motion ),
-    //    customDisplacementModel_( customDisplacementModel ){ }
 
     CustomGroundStationMotionSettings( const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
         GroundStationMotionSettings( custom_station_motion ), customDisplacementModel_( [ = ]( const double time ) {
@@ -119,19 +115,19 @@ public:
     const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
 };
 
-inline std::shared_ptr< GroundStationMotionSettings > linearGroundStationMotionSettings( const Eigen::Vector3d& linearVelocity,
+inline std::shared_ptr< LinearGroundStationMotionSettings > linearGroundStationMotionSettings( const Eigen::Vector3d& linearVelocity,
                                                                                          const double referenceEpoch = 0.0 )
 {
     return std::make_shared< LinearGroundStationMotionSettings >( linearVelocity, referenceEpoch );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > piecewiseConstantGroundStationMotionSettings(
+inline std::shared_ptr< PiecewiseConstantGroundStationMotionSettings > piecewiseConstantGroundStationMotionSettings(
         const std::map< double, Eigen::Vector3d >& displacementList )
 {
     return std::make_shared< PiecewiseConstantGroundStationMotionSettings >( displacementList );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > customGroundStationMotionSettings(
+inline std::shared_ptr< CustomGroundStationMotionSettings > customGroundStationMotionSettings(
         const std::function< Eigen::Vector3d( const double ) > customDisplacementModel )
 {
     return std::make_shared< CustomGroundStationMotionSettings >( customDisplacementModel );
@@ -186,6 +182,11 @@ public:
     std::vector< std::shared_ptr< GroundStationMotionSettings > > getStationMotionSettings( )
     {
         return stationMotionSettings_;
+    }
+
+    void setStationMotionSettings( const std::vector< std::shared_ptr< GroundStationMotionSettings > >& stationMotionSettings )
+    {
+        stationMotionSettings_ = stationMotionSettings;
     }
 
     void addStationMotionSettings( const std::shared_ptr< GroundStationMotionSettings > stationMotionSetting )
