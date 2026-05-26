@@ -143,6 +143,7 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.LinearGroundStationMotionSettings
    :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ground_station.PiecewiseConstantGroundStationMotionSettings
    :members:
