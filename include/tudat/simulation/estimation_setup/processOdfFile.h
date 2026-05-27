@@ -857,15 +857,18 @@ private:
                         continue;
                     }
 
-                    // Check if adding ramp block vector to previously existing vector: add
-                    // connection point
+                    // Add a connection interval only when consecutive ODF files leave a real gap.
                     if( j == 0 && !unprocessedRampStartTimesPerStation_[ stationName ].empty( ) )
                     {
-                        unprocessedRampStartTimesPerStation_[ stationName ].push_back(
-                                unprocessedRampEndTimesPerStation_[ stationName ].back( ) );
-                        unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
-                        rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
-                        startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        Time previousRampEndTime = unprocessedRampEndTimesPerStation_[ stationName ].back( );
+                        Time currentRampStartTime = rampBlocks.at( j )->getRampStartTime( );
+                        if( previousRampEndTime < currentRampStartTime )
+                        {
+                            unprocessedRampStartTimesPerStation_[ stationName ].push_back( previousRampEndTime );
+                            unprocessedRampEndTimesPerStation_[ stationName ].push_back( currentRampStartTime );
+                            rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
+                            startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        }
                     }
 
                     unprocessedRampStartTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
