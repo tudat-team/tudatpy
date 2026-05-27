@@ -185,10 +185,9 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorGapWarningOptions 
     PiecewiseLinearFrequencyInterpolator warningEveryTimeInterpolator =
             PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies, print_error_at_gaps );
     BOOST_CHECK_EQUAL( warningEveryTimeInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), 15.0 );
-    BOOST_CHECK_CLOSE_FRACTION(
-            warningEveryTimeInterpolator.template getTemplatedFrequencyIntegral<>( 5.0, 25.0 ),
-            15.0 * ( 5.0 + 20.0 ) / 2.0 + 5.0 * ( 1000.0 + 1050.0 ) / 2.0,
-            1.0E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( warningEveryTimeInterpolator.template getTemplatedFrequencyIntegral<>( 5.0, 25.0 ),
+                                15.0 * ( 5.0 + 20.0 ) / 2.0 + 5.0 * ( 1000.0 + 1050.0 ) / 2.0,
+                                1.0E-14 );
     BOOST_CHECK( warningStream.str( ).find( "without transmitted frequency" ) != std::string::npos );
     std::size_t firstWarningOutputSize = warningStream.str( ).size( );
     BOOST_CHECK_GT( firstWarningOutputSize, 0 );

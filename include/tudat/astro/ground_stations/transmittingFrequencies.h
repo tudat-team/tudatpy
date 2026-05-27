@@ -27,13 +27,7 @@ namespace ground_stations
 {
 
 //! Options for handling queries in gaps between two transmitting frequency ramp intervals.
-enum FrequencyGapHandling
-{
-    extrapolate_at_gaps,
-    throw_exception_at_gaps,
-    print_error_at_gaps,
-    print_error_once_at_gaps
-};
+enum FrequencyGapHandling { extrapolate_at_gaps, throw_exception_at_gaps, print_error_at_gaps, print_error_once_at_gaps };
 
 //! Class to compute the transmitted frequency of a ground station and its integral.
 class StationFrequencyInterpolator
@@ -229,8 +223,7 @@ public:
         {
             for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
             {
-                if( lookupTimeOriginal > invalidTimeBlocksStartTimes_.at( i ) &&
-                    lookupTimeOriginal < invalidTimeBlocksEndTimes_.at( i ) )
+                if( lookupTimeOriginal > invalidTimeBlocksStartTimes_.at( i ) && lookupTimeOriginal < invalidTimeBlocksEndTimes_.at( i ) )
                 {
                     const std::string gapMessage = "Error when interpolating ramp reference frequency: look up time (" +
                             std::to_string( static_cast< double >( lookupTimeOriginal ) ) +
@@ -268,8 +261,7 @@ public:
         {
             for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
             {
-                if( quadratureStartTime < invalidTimeBlocksEndTimes_.at( i ) &&
-                    quadratureEndTime > invalidTimeBlocksStartTimes_.at( i ) )
+                if( quadratureStartTime < invalidTimeBlocksEndTimes_.at( i ) && quadratureEndTime > invalidTimeBlocksStartTimes_.at( i ) )
                 {
                     const std::string gapMessage = "Error when integrating ramp reference frequency: time interval (" +
                             std::to_string( static_cast< double >( quadratureStartTime ) ) + " to " +
@@ -308,8 +300,7 @@ public:
         while( currentTime < quadratureEndTime )
         {
             TimeType nextRampStartTime = quadratureEndTime;
-            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) &&
-                startTimes_.at( currentRamp + 1 ) < quadratureEndTime )
+            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) && startTimes_.at( currentRamp + 1 ) < quadratureEndTime )
             {
                 nextRampStartTime = startTimes_.at( currentRamp + 1 );
             }
@@ -324,8 +315,7 @@ public:
             integral += timeDelta * ( frequencyAtCurrentTime + frequencyAtNextRampStartTime ) / 2.0;
 
             currentTime = nextRampStartTime;
-            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) &&
-                currentTime == startTimes_.at( currentRamp + 1 ) )
+            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) && currentTime == startTimes_.at( currentRamp + 1 ) )
             {
                 currentRamp++;
             }
