@@ -752,10 +752,7 @@ Examples
 
      )doc" );
 
-    m.def( "euler_angles_313",
-           &tom::eulerAngle313ObservableSettings,
-           py::arg( "link_ends" ),
-           py::arg( "bias_settings" ) = nullptr );
+    m.def( "euler_angles_313", &tom::eulerAngle313ObservableSettings, py::arg( "link_ends" ), py::arg( "bias_settings" ) = nullptr );
 
     m.def( "one_way_doppler_instantaneous",
            &tom::oneWayOpenLoopDoppler,
