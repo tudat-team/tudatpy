@@ -217,7 +217,8 @@ Tle::Tle( const std::string& lines )
     internationalDesignatorLaunchYear_ = launchYearStr.empty( ) ? 0 : std::stoi( launchYearStr );
     std::string launchNumberStr = boost::algorithm::trim_copy( line1.substr( 11, 3 ) );
     internationalDesignatorLaunchNumber_ = launchNumberStr.empty( ) ? 0 : std::stoi( launchNumberStr );
-    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+    internationalDesignatorPiece_ =
+            boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
 
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
