@@ -82,9 +82,24 @@ void expose_ground_station_setup( py::module& m )
                   py::arg( "reference_epoch" ) = 0.,
                   R"doc(Define linear motion settings for ground station
 
-                  :param linear_velocity: Constant velocity of the station in body-fixed reference frame
-                  :param reference_epoch: Epoch at which the position of the station is known
-                  )doc" );
+Parameters
+----------
+
+linear_velocity: 
+    Constant velocity of the station in body-fixed reference frame
+reference_epoch:
+    Epoch at which the position of the station is known
+                  )doc" )
+            .def_readwrite( "linear_velocity", &tss::LinearGroundStationMotionSettings::linearVelocity_, R"doc(
+                Constant velocity of the station in body-fixed reference frame.
+
+                :type: numpy.ndarray([3,1])
+                )doc" )
+            .def_readwrite( "reference_epoch", &tss::LinearGroundStationMotionSettings::referenceEpoch_, R"doc(
+                Epoch at which the position of the station is defined.
+
+                :type: float
+                )doc" );
 
     py::class_< tss::PiecewiseConstantGroundStationMotionSettings,
                 std::shared_ptr< tss::PiecewiseConstantGroundStationMotionSettings >,
@@ -135,13 +150,51 @@ void expose_ground_station_setup( py::module& m )
       )doc" )
             .def_property( "station_position",
                            &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition )
+                           &tss::GroundStationSettings::resetGroundStationPosition,
+                           R"doc(
+                           Position of the ground station in body-fixed frame. The position is interpreted based on the value of the ``position_element_type`` property.
+                           
+                           :type: numpy.ndarray([3,1])
+                           
+                           )doc" )
 
-            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName )
-            .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType )
-            .def_property_readonly( "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings );
+            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName, R"doc(
+                Name of the ground station.
 
-    m.def( "add_motion_model_to_each_groun_station",
+                :type: str
+
+                )doc" )
+            .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType, R"doc(
+                
+            Element type of the ground station position, defining the interpretation of the ``station_position`` property.
+
+            :type: ~tudatpy.astro.element_conversion.PositionElementTypes
+                
+                )doc" )
+            .def_property( "station_motion_settings",
+                           &tss::GroundStationSettings::getStationMotionSettings,
+                           &tss::GroundStationSettings::setStationMotionSettings,
+                           R"doc(
+
+                List of motion settings for the ground station, defining time-variations of the station position.
+
+                :type: list[ GroundStationMotionSettings ]
+                    
+                    )doc" )
+            .def( "add_station_motion_settings",
+                  &tss::GroundStationSettings::addStationMotionSettings,
+                  py::arg( "station_motion_settings" ),
+                  R"doc(Add a motion model to the existing motion models of the station.
+
+ Parameters
+ ----------
+
+ station_motion_settings: GroundStationMotionSettings
+     GroundStationMotionSettings object defining the motion model to be added
+
+)doc" );
+
+    m.def( "add_motion_model_to_each_ground_station",
            &tss::addStationMotionModelToEachGroundStation,
            py::arg( "ground_station_settings_list" ),
            py::arg( "station_motion_setting" ) );
@@ -167,9 +220,11 @@ void expose_ground_station_setup( py::module& m )
      Type of elements for ``station_nominal_position``.
  station_nominal_position : numpy.ndarray([3,1])
      Nominal position of the station in a body-fixed frame. Depending on the choice of ``station_position_element_type`` input, this vector must contain
-     * Cartesian (for ``cartesian_position`` input) - :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass)
-     * Spherical (for ``spherical_position`` input) - - :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude
-     * Geodetic (for ``geodetic_position`` input) - - :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude. Note that, in this case, the conversion to Cartesian position depends on the body's shape model
+
+     * Cartesian (for ``cartesian_position`` input): :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass)
+     * Spherical (for ``spherical_position`` input): :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude
+     * Geodetic (for ``geodetic_position`` input): :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude. Note that, in this case, the conversion to Cartesian position depends on the body's shape model
+
  station_motion_settings : list[ GroundStationMotionSettings ], default = None
      List of settings defining time-variations of the individual ground station
  Returns
@@ -439,7 +494,7 @@ void expose_ground_station_setup( py::module& m )
      )doc" );
 
     m.def( "get_approximate_dsn_ground_station_positions", &tss::getApproximateDsnGroundStationPositions, R"doc(
-        
+
     This function returns the approximate positions of the DSN ground stations.
 
     The function returns ground station positions for all present ground stations specified in `DSN 810-005, 301 Coverage and Geometry, Revision O (2024), DSN/JPL <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301O.pdf>`__. Additionally, historic positions for DSS-12, DSS-42 and DSS-61 are provided, retrieved from `NAIF <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt>`__. The positions of the ground stations are specified at 2003.0 with respect to ITRF93.
@@ -448,11 +503,11 @@ void expose_ground_station_setup( py::module& m )
     -------
     dict[str, numpy.ndarray([3,1])]
         Dictionary mapping DSN station names (str, format: "DSS-<id>") to approximate positions.
-        
+
         )doc" );
 
     m.def( "get_radio_telescope_positions", &tss::getCombinedApproximateGroundStationPositions, R"doc(
-        
+
     This function returns the positions of DSN ground stations and VLBI stations.
 
     The function returns ground station positions for all DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) and VLBI stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_vlbi_station_positions`).
@@ -461,13 +516,13 @@ void expose_ground_station_setup( py::module& m )
     -------
     dict[str, numpy.ndarray([3,1])]
         Dictionary mapping station name to positions.
-        
+
         )doc" );
 
     m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
 
     m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions, R"doc(
-        
+
     This function returns the positions of VLBI stations.
 
     The VLBI station positions are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.
@@ -479,7 +534,7 @@ void expose_ground_station_setup( py::module& m )
 
         )doc" );
     m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities, R"doc(
-        
+
     This function returns the velocities of VLBI stations.
 
     The VLBI station velocities are retrieved from `pysctrack <https://gitlab.com/gofrito/pysctrack/-/raw/master/cats/glo.sit>`__.

@@ -32,5 +32,6 @@
 #include "aerodynamics/tabulatedAtmosphere.h"
 #include "aerodynamics/trimOrientation.h"
 #include "aerodynamics/windModel.h"
+#include "aerodynamics/comaWindModel.h"
 
 #endif  // TUDATPY_AERODYNAMICS__H

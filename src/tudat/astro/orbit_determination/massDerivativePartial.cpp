@@ -48,7 +48,7 @@ bool FromThrustMassRatePartial::isMassRatePartialWrtMassNonZero( )
 
 void FromThrustMassRatePartial::wrtMassOfBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
 {
-    for( auto it: accelerationBasedThrustSources_ )
+    for( auto it : accelerationBasedThrustSources_ )
     {
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {

@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -61,13 +62,12 @@ public:
      * deviations from the physically ideal observable between reference points
      * (default none).
      */
-    ObservationModel( const ObservableType observableType,
-                      const LinkEnds linkEnds,
-                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
-                      const std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >
-                              lightTimeCalculators =
-                                      std::vector< std::shared_ptr<
-                                              FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >( ) ):
+    ObservationModel(
+            const ObservableType observableType,
+            const LinkEnds linkEnds,
+            const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
+            const std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators =
+                    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >( ) ):
         observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator ),
         lightTimeCalculators_( lightTimeCalculators )
     {
@@ -106,6 +106,9 @@ public:
         return linkEnds_;
     }
 
+    virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const = 0;
+
     std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getObservationLightTimeCalculator(
             const unsigned int pathIndex = 0 )
     {
@@ -137,8 +140,8 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) = 0;
 
     //! Function to compute full observation at given time.
@@ -157,8 +160,8 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
@@ -359,7 +362,7 @@ protected:
                                  const LinkEndType linkEndAssociatedWithTime,
                                  const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
                                  const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
-                                 std::shared_ptr< ObservationAncillarySimulationSettings > &ancillarySetingsToUse )
+                                 std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
@@ -400,7 +403,7 @@ protected:
             const LinkEndType linkEndAssociatedWithTime,
             const std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator,
             const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
-            std::shared_ptr< ObservationAncillarySimulationSettings > &ancillarySetingsToUse )
+            std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
@@ -446,7 +449,7 @@ protected:
         {
             frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
-        catch( std::runtime_error &caughtException )
+        catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
                                       std::string( caughtException.what( ) ) );
@@ -476,7 +479,7 @@ protected:
     /*!
      *  Object for calculating system-dependent errors in the observable, i.e.
      * deviations from the physically true observable
-    */
+     */
     std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
 
     std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;

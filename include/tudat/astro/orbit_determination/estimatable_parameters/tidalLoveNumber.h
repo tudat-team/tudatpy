@@ -59,10 +59,10 @@ public:
                      const bool useComplexComponents = 0 ):
         EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ), degree_( degree ), orders_( orders ),
         sumOrders_( sumOrders ), gravityFieldVariationModel_( gravityFieldVariationModel ), useComplexComponents_( useComplexComponents )
-    { }
+    {}
 
     //! Destructor
-    virtual ~TidalLoveNumber( ) { }
+    virtual ~TidalLoveNumber( ) {}
 
     //! Function to retrieve the size of the parameter
     /*!
@@ -275,7 +275,7 @@ public:
                 gravityFieldVariationModel_->getLoveNumbers( );
 
         int counter = 0;
-        for( auto it: loveNumberIndices_ )
+        for( auto it : loveNumberIndices_ )
         {
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {
@@ -292,7 +292,7 @@ public:
                 gravityFieldVariationModel_->getLoveNumbers( );
 
         int counter = 0;
-        for( auto it: loveNumberIndices_ )
+        for( auto it : loveNumberIndices_ )
         {
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {

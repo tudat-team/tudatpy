@@ -143,7 +143,7 @@ int main( )
 
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFiles )
+    for( std::string odfFile : odfFiles )
     {
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( dataDirectory + odfFile ) );
     }
@@ -165,7 +165,7 @@ int main( )
      *****************************************************************************************/
 
     std::map< int, observation_models::LinkEnds > linkEndIds = observedObservationCollection->getInverseLinkEndIdentifierMap( );
-    for( auto it: linkEndIds )
+    for( auto it : linkEndIds )
     {
         std::cout << it.first << ", (" << it.second[ transmitter ].bodyName_ << ", " << it.second[ transmitter ].stationName_ << "); "
                   << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); " << ", ("
@@ -407,7 +407,7 @@ int main( )
         std::map< double, Eigen::VectorXd > finalStateHistory;
         std::map< double, Eigen::VectorXd > finalStateDifference;
         std::map< double, Eigen::VectorXd > finalStateDifferenceRsw;
-        for( auto it: estimatedStateHistory )
+        for( auto it : estimatedStateHistory )
         {
             finalStateHistory[ it.first ] = it.second.cast< double >( );
             Eigen::Matrix3d rotationMatrix = getInertialToRswSatelliteCenteredFrameRotationMatrix( it.second.cast< double >( ) );

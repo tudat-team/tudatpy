@@ -80,7 +80,7 @@ namespace propagation_setup
 namespace mass_rate
 {
 
-void expose_mass_rate_setup( py::module &m )
+void expose_mass_rate_setup( py::module& m )
 {
     // Enums
 

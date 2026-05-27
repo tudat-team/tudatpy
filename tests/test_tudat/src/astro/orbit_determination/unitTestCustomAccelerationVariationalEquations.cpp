@@ -97,7 +97,7 @@ class TestAccelerationModel
 public:
     TestAccelerationModel( const SystemOfBodies& bodies, const double accelerationParameter, const double coefficient ):
         bodies_( bodies ), accelerationParameter_( accelerationParameter ), coefficient_( coefficient )
-    { }
+    {}
 
     Eigen::Vector3d customAccelerationFunction( const double time )
     {
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
             SingleArcDynamicsSimulator<> downperturbedDynamicsSimulator( bodies, propagatorSettings );
             downperturbedStateHistory = downperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-            for( auto it: upperturbedStateHistory )
+            for( auto it : upperturbedStateHistory )
             {
                 if( downperturbedStateHistory.count( it.first ) == 0 )
                 {
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
 
             double maximumSensivitiyError = 0.0;
 
-            for( auto it: upperturbedStateHistory )
+            for( auto it : upperturbedStateHistory )
             {
                 if( downperturbedStateHistory.count( it.first ) == 0 )
                 {
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
         }
 
         double maximumError = 0.0;
-        for( auto it: numericalStateTransitionMatrixHistory )
+        for( auto it : numericalStateTransitionMatrixHistory )
         {
             auto matrix1 = it.second;
             auto matrix2 = stateTransitionMatrixHistory.at( it.first );

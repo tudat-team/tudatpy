@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -23,7 +22,7 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_ephemeris_fit( py::module &m );
+void expose_estimation_analysis_ephemeris_fit( py::module& m );
 
 }  // namespace estimation_analysis
 }  // namespace estimation

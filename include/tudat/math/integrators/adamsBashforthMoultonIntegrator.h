@@ -172,9 +172,9 @@ public:
                 StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( relativeErrorTolerance ) ),
                 StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
                 bandwidth )
-    { }
+    {}
 
-    ~AdamsBashforthMoultonIntegrator( ) { }
+    ~AdamsBashforthMoultonIntegrator( ) {}
 
     //! Get step size of the next step.
     /*!

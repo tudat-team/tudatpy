@@ -19,13 +19,13 @@ public:
                                       const std::string& associatedStation ):
         EstimatableParameter< Eigen::VectorXd >( global_polynomial_clock_corrections, associatedBody, associatedStation ),
         timingSystem_( timingSystem ), correctionPowers_( correctionPowers )
-    { }
+    {}
 
     //! Destructor
     /*!
      *  Destructor
      */
-    ~GlobalPolynomialClockCorrections( ) { }
+    ~GlobalPolynomialClockCorrections( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {
@@ -84,13 +84,13 @@ public:
                               const std::string& associatedStation ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_polynomial_clock_corrections, associatedBody, associatedStation ),
         timingSystem_( timingSystem ), correctionPowers_( correctionPowers ), arcIndices_( arcIndices )
-    { }
+    {}
 
     //! Destructor
     /*!
      *  Destructor
      */
-    ~MultiArcClockCorrections( ) { }
+    ~MultiArcClockCorrections( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {

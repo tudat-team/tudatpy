@@ -111,7 +111,7 @@ SystemOfBodies createEnvironment( const double initialTimeEnvironment,
 }
 
 std::shared_ptr< LightTimeCalculator< long double, Time > > getOneWayLightTimeCalculator(
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayObservationSettingsList )
 {
     // Create observation simulators

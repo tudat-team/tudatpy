@@ -133,7 +133,7 @@ namespace propagation_setup
 namespace acceleration
 {
 
-void expose_acceleration_setup( py::module &m )
+void expose_acceleration_setup( py::module& m )
 {
     /*
      * This contains the addition of IntegratorSettings and

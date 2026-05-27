@@ -26,9 +26,9 @@ class InertialBodyFixedDirectionCalculator
 public:
     InertialBodyFixedDirectionCalculator( const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame =
                                                   nullptr ): rotationMatrixToPropagationFrame_( rotationMatrixToPropagationFrame )
-    { }
+    {}
 
-    virtual ~InertialBodyFixedDirectionCalculator( ) { }
+    virtual ~InertialBodyFixedDirectionCalculator( ) {}
 
     virtual Eigen::Vector3d getDirection( const double time ) = 0;
 
@@ -65,9 +65,9 @@ public:
                                         const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
         InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
         inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ), currentTime_( TUDAT_NAN )
-    { }
+    {}
 
-    ~CustomBodyFixedDirectionCalculator( ) { }
+    ~CustomBodyFixedDirectionCalculator( ) {}
 
     Eigen::Vector3d getDirection( const double time )
     {
@@ -84,7 +84,7 @@ public:
             inertialBodyAxisDirectionFunction_( TUDAT_NAN );
         }
         catch( ... )
-        { }
+        {}
     }
 
     virtual void update( const double time );
@@ -122,9 +122,9 @@ public:
         InertialBodyFixedDirectionCalculator( nullptr ), centralBody_( centralBody ), isColinearWithVelocity_( isColinearWithVelocity ),
         directionIsOppositeToVector_( directionIsOppositeToVector ), relativeStateFunction_( relativeStateFunction ),
         currentTime_( TUDAT_NAN )
-    { }
+    {}
 
-    ~StateBasedBodyFixedDirectionCalculator( ) { }
+    ~StateBasedBodyFixedDirectionCalculator( ) {}
 
     Eigen::Vector3d getDirection( const double time )
     {
@@ -205,7 +205,7 @@ public:
     /*!
      * Virtual destructor.
      */
-    virtual ~DirectionBasedRotationalEphemeris( ) { }
+    virtual ~DirectionBasedRotationalEphemeris( ) {}
 
     virtual Eigen::Quaterniond getRotationToBaseFrame( const double currentTime );
 

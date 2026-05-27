@@ -55,8 +55,7 @@ void writeSyntheticSinexFile( const std::string& fileName )
     file << "-SOLUTION/ESTIMATE\n";
 }
 
-struct SyntheticEccentricityArc
-{
+struct SyntheticEccentricityArc {
     std::string startEpoch_;
     std::string endEpoch_;
     Eigen::Vector3d eccentricity_ = Eigen::Vector3d::Zero( );
@@ -71,7 +70,7 @@ void writeSyntheticSinexEccentricityFile( const std::string& fileName, const std
     file << "-SITE/ID\n";
     file << "+SITE/ECCENTRICITY\n";
     file << "*SITE PT SOLN T DATA_START__ DATA_END____ XYZ X_______ Y_______ Z_______        CDP-SOD_\n";
-    for( const SyntheticEccentricityArc& arc: arcs )
+    for( const SyntheticEccentricityArc& arc : arcs )
     {
         file << " 7110  A    1 L " << arc.startEpoch_ << " " << arc.endEpoch_ << " XYZ   " << arc.eccentricity_( 0 ) << "   "
              << arc.eccentricity_( 1 ) << "   " << arc.eccentricity_( 2 ) << "        71100901\n";
@@ -101,8 +100,7 @@ std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > loadIl
     }
 
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
-            simulation_setup::getIlrsStationSettingsFromSinexDomes(
-                    { "12345M001" }, sinexFile, eccentricityFile, true );
+            simulation_setup::getIlrsStationSettingsFromSinexDomes( { "12345M001" }, sinexFile, eccentricityFile, true );
 
     std::remove( sinexFile.c_str( ) );
     if( includeEccentricityFile )
@@ -116,7 +114,7 @@ std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > loadIl
 std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > getPiecewiseMotionSettings(
         const std::shared_ptr< simulation_setup::GroundStationSettings >& stationSettings )
 {
-    for( const auto& motionSettings: stationSettings->getStationMotionSettings( ) )
+    for( const auto& motionSettings : stationSettings->getStationMotionSettings( ) )
     {
         const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
                 std::dynamic_pointer_cast< simulation_setup::PiecewiseConstantGroundStationMotionSettings >( motionSettings );
@@ -132,7 +130,7 @@ std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings 
 std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > getLinearMotionSettings(
         const std::shared_ptr< simulation_setup::GroundStationSettings >& stationSettings )
 {
-    for( const auto& motionSettings: stationSettings->getStationMotionSettings( ) )
+    for( const auto& motionSettings : stationSettings->getStationMotionSettings( ) )
     {
         const std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > linearSettings =
                 std::dynamic_pointer_cast< simulation_setup::LinearGroundStationMotionSettings >( motionSettings );
@@ -157,8 +155,7 @@ BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
     writeSyntheticSinexEccentricityFile( eccentricityFile );
 
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
-            simulation_setup::getIlrsStationSettingsFromSinexDomes(
-                    { "12345M001" }, sinexFile, eccentricityFile, true );
+            simulation_setup::getIlrsStationSettingsFromSinexDomes( { "12345M001" }, sinexFile, eccentricityFile, true );
 
     BOOST_CHECK_EQUAL( stationSettings.size( ), 1 );
     BOOST_CHECK_EQUAL( stationSettings.at( 0 )->getStationName( ), "12345M001" );
@@ -168,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testLoadIlrsStationFromDomesAndSinex )
 
     bool foundLinearMotion = false;
     bool foundPiecewiseEccentricityMotion = false;
-    for( const auto& motionSettings: stationSettings.at( 0 )->getStationMotionSettings( ) )
+    for( const auto& motionSettings : stationSettings.at( 0 )->getStationMotionSettings( ) )
     {
         const std::shared_ptr< simulation_setup::LinearGroundStationMotionSettings > linearSettings =
                 std::dynamic_pointer_cast< simulation_setup::LinearGroundStationMotionSettings >( motionSettings );
@@ -215,8 +212,7 @@ BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
     writeSyntheticSinexEccentricityFile( eccentricityFile );
 
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
-            simulation_setup::getIlrsStationSettingsFromSinexDomes(
-                    { "12345M001" }, sinexFile, eccentricityFile, true );
+            simulation_setup::getIlrsStationSettingsFromSinexDomes( { "12345M001" }, sinexFile, eccentricityFile, true );
 
     BOOST_CHECK_EQUAL( stationSettings.size( ), 1 );
     BOOST_CHECK_CLOSE_FRACTION( stationSettings.at( 0 )->getGroundStationPosition( )( 0 ), 2390490.0, 1.0E-15 );
@@ -224,7 +220,7 @@ BOOST_AUTO_TEST_CASE( testEccentricitySelectionByEpoch )
     BOOST_CHECK_CLOSE_FRACTION( stationSettings.at( 0 )->getGroundStationPosition( )( 2 ), 1994727.0, 1.0E-15 );
 
     bool foundPiecewiseEccentricityMotion = false;
-    for( const auto& motionSettings: stationSettings.at( 0 )->getStationMotionSettings( ) )
+    for( const auto& motionSettings : stationSettings.at( 0 )->getStationMotionSettings( ) )
     {
         const std::shared_ptr< simulation_setup::PiecewiseConstantGroundStationMotionSettings > piecewiseSettings =
                 std::dynamic_pointer_cast< simulation_setup::PiecewiseConstantGroundStationMotionSettings >( motionSettings );
@@ -320,8 +316,7 @@ BOOST_AUTO_TEST_CASE( testUnsortedEccentricityArcsAreSorted )
 BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
 {
     {
-        const std::vector< SyntheticEccentricityArc > arcs = {
-                { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) } };
+        const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "24:100:00000", Eigen::Vector3d( 0.1, 0.2, 0.3 ) } };
         const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
                 loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
 
@@ -342,8 +337,7 @@ BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
     }
 
     {
-        const std::vector< SyntheticEccentricityArc > arcs = {
-                { "24:001:00000", "00:000:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } };
+        const std::vector< SyntheticEccentricityArc > arcs = { { "24:001:00000", "00:000:00000", Eigen::Vector3d( 0.4, 0.5, 0.6 ) } };
         const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
                 loadIlrsStationSettingsFromSyntheticFiles( arcs, true );
 
@@ -366,7 +360,7 @@ BOOST_AUTO_TEST_CASE( testSingleEntryClosedAndOpenEndedEccentricity )
 BOOST_AUTO_TEST_CASE( testNoEccentricityDataSkipsPiecewiseMotion )
 {
     const std::vector< std::shared_ptr< simulation_setup::GroundStationSettings > > stationSettings =
-            loadIlrsStationSettingsFromSyntheticFiles( { }, false );
+            loadIlrsStationSettingsFromSyntheticFiles( {}, false );
 
     BOOST_REQUIRE_EQUAL( stationSettings.size( ), 1 );
     BOOST_CHECK_EQUAL( getPiecewiseMotionSettings( stationSettings.at( 0 ) ), nullptr );

@@ -216,7 +216,7 @@ std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( cons
 {
     // Read all files and store them in vectors. One vector per DSN complex
     std::map< int, std::vector< std::shared_ptr< DsnWeatherData > > > weatherDataVectorPerComplex;
-    for( std::string weatherFileName: weatherFileNames )
+    for( std::string weatherFileName : weatherFileNames )
     {
         std::shared_ptr< DsnWeatherData > weatherData = std::make_shared< DsnWeatherData >( weatherFileName );
         // Add data to map
@@ -256,7 +256,6 @@ std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( cons
     return weatherDataPerComplex;
 }
 
-
 void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies,
                                         const std::map< int, std::shared_ptr< DsnWeatherData > >& weatherDataPerComplex,
                                         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
@@ -290,7 +289,7 @@ void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies
                         interpolators::createOneDimensionalInterpolator( weatherData->meteoDataMap_, interpolatorSettings ),
                         dsnMeteoEntries );
         // Set functions in ground stations
-        for( const std::string& groundStation: groundStations )
+        for( const std::string& groundStation : groundStations )
         {
             bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
         }

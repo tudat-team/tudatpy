@@ -49,7 +49,7 @@ public:
     }
 
     //! Destructor
-    ~ReferencePointPosition( ) { }
+    ~ReferencePointPosition( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {

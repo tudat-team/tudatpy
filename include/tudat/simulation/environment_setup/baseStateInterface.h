@@ -38,10 +38,10 @@ public:
      * Constructor
      * \param baseFrameId Name of frame origin for which inertial state is computed by this class
      */
-    BaseStateInterface( const std::string baseFrameId ): baseFrameId_( baseFrameId ) { }
+    BaseStateInterface( const std::string baseFrameId ): baseFrameId_( baseFrameId ) {}
 
     //! Destructor
-    virtual ~BaseStateInterface( ) { }
+    virtual ~BaseStateInterface( ) {}
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
@@ -109,9 +109,8 @@ public:
      * \param baseFrameId Name of frame origin for which inertial state is computed by this class
      */
     BaseStateInterfaceImplementation( const std::string baseFrameId ):
-        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ),
-        stateMultiplier_( 1 )
-    { }
+        BaseStateInterface( baseFrameId ), stateFunction_( &BaseStateInterfaceImplementation::getDefaultZeroState ), stateMultiplier_( 1 )
+    {}
 
     //! Constructor
     /*!
@@ -125,10 +124,10 @@ public:
                                       const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
                                       const bool subtractStateFunction = 0 ):
         BaseStateInterface( baseFrameId ), stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 )
-    { }
+    {}
 
     //! Destructor
-    ~BaseStateInterfaceImplementation( ) { }
+    ~BaseStateInterfaceImplementation( ) {}
 
 protected:
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined

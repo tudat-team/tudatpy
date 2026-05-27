@@ -42,7 +42,7 @@ void loadLROSpiceKernels( )
     loadSpiceKernelInTudat( path + "/sclk/lro_clkcor_2022075_v00.tsc" );
 
     // LRO ephemeris
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bsp" )
         {
@@ -51,7 +51,7 @@ void loadLROSpiceKernels( )
     }
 
     // LRO orientation
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/ck" ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/ck" ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bc" )
         {
