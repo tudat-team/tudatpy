@@ -222,7 +222,7 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
     elements[ 9 ] = tle->getEpoch( );  // TLE ephemeris epoch in seconds since J2000
 
     // Call Spice function. Return value is always 0, so no need to save it.
-    ev2lin_( &epoch, physicalConstants, elements, stateAtEpoch );
+    evsgp4_( &epoch, physicalConstants, elements, stateAtEpoch );
 
     // Put result in Eigen Vector.
     Eigen::Vector6d cartesianStateVector;
