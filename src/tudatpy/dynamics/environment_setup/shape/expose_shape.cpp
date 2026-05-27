@@ -35,7 +35,7 @@ namespace environment_setup
 namespace shape
 {
 
-void expose_shape_setup( py::module &m )
+void expose_shape_setup( py::module& m )
 {
     py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >( m,
                                                                                      "BodyShapeSettings",

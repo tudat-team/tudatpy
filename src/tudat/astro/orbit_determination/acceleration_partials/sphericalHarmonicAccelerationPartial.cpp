@@ -50,7 +50,8 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
 }
 
 //! Function to create a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     // Declare return variables, default number of rows = 0 (i.e. no dependency)
@@ -149,7 +150,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
 }
 
 //! Function to create a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;

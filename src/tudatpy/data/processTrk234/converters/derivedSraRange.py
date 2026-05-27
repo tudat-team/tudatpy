@@ -1,4 +1,6 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_range_ancillary_settings
+from tudatpy.estimation.observations_setup.ancillary_settings import (
+    dsn_n_way_range_ancillary_settings,
+)
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 
@@ -26,10 +28,7 @@ class DerivedSraRangeConverter(RadioBase):
             sfdu
             for sfdu in range_sfdu_list
             if sfdu.is_decoded
-            and (
-                self.get_tracking_mode(sfdu) == "2W"
-                or self.get_tracking_mode(sfdu) == "3W"
-            )
+            and (self.get_tracking_mode(sfdu) == "2W" or self.get_tracking_mode(sfdu) == "3W")
             and not (sfdu.trk_chdo.meas_rng == -1.0 and sfdu.trk_chdo.rng_type != 0)
             and sfdu.trk_chdo.ul_freq != 0.0
         ]
@@ -41,20 +40,17 @@ class DerivedSraRangeConverter(RadioBase):
             "tracking_mode": [self.get_tracking_mode(sfdu) for sfdu in range_sfdu],
             "link_delays": [self.get_link_delays(sfdu) for sfdu in range_sfdu],
             "obs": [
-                _np.mod(sfdu.trk_chdo.meas_rng, sfdu.trk_chdo.rng_modulo)
-                for sfdu in range_sfdu
+                _np.mod(sfdu.trk_chdo.meas_rng, sfdu.trk_chdo.rng_modulo) for sfdu in range_sfdu
             ],
-            "zero_phase_times": [
-                self.get_zero_phase_times(sfdu) for sfdu in range_sfdu
-            ],
-            "lowest_ranging_component": [
-                sfdu.trk_chdo.last_comp_num for sfdu in range_sfdu
-            ],
+            "zero_phase_times": [self.get_zero_phase_times(sfdu) for sfdu in range_sfdu],
+            "lowest_ranging_component": [sfdu.trk_chdo.last_comp_num for sfdu in range_sfdu],
         }
 
         return DataFrame(data)
 
-    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> list[SingleObservationSet]:
+    def process(
+        self, range_df: DataFrame, spacecraftName: str | None = None
+    ) -> list[SingleObservationSet]:
 
         observation_set_list = []
         for link_end in range_df["link_ends"].unique():
@@ -80,13 +76,9 @@ class DerivedSraRangeConverter(RadioBase):
                                 lrc,
                                 ttd,
                             )
-                            obs_values = [
-                                _np.array([row["obs"]], dtype=float).reshape((-1, 1))
-                            ]
+                            obs_values = [_np.array([row["obs"]], dtype=float).reshape((-1, 1))]
                             station = link_end[2] if len(link_end) == 3 else link_end[1]
-                            epoch_seconds = [
-                                self.from_datetime_UTC_to_TDB(row["epoch"], station)
-                            ]
+                            epoch_seconds = [self.from_datetime_UTC_to_TDB(row["epoch"], station)]
                             observation_set = create_single_observation_set(
                                 ObservableType.dsn_n_way_range_type,
                                 link_def.link_ends,
@@ -145,9 +137,7 @@ class DerivedSraRangeConverter(RadioBase):
             sfdu.trk_chdo.ul_stn_cal if sfdu.trk_chdo.ul_stn_cal != -1.0 else 0.0
         ) * ruToSeconds
         uplinkDelay += (
-            sfdu.sec_chdo.ul_zheight_corr
-            if sfdu.sec_chdo.ul_zheight_corr != -99.0
-            else 0.0
+            sfdu.sec_chdo.ul_zheight_corr if sfdu.sec_chdo.ul_zheight_corr != -99.0 else 0.0
         )
 
         downlinkDelay = 0.0
@@ -155,15 +145,11 @@ class DerivedSraRangeConverter(RadioBase):
             sfdu.trk_chdo.dl_stn_cal if sfdu.trk_chdo.dl_stn_cal != -1.0 else 0.0
         ) * ruToSeconds
         downlinkDelay += (
-            sfdu.sec_chdo.dl_zheight_corr
-            if sfdu.sec_chdo.dl_zheight_corr != -99.0
-            else 0.0
+            sfdu.sec_chdo.dl_zheight_corr if sfdu.sec_chdo.dl_zheight_corr != -99.0 else 0.0
         )
 
         scft_transpd_delay = (
-            sfdu.sec_chdo.scft_transpd_delay
-            if sfdu.sec_chdo.scft_transpd_delay != -1.0
-            else 0.0
+            sfdu.sec_chdo.scft_transpd_delay if sfdu.sec_chdo.scft_transpd_delay != -1.0 else 0.0
         )
 
         return (uplinkDelay, scft_transpd_delay, downlinkDelay)

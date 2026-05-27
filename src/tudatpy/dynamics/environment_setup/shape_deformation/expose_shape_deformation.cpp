@@ -33,7 +33,7 @@ namespace environment_setup
 namespace shape_deformation
 {
 
-void expose_shape_deformation_setup( py::module &m )
+void expose_shape_deformation_setup( py::module& m )
 {
     py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >( m,
                                                                                                  "BodyDeformationSettings",

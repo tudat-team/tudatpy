@@ -25,9 +25,7 @@ namespace py = pybind11;
 //         const Eigen::VectorXd &)>
 //     StateDerivativeFunction;
 
-typedef std::function< Eigen::Matrix< double, Eigen::Dynamic, 1 >(
-        const double,
-        const Eigen::Matrix< double, Eigen::Dynamic, 1 >& ) >
+typedef std::function< Eigen::Matrix< double, Eigen::Dynamic, 1 >( const double, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& ) >
         stateDerivativeFunction;
 
 namespace tudatpy

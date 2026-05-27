@@ -33,7 +33,7 @@ namespace trajectory_design
 namespace shape_based_thrust
 {
 
-void expose_shape_based_thrust( py::module &m )
+void expose_shape_based_thrust( py::module& m )
 {
     //     py::class_<
     //             tltt::LowThrustLeg,
@@ -103,8 +103,7 @@ void expose_shape_based_thrust( py::module &m )
     //                   ), py::arg( "time_since_departure" ),
     //                   get_docstring("HodographicShaping.get_thrust").c_str());
 
-    py::class_< tsbm::BaseFunctionHodographicShaping,
-                std::shared_ptr< tsbm::BaseFunctionHodographicShaping > >(
+    py::class_< tsbm::BaseFunctionHodographicShaping, std::shared_ptr< tsbm::BaseFunctionHodographicShaping > >(
             m,
             "BaseFunctionHodographicShaping",
             R"doc(
@@ -187,8 +186,7 @@ void expose_shape_based_thrust( py::module &m )
      )doc" );
 
     m.def( "recommended_axial_hodograph_functions",
-           py::overload_cast< const double, const int >(
-                   &tsbm::getRecommendedAxialVelocityBaseFunctions ),
+           py::overload_cast< const double, const int >( &tsbm::getRecommendedAxialVelocityBaseFunctions ),
            py::arg( "time_of_flight" ),
            py::arg( "number_of_revolutions" ),
            R"doc(
@@ -313,10 +311,7 @@ void expose_shape_based_thrust( py::module &m )
     //          py::arg("exponent"),
     //          py::arg("scale_factor"));
 
-    m.def( "hodograph_exponential_sine",
-           &tsbm::hodographExponentialSine,
-           py::arg( "exponent" ),
-           py::arg( "frequency" ) );
+    m.def( "hodograph_exponential_sine", &tsbm::hodographExponentialSine, py::arg( "exponent" ), py::arg( "frequency" ) );
 
     m.def( "hodograph_scaled_exponential_sine",
            &tsbm::hodographScaledExponentialSine,
@@ -331,10 +326,7 @@ void expose_shape_based_thrust( py::module &m )
     //          py::arg("frequency"),
     //          py::arg("scale_factor") );
 
-    m.def( "hodograph_exponential_cosine",
-           &tsbm::hodographExponentialCosine,
-           py::arg( "exponent" ),
-           py::arg( "frequency" ) );
+    m.def( "hodograph_exponential_cosine", &tsbm::hodographExponentialCosine, py::arg( "exponent" ), py::arg( "frequency" ) );
 
     m.def( "hodograph_scaled_exponential_cosine",
            &tsbm::hodographScaledExponentialCosine,

@@ -514,12 +514,12 @@ class KeyPath : public std::vector< std::string >
 {
 public:
     //! Empty constructor.
-    KeyPath( ): std::vector< std::string >( ) { }
+    KeyPath( ): std::vector< std::string >( ) {}
 
     //! Constructor from vector.
     KeyPath( const std::vector< std::string >& vector ): std::vector< std::string >( )
     {
-        for( const std::string key: vector )
+        for( const std::string key : vector )
         {
             push_back( key );
         }
@@ -538,14 +538,14 @@ public:
      * Constructor with a single char key.
      * \param key The key to be accessed.
      */
-    KeyPath( const char* key ): KeyPath( std::string( key ) ) { }
+    KeyPath( const char* key ): KeyPath( std::string( key ) ) {}
 
     //! Constructor with an element index.
     /*!
      * Constructor with an element index.
      * \param vectorIndex The index of the element to be accessed.
      */
-    KeyPath( unsigned int vectorIndex ): KeyPath( "@" + std::to_string( vectorIndex ) ) { }
+    KeyPath( unsigned int vectorIndex ): KeyPath( "@" + std::to_string( vectorIndex ) ) {}
 
     //! Get whether the key path is absolute.
     /*!
@@ -576,7 +576,7 @@ std::ostream& operator<<( std::ostream& stringRepresentation, KeyPath const& key
 
 inline KeyPath operator/( KeyPath path1, const KeyPath& path2 )
 {
-    for( std::string subkey: path2 )
+    for( std::string subkey : path2 )
     {
         path1.push_back( subkey );
     }

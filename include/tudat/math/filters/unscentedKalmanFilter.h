@@ -121,7 +121,7 @@ public:
     }
 
     //! Destructor.
-    ~UnscentedKalmanFilter( ) { }
+    ~UnscentedKalmanFilter( ) {}
 
     //! Function to update the filter with the new step data.
     /*!

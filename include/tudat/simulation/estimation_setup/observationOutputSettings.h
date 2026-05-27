@@ -577,11 +577,10 @@ public:
                                               receiverLinkEndType,
                                               transmitterLinkEndId,
                                               transmitterLinkEndType ),
-        correctionTypeFilter_( correctionTypeFilter ),
-        resolvedSize_( -1 )
-    { }
+        correctionTypeFilter_( correctionTypeFilter ), resolvedSize_( -1 )
+    {}
 
-    ~LightTimeCorrectionComponentsDependentVariableSettings( ) { }
+    ~LightTimeCorrectionComponentsDependentVariableSettings( ) {}
 
     bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
     {

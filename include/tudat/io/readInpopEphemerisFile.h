@@ -22,7 +22,7 @@
 #include <memory>
 #include <iomanip>
 
-//#include "tudat/math/basic/linearAlgebraTypes.h"
+// #include "tudat/math/basic/linearAlgebraTypes.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/interpolators/chebyshevApproximation.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
@@ -40,7 +40,7 @@ namespace input_output
 inline void trimString( std::string& str )
 {
     const std::string::size_type firstNonWhitespace = str.find_first_not_of( " \t\r\n" );
-    if ( firstNonWhitespace == std::string::npos )
+    if( firstNonWhitespace == std::string::npos )
     {
         str.clear( );
         return;
@@ -60,7 +60,7 @@ inline std::vector< std::string > splitString( const std::string& str )
     std::istringstream iss( str );
     std::vector< std::string > tokens;
     std::string token;
-    while ( iss >> token )
+    while( iss >> token )
     {
         tokens.push_back( token );
     }
@@ -80,7 +80,7 @@ std::map< double, std::vector< DifferenceScalarType > > readInpopTimeEphemeris(
 {
     std::map< double, std::vector< DifferenceScalarType > > chebyshevCoefficients;
     std::ifstream stream( fileName );
-    if ( !stream.is_open( ) )
+    if( !stream.is_open( ) )
     {
         throw std::runtime_error( "Data file '" + fileName + "' could not be opened." );
     }
@@ -92,10 +92,10 @@ std::map< double, std::vector< DifferenceScalarType > > readInpopTimeEphemeris(
     std::getline( stream, line );
     trimString( line );
     std::vector< std::string > headerTokens = splitString( line );
-    
+
     int order = std::stoi( headerTokens.at( 6 ) );
 
-    while ( std::getline( stream, line ) )
+    while( std::getline( stream, line ) )
     {
         trimString( line );
 
@@ -105,20 +105,18 @@ std::map< double, std::vector< DifferenceScalarType > > readInpopTimeEphemeris(
 
         std::vector< std::string > tokens = splitString( line );
 
-        if ( tokens.size( ) > 1 )
+        if( tokens.size( ) > 1 )
         {
             std::vector< DifferenceScalarType > currentCoefficients( order );
-            for ( int i = 0; i < order; ++i )
+            for( int i = 0; i < order; ++i )
             {
                 std::istringstream( tokens.at( i + 2 ) ) >> currentCoefficients[ i ];
             }
 
-            double timeSinceJ2000 = ( std::stod( tokens.at( 0 ) ) - referenceJulianDay ) *
-                                    physical_constants::JULIAN_DAY;
+            double timeSinceJ2000 = ( std::stod( tokens.at( 0 ) ) - referenceJulianDay ) * physical_constants::JULIAN_DAY;
             chebyshevCoefficients[ timeSinceJ2000 ] = currentCoefficients;
         }
     }
-
 
     return chebyshevCoefficients;
 }
@@ -169,8 +167,8 @@ std::shared_ptr< ephemerides::Ephemeris > createInpopEphemerisFromFiles(
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
         const bool useGeocentricReference = false );
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_READINPOPTIMEEPHEMERIS_H
+#endif  // TUDAT_READINPOPTIMEEPHEMERIS_H

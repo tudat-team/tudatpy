@@ -28,7 +28,7 @@ static std::map< RotationModelType, std::string > rotationModelTypes = { { simpl
                                                                          { synchronous_rotation_model, "synchronous" } };
 
 //! `RotationModelType`s not supported by `json_interface`.
-static std::vector< RotationModelType > unsupportedRotationModelTypes = { };
+static std::vector< RotationModelType > unsupportedRotationModelTypes = {};
 
 //! Convert `RotationModelType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const RotationModelType& rotationModelType )

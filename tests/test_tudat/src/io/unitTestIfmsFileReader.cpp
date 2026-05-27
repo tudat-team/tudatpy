@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             }
         }
 
-        setTrackingDataInformationInBodies( processedIfmsFiles, bodies,  ObservableType::dsn_n_way_averaged_doppler  );
+        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, ObservableType::dsn_n_way_averaged_doppler );
 
         auto observationCollection = observation_models::createTrackingTxtFilesObservationCollection< double, Time >(
                 processedIfmsFiles, { ObservableType::dsn_n_way_averaged_doppler } );

@@ -175,7 +175,7 @@ reference_epoch:
                            &tss::GroundStationSettings::getStationMotionSettings,
                            &tss::GroundStationSettings::setStationMotionSettings,
                            R"doc(
-                    
+
                 List of motion settings for the ground station, defining time-variations of the station position.
 
                 :type: list[ GroundStationMotionSettings ]

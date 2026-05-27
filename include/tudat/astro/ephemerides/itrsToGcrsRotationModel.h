@@ -27,13 +27,7 @@ namespace ephemerides
 {
 
 //! Intermediate frames in the IERS Earth-orientation rotation chain.
-enum class EarthOrientationIntermediateFrame
-{
-    itrs,
-    tirs,
-    cirs,
-    icrs
-};
+enum class EarthOrientationIntermediateFrame { itrs, tirs, cirs, icrs };
 
 //! Class for rotation from ITRS to GCRS, according to IERS 2010 models.
 /*!
@@ -194,7 +188,7 @@ public:
         std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
                 anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ );
 
-        auto getFrameIndex = [ ]( const EarthOrientationIntermediateFrame frame ) {
+        auto getFrameIndex = []( const EarthOrientationIntermediateFrame frame ) {
             switch( frame )
             {
                 case EarthOrientationIntermediateFrame::itrs:
@@ -222,9 +216,8 @@ public:
                     return earth_orientation::calculateRotationFromTirsToCirs(
                             sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) );
                 case 2:
-                    return earth_orientation::calculateRotationFromCirsToGcrs( rotationAnglesAndUt1.first[ 0 ],
-                                                                               rotationAnglesAndUt1.first[ 1 ],
-                                                                               rotationAnglesAndUt1.first[ 2 ] );
+                    return earth_orientation::calculateRotationFromCirsToGcrs(
+                            rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ] );
                 default:
                     throw std::runtime_error( "Error when getting Earth rotation between intermediate frames, chain link not recognized" );
             }

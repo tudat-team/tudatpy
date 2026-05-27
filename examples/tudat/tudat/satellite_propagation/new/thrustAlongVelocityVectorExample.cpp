@@ -75,7 +75,7 @@ int main( )
             std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings ) );
 
     // Define point mass gravity accelerations of system bodies.
-    for( auto body: bodiesToCreate )
+    for( auto body : bodiesToCreate )
     {
         accelerationsOfVehicle[ body ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     }

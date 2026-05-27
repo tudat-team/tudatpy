@@ -32,7 +32,6 @@ using namespace orbital_element_conversions;
 using namespace coordinate_conversions;
 using namespace physical_constants;
 
-
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,

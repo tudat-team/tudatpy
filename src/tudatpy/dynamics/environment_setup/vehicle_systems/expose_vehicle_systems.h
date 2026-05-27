@@ -24,7 +24,7 @@ namespace environment_setup
 namespace vehicle_systems
 {
 
-void expose_vehicle_systems_setup( py::module &m );
+void expose_vehicle_systems_setup( py::module& m );
 
 }  // namespace vehicle_systems
 }  // namespace environment_setup

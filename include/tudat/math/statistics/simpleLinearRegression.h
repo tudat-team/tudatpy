@@ -57,7 +57,7 @@ public:
         standardDeviationOfCoefficientOfConstantTerm_( TUDAT_NAN ), standardDeviationOfCoefficientOfLinearTerm_( TUDAT_NAN ),
         sumOfDependentVariableData_( TUDAT_NAN ), sumOfIndependentVariableData_( TUDAT_NAN ), sumOfTemporaryVariableSquared_( TUDAT_NAN ),
         inputDataToFit_( inputDataToFit )
-    { }
+    {}
 
     //! Get coefficient of constant term of fit.
     /*!

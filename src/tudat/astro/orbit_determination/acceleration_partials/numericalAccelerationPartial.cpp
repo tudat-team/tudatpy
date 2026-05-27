@@ -17,11 +17,10 @@ namespace acceleration_partials
 {
 
 //! Dummy function used for update, performs no calculations.
-void emptyFunction( ) { }
-
+void emptyFunction( ) {}
 
 //! Dummy function used for update, performs no calculations.
-void emptyTimeFunction( const double time ) { }
+void emptyTimeFunction( const double time ) {}
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a body state.
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
@@ -82,7 +81,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
 
 Eigen::Matrix< double, 1, 6 > calculateRelativisticTimeDerivativeWrtStatePartials(
         const std::function< void( const Eigen::Vector6d& ) > setBodyState,
-        const std::shared_ptr< RelativisticTimeStateDerivative< > > stateDerivativeModel,
+        const std::shared_ptr< RelativisticTimeStateDerivative<> > stateDerivativeModel,
         const Eigen::Vector6d& originalState,
         const Eigen::Vector6d& statePerturbation,
         const double currentCoordinateTime,
@@ -105,10 +104,9 @@ Eigen::Matrix< double, 1, 6 > calculateRelativisticTimeDerivativeWrtStatePartial
         updateFunction( );
         stateDerivativeModel->updateStateDerivativeModel( currentCoordinateTime );
         singleStateDerivative.setZero( );
-        baseDerivativeModel->calculateSystemStateDerivative(
-                    currentCoordinateTime,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
-                    singleStateDerivative.block( 0, 0, 1, 1 ) );
+        baseDerivativeModel->calculateSystemStateDerivative( currentCoordinateTime,
+                                                             ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
+                                                             singleStateDerivative.block( 0, 0, 1, 1 ) );
         upStateDerivatives( 0, i ) = singleStateDerivative( 0, 0 );
         perturbedState = originalState;
     }
@@ -116,15 +114,14 @@ Eigen::Matrix< double, 1, 6 > calculateRelativisticTimeDerivativeWrtStatePartial
     Eigen::Matrix< double, 1, 6 > downStateDerivatives = Eigen::Matrix< double, 1, 6 >::Zero( );
     for( int i = 0; i < 6; i++ )
     {
-        perturbedState( i  ) -= statePerturbation( i );
+        perturbedState( i ) -= statePerturbation( i );
         setBodyState( perturbedState );
         updateFunction( );
         stateDerivativeModel->updateStateDerivativeModel( currentCoordinateTime );
         singleStateDerivative.setZero( );
-        baseDerivativeModel->calculateSystemStateDerivative(
-                    currentCoordinateTime,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
-                    singleStateDerivative.block( 0, 0, 1, 1 ) );
+        baseDerivativeModel->calculateSystemStateDerivative( currentCoordinateTime,
+                                                             ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
+                                                             singleStateDerivative.block( 0, 0, 1, 1 ) );
         downStateDerivatives( 0, i ) = singleStateDerivative( 0, 0 );
         perturbedState = originalState;
     }
@@ -144,7 +141,7 @@ Eigen::Matrix< double, 1, 6 > calculateRelativisticTimeDerivativeWrtStatePartial
 
 Eigen::Matrix< double, 1, Eigen::Dynamic > calculateRelativisticTimeDerivativeWrtParameterPartials(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        const std::shared_ptr< RelativisticTimeStateDerivative< > > stateDerivativeModel,
+        const std::shared_ptr< RelativisticTimeStateDerivative<> > stateDerivativeModel,
         const double parameterPerturbation,
         const std::function< void( ) > updateDependentVariables,
         const double currentCoordinateTime,
@@ -159,29 +156,25 @@ Eigen::Matrix< double, 1, Eigen::Dynamic > calculateRelativisticTimeDerivativeWr
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentCoordinateTime );
     stateDerivativeModel->updateStateDerivativeModel( currentCoordinateTime );
-    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > upStateDerivatives =
-            Eigen::Matrix< double, 1, 1 >::Zero( );
+    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > upStateDerivatives = Eigen::Matrix< double, 1, 1 >::Zero( );
     const auto baseDerivativeModel =
             std::static_pointer_cast< propagators::SingleStateTypeDerivative< double, double > >( stateDerivativeModel );
-    baseDerivativeModel->calculateSystemStateDerivative(
-                currentCoordinateTime,
-                ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
-                upStateDerivatives.block( 0, 0, 1, 1 ) );
+    baseDerivativeModel->calculateSystemStateDerivative( currentCoordinateTime,
+                                                         ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
+                                                         upStateDerivatives.block( 0, 0, 1, 1 ) );
 
     // Calculate down-perturbation.
     parameter->setParameterValue( unperturbedParameterValue - parameterPerturbation );
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentCoordinateTime );
     stateDerivativeModel->updateStateDerivativeModel( currentCoordinateTime );
-    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > downStateDerivatives =
-            Eigen::Matrix< double, 1, 1 >::Zero( );
-    baseDerivativeModel->calculateSystemStateDerivative(
-                currentCoordinateTime,
-                ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
-                downStateDerivatives.block( 0, 0, 1, 1 ) );
+    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > downStateDerivatives = Eigen::Matrix< double, 1, 1 >::Zero( );
+    baseDerivativeModel->calculateSystemStateDerivative( currentCoordinateTime,
+                                                         ( Eigen::Matrix< double, 1, 1 >( ) << currentProperTime ).finished( ),
+                                                         downStateDerivatives.block( 0, 0, 1, 1 ) );
 
     // Reset to original value.
-    parameter->setParameterValue( unperturbedParameterValue ) ;
+    parameter->setParameterValue( unperturbedParameterValue );
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentCoordinateTime );
 

@@ -32,7 +32,6 @@ namespace observations_setup
 
 void expose_observations_setup( py::module& m )
 {
-
     auto ancillary_settings = m.def_submodule( "ancillary_settings" );
     ancillary_settings::expose_ancillary_settings( ancillary_settings );
 
@@ -50,7 +49,6 @@ void expose_observations_setup( py::module& m )
 
     auto viability = m.def_submodule( "viability" );
     viability::expose_viability( viability );
-
 }
 
 }  // namespace observations_setup

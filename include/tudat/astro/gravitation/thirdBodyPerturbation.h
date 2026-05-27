@@ -96,7 +96,7 @@ public:
                            const std::string centralBodyName ):
         accelerationModelForBodyUndergoingAcceleration_( accelerationModelForBodyUndergoingAcceleration ),
         accelerationModelForCentralBody_( accelerationModelForCentralBody ), centralBodyName_( centralBodyName )
-    { }
+    {}
 
     //! Update member variables to current state.
     /*!

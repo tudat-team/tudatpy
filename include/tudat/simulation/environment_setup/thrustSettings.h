@@ -76,7 +76,7 @@ public:
                                           "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
     }
 
-    virtual ~ThrustDirectionSettings( ) { }
+    virtual ~ThrustDirectionSettings( ) {}
     ThrustDirectionTypes thrustDirectionType_;
     std::string relativeBody_;
 };
@@ -95,7 +95,7 @@ public:
                                           "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
     }
 
-    ~ThrustDirectionFromStateGuidanceSettings( ) { }
+    ~ThrustDirectionFromStateGuidanceSettings( ) {}
 
     bool isColinearWithVelocity_;
     bool directionIsOppositeToVector_;
@@ -112,7 +112,7 @@ public:
                                           "thrust_refactor/thrust_refactor.html#thrust-acceleration" );
     }
 
-    ~CustomThrustDirectionSettings( ) { }
+    ~CustomThrustDirectionSettings( ) {}
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
 
@@ -140,7 +140,7 @@ public:
         }
     }
 
-    ~CustomThrustOrientationSettings( ) { }
+    ~CustomThrustOrientationSettings( ) {}
     std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_;
 };
 
@@ -277,10 +277,10 @@ public:
      */
     ThrustMagnitudeSettings( const ThrustMagnitudeTypes thrustMagnitudeType, const std::string& thrustOriginId ):
         thrustMagnitudeType_( thrustMagnitudeType ), thrustOriginId_( thrustOriginId )
-    { }
+    {}
 
     // Destructor
-    virtual ~ThrustMagnitudeSettings( ) { }
+    virtual ~ThrustMagnitudeSettings( ) {}
 
     // Type of thrust magnitude guidance that is to be used
     ThrustMagnitudeTypes thrustMagnitudeType_;
@@ -303,10 +303,10 @@ public:
      */
     ConstantThrustMagnitudeSettings( const double thrustMagnitude, const double specificImpulse ):
         ThrustMagnitudeSettings( constant_thrust_magnitude, "" ), thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse )
-    { }
+    {}
 
     // Destructor
-    ~ConstantThrustMagnitudeSettings( ) { }
+    ~ConstantThrustMagnitudeSettings( ) {}
 
     // Constant thrust magnitude that is to be used.
     double thrustMagnitude_;
@@ -334,7 +334,7 @@ public:
                                    const bool inputIsForce = true ):
         ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ), thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ), specificImpulseIsConstant_( false ), inputIsForce_( inputIsForce )
-    { }
+    {}
 
     CustomThrustMagnitudeSettings( const std::function< double( const double ) > thrustMagnitudeFunction,
                                    const double specificImpulse,
@@ -342,10 +342,10 @@ public:
         ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ), thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ), specificImpulseIsConstant_( true ),
         inputIsForce_( inputIsForce )
-    { }
+    {}
 
     // Destructor.
-    ~CustomThrustMagnitudeSettings( ) { }
+    ~CustomThrustMagnitudeSettings( ) {}
 
     // Function returning thrust magnitude as a function of time.
     std::function< double( const double ) > thrustMagnitudeFunction_;
@@ -569,7 +569,7 @@ public:
     }
 
     // Destructor
-    virtual ~ThrustInputParameterGuidance( ) { }
+    virtual ~ThrustInputParameterGuidance( ) {}
 
     // Function to retrieve the number of guidance-input parameters that are computed for the thrust
     /*

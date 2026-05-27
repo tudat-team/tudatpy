@@ -63,7 +63,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
         Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Earth" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( ( moveMarsToMoon ? "Moon" : "Mars" ), "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
+        bodyState.segment( 0, 3 ) =
+                getBodyCartesianPositionAtEpoch( ( moveMarsToMoon ? "Moon" : "Mars" ), "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Mars" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Moon" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
@@ -73,7 +74,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
     else
     {
         bodies.at( "Earth" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Earth", "SSB", false, false ) );
-        bodies.at( "Mars" )->setEphemeris( std::make_shared< SpiceEphemeris >( ( moveMarsToMoon ? "Moon" : "Mars" ), "SSB", false, false ) );
+        bodies.at( "Mars" )->setEphemeris(
+                std::make_shared< SpiceEphemeris >( ( moveMarsToMoon ? "Moon" : "Mars" ), "SSB", false, false ) );
         bodies.at( "Moon" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Moon", "SSB", false, false ) );
         bodies.at( "Sun" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
     }
@@ -170,12 +172,8 @@ std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters
                         "SystemOfBodies has no space-time properties." );
             }
             relativisticParameter = std::make_shared< EquivalencePrincipleLpiViolationParameter >(
-                    [ spaceTimeProperties ]( )
-                    {
-                        return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
-                    },
-                    [ spaceTimeProperties ]( const double parameterValue )
-                    {
+                    [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); },
+                    [ spaceTimeProperties ]( const double parameterValue ) {
                         spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
                     } );
         }

@@ -491,7 +491,6 @@ protected:
     //! Pre-declared map used in computation of partials.
     std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
             currentLinkEndPartials;
-
 };
 
 //

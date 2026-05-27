@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
 
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         double shadowFunction = mission_geometry::computeShadowFunction(
                 bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
 
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         double shadowFunction = mission_geometry::computeShadowFunction(
                 bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),

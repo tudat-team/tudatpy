@@ -36,12 +36,9 @@ void PairInterpolationInterface::getCosineSinePair( const double time,
     }
     catch( std::runtime_error& caughtException )
     {
-        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " +
+                                  std::string( caughtException.what( ) ) );
     }
-
-
-
-
 }
 
 //! Function to add sine and cosine corrections at given time to coefficient matrices.

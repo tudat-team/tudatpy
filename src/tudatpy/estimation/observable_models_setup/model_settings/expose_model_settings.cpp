@@ -1445,9 +1445,9 @@ Returns
 )doc" );
 
     m.def( "get_observable_size",
-       &tom::getObservableSize,
-       py::arg( "observable_type" ),
-       R"doc(
+           &tom::getObservableSize,
+           py::arg( "observable_type" ),
+           R"doc(
  Function to get the size of an observable of a given type.
 
  Parameters

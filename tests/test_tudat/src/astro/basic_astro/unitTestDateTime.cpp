@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( modifiedJulianDayFromDateTime - currentModifiedJulianDay ) ),
                                        modifiedJulianDayTolerance );
                 }
-                catch( std::runtime_error &caughtException )
+                catch( std::runtime_error& caughtException )
                 {
                     std::cout << "Exception " << caughtException.what( ) << std::endl;
                     exceptionCaught = true;
@@ -205,8 +205,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondReconstructionFromTime )
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getDay( ), fractionalLeapSecondDateTime.getDay( ) );
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getHour( ), fractionalLeapSecondDateTime.getHour( ) );
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getMinute( ), fractionalLeapSecondDateTime.getMinute( ) );
-    BOOST_CHECK_SMALL( std::fabs( reconstructedFractionalLeapSecondDateTime.getSeconds( ) -
-                                  fractionalLeapSecondDateTime.getSeconds( ) ),
+    BOOST_CHECK_SMALL( std::fabs( reconstructedFractionalLeapSecondDateTime.getSeconds( ) - fractionalLeapSecondDateTime.getSeconds( ) ),
                        std::numeric_limits< long double >::epsilon( ) * 3600.0L );
 }
 
@@ -413,8 +412,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
         if( sizeof( long double ) > 8 )
         {
             // Compare canonicalized representations, as ISO formatting may pad trailing zeros.
-            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ),
-                               trimTrailingFractionalZeros( reconstuctedString ) );
+            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ), trimTrailingFractionalZeros( reconstuctedString ) );
         }
         Time time = timeFromIsoString< Time >( testStrings.at( i ) );
         BOOST_CHECK_SMALL( static_cast< long double >( time - dateTime.epoch< Time >( ) ),
@@ -437,10 +435,8 @@ BOOST_AUTO_TEST_CASE( testIsoInitializationLeapSecond )
     BOOST_CHECK_EQUAL( leapSecondFromIso.getDay( ), 31 );
     BOOST_CHECK_EQUAL( leapSecondFromIso.getHour( ), 23 );
     BOOST_CHECK_EQUAL( leapSecondFromIso.getMinute( ), 59 );
-    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ),
-                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
-    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) -
-                                                           referenceLeapSecond.epoch< Time >( ) ) ),
+    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ), std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) - referenceLeapSecond.epoch< Time >( ) ) ),
                        std::numeric_limits< long double >::epsilon( ) * 3600.0L );
 }
 

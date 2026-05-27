@@ -119,7 +119,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelQuaternionsStateDerivative( ) { }
+    ~NBodyUnifiedStateModelQuaternionsStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with quaternions (USM7).

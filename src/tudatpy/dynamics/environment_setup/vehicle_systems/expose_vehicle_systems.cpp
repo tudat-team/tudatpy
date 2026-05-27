@@ -13,7 +13,6 @@
 #include "expose_vehicle_systems.h"
 #include <tudat/simulation/environment_setup/createSystemModel.h>
 
-
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>

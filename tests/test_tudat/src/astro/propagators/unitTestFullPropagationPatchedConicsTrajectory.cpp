@@ -186,9 +186,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
                                                              dependentVariableResultForEachLeg,
                                                              static_cast< bool >( terminationType ) );
 
-        for( auto itr: patchedConicsResultForEachLeg )
+        for( auto itr : patchedConicsResultForEachLeg )
         {
-            for( auto innerItr: itr.second )
+            for( auto innerItr : itr.second )
             {
                 Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
                         fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];
@@ -368,9 +368,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                                                                     dependentVariableResultForEachLeg,
                                                                     static_cast< bool >( terminationType ) );
 
-        for( auto itr: patchedConicsResultForEachLeg )
+        for( auto itr : patchedConicsResultForEachLeg )
         {
-            for( auto innerItr: itr.second )
+            for( auto innerItr : itr.second )
             {
                 Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
                         fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];

@@ -46,10 +46,10 @@ The order within the month is indicated using letters as follows:
                         (Note: I is omitted)
 """
 
-CENTURY_MAP = {'I': '18', 'J': '19', 'K': '20'}
+CENTURY_MAP = {"I": "18", "J": "19", "K": "20"}
 """ Mapping for packed designations: century mapping, e.g., 'I' -> '18th century, etc...'] """
 
-SURVEY_MAP = {'PLS': 'P-L', 'T1S': 'T-1', 'T2S': 'T-2', 'T3S': 'T-3'}
+SURVEY_MAP = {"PLS": "P-L", "T1S": "T-1", "T2S": "T-2", "T3S": "T-3"}
 """ Mapping for packed designations: survey map.    
    Survey,                         Identifier
    Palomar-Leiden (1960),             P-L
@@ -58,7 +58,7 @@ SURVEY_MAP = {'PLS': 'P-L', 'T1S': 'T-1', 'T2S': 'T-2', 'T3S': 'T-3'}
    Third Trojan Survey (1977),        T-3 
 """
 
-PLANET_MAP = {'J': 'Jupiter', 'S': 'Saturn', 'U': 'Uranus', 'N': 'Neptune'}
+PLANET_MAP = {"J": "Jupiter", "S": "Saturn", "U": "Uranus", "N": "Neptune"}
 """ Mapping for packed designations: planet map. 
 Permanent designations for natural satellites are the Roman numerals. 
 A permanent natural-satellite packed designation starts with a letter indicating to which
@@ -84,8 +84,9 @@ map_reason_to_drop = {
     "r": "Radar observation.",
     "Q": "Radar observation (converted from XML).",
     "q": "Radar observation (converted from XML).",
-    "O": "Offset observation (natural satellites)."
+    "O": "Offset observation (natural satellites).",
 }
+
 
 # --- Unpacking Functions ---
 def unpack_permanent_minor_planet(packed: str) -> str:
@@ -116,11 +117,13 @@ def unpack_permanent_minor_planet(packed: str) -> str:
 
     # --- Case 1: Extended Range (> 620,000) ---
     # Format: ~ + 4 Base62 characters
-    if first_char == '~':
+    if first_char == "~":
         value = 0
         for char in packed[1:]:
             if char not in BASE62_MAP:
-                raise ValueError(f"Invalid Base62 character '{char}' in extended packed designation '{packed}'.")
+                raise ValueError(
+                    f"Invalid Base62 character '{char}' in extended packed designation '{packed}'."
+                )
             value = value * 62 + BASE62_MAP[char]
 
         return str(value + 620000)
@@ -130,7 +133,9 @@ def unpack_permanent_minor_planet(packed: str) -> str:
     elif first_char.isalpha():
         # Validate suffix is numeric
         if not packed[1:].isdigit():
-            raise ValueError(f"Invalid format for range 100k+: '{packed}'. Suffix must be numeric digits.")
+            raise ValueError(
+                f"Invalid format for range 100k+: '{packed}'. Suffix must be numeric digits."
+            )
 
         prefix_val = BASE62_MAP[first_char]
         suffix_val = int(packed[1:])
@@ -148,7 +153,9 @@ def unpack_permanent_minor_planet(packed: str) -> str:
 
     # --- Case 4: Invalid Start Character ---
     else:
-        raise ValueError(f"Invalid start character '{first_char}' in packed designation '{packed}'. Expected digit, letter, or '~'.")
+        raise ValueError(
+            f"Invalid start character '{first_char}' in packed designation '{packed}'. Expected digit, letter, or '~'."
+        )
 
 
 def unpack_provisional_minor_planet(packed: str) -> str:
@@ -176,9 +183,11 @@ def unpack_provisional_minor_planet(packed: str) -> str:
         return f"{number} {survey_type}"
 
     # Case 2: Standard provisional designations (e.g., K07Tf8A for 2007 TA418)
-    if CENTURY_MAP.get(packed[0], '??') == '??':
-        raise ValueError(f'Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}.')
-    year = CENTURY_MAP.get(packed[0], '??') + packed[1:3]
+    if CENTURY_MAP.get(packed[0], "??") == "??":
+        raise ValueError(
+            f"Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}."
+        )
+    year = CENTURY_MAP.get(packed[0], "??") + packed[1:3]
     half_month_1 = packed[3]
     half_month_2 = packed[6]
     cycle_packed = packed[4:6]
@@ -197,12 +206,12 @@ def unpack_provisional_minor_planet(packed: str) -> str:
         return f"{year} {half_month_1}{half_month_2}{cycle}"
 
 
-def unpack_provisional_comet_or_satellite(packed: str) -> str: 
+def unpack_provisional_comet_or_satellite(packed: str) -> str:
     """
     Unpacks a 7-char provisional comet/satellite designation.
-    
+
     Parameters
-    ---------- 
+    ----------
     packed : str
         The 7-character packed provisional comet or satellite designation.
         Examples: 'K07C01A' for 2007 C1 A, 'J95X020' for 1995 X2.
@@ -213,17 +222,20 @@ def unpack_provisional_comet_or_satellite(packed: str) -> str:
         The unpacked provisional comet or satellite designation.
     """
 
-    if CENTURY_MAP.get(packed[0], '??') == '??':
-        raise ValueError(f'Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}.')
-    year = CENTURY_MAP.get(packed[0], '??') + packed[1:3]
+    if CENTURY_MAP.get(packed[0], "??") == "??":
+        raise ValueError(
+            f"Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}."
+        )
+    year = CENTURY_MAP.get(packed[0], "??") + packed[1:3]
     half_month = packed[3]
     order = int(packed[4:6])
     fragment = packed[6]
 
     desig = f"{year} {half_month}{order}"
-    if fragment != '0':  # Append fragment letter if it exists
+    if fragment != "0":  # Append fragment letter if it exists
         desig += f"-{fragment.upper()}"
     return desig
+
 
 def unpack_permanent_natural_satellite(packed: str) -> str:
     """
@@ -243,15 +255,17 @@ def unpack_permanent_natural_satellite(packed: str) -> str:
     if len(packed) != 5:
         raise ValueError(f"Invalid packed length: '{packed}'. Must be exactly 5 characters.")
 
-    if PLANET_MAP.get(packed[0], 'Unknown Planet') == 'Unknown Planet':
-        raise ValueError(f'Invalid planet code {packed[0]} does not exist in PLANET MAP: {PLANET_MAP}.')
+    if PLANET_MAP.get(packed[0], "Unknown Planet") == "Unknown Planet":
+        raise ValueError(
+            f"Invalid planet code {packed[0]} does not exist in PLANET MAP: {PLANET_MAP}."
+        )
     planet_name = PLANET_MAP.get(packed[0], "Unknown Planet")
 
-
     if planet_name == "Unknown Planet":
-        raise ValueError("Unknown planet with code " + packed[0] + " found in PLANET_MAP. "
-                         "Make sure your lines are compliant with the MPC format "
-                         "(https://minorplanetcenter.net/iau/info/OpticalObs.html), or update the PLANET_MAP."
-                        )
+        raise ValueError(
+            "Unknown planet with code " + packed[0] + " found in PLANET_MAP. "
+            "Make sure your lines are compliant with the MPC format "
+            "(https://minorplanetcenter.net/iau/info/OpticalObs.html), or update the PLANET_MAP."
+        )
     number = int(packed[1:4])
     return f"{planet_name} {transform_integer_to_roman_number(number)}"

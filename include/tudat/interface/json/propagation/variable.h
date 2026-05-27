@@ -32,7 +32,7 @@ static std::map< VariableType, std::string > variableTypes = { { independentVari
                                                                { sensitivityMatrix, "sensitivityMatrix" } };
 
 //! `VariableType`s not supported by `json_interface`.
-static std::vector< VariableType > unsupportedVariableTypes = { };
+static std::vector< VariableType > unsupportedVariableTypes = {};
 
 //! Convert `VariableType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const VariableType& variableType )

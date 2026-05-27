@@ -26,17 +26,13 @@ namespace tudat
 {
 namespace gravitation
 {
-std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > getDegreeTwoSphericalHarmonicCoefficientsPy(
-        const Eigen::Matrix3d inertiaTensor,
-        const double bodyGravitationalParameter,
-        const double referenceRadius,
-        const bool useNormalizedCoefficients )
+std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > getDegreeTwoSphericalHarmonicCoefficientsPy( const Eigen::Matrix3d inertiaTensor,
+                                                                                                    const double bodyGravitationalParameter,
+                                                                                                    const double referenceRadius,
+                                                                                                    const bool useNormalizedCoefficients )
 {
-    return tg::getDegreeTwoSphericalHarmonicCoefficients( inertiaTensor,
-                                                          bodyGravitationalParameter,
-                                                          referenceRadius,
-                                                          2,
-                                                          useNormalizedCoefficients );
+    return tg::getDegreeTwoSphericalHarmonicCoefficients(
+            inertiaTensor, bodyGravitationalParameter, referenceRadius, 2, useNormalizedCoefficients );
 }
 }  // namespace gravitation
 }  // namespace tudat
@@ -94,8 +90,7 @@ void expose_gravitation( py::module& m )
      )doc" );
 
     m.def( "normalize_spherical_harmonic_coefficients",
-           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
-                   &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >( &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
            py::arg( "unnormalized_cosine_coefficients" ),
            py::arg( "unnormalized_sine_coefficients" ),
            R"doc(
@@ -123,8 +118,7 @@ void expose_gravitation( py::module& m )
      )doc" );
 
     m.def( "unnormalize_spherical_harmonic_coefficients",
-           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
-                   &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >( &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
            py::arg( "normalized_cosine_coefficients" ),
            py::arg( "normalized_sine_coefficients" ),
            R"doc(
