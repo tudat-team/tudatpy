@@ -75,7 +75,7 @@ public:
     virtual bool dependsOnOriginalSource( ) = 0;
 
 protected:
-    virtual void updateMembers_( const double panelLatitude, const double panelLongitude, const double currentTime ) { };
+    virtual void updateMembers_( const double panelLatitude, const double panelLongitude, const double currentTime ) {};
 
     /*!
      * Whether the radiosity model is invariant with time. If yes, its members will not be updated even if the time
@@ -115,7 +115,7 @@ public:
 
     explicit OriginalSourceDependentSourcePanelRadiosityModel( const std::string& originalSourceName ):
         originalSourceName_( originalSourceName )
-    { }
+    {}
 
     bool dependsOnOriginalSource( ) override
     {
@@ -163,7 +163,7 @@ public:
      *
      * @param constantRadiosity Constant radiosity
      */
-    explicit ConstantSourcePanelRadiosityModel( const double constantRadiosity ): constantRadiosity_( constantRadiosity ) { }
+    explicit ConstantSourcePanelRadiosityModel( const double constantRadiosity ): constantRadiosity_( constantRadiosity ) {}
 
     double evaluateIrradianceAtPosition( double panelArea,
                                          const Eigen::Vector3d& panelSurfaceNormal,
@@ -201,7 +201,7 @@ public:
      */
     explicit CustomInherentSourcePanelRadiosityModel( const std::function< double( double, double, double ) >& radiosityFunction ):
         radiosityFunction_( radiosityFunction )
-    { }
+    {}
 
     double evaluateIrradianceAtPosition( double panelArea,
                                          const Eigen::Vector3d& panelSurfaceNormal,
@@ -248,13 +248,13 @@ public:
                                               const std::shared_ptr< SurfacePropertyDistribution >& albedoDistribution ):
         OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), albedoDistribution_( albedoDistribution ),
         reflectionLaw_( std::make_shared< LambertianReflectionLaw >( TUDAT_NAN ) )
-    { }
+    {}
 
     // Copy constructor ensures that albedo distribution is shared but reflection law is unique per radiosity model
     AlbedoSourcePanelRadiosityModel( const AlbedoSourcePanelRadiosityModel& other ):
         OriginalSourceDependentSourcePanelRadiosityModel( other ), albedoDistribution_( other.albedoDistribution_ ),
         reflectionLaw_( std::make_shared< LambertianReflectionLaw >( *other.reflectionLaw_ ) )
-    { }
+    {}
 
     double evaluateIrradianceAtPosition( double panelArea,
                                          const Eigen::Vector3d& panelSurfaceNormal,
@@ -303,7 +303,7 @@ public:
     explicit DelayedThermalSourcePanelRadiosityModel( const std::string& originalSourceName,
                                                       const std::shared_ptr< SurfacePropertyDistribution >& emissivityDistribution ):
         OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), emissivityDistribution_( emissivityDistribution )
-    { }
+    {}
 
     double evaluateIrradianceAtPosition( double panelArea,
                                          const Eigen::Vector3d& panelSurfaceNormal,
@@ -357,7 +357,7 @@ public:
                                                          const std::shared_ptr< SurfacePropertyDistribution >& emissivityDistribution ):
         OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), minTemperature_( minTemperature ),
         maxTemperature_( maxTemperature ), emissivityDistribution_( emissivityDistribution )
-    { }
+    {}
 
     double evaluateIrradianceAtPosition( double panelArea,
                                          const Eigen::Vector3d& panelSurfaceNormal,

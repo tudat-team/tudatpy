@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             stateTransitionMatrixHistory.begin( )->second.rows( ),
             stateTransitionMatrixHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStateTransition.dat" );
-    for( auto it: stateTransitionMatrixHistory )
+    for( auto it : stateTransitionMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateTransitionMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = stateTransitionMatrixHistory.at( it.first );
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             sensitivityMatrixHistory.begin( )->second.rows( ),
             sensitivityMatrixHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestSensitivity.dat" );
-    for( auto it: sensitivityMatrixHistory )
+    for( auto it : sensitivityMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceSensitivityMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = sensitivityMatrixHistory.at( it.first );
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             stateHistory.begin( )->second.rows( ),
             stateHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStates.dat" );
-    for( auto it: stateHistory )
+    for( auto it : stateHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = stateHistory.at( it.first );
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             dependentVariableHistory.begin( )->second.rows( ),
             dependentVariableHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestDependentVariables.dat" );
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         BOOST_CHECK_EQUAL( referenceDependentVariableHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = dependentVariableHistory.at( it.first );

@@ -779,7 +779,7 @@ BOOST_AUTO_TEST_CASE( testGravityInfinitePeriapsis )
     // Define pericenter radius.
     const double pericenterRadius = std::numeric_limits< double >::infinity( );
 
-    for( unsigned int deltaVCase: { 0, 1 } )
+    for( unsigned int deltaVCase : { 0, 1 } )
     {
         double deltaV;
         Eigen::Vector3d expectedOutgoingVelocity;

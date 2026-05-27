@@ -496,7 +496,7 @@ public:
                               const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                       std::make_shared< LightTimeConvergenceCriteria >( ),
                               const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale,
-                              const bool useNormalization = false  ):
+                              const bool useNormalization = false ):
         observableType_( observableType ), linkEnds_( linkEnds ), lightTimeCorrectionsList_( lightTimeCorrectionsList ),
         biasSettings_( biasSettings ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         observableTimeScale_( observableTimeScale ), useNormalization_( useNormalization )
@@ -1062,11 +1062,15 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                 std::make_shared< LightTimeConvergenceCriteria >( ),
-                const bool normalizeRightAscension = false )
+        const bool normalizeRightAscension = false )
 {
-    return std::make_shared< ObservationModelSettings >(
-            angular_position, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria,
-            basic_astrodynamics::tdb_scale, normalizeRightAscension );
+    return std::make_shared< ObservationModelSettings >( angular_position,
+                                                         linkEnds,
+                                                         lightTimeCorrectionsList,
+                                                         biasSettings,
+                                                         lightTimeConvergenceCriteria,
+                                                         basic_astrodynamics::tdb_scale,
+                                                         normalizeRightAscension );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(

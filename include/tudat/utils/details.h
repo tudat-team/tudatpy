@@ -26,20 +26,20 @@ namespace utils
 namespace details
 {
 
-std::string remove_extension( const std::string &filename )
+std::string remove_extension( const std::string& filename )
 {
     size_t lastdot = filename.find_last_of( "." );
     if( lastdot == std::string::npos ) return filename;
     return filename.substr( 0, lastdot );
 }
 
-bool file_exists( const char *fileName )
+bool file_exists( const char* fileName )
 {
     std::ifstream infile( fileName );
     return infile.good( );
 }
 
-void download_file_from_source( const char *remote_url, const char *filename )
+void download_file_from_source( const char* remote_url, const char* filename )
 {
     char curl_cmd[ 1200 ];
     int curl_ret;
@@ -64,7 +64,7 @@ void download_file_from_source( const char *remote_url, const char *filename )
     }
 }
 
-void unzip( const char *zip_file, const char *output_dir, int verbosity )
+void unzip( const char* zip_file, const char* output_dir, int verbosity )
 {
     char unzip_cmd[ 1200 ];
     int unzip_ret;
@@ -97,7 +97,7 @@ void unzip( const char *zip_file, const char *output_dir, int verbosity )
     }
 }
 
-bool is_zip_file( const char *fileName )
+bool is_zip_file( const char* fileName )
 {
     std::ifstream infile( fileName, std::ios::binary );
     if( !infile.good( ) )
@@ -112,7 +112,7 @@ bool is_zip_file( const char *fileName )
     return ( buffer[ 0 ] == 'P' && buffer[ 1 ] == 'K' );
 }
 
-std::string url_to_filename( const std::string &remote_url )
+std::string url_to_filename( const std::string& remote_url )
 {
     std::string file_name = remote_url;
     std::string::size_type last_slash_pos = file_name.rfind( '/' );
@@ -125,7 +125,7 @@ std::string url_to_filename( const std::string &remote_url )
 }
 
 // https://cboard.cprogramming.com/c-programming/164689-how-get-users-home-directory.html
-static inline char *get_homedir( void )
+static inline char* get_homedir( void )
 {
     char homedir[ MAX_PATH ];
 #ifdef _WIN32

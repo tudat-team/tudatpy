@@ -26,9 +26,9 @@ public:
     ScaledLongitudeLibrationAmplitude( const std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > librationCalculator,
                                        const std::string& associatedBody ):
         EstimatableParameter< double >( scaled_longitude_libration_amplitude, associatedBody ), librationCalculator_( librationCalculator )
-    { }
+    {}
 
-    ~ScaledLongitudeLibrationAmplitude( ) { }
+    ~ScaledLongitudeLibrationAmplitude( ) {}
 
     double getParameterValue( )
     {

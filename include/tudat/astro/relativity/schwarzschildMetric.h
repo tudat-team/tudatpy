@@ -38,25 +38,23 @@ public:
      *  \param centralBodyName Name of central gravitating body.
      *  \param includeSecondPostNewtonianOrder If true, include second post-Newtonian terms.
      */
-    HarmonicSchwarzschildMetric(
-        const std::function< double( ) >& centralGravitationalParameterFunction,
-        const std::shared_ptr< PPNParameterSet >& ppnParameterSet,
-        const std::string& centralBodyName,
-        const bool includeSecondPostNewtonianOrder = false )
-        : centralGravitationalParameterFunction_( centralGravitationalParameterFunction ),
-          ppnParameterSet_( ppnParameterSet ),
-          centralBodyName_( centralBodyName ),
-          includeSecondPostNewtonianOrder_( includeSecondPostNewtonianOrder ) { }
+    HarmonicSchwarzschildMetric( const std::function< double( ) >& centralGravitationalParameterFunction,
+                                 const std::shared_ptr< PPNParameterSet >& ppnParameterSet,
+                                 const std::string& centralBodyName,
+                                 const bool includeSecondPostNewtonianOrder = false ):
+        centralGravitationalParameterFunction_( centralGravitationalParameterFunction ), ppnParameterSet_( ppnParameterSet ),
+        centralBodyName_( centralBodyName ), includeSecondPostNewtonianOrder_( includeSecondPostNewtonianOrder )
+    {}
 
     //! Copy constructor.
     /*!
      *  \param originalMetric Original metric object.
      */
-    HarmonicSchwarzschildMetric( const HarmonicSchwarzschildMetric& originalMetric )
-        : centralGravitationalParameterFunction_( originalMetric.centralGravitationalParameterFunction_ ),
-          ppnParameterSet_( originalMetric.ppnParameterSet_ ),
-          centralBodyName_( originalMetric.centralBodyName_ ),
-          includeSecondPostNewtonianOrder_( originalMetric.includeSecondPostNewtonianOrder_ ) { }
+    HarmonicSchwarzschildMetric( const HarmonicSchwarzschildMetric& originalMetric ):
+        centralGravitationalParameterFunction_( originalMetric.centralGravitationalParameterFunction_ ),
+        ppnParameterSet_( originalMetric.ppnParameterSet_ ), centralBodyName_( originalMetric.centralBodyName_ ),
+        includeSecondPostNewtonianOrder_( originalMetric.includeSecondPostNewtonianOrder_ )
+    {}
 
     //! Clone metric object.
     /*!
@@ -143,13 +141,13 @@ protected:
     std::string centralBodyName_;
     bool includeSecondPostNewtonianOrder_;
 
-    Eigen::Matrix< double, 4, 4 > currentFirstOrderCovariantMetricContributions_{ };
-    Eigen::Matrix< double, 4, 4 > currentSecondOrderCovariantMetricContributions_{ };
-    double currentCentralBodyGravitationalParameter_{ };
+    Eigen::Matrix< double, 4, 4 > currentFirstOrderCovariantMetricContributions_{};
+    Eigen::Matrix< double, 4, 4 > currentSecondOrderCovariantMetricContributions_{};
+    double currentCentralBodyGravitationalParameter_{};
 };
 
-} // namespace relativity
+}  // namespace relativity
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SCHWARZSCHILDMETRIC_H
+#endif  // TUDAT_SCHWARZSCHILDMETRIC_H

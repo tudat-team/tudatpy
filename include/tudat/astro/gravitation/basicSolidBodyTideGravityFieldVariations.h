@@ -122,8 +122,8 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree,
         const int maximumOrder,
-        std::map< int, std::vector< double > > meanCosineForcing = { },
-        std::map< int, std::vector< double > > meanSineForcing = { } );
+        std::map< int, std::vector< double > > meanCosineForcing = {},
+        std::map< int, std::vector< double > > meanSineForcing = {} );
 
 class SolidBodyTideGravityFieldVariations : public GravityFieldVariations
 {
@@ -490,8 +490,8 @@ public:
             const std::vector< std::function< double( ) > > deformingBodyMasses,
             const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies,
-            std::map< int, std::vector< double > > meanForcingCosineTerms = { },
-            std::map< int, std::vector< double > > meanForcingSineTerms = { } ):
+            std::map< int, std::vector< double > > meanForcingCosineTerms = {},
+            std::map< int, std::vector< double > > meanForcingSineTerms = {} ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
         SolidBodyTideGravityFieldVariations( deformedBodyStateFunction,
                                              deformedBodyOrientationFunction,

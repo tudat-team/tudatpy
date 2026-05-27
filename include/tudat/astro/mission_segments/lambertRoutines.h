@@ -131,7 +131,7 @@ public:
      */
     LambertFunctionsGooding( const double aQParameter, const double aNormalizedTimeOfFlight ):
         qParameter( aQParameter ), normalizedTimeOfFlight( aNormalizedTimeOfFlight )
-    { }
+    {}
 
     //! Define general Lambert function.
     /*!

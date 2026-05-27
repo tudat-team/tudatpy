@@ -41,7 +41,7 @@ class TransferNode
 public:
     TransferNode( const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris, const TransferNodeTypes nodeType );
 
-    virtual ~TransferNode( ) { }
+    virtual ~TransferNode( ) {}
 
     void updateNodeParameters( const Eigen::VectorXd nodeParameters );
 
@@ -88,7 +88,7 @@ public:
                                             const double departureEccentricity,
                                             const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction );
 
-    virtual ~DepartureWithFixedOutgoingVelocityNode( ) { }
+    virtual ~DepartureWithFixedOutgoingVelocityNode( ) {}
 
     Eigen::Vector3d getIncomingVelocity( );
 
@@ -114,7 +114,7 @@ public:
                                            const double departureSemiMajorAxis,
                                            const double departureEccentricity );
 
-    virtual ~DepartureWithFreeOutgoingVelocityNode( ) { }
+    virtual ~DepartureWithFreeOutgoingVelocityNode( ) {}
 
     Eigen::Vector3d getIncomingVelocity( );
 
@@ -148,7 +148,7 @@ public:
                                           const double captureEccentricity,
                                           const std::function< Eigen::Vector3d( ) > incomingVelocityFunction );
 
-    virtual ~CaptureWithFixedIncomingVelocityNode( ) { }
+    virtual ~CaptureWithFixedIncomingVelocityNode( ) {}
 
     Eigen::Vector3d getOutgoingVelocity( );
 
@@ -174,7 +174,7 @@ public:
                                          const double captureSemiMajorAxis,
                                          const double captureEccentricity );
 
-    virtual ~CaptureWithFreeIncomingVelocityNode( ) { }
+    virtual ~CaptureWithFreeIncomingVelocityNode( ) {}
 
     Eigen::Vector3d getOutgoingVelocity( );
 
@@ -205,7 +205,7 @@ public:
                                                    const std::function< Eigen::Vector3d( ) > incomingVelocityFunction,
                                                    const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction );
 
-    virtual ~SwingbyWithFixedIncomingFixedOutgoingVelocity( ) { }
+    virtual ~SwingbyWithFixedIncomingFixedOutgoingVelocity( ) {}
 
     bool nodeComputesOutgoingVelocity( );
 
@@ -228,7 +228,7 @@ public:
                                                   const double centralBodyGravitationalParameter,
                                                   const std::function< Eigen::Vector3d( ) > incomingVelocityFunction );
 
-    virtual ~SwingbyWithFixedIncomingFreeOutgoingVelocity( ) { }
+    virtual ~SwingbyWithFixedIncomingFreeOutgoingVelocity( ) {}
 
     bool nodeComputesOutgoingVelocity( );
 
@@ -253,7 +253,7 @@ public:
     SwingbyWithFreeIncomingFreeOutgoingVelocity( const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
                                                  const double centralBodyGravitationalParameter );
 
-    virtual ~SwingbyWithFreeIncomingFreeOutgoingVelocity( ) { }
+    virtual ~SwingbyWithFreeIncomingFreeOutgoingVelocity( ) {}
 
     bool nodeComputesOutgoingVelocity( );
 
@@ -282,7 +282,7 @@ public:
                                                   const double centralBodyGravitationalParameter,
                                                   const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction );
 
-    virtual ~SwingbyWithFreeIncomingFixedOutgoingVelocity( ) { }
+    virtual ~SwingbyWithFreeIncomingFixedOutgoingVelocity( ) {}
 
     bool nodeComputesOutgoingVelocity( );
 

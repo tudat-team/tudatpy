@@ -27,10 +27,9 @@ namespace tudat
 
 namespace simulation_setup
 {
-    class ComaPolyDataset;
-    class ComaStokesDataset;
-}
-
+class ComaPolyDataset;
+class ComaStokesDataset;
+}  // namespace simulation_setup
 
 namespace aerodynamics
 {
@@ -73,10 +72,10 @@ public:
     ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
                    const simulation_setup::ComaPolyDataset& zPolyDataset,
-                   const std::shared_ptr<ComaModel>& comaModel,
-                   std::function<Eigen::Vector6d()> sunStateFunction,
-                   std::function<Eigen::Vector6d()> cometStateFunction,
-                   std::function<Eigen::Matrix3d()> cometRotationFunction,
+                   const std::shared_ptr< ComaModel >& comaModel,
+                   std::function< Eigen::Vector6d( ) > sunStateFunction,
+                   std::function< Eigen::Vector6d( ) > cometStateFunction,
+                   std::function< Eigen::Matrix3d( ) > cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
@@ -102,10 +101,10 @@ public:
     ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
                    const simulation_setup::ComaStokesDataset& zStokesDataset,
-                   std::shared_ptr<ComaModel> comaModel,
-                   std::function<Eigen::Vector6d()> sunStateFunction,
-                   std::function<Eigen::Vector6d()> cometStateFunction,
-                   std::function<Eigen::Matrix3d()> cometRotationFunction,
+                   std::shared_ptr< ComaModel > comaModel,
+                   std::function< Eigen::Vector6d( ) > sunStateFunction,
+                   std::function< Eigen::Vector6d( ) > cometStateFunction,
+                   std::function< Eigen::Matrix3d( ) > cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
@@ -117,8 +116,8 @@ public:
     ~ComaWindModel( ) = default;
 
     //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
-    ComaWindModel(const ComaWindModel&) = delete;
-    ComaWindModel& operator=(const ComaWindModel&) = delete;
+    ComaWindModel( const ComaWindModel& ) = delete;
+    ComaWindModel& operator=( const ComaWindModel& ) = delete;
 
     //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
@@ -155,73 +154,97 @@ private:
     bool zIsZeroComponent_;
 
     //! Polynomial coefficient dataset for X-component wind (meridional/North, used when dataType_ == 0)
-    std::shared_ptr<simulation_setup::ComaPolyDataset> xPolyDataset_;
+    std::shared_ptr< simulation_setup::ComaPolyDataset > xPolyDataset_;
     //! Polynomial coefficient dataset for Y-component wind (zonal/West, used when dataType_ == 0)
-    std::shared_ptr<simulation_setup::ComaPolyDataset> yPolyDataset_;
+    std::shared_ptr< simulation_setup::ComaPolyDataset > yPolyDataset_;
     //! Polynomial coefficient dataset for Z-component wind (radial outward, used when dataType_ == 0)
-    std::shared_ptr<simulation_setup::ComaPolyDataset> zPolyDataset_;
+    std::shared_ptr< simulation_setup::ComaPolyDataset > zPolyDataset_;
 
     //! Stokes coefficient dataset for X-component wind (meridional/North, used when dataType_ == 1)
-    std::shared_ptr<simulation_setup::ComaStokesDataset> xStokesDataset_;
+    std::shared_ptr< simulation_setup::ComaStokesDataset > xStokesDataset_;
     //! Stokes coefficient dataset for Y-component wind (zonal/West, used when dataType_ == 1)
-    std::shared_ptr<simulation_setup::ComaStokesDataset> yStokesDataset_;
+    std::shared_ptr< simulation_setup::ComaStokesDataset > yStokesDataset_;
     //! Stokes coefficient dataset for Z-component wind (radial outward, used when dataType_ == 1)
-    std::shared_ptr<simulation_setup::ComaStokesDataset> zStokesDataset_;
+    std::shared_ptr< simulation_setup::ComaStokesDataset > zStokesDataset_;
 
     //! Reference to the ComaModel for accessing shared spherical harmonics calculator
-    std::shared_ptr<ComaModel> comaModel_;
+    std::shared_ptr< ComaModel > comaModel_;
 
     //! Function returning Sun state vector (position [m], velocity [m/s])
-    std::function<Eigen::Vector6d()> sunStateFunction_;
+    std::function< Eigen::Vector6d( ) > sunStateFunction_;
 
     //! Function returning Comet state vector (position [m], velocity [m/s])
-    std::function<Eigen::Vector6d()> cometStateFunction_;
+    std::function< Eigen::Vector6d( ) > cometStateFunction_;
 
     //! Function returning comet body-fixed to inertial rotation matrix
-    std::function<Eigen::Matrix3d()> cometRotationFunction_;
+    std::function< Eigen::Matrix3d( ) > cometRotationFunction_;
 
     //! Spherical harmonics calculator (shared with ComaModel when available)
-    std::shared_ptr<SurfaceSphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
+    std::shared_ptr< SurfaceSphericalHarmonicsCalculator > sphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for X-component (meridional/North) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> xStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            xStokesInterpolators_;
     //! Pre-initialized interpolators for Y-component (zonal/West) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> yStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            yStokesInterpolators_;
     //! Pre-initialized interpolators for Z-component (radial outward) Stokes coefficients: deque indexed by file, map from (n,m) to (cosine, sine) interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> zStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            zStokesInterpolators_;
 
     //! Pre-initialized reduced interpolators for X-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> xReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            xReducedStokesInterpolators_;
     //! Pre-initialized reduced interpolators for Y-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> yReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            yReducedStokesInterpolators_;
     //! Pre-initialized reduced interpolators for Z-component Stokes coefficients (1D: solar longitude only, for radius > reference radius)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> zReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            zReducedStokesInterpolators_;
 
     //! Cache for fallback X-component interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> xFallbackStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            xFallbackStokesInterpolators_;
     //! Cache for fallback Y-component interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> yFallbackStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            yFallbackStokesInterpolators_;
     //! Cache for fallback Z-component interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> zFallbackStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            zFallbackStokesInterpolators_;
 
     //! Cache for fallback X-component reduced interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> xFallbackReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            xFallbackReducedStokesInterpolators_;
     //! Cache for fallback Y-component reduced interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> yFallbackReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            yFallbackReducedStokesInterpolators_;
     //! Cache for fallback Z-component reduced interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> zFallbackReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            zFallbackReducedStokesInterpolators_;
 
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 
@@ -265,8 +288,8 @@ private:
     Eigen::Matrix3d cachedRotationMatrix_;
 
     //! Pre-allocated interpolation point vectors to avoid repeated allocations
-    std::vector<double> interpolationPoint2D_;
-    std::vector<double> interpolationPoint1D_;
+    std::vector< double > interpolationPoint2D_;
+    std::vector< double > interpolationPoint1D_;
 
     //! Cache validity flags packed into a bitfield for memory efficiency
     struct CacheFlags {
@@ -275,8 +298,7 @@ private:
         bool windVectorValid : 1;
         bool stateValid : 1;
 
-        CacheFlags() : solarLongitudeValid(false), interpolationValid(false),
-                       windVectorValid(false), stateValid(false) {}
+        CacheFlags( ): solarLongitudeValid( false ), interpolationValid( false ), windVectorValid( false ), stateValid( false ) {}
     };
     CacheFlags cacheFlags_;
 
@@ -288,7 +310,7 @@ private:
      * \return Index of the time interval containing the given time
      * \throws std::runtime_error If no matching time interval is found
      */
-    int findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset );
+    int findTimeIntervalIndex( double time, std::shared_ptr< simulation_setup::ComaPolyDataset > dataset );
 
     /*!
      * \brief Find the index of the time interval containing a given time for Stokes datasets.
@@ -297,7 +319,7 @@ private:
      * \return Index of the time interval containing the given time
      * \throws std::runtime_error If no matching time interval is found
      */
-    int findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset );
+    int findTimeIntervalIndex( double time, std::shared_ptr< simulation_setup::ComaStokesDataset > dataset );
 
     /*!
      * \brief Compute complete wind vector from polynomial coefficients (vectorized, all 3 components).
@@ -310,8 +332,7 @@ private:
      * \return Complete wind velocity vector [m/s]
      * \throws std::runtime_error If datasets are null or time is out of range
      */
-    Eigen::Vector3d computeWindVectorFromPolyCoefficients(
-        double radius, double longitude, double latitude, double time );
+    Eigen::Vector3d computeWindVectorFromPolyCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * \brief Compute complete wind vector from Stokes coefficients (vectorized, all 3 components).
@@ -325,8 +346,7 @@ private:
      * \return Complete wind velocity vector [m/s]
      * \throws std::runtime_error If datasets are null or time is out of range
      */
-    Eigen::Vector3d computeWindVectorFromStokesCoefficients(
-        double radius, double longitude, double latitude, double time );
+    Eigen::Vector3d computeWindVectorFromStokesCoefficients( double radius, double longitude, double latitude, double time );
 
     /*!
      * \brief Compute wind component from polynomial coefficients (single component - internal use).
@@ -338,9 +358,11 @@ private:
      * \return Wind velocity component [m/s]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeWindComponentFromPolyCoefficients(
-        std::shared_ptr<simulation_setup::ComaPolyDataset> dataset,
-        double radius, double longitude, double latitude, double time );
+    double computeWindComponentFromPolyCoefficients( std::shared_ptr< simulation_setup::ComaPolyDataset > dataset,
+                                                     double radius,
+                                                     double longitude,
+                                                     double latitude,
+                                                     double time );
 
     /*!
      * \brief Compute wind component from Stokes coefficients using pre-initialized interpolators (single component - internal use).
@@ -354,10 +376,14 @@ private:
      * \throws std::runtime_error If dataset is null or time is out of range
      */
     double computeWindComponentFromStokesCoefficients(
-        std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
-        const std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                                     std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>& interpolators,
-        double radius, double longitude, double latitude, double time );
+            std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
+            const std::map< std::pair< int, int >,
+                            std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                       std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > >& interpolators,
+            double radius,
+            double longitude,
+            double latitude,
+            double time );
 
     /*!
      * \brief Calculate solar longitude in comet body-fixed frame with caching.
@@ -372,14 +398,14 @@ private:
      * Called only for Stokes coefficient datasets to pre-compute interpolators
      * for efficient evaluation during wind velocity calculations.
      */
-    void initializeStokesInterpolators();
+    void initializeStokesInterpolators( );
 
     /*!
      * \brief Get the active spherical harmonics calculator.
      * Returns the shared calculator if available, otherwise returns the owned calculator.
      * \return Shared pointer to the active spherical harmonics calculator
      */
-    std::shared_ptr<SurfaceSphericalHarmonicsCalculator> getActiveSurfaceSphericalHarmonicsCalculator();
+    std::shared_ptr< SurfaceSphericalHarmonicsCalculator > getActiveSurfaceSphericalHarmonicsCalculator( );
 
     /*!
      * @brief Helper to create 2D interpolator for Stokes coefficients on-the-fly (fallback)
@@ -394,12 +420,18 @@ private:
      * @param solarLongitude Solar longitude for interpolation [rad]
      */
     void createFallback2DInterpolator(
-        std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
-        std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>>& fallbackCache,
-        int fileIndex, int n, int m,
-        double& cosineCoeff, double& sineCoeff,
-        double radius, double solarLongitude );
+            std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
+            std::deque< std::map< std::pair< int, int >,
+                                  std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                             std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >&
+                    fallbackCache,
+            int fileIndex,
+            int n,
+            int m,
+            double& cosineCoeff,
+            double& sineCoeff,
+            double radius,
+            double solarLongitude );
 
     /*!
      * @brief Helper to create 1D reduced interpolator for Stokes coefficients on-the-fly (fallback)
@@ -413,12 +445,17 @@ private:
      * @param solarLongitude Solar longitude for interpolation [rad]
      */
     void createFallback1DInterpolator(
-        std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
-        std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>>& fallbackCache,
-        int fileIndex, int n, int m,
-        double& cosineCoeff, double& sineCoeff,
-        double solarLongitude );
+            std::shared_ptr< simulation_setup::ComaStokesDataset > dataset,
+            std::deque< std::map< std::pair< int, int >,
+                                  std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                             std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >&
+                    fallbackCache,
+            int fileIndex,
+            int n,
+            int m,
+            double& cosineCoeff,
+            double& sineCoeff,
+            double solarLongitude );
 };
 
 }  // namespace aerodynamics

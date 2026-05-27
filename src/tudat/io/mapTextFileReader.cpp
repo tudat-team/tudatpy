@@ -16,11 +16,13 @@ namespace tudat
 namespace input_output
 {
 
-template std::map< double, std::vector< double > > readStlVectorMapFromFile< double, double >(
-        const std::string& relativePath, const std::string& separators, const std::string& skipLinesCharacter );
+template std::map< double, std::vector< double > > readStlVectorMapFromFile< double, double >( const std::string& relativePath,
+                                                                                               const std::string& separators,
+                                                                                               const std::string& skipLinesCharacter );
 
-template std::map< double, double > readFloatingPointMapFromFile< double, double >(
-        const std::string& relativePath, const std::string& separators, const std::string& skipLinesCharacter );
+template std::map< double, double > readFloatingPointMapFromFile< double, double >( const std::string& relativePath,
+                                                                                    const std::string& separators,
+                                                                                    const std::string& skipLinesCharacter );
 
 }  // namespace input_output
 

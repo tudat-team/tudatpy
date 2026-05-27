@@ -81,7 +81,7 @@ namespace propagation_setup
 namespace dependent_variable
 {
 
-void expose_dependent_variable_setup( py::module &m )
+void expose_dependent_variable_setup( py::module& m )
 {
     //////////////////////////////////////////////////////////////////////////////////////
     /// ENUMS

@@ -139,8 +139,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setAtmosphereModel( createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
-                                                                 orderedBodySettings.at( i ).first, bodyList ) );
+                    ->setAtmosphereModel( createAtmosphereModel(
+                            orderedBodySettings.at( i ).second->atmosphereSettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

@@ -28,9 +28,9 @@ public:
                 const std::string& longMessage,
                 const std::string& traceback ):
         std::runtime_error( shortMessage + "\n" + explanation + "\n" + longMessage + "\n" + "Traceback: " + traceback )
-    { }
+    {}
 
-    ~SpiceError( ) { }
+    ~SpiceError( ) {}
 };
 
 void throwSpiceException( const std::string& shortMessage,

@@ -169,13 +169,11 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorr
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >&
-                      ObservationSimulationSettings );
+              const std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >&
-                        ObservationSimulationSettings );
+                std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );

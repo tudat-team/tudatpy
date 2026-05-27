@@ -25,10 +25,12 @@ Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const E
     const Eigen::Vector3d currentVelocity = stateVector.segment( 3, 3 );
 
     const double minAngle = 1.0e-12;
-    if( currentPosition.norm() == 0.0 || currentVelocity.norm() == 0.0 ||
-        std::abs( currentPosition.dot( currentVelocity ) ) / ( currentPosition.norm() * currentVelocity.norm() ) > std::cos( minAngle ) )
+    if( currentPosition.norm( ) == 0.0 || currentVelocity.norm( ) == 0.0 ||
+        std::abs( currentPosition.dot( currentVelocity ) ) / ( currentPosition.norm( ) * currentVelocity.norm( ) ) > std::cos( minAngle ) )
     {
-        std::cerr<<"Warning when computing yarkovsky acceleration, position and velocity are close to parallel, or one has norm zero; returning zero acceleration"<<std::endl;
+        std::cerr << "Warning when computing yarkovsky acceleration, position and velocity are close to parallel, or one has norm zero; "
+                     "returning zero acceleration"
+                  << std::endl;
         return Eigen::Vector3d::Zero( );
     }
 

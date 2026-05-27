@@ -156,10 +156,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                         perturbingBodyStateFunctions,
                         perturbingBodyMatchLinkEnds,
                         directFirstOrderDopplerProperTimeRateSettings->centralBodyNames_,
-                        [ spaceTimeProperties ]( )
-                        {
-                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
-                        } );
+                        [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); } );
             }
             break;
         }
@@ -895,8 +892,12 @@ public:
                 // Create full-link light-time calculator
                 std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
                         fullLinkLightTimeCalculator = createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
-                                singleLegsLightTimeConvergenceCriteriaList, multiLegLightTimeConvergenceCriteria );
+                                linkEnds,
+                                bodies,
+                                topLevelObservableType,
+                                lightTimeCorrectionsList,
+                                singleLegsLightTimeConvergenceCriteriaList,
+                                multiLegLightTimeConvergenceCriteria );
 
                 std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                         uplinkDopplerCalculator;
@@ -1597,8 +1598,9 @@ public:
                                                                                       bodies,
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
-                                                                                      observationSettings->lightTimeConvergenceCriteria_),
-                                                                                      observationBias, observationSettings->useNormalization_  );
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        observationBias,
+                        observationSettings->useNormalization_ );
 
                 break;
             }
@@ -2291,7 +2293,6 @@ public:
         return std::make_pair( firstObservationModel, secondObservationModel );
     }
 };
-
 
 }  // namespace observation_models
 

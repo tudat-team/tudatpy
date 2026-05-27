@@ -137,7 +137,9 @@ std::string extractDomesIdFromSiteIdLine( const std::string& line )
     return "";
 }
 
-void parseSiteIdBlockLine( const std::string& line, std::map< std::string, std::string >& siteCodeToDomes, std::map< int, std::string >& siteIndexToDomes )
+void parseSiteIdBlockLine( const std::string& line,
+                           std::map< std::string, std::string >& siteCodeToDomes,
+                           std::map< int, std::string >& siteIndexToDomes )
 {
     std::string siteCode;
     std::string domesId;
@@ -193,8 +195,7 @@ double parseSinexEpochWithOpenEnd( const std::string& epochString, const double 
 double convertDmsToRadians( const double degrees, const double arcMinutes, const double arcSeconds )
 {
     const double sign = ( degrees < 0.0 ) ? -1.0 : 1.0;
-    return sign * ( std::fabs( degrees ) + arcMinutes / 60.0 + arcSeconds / 3600.0 ) *
-            mathematical_constants::PI / 180.0;
+    return sign * ( std::fabs( degrees ) + arcMinutes / 60.0 + arcSeconds / 3600.0 ) * mathematical_constants::PI / 180.0;
 }
 
 double normalizeLongitude( const double longitude )
@@ -207,8 +208,11 @@ double normalizeLongitude( const double longitude )
     return normalizedLongitude - mathematical_constants::PI;
 }
 
-bool parseDmsTriplet(
-        const std::vector< std::string >& tokens, const unsigned int firstIndex, double& degrees, double& arcMinutes, double& arcSeconds )
+bool parseDmsTriplet( const std::vector< std::string >& tokens,
+                      const unsigned int firstIndex,
+                      double& degrees,
+                      double& arcMinutes,
+                      double& arcSeconds )
 {
     if( tokens.size( ) <= firstIndex + 2 )
     {
@@ -218,8 +222,7 @@ bool parseDmsTriplet(
             sinexTryParseDouble( tokens.at( firstIndex + 2 ), arcSeconds );
 }
 
-bool parseApproximateCoordinatesFromFixedWidth(
-        const std::string& line, double& longitude, double& latitude, double& height )
+bool parseApproximateCoordinatesFromFixedWidth( const std::string& line, double& longitude, double& latitude, double& height )
 {
     if( line.size( ) < 77 )
     {
@@ -248,8 +251,7 @@ bool parseApproximateCoordinatesFromFixedWidth(
     return true;
 }
 
-bool parseApproximateCoordinatesFromTokens(
-        const std::vector< std::string >& tokens, double& longitude, double& latitude, double& height )
+bool parseApproximateCoordinatesFromTokens( const std::vector< std::string >& tokens, double& longitude, double& latitude, double& height )
 {
     if( tokens.size( ) < 11 )
     {
@@ -427,8 +429,7 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
             if( !isStateEntry( stateType ) || !hasParsedValue )
             {
                 std::vector< std::string > tokens;
-                boost::algorithm::split(
-                        tokens, trimmedLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
+                boost::algorithm::split( tokens, trimmedLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
 
                 int stateTokenIndex = -1;
                 for( unsigned int i = 0; i < tokens.size( ); i++ )
@@ -518,15 +519,14 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
         const std::string& siteCode = siteIdEntry.first;
         const std::string& domesId = siteIdEntry.second;
         const auto existingEntry = domesToSiteCode.find( domesId );
-        if( existingEntry == domesToSiteCode.end( ) ||
-            ( isIntegerString( existingEntry->second ) && !isIntegerString( siteCode ) ) )
+        if( existingEntry == domesToSiteCode.end( ) || ( isIntegerString( existingEntry->second ) && !isIntegerString( siteCode ) ) )
         {
             domesToSiteCode[ domesId ] = siteCode;
         }
     }
 
     std::map< std::string, SinexStationState > stationStates;
-    for( const auto& stateEntry: siteStates )
+    for( const auto& stateEntry : siteStates )
     {
         SinexStationState currentState;
         currentState.domesId_ = stateEntry.first;
@@ -553,9 +553,8 @@ std::map< std::string, SinexStationState > readSinexStationData( const std::stri
     return stationStates;
 }
 
-std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStationEccentricities(
-        const std::string& fileName,
-        const double referenceJulianDay )
+std::map< std::string, std::vector< SinexStationEccentricity > > readSinexStationEccentricities( const std::string& fileName,
+                                                                                                 const double referenceJulianDay )
 {
     std::ifstream stream( fileName, std::ios_base::in );
     if( !stream.good( ) )
@@ -728,7 +727,7 @@ std::map< int, IlrsStationRegistryEntry > readIlrsStationRegistryFromSinexSiteId
         double latitude = TUDAT_NAN;
         double height = TUDAT_NAN;
         const bool hasParsedCoordinates = parseApproximateCoordinatesFromTokens( tokens, longitude, latitude, height ) ||
-                                          parseApproximateCoordinatesFromFixedWidth( line, longitude, latitude, height );
+                parseApproximateCoordinatesFromFixedWidth( line, longitude, latitude, height );
         if( hasParsedCoordinates )
         {
             registryEntry.approximateLongitude_ = longitude;
@@ -861,8 +860,7 @@ std::map< int, std::string > readMonumentNumbers( const std::string& fileName )
         }
 
         std::vector< std::string > tokens;
-        boost::algorithm::split(
-                tokens, trimmed, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
+        boost::algorithm::split( tokens, trimmed, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
 
         int stationCode = -1;
         std::string domesId;
@@ -905,7 +903,7 @@ std::map< std::string, std::string > readGroundStationNames( const std::string& 
     std::map< std::string, std::string > stationNameToDomes = readDomesIdNumbers( fileName );
     std::map< std::string, std::string > domesToStationName;
 
-    for( const auto& stationEntry: stationNameToDomes )
+    for( const auto& stationEntry : stationNameToDomes )
     {
         domesToStationName[ stationEntry.second ] = stationEntry.first;
     }

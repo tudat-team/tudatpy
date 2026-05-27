@@ -42,10 +42,10 @@ public:
      *Constructor
      * \param bodyShapeType Type of body shape model that is to be created.
      */
-    BodyShapeSettings( BodyShapeTypes bodyShapeType ): bodyShapeType_( bodyShapeType ) { }
+    BodyShapeSettings( BodyShapeTypes bodyShapeType ): bodyShapeType_( bodyShapeType ) {}
 
     //  Virtual destructor
-    virtual ~BodyShapeSettings( ) { }
+    virtual ~BodyShapeSettings( ) {}
 
     //  Function to return the type of body shape model that is to be created.
     /*
@@ -72,7 +72,7 @@ public:
      * Constructor
      * \param radius Radius of spherical shape model.
      */
-    SphericalBodyShapeSettings( const double radius ): BodyShapeSettings( spherical ), radius_( radius ) { }
+    SphericalBodyShapeSettings( const double radius ): BodyShapeSettings( spherical ), radius_( radius ) {}
 
     //  Function to return the radius of spherical shape model.
     /*
@@ -107,7 +107,7 @@ public:
      */
     OblateSphericalBodyShapeSettings( const double equatorialRadius, const double flattening ):
         BodyShapeSettings( oblate_spheroid ), equatorialRadius_( equatorialRadius ), flattening_( flattening )
-    { }
+    {}
 
     //  Function to return the equatorial radius of spheroid shape model.
     /*
@@ -182,10 +182,10 @@ public:
         BodyShapeSettings( polyhedron_shape ), verticesCoordinates_( verticesCoordinates ),
         verticesDefiningEachFacet_( verticesDefiningEachFacet ), computeAltitudeWithSign_( computeAltitudeWithSign ),
         justComputeDistanceToVertices_( justComputeDistanceToVertices )
-    { }
+    {}
 
     //! Destructor
-    ~PolyhedronBodyShapeSettings( ) { }
+    ~PolyhedronBodyShapeSettings( ) {}
 
     // Function to return the vertices coordinates.
     const Eigen::MatrixXd& getVerticesCoordinates( )
@@ -269,10 +269,10 @@ public:
                              double switchoverAltitude ):
         BodyShapeSettings( hybrid_shape ), lowResolutionBodyShapeSettings_( lowResolutionBodyShapeSettings ),
         highResolutionBodyShapeSettings_( highResolutionBodyShapeSettings ), switchoverAltitude_( switchoverAltitude )
-    { }
+    {}
 
     //! Destructor
-    ~HybridBodyShapeSettings( ) { }
+    ~HybridBodyShapeSettings( ) {}
 
     // Function to return the body shape settings of the low-resolution model.
     std::shared_ptr< BodyShapeSettings > getLowResolutionBodyShapeSettings( )

@@ -37,7 +37,7 @@ struct HybridMethodProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    HybridMethodProblem( ) { }
+    HybridMethodProblem( ) {}
 
     //! Constructor.
     HybridMethodProblem( const Eigen::Vector6d& stateAtDeparture,

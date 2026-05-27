@@ -7,9 +7,7 @@ namespace tudat
 namespace unit_tests
 {
 
-void observationModelsTestCaseSupportAnchor( )
-{
-}
+void observationModelsTestCaseSupportAnchor( ) {}
 
 }  // namespace unit_tests
 }  // namespace tudat

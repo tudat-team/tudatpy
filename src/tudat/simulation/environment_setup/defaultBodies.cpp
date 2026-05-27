@@ -511,7 +511,6 @@ BodyListSettings getDefaultBodySettings( const std::vector< std::string >& bodie
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
-
 }  // namespace simulation_setup
 
 }  // namespace tudat

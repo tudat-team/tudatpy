@@ -78,7 +78,7 @@ namespace propagation_setup
 namespace torque
 {
 
-void expose_torque_setup( py::module &m )
+void expose_torque_setup( py::module& m )
 {
     py::enum_< tba::AvailableTorque >( m,
                                        "AvailableTorque",
@@ -97,27 +97,17 @@ void expose_torque_setup( py::module &m )
                     tba::AvailableTorque::torque_free,
                     R"doc(
       )doc" )
-            .value( "underfined_type",
-                    tba::AvailableTorque::underfined_torque,
-                    R"doc(No documentation found.)doc" )
+            .value( "underfined_type", tba::AvailableTorque::underfined_torque, R"doc(No documentation found.)doc" )
             .value( "second_order_gravitational_type",
                     tba::AvailableTorque::second_order_gravitational_torque,
                     R"doc(No documentation found.)doc" )
-            .value( "aerodynamic_type",
-                    tba::AvailableTorque::aerodynamic_torque,
-                    R"doc(No documentation found.)doc" )
-            .value( "radiation_pressure_torque_type",
-                    tba::AvailableTorque::radiation_pressure_torque,
-                    R"doc(No documentation found.)doc" )
+            .value( "aerodynamic_type", tba::AvailableTorque::aerodynamic_torque, R"doc(No documentation found.)doc" )
+            .value( "radiation_pressure_torque_type", tba::AvailableTorque::radiation_pressure_torque, R"doc(No documentation found.)doc" )
             .value( "spherical_harmonic_gravitational_type",
                     tba::AvailableTorque::spherical_harmonic_gravitational_torque,
                     R"doc(No documentation found.)doc" )
-            .value( "inertial_type",
-                    tba::AvailableTorque::inertial_torque,
-                    R"doc(No documentation found.)doc" )
-            .value( "dissipative_type",
-                    tba::AvailableTorque::dissipative_torque,
-                    R"doc(No documentation found.)doc" )
+            .value( "inertial_type", tba::AvailableTorque::inertial_torque, R"doc(No documentation found.)doc" )
+            .value( "dissipative_type", tba::AvailableTorque::dissipative_torque, R"doc(No documentation found.)doc" )
             .export_values( );
 
     py::class_< tss::TorqueSettings, std::shared_ptr< tss::TorqueSettings > >( m,
@@ -140,11 +130,10 @@ void expose_torque_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::SphericalHarmonicTorqueSettings,
-                std::shared_ptr< tss::SphericalHarmonicTorqueSettings >,
-                tss::TorqueSettings >( m,
-                                       "SphericalHarmonicTorqueSettings",
-                                       R"doc(
+    py::class_< tss::SphericalHarmonicTorqueSettings, std::shared_ptr< tss::SphericalHarmonicTorqueSettings >, tss::TorqueSettings >(
+            m,
+            "SphericalHarmonicTorqueSettings",
+            R"doc(
 
          `TorqueSettings`-derived class to define settings for torques caused by spherical harmonic gravity.
 
@@ -192,9 +181,7 @@ void expose_torque_setup( py::module &m )
 
      )doc" );
 
-    m.def( "radiation_pressure_torque",
-           &tss::radiationPressureTorque,
-           R"doc(No documentation found.)doc" );
+    m.def( "radiation_pressure_torque", &tss::radiationPressureTorque, R"doc(No documentation found.)doc" );
 
     m.def( "second_degree_gravitational",
            &tss::secondDegreeGravitationalTorque,
@@ -283,10 +270,7 @@ void expose_torque_setup( py::module &m )
            py::arg( "scaling_function" ) = nullptr,
            R"doc(No documentation found.)doc" );
 
-    m.def( "custom",
-           &tss::customTorqueSettingsDeprecated,
-           py::arg( "torque_function" ),
-           py::arg( "scaling_function" ) = nullptr );
+    m.def( "custom", &tss::customTorqueSettingsDeprecated, py::arg( "torque_function" ), py::arg( "scaling_function" ) = nullptr );
 
     // NOTE: the only unexposed torque model is
     // dissipativeTorque, but it is probably obsolete

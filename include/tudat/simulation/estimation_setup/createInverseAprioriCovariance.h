@@ -33,9 +33,7 @@ namespace simulation_setup
  * \param numberOfEstimatedParameters Required matrix size based on the parameter set.
  * \return Validated covariance-like matrix.
  */
-Eigen::MatrixXd getValidatedCovarianceInput(
-        const Eigen::MatrixXd& covarianceMatrix,
-        const int numberOfEstimatedParameters );
+Eigen::MatrixXd getValidatedCovarianceInput( const Eigen::MatrixXd& covarianceMatrix, const int numberOfEstimatedParameters );
 
 //! Expand and validate covariance diagonal values for a single estimatable-parameter block.
 /*!
@@ -92,8 +90,7 @@ Eigen::MatrixXd addCovarianceDiagonalEntries(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterIdentifier = aprioriEntry.first;
         const Eigen::VectorXd& covarianceDiagonalValues = aprioriEntry.second;
 
-        const std::vector< std::pair< int, int > > parameterIndices =
-                parameterSet->getIndicesForParameterType( parameterIdentifier );
+        const std::vector< std::pair< int, int > > parameterIndices = parameterSet->getIndicesForParameterType( parameterIdentifier );
 
         if( parameterIndices.size( ) == 0 && requireAllEntriesToMatch )
         {
@@ -142,10 +139,7 @@ Eigen::MatrixXd createCovarianceFromDiagonalEntries(
         const bool requireAllEntriesToMatch = true )
 {
     return addCovarianceDiagonalEntries< InitialStateParameterType >(
-            Eigen::MatrixXd::Zero( 0, 0 ),
-            parameterSet,
-            covarianceDiagonalEntriesPerParameter,
-            requireAllEntriesToMatch );
+            Eigen::MatrixXd::Zero( 0, 0 ), parameterSet, covarianceDiagonalEntriesPerParameter, requireAllEntriesToMatch );
 }
 
 }  // namespace simulation_setup

@@ -41,15 +41,14 @@ public:
 
     using ResetBiasFunction = std::function< void( const BiasValueType& ) >;
 
-    virtual ~ObservationBiasFunctionWrapper( ) { }
+    virtual ~ObservationBiasFunctionWrapper( ) {}
 
     //! Binds get/set callbacks during closure and applies any deferred value immediately.
     void setObservationBiasFunctions( const GetBiasFunction& getBiasFunction, const ResetBiasFunction& resetBiasFunction )
     {
         if( !( getBiasFunction_ == nullptr ) || !( resetBiasFunction_ == nullptr ) )
         {
-            std::cerr << "Warning when resetting observation bias functions in estimation object, existing contents not empty"
-                      << std::endl;
+            std::cerr << "Warning when resetting observation bias functions in estimation object, existing contents not empty" << std::endl;
         }
 
         getBiasFunction_ = getBiasFunction;
@@ -69,10 +68,9 @@ protected:
                                     const std::string& pointOnBodyId,
                                     const GetBiasFunction& getBiasFunction = GetBiasFunction( ),
                                     const ResetBiasFunction& resetBiasFunction = ResetBiasFunction( ) ):
-        EstimatableParameter< Eigen::VectorXd >( parameterName, associatedBody, pointOnBodyId ),
-        getBiasFunction_( getBiasFunction ),
+        EstimatableParameter< Eigen::VectorXd >( parameterName, associatedBody, pointOnBodyId ), getBiasFunction_( getBiasFunction ),
         resetBiasFunction_( resetBiasFunction )
-    { }
+    {}
 
     bool biasFunctionsAreDefined( ) const
     {
@@ -154,7 +152,7 @@ public:
                                        const observation_models::ObservableType observableType,
                                        const std::string& pointOnBodyId = "" );
 
-    ~SingleArcObservationBiasParameter( ) { }
+    ~SingleArcObservationBiasParameter( ) {}
 
     Eigen::VectorXd getParameterValue( );
 
@@ -190,7 +188,7 @@ public:
                                       const observation_models::ObservableType observableType,
                                       const std::string& pointOnBodyId = "" );
 
-    ~MultiArcObservationBiasParameter( ) { }
+    ~MultiArcObservationBiasParameter( ) {}
 
     Eigen::VectorXd getParameterValue( );
 
@@ -241,7 +239,7 @@ class TimeBiasParameterBase
 {
 public:
     TimeBiasParameterBase( ) = default;
-    virtual ~TimeBiasParameterBase( ) { }
+    virtual ~TimeBiasParameterBase( ) {}
 
     void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction );
 
@@ -264,7 +262,7 @@ public:
                                 const observation_models::ObservableType observableType,
                                 const std::string& pointOnBodyId = "" );
 
-    ~SingleArcTimeBiasParameter( ) { }
+    ~SingleArcTimeBiasParameter( ) {}
 
     Eigen::VectorXd getParameterValue( );
 
@@ -301,8 +299,7 @@ protected:
 };
 
 //! Generic multi-arc time-bias parameter (arc-wise time bias).
-class MultiArcTimeBiasParameter : public ObservationBiasFunctionWrapper< std::vector< Eigen::VectorXd > >,
-                                  public TimeBiasParameterBase
+class MultiArcTimeBiasParameter : public ObservationBiasFunctionWrapper< std::vector< Eigen::VectorXd > >, public TimeBiasParameterBase
 {
 public:
     MultiArcTimeBiasParameter( const EstimatebleParametersEnum parameterName,
@@ -314,7 +311,7 @@ public:
                                const observation_models::ObservableType observableType,
                                const std::string& pointOnBodyId = "" );
 
-    ~MultiArcTimeBiasParameter( ) { }
+    ~MultiArcTimeBiasParameter( ) {}
 
     Eigen::VectorXd getParameterValue( );
 
