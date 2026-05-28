@@ -55,6 +55,10 @@ Functions
 
    two_way_doppler_instantaneous_frequency
 
+   doppler_measured_frequency
+
+   one_way_doppler_measured_frequency
+
    angular_position
 
    relative_angular_position
@@ -66,6 +70,11 @@ Functions
    cartesian_velocity
 
    differenced_time_of_arrival
+
+   differenced_frequency_of_arrival
+
+   get_observable_size
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_range
@@ -98,6 +107,10 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.doppler_measured_frequency
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_measured_frequency
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.angular_position
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
@@ -109,6 +122,10 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_frequency_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.get_observable_size
 
 
 Enumerations

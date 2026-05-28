@@ -753,8 +753,6 @@ Examples
 
      )doc" );
 
-    m.def( "euler_angles_313", &tom::eulerAngle313ObservableSettings, py::arg( "link_ends" ), py::arg( "bias_settings" ) = nullptr );
-
     m.def( "one_way_doppler_instantaneous",
            &tom::oneWayOpenLoopDoppler,
            py::arg( "link_ends" ),
@@ -1518,77 +1516,6 @@ Returns
 
 )doc" );
 
-
-    m.def( "get_observable_size",
-           &tom::getObservableSize,
-           py::arg( "observable_type" ),
-           R"doc(
- Function to get the size of an observable of a given type.
-
- Parameters
- ----------
- observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
-     The type of the observable.
-
- Returns
- -------
- int
-     The size of the observable (e.g., 1 for one_way_range, 2 for angular_position).
- )doc" );
-
-    //////////////////////////////////////////// DEPRECATED
-    ///////////////////////////////////////////////
-
-    m.def( "one_way_open_loop_doppler",
-           &tom::oneWayOpenLoopDoppler,
-           py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-           py::arg( "bias_settings" ) = nullptr,
-           py::arg( "transmitter_proper_time_rate_settings" ) = nullptr,
-           py::arg( "receiver_proper_time_rate_settings" ) = nullptr,
-           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-           py::arg( "normalized_with_speed_of_light" ) = false );
-
-    m.def( "two_way_open_loop_doppler_from_one_way_links",
-           py::overload_cast< const std::shared_ptr< tom::OneWayDopplerObservationModelSettings >,
-                              const std::shared_ptr< tom::OneWayDopplerObservationModelSettings >,
-                              const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
-           py::arg( "uplink_doppler_settings" ),
-           py::arg( "downlink_doppler_settings" ),
-           py::arg( "bias_settings" ) = nullptr );
-
-    m.def( "two_way_open_loop_doppler",
-           py::overload_cast< const tom::LinkDefinition&,
-                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
-                              const std::shared_ptr< tom::ObservationBiasSettings >,
-                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
-                              const bool >( &tom::twoWayOpenLoopDoppler ),
-           py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-           py::arg( "bias_settings" ) = nullptr,
-           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-           py::arg( "normalized_with_speed_of_light" ) = false );
-
-    m.def( "one_way_closed_loop_doppler",
-           py::overload_cast< const tom::LinkDefinition&,
-                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
-                              const std::shared_ptr< tom::ObservationBiasSettings >,
-                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
-           py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-           py::arg( "bias_settings" ) = nullptr,
-           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
-
-    m.def( "one_way_closed_loop_doppler",
-           py::overload_cast< const tom::LinkDefinition&,
-                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
-                              const std::shared_ptr< tom::ObservationBiasSettings >,
-                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
-           py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-           py::arg( "bias_settings" ) = nullptr,
-           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
-
     m.def( "doppler_measured_frequency",
            py::overload_cast< const tom::LinkDefinition&,
                               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
@@ -1603,7 +1530,7 @@ Returns
            Function for creating settings for a Doppler measured frequency observable.
 
               Function for creating observation model settings for Doppler measured frequency observables, for a single link definition. The implementation is
-              analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.doppler_instantaneous` observable, but returns the measured frequency in Hz rather than a dimensionless Doppler factor. It requires a frequency calculator to be set for the transmitter.
+              analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous` observable, but returns the measured frequency in Hz rather than a dimensionless Doppler factor. It requires a frequency calculator to be set for the transmitter.
 
               Parameters
               ----------
@@ -1660,6 +1587,80 @@ Returns
                :class:`ObservationModelSettings`
                    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the one-way Doppler measured frequency observable.
            )doc" );
+
+
+    m.def( "get_observable_size",
+           &tom::getObservableSize,
+           py::arg( "observable_type" ),
+           R"doc(
+ Function to get the size of an observable of a given type.
+
+ Parameters
+ ----------
+ observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+     The type of the observable.
+
+ Returns
+ -------
+ int
+     The size of the observable (e.g., 1 for one_way_range, 2 for angular_position).
+ )doc" );
+
+    //////////////////////////////////////////// DEPRECATED
+    ///////////////////////////////////////////////
+
+    m.def( "euler_angles_313", &tom::eulerAngle313ObservableSettings, py::arg( "link_ends" ), py::arg( "bias_settings" ) = nullptr );
+
+    m.def( "one_way_open_loop_doppler",
+           &tom::oneWayOpenLoopDoppler,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "transmitter_proper_time_rate_settings" ) = nullptr,
+           py::arg( "receiver_proper_time_rate_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false );
+
+    m.def( "two_way_open_loop_doppler_from_one_way_links",
+           py::overload_cast< const std::shared_ptr< tom::OneWayDopplerObservationModelSettings >,
+                              const std::shared_ptr< tom::OneWayDopplerObservationModelSettings >,
+                              const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "uplink_doppler_settings" ),
+           py::arg( "downlink_doppler_settings" ),
+           py::arg( "bias_settings" ) = nullptr );
+
+    m.def( "two_way_open_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+                              const bool >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false );
+
+    m.def( "one_way_closed_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
+
+    m.def( "one_way_closed_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
+
 }
 
 }  // namespace model_settings
