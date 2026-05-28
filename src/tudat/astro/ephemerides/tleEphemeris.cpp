@@ -212,9 +212,13 @@ Tle::Tle( const std::string& lines )
     noradCatalogNumber_ = std::stoi( line1.substr( 2, 5 ) );
     classification_ = line1.at( 7 );
 
-    internationalDesignatorLaunchYear_ = std::stoi( line1.substr( 9, 2 ) );
-    internationalDesignatorLaunchNumber_ = std::stoi( line1.substr( 11, 3 ) );
-    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+    // IF missing INTLDES, replace with mock designation
+    std::string launchYearStr = boost::algorithm::trim_copy( line1.substr( 9, 2 ) );
+    internationalDesignatorLaunchYear_ = launchYearStr.empty( ) ? 0 : std::stoi( launchYearStr );
+    std::string launchNumberStr = boost::algorithm::trim_copy( line1.substr( 11, 3 ) );
+    internationalDesignatorLaunchNumber_ = launchNumberStr.empty( ) ? 0 : std::stoi( launchNumberStr );
+    internationalDesignatorPiece_ =
+            boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
 
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
