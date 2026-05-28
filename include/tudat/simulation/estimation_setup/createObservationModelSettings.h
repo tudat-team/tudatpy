@@ -34,9 +34,6 @@ namespace tudat
 namespace observation_models
 {
 
-#ifndef TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
-#define TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
-
 class LightTimeCorrectionSettings;
 //! Base class to define settings for creation of an observation bias model.
 /*!
@@ -1567,8 +1564,6 @@ inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCrite
     return std::make_shared< LightTimeConvergenceCriteria >(
             iterateCorrections, maximumNumberOfIterations, fractionOfLightTimeTolerance, failureHandling );
 }
-
-#endif  // TUDAT_OBSERVATION_MODEL_SETTINGS_DEFINED
 
 }  // namespace observation_models
 

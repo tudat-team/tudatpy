@@ -595,7 +595,7 @@ public:
                 differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
                         firstPartial,
                         secondPartial,
-                        &observation_models::getDifferencedFrequencyOfArrivalScalingFactor,
+                        &observation_partials::getDifferencedFrequencyOfArrivalScalingFactor,
                         getUndifferencedTimeAndStateIndices( differenced_frequency_of_arrival, linkEnds.size( ) ),
                         &getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
