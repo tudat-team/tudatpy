@@ -16,6 +16,8 @@ build:
   tools:
     python: "miniconda-latest"
   jobs:
+    post_create_environment:
+      - conda list
     pre_install:
       - DOCS_COMMIT=8199cf40de988fa50cd1dbddf32bbed453c8b5b9 ; echo Using docs from $DOCS_COMMIT ; git checkout $DOCS_COMMIT -- docs/
 
