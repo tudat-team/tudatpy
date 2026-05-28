@@ -63,7 +63,7 @@ Examples
             .value( "one_way_range_type", tom::ObservableType::one_way_range )
             .value( "n_way_range_type", tom::ObservableType::n_way_range )
             .value( "angular_position_type", tom::ObservableType::angular_position )
-            .value( "relative_angular_position_type", tom::ObservableType::angular_position )
+            .value( "relative_angular_position_type", tom::ObservableType::relative_angular_position )
             .value( "position_observable_type", tom::ObservableType::position_observable )
             .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
             .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
