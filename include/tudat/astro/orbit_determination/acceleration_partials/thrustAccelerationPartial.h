@@ -24,9 +24,9 @@ namespace acceleration_partials
 
 class ThrustMagnitudePartial
 {
-    ThrustMagnitudePartial( ) { }
+    ThrustMagnitudePartial( ) {}
 
-    virtual ~ThrustMagnitudePartial( ) { }
+    virtual ~ThrustMagnitudePartial( ) {}
 
     virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getStatePartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
@@ -51,9 +51,9 @@ class ConstantThrustMagnitudePartial
 {
     ConstantThrustMagnitudePartial( const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > constantThrustWrapper ):
         constantThrustWrapper_( constantThrustWrapper )
-    { }
+    {}
 
-    virtual ~ConstantThrustMagnitudePartial( ) { }
+    virtual ~ConstantThrustMagnitudePartial( ) {}
 
     virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
@@ -79,19 +79,19 @@ public:
                                const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
                                                std::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials );
 
-    ~ThrustAccelerationPartial( ) { }
+    ~ThrustAccelerationPartial( ) {}
 
     void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1,
                                        const int startRow = 0,
                                        const int startColumn = 0 )
-    { }
+    {}
 
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1,
                                         const int startRow = 0,
                                         const int startColumn = 0 )
-    { }
+    {}
 
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
                                                                      const propagators::IntegratedStateType integratedStateType );
@@ -209,7 +209,7 @@ public:
                                       const std::string acceleratedBody );
 
     //! Destructor.
-    ~MomentumWheelDesaturationPartial( ) { }
+    ~MomentumWheelDesaturationPartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -226,7 +226,7 @@ public:
                                        const bool addContribution = 1,
                                        const int startRow = 0,
                                        const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -243,7 +243,7 @@ public:
                                         const bool addContribution = 1,
                                         const int startRow = 0,
                                         const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
     /*!

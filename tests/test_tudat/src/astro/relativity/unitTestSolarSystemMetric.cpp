@@ -55,27 +55,21 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     const double evaluationTime = 1.05E7;
 
     std::vector< std::string > bodyNames = { "Sun", "Earth", "Moon" };
-    BodyListSettings bodySettings = getDefaultBodySettings(
-            bodyNames,
-            initialEphemerisTime - buffer,
-            finalEphemerisTime + buffer );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
     bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
     auto bodies = createSystemOfBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies.getMap( ), "SSB", "ECLIPJ2000" );
     bodies.getBody( "Earth" )->setStateFromEphemeris( evaluationTime );
 
-    auto firstOrderSchwarzschildSettings =
-            std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", false );
-    [[maybe_unused]] auto secondOrderSchwarzschildSettings =
-            std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", true );
+    auto firstOrderSchwarzschildSettings = std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", false );
+    auto secondOrderSchwarzschildSettings = std::make_shared< SchwarzschildSpaceTimeMetricSettings >( "Earth", true );
 
     auto firstOrderSolarSystemSettings =
-            std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-                    std::vector< std::string >{ "Earth" },
-                    std::vector< std::string >( ),
-                    std::map< std::string, std::pair< int, int > >( ),
-                    std::vector< std::string >( ) );
+            std::make_shared< SolarSystemSpaceTimeMetricSettings >( std::vector< std::string >{ "Earth" },
+                                                                    std::vector< std::string >( ),
+                                                                    std::map< std::string, std::pair< int, int > >( ),
+                                                                    std::vector< std::string >( ) );
     // Second-order solar-system terms currently unimplemented; re-enable once metric supports them.
     // auto secondOrderSolarSystemSettings =
     //         std::make_shared< SolarSystemSpaceTimeMetricSettings >(
@@ -86,17 +80,14 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     //                 ppnParameterSet );
 
     auto firstOrderSchwarzschildMetric = createSpaceTimeMetric( firstOrderSchwarzschildSettings, bodies );
-    [[maybe_unused]] auto secondOrderSchwarzschildMetric = createSpaceTimeMetric( secondOrderSchwarzschildSettings, bodies );
+    auto secondOrderSchwarzschildMetric = createSpaceTimeMetric( secondOrderSchwarzschildSettings, bodies );
     auto firstOrderSolarSystemMetric = createSpaceTimeMetric( firstOrderSolarSystemSettings, bodies );
 
     Eigen::Vector6d keplerianElements;
-    keplerianElements << 6378.0E3 + 400.0E3, 0.013, 1.0238269559089248,
-            3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
+    keplerianElements << 6378.0E3 + 400.0E3, 0.013, 1.0238269559089248, 3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
 
-    const double earthGravitationalParameter =
-            bodies.getBody( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Eigen::Vector6d cartesianState = convertKeplerianToCartesianElements(
-            keplerianElements, earthGravitationalParameter );
+    const double earthGravitationalParameter = bodies.getBody( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::Vector6d cartesianState = convertKeplerianToCartesianElements( keplerianElements, earthGravitationalParameter );
 
     firstOrderSchwarzschildMetric->update( cartesianState, 0.0, true, true );
     secondOrderSchwarzschildMetric->update( cartesianState, 0.0, true, true );
@@ -104,28 +95,20 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     const Eigen::Vector6d barycentricState = cartesianState + bodies.getBody( "Earth" )->getState( );
     firstOrderSolarSystemMetric->update( barycentricState, 0.0, true, true );
 
-    const Eigen::Matrix4d firstOrderSchwarzschildPerturbation =
-            firstOrderSchwarzschildMetric->getCurrentCovariantMetricPeturbation( );
-    const Eigen::Matrix4d firstOrderSolarPerturbation =
-            firstOrderSolarSystemMetric->getCurrentCovariantMetricPeturbation( );
+    const Eigen::Matrix4d firstOrderSchwarzschildPerturbation = firstOrderSchwarzschildMetric->getCurrentCovariantMetricPeturbation( );
+    const Eigen::Matrix4d firstOrderSolarPerturbation = firstOrderSolarSystemMetric->getCurrentCovariantMetricPeturbation( );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-            firstOrderSchwarzschildPerturbation( 0, 0 ),
-            firstOrderSolarPerturbation( 0, 0 ),
-            1.0E-13 );
+    BOOST_CHECK_CLOSE_FRACTION( firstOrderSchwarzschildPerturbation( 0, 0 ), firstOrderSolarPerturbation( 0, 0 ), 1.0E-13 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            firstOrderSchwarzschildPerturbation.block( 1, 1, 3, 3 ),
-            firstOrderSolarPerturbation.block( 1, 1, 3, 3 ),
-            1.0E-13 );
+            firstOrderSchwarzschildPerturbation.block( 1, 1, 3, 3 ), firstOrderSolarPerturbation.block( 1, 1, 3, 3 ), 1.0E-13 );
 
     const Eigen::Vector3d earthVelocity = bodies.getBody( "Earth" )->getState( ).segment( 3, 3 );
     const Eigen::Vector3d expectedSpaceTimePerturbation =
             -2.0 * earthVelocity * firstOrderSolarPerturbation( 1, 1 ) / physical_constants::SPEED_OF_LIGHT;
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            firstOrderSolarPerturbation.block( 0, 1, 1, 3 ),
-            expectedSpaceTimePerturbation.transpose( ),
-            std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstOrderSolarPerturbation.block( 0, 1, 1, 3 ),
+                                       expectedSpaceTimePerturbation.transpose( ),
+                                       std::numeric_limits< double >::epsilon( ) );
     // TODO(second-order): Re-enable solar-system second-order comparisons once the metric supports epsilon-dependent terms.
     // const Eigen::Matrix4d secondOrderSchwarzschildPerturbation =
     //         secondOrderSchwarzschildMetric->getCurrentCovariantMetricPeturbation( );
@@ -147,21 +130,14 @@ BOOST_AUTO_TEST_CASE( testStaticSolarSystemMetricAgainstSchwarzschild )
     //         expectedSpaceTimePerturbation.transpose( ),
     //         std::numeric_limits< double >::epsilon( ) );
 
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstOrderSchwarzschildPerturbation,
+                                       firstOrderSchwarzschildPerturbation.transpose( ),
+                                       std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            firstOrderSchwarzschildPerturbation,
-            firstOrderSchwarzschildPerturbation.transpose( ),
-            std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            firstOrderSolarPerturbation,
-            firstOrderSolarPerturbation.transpose( ),
-            std::numeric_limits< double >::epsilon( ) );
+            firstOrderSolarPerturbation, firstOrderSolarPerturbation.transpose( ), std::numeric_limits< double >::epsilon( ) );
     const Eigen::Matrix4d identityCheck =
-            firstOrderSolarSystemMetric->getCurrentCovariantMetric( ) *
-            firstOrderSolarSystemMetric->getCurrentContravariantMetric( );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            identityCheck,
-            Eigen::Matrix4d::Identity( ),
-            5.0E-13 );
+            firstOrderSolarSystemMetric->getCurrentCovariantMetric( ) * firstOrderSolarSystemMetric->getCurrentContravariantMetric( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( identityCheck, Eigen::Matrix4d::Identity( ), 5.0E-13 );
 }
 
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
@@ -179,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
     Eigen::Vector6d constantEarthState = Eigen::Vector6d::Zero( );
     constantEarthState.segment( 3, 3 ) =
-            spice_interface::getBodyCartesianStateAtEpoch( "Earth", "SSB" , "ECLIPJ2000" , "None", 0.0 ).segment( 3, 3 );
+            spice_interface::getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "None", 0.0 ).segment( 3, 3 );
     bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( constantEarthState );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -190,8 +166,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     bodies.getBody( "Earth" )->setStateFromEphemeris( evaluationTime );
     bodies.getBody( "Earth" )->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
     auto earthGravityField =
-            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                    bodies.getBody( "Earth" )->getGravityFieldModel( ) );
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( bodies.getBody( "Earth" )->getGravityFieldModel( ) );
     BOOST_REQUIRE_MESSAGE( earthGravityField != nullptr, "Earth gravity field is not spherical harmonics." );
 
     std::vector< std::string > firstOrderPerturbingBodies{ "Earth" };
@@ -219,11 +194,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     auto pointMassMetric = createSpaceTimeMetric( pointMassMetricSettings, bodies );
 
     Eigen::Vector6d earthCenteredKeplerElements;
-    earthCenteredKeplerElements << 6378.0E3 + 300E3, 0.013, 1.0238269559089248,
-            3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
+    earthCenteredKeplerElements << 6378.0E3 + 300E3, 0.013, 1.0238269559089248, 3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
     const double earthGravitationalParameter = earthGravityField->getGravitationalParameter( );
-    const Eigen::Vector6d testCartesianElements = convertKeplerianToCartesianElements(
-            earthCenteredKeplerElements, earthGravitationalParameter );
+    const Eigen::Vector6d testCartesianElements =
+            convertKeplerianToCartesianElements( earthCenteredKeplerElements, earthGravitationalParameter );
 
     fullMetric->update( testCartesianElements + bodies.getBody( "Earth" )->getState( ), 0.0, true, false );
     truncatedMetric->update( testCartesianElements + bodies.getBody( "Earth" )->getState( ), 0.0, true, false );
@@ -232,46 +206,48 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
     auto sphericalHarmonicsCache = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( fullDegree, fullOrder );
     const Eigen::Vector3d relativePosition = testCartesianElements.segment( 0, 3 );
 
-    const double fullPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), fullDegree, fullOrder, sphericalHarmonicsCache );
-    const double truncatedPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
-            relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), truncatedDegree, truncatedOrder, sphericalHarmonicsCache );
+    const double fullPotential =
+            earthGravityField->getGravitationalPotentialFromInertialPosition( relativePosition,
+                                                                              bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ),
+                                                                              fullDegree,
+                                                                              fullOrder,
+                                                                              sphericalHarmonicsCache );
+    const double truncatedPotential =
+            earthGravityField->getGravitationalPotentialFromInertialPosition( relativePosition,
+                                                                              bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ),
+                                                                              truncatedDegree,
+                                                                              truncatedOrder,
+                                                                              sphericalHarmonicsCache );
     const double pointMassPotential = earthGravityField->getGravitationalPotentialFromInertialPosition(
             relativePosition, bodies.getBody( "Earth" )->getCurrentRotationToLocalFrame( ), 0, 0, sphericalHarmonicsCache );
 
-    std::vector< double > metricTerms{
-        2.0 * fullPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,
-        2.0 * truncatedPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,
-        2.0 * pointMassPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT };
+    std::vector< double > metricTerms{ 2.0 * fullPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,
+                                       2.0 * truncatedPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT,
+                                       2.0 * pointMassPotential * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT };
 
-    std::vector< Eigen::Matrix4d > metricPerturbations{
-        fullMetric->getCurrentCovariantMetricPeturbation( ),
-        truncatedMetric->getCurrentCovariantMetricPeturbation( ),
-        pointMassMetric->getCurrentCovariantMetricPeturbation( ) };
+    std::vector< Eigen::Matrix4d > metricPerturbations{ fullMetric->getCurrentCovariantMetricPeturbation( ),
+                                                        truncatedMetric->getCurrentCovariantMetricPeturbation( ),
+                                                        pointMassMetric->getCurrentCovariantMetricPeturbation( ) };
 
-    for ( unsigned int i = 0; i < metricPerturbations.size( ); ++i )
+    for( unsigned int i = 0; i < metricPerturbations.size( ); ++i )
     {
         const double perturbation = metricTerms.at( i );
-        BOOST_CHECK_CLOSE_FRACTION(
-                perturbation - 0.5 * perturbation * perturbation,
-                metricPerturbations.at( i )( 0, 0 ),
-                std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( perturbation - 0.5 * perturbation * perturbation,
+                                    metricPerturbations.at( i )( 0, 0 ),
+                                    std::numeric_limits< double >::epsilon( ) );
 
-        for ( int row = 0; row < 3; ++row )
+        for( int row = 0; row < 3; ++row )
         {
-            for ( int col = 0; col < 3; ++col )
+            for( int col = 0; col < 3; ++col )
             {
-                if ( row == col )
+                if( row == col )
                 {
                     BOOST_CHECK_CLOSE_FRACTION(
-                            perturbation,
-                            metricPerturbations.at( i )( row + 1, col + 1 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                            perturbation, metricPerturbations.at( i )( row + 1, col + 1 ), std::numeric_limits< double >::epsilon( ) );
 
-                    BOOST_CHECK_CLOSE_FRACTION(
-                            -2.0 * perturbation * constantEarthState( 3 + row ) / physical_constants::SPEED_OF_LIGHT,
-                            metricPerturbations.at( i )( 0, row + 1 ),
-                            std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_CLOSE_FRACTION( -2.0 * perturbation * constantEarthState( 3 + row ) / physical_constants::SPEED_OF_LIGHT,
+                                                metricPerturbations.at( i )( 0, row + 1 ),
+                                                std::numeric_limits< double >::epsilon( ) );
                 }
                 else
                 {

@@ -31,7 +31,7 @@ namespace tudatpy
 namespace math
 {
 
-void expose_math( py::module &m )
+void expose_math( py::module& m )
 {
     auto interpolators = m.def_submodule( "interpolators" );
     interpolators::expose_interpolators( interpolators );

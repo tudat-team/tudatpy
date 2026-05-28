@@ -62,7 +62,7 @@ protected:
 class ConstantSurfacePropertyDistribution : public SurfacePropertyDistribution
 {
 public:
-    explicit ConstantSurfacePropertyDistribution( const double constantValue ): constantValue_( constantValue ) { }
+    explicit ConstantSurfacePropertyDistribution( const double constantValue ): constantValue_( constantValue ) {}
 
     double getValue( double latitude, double longitude ) override
     {
@@ -179,7 +179,7 @@ public:
                                                                    const double referenceEpoch,
                                                                    const double period ):
         a0( a0 ), c0( c0 ), c1( c1 ), c2( c2 ), a2( a2 ), referenceEpoch( referenceEpoch ), angularFrequency( 2 * PI / period )
-    { }
+    {}
 
     double getValue( double latitude, double longitude ) override
     {
@@ -211,7 +211,7 @@ class CustomSurfacePropertyDistribution : public SurfacePropertyDistribution
 public:
     CustomSurfacePropertyDistribution( const std::function< double( const double, const double, const double ) > customFunction ):
         customFunction_( customFunction )
-    { }
+    {}
 
     double getValue( double latitude, double longitude )
     {

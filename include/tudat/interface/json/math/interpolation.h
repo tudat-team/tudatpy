@@ -24,15 +24,16 @@ namespace interpolators
 // InterpolatorTypes
 
 //! Map of `InterpolatorTypes` string representations.
-static std::map< InterpolatorTypes, std::string > oneDimensionalInterpolatorTypes = { { linear_interpolator, "linear" },
-                                                                                      { cubic_spline_interpolator, "cubicSpline" },
-                                                                                      { lagrange_interpolator, "lagrange" },
-                                                                                      { hermite_spline_interpolator, "hermiteSpline" },
-                                                                                      { piecewise_constant_interpolator, "piecewiseConstant" }
-                                                                                      { chebyshev_interpolator, "chebyshevInterpolator" } };
+static std::map< InterpolatorTypes, std::string > oneDimensionalInterpolatorTypes = {
+    { linear_interpolator, "linear" },
+    { cubic_spline_interpolator, "cubicSpline" },
+    { lagrange_interpolator, "lagrange" },
+    { hermite_spline_interpolator, "hermiteSpline" },
+    { piecewise_constant_interpolator, "piecewiseConstant" } { chebyshev_interpolator, "chebyshevInterpolator" }
+};
 
 //! `InterpolatorTypes` not supported by `json_interface`.
-static std::vector< InterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
+static std::vector< InterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = {};
 
 //! Convert `InterpolatorTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const InterpolatorTypes& oneDimensionalInterpolatorType )
@@ -53,7 +54,7 @@ static std::map< AvailableLookupScheme, std::string > lookupSchemeTypes = { { hu
                                                                             { binarySearch, "binarySearch" } };
 
 //! `AvailableLookupScheme`s not supported by `json_interface`.
-static std::vector< AvailableLookupScheme > unsupportedLookupSchemeTypes = { };
+static std::vector< AvailableLookupScheme > unsupportedLookupSchemeTypes = {};
 
 //! Convert `AvailableLookupScheme` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
@@ -103,7 +104,7 @@ static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInt
 };
 
 //! `LagrangeInterpolatorBoundaryHandling`s not supported by `json_interface`.
-static std::vector< LagrangeInterpolatorBoundaryHandling > unsupportedLagrangeInterpolatorBoundaryHandlings = { };
+static std::vector< LagrangeInterpolatorBoundaryHandling > unsupportedLagrangeInterpolatorBoundaryHandlings = {};
 
 //! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )

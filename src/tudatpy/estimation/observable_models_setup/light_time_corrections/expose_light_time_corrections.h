@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,7 @@ namespace observable_models_setup
 namespace light_time_corrections
 {
 
-void expose_light_time_corrections( py::module &m );
+void expose_light_time_corrections( py::module& m );
 
 }  // namespace light_time_corrections
 }  // namespace observable_models_setup

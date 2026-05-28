@@ -1360,11 +1360,12 @@ BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
 
-    std::vector< double > observationTimes = { initialEphemerisTime + 1000.0, initialEphemerisTime + 2000.0,
+    std::vector< double > observationTimes = { initialEphemerisTime + 1000.0,
+                                               initialEphemerisTime + 2000.0,
                                                initialEphemerisTime + 3000.0 };
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
-            n_way_range, twoWayLinkEnds, observationTimes, receiver ) );
+    measurementSimulationInput.push_back(
+            std::make_shared< TabulatedObservationSimulationSettings<> >( n_way_range, twoWayLinkEnds, observationTimes, receiver ) );
 
     std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsSettings = linkEndEpochsDependentVariable( n_way_range );
     addDependentVariablesToObservationSimulationSettings(
@@ -1375,8 +1376,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
     std::shared_ptr< ObservationCollection<> > simulatedObservations =
             simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
-    std::map< double, Eigen::VectorXd > linkEndEpochsHistory =
-            simulatedObservations->getDependentVariableHistory( linkEndEpochsSettings );
+    std::map< double, Eigen::VectorXd > linkEndEpochsHistory = simulatedObservations->getDependentVariableHistory( linkEndEpochsSettings );
     BOOST_CHECK_EQUAL( linkEndEpochsHistory.size( ), observationTimes.size( ) );
 
     std::shared_ptr< ObservationSimulator< 1, double, double > > nWayRangeObservationSimulator =
@@ -1392,8 +1392,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
                 epochsEntry.first, receiver, manualLinkEndTimes, manualLinkEndStates );
 
         BOOST_CHECK_EQUAL( manualLinkEndTimes.size( ), 4 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                epochsEntry.second, utilities::convertStlVectorToEigenVector( manualLinkEndTimes ), 1.0e-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( epochsEntry.second, utilities::convertStlVectorToEigenVector( manualLinkEndTimes ), 1.0e-14 );
     }
 }
 

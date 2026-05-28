@@ -58,7 +58,7 @@ namespace propagation_setup
 namespace thrust
 {
 
-void expose_thrust_setup( py::module &m )
+void expose_thrust_setup( py::module& m )
 {
     py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes" )
             //                                         get_docstring("ThrustMagnitudeTypes").c_str())

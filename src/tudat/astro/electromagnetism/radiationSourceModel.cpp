@@ -81,7 +81,7 @@ void IsotropicPointRadiationSourceModel::updateMembers_( double currentTime )
 
 IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition )
 {
-    IrradianceWithSourceList irradiances{ };
+    IrradianceWithSourceList irradiances{};
 
     visibleArea = 0;
     for( const auto& panel : getPanels( ) )
@@ -341,7 +341,7 @@ std::pair< std::vector< double >, std::vector< double > > generateEvenlySpacedPo
     std::vector< double > azimuthAngles;
 
     // Saff (1997) Eq. 8
-    double previousAzimuthAngle{ };
+    double previousAzimuthAngle{};
     for( unsigned int k = 1; k <= n; ++k )
     {
         double h = -1 + 2. * ( k - 1 ) / ( n - 1 );
@@ -373,7 +373,7 @@ std::pair< std::vector< double >, std::vector< double > > generateEvenlySpacedPo
     double azimuthStep = PI * ( 3 - sqrt( 5 ) );
 
     // Wetterer (2014) Eqs. 34 + 35
-    double previousAzimuthAngle{ };
+    double previousAzimuthAngle{};
     double z = -1 + 1. / n;
     for( unsigned int j = 1; j <= n; ++j )
     {

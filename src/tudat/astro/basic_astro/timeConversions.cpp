@@ -28,19 +28,18 @@ bool isTimeScaleRelativistic( const TimeScales originalTimeScale )
     bool isRelativistic = 0;
     switch( originalTimeScale )
     {
-    case body_centered_coordinate_time_scale:
-        isRelativistic = 1;
-        break;
-    case barycentric_coordinate_time_scale:
-        isRelativistic = 1;
-        break;
-    case local_proper_time_scale:
-        isRelativistic = 1;
-        break;
-    default:
-        throw std::runtime_error(
-                    "Error when getting relativistic time scale, input was " +
-                    std::to_string( static_cast< int >( originalTimeScale ) ) );
+        case body_centered_coordinate_time_scale:
+            isRelativistic = 1;
+            break;
+        case barycentric_coordinate_time_scale:
+            isRelativistic = 1;
+            break;
+        case local_proper_time_scale:
+            isRelativistic = 1;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting relativistic time scale, input was " +
+                                      std::to_string( static_cast< int >( originalTimeScale ) ) );
     }
     return isRelativistic;
 }

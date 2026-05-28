@@ -50,7 +50,7 @@ public:
      */
     RemoveComment( char skipCharacter = '#', bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), skipCharacter_( skipCharacter ), isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Remove comments in a single line.
     /*!
@@ -96,7 +96,7 @@ public:
      */
     SkipFirstLines( unsigned int linesToSkip = 0, bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), linesToSkip_( linesToSkip ), numberOfSkippedLines_( 0 ), isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Execute filter on the input line by skipping if required.
     /*!
@@ -166,7 +166,7 @@ public:
     ReplaceElements( boost::regex searchFilter, std::string replaceString = "", bool isOmitIfEmpty = true ):
         boost::iostreams::line_filter( true ), searchFilter_( searchFilter ), replaceString_( replaceString ),
         isOmitIfEmpty_( isOmitIfEmpty )
-    { }
+    {}
 
     //! Create filter with a basic search and replace string.
     /*!

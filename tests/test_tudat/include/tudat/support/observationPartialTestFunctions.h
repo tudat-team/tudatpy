@@ -160,9 +160,10 @@ void testObservationPartials(
         const double gammaToleranceWeakening = 1.0 )
 {
     bool isNormalized = false;
-    if( std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel ) != nullptr )
+    if( std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType > >( observationModel ) != nullptr )
     {
-        isNormalized = std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType> >( observationModel )->getNormalizeRightAscension(  );
+        isNormalized = std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType > >( observationModel )
+                               ->getNormalizeRightAscension( );
     }
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
@@ -357,7 +358,8 @@ void testObservationPartials(
                     }
 
                     // Test position partial
-                    if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) && ( observableType != relative_angular_position ) )
+                    if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) &&
+                        ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }

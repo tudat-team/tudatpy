@@ -1077,7 +1077,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     double normalization21 = calculateLegendreGeodesyNormalizationFactor( 2, 1 );
     double normalization22 = calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         Eigen::Matrix3d inertiaTensor = getMatrixFromVectorRotationRepresentation( it.second.segment( 0, 9 ) );
         Eigen::Vector3d secondDegreeTorque = it.second.segment( 9, 3 );

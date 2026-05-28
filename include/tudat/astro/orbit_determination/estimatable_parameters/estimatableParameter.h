@@ -460,8 +460,7 @@ class EstimatableParameter : public EstimatableParameterBase
 public:
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
                           const std::string& associatedBody,
-                          const std::string& pointOnBodyId = "" ):
-        EstimatableParameterBase( parameterName, associatedBody, pointOnBodyId )
+                          const std::string& pointOnBodyId = "" ): EstimatableParameterBase( parameterName, associatedBody, pointOnBodyId )
     {}
 
     virtual ~EstimatableParameter( ) {}
@@ -477,9 +476,9 @@ public:
         Eigen::VectorXd parameterValueVector = convertEstimatableParameterToVector< ParameterType >( getParameterValue( ) );
         if( parameterValueVector.rows( ) != getParameterSize( ) )
         {
-            throw std::runtime_error(
-                    "Error when getting estimatable parameter through untemplated vector interface, expected size " +
-                    std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValueVector.rows( ) ) + "." );
+            throw std::runtime_error( "Error when getting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValueVector.rows( ) ) +
+                                      "." );
         }
         return parameterValueVector;
     }
@@ -488,9 +487,8 @@ public:
     {
         if( parameterValue.rows( ) != getParameterSize( ) )
         {
-            throw std::runtime_error(
-                    "Error when setting estimatable parameter through untemplated vector interface, expected size " +
-                    std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValue.rows( ) ) + "." );
+            throw std::runtime_error( "Error when setting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValue.rows( ) ) + "." );
         }
         setParameterValue( convertEstimatableParameterFromVector< ParameterType >( parameterValue ) );
     }

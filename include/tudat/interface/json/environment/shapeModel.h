@@ -27,7 +27,7 @@ static std::map< BodyShapeTypes, std::string > bodyShapeTypes = { { spherical, "
                                                                   { oblate_spheroid, "oblateSpheroid" } };
 
 //! `BodyShapeTypes` not supported by `json_interface`.
-static std::vector< BodyShapeTypes > unsupportedBodyShapeTypes = { };
+static std::vector< BodyShapeTypes > unsupportedBodyShapeTypes = {};
 
 //! Convert `BodyShapeTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const BodyShapeTypes& bodyShapeType )

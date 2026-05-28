@@ -179,6 +179,8 @@ Classes
 
    KeplerEphemerisSettings
 
+   DirectTleEphemerisSettings
+
    TabulatedEphemerisSettings
 
 
@@ -205,6 +207,9 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.KeplerEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.DirectTleEphemerisSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings

@@ -58,10 +58,10 @@ public:
      * Constructor
      * \param lowThrustLegType Type of low-thrust leg that is to be used.
      */
-    LowThrustLegSettings( const LowThrustLegTypes lowThrustLegType ): lowThrustLegType_( lowThrustLegType ) { }
+    LowThrustLegSettings( const LowThrustLegTypes lowThrustLegType ): lowThrustLegType_( lowThrustLegType ) {}
 
     //! Destructor.
-    virtual ~LowThrustLegSettings( ) { }
+    virtual ~LowThrustLegSettings( ) {}
 
     //! Type of low-thrust leg that is to be used.
     LowThrustLegTypes lowThrustLegType_;
@@ -93,10 +93,10 @@ public:
 
         specificImpulseFunction_( specificImpulseFunction ), numberSegments_( numberOfSegments ), centralBody_( centralBody ),
         optimisationSettings_( optimisationSettings )
-    { }
+    {}
 
     //! Destructor
-    ~SimsFlanaganLegSettings( ) { }
+    ~SimsFlanaganLegSettings( ) {}
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -131,10 +131,10 @@ public:
                              const std::pair< double, double > initialAndFinalMEEcostatesBounds ):
         LowThrustLegSettings( hybrid_method_leg ), maximumThrust_( maximumThrust ), specificImpulse_( specificImpulse ),
         centralBody_( centralBody ), integratorSettings_( integratorSettings ), optimisationSettings_( optimisationSettings )
-    { }
+    {}
 
     //! Destructor
-    ~HybridMethodLegSettings( ) { }
+    ~HybridMethodLegSettings( ) {}
 
     //! Maximum allowed thrust.
     double maximumThrust_;

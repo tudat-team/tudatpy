@@ -22,7 +22,7 @@ namespace dynamics
 namespace simulator
 {
 
-void expose_simulator( py::module &m );
+void expose_simulator( py::module& m );
 
 }  // namespace simulator
 }  // namespace dynamics

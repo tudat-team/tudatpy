@@ -28,7 +28,7 @@ namespace gravitation
 
 Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
 {
-    if( cosineCoefficients_.size( ) > 2 && sineCoefficients_.size(  ) > 2 )
+    if( cosineCoefficients_.size( ) > 2 && sineCoefficients_.size( ) > 2 )
     {
         return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
     }

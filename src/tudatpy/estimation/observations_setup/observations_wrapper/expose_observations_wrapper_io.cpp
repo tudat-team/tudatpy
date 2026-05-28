@@ -36,7 +36,7 @@ namespace observations_setup
 namespace observations_wrapper
 {
 
-void expose_observations_wrapper_io_bindings( py::module &m )
+void expose_observations_wrapper_io_bindings( py::module& m )
 {
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
@@ -106,7 +106,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
-                  py::overload_cast< const std::string &, const std::string & >(
+                  py::overload_cast< const std::string&, const std::string& >(
                           &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "antenna_name" ),
@@ -115,10 +115,10 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         )doc" );
 
     m.def( "process_odf_data_multiple_files",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::string &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::string&,
                               const bool,
-                              const std::map< std::string, Eigen::Vector3d > & >( &tom::processOdfData< TIME_TYPE > ),
+                              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "verbose" ) = true,
@@ -146,7 +146,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         )doc" );
 
     m.def( "process_odf_data_single_file",
-           py::overload_cast< const std::string &, const std::string &, const bool, const std::map< std::string, Eigen::Vector3d > & >(
+           py::overload_cast< const std::string&, const std::string&, const bool, const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_name" ),
            py::arg( "spacecraft_name" ),
@@ -431,7 +431,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
                               const std::string,
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
-                              const tom::ObservationAncillarySimulationSettings & >(
+                              const tom::ObservationAncillarySimulationSettings& >(
                    &tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),

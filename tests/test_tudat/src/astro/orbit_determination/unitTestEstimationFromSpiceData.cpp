@@ -169,7 +169,7 @@ void runEstimation( std::string saveDirectory,
             observationTimes.push_back( t );
         }
         catch( ... )
-        { }
+        {}
     }
 
     // Set accelerations on Vehicle that are to be taken into account.
@@ -228,7 +228,7 @@ void runEstimation( std::string saveDirectory,
 
     // Retrieve state history from SPICE
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > spiceStateHistory;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         spiceStateHistory[ t.getSeconds< long double >( ) ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ) -
@@ -278,7 +278,7 @@ void runEstimation( std::string saveDirectory,
 
     // Retrieve state history
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > propagatedStateHistory;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         propagatedStateHistory[ t.getSeconds< long double >( ) ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ) -
@@ -320,7 +320,7 @@ void runEstimation( std::string saveDirectory,
     std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 6, 1 > > > postFitStateInterpolator =
             propagators::createStateInterpolator< Time, long double >( propagatedStateHistoryPostFit );
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitToWrite;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         propagatedStateHistoryPostFitToWrite[ t.getSeconds< long double >( ) ] = postFitStateInterpolator->interpolate( t );
     }

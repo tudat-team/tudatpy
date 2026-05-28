@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,7 @@ namespace observable_models_setup
 namespace model_settings
 {
 
-void expose_model_settings( py::module &m );
+void expose_model_settings( py::module& m );
 
 }  // namespace model_settings
 }  // namespace observable_models_setup

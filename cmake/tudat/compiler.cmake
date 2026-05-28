@@ -160,6 +160,9 @@
      set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
      set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
      set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
+     if (NOT DEFINED CMAKE_EXPORT_COMPILE_COMMANDS)
+         set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+     endif ()
 
      if (APPLE)
          # standard apple clang compiler flags

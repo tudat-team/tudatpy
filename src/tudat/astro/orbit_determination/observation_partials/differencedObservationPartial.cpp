@@ -15,7 +15,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
 std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDefaultDifferencedReferenceLinkEndTypes(
         const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
 {

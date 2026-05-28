@@ -79,7 +79,7 @@ void reduceToLast( std::map< K, V > map )
 template< typename K, typename V >
 K getKeyWithValue( const std::map< K, V >& map, const V& value )
 {
-    for( auto entry: map )
+    for( auto entry : map )
     {
         if( entry.second == value )
         {
@@ -116,7 +116,7 @@ bool contains( const std::vector< T >& vector, const T& value )
 template< typename T >
 bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 {
-    for( auto value: values )
+    for( auto value : values )
     {
         if( contains( vector, value ) )
         {
@@ -133,7 +133,7 @@ bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 template< typename T >
 bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
 {
-    for( auto value: values )
+    for( auto value : values )
     {
         if( !contains( vector, value ) )
         {
@@ -151,7 +151,7 @@ template< template< typename... > class MapType, typename KeyType, typename Valu
 std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 {
     std::vector< KeyType > keys;
-    for( auto entry: map )
+    for( auto entry : map )
     {
         keys.push_back( entry.first );
     }
@@ -166,7 +166,7 @@ template< template< typename... > class MapType, typename KeyType, typename Valu
 std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map )
 {
     std::vector< ValueType > values;
-    for( auto entry: map )
+    for( auto entry : map )
     {
         values.push_back( entry.second );
     }
@@ -181,9 +181,9 @@ template< template< typename... > class MapType, typename KeyType, typename Valu
 std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vector< ValueType > >& map )
 {
     std::vector< ValueType > values;
-    for( auto entry: map )
+    for( auto entry : map )
     {
-        for( const ValueType value: entry.second )
+        for( const ValueType value : entry.second )
         {
             values.push_back( value );
         }

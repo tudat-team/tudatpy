@@ -59,9 +59,9 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
         // Perform closure for each constituent bias object
         for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
-            isParameterLinked =
-                    performObservationParameterEstimationClosureForSingleModelSet(
-                            parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType ) || isParameterLinked;
+            isParameterLinked = performObservationParameterEstimationClosureForSingleModelSet(
+                                        parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType ) ||
+                    isParameterLinked;
         }
     }
     else
@@ -384,8 +384,7 @@ bool performObservationParameterEstimationClosureForSingleModelSet(
     return isParameterLinked;
 }
 
-inline bool doesObservationParameterRequireBiasModelLinkage(
-        const estimatable_parameters::EstimatebleParametersEnum parameterType )
+inline bool doesObservationParameterRequireBiasModelLinkage( const estimatable_parameters::EstimatebleParametersEnum parameterType )
 {
     switch( parameterType )
     {
@@ -519,8 +518,7 @@ void performObservationParameterEstimationClosure(
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
-            const estimatable_parameters::EstimatebleParametersEnum parameterType =
-                    vectorBiasParameters.at( i )->getParameterName( ).first;
+            const estimatable_parameters::EstimatebleParametersEnum parameterType = vectorBiasParameters.at( i )->getParameterName( ).first;
             const bool requiresBiasModelLinkage = doesObservationParameterRequireBiasModelLinkage( parameterType );
 
             // Skip parameters belonging to other observables; they are linked by the corresponding simulator.
@@ -547,8 +545,7 @@ void performObservationParameterEstimationClosure(
             if( !isCurrentBiasParameterLinked )
             {
                 throw std::runtime_error( "Error, failed to link estimated observation bias parameter " +
-                                          vectorBiasParameters.at( i )->getParameterDescription( ) +
-                                          " to any observation bias model." );
+                                          vectorBiasParameters.at( i )->getParameterDescription( ) + " to any observation bias model." );
             }
         }
     }
@@ -574,7 +571,7 @@ template< int ObservationSize = 1, typename ObservationScalarType, typename Time
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -607,11 +604,8 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling > > observationPartialScalers;
     splitObservationPartialsAndScalers( observationPartialsAndScaler, observationPartials, observationPartialScalers );
 
-    return std::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( observableType,
-                                                                                                       observationSimulator,
-                                                                                                       observationPartials,
-                                                                                                       observationPartialScalers,
-                                                                                                       stateTransitionMatrixInterface );
+    return std::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
+            observableType, observationSimulator, observationPartials, observationPartialScalers, stateTransitionMatrixInterface );
 }
 
 //! Function to create an object to simulate observations of a given type and associated partials
@@ -629,7 +623,7 @@ template< typename ObservationScalarType, typename TimeType >
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -694,8 +688,8 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
 
 template< typename ObservationScalarType, typename TimeType >
 std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > > createObservationManagersBase(
-        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > &observationSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > fullParameters,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
@@ -705,7 +699,7 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
     std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
             sortObservationModelSettingsByType( observationSettingsList );
 
-    for( auto it: sortedObservationSettingsList )
+    for( auto it : sortedObservationSettingsList )
     {
         // Call createObservationSimulator of required observation size
         ObservableType observableType = it.first;
@@ -721,16 +715,15 @@ std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationSc
 extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
         const ObservableType observableType,
         const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );
 
-extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > > createObservationManagersBase<
-        double,
-        double >(
-        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > &observationSettingsList,
-        const simulation_setup::SystemOfBodies &bodies,
+extern template std::map< ObservableType, std::shared_ptr< ObservationManagerBase< double, double > > >
+createObservationManagersBase< double, double >(
+        const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > fullParameters,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const std::shared_ptr< propagators::DependentVariablesInterface< double > > dependentVariablesInterface );

@@ -77,9 +77,7 @@ class SBDBquery:
             res = self.query["phys_par"]["GM"].to(u.meter**3 / u.second**2)
             return res.value
         except Exception as _:
-            raise ValueError(
-                f"Gravitational parameter is not available for object {self.name}"
-            )
+            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
 
     @property
     def object_info(self):
@@ -98,12 +96,10 @@ class SBDBquery:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value
         except Exception as _:
-            raise ValueError(
-                f"Gravitational parameter is not available for object {self.name}"
-            )
+            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
 
-    def estimated_spherical_mass(self, density:float):
-        """Calculate a very simple mass by estimating the object's mass using a given density. 
+    def estimated_spherical_mass(self, density: float):
+        """Calculate a very simple mass by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
         Parameters
@@ -120,8 +116,8 @@ class SBDBquery:
         mass = volume * density
         return mass
 
-    def estimated_spherical_gravitational_parameter(self, density:float):
-        """Calculate a very simple gravitational parameter by estimating the object's mass using a given density. 
+    def estimated_spherical_gravitational_parameter(self, density: float):
+        """Calculate a very simple gravitational parameter by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
         Parameters

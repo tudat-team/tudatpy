@@ -63,7 +63,7 @@ Examples
             .value( "one_way_range_type", tom::ObservableType::one_way_range )
             .value( "n_way_range_type", tom::ObservableType::n_way_range )
             .value( "angular_position_type", tom::ObservableType::angular_position )
-            .value( "relative_angular_position_type", tom::ObservableType::angular_position )
+            .value( "relative_angular_position_type", tom::ObservableType::relative_angular_position )
             .value( "position_observable_type", tom::ObservableType::position_observable )
             .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
             .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
@@ -180,7 +180,19 @@ Examples
 
     py::class_< tom::NWayRangeObservationModelSettings,
                 std::shared_ptr< tom::NWayRangeObservationModelSettings >,
-                tom::ObservationModelSettings >( m, "NWayRangeObservationModelSettings", R"doc(No documentation found.)doc" );
+                tom::ObservationModelSettings >( m,
+                                                 "NWayRangeObservationModelSettings",
+                                                 R"doc(
+
+         Derived class for defining the settings of n-way range observation models.
+
+         Instances of this class are created by :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_range`,
+         :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_range_from_one_way_links`,
+         :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_range`, and
+         :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_range_from_one_way_links`.
+         Associated base class: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`.
+
+      )doc" );
 
     m.def( "one_way_range",
            &tom::oneWayRangeSettings,
@@ -211,17 +223,17 @@ Examples
       \bar{h}_{_{\text{1-range}}}(t_{R},t_{T})=h_{_{\text{1-range}}}(t_{R},t_{T})+\left(\bar{t}_{R}-t_{R}\right)-\left(\bar{t}_{t}-t_{t}\right)
 
  Here, :math:`t` denotes the epoch in TDB and :math:`\bar{t}` the epoch on the time scale defined by ``time_scale_for_observable`` (typically UTC),
- ;math:`h_{_{\text{1-range}}}` is the observable as defined above (as computed from the TDB light time) and :math:`\bar{h}_{_{\text{1-range}}}` is the
+ :math:`h_{_{\text{1-range}}}` is the observable as defined above (as computed from the TDB light time) and :math:`\bar{h}_{_{\text{1-range}}}` is the
  corrected observable as computed from the light time as measured in the correct time scale. It is important to note that the time tag of the observation
- wil always be in TDB.
+ will always be in TDB.
 
 
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+     ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -285,9 +297,9 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter`, `retransmitter` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
+     ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
 
  light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
@@ -354,6 +366,7 @@ Examples
  ----------
  one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` ]
      List of observation model settings of size two, with the first entry the one-way range settings for the uplink, and the second entry the one-way range settings for the downlink.
+     Each one-way range settings object must have ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
      The ``LinkDefinition`` of this two-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
      ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` and ``receiver`` are defined by the
      ``transmitter`` and ``receiver`` of the second entry of this list.
@@ -413,7 +426,7 @@ Examples
 
  By default, the reception time of the :math:`i^{th}` one-way range in this n-way range is set as the
  transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancillary settings
- (see :func:`~func.estimation.observations_setup.ancillary_settings.n_way_range_ancillary_settings`) when creating observation
+ (see :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_range_ancillary_settings`) when creating observation
  simulation settings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`__).
 
  For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
@@ -421,7 +434,7 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
      ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a ``reflector1``, ``reflector2``, .... (with the number of reflectors to be defined by the user). For a two-way range, the
@@ -493,6 +506,7 @@ Examples
  ----------
  one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` ]
      List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way range observable.
+     Each one-way range settings object must have ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
      The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
      ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
      ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
@@ -563,23 +577,23 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+     ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular position observable.
 
 
@@ -600,7 +614,7 @@ Examples
  Function for creating settings for a relative angular position observable.
 
  Function for creating observation model settings of relative angular position type observables (as right ascension difference :math:`\Delta \alpha` and declination difference :math:`\Delta \delta`).
- It computes two :func:`~angular_position` observations :math:`[\alpha_{1};\delta_{1}]` and :math:`[\alpha_{2};\delta_{2}]` with the same receiver and different transmitters,
+ It computes two :func:`~tudatpy.estimation.observable_models_setup.model_settings.angular_position` observations :math:`[\alpha_{1};\delta_{1}]` and :math:`[\alpha_{2};\delta_{2}]` with the same receiver and different transmitters,
  and computes the observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of size two as follows (in the unbiased case):
 
  .. math::
@@ -613,23 +627,23 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
-     ``transmitter``, `transmitter2` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+     ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the relative angular position observable.
 
      )doc" );
@@ -650,16 +664,16 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires that the
      ``observed_body`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the cartesian position observable.
 
 
@@ -685,16 +699,16 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires that the
      ``observed_body`` and ``observer`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the relative Cartesian position observable.
 
 
@@ -720,16 +734,16 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires that the
      ``observed_body`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the cartesian velocity observable.
 
 
@@ -739,11 +753,7 @@ Examples
 
      )doc" );
 
-    m.def( "euler_angles_313",
-           &tom::eulerAngle313ObservableSettings,
-           py::arg( "link_ends" ),
-           py::arg( "bias_settings" ) = nullptr,
-           R"doc(No documentation found.)doc" );
+    m.def( "euler_angles_313", &tom::eulerAngle313ObservableSettings, py::arg( "link_ends" ), py::arg( "bias_settings" ) = nullptr );
 
     m.def( "one_way_doppler_instantaneous",
            &tom::oneWayOpenLoopDoppler,
@@ -825,24 +835,24 @@ Examples
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires that the
      ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- transmitter_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
+ transmitter_proper_time_rate_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.DopplerProperTimeRateSettings`, default = None
      Settings for computing the transmitter proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
 
- receiver_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
+ receiver_proper_time_rate_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.DopplerProperTimeRateSettings`, default = None
      Settings for computing the receiver proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  normalized_with_speed_of_light : bool, default = false
@@ -850,8 +860,8 @@ Examples
 
  Returns
  -------
- :class:`OneWayDopplerObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationModelSettings` class defining the settings for the one-way instantaneous Doppler observable.
 
 
 
@@ -892,20 +902,22 @@ from a concatenation of a one-way Doppler uplink observation
 
  Parameters
  ----------
- uplink_doppler_settings : :class:`OneWayDopplerObservationModelSettings`
+ uplink_doppler_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationModelSettings`
      Settings for uplink leg of one-way observable, created using :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous`
+     with ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
 
- downlink_doppler_settings : :class:`OneWayDopplerObservationModelSettings`
+ downlink_doppler_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationModelSettings`
      Settings for downlink leg of one-way observable, created using :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous`
+     with ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
      even if no bias is applied to the two-way observable, the constituent one-way observables may still be biased.
 
  Returns
  -------
- :class:`TwoWayDopplerObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`TwoWayDopplerObservationModelSettings` class defining the settings for the two-way open doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the two-way instantaneous Doppler observable.
 
      )doc" );
 
@@ -932,18 +944,18 @@ for this factory function)
 
 Parameters
 ----------
-link_ends : LinkDefinition
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
     Set of link ends that define the geometry of the observation. This observable requires that the
-    ``transmitter``, ``retransmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+    ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
     List of corrections for the light-time that are to be used. Default is none, which will result
     in the signal being modelled as moving in a straight line with the speed of light
 
-bias_settings : :class:`ObservationBiasSettings`, default = None
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
     Settings for convergence of the light-time
 
 normalized_with_speed_of_light : bool, default = false
@@ -951,8 +963,8 @@ normalized_with_speed_of_light : bool, default = false
 
  Returns
  -------
- :class:`OneWayDopplerObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the two-way instantaneous Doppler observable.
 
 
 
@@ -992,24 +1004,24 @@ normalized_with_speed_of_light : bool, default = false
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires that the
      ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived `OneWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the one-way averaged Doppler observable.
 
 
 
@@ -1045,25 +1057,24 @@ normalized_with_speed_of_light : bool, default = false
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
-     ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
-     as a `retransmitter1`, ``retransmitter2``, .... (with the number of retransmitters to be defined by the user).
+     ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
  :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the two-way averaged Doppler observable.
 
 
 
@@ -1089,25 +1100,17 @@ normalized_with_speed_of_light : bool, default = false
 
  Parameters
  ----------
- link_ends : LinkDefinition
-     Set of link ends that define the geometry of the observation. This observable requires the
-     ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
-     as a ``retransmitter1``, ``retransmitter2``, .... (with the number of retransmitters to be defined by the user).
+ one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` ]
+     List of observation model settings of size two, with the first entry the one-way range settings for the uplink, and the second entry the one-way range settings for the downlink.
+     Each one-way range settings object must have ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
 
- light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-     List of corrections for the light-time that are to be used. Default is none, which will result
-     in the signal being modelled as moving in a straight line with the speed of light
-
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
-     Settings for convergence of the light-time
 
  Returns
  -------
  :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the two-way averaged Doppler observable.
 
 
 
@@ -1138,25 +1141,25 @@ normalized_with_speed_of_light : bool, default = false
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
      ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
-     as a ``retransmitter1``, ``retransmitter2``, .... (with the number of retransmitters to be defined by the user).
+     as ``retransmitter``/``reflector1``, ``reflector2``, .... entries (with the number of intermediate link ends to be defined by the user).
 
- light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
  :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the n-way averaged Doppler observable.
 
 
      )doc" );
@@ -1179,19 +1182,23 @@ normalized_with_speed_of_light : bool, default = false
 
  Parameters
  ----------
- one_way_range_settings : List[ :class:`ObservationModelSettings` ]
+ one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` ]
      List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way averaged range rate observable.
+     Each one-way range settings object must have ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries.
      The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
      ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
      ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+     Settings for convergence of the full n-way light-time calculation.
 
  Returns
  -------
  :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the n-way averaged Doppler observable.
 
 
 
@@ -1214,7 +1221,9 @@ normalized_with_speed_of_light : bool, default = false
 Function for creating settings for a two- or three-way Doppler observation model, as generated by DSN/ESTRACK.
 
 Function for creating settings for a two- or three-way Doppler observation model, as generated by DSN/ESTRACK. This
-model is used for processing of real radio tracking data, for instance from ODF, TNF or TFMS files (see TODO-ADDLINK).
+model is used for processing of real radio tracking data, for instance from `ODF/TRK-2-18 <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/DSN_TRK-2-18/dsn_trk-2-18.2008-02-29.pdf>`__,
+`TNF/TRK-2-34 <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/>`__ or
+`IFMS <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-PRM-0131-V1.0/DOCUMENT/ESA_DOC/IFMS_OCCFTP_10_3_1.PDF>`__ files.
 It requires a frequency calculator to be set for the transmitter.
 
 The Doppler observable at time tag :math:`t_{R}` (in TDB) is computed as follows, based on :cite:p:`moyer2005`:
@@ -1249,18 +1258,18 @@ Typically, these quantities are loaded automatically from the tracking data file
 
 Parameters
 ----------
-link_ends : LinkDefinition
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
     Set of link ends that define the geometry of the observation. This observable requires the
-    ``transmitter``, ``retransmitter1`` and ``receiver`` and  :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
+    ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
     List of corrections for the light-time that are to be used. Default is none, which will result
     in the signal being modelled as moving in a straight line with the speed of light
 
-bias_settings : :class:`ObservationBiasSettings`, default = None
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
     Settings for convergence of the light-time
 
 subtract_doppler_signature : bool, default = true
@@ -1292,24 +1301,24 @@ with the observable in Hz rather than m/s. It requires a frequency calculator to
 
 Parameters
 ----------
-link_ends : LinkDefinition
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
     Set of link ends that define the geometry of the observation. This observable requires that the
-    ``transmitter``, ``retransmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+    ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
     List of corrections for the light-time that are to be used. Default is none, which will result
     in the signal being modelled as moving in a straight line with the speed of light
 
-bias_settings : :class:`ObservationBiasSettings`, default = None
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
     Settings for convergence of the light-time
 
  Returns
  -------
- :class:`OneWayDopplerObservationModelSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the two-way instantaneous Doppler frequency observable.
 
 
 
@@ -1328,7 +1337,9 @@ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default
 Function for creating settings for a two-way range observation model, as generated by DSN/ESTRACK.
 
 Function for creating settings for a two-way range observation model, as generated by DSN/ESTRACK. This
-model is used for processing of real radio tracking data, for instance from ODF, TNF or TFMS files (see TODO-ADDLINK).
+model is used for processing of real radio tracking data, for instance from `ODF/TRK-2-18 <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/DSN_TRK-2-18/dsn_trk-2-18.2008-02-29.pdf>`__,
+`TNF/TRK-2-34 <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/>`__ or
+`IFMS <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-PRM-0131-V1.0/DOCUMENT/ESA_DOC/IFMS_OCCFTP_10_3_1.PDF>`__ files.
 It requires a frequency calculator to be set for the transmitter.
 
 The range observable at time tag :math:`t_{R}` (in TDB) is computed as follows, based on :cite:p:`moyer2005`:
@@ -1368,18 +1379,18 @@ Typically, these quantities are loaded automatically from the tracking data file
 
 Parameters
 ----------
-link_ends : LinkDefinition
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
     Set of link ends that define the geometry of the observation. This observable requires the
-    ``transmitter``, ``retransmitter1`` and ``receiver`` and  :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
+    ``transmitter``, ``retransmitter`` (or ``reflector1``) and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
     List of corrections for the light-time that are to be used. Default is none, which will result
     in the signal being modelled as moving in a straight line with the speed of light
 
-bias_settings : :class:`ObservationBiasSettings`, default = None
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
     Settings for convergence of the light-time
 
 Returns
@@ -1430,11 +1441,11 @@ Returns
 
  Parameters
  ----------
- link_ends : LinkDefinition
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the observation. This observable requires the
      ``transmitter``, ``receiver`` and ``receiver2`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- link_ends : TimeScales, default = tdb_scale
+ time_difference_time_scale : :class:`~tudatpy.astro.time_representation.TimeScales`, default = ``tdb_scale``
      Time scale in which the epochs :math:`t_{R,1}` and :math:`t_{R,2}` are expressed before differencing to compute the observation
 
 
@@ -1442,15 +1453,15 @@ Returns
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`ObservationModelSettings`
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the differenced time of arrival model.
 
 
@@ -1509,9 +1520,9 @@ Returns
 
 
     m.def( "get_observable_size",
-       &tom::getObservableSize,
-       py::arg( "observable_type" ),
-       R"doc(
+           &tom::getObservableSize,
+           py::arg( "observable_type" ),
+           R"doc(
  Function to get the size of an observable of a given type.
 
  Parameters
@@ -1610,6 +1621,7 @@ Returns
               ObservationModelSettings
                   Settings object that can be used to create a Doppler measured frequency observation model for the specified link.
            )doc" );
+
     m.def( "one_way_doppler_measured_frequency",
            []( const tom::LinkDefinition& link_ends,
                const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >& light_time_correction_settings,

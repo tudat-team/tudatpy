@@ -80,6 +80,9 @@ set(ORBIT_DETERMINATION_TEST_PRIVATE_LINKS
 )
 
 TUDAT_ADD_TEST_CASE(EstimationInput
+    SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/unitTestEstimationInputCovariance.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unitTestEstimationInputWeightsAndConvergence.cpp
     PRIVATE_LINKS
     ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
     )

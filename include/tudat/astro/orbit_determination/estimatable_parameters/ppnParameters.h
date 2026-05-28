@@ -41,7 +41,7 @@ public:
     }
 
     //! Destructor
-    ~PPNParameterGamma( ) { }
+    ~PPNParameterGamma( ) {}
 
     //! Function to get the current value of the PPN parameter gamma.
     /*!
@@ -98,7 +98,7 @@ public:
     }
 
     //! Destructor
-    ~PPNParameterBeta( ) { }
+    ~PPNParameterBeta( ) {}
 
     //! Function to get the current value of the PPN parameter beta.
     /*!

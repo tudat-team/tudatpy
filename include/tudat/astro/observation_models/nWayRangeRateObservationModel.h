@@ -87,7 +87,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) override
     {
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
@@ -145,7 +145,7 @@ public:
         return arcStartObservationModel_;
     }
 
-    void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator )
+    void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator ) override
     {
         arcStartObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
         arcEndObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
@@ -153,10 +153,25 @@ public:
 
     void setFrequencyInterpolatorAndTurnaroundRatio(
             std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio ) override
     {
         arcStartObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
         arcEndObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap =
+                arcStartObservationModel_->getLegLightTimeCalculators( );
+        const std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > endLegMap =
+                arcEndObservationModel_->getLegLightTimeCalculators( );
+        for( const auto& endLegEntry : endLegMap )
+        {
+            legMap[ endLegEntry.first ].insert(
+                    legMap[ endLegEntry.first ].end( ), endLegEntry.second.begin( ), endLegEntry.second.end( ) );
+        }
+        return legMap;
     }
 
 private:
