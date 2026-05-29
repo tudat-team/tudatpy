@@ -159,12 +159,12 @@ public:
             case observation_models::one_way_doppler_measured_frequency: {
                 // One-way Doppler measured frequency: f_rx = f_tx * (1 + D)
                 // The partial is df_rx/dx = f_tx * dD/dx
-                
+
                 // Cast the observation model to get the underlying one-way Doppler model
-                std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > > 
-                        owdmfObservationModel = std::dynamic_pointer_cast< 
+                std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >
+                        owdmfObservationModel = std::dynamic_pointer_cast<
                                 observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >(
-                                        observationModel );
+                                observationModel );
                 if( owdmfObservationModel == nullptr )
                 {
                     throw std::runtime_error(
@@ -174,7 +174,7 @@ public:
 
                 // Get the underlying one-way Doppler model
                 auto oneWayDopplerModel = owdmfObservationModel->getOneWayDopplerModel( );
-                
+
                 // Create proper time partials if available
                 std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = createDopplerProperTimePartials(
                         oneWayDopplerModel->getTransmitterProperTimeRateCalculator( ), linkEnds, observation_models::transmitter );
@@ -213,20 +213,20 @@ public:
                 // Get the frequency interpolator from the observation model
                 auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
                 auto timeScaleConverter = owdmfObservationModel->getTimeScaleConverter( );
-                
+
                 // Create a function that returns the transmitted frequency at a given transmission time and state.
                 // The frequency interpolator is queried in UTC to match the observation model.
                 std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction =
-                    [frequencyInterpolator, timeScaleConverter]( const double time, const Eigen::Vector6d& transmitterState ) -> double {
-                        const double transmitterUtcTime = timeScaleConverter->template getCurrentTime< double >(
+                        [ frequencyInterpolator, timeScaleConverter ]( const double time,
+                                                                       const Eigen::Vector6d& transmitterState ) -> double {
+                    const double transmitterUtcTime = timeScaleConverter->template getCurrentTime< double >(
                             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, transmitterState.segment< 3 >( 0 ) );
-                        return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime );
-                        };
+                    return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime );
+                };
 
                 // Create the OWDMF scaling that wraps the one-way Doppler scaling and multiplies by f_tx
-                positionPartialScaler = std::make_shared< OneWayDopplerMeasuredFrequencyScaling >(
-                        oneWayDopplerScaling,
-                        transmittedFrequencyFunction );
+                positionPartialScaler =
+                        std::make_shared< OneWayDopplerMeasuredFrequencyScaling >( oneWayDopplerScaling, transmittedFrequencyFunction );
 
                 break;
             }

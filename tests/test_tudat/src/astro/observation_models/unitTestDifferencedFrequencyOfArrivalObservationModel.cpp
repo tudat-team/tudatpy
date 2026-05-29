@@ -66,11 +66,10 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
     // Set frequency of transmitter (Mars) to a time-varying X-Band ramp so UTC and TDB paths are distinguishable.
     double transmitterFrequency = 8.4e9;
     bodies.getBody( "Mars" )->getVehicleSystems( )->setTransmittedFrequencyCalculator(
-            std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                    std::vector< Time >{ initialEphemerisTime - buffer },
-                    std::vector< Time >{ finalEphemerisTime + buffer },
-                    std::vector< double >{ 1.0 },
-                    std::vector< double >{ transmitterFrequency } ) );
+            std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >( std::vector< Time >{ initialEphemerisTime - buffer },
+                                                                                       std::vector< Time >{ finalEphemerisTime + buffer },
+                                                                                       std::vector< double >{ 1.0 },
+                                                                                       std::vector< double >{ transmitterFrequency } ) );
 
     // Define link ends for observations.
     LinkEnds linkEnds1;
@@ -174,12 +173,16 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrival )
         else if( testTimeScale == 1 )
         {
             std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
-            Time receptionUtcTime = defaultTimeConverter->getCurrentTime< Time >(
-                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, receiverObservationTime,
-                    getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
-            Time receptionTdbTime = defaultTimeConverter->getCurrentTime< Time >(
-                    basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcTime,
-                    getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
+            Time receptionUtcTime =
+                    defaultTimeConverter->getCurrentTime< Time >( basic_astrodynamics::tdb_scale,
+                                                                  basic_astrodynamics::utc_scale,
+                                                                  receiverObservationTime,
+                                                                  getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
+            Time receptionTdbTime =
+                    defaultTimeConverter->getCurrentTime< Time >( basic_astrodynamics::utc_scale,
+                                                                  basic_astrodynamics::tdb_scale,
+                                                                  receptionUtcTime,
+                                                                  getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
 
             BOOST_CHECK_SMALL( static_cast< double >( receptionTdbTime - receiverObservationTime ), 5.0E-13 );
             BOOST_CHECK_SMALL( ( firstFrequency - secondFrequency ) - differencedFrequencyOfArrival, 5.0E-13 );

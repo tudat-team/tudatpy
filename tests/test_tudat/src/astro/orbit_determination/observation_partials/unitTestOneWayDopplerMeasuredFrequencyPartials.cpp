@@ -79,19 +79,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyPartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+        lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
         std::shared_ptr< ObservationModel< 1 > > measuredFreqModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        oneWayDopplerMeasuredFrequencySettings(
-                                linkEnds,
-                                lightTimeCorrectionSettings ),
-                        bodies );
+                        oneWayDopplerMeasuredFrequencySettings( linkEnds, lightTimeCorrectionSettings ), bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
         printEstimatableParameterEntries( fullEstimatableParameterSet );
 
@@ -130,19 +125,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyPartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+        lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
         std::shared_ptr< ObservationModel< 1 > > measuredFreqModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        oneWayDopplerMeasuredFrequencySettings(
-                                linkEnds,
-                                lightTimeCorrectionSettings ),
-                        bodies );
+                        oneWayDopplerMeasuredFrequencySettings( linkEnds, lightTimeCorrectionSettings ), bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
         printEstimatableParameterEntries( fullEstimatableParameterSet );
 

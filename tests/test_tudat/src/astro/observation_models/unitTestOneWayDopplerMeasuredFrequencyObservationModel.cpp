@@ -88,15 +88,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyCoreObservable )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create one-way Doppler measured frequency observation settings via the convenience function
-    std::shared_ptr< ObservationModelSettings > measuredFreqSettings = oneWayDopplerMeasuredFrequencySettings(
-            linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale );
+    std::shared_ptr< ObservationModelSettings > measuredFreqSettings =
+            oneWayDopplerMeasuredFrequencySettings( linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale );
 
     // Create a plain one-way Doppler observation model for cross-validation.
     // normalizeWithSpeedOfLight = true gives fractional Doppler D = (dt_rx/dt_tx - 1).
-    std::shared_ptr< ObservationModelSettings > plainDopplerSettings =
-            std::make_shared< OneWayDopplerObservationModelSettings >(
-                    linkEnds, lightTimeCorrectionSettings, nullptr, nullptr, nullptr,
-                    std::make_shared< LightTimeConvergenceCriteria >( ), true );
+    std::shared_ptr< ObservationModelSettings > plainDopplerSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
+            linkEnds, lightTimeCorrectionSettings, nullptr, nullptr, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), true );
 
     // Create observation models.
     std::shared_ptr< ObservationModel< 1, double, Time > > measuredFreqModel =
@@ -125,20 +123,19 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyCoreObservable )
     //           << "Difference: " << measuredFrequency - expectedMeasuredFrequency << std::endl;
 
     // The measured frequency and expected value should agree to numerical precision
-    BOOST_CHECK_CLOSE_FRACTION( measuredFrequency, expectedMeasuredFrequency,
-                                4.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( measuredFrequency, expectedMeasuredFrequency, 4.0 * std::numeric_limits< double >::epsilon( ) );
 
     // Verify that link-end times agree between the two models
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesMeasFreq.at( 0 ), linkEndTimesDoppler.at( 0 ),
-                                4.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesMeasFreq.at( 1 ), linkEndTimesDoppler.at( 1 ),
-                                4.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            linkEndTimesMeasFreq.at( 0 ), linkEndTimesDoppler.at( 0 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            linkEndTimesMeasFreq.at( 1 ), linkEndTimesDoppler.at( 1 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
 
     // Verify that link-end states agree between the two models
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesMeasFreq.at( 0 ), linkEndStatesDoppler.at( 0 ),
-                                       ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesMeasFreq.at( 1 ), linkEndStatesDoppler.at( 1 ),
-                                       ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            linkEndStatesMeasFreq.at( 0 ), linkEndStatesDoppler.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            linkEndStatesMeasFreq.at( 1 ), linkEndStatesDoppler.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 /*
@@ -173,8 +170,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyInvalidLinkEnd )
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "DSS-13" );
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
-    std::shared_ptr< ObservationModelSettings > measuredFreqSettings =
-            oneWayDopplerMeasuredFrequencySettings( linkEnds );
+    std::shared_ptr< ObservationModelSettings > measuredFreqSettings = oneWayDopplerMeasuredFrequencySettings( linkEnds );
 
     std::shared_ptr< ObservationModel< 1, double, Time > > measuredFreqModel =
             ObservationModelCreator< 1, double, Time >::createObservationModel( measuredFreqSettings, bodies );
@@ -184,10 +180,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyInvalidLinkEnd )
     std::vector< Eigen::Vector6d > linkEndStates;
 
     // Using 'transmitter' as reference link end must throw
-    BOOST_CHECK_THROW(
-            measuredFreqModel->computeObservationsWithLinkEndData(
-                    observationTime, transmitter, linkEndTimes, linkEndStates ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( measuredFreqModel->computeObservationsWithLinkEndData( observationTime, transmitter, linkEndTimes, linkEndStates ),
+                       std::runtime_error );
 }
 
 /*
@@ -228,19 +222,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyBiases )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Define bias values
-    double absoluteBias = 1.0e3;    // 1 kHz absolute bias
-    double relativeBias = 1.0e-6;   // 1 ppm relative bias
+    double absoluteBias = 1.0e3;   // 1 kHz absolute bias
+    double relativeBias = 1.0e-6;  // 1 ppm relative bias
 
     // Create bias settings
     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
     biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( absoluteBias ), true ) );
     biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( relativeBias ), false ) );
-    std::shared_ptr< ObservationBiasSettings > biasSettings =
-            std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
+    std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
     // Create biased observation model via the convenience function
-    std::shared_ptr< ObservationModelSettings > biasedSettings = oneWayDopplerMeasuredFrequencySettings(
-            linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale, biasSettings );
+    std::shared_ptr< ObservationModelSettings > biasedSettings =
+            oneWayDopplerMeasuredFrequencySettings( linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale, biasSettings );
 
     std::shared_ptr< ObservationModel< 1, double, Time > > biasedModel =
             ObservationModelCreator< 1, double, Time >::createObservationModel( biasedSettings, bodies );
@@ -254,8 +247,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyBiases )
     // Verify: biased = absoluteBias + (1 + relativeBias) * ideal
     double expectedBiased = absoluteBias + ( 1.0 + relativeBias ) * idealObservation;
 
-    std::cout << std::setprecision( 16 )
-              << "Ideal observation:  " << idealObservation << std::endl
+    std::cout << std::setprecision( 16 ) << "Ideal observation:  " << idealObservation << std::endl
               << "Biased observation: " << biasedObservation << std::endl
               << "Expected biased:    " << expectedBiased << std::endl
               << "Difference: " << biasedObservation - expectedBiased << std::endl;
@@ -300,13 +292,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyMultipleEpochs )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create both models
-    std::shared_ptr< ObservationModelSettings > measuredFreqSettings = oneWayDopplerMeasuredFrequencySettings(
-            linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale );
+    std::shared_ptr< ObservationModelSettings > measuredFreqSettings =
+            oneWayDopplerMeasuredFrequencySettings( linkEnds, lightTimeCorrectionSettings, basic_astrodynamics::tdb_scale );
 
-    std::shared_ptr< ObservationModelSettings > plainDopplerSettings =
-            std::make_shared< OneWayDopplerObservationModelSettings >(
-                    linkEnds, lightTimeCorrectionSettings, nullptr, nullptr, nullptr,
-                    std::make_shared< LightTimeConvergenceCriteria >( ), true );
+    std::shared_ptr< ObservationModelSettings > plainDopplerSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
+            linkEnds, lightTimeCorrectionSettings, nullptr, nullptr, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), true );
 
     std::shared_ptr< ObservationModel< 1, double, Time > > measuredFreqModel =
             ObservationModelCreator< 1, double, Time >::createObservationModel( measuredFreqSettings, bodies );
@@ -317,26 +307,25 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerMeasuredFrequencyMultipleEpochs )
     int numberOfTestEpochs = 5;
     for( int i = 0; i < numberOfTestEpochs; i++ )
     {
-        Time observationTime = initialEphemerisTime + ( i + 1 ) * ( finalEphemerisTime - initialEphemerisTime ) / ( numberOfTestEpochs + 1 );
+        Time observationTime =
+                initialEphemerisTime + ( i + 1 ) * ( finalEphemerisTime - initialEphemerisTime ) / ( numberOfTestEpochs + 1 );
 
         std::vector< double > linkEndTimesMF, linkEndTimesD;
         std::vector< Eigen::Vector6d > linkEndStatesMF, linkEndStatesD;
 
-        double measuredFrequency = measuredFreqModel->computeObservationsWithLinkEndData(
-                observationTime, receiver, linkEndTimesMF, linkEndStatesMF )( 0 );
+        double measuredFrequency =
+                measuredFreqModel->computeObservationsWithLinkEndData( observationTime, receiver, linkEndTimesMF, linkEndStatesMF )( 0 );
 
-        double dopplerObservable = plainDopplerModel->computeObservationsWithLinkEndData(
-                observationTime, receiver, linkEndTimesD, linkEndStatesD )( 0 );
+        double dopplerObservable =
+                plainDopplerModel->computeObservationsWithLinkEndData( observationTime, receiver, linkEndTimesD, linkEndStatesD )( 0 );
 
         double expectedMeasuredFrequency = transmitterFrequency * ( 1.0 + dopplerObservable );
 
-        std::cout << std::setprecision( 16 )
-                  << "Epoch " << i << ": f_rx = " << measuredFrequency
-                  << ", f_tx*(1+D) = " << expectedMeasuredFrequency
-                  << ", diff = " << measuredFrequency - expectedMeasuredFrequency << std::endl;
+        std::cout << std::setprecision( 16 ) << "Epoch " << i << ": f_rx = " << measuredFrequency
+                  << ", f_tx*(1+D) = " << expectedMeasuredFrequency << ", diff = " << measuredFrequency - expectedMeasuredFrequency
+                  << std::endl;
 
-        BOOST_CHECK_CLOSE_FRACTION( measuredFrequency, expectedMeasuredFrequency,
-                                    4.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( measuredFrequency, expectedMeasuredFrequency, 4.0 * std::numeric_limits< double >::epsilon( ) );
     }
 }
 

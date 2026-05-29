@@ -26,17 +26,19 @@ std::pair< observation_models::LinkEndType, observation_models::LinkEndType > ge
 {
     if( undifferencedReferenceLinkEndType != observation_models::receiver )
     {
-        throw std::runtime_error( "Error when getting differenced reference link ends for differenced time of arrival, input is not supported" );
+        throw std::runtime_error(
+                "Error when getting differenced reference link ends for differenced time of arrival, input is not supported" );
     }
     return std::make_pair( observation_models::receiver, observation_models::transmitter );
 }
 
-std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes(
-        const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType >
+getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes( const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
 {
     if( undifferencedReferenceLinkEndType != observation_models::receiver )
     {
-        throw std::runtime_error( "Error when getting differenced reference link ends for differenced frequency of arrival, input is not supported" );
+        throw std::runtime_error(
+                "Error when getting differenced reference link ends for differenced frequency of arrival, input is not supported" );
     }
     return std::make_pair( observation_models::receiver, observation_models::receiver );
 }

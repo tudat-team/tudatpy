@@ -127,21 +127,18 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrivalDirectPartial )
             createParametersToEstimate( parameterNames, bodies );
 
     // Create partials for all three models
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
-               std::shared_ptr< PositionPartialScaling > >
-            firstFreqPartials = ObservationPartialCreator< 1, double, Time >::createObservationPartials(
-                    firstFreqModel, bodies, parametersToEstimate );
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
-               std::shared_ptr< PositionPartialScaling > >
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > >
+            firstFreqPartials =
+                    ObservationPartialCreator< 1, double, Time >::createObservationPartials( firstFreqModel, bodies, parametersToEstimate );
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > >
             secondFreqPartials = ObservationPartialCreator< 1, double, Time >::createObservationPartials(
                     secondFreqModel, bodies, parametersToEstimate );
-    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
-               std::shared_ptr< PositionPartialScaling > >
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >, std::shared_ptr< PositionPartialScaling > >
             differencedPartials = ObservationPartialCreator< 1, double, Time >::createObservationPartials(
                     differencedModel, bodies, parametersToEstimate );
 
-    std::cout << "Partials sizes: " << differencedPartials.first.size( ) << " "
-              << firstFreqPartials.first.size( ) << " " << secondFreqPartials.first.size( ) << std::endl;
+    std::cout << "Partials sizes: " << differencedPartials.first.size( ) << " " << firstFreqPartials.first.size( ) << " "
+              << secondFreqPartials.first.size( ) << std::endl;
 
     // Compute observations and partials
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
@@ -152,39 +149,38 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrivalDirectPartial )
             receiverObservationTime, receiver, linkEndTimesDifferenced, linkEndStatesDifferenced );
     differencedPartials.second->update( linkEndStatesDifferenced, linkEndTimesDifferenced, receiver, differencedObs );
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > differencedPartialValues =
-            differencedPartials.first.begin( )->second->calculatePartial(
-                    linkEndStatesDifferenced, linkEndTimesDifferenced, receiver );
+            differencedPartials.first.begin( )->second->calculatePartial( linkEndStatesDifferenced, linkEndTimesDifferenced, receiver );
 
-    Eigen::VectorXd firstFreqObs = firstFreqModel->computeObservationsWithLinkEndData(
-            receiverObservationTime, receiver, linkEndTimesFreq1, linkEndStatesFreq1 );
+    Eigen::VectorXd firstFreqObs =
+            firstFreqModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesFreq1, linkEndStatesFreq1 );
     firstFreqPartials.second->update( linkEndStatesFreq1, linkEndTimesFreq1, receiver, firstFreqObs );
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > firstFreqPartialValues =
             firstFreqPartials.first.begin( )->second->calculatePartial( linkEndStatesFreq1, linkEndTimesFreq1, receiver );
 
-    Eigen::VectorXd secondFreqObs = secondFreqModel->computeObservationsWithLinkEndData(
-            receiverObservationTime, receiver, linkEndTimesFreq2, linkEndStatesFreq2 );
+    Eigen::VectorXd secondFreqObs =
+            secondFreqModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesFreq2, linkEndStatesFreq2 );
     secondFreqPartials.second->update( linkEndStatesFreq2, linkEndTimesFreq2, receiver, secondFreqObs );
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > secondFreqPartialValues =
             secondFreqPartials.first.begin( )->second->calculatePartial( linkEndStatesFreq2, linkEndTimesFreq2, receiver );
 
     // Verify transmitter times match (both sub-models evaluated at same receiver time, so transmitter times should be close)
-    BOOST_CHECK_CLOSE_FRACTION( firstFreqPartialValues.at( 0 ).second, differencedPartialValues.at( 0 ).second,
+    BOOST_CHECK_CLOSE_FRACTION( firstFreqPartialValues.at( 0 ).second,
+                                differencedPartialValues.at( 0 ).second,
                                 ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    BOOST_CHECK_CLOSE_FRACTION( secondFreqPartialValues.at( 0 ).second, differencedPartialValues.at( 1 ).second,
+    BOOST_CHECK_CLOSE_FRACTION( secondFreqPartialValues.at( 0 ).second,
+                                differencedPartialValues.at( 1 ).second,
                                 ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
     // Verify: differenced partial = first partial - second partial
     // The first entry in differencedPartialValues should equal firstFreqPartialValues
     // The second entry (negated) should equal secondFreqPartialValues
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            firstFreqPartialValues.at( 0 ).first,
-            ( differencedPartialValues.at( 0 ).first ),
-            ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstFreqPartialValues.at( 0 ).first,
+                                       ( differencedPartialValues.at( 0 ).first ),
+                                       ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            secondFreqPartialValues.at( 0 ).first,
-            ( -differencedPartialValues.at( 1 ).first ),
-            ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( secondFreqPartialValues.at( 0 ).first,
+                                       ( -differencedPartialValues.at( 1 ).first ),
+                                       ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 //! Test partial derivatives of differenced frequency of arrival observable, using general test suite.
@@ -227,8 +223,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrivalPartials )
                         bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
         testObservationPartials< 1 >( differencedFreqModel,
                                       bodies,
@@ -270,8 +265,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedFrequencyOfArrivalPartials )
                         bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
         testObservationPartials< 1 >( differencedFreqModel,
                                       bodies,

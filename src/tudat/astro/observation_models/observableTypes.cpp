@@ -720,8 +720,8 @@ ObservableType getBaseObservableType( const ObservableType observableType )
         case n_way_range:
         case dsn_n_way_range:
         case differenced_time_of_arrival:
-        baseObservableType = one_way_range;
-        break;
+            baseObservableType = one_way_range;
+            break;
         case one_way_doppler:
         case one_way_differenced_range:
         case two_way_doppler:
@@ -730,15 +730,15 @@ ObservableType getBaseObservableType( const ObservableType observableType )
         case dsn_n_way_averaged_doppler:
         case doppler_measured_frequency:
         case one_way_doppler_measured_frequency:
-        baseObservableType = one_way_doppler;
-        break;
+            baseObservableType = one_way_doppler;
+            break;
         case angular_position:
         case relative_angular_position:
-        baseObservableType = angular_position;
-        break;
+            baseObservableType = angular_position;
+            break;
         case differenced_frequency_of_arrival:
-        baseObservableType = one_way_doppler_measured_frequency;
-        break;
+            baseObservableType = one_way_doppler_measured_frequency;
+            break;
         default:
             throw std::runtime_error( "Error when getting base observable type for " + getObservableName( observableType ) +
                                       ", no such type exists" );
@@ -1608,7 +1608,7 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
 {
     std::map< LinkEndType, int > singleLinkStateEntries;
     if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler ||
-        observableType == one_way_doppler_measured_frequency)
+        observableType == one_way_doppler_measured_frequency )
     {
         singleLinkStateEntries = oneWayLinkStateEntries;
     }

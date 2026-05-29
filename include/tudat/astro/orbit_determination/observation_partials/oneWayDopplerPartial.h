@@ -226,10 +226,9 @@ public:
                           const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
                           const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr,
                           const observation_models::ObservableType observableType = observation_models::one_way_doppler ):
-        DirectPositionPartialScaling< 1 >( observableType ),
-        transmitterAccelerationFunction_( transmitterAccelerationFunction ), receiverAccelerationFunction_( receiverAccelerationFunction ),
-        divisionTerm_( divisionTerm ), transmitterProperTimePartials_( transmitterProperTimePartials ),
-        receiverProperTimePartials_( receiverProperTimePartials )
+        DirectPositionPartialScaling< 1 >( observableType ), transmitterAccelerationFunction_( transmitterAccelerationFunction ),
+        receiverAccelerationFunction_( receiverAccelerationFunction ), divisionTerm_( divisionTerm ),
+        transmitterProperTimePartials_( transmitterProperTimePartials ), receiverProperTimePartials_( receiverProperTimePartials )
     {
         this->doesVelocityScalingFactorExist_ = true;
     }
@@ -455,23 +454,22 @@ public:
     /*!
      * Constructor
      * \param oneWayDopplerScaling The underlying one-way Doppler scaling object
-         * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time and
-         *        transmitter state. The time argument is the TDB transmission time; the function is responsible for converting
-         *        it to the time scale required by the frequency interpolator.
+     * \param transmittedFrequencyFunction Function returning the transmitted frequency at a given transmission time and
+     *        transmitter state. The time argument is the TDB transmission time; the function is responsible for converting
+     *        it to the time scale required by the frequency interpolator.
      */
     OneWayDopplerMeasuredFrequencyScaling(
             const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling,
-             const std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction ):
+            const std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction ):
         DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler_measured_frequency ),
-        oneWayDopplerScaling_( oneWayDopplerScaling ),
-        transmittedFrequencyFunction_( transmittedFrequencyFunction ),
+        oneWayDopplerScaling_( oneWayDopplerScaling ), transmittedFrequencyFunction_( transmittedFrequencyFunction ),
         currentTransmittedFrequency_( 0.0 )
     {
         this->doesVelocityScalingFactorExist_ = true;
     }
 
     //! Destructor
-    ~OneWayDopplerMeasuredFrequencyScaling( ) { }
+    ~OneWayDopplerMeasuredFrequencyScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!
@@ -488,7 +486,7 @@ public:
     {
         // Update the underlying one-way Doppler scaling
         oneWayDopplerScaling_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
-        
+
         // Get the transmitted frequency at transmission time (index 0) using the transmitter state for TDB->UTC conversion.
         currentTransmittedFrequency_ = transmittedFrequencyFunction_( times.at( 0 ), linkEndStates.at( 0 ) );
     }

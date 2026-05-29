@@ -50,16 +50,16 @@ public:
         ObservationModel< 1, ObservationScalarType, TimeType >( differenced_frequency_of_arrival, linkEnds, observationBiasCalculator ),
         firstDopplerModel_( firstDopplerModel ), secondDopplerModel_( secondDopplerModel ), observableTimeScale_( observableTimeScale )
     {
-        if( linkEnds.size() != 3 )
+        if( linkEnds.size( ) != 3 )
         {
             throw std::runtime_error(
                     "Error when creating differenced frequency of arrival observation model, exactly 3 link ends required" );
         }
-        if( observableTimeScale_ != basic_astrodynamics::tdb_scale &&
-            observableTimeScale_ != basic_astrodynamics::utc_scale )
+        if( observableTimeScale_ != basic_astrodynamics::tdb_scale && observableTimeScale_ != basic_astrodynamics::utc_scale )
         {
             throw std::runtime_error(
-                    "Error when creating differenced frequency of arrival observation model, only TDB and UTC time scales are currently supported" );
+                    "Error when creating differenced frequency of arrival observation model, only TDB and UTC time scales are currently "
+                    "supported" );
         }
         if( firstDopplerModel_ == nullptr || secondDopplerModel_ == nullptr )
         {
@@ -71,7 +71,8 @@ public:
             secondDopplerModel_->getObservableTimeScale( ) != observableTimeScale_ )
         {
             throw std::runtime_error(
-                    "Error when creating differenced frequency of arrival observation model, child measured-frequency models must use the same time scale as the wrapper" );
+                    "Error when creating differenced frequency of arrival observation model, child measured-frequency models must use the "
+                    "same time scale as the wrapper" );
         }
     }
 
@@ -83,7 +84,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
         if( linkEndAssociatedWithTime == transmitter || linkEndAssociatedWithTime == receiver2 )
         {
@@ -97,10 +98,10 @@ public:
         std::vector< double > firstLinkEndTimes, secondLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates, secondLinkEndStates;
         Eigen::Matrix< ObservationScalarType, 1, 1 > firstDopplerObservation = firstDopplerModel_->computeIdealObservationsWithLinkEndData(
-            time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
+                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettingsInput );
         Eigen::Matrix< ObservationScalarType, 1, 1 > secondDopplerObservation =
                 secondDopplerModel_->computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettingsInput );
+                        time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettingsInput );
         // Combine link end times and states
         // Store all 4 link end times/states: first transmitter, first receiver, second transmitter, second receiver
         linkEndTimes.resize( 4 );
