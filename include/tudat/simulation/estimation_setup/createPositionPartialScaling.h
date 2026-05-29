@@ -22,6 +22,9 @@
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
+#include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -153,6 +156,80 @@ public:
 
                 break;
             }
+            case observation_models::one_way_doppler_measured_frequency: {
+                // One-way Doppler measured frequency: f_rx = f_tx * (1 + D)
+                // The partial is df_rx/dx = f_tx * dD/dx
+
+                // Cast the observation model to get the underlying one-way Doppler model
+                std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >
+                        owdmfObservationModel = std::dynamic_pointer_cast<
+                                observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >(
+                                observationModel );
+                if( owdmfObservationModel == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating one-way Doppler measured frequency partial scaling object, "
+                            "input observation model is incompatible" );
+                }
+
+                // Get the underlying one-way Doppler model
+                auto oneWayDopplerModel = owdmfObservationModel->getOneWayDopplerModel( );
+
+                // Create proper time partials if available
+                std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = createDopplerProperTimePartials(
+                        oneWayDopplerModel->getTransmitterProperTimeRateCalculator( ), linkEnds, observation_models::transmitter );
+                std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = createDopplerProperTimePartials(
+                        oneWayDopplerModel->getReceiverProperTimeRateCalculator( ), linkEnds, observation_models::receiver );
+
+                // Create numerical state derivative functions for transmitter and receiver
+                std::function< Eigen::Vector6d( const double ) > transmitterNumericalStateDerivativeFunction =
+                        std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
+                                   simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
+                                           linkEnds.at( observation_models::transmitter ), bodies ),
+                                   std::placeholders::_1,
+                                   100.0,
+                                   numerical_derivatives::order8 );
+                std::function< Eigen::Vector6d( const double ) > receiverNumericalStateDerivativeFunction =
+                        std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
+                                   simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
+                                           linkEnds.at( observation_models::receiver ), bodies ),
+                                   std::placeholders::_1,
+                                   100.0,
+                                   numerical_derivatives::order8 );
+
+                // Create the underlying one-way Doppler scaling (normalized by c)
+                auto oneWayDopplerScaling = std::make_shared< OneWayDopplerScaling >(
+                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector,
+                                   transmitterNumericalStateDerivativeFunction,
+                                   std::placeholders::_1 ),
+                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector,
+                                   receiverNumericalStateDerivativeFunction,
+                                   std::placeholders::_1 ),
+                        oneWayDopplerModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
+                        transmitterProperTimePartials,
+                        receiverProperTimePartials,
+                        observation_models::one_way_doppler );
+
+                // Get the frequency interpolator from the observation model
+                auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
+                auto timeScaleConverter = owdmfObservationModel->getTimeScaleConverter( );
+
+                // Create a function that returns the transmitted frequency at a given transmission time and state.
+                // The frequency interpolator is queried in UTC to match the observation model.
+                std::function< double( const double, const Eigen::Vector6d& ) > transmittedFrequencyFunction =
+                        [ frequencyInterpolator, timeScaleConverter ]( const double time,
+                                                                       const Eigen::Vector6d& transmitterState ) -> double {
+                    const double transmitterUtcTime = timeScaleConverter->template getCurrentTime< double >(
+                            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, transmitterState.segment< 3 >( 0 ) );
+                    return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( transmitterUtcTime );
+                };
+
+                // Create the OWDMF scaling that wraps the one-way Doppler scaling and multiplies by f_tx
+                positionPartialScaler =
+                        std::make_shared< OneWayDopplerMeasuredFrequencyScaling >( oneWayDopplerScaling, transmittedFrequencyFunction );
+
+                break;
+            }
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -212,6 +289,26 @@ public:
                         secondPositionPartialScaling,
                         observation_models::getUndifferencedTimeAndStateIndices( observation_models::differenced_time_of_arrival, 3 ),
                         &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
+                break;
+            }
+            case observation_models::differenced_frequency_of_arrival: {
+                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( firstPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced frequency of arrival scaling object, first FOA partial is of incompatible "
+                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                }
+                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( secondPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced frequency of arrival scaling object, second FOA partial is of incompatible "
+                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                }
+                positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling,
+                        secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::differenced_frequency_of_arrival, 3 ),
+                        &getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
             case observation_models::n_way_differenced_range:

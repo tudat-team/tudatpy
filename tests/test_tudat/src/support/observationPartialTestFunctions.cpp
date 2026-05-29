@@ -443,6 +443,8 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     {
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
                     }
+                    // No duplication needed for DFOA: its transmitter already returns two indices {0, 2}
+                    // from getLinkEndIndicesForLinkEndTypeAtObservable, matching its 4-element layout.
                 }
             }
         }

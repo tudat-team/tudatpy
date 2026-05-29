@@ -42,8 +42,9 @@ enum ObservableType {
     dsn_n_way_averaged_doppler = 13,
     doppler_measured_frequency = 14,
     dsn_n_way_range = 15,
-    differenced_time_of_arrival = 16
-
+    differenced_time_of_arrival = 16,
+    one_way_doppler_measured_frequency = 17,
+    differenced_frequency_of_arrival = 18
 };
 
 // std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,

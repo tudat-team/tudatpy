@@ -22,6 +22,7 @@
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
@@ -113,6 +114,11 @@ public:
             const unsigned int pathIndex = 0 )
     {
         return getFullLinkLightTimeCalculatorFromBase( pathIndex );
+    }
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getTimeScaleConverter( )
+    {
+        return timeScaleConverter_;
     }
 
     std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > getObservationLightTimeCalculators( )
