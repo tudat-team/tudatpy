@@ -236,6 +236,12 @@ public:
         return oneWayDopplerModel_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return oneWayDopplerModel_->getLegLightTimeCalculators( );
+    }
+
     //! Function to get the frequency interpolator for the transmitting station
     /*!
      * Function to get the frequency interpolator for the transmitting station

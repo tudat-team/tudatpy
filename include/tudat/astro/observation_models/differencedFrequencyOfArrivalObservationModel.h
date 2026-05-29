@@ -130,6 +130,13 @@ public:
         return secondDopplerModel_;
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), { firstDopplerModel_->getLightTimeCalculator( ) } },
+                 { std::make_pair( transmitter, receiver2 ), { secondDopplerModel_->getLightTimeCalculator( ) } } };
+    }
+
     [[nodiscard]] basic_astrodynamics::TimeScales getObservableTimeScale( ) const
     {
         return observableTimeScale_;
