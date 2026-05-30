@@ -2581,7 +2581,7 @@ bool
              Observable position of the point in the camera frame, typically expressed in pixel coordinates.
         )doc" )
             .def_property_readonly(
-                    "quat",
+                    "quaternion",
                     []( const tsm::Camera& self ) -> Eigen::Vector4d {
                         Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
                         return Eigen::Vector4d( q.w( ), q.x( ), q.y( ), q.z( ) );
