@@ -48,6 +48,7 @@
 #include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
+#include <tudat/math/basic/linearAlgebra.h>
 
 #include "scalarTypes.h"
 
@@ -2584,7 +2585,7 @@ bool
                     "quaternion",
                     []( const tsm::Camera& self ) -> Eigen::Vector4d {
                         Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
-                        return Eigen::Vector4d( q.w( ), q.x( ), q.y( ), q.z( ) );
+                        return tudat::linear_algebra::convertQuaternionToVectorFormat(q);
                     },
                     R"doc(
             **read-only**
