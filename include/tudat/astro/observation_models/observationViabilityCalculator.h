@@ -115,7 +115,7 @@ bool isObservationViable(
  */
 bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
                           const std::vector< double >& times,
-                          const Eigen::VectorXd& observationValue,
+                          const Eigen::VectorXd& observationValue = Eigen::VectorXd( ),
                           const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
 
 //! Function to check whether an observation is possible based on minimum elevation angle criterion at one link end.
