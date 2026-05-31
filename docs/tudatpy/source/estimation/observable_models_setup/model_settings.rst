@@ -61,6 +61,8 @@ Functions
 
    angular_position
 
+   azimuth_elevation
+
    relative_angular_position
 
    cartesian_position
@@ -112,6 +114,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_measured_frequency
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.angular_position
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.azimuth_elevation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
 

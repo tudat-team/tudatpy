@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
+#include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
 #include "tudat/astro/observation_models/differencedFrequencyOfArrivalObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
@@ -1755,6 +1756,71 @@ public:
 
                 break;
             }
+            case azimuth_elevation_angle: {
+                if( linkEnds.size( ) != 2 )
+                {
+                    std::string errorMessage = "Error when making azimuth/elevation model, " +
+                            std::to_string( linkEnds.size( ) ) + " link ends found";
+                    throw std::runtime_error( errorMessage );
+                }
+                if( linkEnds.count( receiver ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making azimuth/elevation model, no receiver found" );
+                }
+                if( linkEnds.count( transmitter ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making azimuth/elevation model, no transmitter found" );
+                }
+
+                std::shared_ptr< AzimuthElevationObservationModelSettings > azimuthElevationSettings =
+                        std::dynamic_pointer_cast< AzimuthElevationObservationModelSettings >( observationSettings );
+                bool normalizeAzimuth = false;
+                if( azimuthElevationSettings != nullptr )
+                {
+                    normalizeAzimuth = azimuthElevationSettings->normalizeAzimuth_;
+                }
+
+                const LinkEndId stationLinkEnd = linkEnds.at( receiver );
+                if( stationLinkEnd.stationName_ == "" )
+                {
+                    throw std::runtime_error(
+                            "Error when making azimuth/elevation model, receiver link end does not identify a ground station" );
+                }
+                if( bodies.count( stationLinkEnd.bodyName_ ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making azimuth/elevation model, station body " +
+                                              stationLinkEnd.bodyName_ + " not found" );
+                }
+                if( bodies.at( stationLinkEnd.bodyName_ )->getGroundStationMap( ).count( stationLinkEnd.stationName_ ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making azimuth/elevation model, station " + stationLinkEnd.stationName_ +
+                                              " not found on body " + stationLinkEnd.bodyName_ );
+                }
+
+                std::shared_ptr< ObservationBias< 2 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator< 2 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                observationModel = std::make_shared< AzimuthElevationObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds,
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        bodies.at( stationLinkEnd.bodyName_ )
+                                ->getGroundStation( stationLinkEnd.stationName_ )
+                                ->getPointingAnglesCalculator( ),
+                        observationBias,
+                        normalizeAzimuth );
+
+                break;
+            }
             case relative_angular_position: {
                 // Check consistency input.
                 if( linkEnds.size( ) != 3 )
@@ -2180,6 +2246,13 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                     std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );
             singleObservableCorrectionList = ( angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+            break;
+        }
+        case observation_models::azimuth_elevation_angle: {
+            std::shared_ptr< observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > > azimuthElevationModel =
+                    std::dynamic_pointer_cast< observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            singleObservableCorrectionList = ( azimuthElevationModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::one_way_differenced_range: {
