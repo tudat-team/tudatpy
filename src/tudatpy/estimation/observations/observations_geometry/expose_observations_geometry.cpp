@@ -144,8 +144,9 @@ void expose_observations_geometry( py::module& m )
 
  Convert an inertial station-to-target vector to local azimuth and elevation at a ground station.
 
- The supplied vector is rotated to the local topocentric frame of ``station_id`` at ``time``. For topocentric
- direction components :math:`[e,n,u]^T`, the angular convention is
+ The supplied vector is rotated to the station's local topocentric ENU frame at ``time``. This frame is constructed
+ from the station position and the station body's shape model; :math:`[e,n,u]^T` are the east, north and up components
+ of the station-to-target vector in this frame. The angular convention is
 
  .. math::
     A &= \operatorname{atan2}(e,n)\\
@@ -183,7 +184,8 @@ void expose_observations_geometry( py::module& m )
 
  Convert local azimuth and elevation at a ground station to an inertial station-to-target unit vector.
 
- For azimuth :math:`A` and elevation :math:`E`, the topocentric unit vector is
+ For azimuth :math:`A` and elevation :math:`E`, the local topocentric ENU frame is constructed from the station position
+ and the station body's shape model, and the station-to-target unit vector in this frame is
 
  .. math::
     \hat{\mathbf{u}}_{T} =

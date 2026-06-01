@@ -621,8 +621,9 @@ Examples
  .. math::
     \Delta\mathbf{r}=\mathbf{r}_{T}(t_{T})-\mathbf{r}_{R}(t_{R})
 
- and transforms this line-of-sight vector to the receiver station's local topocentric frame at :math:`t_R`. For topocentric components
- :math:`[e,n,u]^T`, it then evaluates
+ and transforms this line-of-sight vector to the receiver station's local topocentric ENU frame at :math:`t_R`.
+ This frame is constructed from the receiver station position and the receiver body's shape model; :math:`[e,n,u]^T`
+ are the east, north and up components of :math:`\Delta\mathbf{r}` in this frame. The observation model then evaluates
 
  .. math::
     A &= \operatorname{atan2}(e,n)\\
