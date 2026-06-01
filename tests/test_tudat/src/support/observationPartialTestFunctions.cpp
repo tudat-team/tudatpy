@@ -41,7 +41,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
                                  const bool useConstantEphemerides,
                                  const double gravitationalParameterScaling,
                                  const bool useConstantRotationalEphemeris,
-                                 const bool moveMarsToMoon )
+                                 const bool moveMarsToMoon,
+                                 const bool useOblateEarthShape )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -53,8 +54,16 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
     bodies.createEmptyBody( "Moon" );
     bodies.createEmptyBody( "Sun" );
 
-    bodies.at( "Earth" )->setShapeModel(
-            std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Earth" ) ) );
+    if( useOblateEarthShape )
+    {
+        bodies.at( "Earth" )->setShapeModel(
+                std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >( 6378137.0, 1.0 / 298.257223563 ) );
+    }
+    else
+    {
+        bodies.at( "Earth" )->setShapeModel(
+                std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Earth" ) ) );
+    }
     bodies.at( "Mars" )->setShapeModel(
             std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Mars" ) ) );
 

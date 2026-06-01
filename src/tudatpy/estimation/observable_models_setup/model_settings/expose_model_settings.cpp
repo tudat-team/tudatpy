@@ -63,6 +63,7 @@ Examples
             .value( "one_way_range_type", tom::ObservableType::one_way_range )
             .value( "n_way_range_type", tom::ObservableType::n_way_range )
             .value( "angular_position_type", tom::ObservableType::angular_position )
+            .value( "azimuth_elevation_type", tom::ObservableType::azimuth_elevation_angle )
             .value( "relative_angular_position_type", tom::ObservableType::relative_angular_position )
             .value( "position_observable_type", tom::ObservableType::position_observable )
             .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
@@ -600,6 +601,59 @@ Examples
 
 
 
+
+     )doc" );
+
+    m.def( "azimuth_elevation",
+           &tom::azimuthElevationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalize_azimuth" ) = false,
+           R"doc(
+
+ Function for creating settings for an azimuth/elevation observable.
+
+ The observable has entries :math:`[A;E]`, where :math:`A` is the local azimuth angle and :math:`E` is the local elevation angle at the receiver ground station.
+ The receiver must identify a ground station. In the unbiased case, the associated observation model first computes
+
+ .. math::
+    \Delta\mathbf{r}=\mathbf{r}_{T}(t_{T})-\mathbf{r}_{R}(t_{R})
+
+ and transforms this line-of-sight vector to the receiver station's local topocentric ENU frame at :math:`t_R`.
+ This frame is constructed from the receiver station position and the receiver body's shape model; :math:`[e,n,u]^T`
+ are the east, north and up components of :math:`\Delta\mathbf{r}` in this frame. The observation model then evaluates
+
+ .. math::
+    A &= \operatorname{atan2}(e,n)\\
+    E &= \operatorname{atan2}(u,\sqrt{e^2+n^2})
+
+ This is the same azimuth/elevation convention used by
+ :func:`~tudatpy.estimation.observations.observations_geometry.inertial_vector_to_azimuth_elevation`.
+
+ Parameters
+ ----------
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+     Set of link ends that define the geometry of the observation. This observable requires ``transmitter`` and ``receiver`` entries,
+     where the ``receiver`` must identify a ground station.
+
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used.
+
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation.
+
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`
+     Settings for convergence of the light-time.
+
+ normalize_azimuth : bool, default = False
+     If true, normalize the azimuth angle to the interval [0, 2*pi).
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+     Settings object defining the azimuth/elevation observable.
 
      )doc" );
 

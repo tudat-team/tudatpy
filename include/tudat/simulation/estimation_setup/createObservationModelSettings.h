@@ -523,6 +523,31 @@ public:
     bool useNormalization_;
 };
 
+class AzimuthElevationObservationModelSettings : public ObservationModelSettings
+{
+public:
+    AzimuthElevationObservationModelSettings( const LinkDefinition linkEnds,
+                                              const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                                                      std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                              const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+                                              const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                                              const bool normalizeAzimuth = false ):
+        ObservationModelSettings( azimuth_elevation_angle,
+                                  linkEnds,
+                                  lightTimeCorrectionsList,
+                                  biasSettings,
+                                  lightTimeConvergenceCriteria,
+                                  basic_astrodynamics::tdb_scale,
+                                  normalizeAzimuth ),
+        normalizeAzimuth_( normalizeAzimuth )
+    {}
+
+    ~AzimuthElevationObservationModelSettings( ) {}
+
+    bool normalizeAzimuth_;
+};
+
 std::vector< LinkDefinition > getObservationModelListLinkEnds(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList );
 
@@ -1190,6 +1215,19 @@ inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
                                                          lightTimeConvergenceCriteria,
                                                          basic_astrodynamics::tdb_scale,
                                                          normalizeRightAscension );
+}
+
+inline std::shared_ptr< ObservationModelSettings > azimuthElevationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool normalizeAzimuth = false )
+{
+    return std::make_shared< AzimuthElevationObservationModelSettings >(
+            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, normalizeAzimuth );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(

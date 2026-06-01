@@ -18,6 +18,8 @@
 
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/azimuthElevationPartial.h"
+#include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
@@ -370,6 +372,18 @@ public:
                     throw std::runtime_error( "Error when making angular position partial; object not recognized" );
                 }
                 positionPartialScaler = std::make_shared< AngularPositionScaling >( angularPositionModel->getNormalizeRightAscension( ) );
+                break;
+            }
+            case observation_models::azimuth_elevation_angle: {
+                std::shared_ptr< observation_models::AzimuthElevationObservationModel< ParameterType, TimeType > > azimuthElevationModel =
+                        std::dynamic_pointer_cast< observation_models::AzimuthElevationObservationModel< ParameterType, TimeType > >(
+                                observationModel );
+                if( azimuthElevationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when making azimuth/elevation partial; object not recognized" );
+                }
+                positionPartialScaler = std::make_shared< AzimuthElevationScaling >( azimuthElevationModel->getPointingAnglesCalculator( ),
+                                                                                     observation_models::receiver );
                 break;
             }
             default:

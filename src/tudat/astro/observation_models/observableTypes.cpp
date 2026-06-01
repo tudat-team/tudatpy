@@ -45,6 +45,7 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
         case one_way_range:
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             break;
         case position_observable:
             break;
@@ -89,6 +90,7 @@ bool isObservableTypeMultiLink( const ObservableType observableType )
         case one_way_range:
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             break;
         case position_observable:
             break;
@@ -137,6 +139,7 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
             isIntegratedType = false;
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             isIntegratedType = false;
             break;
         case position_observable:
@@ -192,6 +195,7 @@ bool requiresTransmittingStation( const ObservableType observableType )
     {
         case one_way_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case position_observable:
         case one_way_doppler:
         case one_way_differenced_range:
@@ -225,6 +229,7 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
     {
         case one_way_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case position_observable:
         case one_way_doppler:
         case one_way_differenced_range:
@@ -259,6 +264,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
     {
         case one_way_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case position_observable:
         case one_way_doppler:
         case one_way_differenced_range:
@@ -307,6 +313,7 @@ bool isRadiometricObservableType( const ObservableType observableType )
             isRadiometric = true;
             break;
         case angular_position:
+        case azimuth_elevation_angle:
         case position_observable:
         case euler_angle_313_observable:
         case velocity_observable:
@@ -342,6 +349,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
         case one_way_range:
         case n_way_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case dsn_n_way_range:
         case position_observable:
         case euler_angle_313_observable:
@@ -376,6 +384,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
         case one_way_doppler:
         case one_way_differenced_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case position_observable:
         case euler_angle_313_observable:
         case velocity_observable:
@@ -399,6 +408,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
         case one_way_range:
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             break;
         case position_observable:
             break;
@@ -535,6 +545,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
         case angular_position:
             observableName = "AngularPosition";
             break;
+        case azimuth_elevation_angle:
+            observableName = "AzimuthElevation";
+            break;
         case position_observable:
             observableName = "CartesianPosition";
             break;
@@ -611,6 +624,10 @@ ObservableType getObservableType( const std::string& observableName )
     else if( observableName == "AngularPosition" )
     {
         observableType = angular_position;
+    }
+    else if( observableName == "AzimuthElevation" )
+    {
+        observableType = azimuth_elevation_angle;
     }
     else if( observableName == "CartesianPosition" )
     {
@@ -735,6 +752,9 @@ ObservableType getBaseObservableType( const ObservableType observableType )
         case angular_position:
         case relative_angular_position:
             baseObservableType = angular_position;
+            break;
+        case azimuth_elevation_angle:
+            baseObservableType = azimuth_elevation_angle;
             break;
         case differenced_frequency_of_arrival:
             baseObservableType = one_way_doppler_measured_frequency;
@@ -866,6 +886,9 @@ int getObservableSize( const ObservableType observableType )
         case angular_position:
             observableSize = 2;
             break;
+        case azimuth_elevation_angle:
+            observableSize = 2;
+            break;
         case position_observable:
             observableSize = 3;
             break;
@@ -994,6 +1017,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
             }
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             switch( linkEndType )
             {
                 case transmitter:
@@ -1179,6 +1203,7 @@ LinkEndType getDefaultReferenceLinkEndType( const ObservableType observableType 
             referenceLinkEndType = receiver;
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             referenceLinkEndType = receiver;
             break;
         case one_way_doppler:
@@ -1237,6 +1262,7 @@ int getNumberOfLinksInObservable( const ObservableType observableType, const int
             numberOfLinks = 1;
             break;
         case angular_position:
+        case azimuth_elevation_angle:
             numberOfLinks = 1;
             break;
         case one_way_doppler:
@@ -1497,6 +1523,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             break;
         }
         case angular_position:
+        case azimuth_elevation_angle:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
                 ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
             {
@@ -1509,7 +1536,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             }
             else
             {
-                throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
+                throw std::runtime_error( "Error, parsed irrelevant one-way angular observable link end types for link end indices" );
             }
             break;
         case position_observable:
@@ -1607,8 +1634,8 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
 {
     std::map< LinkEndType, int > singleLinkStateEntries;
-    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler ||
-        observableType == one_way_doppler_measured_frequency )
+    if( observableType == one_way_range || observableType == angular_position || observableType == azimuth_elevation_angle ||
+        observableType == one_way_doppler || observableType == one_way_doppler_measured_frequency )
     {
         singleLinkStateEntries = oneWayLinkStateEntries;
     }
@@ -1640,6 +1667,7 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
     {
         case one_way_range:
         case angular_position:
+        case azimuth_elevation_angle:
         case one_way_doppler:
         case one_way_doppler_measured_frequency:
         case one_way_differenced_range:

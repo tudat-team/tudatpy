@@ -280,6 +280,7 @@ public:
         switch( observationModel->getObservableType( ) )
         {
             case observation_models::angular_position:
+            case observation_models::azimuth_elevation_angle:
                 observationPartials =
                         createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >( observationModel,
                                                                                                    bodies,
