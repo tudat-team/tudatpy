@@ -24,7 +24,6 @@ namespace input_output
 namespace psf
 {
 
-
 Eigen::Vector2d RawPsfMeasurement::getEffectivePixelLine( ) const
 {
     return observedPixelLine_ - localCorrection_;
@@ -68,18 +67,42 @@ OpticalImageType parseOpticalImageTypeFromPsfToken( const std::string& raw )
 {
     std::string t = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( raw ) );
 
-    if( t == "STAR" ) { return OpticalImageType::star; }
-    if( t == "PLAN" ) { return OpticalImageType::planet; }
-    if( t == "SAT"  ) { return OpticalImageType::satellite; }
-    if( t == "ROCK" ) { return OpticalImageType::rock; }
-    if( t == "END"  ) { return OpticalImageType::end_marker; }
+    if( t == "STAR" )
+    {
+        return OpticalImageType::star;
+    }
+    if( t == "PLAN" )
+    {
+        return OpticalImageType::planet;
+    }
+    if( t == "SAT" )
+    {
+        return OpticalImageType::satellite;
+    }
+    if( t == "ROCK" )
+    {
+        return OpticalImageType::rock;
+    }
+    if( t == "END" )
+    {
+        return OpticalImageType::end_marker;
+    }
 
     return OpticalImageType::unknown;
 }
 
-double toDouble( const std::string& s ) { return std::stod( trimCopy( s ) ); }
-int toInt( const std::string& s ) { return std::stoi( trimCopy( s ) ); }
-std::int64_t toInt64( const std::string& s ) { return static_cast< std::int64_t >( std::stoll( trimCopy( s ) ) ); }
+double toDouble( const std::string& s )
+{
+    return std::stod( trimCopy( s ) );
+}
+int toInt( const std::string& s )
+{
+    return std::stoi( trimCopy( s ) );
+}
+std::int64_t toInt64( const std::string& s )
+{
+    return static_cast< std::int64_t >( std::stoll( trimCopy( s ) ) );
+}
 
 std::string readNamelistBlockContents( std::istream& in, const std::string& firstLineWithDollarKeyword )
 {
@@ -138,8 +161,7 @@ std::vector< std::pair< std::string, std::string > > parseFortranNamelistAssignm
     const std::size_t n = block.size( );
     std::size_t pos = 0;
 
-    auto skipDelims = [&]( )
-    {
+    auto skipDelims = [ & ]( ) {
         while( pos < n )
         {
             const char c = block[ pos ];
@@ -154,8 +176,7 @@ std::vector< std::pair< std::string, std::string > > parseFortranNamelistAssignm
         }
     };
 
-    auto isKeyStart = [&]( std::size_t p ) -> bool
-    {
+    auto isKeyStart = [ & ]( std::size_t p ) -> bool {
         while( p < n && std::isspace( static_cast< unsigned char >( block[ p ] ) ) )
         {
             ++p;
@@ -168,8 +189,7 @@ std::vector< std::pair< std::string, std::string > > parseFortranNamelistAssignm
         return ( std::isalpha( static_cast< unsigned char >( c ) ) || c == '_' );
     };
 
-    auto looksLikeKeyEqualsAt = [&]( std::size_t p ) -> bool
-    {
+    auto looksLikeKeyEqualsAt = [ & ]( std::size_t p ) -> bool {
         if( !isKeyStart( p ) )
         {
             return false;
@@ -303,9 +323,7 @@ std::vector< std::pair< std::string, std::string > > parseFortranNamelistAssignm
     return assignments;
 }
 
-bool parseIndexedKey( const std::string& keyWithOptionalIndices,
-                      std::string& baseKeyOut,
-                      std::vector< int >& indicesOut )
+bool parseIndexedKey( const std::string& keyWithOptionalIndices, std::string& baseKeyOut, std::vector< int >& indicesOut )
 {
     baseKeyOut.clear( );
     indicesOut.clear( );
@@ -384,8 +402,7 @@ Eigen::Vector2d parseVector2FromValueText( const std::string& valueText, const s
     std::vector< std::string > vals = splitCommaSeparatedRespectingQuotes( valueText );
     if( vals.size( ) < 2 )
     {
-        throw std::runtime_error( "Error when reading PSF file: malformed 2-vector for " + context +
-                                  ", value='" + valueText + "'" );
+        throw std::runtime_error( "Error when reading PSF file: malformed 2-vector for " + context + ", value='" + valueText + "'" );
     }
 
     Eigen::Vector2d v;
@@ -394,7 +411,7 @@ Eigen::Vector2d parseVector2FromValueText( const std::string& valueText, const s
     return v;
 }
 
-} // namespace
+}  // namespace
 
 RawPsfFileContents readPsfFile( const std::string& psfFile )
 {
@@ -564,7 +581,7 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 }
                 else if( baseKey == "EM" && indices.size( ) == 2 )
                 {
-                    const int startIndex = indices.at( 0 ); // 1 or 4
+                    const int startIndex = indices.at( 0 );  // 1 or 4
                     const int icam = indices.at( 1 );
                     const int start0 = startIndex - 1;
 
@@ -624,15 +641,42 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 const std::string key = trimCopy( assigns.at( i ).first );
                 const std::string value = trimCopy( assigns.at( i ).second );
 
-                if( key == "PICNM" ) { imageContents.pictureName_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) ); }
-                else if( key == "PICNO" ) { imageContents.pictureNumber_ = toInt( value ); }
-                else if( key == "TOB" ) { imageContents.endOfExposureTimeUtcString_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) ); }
-                else if( key == "CAMERA" ) { imageContents.cameraId_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) ); }
-                else if( key == "EXPTIM" ) { imageContents.exposureTimeSeconds_ = toDouble( value ); }
-                else if( key == "PICDEL" ) { imageContents.pictureDeletionFlag_ = toInt( value ); }
-                else if( key == "RA" ) { imageContents.rightAscensionDegrees_ = toDouble( value ); }
-                else if( key == "DEC" ) { imageContents.declinationDegrees_ = toDouble( value ); }
-                else if( key == "TWIST" ) { imageContents.twistDegrees_ = toDouble( value ); }
+                if( key == "PICNM" )
+                {
+                    imageContents.pictureName_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                }
+                else if( key == "PICNO" )
+                {
+                    imageContents.pictureNumber_ = toInt( value );
+                }
+                else if( key == "TOB" )
+                {
+                    imageContents.endOfExposureTimeUtcString_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                }
+                else if( key == "CAMERA" )
+                {
+                    imageContents.cameraId_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                }
+                else if( key == "EXPTIM" )
+                {
+                    imageContents.exposureTimeSeconds_ = toDouble( value );
+                }
+                else if( key == "PICDEL" )
+                {
+                    imageContents.pictureDeletionFlag_ = toInt( value );
+                }
+                else if( key == "RA" )
+                {
+                    imageContents.rightAscensionDegrees_ = toDouble( value );
+                }
+                else if( key == "DEC" )
+                {
+                    imageContents.declinationDegrees_ = toDouble( value );
+                }
+                else if( key == "TWIST" )
+                {
+                    imageContents.twistDegrees_ = toDouble( value );
+                }
             }
 
             // End-of-file sentinel picture
@@ -690,16 +734,25 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
 
                 if( opticalType == OpticalImageType::end_marker || imgNameForSentinel == "END" )
                 {
-                    break; // end of this picture
+                    break;  // end of this picture
                 }
 
                 std::string imageName;
                 std::int64_t imageId = 0;
                 int useFlag = 0;
 
-                if( fields.count( "IMG" ) ) { imageName = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( fields[ "IMG" ] ) ); }
-                if( fields.count( "IMGID" ) ) { imageId = toInt64( fields[ "IMGID" ] ); }
-                if( fields.count( "USE" ) ) { useFlag = toInt( fields[ "USE" ] ); }
+                if( fields.count( "IMG" ) )
+                {
+                    imageName = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( fields[ "IMG" ] ) );
+                }
+                if( fields.count( "IMGID" ) )
+                {
+                    imageId = toInt64( fields[ "IMGID" ] );
+                }
+                if( fields.count( "USE" ) )
+                {
+                    useFlag = toInt( fields[ "USE" ] );
+                }
 
                 const bool hasZ = fields.count( "Z" ) > 0;
                 const bool hasZc = fields.count( "ZC" ) > 0;
@@ -715,17 +768,14 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                                 << "  IMGTYP           : " << static_cast< int >( opticalType ) << "\n"
                                 << "  IMG              : '" << imageName << "'\n"
                                 << "  IMGID            : " << imageId << "\n"
-                                << "  Missing fields   : "
-                                << ( hasZ ? "" : "Z " )
-                                << ( hasZc ? "" : "ZC " )
-                                << ( hasSig ? "" : "SIG " )
+                                << "  Missing fields   : " << ( hasZ ? "" : "Z " ) << ( hasZc ? "" : "ZC " ) << ( hasSig ? "" : "SIG " )
                                 << "\n"
                                 << "  Raw IM block     : " << imBlock << "\n";
                     throw std::runtime_error( errorStream.str( ) );
                 }
 
-                const Eigen::Vector2d z   = parseVector2FromValueText( fields[ "Z" ],   "Z" );
-                const Eigen::Vector2d zc  = parseVector2FromValueText( fields[ "ZC" ],  "ZC" );
+                const Eigen::Vector2d z = parseVector2FromValueText( fields[ "Z" ], "Z" );
+                const Eigen::Vector2d zc = parseVector2FromValueText( fields[ "ZC" ], "ZC" );
                 const Eigen::Vector2d sig = parseVector2FromValueText( fields[ "SIG" ], "SIG" );
 
                 std::shared_ptr< RawPsfMeasurement > measurement;
@@ -783,7 +833,7 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
     return fileContents;
 }
 
-} // namespace psf
+}  // namespace psf
 
 }  // namespace input_output
 

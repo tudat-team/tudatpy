@@ -31,12 +31,10 @@ using namespace tudat::input_output::psf;
 // BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
 int main( )
 {
-    std::cout<<"A"<<std::endl;
+    std::cout << "A" << std::endl;
     std::string file = "/home/dominic/Downloads/psf_vgr2_neptune.txt";
     RawPsfFileContents psfFile = readPsfFile( file );
-
 }
-
 
 // BOOST_AUTO_TEST_SUITE_END( )
 
