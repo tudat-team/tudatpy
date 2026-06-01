@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_estimation_analysis_estimator.h"
 
 #include <pybind11/chrono.h>
@@ -34,7 +36,7 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_estimator( py::module &m )
+void expose_estimation_analysis_estimator( py::module& m )
 {
     py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
@@ -50,9 +52,9 @@ void expose_estimation_analysis_estimator( py::module &m )
 
 
       )doc" )
-            .def( py::init< const tss::SystemOfBodies &,
+            .def( py::init< const tss::SystemOfBodies&,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
+                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
                             const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
                             const bool >( ),
                   py::arg( "bodies" ),

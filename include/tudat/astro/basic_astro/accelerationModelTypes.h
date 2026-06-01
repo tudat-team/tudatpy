@@ -12,31 +12,24 @@
 #ifndef TUDAT_ACCELERATIONMODELTYPES_H
 #define TUDAT_ACCELERATIONMODELTYPES_H
 
-#include "tudat/astro/basic_astro/customAccelerationModel.h"
-#include "tudat/astro/gravitation/centralGravityModel.h"
-#include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
-#include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
-#include "tudat/astro/gravitation/thirdBodyPerturbation.h"
-#include "tudat/astro/gravitation/ringGravityModel.h"
-#include "tudat/astro/gravitation/polyhedronGravityModel.h"
-#include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
-#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
-#include "tudat/astro/basic_astro/massRateModel.h"
-#include "tudat/astro/propulsion/thrustAccelerationModel.h"
-#include "tudat/astro/system_models/rtgAccelerationModel.h"
-#include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
-#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
-#include "tudat/astro/basic_astro/empiricalAcceleration.h"
-#include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <Eigen/Core>
+
+#include "tudat/basics/basicTypedefs.h"
 
 namespace tudat
 {
 
 namespace basic_astrodynamics
 {
+
+template< typename AccelerationDataType >
+class AccelerationModel;
+
+class MassRateModel;
 
 // List of accelerations available in simulations
 /*
@@ -69,7 +62,8 @@ enum AvailableAcceleration {
     custom_acceleration = 20,
     einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration,
-    rtg_acceleration
+    rtg_acceleration,
+    relativistic_acceleration_from_metric
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type
@@ -100,8 +94,6 @@ AvailableAcceleration getAccelerationModelType(
 
 bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType );
 
-
-
 // Function to identify the type of a mass rate model.
 /*
  *  Function to identify the type of a mass rate model. The type must be defined
@@ -118,8 +110,8 @@ AvailableMassRateModels getMassRateModelType( const std::shared_ptr< MassRateMod
  * \param modelType Type for which all models are to be retrieved
  * \return Subset of fullList for which the acceleration model type is modelType
  */
-std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
-        const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
+std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > getAccelerationModelsOfType(
+        const std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > >& fullList,
         const AvailableAcceleration modelType );
 
 // Function to check whether an acceleration type is a direct gravitational acceleration

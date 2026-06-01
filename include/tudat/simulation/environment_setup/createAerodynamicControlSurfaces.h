@@ -92,7 +92,7 @@ public:
     }
 
     //! Destructor
-    virtual ~ControlSurfaceIncrementAerodynamicCoefficientSettings( ) { }
+    virtual ~ControlSurfaceIncrementAerodynamicCoefficientSettings( ) {}
 
     //! Function to return type of aerodynamic coefficient model that is to be created.
     /*!
@@ -152,7 +152,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicCoefficientSettings( tabulated_coefficients, independentVariableNames ),
         independentVariables_( independentVariables ), forceCoefficients_( forceCoefficients ), momentCoefficients_( momentCoefficients )
-    { }
+    {}
 
     //! Constructor, sets properties of force coefficients (and zero moment coefficients).
     /*!
@@ -182,7 +182,7 @@ public:
     }
 
     //! Destructor
-    ~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings( ) { }
+    ~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings( ) {}
 
     //! Function to return the values of the indepependent variables of tables of coefficients.
     /*!
@@ -233,7 +233,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames ):
         ControlSurfaceIncrementAerodynamicCoefficientSettings( custom_aerodynamic_coefficients, independentVariableNames ),
         coefficientFunction_( coefficientFunction )
-    { }
+    {}
 
     std::function< Eigen::Vector6d( const std::vector< double >& ) > getCoefficientFunction( )
     {

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"

@@ -107,7 +107,7 @@ std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< Fr
 {
     std::vector< double > doubleFrequencyBands;
 
-    for( FrequencyBands frequencyBand: frequencyBands )
+    for( FrequencyBands frequencyBand : frequencyBands )
     {
         doubleFrequencyBands.push_back( frequencyBand );
     }
@@ -119,7 +119,7 @@ std::vector< FrequencyBands > convertDoubleVectorToFrequencyBands( const std::ve
 {
     std::vector< FrequencyBands > frequencyBandFrequencyBands;
 
-    for( double frequencyBand: frequencyBands )
+    for( double frequencyBand : frequencyBands )
     {
         frequencyBandFrequencyBands.push_back( static_cast< FrequencyBands >( frequencyBand ) );
     }

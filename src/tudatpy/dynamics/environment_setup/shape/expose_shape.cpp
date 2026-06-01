@@ -7,11 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_shape.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createBodyShapeModel.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -33,7 +35,7 @@ namespace environment_setup
 namespace shape
 {
 
-void expose_shape_setup( py::module &m )
+void expose_shape_setup( py::module& m )
 {
     py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >( m,
                                                                                      "BodyShapeSettings",

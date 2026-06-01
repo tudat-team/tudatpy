@@ -15,6 +15,7 @@ set(interpolators_SOURCES
         "lagrangeInterpolator.cpp"
         "interpolator.cpp"
         "multiLinearInterpolator.cpp"
+        "chebyshevApproximation.cpp"
         )
 
 # Add header files.
@@ -31,6 +32,7 @@ set(interpolators_HEADERS
         "piecewiseConstantInterpolator.h"
         "jumpDataLinearInterpolator.h"
         "createInterpolator.h"
+        "chebyshevApproximation.h"
         )
 
 # Add library.

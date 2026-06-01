@@ -11,9 +11,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/interface/json/tests/unitTestSupport.h"
 #include "tudat/interface/json/jsonEstimationInterface.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 namespace tudat
 {

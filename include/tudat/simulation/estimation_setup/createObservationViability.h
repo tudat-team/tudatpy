@@ -11,7 +11,9 @@
 #ifndef TUDAT_CREATEOBSERVATIONVIABILITY_H
 #define TUDAT_CREATEOBSERVATIONVIABILITY_H
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/astro/observation_models/observationSimulator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
 namespace tudat
 {
@@ -46,7 +48,7 @@ public:
                                   const double doubleParameter = TUDAT_NAN ):
         observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ), stringParameter_( stringParameter ),
         doubleParameter_( doubleParameter )
-    { }
+    {}
 
     //! Type of viability that is to be checked
     ObservationViabilityType observationViabilityType_;

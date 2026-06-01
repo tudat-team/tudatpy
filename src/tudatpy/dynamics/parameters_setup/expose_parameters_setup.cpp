@@ -7,11 +7,19 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_parameters_setup.h"
 
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;
@@ -100,6 +108,8 @@ void expose_parameters_setup( py::module& m )
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
             .value( "arc_wise_exponential_atmosphere_scale_height_type",
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
+            .value( "specular_reflectivity_type", tep::EstimatebleParametersEnum::specular_reflectivity )
+            .value( "diffuse_reflectivity_type", tep::EstimatebleParametersEnum::diffuse_reflectivity )
 
             .export_values( );
 
@@ -362,7 +372,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
  regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
- force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+ force along the drag direction is scaled (multiplied) by the factor :math:`K` during each function evaluation.
 
  Parameters
  ----------
@@ -391,7 +401,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
  regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
- force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+ force along the drag direction is scaled (multiplied) by the factor :math:`K` during each function evaluation.
 
  Parameters
  ----------
@@ -588,7 +598,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Returns
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class defining parallel radiation pressure scaling
 
      )doc" );
 
@@ -599,7 +609,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            R"doc(
  Function for creating parameter settings for a radiation pressure acceleration scaling factor perpendicular to target direction.
 
- Function for creating parameter settings for scaling the radiation pressure acceleration component perpenedicular to the direction from the body
+ Function for creating parameter settings for scaling the radiation pressure acceleration component perpendicular to the direction from the body
  undergoing the acceleration to the source model. The present function creates settings for a parameter defining :math:`c_{\perp}`,
  see :func:`~radiation_pressure_target_direction_scaling`
 
@@ -617,7 +627,49 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Returns
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class defining parallel radiation pressure scaling
+
+     )doc" );
+
+    m.def( "specular_reflectivity",
+           &tep::specularReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the specular reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel specular reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for specular reflectivity estimation.
+
+     )doc" );
+
+    m.def( "diffuse_reflectivity",
+           &tep::diffuseReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the diffuse reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel diffuse reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for diffuse reflectivity estimation.
 
      )doc" );
 
@@ -1631,7 +1683,7 @@ deformed_body : str
 degree : int
     Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 
@@ -1674,7 +1726,7 @@ degree : int
 degree : list[int]
     Orders :math:`m` of the Love numbers :math:`k_{lm}` that are to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 
@@ -1713,7 +1765,7 @@ love_number_per_degree : dict[tuple[int, int], list[int,int]]]
     The first tuple (key) is the forcing degree and order :math:`l,m`, the list of tuples (key) is the list of associated response degrees and orders :math:`l',m'`
     for which the Love numbers are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 
 Returns
 -------
@@ -1835,7 +1887,7 @@ Returns
 
 Function for creating parameter settings for a body's polynomial gravity field amplitudes at a single power.
 
-Identical to :func:`~polynomial`, but for only a single power, and a full block of spherical harminic coefficient degrees :math:`l` and orders :math`m`
+Identical to :func:`~polynomial`, but for only a single power, and a full block of spherical harmonic coefficient degrees :math:`l` and orders :math`m`
 For each degree :math:`l_{\text{min}}\le l \le l_{\text{max}}`, variations are estimated for all orders :math:`m_{\text{min}}\le m \le \left( \text{min}(m_{\text{max}},l) \right)`
 
 Parameters
@@ -1933,7 +1985,7 @@ Returns
  Upon initialization, the value of this parameter :math:`p` is equal to 1. When using it, it effectively scales the acceleration formulation such that
  :math:`A/m\rightarrow p(A/m)`. Estimating an area-to-mass ratio is typical in, for instance, orbit estimation of near-Earth space debris.
 
- However, since the mass of a body is not (necesarilly) a constant, and the reference area of a body is not (necesarilly) related to a physical surface area, so
+ However, since the mass of a body is not (necessarily) a constant, and the reference area of a body is not (necessarily) related to a physical surface area, so
  we have opted to implement an :math:`A/m` scaling factor as parameter instead. This scaling factor applies to both aerodynamics and radiation pressure, regardless of
  whether their reference areas are identical. It is also by definition comaptible with an object of varying mass.
 

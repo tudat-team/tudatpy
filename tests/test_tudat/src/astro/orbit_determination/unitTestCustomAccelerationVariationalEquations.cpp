@@ -12,14 +12,24 @@
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <thread>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 
 namespace tudat
@@ -87,7 +97,7 @@ class TestAccelerationModel
 public:
     TestAccelerationModel( const SystemOfBodies& bodies, const double accelerationParameter, const double coefficient ):
         bodies_( bodies ), accelerationParameter_( accelerationParameter ), coefficient_( coefficient )
-    { }
+    {}
 
     Eigen::Vector3d customAccelerationFunction( const double time )
     {
@@ -319,7 +329,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
             SingleArcDynamicsSimulator<> downperturbedDynamicsSimulator( bodies, propagatorSettings );
             downperturbedStateHistory = downperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-            for( auto it: upperturbedStateHistory )
+            for( auto it : upperturbedStateHistory )
             {
                 if( downperturbedStateHistory.count( it.first ) == 0 )
                 {
@@ -363,7 +373,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
 
             double maximumSensivitiyError = 0.0;
 
-            for( auto it: upperturbedStateHistory )
+            for( auto it : upperturbedStateHistory )
             {
                 if( downperturbedStateHistory.count( it.first ) == 0 )
                 {
@@ -406,7 +416,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
         }
 
         double maximumError = 0.0;
-        for( auto it: numericalStateTransitionMatrixHistory )
+        for( auto it : numericalStateTransitionMatrixHistory )
         {
             auto matrix1 = it.second;
             auto matrix2 = stateTransitionMatrixHistory.at( it.first );

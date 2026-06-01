@@ -14,8 +14,8 @@
 #ifndef TUDAT_READTABULATEDMEDIACORRECTIONS_H
 #define TUDAT_READTABULATEDMEDIACORRECTIONS_H
 
+#include <memory>
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {
@@ -27,9 +27,9 @@ namespace input_output
 class CspCommand
 {
 public:
-    CspCommand( ) { }
+    CspCommand( ) {}
 
-    virtual ~CspCommand( ) { }
+    virtual ~CspCommand( ) {}
 
 private:
 };
@@ -47,7 +47,7 @@ public:
     /*!
      * Constructor.
      */
-    AtmosphericCorrectionCspCommand( ): sourceSpecifier_( "" ), sourceId_( 0 ) { }
+    AtmosphericCorrectionCspCommand( ): sourceSpecifier_( "" ), sourceId_( 0 ) {}
 
     // CSP identifier of the model. Can take the values DRY NUPART (dry part of troposphere), WET NUPART (wet part of troposphere)
     // or CHPART (ionosphere).
@@ -121,7 +121,7 @@ public:
      *
      * @param cspCommands Vector of parsed CSP commands.
      */
-    CspRawFile( const std::vector< std::shared_ptr< CspCommand > >& cspCommands ): fileName_( "" ), cspCommands_( cspCommands ) { }
+    CspRawFile( const std::vector< std::shared_ptr< CspCommand > >& cspCommands ): fileName_( "" ), cspCommands_( cspCommands ) {}
 
     // Returns the name of the file.
     std::string getFileName( )

@@ -19,8 +19,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -40,10 +38,11 @@
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 

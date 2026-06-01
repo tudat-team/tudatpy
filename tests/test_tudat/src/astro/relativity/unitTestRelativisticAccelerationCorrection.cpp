@@ -12,10 +12,15 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createMetric.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
+#include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/math/statistics/basicStatistics.h"
 
 namespace tudat
@@ -65,6 +70,73 @@ double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun,
 {
     return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 *
             mathematical_constants::PI / (physical_constants::JULIAN_YEAR)*std::sqrt( 1.0 - meanEccentricity * meanEccentricity );
+}
+
+std::map< double, Eigen::Vector3d > runPropagationAndRetrieveTotalAcceleration(
+        const SelectedAccelerationMap& selectedAccelerationSettings,
+        const double simulationStartEpoch,
+        const double simulationEndEpoch,
+        const std::vector< std::string >& bodiesToPropagate,
+        const std::vector< std::string >& centralBodies,
+        const Eigen::Vector6d& vehicleInitialStateInKeplerianElements,
+        const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = schwarzschildSpaceTimeMetricSettings( "Earth" ),
+        const bool useStaticEarthInSsbFrame = false )
+{
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    if( useStaticEarthInSsbFrame )
+    {
+        Eigen::Vector6d staticEarthStateWrtSsb =
+                spice_interface::getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "None", simulationStartEpoch );
+        staticEarthStateWrtSsb.segment( 3, 3 ).setZero( );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( staticEarthStateWrtSsb );
+    }
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+
+    createBaseMetric( metricSettings, bodies );
+
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, selectedAccelerationSettings, bodiesToPropagate, centralBodies );
+
+    const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "Vehicle" ) );
+
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 20.0 );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariables );
+
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+    const std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+
+    std::map< double, Eigen::Vector3d > accelerationHistory;
+    for( const auto& dependentVariableEntry : dependentVariableHistory )
+    {
+        if( dependentVariableEntry.second.rows( ) != 3 )
+        {
+            throw std::runtime_error(
+                    "Error in runPropagationAndRetrieveTotalAcceleration: expected 3 components for total acceleration dependent "
+                    "variable." );
+        }
+        accelerationHistory[ dependentVariableEntry.first ] = dependentVariableEntry.second.segment( 0, 3 );
+    }
+
+    return accelerationHistory;
 }
 
 BOOST_AUTO_TEST_SUITE( test_relativistic_acceleration_corrections )
@@ -353,6 +425,180 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
                                      statistics::computeSampleMean( solarDistances ),
                                      statistics::computeSampleMean( earthEccentricities ) );
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testDirectRelativisticAccelerationFromMetricAgainstSchwarzschildCorrection )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double simulationStartEpoch = 0.0;
+    const double simulationEndEpoch = simulationStartEpoch + 20.0;
+
+    std::vector< std::string > bodiesToPropagate{ "Vehicle" };
+    std::vector< std::string > centralBodies{ "Earth" };
+
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7000.0E3;
+    vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    vehicleInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 30.0 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 40.0 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
+    vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
+
+    SelectedAccelerationMap correctionAccelerationSettings;
+    correctionAccelerationSettings[ "Vehicle" ][ "Earth" ] = {
+        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ),
+        std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false )
+    };
+
+    SelectedAccelerationMap metricAccelerationSettings;
+    metricAccelerationSettings[ "Vehicle" ][ "" ] = { relativisticAccelerationFromMetric( ) };
+
+    struct MetricTestCase {
+        std::string caseName;
+        std::shared_ptr< SpaceTimeMetricSettings > metricSettings;
+        bool useStaticEarthInSsbFrame;
+    };
+
+    std::vector< MetricTestCase > metricTestCases = { { "schwarzschild", schwarzschildSpaceTimeMetricSettings( "Earth" ), false },
+                                                      { "solar_system_earth_only",
+                                                        solarSystemSpaceTimeMetricSettings(
+                                                                std::vector< std::string >{ "Earth" },
+                                                                std::vector< std::string >( ),
+                                                                std::map< std::string, std::pair< int, int > >( ),
+                                                                std::vector< std::string >( ),
+                                                                false ),
+                                                        true } };
+
+    for( const auto& metricTestCase : metricTestCases )
+    {
+        std::map< double, Eigen::Vector3d > correctionTotalAccelerationHistory =
+                runPropagationAndRetrieveTotalAcceleration( correctionAccelerationSettings,
+                                                            simulationStartEpoch,
+                                                            simulationEndEpoch,
+                                                            bodiesToPropagate,
+                                                            centralBodies,
+                                                            vehicleInitialStateInKeplerianElements,
+                                                            schwarzschildSpaceTimeMetricSettings( "Earth" ),
+                                                            metricTestCase.useStaticEarthInSsbFrame );
+
+        std::map< double, Eigen::Vector3d > metricTotalAccelerationHistory =
+                runPropagationAndRetrieveTotalAcceleration( metricAccelerationSettings,
+                                                            simulationStartEpoch,
+                                                            simulationEndEpoch,
+                                                            bodiesToPropagate,
+                                                            centralBodies,
+                                                            vehicleInitialStateInKeplerianElements,
+                                                            metricTestCase.metricSettings,
+                                                            metricTestCase.useStaticEarthInSsbFrame );
+
+        BOOST_REQUIRE_EQUAL( correctionTotalAccelerationHistory.size( ), metricTotalAccelerationHistory.size( ) );
+
+        double maximumRelativeDifference = 0.0;
+        auto correctionIterator = correctionTotalAccelerationHistory.begin( );
+        auto metricIterator = metricTotalAccelerationHistory.begin( );
+        for( ; correctionIterator != correctionTotalAccelerationHistory.end( ); ++correctionIterator, ++metricIterator )
+        {
+            BOOST_CHECK_SMALL( correctionIterator->first - metricIterator->first, 1.0E-14 );
+
+            const Eigen::Vector3d correctionAcceleration = correctionIterator->second;
+            const Eigen::Vector3d metricAcceleration = metricIterator->second;
+            const double correctionNorm = correctionAcceleration.norm( );
+            const double absoluteDifferenceNorm = ( metricAcceleration - correctionAcceleration ).norm( );
+            const double relativeDifference = absoluteDifferenceNorm / std::max( correctionNorm, 1.0E-30 );
+
+            if( relativeDifference > maximumRelativeDifference )
+            {
+                maximumRelativeDifference = relativeDifference;
+            }
+        }
+
+        BOOST_CHECK_SMALL( maximumRelativeDifference, 1.0E-14 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testDirectMetricRelativisticPartAgainstCorrectionAtGenericState )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double testEpoch = 0.0;
+    Eigen::Vector6d relativeStateWrtEarth = Eigen::Vector6d::Zero( );
+    relativeStateWrtEarth << 7.0e6, -2.0e6, 1.0e6, 1200.0, 7300.0, -900.0;
+
+    struct MetricComparisonCase {
+        std::string caseName;
+        std::shared_ptr< SpaceTimeMetricSettings > metricSettings;
+        bool useStaticEarthInSsbFrame;
+        bool stateIsBarycentric;
+    };
+
+    std::vector< MetricComparisonCase > testCases = { { "schwarzschild", schwarzschildSpaceTimeMetricSettings( "Earth" ), false, false },
+                                                      { "solar_system_earth_only",
+                                                        solarSystemSpaceTimeMetricSettings(
+                                                                std::vector< std::string >{ "Earth" },
+                                                                std::vector< std::string >( ),
+                                                                std::map< std::string, std::pair< int, int > >( ),
+                                                                std::vector< std::string >( ),
+                                                                false ),
+                                                        true,
+                                                        true } };
+
+    for( const auto& testCase : testCases )
+    {
+        BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+        if( testCase.useStaticEarthInSsbFrame )
+        {
+            Eigen::Vector6d staticEarthStateWrtSsb =
+                    spice_interface::getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "None", testEpoch );
+            staticEarthStateWrtSsb.segment( 3, 3 ).setZero( );
+            bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( staticEarthStateWrtSsb );
+        }
+
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+        createBaseMetric( testCase.metricSettings, bodies );
+
+        std::shared_ptr< relativity::Metric > metric = bodies.getSpaceTimeProperties( )->getBaseMetric( );
+        BOOST_REQUIRE( metric != nullptr );
+
+        const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+        BOOST_REQUIRE( ppnParameterSet != nullptr );
+
+        Eigen::Vector6d metricInputState = relativeStateWrtEarth;
+        if( testCase.stateIsBarycentric )
+        {
+            bodies.at( "Earth" )->setStateFromEphemeris( testEpoch );
+            metricInputState += bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testEpoch );
+        }
+
+        const Eigen::Vector3d directTotalAcceleration =
+                relativity::evaluateRelativisticEquationsOfMotionInCoordinateTimeWithUpdate( metric, metricInputState, testEpoch );
+
+        const Eigen::Vector3d relativePosition = relativeStateWrtEarth.segment( 0, 3 );
+        const Eigen::Vector3d relativeVelocity = relativeStateWrtEarth.segment( 3, 3 );
+        const double relativeDistance = relativePosition.norm( );
+
+        const Eigen::Vector3d newtonianPointMassAcceleration =
+                -earthGravitationalParameter * relativePosition / std::pow( relativeDistance, 3.0 );
+        const Eigen::Vector3d directRelativisticPart = directTotalAcceleration - newtonianPointMassAcceleration;
+
+        const double commonCorrectionTerm =
+                relativity::calculateRelativisticAccelerationCorrectionsCommonterm( earthGravitationalParameter, relativeDistance );
+        const Eigen::Vector3d schwarzschildCorrection =
+                relativity::calculateScharzschildGravitationalAccelerationCorrection( earthGravitationalParameter,
+                                                                                      relativePosition,
+                                                                                      relativeVelocity,
+                                                                                      relativeDistance,
+                                                                                      commonCorrectionTerm,
+                                                                                      ppnParameterSet->getParameterGamma( ),
+                                                                                      ppnParameterSet->getParameterBeta( ) );
+
+        const double absoluteDifference = ( directRelativisticPart - schwarzschildCorrection ).norm( );
+        const double relativeDifference = absoluteDifference / std::max( schwarzschildCorrection.norm( ), 1.0e-30 );
+
+        BOOST_CHECK_SMALL( absoluteDifference, 1.0e-14 );
+        BOOST_CHECK_SMALL( relativeDifference, 1.0e-6 );
     }
 }
 

@@ -17,6 +17,8 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/tools/floating_point_comparison.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
 #include <cmath>
@@ -134,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -253,7 +255,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -373,7 +375,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -493,7 +495,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -614,7 +616,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -737,7 +739,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     hodographicShapingLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-    for( auto it: thrustAccelerationsAlongTrajectory )
+    for( auto it : thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
         if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )

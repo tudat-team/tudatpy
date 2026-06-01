@@ -18,8 +18,11 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <vector>
 #include <utility>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -30,7 +33,6 @@
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -1345,7 +1347,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );
@@ -1563,7 +1565,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );

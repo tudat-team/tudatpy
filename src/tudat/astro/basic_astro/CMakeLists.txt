@@ -29,6 +29,7 @@ set(basic_astrodynamics_SOURCES
         "stateRepresentationConversions.cpp"
         "torqueModelTypes.cpp"
         "torqueModel.cpp"
+        "neQuick2Model.cpp"
         )
 
 # Set the header files.

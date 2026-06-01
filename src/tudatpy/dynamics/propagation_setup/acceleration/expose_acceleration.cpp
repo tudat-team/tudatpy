@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_acceleration.h"
 // #include "kernel/expose_numerical_simulation/deprecation_support.h"
 
@@ -17,8 +19,24 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/simulation/environment_setup/thrustSettings.h>
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -115,7 +133,7 @@ namespace propagation_setup
 namespace acceleration
 {
 
-void expose_acceleration_setup( py::module &m )
+void expose_acceleration_setup( py::module& m )
 {
     /*
      * This contains the addition of IntegratorSettings and
@@ -207,6 +225,10 @@ void expose_acceleration_setup( py::module &m )
       )doc" )
             .value( "yarkovsky_acceleration_type",
                     tba::AvailableAcceleration::yarkovsky_acceleration,
+                    R"doc(
+      )doc" )
+            .value( "relativistic_acceleration_from_metric_type",
+                    tba::AvailableAcceleration::relativistic_acceleration_from_metric,
                     R"doc(
       )doc" )
             .export_values( );
@@ -469,7 +491,7 @@ where:
 * :math:`G`: Newtonian gravitational constant
 * :math:`c`: speed of light
 
-Note that this acceleration *includes* the mutual point mass atrraction.
+Note that this acceleration *includes* the mutual point mass attraction.
 
 Technically, these equations are implicit, since  the terms :math:`\mathbf{a}_{a}`
 and :math:`\mathbf{a}_{b}` occur on the left- and right-hand sides of the equations (when evaluating the above for a set of bodies).
@@ -742,7 +764,7 @@ AccelerationSettings
 Creates settings for the polyhedron gravity acceleration.
 
 Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
-e.g. :cite:t:`wernerscheeres1996`, and the acceleration implememtation is from Eq. (16) of that reference.
+e.g. :cite:t:`wernerscheeres1996`, and the acceleration implementation is from Eq. (16) of that reference.
 
 Summarizing, it is computed from using combinations of geometric quantities associated with the polyhedron's edges and faces.
 
@@ -926,6 +948,49 @@ In this example, we define the relativistic correction acceleration for a Mars o
 
      )doc" );
 
+    m.def( "relativistic_from_metric",
+           &tss::relativisticAccelerationFromMetric,
+           R"doc(
+
+Creates settings for direct relativistic acceleration from a configured space-time metric.
+
+The acceleration is evaluated from the geodesic equation in coordinate time:
+
+.. math::
+
+    a^i = \frac{d^2 x^i}{dt^2}
+    = \frac{v^i}{c}\,\Gamma^{0}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta}
+      - \Gamma^{i}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta},
+
+with
+
+.. math::
+
+    \dot{x}^{0}=c,\qquad \dot{x}^{i}=v^{i},
+
+and Christoffel symbols
+
+.. math::
+
+    \Gamma^{\mu}_{\alpha\beta}
+    =\frac{1}{2}g^{\mu\nu}\left(
+      \partial_{\alpha}g_{\nu\beta}
+      +\partial_{\beta}g_{\nu\alpha}
+      -\partial_{\nu}g_{\alpha\beta}\right).
+
+Here, :math:`x^i` are Cartesian coordinates, :math:`v^i` are Cartesian velocity components,
+:math:`t` is coordinate time, :math:`c` is the speed of light, and :math:`g_{\mu\nu}` is the metric tensor.
+
+The metric is read from ``bodies.space_time_properties.base_metric`` and this acceleration must be
+assigned with an empty string as body exerting acceleration.
+
+Returns
+-------
+AccelerationSettings
+    Settings object for direct relativistic acceleration from metric.
+
+     )doc" );
+
     m.def( "empirical",
            &tss::empiricalAcceleration,
            py::arg( "constant_acceleration" ) = Eigen::Vector3d::Zero( ),
@@ -1005,15 +1070,15 @@ In this example, we define the relativistic correction acceleration for a Mars o
  force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
  to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-The force enacted by the rtg emission is calculated as:
+ The force enacted by the RTG emission is calculated as:
 
  .. math::
 
      \mathbf{F}=R^{I/BF}\left(\mathbf{F}_{\text{0}} \cdot e^{\left(-\beta \left(t-t_{\text{0}}\right) \right)} \right)
 
  Here, :math:`R^{I/BF}` is the rotation matrix from the body-fixed frame (of the body undergoing the acceleration),
- :math: `\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math: `t_{\text{0}}` and
- :math:`beta` is the decay scale factor (:math: `= ln(2)/t_(1/2))`.
+ :math:`\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math:`t_{\text{0}}` and
+ :math:`\beta` is the decay scale factor (:math:`= \ln(2)/t_{1/2}`).
 
 
  Parameters
@@ -1022,7 +1087,7 @@ The force enacted by the rtg emission is calculated as:
      Force vector at the reference epoch, defined in the body-fixed frame.
  decay_scale_factor : float
      Scale factor of the exponential decay model.
- cosine_acceleration : float
+ reference_epoch : float
      Reference epoch for exponential decay model.
  Returns
  -------
@@ -1334,7 +1399,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a list of engine models.
 
- Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1361,7 +1426,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1387,7 +1452,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
  Returns

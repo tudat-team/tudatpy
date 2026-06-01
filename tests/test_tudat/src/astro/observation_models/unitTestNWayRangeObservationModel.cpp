@@ -12,12 +12,13 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
 
 namespace tudat
 {
@@ -250,11 +251,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
                 // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( twoWayObservationModel )
-                                      ->getMultiLegLightTimeCalculator( )
+                                      ->getFullLinkLightTimeCalculator( )
                                       ->getNumberOfMultiLegIterations( );
                 bool iterateMultipleLegs =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( twoWayObservationModel )
-                                ->getMultiLegLightTimeCalculator( )
+                                ->getFullLinkLightTimeCalculator( )
                                 ->getIterateMultiLegLightTime( );
                 BOOST_CHECK_EQUAL( numIter, 0 );
                 BOOST_CHECK_EQUAL( iterateMultipleLegs, false );
@@ -443,11 +444,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
                 // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( fourWayObservationModel )
-                                      ->getMultiLegLightTimeCalculator( )
+                                      ->getFullLinkLightTimeCalculator( )
                                       ->getNumberOfMultiLegIterations( );
                 bool iterateMultipleLegs =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >( fourWayObservationModel )
-                                ->getMultiLegLightTimeCalculator( )
+                                ->getFullLinkLightTimeCalculator( )
                                 ->getIterateMultiLegLightTime( );
                 BOOST_CHECK_EQUAL( numIter, 0 );
                 BOOST_CHECK_EQUAL( iterateMultipleLegs, false );
@@ -580,10 +581,12 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
         double unbiasedTwoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
-        std::shared_ptr< ObservationBiasSettings > biasSettings = twoWayTimeScaleRangeBias( );
         std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias =
-                std::make_shared< NWayRangeObservationModelSettings >(
-                        twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds,
+                                                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                                                       nullptr,
+                                                                       std::make_shared< LightTimeConvergenceCriteria >( ),
+                                                                       basic_astrodynamics::utc_scale );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );
 

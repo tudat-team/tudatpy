@@ -47,8 +47,10 @@ public:
                           const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
                           const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
                           const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
-                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
-                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { } ):
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
+                          const bool eraseDuplicates = false ):
+
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
@@ -89,9 +91,18 @@ public:
         }
 
         singleObservationSize_ = getObservableSize( observableType );
-
+        if( getObservableSize( observableType ) > 0 && !observations_.empty( ) )
+        {
+            if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
+                                          std::to_string( observations_.at( 0 ).rows( ) ) + ") is inconsistent with observable type " +
+                                          getObservableName( observableType ) + " (expected size " +
+                                          std::to_string( singleObservationSize_ ) + ")." );
+            }
+        }
         // Initialise weights
-        if( weights.size(  ) == 0 )
+        if( weights.size( ) == 0 )
         {
             for( unsigned int k = 0; k < numberOfObservations_; k++ )
             {
@@ -100,13 +111,21 @@ public:
         }
         else
         {
-            if( weights.size(  ) != observationTimes.size(  ) * singleObservationSize_ )
+            if( weights.size( ) != observationTimes.size( ) )
             {
                 throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
             }
+
+            for( std::size_t k = 0; k < weights.size( ); ++k )
+            {
+                if( weights.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error( "Error when creating observation set with weights; individual weight size is incompatible" );
+                }
+            }
         }
 
-        if( residuals.size(  ) == 0 )
+        if( residuals.size( ) == 0 )
         {
             // Initialise residuals
             for( unsigned int k = 0; k < numberOfObservations_; k++ )
@@ -116,9 +135,18 @@ public:
         }
         else
         {
-            if( residuals.size(  ) != observationTimes.size(  ) * singleObservationSize_ )
+            if( residuals.size( ) != observationTimes.size( ) )
             {
                 throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
+            }
+
+            for( std::size_t k = 0; k < residuals.size( ); ++k )
+            {
+                if( residuals.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating observation set with residuals; individual residual size is incompatible" );
+                }
             }
         }
 
@@ -143,6 +171,12 @@ public:
 
         // Sort observations and metadata per observation time
         orderObservationsAndMetadata( );
+
+        // Erase duplicate observations if requested
+        if( eraseDuplicates )
+        {
+            eraseDuplicateObservations( );
+        }
 
         // Initialise time bounds
         updateTimeBounds( );
@@ -696,6 +730,39 @@ public:
         }
     }
 
+    void eraseDuplicateObservations( )
+    {
+        std::vector< unsigned int > indicesToRemove;
+
+        // Single pass through sorted observations
+        for( unsigned int i = 1; i < numberOfObservations_; i++ )
+        {
+            // Check if current observation time equals previous observation time
+            if( observationTimes_[ i ] == observationTimes_[ i - 1 ] )
+            {
+                const double currentObsValue = observationTimes_[ i ];
+                const double previousObsValue = observationTimes_[ i - 1 ];
+
+                // Check if observation values are also identical (with relative tolerance)
+                if( std::abs( currentObsValue - previousObsValue ) <=
+                    1e-12 * std::max( std::abs( currentObsValue ), std::abs( previousObsValue ) ) )
+                {
+                    // Mark current observation for removal
+                    indicesToRemove.push_back( i );
+                }
+            }
+        }
+
+        // Remove duplicates if any were found
+        if( indicesToRemove.size( ) > 0 )
+        {
+            int beforeCount = numberOfObservations_;
+            removeObservations( indicesToRemove );
+            std::cerr << "[WARNING] Detected and removed " << beforeCount - numberOfObservations_
+                      << "duplicate observations when creating instance of SingleObservationSet" << std::endl;
+        }
+    }
+
     void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true )
     {
         if( observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
@@ -913,9 +980,9 @@ public:
 
     void addObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                           const std::vector< TimeType >& times,
-                          const std::vector< Eigen::VectorXd >& dependentVariables = { },
-                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
-                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
+                          const std::vector< Eigen::VectorXd >& dependentVariables = {},
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
                           const bool sortObservations = true )
     {
         if( ( observations.size( ) != times.size( ) ) || ( weights.size( ) > 0 && ( observations.size( ) != weights.size( ) ) ) ||
@@ -1013,8 +1080,7 @@ public:
     }
 
 private:
-    static std::vector< std::size_t > getTimeSortingPermutation(
-        const std::vector< TimeType >& observationTimes )
+    static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
     {
         const std::size_t numberOfObservations = observationTimes.size( );
 
@@ -1024,21 +1090,15 @@ private:
             permutation[ i ] = i;
         }
 
-        std::sort(
-            permutation.begin( ),
-            permutation.end( ),
-            [ &observationTimes ]( const std::size_t i, const std::size_t j )
-            {
-                return observationTimes.at( i ) < observationTimes.at( j );
-            } );
+        std::sort( permutation.begin( ), permutation.end( ), [ &observationTimes ]( const std::size_t i, const std::size_t j ) {
+            return observationTimes.at( i ) < observationTimes.at( j );
+        } );
 
         return permutation;
     }
 
     template< typename T >
-    void reorderVectorInPlace(
-        std::vector< T >& data,
-        const std::vector< std::size_t >& permutation )
+    void reorderVectorInPlace( std::vector< T >& data, const std::vector< std::size_t >& permutation )
     {
         const std::size_t numberOfElements = data.size( );
 
@@ -1060,8 +1120,7 @@ private:
             return;
         }
 
-        const std::vector< std::size_t > permutation =
-            getTimeSortingPermutation( observationTimes_ );
+        const std::vector< std::size_t > permutation = getTimeSortingPermutation( observationTimes_ );
 
         reorderVectorInPlace( observationTimes_, permutation );
         reorderVectorInPlace( observations_, permutation );

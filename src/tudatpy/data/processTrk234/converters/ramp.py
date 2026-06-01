@@ -2,14 +2,13 @@
 Ramp converter
 """
 
-from . import Converter
-from trk234 import bands
+from trk234 import bands, SFDU
 
 from pandas import DataFrame, concat
 
 
-class RampConverter(Converter):
-    def extract(self, sfdu_list):
+class RampConverter:
+    def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent ramp data.
         # - Ramp format_code == 9
         # - Only keep decoded ones
@@ -35,7 +34,7 @@ class RampConverter(Converter):
 
         return DataFrame(data)
 
-    def process(self, ramp_df):
+    def process(self, ramp_df: DataFrame) -> DataFrame:
         """
         Concatenate ramp records and merge them per station following these rules:
 
@@ -53,19 +52,17 @@ class RampConverter(Converter):
            to the new ramp's start time.
 
         Ramp merging is done separately per station.
+        A default tolerance of 1e-6 Hz is used when comparing frequency and rate values, which corresponds to the precision from TNF data.
 
         Parameters
         ----------
-        rampDf : pd.DataFrame
+        ramp_df : pandas.DataFrame
             Ramp DataFrame to process. Each DataFrame must have at least the columns:
             "station", "epoch" (datetime-like), "type" (int), "freq" (float), "rate" (float).
-        tolerance : float, optional
-            Tolerance used when comparing frequency and rate values. Default is 1e-6 Hz that is the
-            precision from TNF data.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.DataFrame
             A merged ramp DataFrame with ramp intervals merged per station.
         """
         tolerance = 1e-6  # Precision from TNF data
@@ -84,12 +81,9 @@ class RampConverter(Converter):
                         current_interval = row.to_dict()
                         current_interval["end_time"] = None
                     else:
-                        delta_t = (
-                            event_time - current_interval["epoch"]
-                        ).total_seconds()
+                        delta_t = (event_time - current_interval["epoch"]).total_seconds()
                         expected_freq = (
-                            current_interval["freq"]
-                            + current_interval["rate"] * delta_t
+                            current_interval["freq"] + current_interval["rate"] * delta_t
                         )
                         if (
                             abs(event_freq - expected_freq) <= tolerance
@@ -114,10 +108,7 @@ class RampConverter(Converter):
             for interval in merged_intervals:
                 if final_intervals:
                     last = final_intervals[-1]
-                    if (
-                        last.get("end_time") is not None
-                        and interval["epoch"] < last["end_time"]
-                    ):
+                    if last.get("end_time") is not None and interval["epoch"] < last["end_time"]:
                         last["end_time"] = interval["epoch"]
                 final_intervals.append(interval)
             merged_dfs.append(DataFrame(final_intervals))

@@ -9,14 +9,16 @@
  */
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
@@ -34,7 +36,6 @@ using namespace tudat::ephemerides;
 using namespace tudat::input_output;
 using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
-using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::reference_frames;
 
@@ -142,7 +143,7 @@ int main( )
 
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFiles )
+    for( std::string odfFile : odfFiles )
     {
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( dataDirectory + odfFile ) );
     }
@@ -164,7 +165,7 @@ int main( )
      *****************************************************************************************/
 
     std::map< int, observation_models::LinkEnds > linkEndIds = observedObservationCollection->getInverseLinkEndIdentifierMap( );
-    for( auto it: linkEndIds )
+    for( auto it : linkEndIds )
     {
         std::cout << it.first << ", (" << it.second[ transmitter ].bodyName_ << ", " << it.second[ transmitter ].stationName_ << "); "
                   << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); " << ", ("
@@ -406,7 +407,7 @@ int main( )
         std::map< double, Eigen::VectorXd > finalStateHistory;
         std::map< double, Eigen::VectorXd > finalStateDifference;
         std::map< double, Eigen::VectorXd > finalStateDifferenceRsw;
-        for( auto it: estimatedStateHistory )
+        for( auto it : estimatedStateHistory )
         {
             finalStateHistory[ it.first ] = it.second.cast< double >( );
             Eigen::Matrix3d rotationMatrix = getInertialToRswSatelliteCenteredFrameRotationMatrix( it.second.cast< double >( ) );

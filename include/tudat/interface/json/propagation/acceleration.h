@@ -46,6 +46,7 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes = {
     { third_body_mutual_spherical_harmonic_gravity, "thirdBodyMutualSphericalHarmonicGravity" },
     { thrust_acceleration, "thrust" },
     { relativistic_correction_acceleration, "relativisticCorrection" },
+    { relativistic_acceleration_from_metric, "relativisticFromMetric" },
     { empirical_acceleration, "empirical" },
     { custom_acceleration, "custom" }
 };

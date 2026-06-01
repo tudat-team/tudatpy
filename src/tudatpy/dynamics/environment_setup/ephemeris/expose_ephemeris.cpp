@@ -7,12 +7,15 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_ephemeris.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createEphemeris.h>
 
 #include "scalarTypes.h"
 
@@ -151,6 +154,25 @@ void expose_ephemeris_setup( py::module& m )
 
          :type: EphemerisType
       )doc" );
+
+    py::class_< tss::DirectTleEphemerisSettings, std::shared_ptr< tss::DirectTleEphemerisSettings >, tss::EphemerisSettings >(
+            m, "DirectTleEphemerisSettings", R"doc(
+
+         Class for defining settings of an ephemeris linked directly to TLE data.
+
+         `EphemerisSettings` derived class for ephemeris which are directly linked to TLE data.
+         This is typically created through the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function, which creates TLE ephemeris settings objects from TLE data.
+         
+         )doc" )
+            .def_property_readonly( "tle", &tss::DirectTleEphemerisSettings::getTle, R"doc(
+                
+            **read-only**
+
+            TLE object containing the TLE data from which the ephemeris is to be created.
+
+            :type: Tle
+                
+                )doc" );
 
     py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
             m,
@@ -410,8 +432,7 @@ void expose_ephemeris_setup( py::module& m )
     m.def( "create_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "body_name" ) );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,
@@ -1233,8 +1254,7 @@ void expose_ephemeris_setup( py::module& m )
            &tss::customEphemerisSettingsDeprecated,
            py::arg( "custom_state_function" ),
            py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           R"doc(Deprecated function. Use custom_ephemeris instead.)doc" );
+           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
 }
 
 }  // namespace ephemeris

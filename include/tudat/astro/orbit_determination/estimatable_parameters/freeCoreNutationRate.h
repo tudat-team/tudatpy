@@ -13,7 +13,6 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat
@@ -38,10 +37,10 @@ public:
      */
     FreeCoreNutationRate( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< double >( free_core_nutation_rate, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~FreeCoreNutationRate( ) { }
+    ~FreeCoreNutationRate( ) {}
 
     //! Get value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!

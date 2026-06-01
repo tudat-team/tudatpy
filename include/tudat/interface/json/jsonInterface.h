@@ -11,7 +11,11 @@
 #ifndef TUDAT_JSONINTERFACE_H
 #define TUDAT_JSONINTERFACE_H
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodiesSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 #include "support/deserialization.h"
 #include "support/valueAccess.h"
@@ -89,7 +93,7 @@ public:
         resetJsonObject( jsonObject );
     }
 
-    virtual ~JsonSimulationManager( ) { }
+    virtual ~JsonSimulationManager( ) {}
 
     //! Reset the root JSON input file.
     /*!
@@ -222,7 +226,7 @@ public:
         if( applicationOptions_->tagOutputFilesIfPropagationFails_ && !dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
-            for( std::shared_ptr< ExportSettings >& exportSettings: exportSettingsVector_ )
+            for( std::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
             {
                 exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
             }
@@ -566,7 +570,7 @@ protected:
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
         catch( std::runtime_error const& )
-        { }
+        {}
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
         if( profiling )

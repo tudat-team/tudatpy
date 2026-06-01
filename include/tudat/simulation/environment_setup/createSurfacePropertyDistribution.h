@@ -35,7 +35,7 @@ class SurfacePropertyDistributionSettings
 public:
     explicit SurfacePropertyDistributionSettings( const SurfacePropertyDistributionType surfacePropertyDistributionType ):
         surfacePropertyDistributionType_( surfacePropertyDistributionType )
-    { }
+    {}
 
     virtual ~SurfacePropertyDistributionSettings( ) = default;
 
@@ -63,7 +63,7 @@ public:
      */
     explicit ConstantSurfacePropertyDistributionSettings( const double constantValue ):
         SurfacePropertyDistributionSettings( SurfacePropertyDistributionType::constant ), constantValue_( constantValue )
-    { }
+    {}
 
     double getConstantValue( ) const
     {
@@ -100,7 +100,7 @@ public:
         SurfacePropertyDistributionSettings( SurfacePropertyDistributionType::spherical_harmonics ),
         model_( SphericalHarmonicsSurfacePropertyDistributionModel::custom ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients )
-    { }
+    {}
 
     /*!
      * Constructor with model included in Tudat.
@@ -167,7 +167,7 @@ public:
         SurfacePropertyDistributionSettings( SurfacePropertyDistributionType::second_degree_zonal_periodic ),
         model_( KnockeTypeSurfacePropertyDistributionModel::custom ), a0( a0 ), c0( c0 ), c1( c1 ), c2( c2 ), a2( a2 ),
         referenceEpoch( referenceEpoch ), period( period )
-    { }
+    {}
 
     /*!
      * Constructor with model included in Tudat.
@@ -230,7 +230,7 @@ public:
             const std::function< double( const double, const double, const double ) > customFunction ):
         SurfacePropertyDistributionSettings( SurfacePropertyDistributionType::custom_surface_distribution ),
         customFunction_( customFunction )
-    { }
+    {}
 
     std::function< double( const double, const double, const double ) > getCustomFunction( )
     {

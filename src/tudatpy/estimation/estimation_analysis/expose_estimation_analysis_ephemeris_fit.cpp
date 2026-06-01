@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_estimation_analysis_ephemeris_fit.h"
 
 #include <pybind11/chrono.h>
@@ -26,7 +28,6 @@ namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace trf = tudat::reference_frames;
-
 
 namespace tudatpy
 {
@@ -52,7 +53,6 @@ void expose_estimation_analysis_ephemeris_fit( py::module& m )
            py::arg( "reintegrate_variational_equations" ) = true,
            py::arg( "results_print_frequency" ) = 0.0,
            R"doc(No documentation found.)doc" );
-
 }
 
 }  // namespace estimation_analysis

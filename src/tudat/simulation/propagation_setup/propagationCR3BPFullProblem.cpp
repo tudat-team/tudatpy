@@ -9,6 +9,9 @@
  */
 
 #include "tudat/astro/gravitation/librationPoint.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 #include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 

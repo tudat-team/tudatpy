@@ -123,10 +123,10 @@ public:
                             initialStateVector,
                             initialCovarianceMatrix,
                             integratorSettings )
-    { }
+    {}
 
     //! Destructor.
-    ~LinearKalmanFilter( ) { }
+    ~LinearKalmanFilter( ) {}
 
     //! Function to update the filter with the new step data.
     /*!

@@ -193,7 +193,7 @@ std::map< KeyType, ScalarValueType > readFloatingPointMapFromFile( const std::st
             readStlVectorMapFromFile< KeyType, ScalarValueType >( relativePath, separators, skipLinesCharacter );
 
     std::map< KeyType, ScalarValueType > floatingPointMap;
-    for( auto it: vectorMap )
+    for( auto it : vectorMap )
     {
         if( it.second.size( ) != 1 )
         {
@@ -203,6 +203,19 @@ std::map< KeyType, ScalarValueType > readFloatingPointMapFromFile( const std::st
     }
     return floatingPointMap;
 }
+
+//! Explicit extern template declarations for common double/double map readers.
+/*!
+ *  These declarations reduce repeated template instantiation work in downstream translation units.
+ */
+extern template std::map< double, std::vector< double > > readStlVectorMapFromFile< double, double >(
+        const std::string& relativePath,
+        const std::string& separators,
+        const std::string& skipLinesCharacter );
+
+extern template std::map< double, double > readFloatingPointMapFromFile< double, double >( const std::string& relativePath,
+                                                                                           const std::string& separators,
+                                                                                           const std::string& skipLinesCharacter );
 
 }  // namespace input_output
 

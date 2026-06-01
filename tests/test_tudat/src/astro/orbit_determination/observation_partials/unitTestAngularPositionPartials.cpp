@@ -17,14 +17,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
@@ -52,75 +50,81 @@ BOOST_AUTO_TEST_SUITE( test_angular_position_partials )
 //! Test partial derivatives of angular position observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 {
-    // Define and create ground stations.
-    std::vector< std::pair< std::string, std::string > > groundStations;
-    groundStations.resize( 2 );
-    groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
-    groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
-
-    Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 );
-    parameterPerturbationMultipliers( 2 ) = 10.0;
-    // Test partials with constant ephemerides (allows test of position partials)
+    for( int normalizeRightAscension = 0; normalizeRightAscension < 2; normalizeRightAscension++ )
     {
-        // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        // Define and create ground stations.
+        std::vector< std::pair< std::string, std::string > > groundStations;
+        groundStations.resize( 2 );
+        groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
+        groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
-        // Set link ends for observation model
-        LinkEnds linkEnds;
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ receiver ] = groundStations[ 0 ];
+        Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 );
+        parameterPerturbationMultipliers( 2 ) = 10.0;
+        // Test partials with constant ephemerides (allows test of position partials)
+        {
+            // Create environment
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
-        // Generate one-way range model
-        std::vector< std::string > perturbingBodies;
-        perturbingBodies.push_back( "Earth" );
-        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
-                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                        std::make_shared< observation_models::ObservationModelSettings >(
-                                observation_models::angular_position,
-                                linkEnds,
-                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
-                        bodies );
+            // Set link ends for observation model
+            LinkEnds linkEnds;
+            linkEnds[ transmitter ] = groundStations[ 1 ];
+            linkEnds[ receiver ] = groundStations[ 0 ];
 
-        // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+            // Generate one-way range model
+            std::vector< std::string > perturbingBodies;
+            perturbingBodies.push_back( "Earth" );
+            std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
+                    observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                    observation_models::angular_position,
+                                    linkEnds,
+                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                    nullptr,
+                                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                                    static_cast< bool >( normalizeRightAscension ) ),
+                            bodies );
 
-        testObservationPartials( angularPositionModel,
-                                 bodies,
-                                 fullEstimatableParameterSet,
-                                 linkEnds,
-                                 angular_position,
-                                 1.0E-4,
-                                 true,
-                                 true,
-                                 1.0,
-                                 parameterPerturbationMultipliers );
+            // Create parameter objects.
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+
+            testObservationPartials( angularPositionModel,
+                                     bodies,
+                                     fullEstimatableParameterSet,
+                                     linkEnds,
+                                     angular_position,
+                                     1.0E-4,
+                                     true,
+                                     true,
+                                     1.0,
+                                     parameterPerturbationMultipliers );
+        }
+
+        //    // Test partials with real ephemerides (without test of position partials)
+        //    {
+        //        std::cout << "Test 1" << std::endl;
+        //        // Create environment
+        //        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+        //        // Set link ends for observation model
+        //        LinkEnds linkEnds;
+        //        linkEnds[ transmitter ] = groundStations[ 1 ];
+        //        linkEnds[ receiver ] = groundStations[ 0 ];
+
+        //        // Generate one-way range model
+        //        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
+        //                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
+        //                    linkEnds, std::make_shared< observation_models::ObservationModelSettings >(
+        //                        observation_models::angular_position ), bodies  );
+
+        //        // Create parameter objects.
+        //        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+        //                createEstimatableParameters( bodies, 1.1E7 );
+
+        //        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+        //        false, true, 1.0, parameterPerturbationMultipliers );
+
+        //    }
     }
-
-    //    // Test partials with real ephemerides (without test of position partials)
-    //    {
-    //        std::cout << "Test 1" << std::endl;
-    //        // Create environment
-    //        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
-
-    //        // Set link ends for observation model
-    //        LinkEnds linkEnds;
-    //        linkEnds[ transmitter ] = groundStations[ 1 ];
-    //        linkEnds[ receiver ] = groundStations[ 0 ];
-
-    //        // Generate one-way range model
-    //        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
-    //                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-    //                    linkEnds, std::make_shared< observation_models::ObservationModelSettings >(
-    //                        observation_models::angular_position ), bodies  );
-
-    //        // Create parameter objects.
-    //        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-    //                createEstimatableParameters( bodies, 1.1E7 );
-
-    //        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
-    //        false, true, 1.0, parameterPerturbationMultipliers );
-
-    //    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

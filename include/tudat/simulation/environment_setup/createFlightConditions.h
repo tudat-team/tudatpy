@@ -13,12 +13,14 @@
 
 #include <boost/multi_array.hpp>
 
+#include <functional>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "tudat/astro/aerodynamics/aerodynamicGuidance.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 
 namespace tudat
@@ -26,6 +28,9 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 std::shared_ptr< reference_frames::AerodynamicAngleCalculator > createAerodynamicAngleCalculator(
         const std::shared_ptr< Body > bodyWithFlightConditions,

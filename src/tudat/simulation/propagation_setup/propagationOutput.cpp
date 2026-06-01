@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 
 namespace tudat
@@ -135,7 +135,7 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
 
-    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction: vectorFunctionList )
+    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction : vectorFunctionList )
     {
         variableList.segment( currentIndex, vectorFunction.second ) = vectorFunction.first( );
         currentIndex += vectorFunction.second;
@@ -258,6 +258,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableSize = 9;
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            variableSize = 9;
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableSize = 9;
             break;
@@ -268,6 +271,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             variableSize = 3;
             break;
         case body_fixed_groundspeed_based_velocity_variable:
+            variableSize = 3;
+            break;
+        case local_wind_velocity_dependent_variable:
             variableSize = 3;
             break;
         case total_aerodynamic_g_load_variable:
@@ -477,6 +483,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case solar_longitude:
             variableSize = 1;
             break;
+        case number_density:
+            variableSize = 1;
+            break;
         case vehicle_panel_inertial_surface_normals:
         case vehicle_panel_body_fixed_surface_normals: {
             std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
@@ -623,6 +632,12 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case aerodynamic_coefficients:
             variableSize = 3;
             break;
+        case proper_time_rate_kinematic_term:
+            variableSize = 1;
+            break;
+        case proper_time_rate_potential_term:
+            variableSize = 1;
+            break;
         default:
             std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -639,6 +654,9 @@ std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDe
     switch( dependentVariableSettings->dependentVariableType_ )
     {
         case inertial_to_body_fixed_rotation_matrix_variable:
+            dependentVariableShape = { 3, 3 };
+            break;
+        case vehicle_part_rotation_matrix_dependent_variable:
             dependentVariableShape = { 3, 3 };
             break;
         case intermediate_aerodynamic_rotation_matrix_variable:
@@ -708,6 +726,9 @@ bool isMatrixDependentVariable( const std::shared_ptr< SingleDependentVariableSa
     switch( dependentVariableSettings->dependentVariableType_ )
     {
         case inertial_to_body_fixed_rotation_matrix_variable:
+            isMatrixVariable = true;
+            break;
+        case vehicle_part_rotation_matrix_dependent_variable:
             isMatrixVariable = true;
             break;
         case intermediate_aerodynamic_rotation_matrix_variable:

@@ -43,13 +43,13 @@ public:
     /*!
      * Default constructor.
      */
-    QuadrilateralMeshedSurfaceGeometry( ): numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ), totalArea_( -0.0 ) { }
+    QuadrilateralMeshedSurfaceGeometry( ): numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ), totalArea_( -0.0 ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~QuadrilateralMeshedSurfaceGeometry( ) { }
+    virtual ~QuadrilateralMeshedSurfaceGeometry( ) {}
 
     //! Get surface point.
     /*!

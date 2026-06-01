@@ -14,13 +14,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
@@ -53,7 +52,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
                                  const bool useConstantEphemerides = 1,
                                  const double gravitationalParameterScaling = 1.0,
                                  const bool useConstantRotationalEphemeris = false,
-                                 const bool moveMarsToMoon = false );
+                                 const bool moveMarsToMoon = false,
+                                 const bool useOblateEarthShape = false );
 
 //! Function to create estimated parameters for general observation partial tests.
 std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters( const SystemOfBodies& bodies,
@@ -161,6 +161,12 @@ void testObservationPartials(
         double observationTime = 1.1E7,
         const double gammaToleranceWeakening = 1.0 )
 {
+    bool isNormalized = false;
+    if( std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType > >( observationModel ) != nullptr )
+    {
+        isNormalized = std::dynamic_pointer_cast< AngularPositionObservationModel< double, TimeType > >( observationModel )
+                               ->getNormalizeRightAscension( );
+    }
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
     // Retrieve double and vector parameters and estimate body states
@@ -214,6 +220,16 @@ void testObservationPartials(
         }
 
         if( observableType == observation_models::doppler_measured_frequency && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::one_way_doppler_measured_frequency && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::differenced_frequency_of_arrival && linkEndIterator->first != receiver )
         {
             runSimulation = false;
         }
@@ -344,7 +360,8 @@ void testObservationPartials(
                     }
 
                     // Test position partial
-                    if( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
+                    if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) &&
+                        ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
@@ -454,8 +471,8 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
-                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial
-                                  << " " << numericalPartialsWrtDoubleParameters.at( i ) << " "
+                                  << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << ", " << currentParameterPartial
+                                  << ", " << numericalPartialsWrtDoubleParameters.at( i ) << ", "
                                   << ( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) /
                                         numericalPartialsWrtDoubleParameters.at( i )( 0 )
                                   << std::endl;

@@ -15,9 +15,7 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_MODEL_H
 
 #include <iostream>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include <Eigen/Core>

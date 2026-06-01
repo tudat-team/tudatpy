@@ -45,7 +45,7 @@ struct TrajectoryOptimisationProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    TrajectoryOptimisationProblem( ) { }
+    TrajectoryOptimisationProblem( ) {}
 
     //! Constructor.
     TrajectoryOptimisationProblem( std::function< Eigen::Vector6d( const double ) > departureStateFunction,

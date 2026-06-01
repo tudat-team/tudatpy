@@ -19,7 +19,13 @@
 #include "tudat/interface/json/support/valueConversions.h"
 #include "tudat/interface/json/jsonInterfaceVariational.h"
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/math/statistics/basicStatistics.h"
+#include "tudat/math/statistics/randomVariableGenerator.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -56,7 +62,7 @@ public:
     JsonEstimationManager( const std::string& inputFilePath,
                            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
-    { }
+    {}
 
     //! Constructor from JSON object.
     /*!
@@ -68,9 +74,9 @@ public:
     JsonEstimationManager( const nlohmann::json& jsonObject,
                            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime )
-    { }
+    {}
 
-    virtual ~JsonEstimationManager( ) { }
+    virtual ~JsonEstimationManager( ) {}
 
     virtual void updateSettings( )
     {
@@ -96,7 +102,7 @@ public:
     /*!
      * @copybrief exportResults
      */
-    void exportEstimationResults( ) { }
+    void exportEstimationResults( ) {}
 
 protected:
     void resetObservationSettings( )

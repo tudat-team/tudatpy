@@ -22,9 +22,10 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
@@ -608,10 +609,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithCorrections );
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithoutCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =

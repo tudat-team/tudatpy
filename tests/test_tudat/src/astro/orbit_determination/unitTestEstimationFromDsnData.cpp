@@ -12,13 +12,20 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
@@ -243,7 +250,7 @@ void runSimulation( std::vector< std::string > odfFiles,
 
     // Read and process ODF file data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
+    for( std::string odfFile : odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
 
     std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
@@ -300,8 +307,9 @@ void runSimulation( std::vector< std::string > odfFiles,
             //                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
             if( it->first == observation_models::dsn_n_way_averaged_doppler )
             {
-                observationModelSettingsList.push_back( std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
-                        it->second.at( i ), lightTimeCorrectionSettings, nullptr, lightTimeConvergenceCriteria ) );
+                observationModelSettingsList.push_back(
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
+                                it->second.at( i ), lightTimeCorrectionSettings, nullptr, lightTimeConvergenceCriteria ) );
                 //                observationModelSettingsList.push_back(
                 //                    std::make_shared< observation_models::NWayDifferencedRangeObservationModelSettings >(
                 //                            it->second.at( i ), lightTimeCorrectionSettings, nullptr,
@@ -777,7 +785,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                        finalEphemerisTime,
                        true,
                        ephemeridesTimeStep,
-                       { },
+                       {},
                        120,
                        1e-10,
                        integrationMinMaxStep,

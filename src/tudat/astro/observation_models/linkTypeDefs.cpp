@@ -320,7 +320,7 @@ bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch 
 {
     bool linkEndIsPresent = false;
 
-    for( auto linkEndIterator: linkEnds )
+    for( auto linkEndIterator : linkEnds )
     {
         if( linkEndIterator.second == linkEndToSearch )
         {

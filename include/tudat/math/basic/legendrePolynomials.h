@@ -34,7 +34,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/circular_buffer.hpp>
 #include <functional>
 #include <memory>
 #include <vector>

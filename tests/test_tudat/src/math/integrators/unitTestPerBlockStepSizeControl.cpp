@@ -17,16 +17,19 @@
 #define BOOST_TEST_MAIN
 
 #include <string>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include <Eigen/Core>
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/simulation/propagation_setup.h"
-#include "tudat/simulation/estimation_setup.h"
 
 namespace tudat
 {

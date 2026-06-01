@@ -180,7 +180,7 @@ public:
                                        const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
     {
         Time convertedTime = getCurrentTime< Time >( inputScale, outputScale, Time( inputTimeValue ), earthFixedPosition );
-        return static_cast< TimeType >( convertedTime - inputTimeValue );
+        return static_cast< TimeType >( convertedTime - Time( inputTimeValue ) );
     }
 
     //! Function to convert a vector of time values from the input to the output scale.

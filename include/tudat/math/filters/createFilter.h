@@ -78,13 +78,13 @@ public:
         measurementUncertainty_( measurementUncertainty ), filteringStepSize_( filteringStepSize ), initialTime_( initialTime ),
         initialStateEstimate_( initialStateVector ), initialCovarianceEstimate_( initialCovarianceMatrix ),
         integratorSettings_( integratorSettings )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    virtual ~FilterSettings( ) { }
+    virtual ~FilterSettings( ) {}
 
     //! Enumeration denoting which filtering technique is to be used.
     const AvailableFilteringTechniques filteringTechnique_;
@@ -166,7 +166,7 @@ public:
                                                                           initialStateVector,
                                                                           initialCovarianceMatrix,
                                                                           integratorSettings )
-    { }
+    {}
 };
 
 //! Unscented Kalman filter settings.
@@ -222,7 +222,7 @@ public:
                                                                           initialCovarianceMatrix,
                                                                           integratorSettings ),
         constantValueReference_( constantValueReference ), customConstantParameters_( customConstantParameters )
-    { }
+    {}
 
     //! Enumeration denoting the reference to use for the alpha and kappa paramters.
     const ConstantParameterReferences constantValueReference_;

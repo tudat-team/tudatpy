@@ -114,7 +114,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~HypersonicLocalInclinationAnalysis( ) { }
+    ~HypersonicLocalInclinationAnalysis( ) {}
 
     //! Get aerodynamic coefficients.
     /*!

@@ -12,8 +12,9 @@
 #define BOOST_TEST_MAIN
 
 #include <iomanip>
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
-#include <tudat/simulation/estimation.h>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
@@ -185,9 +186,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
                                                              dependentVariableResultForEachLeg,
                                                              static_cast< bool >( terminationType ) );
 
-        for( auto itr: patchedConicsResultForEachLeg )
+        for( auto itr : patchedConicsResultForEachLeg )
         {
-            for( auto innerItr: itr.second )
+            for( auto innerItr : itr.second )
             {
                 Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
                         fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];
@@ -367,9 +368,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                                                                     dependentVariableResultForEachLeg,
                                                                     static_cast< bool >( terminationType ) );
 
-        for( auto itr: patchedConicsResultForEachLeg )
+        for( auto itr : patchedConicsResultForEachLeg )
         {
-            for( auto innerItr: itr.second )
+            for( auto innerItr : itr.second )
             {
                 Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
                         fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];

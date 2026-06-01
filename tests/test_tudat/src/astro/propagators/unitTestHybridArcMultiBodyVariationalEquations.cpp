@@ -13,6 +13,7 @@
 
 #include <string>
 #include <thread>
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -29,9 +30,9 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -337,9 +338,9 @@ void getCloseApproachTimes( const double initialTime,
     }
 
     std::map< double, std::string > timeOrderedFlybyTimes;
-    for( auto bodyIterator: closeApproachTimes )
+    for( auto bodyIterator : closeApproachTimes )
     {
-        for( auto timeIterator: bodyIterator.second )
+        for( auto timeIterator : bodyIterator.second )
         {
             timeOrderedFlybyTimes[ timeIterator.first ] = bodyIterator.first;
 
@@ -808,7 +809,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
                 std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
 
-        for( auto itr: multiArcCentralBodiesPerBody )
+        for( auto itr : multiArcCentralBodiesPerBody )
         {
             Eigen::VectorXd arcWiseStatesCurrentBody;
             arcWiseStatesCurrentBody.resize( 6 * itr.second.size( ) );
@@ -931,7 +932,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::cout << multiArcStmArc3Test.rbegin( )->second << "\n\n";
 
         // Test consistency of single-arc variational equations solutions.
-        for( auto itr: singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ] )
+        for( auto itr : singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ] )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     itr.second,
@@ -946,7 +947,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         // Test consistency of multi-arc variational equations solutions.
         for( unsigned int k = 0; k < numberArcs; k++ )
         {
-            for( auto itr: multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ k ][ 0 ] )
+            for( auto itr : multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ k ][ 0 ] )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),

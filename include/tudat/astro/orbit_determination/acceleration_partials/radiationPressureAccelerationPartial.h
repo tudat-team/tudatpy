@@ -14,7 +14,9 @@
 #include <memory>
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
 
 namespace tudat
@@ -52,10 +54,10 @@ public:
         accelerationUpdateFunction_(
                 std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
         cannonballTargetModel_( cannonballTargetModel ), accelerationModel_( accelerationModel )
-    { }
+    {}
 
     //! Destructor.
-    ~CannonBallRadiationPressurePartial( ) { }
+    ~CannonBallRadiationPressurePartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

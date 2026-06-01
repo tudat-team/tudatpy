@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -175,7 +176,7 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
             std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
 
-            for( auto it: sortedBodyPanelMap )
+            for( auto it : sortedBodyPanelMap )
             {
                 if( it.first != "" )
                 {

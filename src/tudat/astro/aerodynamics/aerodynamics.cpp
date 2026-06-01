@@ -18,7 +18,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/equilibriumWallTemperature.h"
 
 #include <memory>

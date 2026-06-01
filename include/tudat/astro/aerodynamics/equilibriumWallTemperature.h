@@ -39,10 +39,10 @@ public:
                                     double adiabaticWallTemperature ):
         heatTransferFunction_( heatTransferFunction ), wallEmissivity_( wallEmissivity ),
         adiabaticWallTemperature_( adiabaticWallTemperature )
-    { }
+    {}
 
     //! Destructor.
-    ~EquilibriumTemperatureFunction( ) { }
+    ~EquilibriumTemperatureFunction( ) {}
 
     //! Compute net heat flux at given wall temperature
     /*!

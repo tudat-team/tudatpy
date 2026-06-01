@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observable_models_setup.h"
 
 #include <pybind11/chrono.h>
@@ -18,6 +20,10 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "biases/expose_biases.h"
+#include "links/expose_links.h"
+#include "light_time_corrections/expose_light_time_corrections.h"
+#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 
@@ -30,7 +36,6 @@ namespace observable_models_setup
 
 void expose_observable_models_setup( py::module& m )
 {
-
     // ************** Modules ***************
     auto biases = m.def_submodule( "biases" );
     biases::expose_biases( biases );
@@ -43,7 +48,6 @@ void expose_observable_models_setup( py::module& m )
 
     auto model_settings = m.def_submodule( "model_settings" );
     model_settings::expose_model_settings( model_settings );
-
 }
 
 }  // namespace observable_models_setup

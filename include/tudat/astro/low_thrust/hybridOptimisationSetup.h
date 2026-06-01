@@ -14,6 +14,8 @@
 #include <vector>
 #include <utility>
 #include <limits>
+#include <memory>
+#include <string>
 
 #include <Eigen/Core>
 
@@ -21,7 +23,8 @@
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 using namespace pagmo;
 
@@ -34,7 +37,7 @@ struct HybridMethodProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    HybridMethodProblem( ) { }
+    HybridMethodProblem( ) {}
 
     //! Constructor.
     HybridMethodProblem( const Eigen::Vector6d& stateAtDeparture,

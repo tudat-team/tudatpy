@@ -52,10 +52,10 @@ class ObservationViabilityCalculator
 {
 public:
     //! Base class constructor
-    ObservationViabilityCalculator( ) { }
+    ObservationViabilityCalculator( ) {}
 
     //! Base class destructor
-    virtual ~ObservationViabilityCalculator( ) { }
+    virtual ~ObservationViabilityCalculator( ) {}
 
     //! Pure virtual base class function for determining whether an observation is viable.
     /*!
@@ -130,10 +130,10 @@ public:
                                      const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator ):
         linkEndIndices_( linkEndIndices ), minimumElevationAngle_( minimumElevationAngle ),
         pointingAngleCalculator_( pointingAngleCalculator )
-    { }
+    {}
 
     //! Destructor
-    ~MinimumElevationAngleCalculator( ) { }
+    ~MinimumElevationAngleCalculator( ) {}
 
     //! Function for determining whether the elevation angle at station is sufficient to allow observation.
     /*!
@@ -208,10 +208,10 @@ public:
                                   const std::string bodyToAvoid ):
         linkEndIndices_( linkEndIndices ), bodyAvoidanceAngle_( bodyAvoidanceAngle ),
         stateFunctionOfBodyToAvoid_( stateFunctionOfBodyToAvoid ), bodyToAvoid_( bodyToAvoid )
-    { }
+    {}
 
     //! Destructor
-    ~BodyAvoidanceAngleCalculator( ) { }
+    ~BodyAvoidanceAngleCalculator( ) {}
 
     //! Function for determining whether the avoidance angle to a given body at station is sufficient to allow observation.
     /*!
@@ -266,7 +266,7 @@ public:
                            const double radiusOfOccultingBody ):
         linkEndIndices_( linkEndIndices ), stateFunctionOfOccultingBody_( stateFunctionOfOccultingBody ),
         radiusOfOccultingBody_( radiusOfOccultingBody )
-    { }
+    {}
 
     //! Function for determining whether the link is occulted during the observataion.
     /*!

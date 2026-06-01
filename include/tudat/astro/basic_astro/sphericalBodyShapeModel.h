@@ -34,10 +34,10 @@ public:
      *  Constructor, defines body shape.
      *  \param radius Radius of sphere
      */
-    SphericalBodyShapeModel( const double radius ): radius_( radius ) { }
+    SphericalBodyShapeModel( const double radius ): radius_( radius ) {}
 
     //! Destructor
-    ~SphericalBodyShapeModel( ) { }
+    ~SphericalBodyShapeModel( ) {}
 
     //! Calculates the altitude above the sphere
     /*!

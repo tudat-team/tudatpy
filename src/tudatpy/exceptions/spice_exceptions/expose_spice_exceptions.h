@@ -11,6 +11,8 @@
 #ifndef TUDATPY_EXPOSE_SPICE_EXCEPTIONS_H
 #define TUDATPY_EXPOSE_SPICE_EXCEPTIONS_H
 
+#include <pybind11/pybind11.h>
+
 namespace py = pybind11;
 
 namespace tudatpy
@@ -18,7 +20,7 @@ namespace tudatpy
 namespace exceptions
 {
 
-void expose_spice_exceptions( py::module &m );
+void expose_spice_exceptions( py::module& m );
 
 }  // namespace exceptions
 }  // namespace tudatpy

@@ -20,13 +20,11 @@
 #ifndef TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 #define TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 
-#include <boost/function.hpp>
-
 #include <cmath>
 
 #include "tudat/basics/utilityMacros.h"
 
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
@@ -141,7 +139,7 @@ public:
                                          const double ratioOfSpecificHeats = 1.4 ):
         densityFunction_( densityFunction ), constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {}
 
     //! Constructor.
     /*!

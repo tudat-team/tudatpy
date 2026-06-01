@@ -11,16 +11,7 @@
 #ifndef TUDATPY_EXPOSE_OBSERVABLE_MODELS_SETUP_H
 #define TUDATPY_EXPOSE_OBSERVABLE_MODELS_SETUP_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "biases/expose_biases.h"
-#include "links/expose_links.h"
-#include "light_time_corrections/expose_light_time_corrections.h"
-#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 
@@ -31,7 +22,7 @@ namespace estimation
 namespace observable_models_setup
 {
 
-void expose_observable_models_setup( py::module &m );
+void expose_observable_models_setup( py::module& m );
 
 }  // namespace observable_models_setup
 }  // namespace estimation

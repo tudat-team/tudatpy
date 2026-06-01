@@ -23,7 +23,7 @@ namespace astro
 namespace gravitation
 {
 
-void expose_gravitation( py::module &m );
+void expose_gravitation( py::module& m );
 
 }  // namespace gravitation
 }  // namespace astro

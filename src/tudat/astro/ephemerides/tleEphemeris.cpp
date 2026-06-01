@@ -45,8 +45,8 @@ Eigen::Matrix3d getRotationMatrixFromJ2000ToTeme( const double epochSinceJ2000 )
     return getRotationMatrixFromTemeToJ2000( epochSinceJ2000 ).transpose( );
 }
 
-TleEphemeris::TleEphemeris( const std::string &referenceFrameOrigin,
-                            const std::string &referenceFrameOrientation,
+TleEphemeris::TleEphemeris( const std::string& referenceFrameOrigin,
+                            const std::string& referenceFrameOrientation,
                             const std::shared_ptr< Tle > tle_ptr,
                             const bool useSDP ): Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
 {
@@ -102,7 +102,7 @@ Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
 }
 
 // Computes the TLE checksum (0-9) for a 69-character line (checksum digit is at index 68).
-int computeTleChecksum( const std::string &line )
+int computeTleChecksum( const std::string& line )
 {
     if( line.size( ) != 69 )
     {
@@ -126,7 +126,7 @@ int computeTleChecksum( const std::string &line )
     return checksum % 10;
 }
 
-void validateTleChecksumOrThrow( const std::string &line )
+void validateTleChecksumOrThrow( const std::string& line )
 {
     const int expected = computeTleChecksum( line );
     const int provided = static_cast< int >( line.at( 68 ) ) - '0';
@@ -137,7 +137,7 @@ void validateTleChecksumOrThrow( const std::string &line )
     }
 }
 
-Tle::Tle( const std::string &lines )
+Tle::Tle( const std::string& lines )
 {
     // First of all, the TLE lines to be checked for validity: they shall not be empty, contain more than 69 characters
     // or have an invalid checksum.
@@ -212,9 +212,13 @@ Tle::Tle( const std::string &lines )
     noradCatalogNumber_ = std::stoi( line1.substr( 2, 5 ) );
     classification_ = line1.at( 7 );
 
-    internationalDesignatorLaunchYear_ = std::stoi( line1.substr( 9, 2 ) );
-    internationalDesignatorLaunchNumber_ = std::stoi( line1.substr( 11, 3 ) );
-    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+    // IF missing INTLDES, replace with mock designation
+    std::string launchYearStr = boost::algorithm::trim_copy( line1.substr( 9, 2 ) );
+    internationalDesignatorLaunchYear_ = launchYearStr.empty( ) ? 0 : std::stoi( launchYearStr );
+    std::string launchNumberStr = boost::algorithm::trim_copy( line1.substr( 11, 3 ) );
+    internationalDesignatorLaunchNumber_ = launchNumberStr.empty( ) ? 0 : std::stoi( launchNumberStr );
+    internationalDesignatorPiece_ =
+            boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
 
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
@@ -255,7 +259,7 @@ Tle::Tle( const std::string &lines )
     elementSetNumber_ = std::stoi( line1.substr( 64, 4 ) );
 
     // ---- Line 2: classical elements ----
-    inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 7 ) ) );
+    inclination_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 8, 8 ) ) );
     rightAscension_ = unit_conversions::convertDegreesToRadians( std::stod( line2.substr( 17, 8 ) ) );
 
     std::string eccentricityString = "0." + line2.substr( 26, 7 );
@@ -271,11 +275,11 @@ Tle::Tle( const std::string &lines )
     revolutionNumberAtEpoch_ = std::stoi( line2.substr( 63, 5 ) );
 }
 
-Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
+Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
 
-Tle::Tle( const double *spiceElements )
+Tle::Tle( const double* spiceElements )
 {
-    for( double &spiceElement : spiceElements_ )
+    for( double& spiceElement : spiceElements_ )
     {
         spiceElement = *spiceElements;
         spiceElements++;

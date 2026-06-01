@@ -8,9 +8,10 @@ name: Build and Test w/ Conda
 
 on:
   push:
-    branches: [ "master", "develop", "develop_10"]
+    branches: [ "master", "develop"]
   pull_request:
-    branches: [ "master", "develop", "develop_10"]
+    branches: [ "master", "develop"]
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -28,27 +29,48 @@ jobs:
       # building under conda.  This invites version clashes with
       # dependencies that are also installed system-wide.
       #
+      # Compiler meta-packages provides the platform specific packages:
       # - Linux: gcc
-      # - Windows: gcc (?)
+      # - Windows: gcc
       # - OSX: clang
       #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
+      # If you want to add a config that can vary for a given
+      # platform, add it as a top-level key under matrix, however if
+      # it is a property of the platform, you should create a key
+      # under "platform:".
+      #
+      # E.g. to add more build types (Release, Debug, RelWithDebInfo,
+      # etc.) customize the build_type: list, it will be added to all
+      # platforms.  However, if you want to add a build type for a
+      # subset of platforms, you should use include: (see commented
+      # out example below) or use exclude: along with adding to
+      # "build_type:".
+      #
+      # The precendence rules used by GH to generate matrix values is
+      # non-intuitive.  You can review the rules here:
+      # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
       matrix:
         platform:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 2
+            build_jobs: 3
+            ccache: ON
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
-            build_jobs: 3
+            build_jobs: 2
+            ccache: OFF
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
             build_jobs: 2
+            ccache: ON
         build_type: [Release]
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
+        # include:
+        #   - platform: {os: windows-latest}
+        #     build_type: [Release, Debug]
         exclude:
           - platform: {os: windows-latest}
             compilers: {c: clang, cxx: clang++}
@@ -58,24 +80,23 @@ jobs:
             compilers: {c: gcc, cxx: g++}
 
     steps:
-    - uses: actions/checkout@v4
-
+    - uses: actions/checkout@v6
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
            activate-environment: tudat
-           auto-activate-base: false
+           auto-activate: false
+           channels: conda-forge,tudat-team
+           conda-remove-defaults: true
 
-
-    - name: Get date
-      # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
-      # GitHub cache action doucmentation recommends refreshing the cache every 24 hours to avoid inconsistencies of package versions between the CI pipeline and local installations. This is ensured by appending the date to the cache key.See https://github.com/marketplace/actions/setup-miniconda#caching-environments for more detail.
-      id: get-date
-      run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
-      shell: bash
-
+    # - name: Get date
+    #   # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
+    #   # GitHub cache action doucmentation recommends refreshing the cache every 24 hours to avoid inconsistencies of package versions between the CI pipeline and local installations. This is ensured by appending the date to the cache key.See https://github.com/marketplace/actions/setup-miniconda#caching-environments for more detail.
+    #   id: get-date
+    #   shell: bash
+    #   run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
 
     # - name: Cache conda environment
     #   # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
@@ -85,12 +106,10 @@ jobs:
     #       key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
     #   id: cache
 
-
     - name: Create conda environment from environment.yml - ${{ matrix.platform.os }}
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
       # if: steps.cache.outputs.cache-hit != 'true'
       run: conda env update -n tudat -f environment.yaml
-
 
     - name: Show full conda package list
       shell: bash -l {0}
@@ -113,32 +132,31 @@ jobs:
     #   if: (runner.os == 'Linux' || runner.os == 'MacOS') && steps.cache.outputs.cache-hit == 'true'
     #   run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.sh)"
 
-
     # - name: Download tudat-resources data files for Windows
     #   if: runner.os == 'Windows' && steps.cache.outputs.cache-hit == 'true'
     #   run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
-
-    #- name: Restore cached compilation results
-    #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
-    #  uses: hendrikmuhs/ccache-action@v1.2.12
-    #  with:
-    #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
-
+    # - name: Restore cached compilation results
+    #   # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
+    #   uses: hendrikmuhs/ccache-action@v1.2.12
+    #   with:
+    #     key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
-      run: >
-        cmake -B "${{ github.workspace }}/build"
-        -S "${{ github.workspace }}"
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
-        #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
-        #-DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DTUDAT_BUILD_GITHUB_ACTIONS=ON
+      run: |
+        cmake -B "${{ github.workspace }}/build" \
+          -S "${{ github.workspace }}" \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
+          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
+          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} \
+          -DTUDAT_BUILD_WITH_TEST_PCH=ON \
+          -DTUDAT_BUILD_WITH_PCH=ON \
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
+          -DCMAKE_UNITY_BUILD=ON
 
     - name: Debug
       run: |
@@ -149,7 +167,6 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
-
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"

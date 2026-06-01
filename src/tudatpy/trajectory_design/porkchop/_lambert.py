@@ -1,6 +1,6 @@
 """
 Copyright (c) 2010-2020, Delft University of Technology
-All rigths reserved
+All rights reserved
 
 This file is part of the Tudat. Redistribution and use in source and
 binary forms, with or without modification, are permitted exclusively
@@ -53,17 +53,13 @@ def calculate_lambert_arc_impulsive_delta_v(
     """
 
     # Gravitational parameter of the Sun
-    central_body_gravitational_parameter = bodies.get_body(
-        central_body
-    ).gravitational_parameter
+    central_body_gravitational_parameter = bodies.get_body(central_body).gravitational_parameter
 
     # Retrieve states of departure and arrival body
-    initial_state = bodies.get_body(
-        departure_body
-    ).state_in_base_frame_from_ephemeris(departure_epoch)
-    final_state = bodies.get_body(
-        target_body
-    ).state_in_base_frame_from_ephemeris(arrival_epoch)
+    initial_state = bodies.get_body(departure_body).state_in_base_frame_from_ephemeris(
+        departure_epoch
+    )
+    final_state = bodies.get_body(target_body).state_in_base_frame_from_ephemeris(arrival_epoch)
 
     # Retrieve initial and final positions for Lambert targeter
     departure_position = initial_state[:3]

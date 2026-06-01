@@ -250,6 +250,38 @@ public:
     //! Constructor
     /*!
      * Constructor
+     * \param propagationStartTimes Times at which the propagation starts for each arc
+     * \param parametersToEstimate parameters to be estimated
+     * \param numberOfInitialDynamicalParameters Size of the estimated initial state vector (and size of square
+     * sing-arc state transition matrix times number of arcs.)
+     * \param numberOfParameters Total number of estimated parameters (initial states and other parameters).
+     */
+    MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
+            const std::vector< double >& propagationStartTimes,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const int numberOfInitialDynamicalParameters,
+            const int numberOfParameters ):
+        CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
+        propagationStartTimes_( propagationStartTimes ), numberOfStateArcs_( propagationStartTimes.size( ) )
+    {
+        if( propagationStartTimes_.size( ) == 0 )
+        {
+            throw std::runtime_error(
+                    "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, propagation start time list is "
+                    "empty" );
+        }
+
+        estimatable_parameters::getParametersToEstimatePerArcTest(
+                parametersToEstimate, arcWiseParametersToEstimate_, propagationStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        processArcWiseParametersIndices( parametersToEstimate, propagationStartTimes_ );
+
+        sensitivityMatrixSize_ = fullSensitivityMatrixSize_;
+        stateTransitionMatrixSize_ = fullStateSize_;
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
      * \param stateTransitionMatrixInterpolators interpolators returning the state transition matrix as a function of time, vector
      * entries represent matrix history for each arc.
      * \param sensitivityMatrixInterpolators interpolators returning the sensitivity matrix as a function of time, vector
@@ -346,6 +378,12 @@ public:
         arcStartTimes_ = arcStartTimes;
         arcEndTimes_ = arcEndTimes;
 
+        if( arcStartTimes_.size( ) != arcEndTimes_.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when resetting multi arc state transition and sensitivity interface, incompatible time lists." );
+        }
+
         // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
         statePartialAdditionIndices_.clear( );
         for( unsigned int i = 0; i < statePartialAdditionIndices.size( ); i++ )
@@ -359,7 +397,8 @@ public:
         }
 
         if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
-            stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
+            stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) ||
+            arcStartTimes_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
         {
             throw std::runtime_error(
                     "Error when resetting multi arc state transition and sensitivity interface, vector sizes are inconsistent." );
@@ -370,13 +409,11 @@ public:
 
         lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
 
+        arcStartTimesPerBody_.clear( );
+        arcEndTimesPerBody_.clear( );
+        propagationStartTimesPerBody_.clear( );
         lookUpschemePerBody_.clear( );
-        for( auto itr : arcStartTimesPerBody_ )
-        {
-            std::vector< double > arcSplitTimes = itr.second.first;
-            arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
-            lookUpschemePerBody_[ itr.first ] = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
-        }
+        getArcStartTimesPerBody( );
     }
 
     //! Function to get the vector of interpolators returning the state transition matrix as a function of time.
@@ -587,6 +624,13 @@ public:
      */
     std::pair< int, double > getCurrentArc( const double evaluationTime )
     {
+        if( lookUpscheme_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
+                    "Call updateMatrixInterpolators first." );
+        }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
         if( evaluationTime <= arcEndTimes_.at( currentArc ) && evaluationTime >= arcStartTimes_.at( currentArc ) )
         {
@@ -607,6 +651,13 @@ public:
      */
     std::pair< int, double > getCurrentArc( const double evaluationTime, const std::string body )
     {
+        if( lookUpscheme_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
+                    "Call updateMatrixInterpolators first." );
+        }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
         if( lookUpschemePerBody_.count( body ) != 0 )
         {
@@ -642,7 +693,7 @@ public:
      */
     int getNumberOfArcs( )
     {
-        return arcStartTimes_.size( );
+        return numberOfStateArcs_;
     }
 
     std::vector< std::pair< int, int > > getStatePartialAdditionIndices( const int arcIndex )
@@ -1051,7 +1102,7 @@ public:
     //! Function to get the full concatenated state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the full concatenated state transition and sensitivity matrix at a given time. The state transition
-     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of teh current
+     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of the current
      *  arc)
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Full concatenated state transition and sensitivity matrices.

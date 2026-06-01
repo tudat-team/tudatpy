@@ -18,7 +18,7 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -648,6 +648,29 @@ public:
                                                                  minimumOrder );
     }
 
+    double getGravitationalPotentialFromInertialPosition(
+            const Eigen::Vector3d& inertialPosition,
+            const Eigen::Quaterniond& inertialToBodyFixedRotation,
+            const double maximumDegree,
+            const double maximumOrder,
+            const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache = nullptr,
+            const double minimumDegree = 0,
+            const double minimumOrder = 0 )
+    {
+        const Eigen::Vector3d bodyFixedPosition = inertialToBodyFixedRotation * inertialPosition;
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheToUse =
+                ( sphericalHarmonicsCache == nullptr ) ? sphericalHarmonicsCache_ : *sphericalHarmonicsCache;
+
+        return calculateSphericalHarmonicGravitationalPotential( bodyFixedPosition,
+                                                                 gravitationalParameter_,
+                                                                 referenceRadius_,
+                                                                 cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+                                                                 sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+                                                                 sphericalHarmonicsCacheToUse,
+                                                                 minimumDegree,
+                                                                 minimumOrder );
+    }
+
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
@@ -729,8 +752,16 @@ public:
 
     virtual Eigen::Vector3d getCenterOfMass( )
     {
-        return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) ).finished( ) /
-                referenceRadius_ * std::sqrt( 3.0 );
+        if( cosineCoefficients_.size( ) > 1 && sineCoefficients_.size( ) > 1 )
+        {
+            return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) )
+                           .finished( ) /
+                    referenceRadius_ * std::sqrt( 3.0 );
+        }
+        else
+        {
+            return Eigen::Vector3d::Zero( );
+        }
     }
 
     virtual Eigen::Matrix3d getInertiaTensor( );

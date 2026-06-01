@@ -124,6 +124,8 @@ Functions
 
 
 
+
+
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.direct_spice
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.interpolated_spice
@@ -155,9 +157,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.multi_arc_ephemeris
 
 
-
-
-
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment_setup.ephemeris
@@ -179,6 +178,8 @@ Classes
    CustomEphemerisSettings
 
    KeplerEphemerisSettings
+
+   DirectTleEphemerisSettings
 
    TabulatedEphemerisSettings
 
@@ -208,8 +209,9 @@ Classes
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.KeplerEphemerisSettings
    :members:
 
-.. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings
+.. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.DirectTleEphemerisSettings
    :members:
 
-
+.. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings
+   :members:
 

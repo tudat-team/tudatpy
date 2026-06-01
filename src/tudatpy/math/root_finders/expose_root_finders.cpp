@@ -7,12 +7,14 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_root_finders.h"
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/math/root_finders.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 namespace py = pybind11;
 namespace trf = tudat::root_finders;
@@ -25,7 +27,7 @@ namespace math
 namespace root_finders
 {
 
-void expose_root_finders( py::module &m )
+void expose_root_finders( py::module& m )
 {
     /*
      *
@@ -75,20 +77,15 @@ The program will not accept the root at the final iteration, and will throw a :c
 )doc" )
             .export_values( );
 
-    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >(
-            m, "RootFinderCore" );
+    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >( m, "RootFinderCore" );
 
-    py::class_< trf::NewtonRaphson< double >,
-                std::shared_ptr< trf::NewtonRaphson< double > >,
-                trf::RootFinder< double > >( m, "NewtonRaphsonCore" )
-            .def( py::init< const double, const unsigned int >( ),
-                  py::arg( "x_tol" ),
-                  py::arg( "max_iter" ) );
+    py::class_< trf::NewtonRaphson< double >, std::shared_ptr< trf::NewtonRaphson< double > >, trf::RootFinder< double > >(
+            m, "NewtonRaphsonCore" )
+            .def( py::init< const double, const unsigned int >( ), py::arg( "x_tol" ), py::arg( "max_iter" ) );
 
-    py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >(
-            m,
-            "RootFinderSettings",
-            R"doc(
+    py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >( m,
+                                                                                       "RootFinderSettings",
+                                                                                       R"doc(
 
          Class to define settings for a root finder.
 

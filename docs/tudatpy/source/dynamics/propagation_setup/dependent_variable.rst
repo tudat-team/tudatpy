@@ -56,7 +56,11 @@ Functions
 
    body_fixed_groundspeed_velocity
 
+   local_wind_velocity
+
    density
+
+   number_density
 
    temperature
 
@@ -105,6 +109,8 @@ Functions
    geodetic_latitude
 
    longitude
+
+   solar_longitude
 
    heading_angle
 
@@ -164,6 +170,47 @@ Functions
 
 
 
+
+   actual_cross_section
+
+   aerodynamic_coefficients
+
+   aerodynamic_force_coefficients_control_surface_increment
+
+   aerodynamic_force_coefficients_control_surface_free
+
+   aerodynamic_moment_coefficients_control_surface_increment
+
+   aerodynamic_moment_coefficients_control_surface_free
+
+   center_of_mass
+
+   control_surface_deflection
+
+   cross_section_change
+
+   full_body_paneled_geometry
+
+   illuminated_panel_fraction
+
+   inertia_tensor
+
+   per_target_panel_radiation_pressure_force
+
+   radiation_pressure_source_panel_geometry
+
+   radiation_pressure_source_panel_irradiance
+
+   total_spherical_harmonic_cosine_coefficient_variations
+
+   total_spherical_harmonic_sine_coefficient_variations
+
+
+   vehicle_panel_surface_normals_body_fixed_frame
+
+   vehicle_panel_surface_normals_inertial_frame
+
+   visible_radiation_source_area
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.get_dependent_variable_id
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.get_dependent_variable_size
@@ -180,7 +227,11 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.local_wind_velocity
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.density
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.number_density
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.temperature
 
@@ -229,6 +280,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.geodetic_latitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.longitude
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.solar_longitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.heading_angle
 
@@ -286,6 +339,46 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.received_irradiance_shadow_function
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.actual_cross_section
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.aerodynamic_coefficients
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.aerodynamic_force_coefficients_control_surface_increment
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.aerodynamic_force_coefficients_control_surface_free
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.aerodynamic_moment_coefficients_control_surface_increment
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.aerodynamic_moment_coefficients_control_surface_free
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.center_of_mass
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.control_surface_deflection
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.cross_section_change
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.full_body_paneled_geometry
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.illuminated_panel_fraction
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.inertia_tensor
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.per_target_panel_radiation_pressure_force
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.radiation_pressure_source_panel_geometry
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.radiation_pressure_source_panel_irradiance
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_spherical_harmonic_cosine_coefficient_variations
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_spherical_harmonic_sine_coefficient_variations
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.vehicle_panel_surface_normals_body_fixed_frame
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.vehicle_panel_surface_normals_inertial_frame
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.visible_radiation_source_area
+
 
 
 
@@ -327,6 +420,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings
    :members:
-
-
-

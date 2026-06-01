@@ -13,6 +13,8 @@
 
 #include <string>
 #include <thread>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -29,10 +31,10 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -340,9 +342,9 @@ void getCloseApproachTimes( const double initialTime,
     }
 
     std::map< double, std::string > timeOrderedFlybyTimes;
-    for( auto bodyIterator: closeApproachTimes )
+    for( auto bodyIterator : closeApproachTimes )
     {
-        for( auto timeIterator: bodyIterator.second )
+        for( auto timeIterator : bodyIterator.second )
         {
             timeOrderedFlybyTimes[ timeIterator.first ] = bodyIterator.first;
 
@@ -798,7 +800,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
                 std::make_shared< MultiArcPropagatorSettings<> >( propagatorSettingsList );
 
-        for( auto itr: multiArcCentralBodiesPerBody )
+        for( auto itr : multiArcCentralBodiesPerBody )
         {
             Eigen::VectorXd arcWiseStatesCurrentBody;
             arcWiseStatesCurrentBody.resize( 6 * itr.second.size( ) );
@@ -1078,7 +1080,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             {
                 std::cout << "arc " << i + 1 << " - size multi-arc states: " << multiArcStateParametersSizePerArc.at( i ) << "\n\n";
             }
-            for( auto itr: bodiesToEstimatePerArc )
+            for( auto itr : bodiesToEstimatePerArc )
             {
                 std::cout << "arc:" << itr.first + 1 << "\n\n";
                 for( unsigned int i = 0; i < itr.second.size( ); i++ )

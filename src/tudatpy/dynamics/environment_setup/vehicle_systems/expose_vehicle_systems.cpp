@@ -7,10 +7,11 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_vehicle_systems.h"
-
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createSystemModel.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -19,7 +20,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/math/basic.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -532,29 +532,30 @@ list[BodyPanelSettings]
            py::arg( "normal_velocity_at_wall_ratio" ) = -1,
 
            R"doc(
-           
-           Function for creating a set of material properties
-Parameters
-----------
-specular_reflectivity : float, default = -1
-    Specular reflectivity coefficient.
-diffuse_reflectivity : float, default = -1
-    Diffuse reflectivity coefficient.
-energy_accomodation_coefficient : float, default = -1
-    Energy accommodation coefficient.  
-normal_accomodation_coefficient : float, default = -1
-    Normal accommodation coefficient.  
-tangential_accomodation_coefficient : float, default = -1
-    Tangential accommodation coefficient.  
-normal_velocity_at_wall_ratio : float, default = -1
-    Normal velocity ratio at the wall.  
 
-Returns
--------
-MaterialProperties
-    Material properties of a panel
-           
-           )doc" );
+ Function for creating a set of material properties.
+
+ Parameters
+ ----------
+ specular_reflectivity : float, default = -1
+     Specular reflectivity coefficient.
+ diffuse_reflectivity : float, default = -1
+     Diffuse reflectivity coefficient.
+ energy_accomodation_coefficient : float, default = -1
+     Energy accommodation coefficient.
+ normal_accomodation_coefficient : float, default = -1
+     Normal accommodation coefficient.
+ tangential_accomodation_coefficient : float, default = -1
+     Tangential accommodation coefficient.
+ normal_velocity_at_wall_ratio : float, default = -1
+     Normal velocity ratio at the wall.
+
+ Returns
+ -------
+ MaterialProperties
+     Material properties of a panel.
+
+ )doc" );
 }
 
 }  // namespace vehicle_systems

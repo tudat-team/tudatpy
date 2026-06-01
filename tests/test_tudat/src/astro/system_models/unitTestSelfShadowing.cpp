@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
- 
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -22,9 +22,10 @@
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/system_models/selfShadowing.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
 {
@@ -95,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
     std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies =
             std::map< std::string, std::vector< std::string > >( );
     const std::map< std::string, int > maximumNumberOfPixelsPerSource = { { "Sun", 1000 } };
-    for( const auto& pair: panelSettings->partRotationModelSettings_ )
+    for( const auto& pair : panelSettings->partRotationModelSettings_ )
     {
         std::cout << pair.first << std::endl;
     }

@@ -17,11 +17,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -124,11 +119,11 @@ public:
 
     std::size_t hash( ) const
     {
-        std::size_t h1 = std::hash< int >{ }( fullPeriods_ );
+        std::size_t h1 = std::hash< int >{}( fullPeriods_ );
 
         // Quantize to microseconds to avoid floating point instability
         long long quantized_seconds = static_cast< long long >( secondsIntoFullPeriod_ * 1e12 );
-        std::size_t h2 = std::hash< long long >{ }( quantized_seconds );
+        std::size_t h2 = std::hash< long long >{}( quantized_seconds );
 
         return h1 ^ ( h2 << 1 );  // Combine the two hashes
     }

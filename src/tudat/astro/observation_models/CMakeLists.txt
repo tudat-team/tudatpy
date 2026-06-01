@@ -20,12 +20,14 @@ set(observation_models_SOURCES
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
+        "corrections/neQuick2IonosphericCorrection.cpp"
         "observationFrequencies.cpp"
         )
 
 # Set the header files.
 set(observation_models_HEADERS
         "angularPositionObservationModel.h"
+        "azimuthElevationObservationModel.h"
         "lightTimeSolution.h"
         "linkTypeDefs.h"
         "observableTypes.h"

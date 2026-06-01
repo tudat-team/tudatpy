@@ -1,6 +1,6 @@
 # Generated files
 examples
-tests/test_tudat/data/
+tests/data/
 lib/
 libs/
 CMakeFiles/
@@ -87,6 +87,10 @@ rever/
 /.docs-output
 # VSCode
 .vscode/
+
+# Worktrees
+.worktrees/
+worktrees/
 
 # Cache
 **/**.pyc
@@ -182,3 +186,4 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 *.vscode
+.cache/

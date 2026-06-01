@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -13,16 +13,13 @@
 
 #include <pybind11/pybind11.h>
 
-#include "shape_based_thrust/expose_shape_based_thrust.h"
-#include "transfer_trajectory/expose_transfer_trajectory.h"
-
 namespace py = pybind11;
 
 namespace tudatpy
 {
 namespace trajectory_design
 {
-void expose_trajectory_design( py::module &m );
+void expose_trajectory_design( py::module& m );
 }
 }  // namespace tudatpy
 

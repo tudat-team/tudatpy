@@ -250,7 +250,7 @@ public:
         stepSizeValidator_ = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize, maximumStepSize );
     }
 
-    ~BulirschStoerVariableStepSizeIntegrator( ) { }
+    ~BulirschStoerVariableStepSizeIntegrator( ) {}
 
     // Get step size of the next step.
     /*

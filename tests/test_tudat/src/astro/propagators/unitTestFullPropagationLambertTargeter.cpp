@@ -11,7 +11,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <tudat/simulation/estimation.h>
 #include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeterBasic )
                                             dependentVariableResult,
                                             false );
 
-    for( auto stateIterator: lambertTargeterResult )
+    for( auto stateIterator : lambertTargeterResult )
     {
         for( int i = 0; i < 3; i++ )
         {

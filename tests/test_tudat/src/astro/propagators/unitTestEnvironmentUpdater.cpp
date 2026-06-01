@@ -22,14 +22,14 @@
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat

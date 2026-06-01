@@ -13,7 +13,6 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat
@@ -40,10 +39,10 @@ public:
     PeriodicSpinVariation( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( periodic_spin_variation, associatedBody ), rotationModel_( rotationModel ),
         maxOrder_( rotationModel->getPlanetaryOrientationAngleCalculator( )->getRotationRateCorrections( ).size( ) )
-    { }
+    {}
 
     //! Destructor
-    ~PeriodicSpinVariation( ) { }
+    ~PeriodicSpinVariation( ) {}
 
     //! Get value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for each order) .

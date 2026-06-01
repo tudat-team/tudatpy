@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -13,14 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "element_conversion/expose_element_conversion.h"
-#include "frame_conversion/expose_frame_conversion.h"
-#include "fundamentals/expose_fundamentals.h"
-#include "gravitation/expose_gravitation.h"
-#include "polyhedron_utilities/expose_polyhedron_utilities.h"
-#include "time_representation/expose_time_representation.h"
-#include "two_body_dynamics/expose_two_body_dynamics.h"
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -28,7 +20,7 @@ namespace tudatpy
 namespace astro
 {
 
-void expose_astro( py::module &m );
+void expose_astro( py::module& m );
 
 }  // namespace astro
 }  // namespace tudatpy

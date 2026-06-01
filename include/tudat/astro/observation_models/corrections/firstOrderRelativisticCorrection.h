@@ -13,9 +13,7 @@
 
 #include <cmath>
 #include <vector>
-
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 

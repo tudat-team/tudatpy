@@ -28,10 +28,12 @@ enum LightTimeCorrectionType {
     tabulated_tropospheric,
     saastamoinen_tropospheric,
     vmf3_tropospheric,
+    vmf3o_tropospheric,
     tabulated_ionospheric,
     jakowski_vtec_ionospheric,
     inverse_power_series_solar_corona,
-    ionex_vtec_ionospheric
+    ionex_vtec_ionospheric,
+    nequick2_ionospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );

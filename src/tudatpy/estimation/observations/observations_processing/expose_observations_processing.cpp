@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations_processing.h"
 
 #include <pybind11/chrono.h>
@@ -18,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
 namespace py = pybind11;
@@ -110,7 +113,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -136,7 +139,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -175,7 +178,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -201,7 +204,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -219,7 +222,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        dependent_variable_settings : tudatpy.kernel.simulation.estimation_setup.ObservationDependentVariableSettings
+        dependent_variable_settings : :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings`
             Settings for the dependent variable to be used for filtering.
         filter_value : numpy.ndarray
             Numpy array to be used by the filter.
@@ -230,7 +233,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationFilterBase
+        tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             An observation filter object.
         )doc" );
 
@@ -260,7 +263,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 
@@ -283,7 +286,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 
@@ -306,7 +309,7 @@ void expose_observations_processing( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationSetSplitterBase
+        tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             An observation set splitter object.
         )doc" );
 
@@ -330,7 +333,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.kernel.astro.ObservableType
+        observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
             Observable type to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -350,7 +353,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        observable_type_vector : list[tudatpy.kernel.astro.ObservableType]
+        observable_type_vector : list[:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`]
             List of observable types to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -370,7 +373,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        link_ends : tudatpy.kernel.astro.LinkEnds
+        link_ends : dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
             Link ends to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -390,7 +393,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        link_ends_vector : list[tudatpy.kernel.astro.LinkEnds]
+        link_ends_vector : list[dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]]
             List of link ends to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -496,7 +499,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        link_end_type : tudatpy.kernel.astro.LinkEndType
+        link_end_type : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Link end type to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -516,7 +519,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        link_end_types_vector : list[tudatpy.kernel.astro.LinkEndType]
+        link_end_types_vector : list[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`]
             List of link end types to parse.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -536,7 +539,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        single_link_end : tuple[tudatpy.kernel.astro.LinkEndType, tudatpy.kernel.astro.LinkEndId]
+        single_link_end : tuple[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]
             A single link end, specified by its type and ID.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -556,7 +559,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        single_link_ends_vector : list[tuple[tudatpy.kernel.astro.LinkEndType, tudatpy.kernel.astro.LinkEndId]]
+        single_link_ends_vector : list[tuple[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`]]
             A list of single link ends, each specified by its type and ID.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -616,7 +619,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        ancillary_settings : tudatpy.kernel.astro.ObservationAncillarySimulationSettings
+        ancillary_settings : :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`
             Ancillary settings for parsing.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -637,7 +640,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        ancillary_settings_vector : list[tudatpy.kernel.astro.ObservationAncillarySimulationSettings]
+        ancillary_settings_vector : list[:class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`]
             List of ancillary settings for parsing.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.

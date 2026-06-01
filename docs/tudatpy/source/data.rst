@@ -20,6 +20,7 @@ to read inputs from other softwares and integrate them with Tudat(py).
    data/spacetrack
    data/processTrk234
    data/mission_data_downloader
+   data/coma_model
 
 
 Functions
@@ -41,6 +42,24 @@ Functions
    get_gravity_models_path
    get_space_weather_path
 
+
+   grail_antenna_file_reader
+
+   grail_mass_level_0_file_reader
+
+   grail_mass_level_1_file_reader
+
+   read_fdets_file
+
+   read_ifms_file
+
+   read_odf_file
+
+   read_solar_activity_data
+
+   set_dsn_weather_data_in_ground_stations
+
+   set_estrack_weather_data_in_ground_stations
 .. autofunction:: tudatpy.data.save2txt
 
 .. autofunction:: tudatpy.data.save_time_history_to_file
@@ -64,3 +83,21 @@ Functions
 .. autofunction:: tudatpy.data.get_gravity_models_path
 
 .. autofunction:: tudatpy.data.get_space_weather_path
+
+.. autofunction:: tudatpy.data.grail_antenna_file_reader
+
+.. autofunction:: tudatpy.data.grail_mass_level_0_file_reader
+
+.. autofunction:: tudatpy.data.grail_mass_level_1_file_reader
+
+.. autofunction:: tudatpy.data.read_fdets_file
+
+.. autofunction:: tudatpy.data.read_ifms_file
+
+.. autofunction:: tudatpy.data.read_odf_file
+
+.. autofunction:: tudatpy.data.read_solar_activity_data
+
+.. autofunction:: tudatpy.data.set_dsn_weather_data_in_ground_stations
+
+.. autofunction:: tudatpy.data.set_estrack_weather_data_in_ground_stations

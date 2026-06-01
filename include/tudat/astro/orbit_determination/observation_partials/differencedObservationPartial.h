@@ -12,12 +12,11 @@
 #define TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment_setup.h"
-#include "tudat/astro/observation_models.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/basics/utilities.h"
@@ -33,6 +32,20 @@ std::pair< observation_models::LinkEndType, observation_models::LinkEndType > ge
 
 std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes(
         const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
+
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType >
+getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
+
+inline double getDifferencedFrequencyOfArrivalScalingFactor(
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& linkEndTimes,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+        const bool isFirstPartial )
+{
+    return -1.0;
+}
 
 //! Derived class for scaling three-dimensional position partial to one-way range-rate (differenced) observable partial
 class DifferencedObservablePartialScaling : public PositionPartialScaling
