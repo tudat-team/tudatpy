@@ -1759,8 +1759,8 @@ public:
             case azimuth_elevation_angle: {
                 if( linkEnds.size( ) != 2 )
                 {
-                    std::string errorMessage = "Error when making azimuth/elevation model, " +
-                            std::to_string( linkEnds.size( ) ) + " link ends found";
+                    std::string errorMessage =
+                            "Error when making azimuth/elevation model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
                     throw std::runtime_error( errorMessage );
                 }
                 if( linkEnds.count( receiver ) == 0 )
@@ -1788,8 +1788,8 @@ public:
                 }
                 if( bodies.count( stationLinkEnd.bodyName_ ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making azimuth/elevation model, station body " +
-                                              stationLinkEnd.bodyName_ + " not found" );
+                    throw std::runtime_error( "Error when making azimuth/elevation model, station body " + stationLinkEnd.bodyName_ +
+                                              " not found" );
                 }
                 if( bodies.at( stationLinkEnd.bodyName_ )->getGroundStationMap( ).count( stationLinkEnd.stationName_ ) == 0 )
                 {
@@ -2249,9 +2249,9 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             break;
         }
         case observation_models::azimuth_elevation_angle: {
-            std::shared_ptr< observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > > azimuthElevationModel =
-                    std::dynamic_pointer_cast< observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > >(
-                            observationModel );
+            std::shared_ptr< observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > >
+                    azimuthElevationModel = std::dynamic_pointer_cast<
+                            observation_models::AzimuthElevationObservationModel< ObservationScalarType, TimeType > >( observationModel );
             singleObservableCorrectionList = ( azimuthElevationModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }

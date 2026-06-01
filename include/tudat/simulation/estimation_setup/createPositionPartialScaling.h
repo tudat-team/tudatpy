@@ -382,8 +382,8 @@ public:
                 {
                     throw std::runtime_error( "Error when making azimuth/elevation partial; object not recognized" );
                 }
-                positionPartialScaler = std::make_shared< AzimuthElevationScaling >(
-                        azimuthElevationModel->getPointingAnglesCalculator( ), observation_models::receiver );
+                positionPartialScaler = std::make_shared< AzimuthElevationScaling >( azimuthElevationModel->getPointingAnglesCalculator( ),
+                                                                                     observation_models::receiver );
                 break;
             }
             default:

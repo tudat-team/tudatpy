@@ -526,14 +526,13 @@ public:
 class AzimuthElevationObservationModelSettings : public ObservationModelSettings
 {
 public:
-    AzimuthElevationObservationModelSettings(
-            const LinkDefinition linkEnds,
-            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
-                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
-            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                    std::make_shared< LightTimeConvergenceCriteria >( ),
-            const bool normalizeAzimuth = false ):
+    AzimuthElevationObservationModelSettings( const LinkDefinition linkEnds,
+                                              const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                                                      std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                              const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+                                              const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                                              const bool normalizeAzimuth = false ):
         ObservationModelSettings( azimuth_elevation_angle,
                                   linkEnds,
                                   lightTimeCorrectionsList,

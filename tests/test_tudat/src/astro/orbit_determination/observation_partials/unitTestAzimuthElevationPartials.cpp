@@ -47,13 +47,11 @@ Eigen::Vector2d calculateAzimuthElevationFromAngularPosition( const Eigen::Vecto
     const double rightAscension = angularPosition.x( );
     const double declination = angularPosition.y( );
     const double lineOfSightSign = invertLineOfSight ? -1.0 : 1.0;
-    Eigen::Vector3d inertialLineOfSight =
-            ( Eigen::Vector3d( ) << std::cos( declination ) * std::cos( rightAscension ),
-              std::cos( declination ) * std::sin( rightAscension ),
-              std::sin( declination ) )
-                    .finished( );
-    Eigen::Vector3d topocentricLineOfSight =
-            lineOfSightSign * rotationFromInertialToTopocentricFrame * inertialLineOfSight;
+    Eigen::Vector3d inertialLineOfSight = ( Eigen::Vector3d( ) << std::cos( declination ) * std::cos( rightAscension ),
+                                            std::cos( declination ) * std::sin( rightAscension ),
+                                            std::sin( declination ) )
+                                                  .finished( );
+    Eigen::Vector3d topocentricLineOfSight = lineOfSightSign * rotationFromInertialToTopocentricFrame * inertialLineOfSight;
 
     return ( Eigen::Vector2d( ) << std::atan2( topocentricLineOfSight.x( ), topocentricLineOfSight.y( ) ),
              std::atan2( topocentricLineOfSight.z( ), topocentricLineOfSight.segment( 0, 2 ).norm( ) ) )
@@ -76,8 +74,7 @@ Eigen::Vector2d calculateAzimuthElevationFromLinkEndStates(
 BOOST_AUTO_TEST_CASE( testAzimuthElevationWrtAngularPositionPartial )
 {
     Eigen::Matrix3d rotationFromInertialToTopocentricFrame =
-            ( Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) *
-              Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitY( ) ) *
+            ( Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitY( ) ) *
               Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) )
                     .toRotationMatrix( );
     Eigen::Vector2d angularPosition = ( Eigen::Vector2d( ) << 0.7, 0.3 ).finished( );
@@ -111,10 +108,9 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationWrtAngularPositionPartial )
 BOOST_AUTO_TEST_CASE( testAzimuthElevationScaling )
 {
     Eigen::Quaterniond rotationFromInertialToBodyFixedFrame( Eigen::Quaterniond::Identity( ) );
-    Eigen::Quaterniond rotationFromBodyFixedToTopocentricFrame(
-            Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) *
-            Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitY( ) ) *
-            Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) );
+    Eigen::Quaterniond rotationFromBodyFixedToTopocentricFrame( Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) *
+                                                                Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitY( ) ) *
+                                                                Eigen::AngleAxisd( 0.1, Eigen::Vector3d::UnitX( ) ) );
 
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             std::make_shared< ground_stations::PointingAnglesCalculator >(
@@ -133,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationScaling )
         AzimuthElevationScaling scaling( pointingAnglesCalculator, stationLinkEndType );
         scaling.update( linkEndStates, linkEndTimes, receiver, Eigen::Vector2d::Zero( ) );
 
-        for( LinkEndType linkEndType: { transmitter, receiver } )
+        for( LinkEndType linkEndType : { transmitter, receiver } )
         {
             const int linkEndIndex = ( linkEndType == transmitter ) ? 0 : 1;
             Eigen::Matrix< double, 2, 3 > numericalScaling = Eigen::Matrix< double, 2, 3 >::Zero( );
@@ -150,8 +146,7 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationScaling )
                 Eigen::Vector2d downPerturbedObservation = calculateAzimuthElevationFromLinkEndStates(
                         perturbedLinkEndStates, linkEndTimes, pointingAnglesCalculator, stationLinkEndType );
 
-                numericalScaling.col( i ) =
-                        ( upPerturbedObservation - downPerturbedObservation ) / ( 2.0 * positionPerturbation );
+                numericalScaling.col( i ) = ( upPerturbedObservation - downPerturbedObservation ) / ( 2.0 * positionPerturbation );
             }
 
             Eigen::Matrix< double, 2, 3 > analyticalScaling = scaling.getFixedTimePositionScalingFactor( linkEndType );
@@ -173,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationPartials )
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
-        for( bool useOblateEarthShape: { false, true } )
+        for( bool useOblateEarthShape : { false, true } )
         {
             BOOST_TEST_CONTEXT( "Oblate Earth shape: " << useOblateEarthShape )
             {
@@ -200,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationPartials )
                 std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                         createEstimatableParameters( bodies, 1.1E7 );
 
-                for( double positionPerturbationMultiplier: { 1.0, 1.0E-1, 1.0E-2, 1.0E-3 } )
+                for( double positionPerturbationMultiplier : { 1.0, 1.0E-1, 1.0E-2, 1.0E-3 } )
                 {
                     BOOST_TEST_CONTEXT( "Position perturbation multiplier: " << positionPerturbationMultiplier )
                     {

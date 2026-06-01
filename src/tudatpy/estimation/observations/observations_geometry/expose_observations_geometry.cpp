@@ -83,8 +83,7 @@ Eigen::Vector3d azimuthElevationToInertialUnitVector( const simulation_setup::Sy
                                           std::sin( elevation ) )
                                                 .finished( );
 
-    Eigen::Quaterniond rotationFromInertialToTopocentric =
-            pointingAnglesCalculator->getRotationFromBodyFixedToTopoCentricFrame( )( time ) *
+    Eigen::Quaterniond rotationFromInertialToTopocentric = pointingAnglesCalculator->getRotationFromBodyFixedToTopoCentricFrame( )( time ) *
             pointingAnglesCalculator->getRotsationFromInertialToBodyFixedFrame( )( time );
     return rotationFromInertialToTopocentric.inverse( ) * topocentricVector;
 }

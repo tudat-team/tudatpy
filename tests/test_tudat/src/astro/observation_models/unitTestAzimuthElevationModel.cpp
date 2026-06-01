@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationModel )
     const double finalEphemerisTime = 7.0 * 86400.0;
     const double buffer = 10.0 * 3600.0;
 
-    for( bool useOblateEarthShape: { false, true } )
+    for( bool useOblateEarthShape : { false, true } )
     {
         BOOST_TEST_CONTEXT( "Oblate Earth shape: " << useOblateEarthShape )
         {
@@ -67,11 +67,10 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationModel )
             SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
             const std::string stationName = "AzElStation";
-            createGroundStation(
-                    bodies.at( "Earth" ),
-                    stationName,
-                    ( Eigen::Vector3d( ) << 0.0, convertDegreesToRadians( 52.0 ), convertDegreesToRadians( 4.0 ) ).finished( ),
-                    coordinate_conversions::geodetic_position );
+            createGroundStation( bodies.at( "Earth" ),
+                                 stationName,
+                                 ( Eigen::Vector3d( ) << 0.0, convertDegreesToRadians( 52.0 ), convertDegreesToRadians( 4.0 ) ).finished( ),
+                                 coordinate_conversions::geodetic_position );
 
             LinkEnds linkEnds;
             linkEnds[ transmitter ] = LinkEndId( "Mars", "" );
@@ -80,10 +79,10 @@ BOOST_AUTO_TEST_CASE( testAzimuthElevationModel )
             Eigen::Vector2d absoluteBias = ( Eigen::Vector2d( ) << 3.2E-7, -1.5E-7 ).finished( );
             std::shared_ptr< ObservationModelSettings > idealObservableSettings =
                     azimuthElevationSettings( linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), nullptr );
-            std::shared_ptr< ObservationModelSettings > biasedObservableSettings = azimuthElevationSettings(
-                    linkEnds,
-                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-                    std::make_shared< ConstantObservationBiasSettings >( absoluteBias, true ) );
+            std::shared_ptr< ObservationModelSettings > biasedObservableSettings =
+                    azimuthElevationSettings( linkEnds,
+                                              std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                              std::make_shared< ConstantObservationBiasSettings >( absoluteBias, true ) );
 
             std::shared_ptr< ObservationModel< 2, double, double > > idealObservationModel =
                     ObservationModelCreator< 2, double, double >::createObservationModel( idealObservableSettings, bodies );

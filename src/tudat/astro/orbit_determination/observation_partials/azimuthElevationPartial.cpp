@@ -19,23 +19,20 @@ namespace tudat
 namespace observation_partials
 {
 
-Eigen::Matrix2d calculatePartialOfAzimuthElevationWrtAngularPosition(
-        const Eigen::Vector2d& angularPosition,
-        const Eigen::Matrix3d& rotationFromInertialToTopocentricFrame,
-        const bool invertLineOfSight )
+Eigen::Matrix2d calculatePartialOfAzimuthElevationWrtAngularPosition( const Eigen::Vector2d& angularPosition,
+                                                                      const Eigen::Matrix3d& rotationFromInertialToTopocentricFrame,
+                                                                      const bool invertLineOfSight )
 {
     const double rightAscension = angularPosition.x( );
     const double declination = angularPosition.y( );
     const double cosineDeclination = std::cos( declination );
     const double lineOfSightSign = invertLineOfSight ? -1.0 : 1.0;
 
-    Eigen::Vector3d inertialLineOfSight =
-            ( Eigen::Vector3d( ) << cosineDeclination * std::cos( rightAscension ),
-              cosineDeclination * std::sin( rightAscension ),
-              std::sin( declination ) )
-                    .finished( );
-    Eigen::Vector3d topocentricRelativePosition =
-            lineOfSightSign * rotationFromInertialToTopocentricFrame * inertialLineOfSight;
+    Eigen::Vector3d inertialLineOfSight = ( Eigen::Vector3d( ) << cosineDeclination * std::cos( rightAscension ),
+                                            cosineDeclination * std::sin( rightAscension ),
+                                            std::sin( declination ) )
+                                                  .finished( );
+    Eigen::Vector3d topocentricRelativePosition = lineOfSightSign * rotationFromInertialToTopocentricFrame * inertialLineOfSight;
 
     const double east = topocentricRelativePosition.x( );
     const double north = topocentricRelativePosition.y( );
@@ -56,18 +53,14 @@ Eigen::Matrix2d calculatePartialOfAzimuthElevationWrtAngularPosition(
     // Then map right ascension/declination perturbations to the inertial unit line of sight.
     Eigen::Matrix< double, 3, 2 > partialOfUnitVectorWrtAngularPosition;
     partialOfUnitVectorWrtAngularPosition.col( 0 ) =
-            ( Eigen::Vector3d( ) << -cosineDeclination * std::sin( rightAscension ),
-              cosineDeclination * std::cos( rightAscension ),
-              0.0 )
+            ( Eigen::Vector3d( ) << -cosineDeclination * std::sin( rightAscension ), cosineDeclination * std::cos( rightAscension ), 0.0 )
                     .finished( );
-    partialOfUnitVectorWrtAngularPosition.col( 1 ) =
-            ( Eigen::Vector3d( ) << -std::sin( declination ) * std::cos( rightAscension ),
-              -std::sin( declination ) * std::sin( rightAscension ),
-              cosineDeclination )
-                    .finished( );
+    partialOfUnitVectorWrtAngularPosition.col( 1 ) = ( Eigen::Vector3d( ) << -std::sin( declination ) * std::cos( rightAscension ),
+                                                       -std::sin( declination ) * std::sin( rightAscension ),
+                                                       cosineDeclination )
+                                                             .finished( );
 
-    return partialWrtTopocentricPosition * lineOfSightSign * rotationFromInertialToTopocentricFrame *
-            partialOfUnitVectorWrtAngularPosition;
+    return partialWrtTopocentricPosition * lineOfSightSign * rotationFromInertialToTopocentricFrame * partialOfUnitVectorWrtAngularPosition;
 }
 
 Eigen::Vector2d calculatePartialOfAzimuthElevationWrtStationTime(
@@ -92,9 +85,7 @@ Eigen::Vector2d calculatePartialOfAzimuthElevationWrtStationTime(
         azimuthDifference += 2.0 * mathematical_constants::PI;
     }
 
-    return ( Eigen::Vector2d( ) << azimuthDifference,
-             forwardPointingAngles.first - backwardPointingAngles.first )
-            .finished( ) /
+    return ( Eigen::Vector2d( ) << azimuthDifference, forwardPointingAngles.first - backwardPointingAngles.first ).finished( ) /
             ( 2.0 * timeStep );
 }
 
@@ -118,16 +109,16 @@ void AzimuthElevationScaling::update( const std::vector< Eigen::Vector6d >& link
     Eigen::Vector3d relativeRangeVector = ( linkEndStates[ 1 ] - linkEndStates[ 0 ] ).segment( 0, 3 );
     Eigen::Vector3d normalizedRelativeRangeVector = relativeRangeVector.normalized( );
     Eigen::Vector3d angularPositionUnitVector = -normalizedRelativeRangeVector;
-    Eigen::Vector2d angularPosition =
-            ( Eigen::Vector2d( ) << std::atan2( angularPositionUnitVector.y( ), angularPositionUnitVector.x( ) ),
-              std::asin( angularPositionUnitVector.z( ) ) )
-                    .finished( );
+    Eigen::Vector2d angularPosition = ( Eigen::Vector2d( ) << std::atan2( angularPositionUnitVector.y( ), angularPositionUnitVector.x( ) ),
+                                        std::asin( angularPositionUnitVector.z( ) ) )
+                                              .finished( );
 
     // Use the angular-position scaling architecture and only replace d(RA/DEC) by d(Az/El)/d(RA/DEC).
     Eigen::Matrix< double, 2, 3 > angularPositionScalingFactor =
             calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true );
-    scalingFactor_ = calculatePartialOfAzimuthElevationWrtAngularPosition(
-            angularPosition, rotationFromInertialToTopocentricFrame, stationLinkEndType_ == observation_models::transmitter ) *
+    scalingFactor_ =
+            calculatePartialOfAzimuthElevationWrtAngularPosition(
+                    angularPosition, rotationFromInertialToTopocentricFrame, stationLinkEndType_ == observation_models::transmitter ) *
             angularPositionScalingFactor;
 
     if( fixedLinkEnd == observation_models::receiver )
@@ -156,18 +147,15 @@ void AzimuthElevationScaling::update( const std::vector< Eigen::Vector6d >& link
         // If the fixed-time link end is not the station, the light-time correction changes station time and frame orientation.
         const Eigen::Vector3d relativeRangeVectorFromStationToTarget =
                 ( linkEndStates.at( targetIndex ) - linkEndStates.at( stationIndex ) ).segment( 0, 3 );
-        const Eigen::Vector3d referenceVelocity = ( fixedLinkEnd == observation_models::receiver )
-                ? linkEndStates.at( 0 ).segment( 3, 3 )
-                : linkEndStates.at( 1 ).segment( 3, 3 );
-        const double lightTimeDenominator =
-                physical_constants::SPEED_OF_LIGHT - referenceVelocity.dot( normalizedRelativeRangeVector );
+        const Eigen::Vector3d referenceVelocity = ( fixedLinkEnd == observation_models::receiver ) ? linkEndStates.at( 0 ).segment( 3, 3 )
+                                                                                                   : linkEndStates.at( 1 ).segment( 3, 3 );
+        const double lightTimeDenominator = physical_constants::SPEED_OF_LIGHT - referenceVelocity.dot( normalizedRelativeRangeVector );
         const double stationTimeSign = ( stationLinkEndType_ == observation_models::receiver ) ? 1.0 : -1.0;
         const Eigen::Vector2d stationTimeScaling = calculatePartialOfAzimuthElevationWrtStationTime(
                 relativeRangeVectorFromStationToTarget, pointingAnglesCalculator_, times.at( stationIndex ) );
 
         referenceLightTimeCorrectionScaling_ += stationTimeSign * stationTimeScaling / lightTimeDenominator;
-        referenceScalingFactor_ +=
-                stationTimeSign * stationTimeScaling * normalizedRelativeRangeVector.transpose( ) / lightTimeDenominator;
+        referenceScalingFactor_ += stationTimeSign * stationTimeScaling * normalizedRelativeRangeVector.transpose( ) / lightTimeDenominator;
     }
 
     currentLinkEndType_ = fixedLinkEnd;

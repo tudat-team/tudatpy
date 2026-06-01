@@ -22,10 +22,9 @@ namespace tudat
 namespace observation_partials
 {
 
-Eigen::Matrix2d calculatePartialOfAzimuthElevationWrtAngularPosition(
-        const Eigen::Vector2d& angularPosition,
-        const Eigen::Matrix3d& rotationFromInertialToTopocentricFrame,
-        const bool invertLineOfSight = false );
+Eigen::Matrix2d calculatePartialOfAzimuthElevationWrtAngularPosition( const Eigen::Vector2d& angularPosition,
+                                                                      const Eigen::Matrix3d& rotationFromInertialToTopocentricFrame,
+                                                                      const bool invertLineOfSight = false );
 
 //! Derived class for scaling three-dimensional position partial to azimuth/elevation observable partial.
 class AzimuthElevationScaling : public DirectPositionPartialScaling< 2 >
