@@ -6,8 +6,10 @@
 #define TUDAT_PROPAGATIONRESULTS_H
 
 #include <map>
+#include <cstdint>
 #include <string>
 
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/map.hpp>
@@ -19,6 +21,7 @@
 #include <cereal/types/tuple.hpp>
 
 #include "tudat/basics/timeType.h"
+#include "tudat/io/serialization/class_versions.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -67,13 +70,26 @@ public:
     {
         return !equals( rhs );
     }
+
 protected:
-    virtual bool equals( const SimulationResults& rhs ) const { return false; }
+    virtual bool equals( const SimulationResults& rhs ) const
+    {
+        return false;
+    }
+
 private:
     friend class cereal::access;
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar, const std::uint32_t version ) const
     {
+        static_cast< void >( version );
+        // Base class has no data members to serialize
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         // Base class has no data members to serialize
     }
 };
@@ -100,14 +116,10 @@ public:
 
     //! Default constructor for deserialization only — not for general use
     SingleArcSimulationResults( ):
-        SimulationResults< StateScalarType, TimeType >( ),
-        sequentialPropagation_( true ),
-        rawSolutionConversionFunction_( nullptr ),
-        propagationIsPerformed_( false ),
-        solutionIsCleared_( false ),
-        onlyProcessedSolutionSet_( false ),
+        SimulationResults< StateScalarType, TimeType >( ), sequentialPropagation_( true ), rawSolutionConversionFunction_( nullptr ),
+        propagationIsPerformed_( false ), solutionIsCleared_( false ), onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
-    { }
+    {}
 
     SingleArcSimulationResults(
             const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
@@ -525,7 +537,7 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
-    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const SingleArcSimulationResults* >( &rhs );
         if( rhsDerived == nullptr )
@@ -559,8 +571,33 @@ private:
 
 private:
     template< class Archive >
-    void serialize( Archive& ar ) // @todo: split this into save/load to reconstruct non-serializable members (e.g. std::function, dependentVariableInterface) after loading
+    void save( Archive& ar, const std::uint32_t version ) const
     {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( equationsOfMotionNumericalSolution_ );
+        ar( equationsOfMotionNumericalSolutionRaw_ );
+        ar( dependentVariableHistory_ );
+        ar( cumulativeComputationTimeHistory_ );
+        ar( cumulativeNumberOfFunctionEvaluations_ );
+        ar( processedStateIds_ );
+        ar( propagatedStateIds_ );
+        ar( integratedStateAndBodyList_ );
+        // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
+        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        ar( sequentialPropagation_ );
+        // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        ar( propagationIsPerformed_ );
+        ar( solutionIsCleared_ );
+        ar( onlyProcessedSolutionSet_ );
+        ar( propagationTerminationReason_ );
+        ar( isPropagationOngoing_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( equationsOfMotionNumericalSolution_ );
         ar( equationsOfMotionNumericalSolutionRaw_ );
@@ -591,11 +628,9 @@ public:
 
     //! Default constructor for deserialization only — not for general use
     SingleArcVariationalSimulationResults( ):
-        SimulationResults< StateScalarType, TimeType >( ),
-        singleArcDynamicsResults_( nullptr ),
-        stateTransitionMatrixSize_( 0 ),
+        SimulationResults< StateScalarType, TimeType >( ), singleArcDynamicsResults_( nullptr ), stateTransitionMatrixSize_( 0 ),
         sensitivityMatrixSize_( 0 )
-    { }
+    {}
 
     SingleArcVariationalSimulationResults(
             const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults,
@@ -737,7 +772,7 @@ protected:
 private:
     friend class cereal::access;
 
-    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const SingleArcVariationalSimulationResults* >( &rhs );
         if( rhsDerived == nullptr )
@@ -758,8 +793,21 @@ private:
     }
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar, const std::uint32_t version ) const
     {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( singleArcDynamicsResults_ );
+        ar( stateTransitionMatrixSize_ );
+        ar( sensitivityMatrixSize_ );
+        ar( stateTransitionSolution_ );
+        ar( sensitivitySolution_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         // const_cast needed because members are declared const for runtime safety,
         // but deserialization must populate them
@@ -812,10 +860,8 @@ public:
 
     //! Default constructor for deserialization only — not for general use
     MultiArcSimulationResults( ):
-        SimulationResults< StateScalarType, TimeType >( ),
-        propagationIsPerformed_( false ),
-        solutionIsCleared_( false )
-    { }
+        SimulationResults< StateScalarType, TimeType >( ), propagationIsPerformed_( false ), solutionIsCleared_( false )
+    {}
 
     MultiArcSimulationResults( const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
                                const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface ):
@@ -1085,7 +1131,7 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
-    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const MultiArcSimulationResults* >( &rhs );
         if( rhsDerived == nullptr )
@@ -1094,10 +1140,8 @@ private:
         }
         else
         {
-            if( propagationIsPerformed_ != rhsDerived->propagationIsPerformed_ ||
-                solutionIsCleared_ != rhsDerived->solutionIsCleared_ ||
-                arcStartTimes_ != rhsDerived->arcStartTimes_ ||
-                arcEndTimes_ != rhsDerived->arcEndTimes_ )
+            if( propagationIsPerformed_ != rhsDerived->propagationIsPerformed_ || solutionIsCleared_ != rhsDerived->solutionIsCleared_ ||
+                arcStartTimes_ != rhsDerived->arcStartTimes_ || arcEndTimes_ != rhsDerived->arcEndTimes_ )
             {
                 return false;
             }
@@ -1131,7 +1175,18 @@ private:
     }
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( singleArcResults_ );
+        ar( propagationIsPerformed_ );
+        ar( solutionIsCleared_ );
+        ar( arcStartTimes_ );
+        ar( arcEndTimes_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ ) );
@@ -1159,9 +1214,7 @@ class HybridArcSimulationResults : public SimulationResults< StateScalarType, Ti
 {
 public:
     //! Default constructor for deserialization only — not for general use
-    HybridArcSimulationResults( ):
-        SimulationResults< StateScalarType, TimeType >( )
-    { }
+    HybridArcSimulationResults( ): SimulationResults< StateScalarType, TimeType >( ) {}
 
     HybridArcSimulationResults(
             const std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults,
@@ -1294,7 +1347,7 @@ protected:
 private:
     friend class cereal::access;
 
-    bool equals( const SimulationResults<StateScalarType, TimeType>& rhs ) const override
+    bool equals( const SimulationResults< StateScalarType, TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const HybridArcSimulationResults* >( &rhs );
         if( rhsDerived == nullptr )
@@ -1304,8 +1357,8 @@ private:
         else
         {
             return ( ( singleArcResults_ != nullptr && rhsDerived->singleArcResults_ != nullptr )
-                              ? ( *singleArcResults_ == *rhsDerived->singleArcResults_ )
-                              : singleArcResults_ == rhsDerived->singleArcResults_ ) &&
+                             ? ( *singleArcResults_ == *rhsDerived->singleArcResults_ )
+                             : singleArcResults_ == rhsDerived->singleArcResults_ ) &&
                     ( ( multiArcResults_ != nullptr && rhsDerived->multiArcResults_ != nullptr )
                               ? ( *multiArcResults_ == *rhsDerived->multiArcResults_ )
                               : multiArcResults_ == rhsDerived->multiArcResults_ ) &&
@@ -1316,8 +1369,18 @@ private:
     }
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar, const std::uint32_t version ) const
     {
+        static_cast< void >( version );
+        ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
+        ar( singleArcResults_ );
+        ar( multiArcResults_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( singleArcResults_ );
         ar( multiArcResults_ );
@@ -1359,6 +1422,15 @@ using SimulationResultsDT = SimulationResults< double, Time >;
 
 }  // namespace tudat
 
+CEREAL_CLASS_VERSION( tudat::propagators::SimulationResultsDD, tudat::serialization::ClassVersions::simulation_results_dd )
+CEREAL_CLASS_VERSION( tudat::propagators::SimulationResultsDT, tudat::serialization::ClassVersions::simulation_results_dt )
+CEREAL_CLASS_VERSION( tudat::propagators::SingleArcDynamicsResults, tudat::serialization::ClassVersions::single_arc_dynamics_results )
+CEREAL_CLASS_VERSION( tudat::propagators::SingleArcVariationalResults, tudat::serialization::ClassVersions::single_arc_variational_results )
+CEREAL_CLASS_VERSION( tudat::propagators::MultiArcDynamicsResults, tudat::serialization::ClassVersions::multi_arc_dynamics_results )
+CEREAL_CLASS_VERSION( tudat::propagators::MultiArcVariationalResults, tudat::serialization::ClassVersions::multi_arc_variational_results )
+CEREAL_CLASS_VERSION( tudat::propagators::HybridArcDynamicsResults, tudat::serialization::ClassVersions::hybrid_arc_dynamics_results )
+CEREAL_CLASS_VERSION( tudat::propagators::HybridArcVariationalResults, tudat::serialization::ClassVersions::hybrid_arc_variational_results )
+
 // Register all concrete SimulationResults types for polymorphic serialization
 CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResults )
 CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcVariationalResults )
@@ -1376,30 +1448,18 @@ CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDynamicsResultsDT )
 CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcVariationalResultsDT )
 
 // Register polymorphic relationships (use typedefs to avoid macro comma issues)
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::SingleArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::SingleArcVariationalResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::MultiArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::MultiArcVariationalResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::HybridArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD,
-                                      tudat::propagators::HybridArcVariationalResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::SingleArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::SingleArcVariationalResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::MultiArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::MultiArcVariationalResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::HybridArcDynamicsResults )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::HybridArcVariationalResults )
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::SingleArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::SingleArcVariationalResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::MultiArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::MultiArcVariationalResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::HybridArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT,
-                                      tudat::propagators::HybridArcVariationalResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::SingleArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::SingleArcVariationalResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::MultiArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::MultiArcVariationalResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcDynamicsResultsDT )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcVariationalResultsDT )
 
 #endif  // TUDAT_PROPAGATIONRESULTS_H

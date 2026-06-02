@@ -19,6 +19,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <fstream>
+#include <stdexcept>
+
 #include <tudat/simulation/propagation_setup/dependentVariablesInterface.h>
 #include <tudat/simulation/propagation_setup/propagationResults.h>
 #include <tudat/simulation/propagation_setup/propagationTermination.h>
@@ -195,7 +198,7 @@ void expose_propagation_results_bindings( py::module& m )
 
 
 )doc" )
-            .def("__eq__", &tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"));
+            .def( "__eq__", &tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) );
 
     py::class_< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -461,6 +464,37 @@ void expose_propagation_results_bindings( py::module& m )
 
          :type: int
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
+                        std::ofstream outputStream( path, std::ios::binary );
+                        if( !outputStream )
+                        {
+                            throw std::runtime_error( "Unable to open file for binary save: " + path );
+                        }
+
+                        cereal::BinaryOutputArchive archive( outputStream );
+                        archive( object );
+                    },
+                    py::arg( "path" ) )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        std::ifstream inputStream( path, std::ios::binary );
+                        if( !inputStream )
+                        {
+                            throw std::runtime_error( "Unable to open file for binary load: " + path );
+                        }
+
+                        cereal::BinaryInputArchive archive( inputStream );
+                        tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > object;
+                        archive( object );
+                        return object;
+                    },
+                    py::arg( "path" ) )
+            .def( "clear_data",
+                  py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
+                  R"doc(
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
                   R"doc(
@@ -471,8 +505,9 @@ void expose_propagation_results_bindings( py::module& m )
          memory usage in large analyses by clearing data. It does not need to be used manually before repropagating.
 
 )doc" )
-            .def("__eq__", &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >());
+            .def( "__eq__", &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                                                tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 
     py::class_< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -522,8 +557,9 @@ void expose_propagation_results_bindings( py::module& m )
 
          :type: SingleArcSimulationResults
 )doc" )
-            .def("__eq__", &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >());
+            .def( "__eq__", &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                                                tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -577,8 +613,12 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: int
 )doc" )
-            .def("__eq__", &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >());
+            .def( "__eq__",
+                  &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
+                  py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic<
+                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                    tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -614,8 +654,12 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: int
 )doc" )
-            .def("__eq__", &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >());
+            .def( "__eq__",
+                  &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
+                  py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic<
+                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                    tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -647,8 +691,12 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: MultiArcSimulationResults
 )doc" )
-            .def("__eq__", &tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >());
+            .def( "__eq__",
+                  &tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
+                  py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic<
+                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                    tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 
     py::class_<
             tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -683,9 +731,12 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: MultiArcVariationalSimulationResults
 )doc" )
-            .def("__eq__", &tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg("rhs"))
-            .def(tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >, tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >());
-
+            .def( "__eq__",
+                  &tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
+                  py::arg( "rhs" ) )
+            .def( tse::make_pickle_polymorphic<
+                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
+                    tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
 }
 
 }  // namespace propagation
