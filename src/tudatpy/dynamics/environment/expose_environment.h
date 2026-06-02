@@ -22,7 +22,7 @@ namespace dynamics
 namespace environment
 {
 
-void expose_environment( py::module &m );
+void expose_environment( py::module& m );
 
 }  // namespace environment
 }  // namespace dynamics

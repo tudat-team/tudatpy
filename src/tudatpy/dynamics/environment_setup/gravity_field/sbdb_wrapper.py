@@ -3,9 +3,7 @@ from .. import gravity_field
 from typing import Union
 
 
-def central_sbdb(
-    MPCcode: Union[str, int]
-) -> gravity_field.GravityFieldSettings:
+def central_sbdb(MPCcode: Union[str, int]) -> gravity_field.GravityFieldSettings:
     """Factory function to create central gravity field settings using a gravitational parameter retrieved from JPL's Small-Body Database (SBDB)
 
     JPL SBDB hosts information about small bodies such as asteroids, including the gravitational parameter for some objects.

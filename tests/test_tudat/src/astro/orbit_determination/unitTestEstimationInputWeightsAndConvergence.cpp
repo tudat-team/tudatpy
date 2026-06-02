@@ -421,8 +421,8 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
     simulation_setup::noiseSeed = 0;
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
-    measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
-            one_way_range, linkEnds, observationTimes, receiver ) );
+    measurementSimulationInput.push_back(
+            std::make_shared< TabulatedObservationSimulationSettings< TimeType > >( one_way_range, linkEnds, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
             angular_position, linkEnds, observationTimes, receiver ) );
     addGaussianNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, 0.1, one_way_range );
@@ -517,8 +517,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         {
             const double currentCost =
                     linear_algebra::computeLeastSquaresCostFunction( weights, estimationOutput->residualHistory_.at( i ) );
-            const double currentRms =
-                    linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( i ) );
+            const double currentRms = linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( i ) );
             costHistory.push_back( currentCost );
             rmsHistory.push_back( currentRms );
 
@@ -541,8 +540,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         std::cout << "Perturbation case " << caseIndex << " iteration history:" << std::endl;
         for( unsigned int i = 0; i < costHistory.size( ); i++ )
         {
-            std::cout << "  Iteration " << i << ": RMS = " << rmsHistory.at( i )
-                      << ", cost = " << costHistory.at( i ) << std::endl;
+            std::cout << "  Iteration " << i << ": RMS = " << rmsHistory.at( i ) << ", cost = " << costHistory.at( i ) << std::endl;
         }
         std::cout << "  Estimator best iteration: " << estimationOutput->bestIteration_ << std::endl;
         std::cout << "  Minimum-cost iteration: " << minimumCostIteration << std::endl;
@@ -555,8 +553,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
             std::cout << "Selected perturbation case for cost-vs-RMS distinction: " << caseIndex << std::endl;
             for( unsigned int i = 0; i < costHistory.size( ); i++ )
             {
-                std::cout << "Iteration " << i << ": RMS = " << rmsHistory.at( i )
-                          << ", cost = " << costHistory.at( i ) << std::endl;
+                std::cout << "Iteration " << i << ": RMS = " << rmsHistory.at( i ) << ", cost = " << costHistory.at( i ) << std::endl;
             }
             std::cout << "Best iteration from estimator: " << estimationOutput->bestIteration_ << std::endl;
             std::cout << "Minimum-cost iteration: " << minimumCostIteration << std::endl;

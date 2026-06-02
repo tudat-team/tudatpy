@@ -47,7 +47,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~WindModel( ) { }
+    virtual ~WindModel( ) {}
 
     //! Function (pure virtual) to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
@@ -127,7 +127,7 @@ public:
                        const bool includeCorotation = true,
                        const bool useRadius = false ):
         WindModel( associatedFrame, includeCorotation, useRadius ), constantWindVelocity_( constantWindVelocity )
-    { }
+    {}
 
     /*!
      * \brief Get the constant wind velocity vector.
@@ -167,10 +167,10 @@ public:
                      const bool includeCorotation = true,
                      const bool useRadius = false ):
         WindModel( associatedFrame, includeCorotation, useRadius ), windFunction_( windFunction )
-    { }
+    {}
 
     //! Destructor
-    ~CustomWindModel( ) { }
+    ~CustomWindModel( ) {}
 
     //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
@@ -208,13 +208,12 @@ public:
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
-    EmptyWindModel( const bool includeCorotation = true,
-                    const bool useRadius = false ):
+    EmptyWindModel( const bool includeCorotation = true, const bool useRadius = false ):
         WindModel( reference_frames::vertical_frame, includeCorotation, useRadius )
-    { }
+    {}
 
     //! Destructor
-    ~EmptyWindModel( ) { }
+    ~EmptyWindModel( ) {}
 
     //! Function to retrieve wind velocity vector (always zero)
     /*!

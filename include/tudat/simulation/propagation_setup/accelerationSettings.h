@@ -192,7 +192,7 @@ public:
     SphericalHarmonicAccelerationSettings( const int maximumDegree, const int maximumOrder, const bool removePointMass = false ):
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ), maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ), removePointMass_( removePointMass )
-    { }
+    {}
 
     // Maximum degree that is to be used for spherical harmonic acceleration
     int maximumDegree_;
@@ -268,7 +268,7 @@ public:
         maximumDegreeOfBodyUndergoingAcceleration_( maximumDegreeOfBodyUndergoingAcceleration ),
         maximumOrderOfBodyUndergoingAcceleration_( maximumOrderOfBodyUndergoingAcceleration ),
         maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody ), maximumOrderOfCentralBody_( maximumOrderOfCentralBody )
-    { }
+    {}
 
     // Maximum degree of body exerting acceleration.
     int maximumDegreeOfBodyExertingAcceleration_;
@@ -481,7 +481,7 @@ public:
                                    const Eigen::Vector3d& cosineAcceleration = Eigen::Vector3d::Zero( ) ):
         AccelerationSettings( basic_astrodynamics::empirical_acceleration ), constantAcceleration_( constantAcceleration ),
         sineAcceleration_( sineAcceleration ), cosineAcceleration_( cosineAcceleration )
-    { }
+    {}
 
     // Acceleration (in RSW frame) that is constant
     Eigen::Vector3d constantAcceleration_;
@@ -534,7 +534,6 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
     return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
 }
 
-
 // Class to define settings for yarkovsky accelerations
 //! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
 class YarkovskyAccelerationSettings : public AccelerationSettings
@@ -547,7 +546,7 @@ class YarkovskyAccelerationSettings : public AccelerationSettings
 public:
     YarkovskyAccelerationSettings( const double yarkovskyParameter = 0.0 ):
         AccelerationSettings( basic_astrodynamics::yarkovsky_acceleration ), yarkovskyParameter_( yarkovskyParameter )
-    { }
+    {}
 
     // Yarkovsky parameter (A2) au d^{-1}
     double yarkovskyParameter_;
@@ -604,7 +603,7 @@ public:
             const std::function< Eigen::Matrix3d( ) > rotationFunction = []( ) { return Eigen::Matrix3d::Identity( ); } ):
         thrustForceFunction_( thrustForceFunction ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN )
-    { }
+    {}
 
     // Function to retrieve the current thrust magnitude
     /*
@@ -713,7 +712,7 @@ public:
     }
 
     // Destructor.
-    ~ThrustAccelerationSettings( ) { }
+    ~ThrustAccelerationSettings( ) {}
 
     std::vector< std::string > engineIds_;
 
@@ -837,14 +836,14 @@ class CustomAccelerationSettings : public AccelerationSettings
 public:
     CustomAccelerationSettings( const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
         AccelerationSettings( basic_astrodynamics::custom_acceleration ), accelerationFunction_( accelerationFunction )
-    { }
+    {}
 
     CustomAccelerationSettings( const std::function< Eigen::Vector3d( const double ) > accelerationFunction,
                                 const std::function< double( const double ) > scalingFunction ):
         AccelerationSettings( basic_astrodynamics::custom_acceleration ),
         accelerationFunction_(
                 std::bind( &applyAccelerationScalingFunction, accelerationFunction, scalingFunction, std::placeholders::_1 ) )
-    { }
+    {}
 
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
 
@@ -880,17 +879,17 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
     }
 }
 
-
 //! @get_docstring(RTGAccelerationSettings.__docstring__)
 class RTGAccelerationSettings : public AccelerationSettings
 {
 public:
     RTGAccelerationSettings( const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
                              const double decayScaleFactor,
-                             const double referenceEpoch):
-        AccelerationSettings( basic_astrodynamics::rtg_acceleration ), bodyFixedForceVectorAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch ),
-        decayScaleFactor_( decayScaleFactor ), referenceEpoch_( referenceEpoch )
-    { }
+                             const double referenceEpoch ):
+        AccelerationSettings( basic_astrodynamics::rtg_acceleration ),
+        bodyFixedForceVectorAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch ), decayScaleFactor_( decayScaleFactor ),
+        referenceEpoch_( referenceEpoch )
+    {}
 
     const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
     const double decayScaleFactor_;
@@ -930,17 +929,13 @@ private:
     }
 };
 
-
 //! @get_docstring(rtgAcceleration)
-inline std::shared_ptr< AccelerationSettings > rtgAcceleration(
-        const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
-        const double decayScaleFactor,
-        const double referenceEpoch )
+inline std::shared_ptr< AccelerationSettings > rtgAcceleration( const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
+                                                                const double decayScaleFactor,
+                                                                const double referenceEpoch )
 {
     return std::make_shared< RTGAccelerationSettings >( bodyFixedForceVectorAtReferenceEpoch, decayScaleFactor, referenceEpoch );
 }
-
-
 
 // Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
 /*
@@ -1002,7 +997,7 @@ public:
         inverseTidalQualityFactor_( inverseTidalQualityFactor ), tidalPeriod_( period ),
         includeDirectRadialComponent_( includeDirectRadialComponent ), useTideRaisedOnPlanet_( useTideRaisedOnPlanet ),
         explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite )
-    { }
+    {}
 
     // Static k2 Love number of the satellite
     double k2LoveNumber_;
@@ -1123,7 +1118,7 @@ public:
                                                    const double maneuverRiseTime ):
         AccelerationSettings( basic_astrodynamics::momentum_wheel_desaturation_acceleration ), thrustMidTimes_( thrustMidTimes ),
         deltaVValues_( deltaVValues ), totalManeuverTime_( totalManeuverTime ), maneuverRiseTime_( maneuverRiseTime )
-    { }
+    {}
 
     // Vector containing the midtime of each desaturation maneuver.
     std::vector< double > thrustMidTimes_;

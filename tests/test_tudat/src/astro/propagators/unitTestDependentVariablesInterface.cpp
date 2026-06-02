@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
         }
 
         std::map< double, Eigen::VectorXd > totalAccelerationHistory;
-        for( auto itr: dependentVariablesHistory.at( i ) )
+        for( auto itr : dependentVariablesHistory.at( i ) )
         {
             totalAccelerationHistory[ itr.first ] = itr.second.segment( 0, 3 );
         }
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
         BOOST_CHECK_EQUAL( exceptionCaught, true );
 
         std::map< double, Eigen::VectorXd > totalAccelerationHistory;
-        for( auto itr: multiArcDependentVariablesHistory.at( i ) )
+        for( auto itr : multiArcDependentVariablesHistory.at( i ) )
         {
             totalAccelerationHistory[ itr.first ] = itr.second.segment( 0, 3 );
         }
@@ -611,18 +611,16 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
                         4 );
 
         // Total acceleration dependent variable settings.
-        std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable
-                = std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "AlienSpaceship"
-                );
-
+        std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable =
+                std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "AlienSpaceship" );
 
         // Check consistency between interpolator results and interface results, for a single dependent variable.
-        for ( unsigned int j = 0 ; j < testEpochs.size( ) ; j++ )
+        for( unsigned int j = 0; j < testEpochs.size( ); j++ )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalAccelerationInterpolator->interpolate( testEpochs[ j ] ),
                                                dependentVariablesInterface->getMultiArcInterface( )->getSingleDependentVariable(
-                                               totalAccelerationDependentVariable, testEpochs[ j ] ), ( 10.0 *
-                                               std::numeric_limits< double >::epsilon( ) ) );
+                                                       totalAccelerationDependentVariable, testEpochs[ j ] ),
+                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
         }
     }
 }

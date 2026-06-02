@@ -42,6 +42,30 @@ void expose_links( py::module& m )
 
 Enumeration of available link end types.
 
+The link end type defines the role of a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`
+inside a :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`.
+
+Available values are:
+
+``unidentified_link_end``
+    Placeholder value for an unspecified link end.
+``transmitter``
+    The body or reference point at which a signal is transmitted.
+``reflector1`` / ``retransmitter``
+    The first intermediate body or reference point that reflects or retransmits a signal, used for instance for two-way and n-way observables.
+``reflector2``, ``reflector3``, ``reflector4``
+    Additional intermediate reflectors/retransmitters for n-way observables, where a signal is reflected or retransmitted several times.
+``receiver``
+    The body or reference point at which a signal is received.
+``receiver2``
+    The second receiving link end, typically used for differenced observations between two distinct receivers
+``transmitter2``
+    The second transmitting link end,typically used for differenced observations between two distinct transmitters
+``observer``
+    A reference point used for simulation of idealized observations (such as relative Cartesian positions)
+``observed_body``
+    A body for which idealized observations (such as Cartesian position observations) are simulated
+
 Examples
 --------
 .. code-block:: python
@@ -204,12 +228,12 @@ Examples
 
  Parameters
  ----------
- observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
+ observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Observable type for which the associated reference link end is to be retrieved.
  Returns
  -------
- :class:`LinkEndType`
-     Defines the link end (via the :class:`LinkEndType`) which is typically used as a reference for observation times in *e.g.* :func:`~tudatpy.estimation.observations_setup.tabulated_simulation_settings`.
+ :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
+     Defines the link end which is typically used as a reference for observation times in *e.g.* :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`.
 
 
 

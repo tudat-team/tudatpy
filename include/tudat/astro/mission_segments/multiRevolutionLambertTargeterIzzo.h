@@ -100,7 +100,7 @@ public:
                                            aMaximumNumberOfIterations ),
         numberOfRevolutions( aNumberOfRevolutions ), isRightBranch( aIsRightBranch ),
         maximumNumberOfRevolutions( NO_MAXIMUM_REVOLUTIONS )  // Signifies it's not calculated yet
-    { }
+    {}
 
     //! Flag indicating that the maximum number of revolutions has not yet been calculated!
     /*!

@@ -27,6 +27,7 @@ namespace observation_models
 //! Map of `ObservableType` string representations.
 static std::map< ObservableType, std::string > observationTypes = { { one_way_range, "oneWayRange" },
                                                                     { angular_position, "angularPosition" },
+                                                                    { azimuth_elevation_angle, "azimuthElevation" },
                                                                     { position_observable, "positionObservable" },
                                                                     { one_way_doppler, "oneWayDoppler" },
                                                                     { one_way_differenced_range, "oneWayDifferencedRange" },
@@ -38,6 +39,7 @@ static std::map< ObservableType, std::string > observationTypes = { { one_way_ra
 //! Map of `ObservableType` string representations.
 static std::map< std::string, ObservableType > observationTypesInverse = { { "oneWayRange", one_way_range },
                                                                            { "angularPosition", angular_position },
+                                                                           { "azimuthElevation", azimuth_elevation_angle },
                                                                            { "positionObservable", position_observable },
                                                                            { "oneWayDoppler", one_way_doppler },
                                                                            { "oneWayDifferencedRange", one_way_differenced_range },
@@ -169,13 +171,11 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorr
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >&
-                      ObservationSimulationSettings );
+              const std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >&
-                        ObservationSimulationSettings );
+                std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );

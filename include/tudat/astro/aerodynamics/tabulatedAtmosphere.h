@@ -79,8 +79,8 @@ public:
                                                                                                         temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4,
-                         const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
-                         const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ):
+                         const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = {},
+                         const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = {} ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
         dependentVariables_( dependentVariablesNames ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
@@ -120,7 +120,7 @@ public:
                              1.4,
                              boundaryHandling,
                              defaultExtrapolationValue )
-    { }
+    {}
 
     //! Constructor compatible with old version.
     /*!
@@ -153,7 +153,7 @@ public:
                 { boundaryHandling },
                 std::vector< std::vector< std::pair< double, double > > >( dependentVariablesNames.size( ),
                                                                            { { defaultExtrapolationValue, defaultExtrapolationValue } } ) )
-    { }
+    {}
 
     //! Constructor.
     /*!
@@ -207,7 +207,7 @@ public:
     }
 
     //! Destructor
-    ~TabulatedAtmosphere( ) { }
+    ~TabulatedAtmosphere( ) {}
 
     //! Get atmosphere table file name.
     /*!
@@ -259,7 +259,6 @@ public:
         {
             throw std::runtime_error( "Error in tabulated density.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
     }
 
     //! Get local pressure.
@@ -303,7 +302,6 @@ public:
         {
             throw std::runtime_error( "Error in tabulated pressure.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
     }
 
     //! Get local temperature.
@@ -347,7 +345,6 @@ public:
         {
             throw std::runtime_error( "Error in tabulated temperature.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
     }
 
     //! Get specific gas constant.
@@ -397,7 +394,6 @@ public:
             {
                 throw std::runtime_error( "Error in tabulated gas constant.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
-
         }
         else
         {
@@ -449,9 +445,9 @@ public:
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in tabulated specific heat ratio.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in tabulated specific heat ratio.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
         }
         else
         {
@@ -502,7 +498,6 @@ public:
             {
                 throw std::runtime_error( "Error in tabulated molar mass.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
-
         }
         else
         {

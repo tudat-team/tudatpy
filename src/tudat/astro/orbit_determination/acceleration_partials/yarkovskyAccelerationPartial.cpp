@@ -24,23 +24,19 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedB
 
     const double currentDistance = currentPosition.norm( );
     const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
-    const Eigen::Matrix3d radialProjectionMatrix =
-            Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
+    const Eigen::Matrix3d radialProjectionMatrix = Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
 
     const double radialVelocity = currentVelocity.dot( radialUnitVector );
     const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
     const double transverseSpeed = transverseVelocity.norm( );
     const Eigen::Vector3d transverseUnitVector = transverseVelocity / transverseSpeed;
 
-    const double yarkovskyMagnitude =
-            yarkovskyParameter * physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT /
+    const double yarkovskyMagnitude = yarkovskyParameter * physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT /
             ( currentDistance * currentDistance );
 
     return -yarkovskyMagnitude / currentDistance *
-            ( 2.0 * transverseUnitVector * radialUnitVector.transpose( ) +
-              radialUnitVector * transverseUnitVector.transpose( ) +
-              radialVelocity / transverseSpeed *
-                      ( radialProjectionMatrix - transverseUnitVector * transverseUnitVector.transpose( ) ) );
+            ( 2.0 * transverseUnitVector * radialUnitVector.transpose( ) + radialUnitVector * transverseUnitVector.transpose( ) +
+              radialVelocity / transverseSpeed * ( radialProjectionMatrix - transverseUnitVector * transverseUnitVector.transpose( ) ) );
 }
 
 Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody( const Eigen::Vector6d& relativeState,
@@ -51,8 +47,7 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedB
 
     const double currentDistance = currentPosition.norm( );
     const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
-    const Eigen::Matrix3d radialProjectionMatrix =
-            Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
+    const Eigen::Matrix3d radialProjectionMatrix = Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
 
     const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
     const double transverseSpeed = transverseVelocity.norm( );
@@ -60,8 +55,8 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedB
 
     return yarkovskyParameter * ( physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT ) /
             ( currentDistance * currentDistance ) *
-            ( Eigen::Matrix3d::Identity( ) - transverseUnitVector * transverseUnitVector.transpose( ) ) *
-            radialProjectionMatrix / transverseSpeed;
+            ( Eigen::Matrix3d::Identity( ) - transverseUnitVector * transverseUnitVector.transpose( ) ) * radialProjectionMatrix /
+            transverseSpeed;
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.

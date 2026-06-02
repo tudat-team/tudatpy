@@ -38,7 +38,7 @@ public:
                            const int stateSize ):
         SingleStateTypeDerivative< StateScalarType, TimeType >( custom_state ), stateDerivativeModel_( stateDerivativeModel ),
         stateSize_( stateSize )
-    { }
+    {}
 
     //! Calculates the custom state derivative
     /*!
@@ -55,10 +55,10 @@ public:
     }
 
     //! Function included for consistency, not used in this derived class.
-    void clearStateDerivativeModel( ) { }
+    void clearStateDerivativeModel( ) {}
 
     //! Function included for consistency, not used in this derived class.
-    void updateStateDerivativeModel( const TimeType currentTime ) { }
+    void updateStateDerivativeModel( const TimeType currentTime ) {}
 
     //! Function included for compatibility purposes with base class, local and global representation is equal for custom
     //! model. Function returns (by reference)  input internalSolution.

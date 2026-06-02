@@ -20,10 +20,10 @@ namespace exceptions
 {
 
 #define TUDAT_SPICE_EXCEPTION( short_message, exception_type ) \
-    class exception_type : public SpiceError                      \
-    {                                                             \
-    public:                                                       \
-        using SpiceError::SpiceError;                            \
+    class exception_type : public SpiceError                   \
+    {                                                          \
+    public:                                                    \
+        using SpiceError::SpiceError;                          \
     };
 
 #include "tudat/interface/spice/spiceExceptionList.def"

@@ -263,7 +263,7 @@ std::vector< CrdPass > readCrdFile( const std::string& fileName )
 std::vector< CrdPass > readCrdFiles( const std::vector< std::string >& fileNames )
 {
     std::vector< CrdPass > allData;
-    for( const std::string& fileName: fileNames )
+    for( const std::string& fileName : fileNames )
     {
         std::vector< CrdPass > currentFileData = readCrdFile( fileName );
         allData.insert( allData.end( ), currentFileData.begin( ), currentFileData.end( ) );
@@ -274,7 +274,7 @@ std::vector< CrdPass > readCrdFiles( const std::vector< std::string >& fileNames
 std::map< std::string, std::vector< CrdPass > > groupCrdDataPerTarget( const std::vector< CrdPass >& crdPasses )
 {
     std::map< std::string, std::vector< CrdPass > > groupedData;
-    for( const CrdPass& pass: crdPasses )
+    for( const CrdPass& pass : crdPasses )
     {
         if( !pass.configuration_.targetName_.empty( ) )
         {
@@ -289,7 +289,7 @@ std::map< std::string, std::vector< CrdPass > > groupCrdDataPerStation(
         const std::map< int, std::string >& monumentIdToGroundStationNameMap )
 {
     std::map< std::string, std::vector< CrdPass > > groupedData;
-    for( const CrdPass& pass: crdPasses )
+    for( const CrdPass& pass : crdPasses )
     {
         if( monumentIdToGroundStationNameMap.count( pass.configuration_.cdpPadId_ ) > 0 )
         {
@@ -303,25 +303,24 @@ std::map< double, double > extractNormalPointMeasurements( const CrdPass& passDa
 {
     if( passData.configuration_.startYear_ < 0 || passData.configuration_.startMonth_ < 0 || passData.configuration_.startDay_ < 0 )
     {
-        throw std::runtime_error(
-                "Error when extracting CRD normal-point measurements: pass start calendar date is not available." );
+        throw std::runtime_error( "Error when extracting CRD normal-point measurements: pass start calendar date is not available." );
     }
 
     std::map< double, double > normalPointData;
     const double startOfDayInSeconds =
             basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch( passData.configuration_.startYear_,
-                                                                             passData.configuration_.startMonth_,
-                                                                             passData.configuration_.startDay_,
-                                                                             0,
-                                                                             0,
-                                                                             0.0,
-                                                                             basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                                                                            passData.configuration_.startMonth_,
+                                                                            passData.configuration_.startDay_,
+                                                                            0,
+                                                                            0,
+                                                                            0.0,
+                                                                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
             physical_constants::JULIAN_DAY;
 
     double currentDayStart = startOfDayInSeconds;
     double previousSecondOfDay = TUDAT_NAN;
 
-    for( const CrdNormalPointRecord& point: passData.data_.normalPointData_ )
+    for( const CrdNormalPointRecord& point : passData.data_.normalPointData_ )
     {
         if( previousSecondOfDay == previousSecondOfDay && point.secondOfDay_ + 1.0E4 < previousSecondOfDay )
         {
@@ -338,7 +337,7 @@ std::map< double, double > extractNormalPointMeasurements( const CrdPass& passDa
 std::map< double, double > extractNormalPointMeasurements( const std::vector< CrdPass >& passData )
 {
     std::map< double, double > normalPointDataAtUtcSinceJ2000;
-    for( const CrdPass& pass: passData )
+    for( const CrdPass& pass : passData )
     {
         std::map< double, double > singlePassData = extractNormalPointMeasurements( pass );
         normalPointDataAtUtcSinceJ2000.insert( singlePassData.begin( ), singlePassData.end( ) );
@@ -350,25 +349,24 @@ std::map< double, double > extractFullRateMeasurements( const CrdPass& passData 
 {
     if( passData.configuration_.startYear_ < 0 || passData.configuration_.startMonth_ < 0 || passData.configuration_.startDay_ < 0 )
     {
-        throw std::runtime_error(
-                "Error when extracting CRD full-rate measurements: pass start calendar date is not available." );
+        throw std::runtime_error( "Error when extracting CRD full-rate measurements: pass start calendar date is not available." );
     }
 
     std::map< double, double > fullRateData;
     const double startOfDayInSeconds =
             basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch( passData.configuration_.startYear_,
-                                                                             passData.configuration_.startMonth_,
-                                                                             passData.configuration_.startDay_,
-                                                                             0,
-                                                                             0,
-                                                                             0.0,
-                                                                             basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                                                                            passData.configuration_.startMonth_,
+                                                                            passData.configuration_.startDay_,
+                                                                            0,
+                                                                            0,
+                                                                            0.0,
+                                                                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
             physical_constants::JULIAN_DAY;
 
     double currentDayStart = startOfDayInSeconds;
     double previousSecondOfDay = TUDAT_NAN;
 
-    for( const CrdFullRateRecord& point: passData.data_.fullRateData_ )
+    for( const CrdFullRateRecord& point : passData.data_.fullRateData_ )
     {
         if( previousSecondOfDay == previousSecondOfDay && point.secondOfDay_ + 1.0E4 < previousSecondOfDay )
         {
@@ -385,7 +383,7 @@ std::map< double, double > extractFullRateMeasurements( const CrdPass& passData 
 std::map< double, double > extractFullRateMeasurements( const std::vector< CrdPass >& passData )
 {
     std::map< double, double > fullRateDataAtUtcSinceJ2000;
-    for( const CrdPass& pass: passData )
+    for( const CrdPass& pass : passData )
     {
         std::map< double, double > singlePassData = extractFullRateMeasurements( pass );
         fullRateDataAtUtcSinceJ2000.insert( singlePassData.begin( ), singlePassData.end( ) );
@@ -397,7 +395,7 @@ std::map< std::string, double > getStationWavelengths( const std::map< std::stri
 {
     std::map< std::string, double > wavelengthMap;
 
-    for( const auto& stationData: groupedData )
+    for( const auto& stationData : groupedData )
     {
         if( stationData.second.empty( ) )
         {
@@ -412,8 +410,8 @@ std::map< std::string, double > getStationWavelengths( const std::map< std::stri
             const bool currentIsNan = ( currentWavelengthNm != currentWavelengthNm );
             if( ( firstIsNan != currentIsNan ) || ( !firstIsNan && currentWavelengthNm != firstWavelengthNm ) )
             {
-                throw std::runtime_error( "Error when extracting station wavelength from CRD data for station " +
-                                          stationData.first + ": wavelength is not consistent over passes." );
+                throw std::runtime_error( "Error when extracting station wavelength from CRD data for station " + stationData.first +
+                                          ": wavelength is not consistent over passes." );
             }
         }
         wavelengthMap[ stationData.first ] = firstWavelengthNm * 1.0E-9;

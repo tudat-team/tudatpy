@@ -15,7 +15,6 @@
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/createRelativisticTimeConverter.h"
 
-
 namespace tudat
 {
 
@@ -48,17 +47,13 @@ void setRelativisticTimeConverter(
     barycentricIntegratorSettings->initialTimeDeprecated_ = initialTime;
     barycentricSettings->setIntegratorSettings( barycentricIntegratorSettings );
 
-    propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > barycentricSimulator(
-        bodyMap,
-        barycentricSettings,
-        true );
+    propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > barycentricSimulator( bodyMap, barycentricSettings, true );
 
     for( const auto& topocentricSettings : topocentricConversions )
     {
-        if ( topocentricSettings->getRelativisticStateDerivativeType( ) != propagators::first_order_bodycentric_to_topocentric )
+        if( topocentricSettings->getRelativisticStateDerivativeType( ) != propagators::first_order_bodycentric_to_topocentric )
         {
-            throw std::runtime_error(
-                "Error in setRelativisticTimeConverter: inconsistent derivative type for topocentric conversion." );
+            throw std::runtime_error( "Error in setRelativisticTimeConverter: inconsistent derivative type for topocentric conversion." );
         }
 
         const TimeType topocentricInitialTime = topocentricSettings->getInitialTime( );
@@ -73,56 +68,54 @@ void setRelativisticTimeConverter(
         topocentricIntegratorSettings->initialTimeDeprecated_ = topocentricInitialTime;
         topocentricSettings->setIntegratorSettings( topocentricIntegratorSettings );
 
-        propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > topocentricSimulator(
-            bodyMap,
-            topocentricSettings,
-            true );
+        propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > topocentricSimulator( bodyMap, topocentricSettings, true );
     }
 }
 
 template< typename StateScalarType, typename TimeType >
 void setRelativisticTimeConverters(
         const SystemOfBodies& bodyMap,
-        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > > >& converterSettings )
+        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalarType, TimeType > > >&
+                converterSettings )
 {
-    for ( const auto& converterEntry : converterSettings )
+    for( const auto& converterEntry : converterSettings )
     {
         setRelativisticTimeConverter( converterEntry.second, bodyMap );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
 namespace tudat
 {
 namespace simulation_setup
 {
 
-template void setRelativisticTimeConverter<double, double>(
+template void setRelativisticTimeConverter< double, double >(
         const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > >& conversionSettings,
         const SystemOfBodies& bodyMap );
 
-template void setRelativisticTimeConverters<double, double>(
+template void setRelativisticTimeConverters< double, double >(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, double > > >& converterSettings );
 
-template void setRelativisticTimeConverter<double, Time>(
+template void setRelativisticTimeConverter< double, Time >(
         const std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > >& conversionSettings,
         const SystemOfBodies& bodyMap );
 
-template void setRelativisticTimeConverters<double, Time>(
+template void setRelativisticTimeConverters< double, Time >(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > > >& converterSettings );
 
-template void setRelativisticTimeConverter<long double, Time>(
+template void setRelativisticTimeConverter< long double, Time >(
         const std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > >& conversionSettings,
         const SystemOfBodies& bodyMap );
 
-template void setRelativisticTimeConverters<long double, Time>(
+template void setRelativisticTimeConverters< long double, Time >(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > > >& converterSettings );
 
-} // namespace simulation_setup
-} // namespace tudat
+}  // namespace simulation_setup
+}  // namespace tudat

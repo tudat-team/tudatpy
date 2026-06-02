@@ -17,8 +17,8 @@ from tudatpy.dynamics.propagation import create_dependent_variable_dictionary
 
 def test_dependent_variable_dictionary():
 
-    #%% SET UP A PROPAGATION TO TEST THE SEMANTIC VARIABLE HISTORY FUNCTIONALITY
-    #===========================================================================
+    # %% SET UP A PROPAGATION TO TEST THE SEMANTIC VARIABLE HISTORY FUNCTIONALITY
+    # ===========================================================================
 
     # Load spice kernels
     spice.load_standard_kernels()
@@ -36,9 +36,8 @@ def test_dependent_variable_dictionary():
 
     # Create default body settings, usually from `spice`.
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create,
-        global_frame_origin,
-        global_frame_orientation)
+        bodies_to_create, global_frame_origin, global_frame_orientation
+    )
 
     # Create vehicle objects.
     body_settings.add_empty_settings("Delfi-C3")
@@ -49,11 +48,11 @@ def test_dependent_variable_dictionary():
     occulting_bodies_dict = dict()
     occulting_bodies_dict["Sun"] = ["Earth"]
     vehicle_target_settings = environment_setup.radiation_pressure.cannonball_radiation_target(
-        reference_area_radiation, radiation_pressure_coefficient, occulting_bodies_dict )
+        reference_area_radiation, radiation_pressure_coefficient, occulting_bodies_dict
+    )
 
     # Add the radiation pressure interface to the body settings
     body_settings.get("Delfi-C3").radiation_pressure_target_settings = vehicle_target_settings
-
 
     # Add the aerodynamic interface to the body settings
     reference_area = 4.0
@@ -77,21 +76,15 @@ def test_dependent_variable_dictionary():
     accelerations_settings_delfi_c3 = dict(
         Sun=[
             propagation_setup.acceleration.radiation_pressure(),
-            propagation_setup.acceleration.point_mass_gravity()
+            propagation_setup.acceleration.point_mass_gravity(),
         ],
         Earth=[
             propagation_setup.acceleration.spherical_harmonic_gravity(5, 5),
-            propagation_setup.acceleration.aerodynamic()
+            propagation_setup.acceleration.aerodynamic(),
         ],
-        Moon=[
-            propagation_setup.acceleration.point_mass_gravity()
-        ],
-        Mars=[
-            propagation_setup.acceleration.point_mass_gravity()
-        ],
-        Venus=[
-            propagation_setup.acceleration.point_mass_gravity()
-        ]
+        Moon=[propagation_setup.acceleration.point_mass_gravity()],
+        Mars=[propagation_setup.acceleration.point_mass_gravity()],
+        Venus=[propagation_setup.acceleration.point_mass_gravity()],
     )
 
     # Create global accelerations settings dictionary.
@@ -99,10 +92,8 @@ def test_dependent_variable_dictionary():
 
     # Create acceleration models.
     acceleration_models = propagation_setup.create_acceleration_models(
-        bodies,
-        acceleration_settings,
-        bodies_to_propagate,
-        central_bodies)
+        bodies, acceleration_settings, bodies_to_propagate, central_bodies
+    )
 
     # Set initial conditions for the satellite that will be
     # propagated in this simulation. The initial conditions are given in
@@ -144,7 +135,7 @@ def test_dependent_variable_dictionary():
         ),
         propagation_setup.dependent_variable.single_acceleration_norm(
             propagation_setup.acceleration.radiation_pressure_type, "Delfi-C3", "Sun"
-        )
+        ),
     ]
 
     # Create termination settings
@@ -163,17 +154,15 @@ def test_dependent_variable_dictionary():
         simulation_start_epoch,
         integrator_settings,
         termination_condition,
-        output_variables=dependent_variables_to_save
+        output_variables=dependent_variables_to_save,
     )
 
     # Create simulation object and propagate the dynamics
-    dynamics_simulator = simulator.create_dynamics_simulator(
-        bodies, propagator_settings
-    )
+    dynamics_simulator = simulator.create_dynamics_simulator(bodies, propagator_settings)
 
-    #%% TEST SEMANTIC VARIABLE HISTORY FUNCTIONALITY
-    #===============================================
-    
+    # %% TEST SEMANTIC VARIABLE HISTORY FUNCTIONALITY
+    # ===============================================
+
     # Create semantic dependent variable history
     dep_vars_dict = create_dependent_variable_dictionary(dynamics_simulator)
 
@@ -185,17 +174,17 @@ def test_dependent_variable_dictionary():
     # TEST 1: Assert that the time histories obtained from newly created dependent variable settings
     #         objects and from those used to set up the propagation are the same.
     assert arrays_are_equal(
-        dep_vars_dict.asarray(dependent_variables_to_save[0]), 
-        dep_vars_dict.asarray(propagation_setup.dependent_variable.total_acceleration("Delfi-C3"))
+        dep_vars_dict.asarray(dependent_variables_to_save[0]),
+        dep_vars_dict.asarray(propagation_setup.dependent_variable.total_acceleration("Delfi-C3")),
     )
 
     # TEST 2: Assert that the time history of the dependent variables is the same as the one obtained from the
     #         dynamics simulator.
     assert arrays_are_equal(
         dep_vars_dict.asarray(dependent_variables_to_save[2]),
-        dependent_variable_history_array[:, 10]
+        dependent_variable_history_array[:, 10],
     )
-    
+
     # TEST 3: Assert (by virtue of an error not happening) that result2array works as expected on time histories of
     #         scalar dependent variables.
     #         This will fail for vectorial or matrix dependent variables because the shape of the array associated to each

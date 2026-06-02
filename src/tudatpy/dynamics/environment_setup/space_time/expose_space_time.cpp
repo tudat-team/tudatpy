@@ -32,8 +32,7 @@ namespace space_time
 
 void expose_space_time_setup( py::module& m )
 {
-    py::class_< tr::PPNParameterSet, std::shared_ptr< tr::PPNParameterSet > >(
-            m, "PPNParameterSet", R"doc(
+    py::class_< tr::PPNParameterSet, std::shared_ptr< tr::PPNParameterSet > >( m, "PPNParameterSet", R"doc(
 
         Container class for PPN parameters used in relativistic models.
         These parameters are assigned through
@@ -45,38 +44,30 @@ void expose_space_time_setup( py::module& m )
         post-Newtonian parameter.
 
      )doc" )
-            .def( py::init( []( const double parameter_gamma,
-                                const double parameter_beta,
-                                const double parameter_epsilon )
-                            {
-                                return std::make_shared< tr::PPNParameterSet >(
-                                            parameter_gamma, parameter_beta, 0.0, parameter_epsilon );
-                            } ),
+            .def( py::init( []( const double parameter_gamma, const double parameter_beta, const double parameter_epsilon ) {
+                      return std::make_shared< tr::PPNParameterSet >( parameter_gamma, parameter_beta, 0.0, parameter_epsilon );
+                  } ),
                   py::arg( "parameter_gamma" ),
                   py::arg( "parameter_beta" ),
                   py::arg( "parameter_epsilon" ) = 0.0 )
-            .def_property(
-                    "parameter_gamma",
-                    &tr::PPNParameterSet::getParameterGamma,
-                    &tr::PPNParameterSet::setParameterGamma,
-                    R"doc(PPN parameter :math:`\gamma`.)doc" )
-            .def_property(
-                    "parameter_beta",
-                    &tr::PPNParameterSet::getParameterBeta,
-                    &tr::PPNParameterSet::setParameterBeta,
-                    R"doc(PPN parameter :math:`\beta`.)doc" )
-            .def_property(
-                    "parameter_epsilon",
-                    &tr::PPNParameterSet::getParameterEpsilon,
-                    &tr::PPNParameterSet::setParameterEpsilon,
-                    R"doc(Second-order post-Newtonian parameter :math:`\epsilon`.)doc" );
+            .def_property( "parameter_gamma",
+                           &tr::PPNParameterSet::getParameterGamma,
+                           &tr::PPNParameterSet::setParameterGamma,
+                           R"doc(PPN parameter :math:`\gamma`.)doc" )
+            .def_property( "parameter_beta",
+                           &tr::PPNParameterSet::getParameterBeta,
+                           &tr::PPNParameterSet::setParameterBeta,
+                           R"doc(PPN parameter :math:`\beta`.)doc" )
+            .def_property( "parameter_epsilon",
+                           &tr::PPNParameterSet::getParameterEpsilon,
+                           &tr::PPNParameterSet::setParameterEpsilon,
+                           R"doc(Second-order post-Newtonian parameter :math:`\epsilon`.)doc" );
 
     py::enum_< tss::SpaceTimeMetricTypes >( m, "SpaceTimeMetricType" )
             .value( "schwarzschild_metric", tss::schwarzschild_metric )
             .value( "solar_system_metric", tss::solar_system_metric );
 
-    py::class_< tss::SpaceTimeMetricSettings, std::shared_ptr< tss::SpaceTimeMetricSettings > >(
-            m, "SpaceTimeMetricSettings", R"doc(
+    py::class_< tss::SpaceTimeMetricSettings, std::shared_ptr< tss::SpaceTimeMetricSettings > >( m, "SpaceTimeMetricSettings", R"doc(
 
         Base class for space-time metric settings.
 
@@ -84,8 +75,7 @@ void expose_space_time_setup( py::module& m )
 
     py::class_< tss::SchwarzschildSpaceTimeMetricSettings,
                 std::shared_ptr< tss::SchwarzschildSpaceTimeMetricSettings >,
-                tss::SpaceTimeMetricSettings >(
-            m, "SchwarzschildSpaceTimeMetricSettings", R"doc(
+                tss::SpaceTimeMetricSettings >( m, "SchwarzschildSpaceTimeMetricSettings", R"doc(
 
         Settings for a harmonic Schwarzschild metric.
 
@@ -93,8 +83,7 @@ void expose_space_time_setup( py::module& m )
 
     py::class_< tss::SolarSystemSpaceTimeMetricSettings,
                 std::shared_ptr< tss::SolarSystemSpaceTimeMetricSettings >,
-                tss::SpaceTimeMetricSettings >(
-            m, "SolarSystemSpaceTimeMetricSettings", R"doc(
+                tss::SpaceTimeMetricSettings >( m, "SolarSystemSpaceTimeMetricSettings", R"doc(
 
         Settings for a solar-system post-Newtonian metric.
 
@@ -109,33 +98,28 @@ void expose_space_time_setup( py::module& m )
         :attr:`~tudatpy.dynamics.environment.SystemOfBodies.space_time_properties`.
 
      )doc" )
-            .def( py::init<
-                          const std::shared_ptr< tss::SpaceTimeMetricSettings >&,
-                          const std::shared_ptr< tr::PPNParameterSet >&,
-                          const double >( ),
+            .def( py::init< const std::shared_ptr< tss::SpaceTimeMetricSettings >&,
+                            const std::shared_ptr< tr::PPNParameterSet >&,
+                            const double >( ),
                   py::arg( "metric_settings" ) = nullptr,
                   py::arg( "ppn_parameter_set" ) = nullptr,
                   py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0 )
-            .def_property(
-                    "metric_settings",
-                    &tss::SpaceTimePropertiesSettings::getMetricSettings,
-                    &tss::SpaceTimePropertiesSettings::setMetricSettings )
-            .def_property(
-                    "ppn_parameter_set",
-                    &tss::SpaceTimePropertiesSettings::getPpnParameterSet,
-                    &tss::SpaceTimePropertiesSettings::setPpnParameterSet )
-            .def_property(
-                    "equivalence_principle_lpi_violation_parameter",
-                    &tss::SpaceTimePropertiesSettings::getEquivalencePrincipleLpiViolationParameter,
-                    &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter );
+            .def_property( "metric_settings",
+                           &tss::SpaceTimePropertiesSettings::getMetricSettings,
+                           &tss::SpaceTimePropertiesSettings::setMetricSettings )
+            .def_property( "ppn_parameter_set",
+                           &tss::SpaceTimePropertiesSettings::getPpnParameterSet,
+                           &tss::SpaceTimePropertiesSettings::setPpnParameterSet )
+            .def_property( "equivalence_principle_lpi_violation_parameter",
+                           &tss::SpaceTimePropertiesSettings::getEquivalencePrincipleLpiViolationParameter,
+                           &tss::SpaceTimePropertiesSettings::setEquivalencePrincipleLpiViolationParameter );
 
-    m.def(
-            "ppn_parameter_set",
-            &tss::ppnParameterSet,
-            py::arg( "parameter_gamma" ) = 1.0,
-            py::arg( "parameter_beta" ) = 1.0,
-            py::arg( "parameter_epsilon" ) = 0.0,
-            R"doc(
+    m.def( "ppn_parameter_set",
+           &tss::ppnParameterSet,
+           py::arg( "parameter_gamma" ) = 1.0,
+           py::arg( "parameter_beta" ) = 1.0,
+           py::arg( "parameter_epsilon" ) = 0.0,
+           R"doc(
 
  Create settings for PPN parameters used by system-level space-time properties.
 
@@ -159,13 +143,12 @@ void expose_space_time_setup( py::module& m )
 
         )doc" );
 
-    m.def(
-            "space_time_properties_settings",
-            &tss::spaceTimePropertiesSettings,
-            py::arg( "metric_settings" ) = nullptr,
-            py::arg( "ppn_parameter_set" ) = nullptr,
-            py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0,
-            R"doc(
+    m.def( "space_time_properties_settings",
+           &tss::spaceTimePropertiesSettings,
+           py::arg( "metric_settings" ) = nullptr,
+           py::arg( "ppn_parameter_set" ) = nullptr,
+           py::arg( "equivalence_principle_lpi_violation_parameter" ) = 0.0,
+           R"doc(
 
  Create settings for system-level space-time properties.
 
@@ -190,12 +173,11 @@ void expose_space_time_setup( py::module& m )
 
         )doc" );
 
-    m.def(
-            "schwarzschild_metric_settings",
-            &tss::schwarzschildSpaceTimeMetricSettings,
-            py::arg( "body" ),
-            py::arg( "include_second_post_newtonian_order" ) = false,
-            R"doc(
+    m.def( "schwarzschild_metric_settings",
+           &tss::schwarzschildSpaceTimeMetricSettings,
+           py::arg( "body" ),
+           py::arg( "include_second_post_newtonian_order" ) = false,
+           R"doc(
 
 Create settings for a harmonic Schwarzschild metric.
 
@@ -234,15 +216,14 @@ SchwarzschildSpaceTimeMetricSettings
 
         )doc" );
 
-    m.def(
-            "solar_system_metric_settings",
-            &tss::solarSystemSpaceTimeMetricSettings,
-            py::arg( "first_order_bodies" ),
-            py::arg( "second_order_bodies" ) = std::vector< std::string >( ),
-            py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
-            py::arg( "angular_momentum_bodies" ) = std::vector< std::string >( ),
-            py::arg( "use_body_accelerations" ) = true,
-            R"doc(
+    m.def( "solar_system_metric_settings",
+           &tss::solarSystemSpaceTimeMetricSettings,
+           py::arg( "first_order_bodies" ),
+           py::arg( "second_order_bodies" ) = std::vector< std::string >( ),
+           py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
+           py::arg( "angular_momentum_bodies" ) = std::vector< std::string >( ),
+           py::arg( "use_body_accelerations" ) = true,
+           R"doc(
 
 Create settings for a solar-system post-Newtonian metric.
 

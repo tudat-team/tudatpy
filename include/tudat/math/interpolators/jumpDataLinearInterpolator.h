@@ -142,7 +142,7 @@ public:
     }
 
     //! Destructor.
-    ~JumpDataLinearInterpolator( ) { }
+    ~JumpDataLinearInterpolator( ) {}
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!

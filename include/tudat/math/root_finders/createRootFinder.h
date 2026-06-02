@@ -52,10 +52,10 @@ public:
         rootFinderType_( rootFinderType ), relativeIndependentVariableTolerance_( relativeIndependentVariableTolerance ),
         absoluteIndependentVariableTolerance_( absoluteIndependentVariableTolerance ), rootFunctionTolerance_( rootFunctionTolerance ),
         maximumNumberOfIterations_( maximumNumberOfIterations ), maximumIterationHandling_( maximumIterationHandling )
-    { }
+    {}
 
     //! Destructor
-    ~RootFinderSettings( ) { }
+    ~RootFinderSettings( ) {}
 
     //! Type of root finder to be used
     RootFinderType rootFinderType_;
