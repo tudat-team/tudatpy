@@ -11,15 +11,21 @@ namespace serialization
 
 //! Central manifest of cereal class versions for serializable Tudat types.
 struct ClassVersions {
+    // propagationResults.h
     static constexpr std::uint32_t simulation_results_dd = 1;
     static constexpr std::uint32_t simulation_results_dt = 1;
-
     static constexpr std::uint32_t single_arc_dynamics_results = 1;
     static constexpr std::uint32_t single_arc_variational_results = 1;
     static constexpr std::uint32_t multi_arc_dynamics_results = 1;
     static constexpr std::uint32_t multi_arc_variational_results = 1;
     static constexpr std::uint32_t hybrid_arc_dynamics_results = 1;
     static constexpr std::uint32_t hybrid_arc_variational_results = 1;
+
+    // podInputOutputTypes.h
+    static constexpr std::uint32_t covariance_analysis_output_dd = 1;
+    static constexpr std::uint32_t covariance_analysis_output_dt = 1;
+    static constexpr std::uint32_t estimation_output_dd = 1;
+    static constexpr std::uint32_t estimation_output_dt = 1;
 };
 
 }  // namespace serialization

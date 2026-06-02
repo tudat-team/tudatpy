@@ -1048,15 +1048,37 @@ struct CovarianceAnalysisOutput {
 
 public:
     //! Default constructor for deserialization only — not for general use
-    CovarianceAnalysisOutput( ):
-        designMatrixSaved_( false ), exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
+    CovarianceAnalysisOutput( ): designMatrixSaved_( false ), exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar, const std::uint32_t version )
     {
+        static_cast< void >( version );
+        ar( normalizedDesignMatrix_ );
+        ar( weightsMatrixDiagonal_ );
+        ar( designMatrixTransformationDiagonal_ );
+        ar( inverseNormalizedCovarianceMatrix_ );
+        ar( inverseUnnormalizedCovarianceMatrix_ );
+        ar( normalizedCovarianceMatrix_ );
+        ar( unnormalizedCovarianceMatrix_ );
+        ar( considerCovarianceContribution_ );
+        ar( normalizedCovarianceWithConsiderParameters_ );
+        ar( unnormalizedCovarianceWithConsiderParameters_ );
+        ar( normalizedDesignMatrixConsiderParameters_ );
+        ar( considerNormalizationFactors_ );
+        ar( considerCovariance_ );
+        ar( designMatrixSaved_ );
+        ar( exceptionDuringPropagation_ );
+        ar( considerParametersIncluded_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         ar( normalizedDesignMatrix_ );
         ar( weightsMatrixDiagonal_ );
         ar( designMatrixTransformationDiagonal_ );
@@ -1266,16 +1288,33 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 public:
     //! Default constructor for deserialization only — not for general use
     EstimationOutput( ):
-        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( ),
-        bestIteration_( 0 ), residualStandardDeviation_( 0.0 ),
-        exceptionDuringInversion_( false ), numberOfParameters_( 0 ) {}
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( ), bestIteration_( 0 ), residualStandardDeviation_( 0.0 ),
+        exceptionDuringInversion_( false ), numberOfParameters_( 0 )
+    {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar, const std::uint32_t version )
     {
+        static_cast< void >( version );
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( parameterEstimate_ );
+        ar( residuals_ );
+        ar( bestIteration_ );
+        ar( residualStandardDeviation_ );
+        ar( residualHistory_ );
+        ar( parameterHistory_ );
+        ar( exceptionDuringInversion_ );
+        ar( numberOfParameters_ );
+        ar( simulationResultsPerIteration_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
         ar( parameterEstimate_ );
         ar( residuals_ );
@@ -1307,14 +1346,22 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 
 }  // namespace tudat
 
+// Register all class versions for serialization
+CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
+                      tudat::serialization::ClassVersions::covariance_analysis_output_dd )
+CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
+                      tudat::serialization::ClassVersions::covariance_analysis_output_dd )
+CEREAL_CLASS_VERSION( tudat::simulation_setup::EstimationOutputDD, tudat::serialization::ClassVersions::estimation_output_dd )
+CEREAL_CLASS_VERSION( tudat::simulation_setup::EstimationOutputDT, tudat::serialization::ClassVersions::estimation_output_dt )
+
+// Register all polymorphic types
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDD )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDD )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDT )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDT )
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
-                                      tudat::simulation_setup::EstimationOutputDD )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDT,
-                                      tudat::simulation_setup::EstimationOutputDT )
+// Register all polymorphic relations
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDD, tudat::simulation_setup::EstimationOutputDD )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDT, tudat::simulation_setup::EstimationOutputDT )
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H
