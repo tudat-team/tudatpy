@@ -22,8 +22,10 @@
  *
  * Sub-headers:
  *   - serialization/base.h   Core infrastructure (Eigen, helpers, archives)
+ *   - serialization/class_versions.h   Central manifest of cereal class versions
  */
 
 #include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/class_versions.h"
 
 #endif  // TUDAT_SERIALIZATION_H
