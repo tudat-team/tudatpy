@@ -21,24 +21,30 @@ The repository already has a partial cereal-based serialization stack:
 
 At the same time, a few pieces are still missing or inconsistent:
 
-- I did not find a centralized class version manifest in `src/` or `include/` yet.
-- I did not find `CEREAL_CLASS_VERSION` declarations in the current source tree search.
-- I did not find a unified `save` / `load` convention in the current source tree search.
-- Polymorphic registration appears to be handled in binding code for some Python-exposed types, but not yet as a clearly centralized per-submodule policy.
+- A centralized class version manifest does not yet exist in `src/` or `include/`.
+- `CEREAL_CLASS_VERSION` declarations are not yet present in the source tree.
+- A unified `save` / `load` convention is not yet enforced everywhere: some classes currently implement a single `serialize(archive ar)` method instead.
+- Polymorphic registration is currently handled in binding code for some Python-exposed types, but not yet as a clearly centralized per-submodule policy.
 
 That means the project already has working pieces, but not yet a single serialization contract that every developer can follow.
 
 ## Design Principles
 
 1. Use cereal as the single serialization library.
-2. Prefer explicit `save` and `load` methods on each class over a single generic `serialize` method.
+2. Every serializable class SHALL implement explicit `save` and `load` methods. A generic `serialize` method must not be used.
 3. Use XML for non-tabulated settings objects.
 4. Use regular binary serialization for tabulated settings and other data-heavy objects.
-5. Give every serializable class its own version number.
-6. Keep a central manifest for current serialization versions.
+5. Every serializable class SHALL declare a version number using `CEREAL_CLASS_VERSION`.
+6. The software SHALL maintain a central manifest listing the current serialization version of every serializable class.
 7. Register polymorphic cereal types in one place per submodule.
 8. Treat roundtrip survival plus equality as the primary correctness check.
 9. Expose the same roundtrip behavior to Python through pybind11.
+
+### Why `save` and `load` instead of `serialize`
+
+The split between `save` and `load` exists because deserialization sometimes requires a specific member construction order before the rest of the state can be restored — in particular, certain function pointers and callbacks can only be reconstructed during `load` after some members are already in place. A single `serialize` method makes this awkward.
+
+Using `save` / `load` everywhere also ensures consistency across the codebase: polymorphic types require one method signature to be chosen, and having a uniform convention simplifies both implementation and code review. The extra lines of code this requires are minimal and can largely be generated with tooling.
 
 ## File Format Policy
 
@@ -105,7 +111,7 @@ The key idea is that the class serialization does not change when the archive ch
 Each serializable class should follow the same pattern:
 
 - Implement `save` and `load` methods.
-- Avoid relying on a single generic `serialize` method when object construction or version branching is easier with explicit save/load logic.
+- Never use a single generic `serialize` method.
 - Include version-aware branching inside the class methods when the format changes.
 - Keep transient or runtime-only members out of the serialized state unless they can be reconstructed safely.
 
@@ -113,15 +119,24 @@ This is especially important for classes whose deserialization requires some mem
 
 ### Versioning
 
-Each class must have a version identifier.
+Every serializable class must declare a version identifier using the `CEREAL_CLASS_VERSION` macro.
 
-Recommended policy:
+The version scheme is: `TUDATVERSION::CLASSVERSION.CLASSPATCH`
 
-- The class owns the version number for its serialized representation.
-- The current version for all classes is published in one central manifest.
-- The version number is written into the file metadata and used by class `load` methods to branch when reading older files.
+For example, all new classes at initial release would carry something like `1.0.0::1.0`. The Tudat/tudatpy version prefix ties the class version to the software release it was introduced in, while the class-level `CLASSVERSION.CLASSPATCH` tracks independent evolution of that class's serialized format.
 
-This lets the team evolve file formats without guessing which classes changed or which archive format was used.
+```cpp
+// example version declaration
+CEREAL_CLASS_VERSION( MySettings, /* version integer registered with cereal */ )
+```
+
+The current version for all classes is published in one central manifest (see below). The version number is written into the file metadata and used by class `load` methods to branch when reading older files.
+
+### Central Version Manifest
+
+The software SHALL maintain a single, centralized manifest that lists every serializable class and its current declared version. This makes it immediately visible when a class version changes, which matters because such a change may break compatibility with files users have already saved.
+
+When a version does change, the team must decide whether to provide a migration path or require users to regenerate their files. There is no generic migration mechanism: every version bump that affects the on-disk format will require a custom conversion solution, which may sometimes be straightforward (field reordering) and sometimes require additional user input (new required fields with no default). For this reason the manifest is the canonical place to track and review such changes.
 
 ### Metadata
 
@@ -135,17 +150,17 @@ This metadata should be stored in the serialized file itself, not in operating-s
 
 ## Polymorphism
 
-Polymorphic types should be registered in one canonical place per submodule.
+Polymorphic types must be registered in one canonical place per submodule.
 
 That registration layer should contain the cereal type registration and the base-to-derived relationships required for pointer serialization.
 
-This matters because cereal needs the registration information at compile time, and the project should not spread those declarations across unrelated files.
+Cereal requires polymorphic types to be registered so it knows which derived type to instantiate during deserialization. While cereal does not restrict this registration to a single translation unit, centralizing it per submodule makes the registrations easy to audit and avoids accidentally omitting a type. Spreading registrations across unrelated files (such as binding code) makes it easy to miss a type and hard to review the complete picture.
 
 Recommended layout:
 
-- Prefer one dedicated registration header per submodule.
-- Put all derived cereal registrations for that submodule in that header.
-- Have binding code and any other serialization users include that header.
+- One dedicated registration header per submodule.
+- All derived cereal registrations for that submodule in that header.
+- Binding code and any other serialization users include that header.
 - Only use a source-file registration TU when there is a strong reason to hide implementation details or control archive-specific linking behavior.
 
 For this codebase, the header-based option is the default because it is easier to audit, easier to include from pybind modules, and less likely to create platform-specific linkage surprises.
@@ -220,13 +235,7 @@ This matches the existing pattern in several parts of the codebase and keeps the
 
 ### XML Settings and Python Pickle
 
-Open question: how should XML-saved settings objects appear in Python pickle?
-
-Recommended answer:
-
-- Do not couple Python pickle to XML file encoding.
-- Pickle should serialize the in-memory C++ object state directly, using cereal through pybind11.
-- XML remains the on-disk interchange format for settings files.
+Python pickle should not be coupled to XML file encoding. Pickle should serialize the in-memory C++ object state directly, using cereal through pybind11. XML remains the on-disk interchange format for settings files.
 
 This separation keeps pickle simple, avoids forcing XML parsing into Python roundtrips, and allows future changes to the file format without breaking Python pickle semantics.
 
@@ -267,6 +276,8 @@ public:
 
 	int value_ = 0;
 };
+
+CEREAL_CLASS_VERSION( MySettings, /* version integer */ )
 ```
 
 ```cpp
@@ -322,8 +333,6 @@ The rule this example demonstrates is simple:
 
 ## File Extensions
 
-Open question: what file extensions make sense?
-
 Recommended policy:
 
 - Use `.xml` for non-tabulated settings files.
@@ -373,7 +382,7 @@ This keeps the tests simple and makes version mismatches or missing registration
 The current codebase still needs a few follow-up decisions and implementation passes:
 
 - A central version manifest does not yet exist.
-- A standardized `save` / `load` pattern is not yet enforced everywhere.
+- A standardized `save` / `load` pattern is not yet enforced everywhere; some classes use `serialize`.
 - Type registration is not yet visibly centralized across all submodules.
 - Some classes still need a final decision on whether they are serializable at all if they contain callbacks or other non-serializable runtime state.
 
@@ -381,20 +390,22 @@ One concrete example is callback-heavy or function-heavy settings objects. Those
 
 ## Rollout Plan
 
-1. Add or finalize the central version manifest.
-2. Convert remaining serializable classes to explicit `save` / `load` methods.
-3. Add or move polymorphic registration into one file per submodule.
-4. Add file metadata support for version and Tudat/tudatpy version.
-5. Expand C++ roundtrip tests for the remaining classes.
-6. Expand Python pickle tests to cover the remaining exposed types.
-7. Add migration tests for at least one older file format version per major object family.
+1. Add the central version manifest, using the `TUDATVERSION::CLASSVERSION.CLASSPATCH` scheme.
+2. Convert all remaining classes that use `serialize` to explicit `save` / `load` methods.
+3. Add `CEREAL_CLASS_VERSION` declarations to all serializable classes.
+4. Move polymorphic registration into one header per submodule.
+5. Add file metadata support for version and Tudat/tudatpy version.
+6. Expand C++ roundtrip tests for the remaining classes.
+7. Expand Python pickle tests to cover the remaining exposed types.
+8. Add migration tests for at least one older file format version per major object family.
 
 ## Acceptance Criteria
 
 The serialization feature is ready when:
 
-- Every intended serializable class has a versioned `save` / `load` implementation.
-- Every intended polymorphic type is registered in the correct submodule registration point.
+- Every intended serializable class has a versioned `save` / `load` implementation using `CEREAL_CLASS_VERSION`.
+- The central version manifest exists and lists every serializable class.
+- Every intended polymorphic type is registered in the correct submodule registration header.
 - Every public serializable class has a roundtrip equality test in C++.
 - Every Python-exposed serializable class has a pickle roundtrip test.
 - Old files can be loaded according to their declared version.
