@@ -569,6 +569,9 @@ list[BodyPanelSettings]
                     "boresight_euler_angles", &tss::CameraSettings::getBoresightEulerAngles, &tss::CameraSettings::setBoresightEulerAngles )
             .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths )
             .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter )
+            .def_property( "body_fixed_position",
+                           &tss::CameraSettings::getBodyFixedCameraPosition,
+                           &tss::CameraSettings::setBodyFixedCameraPosition )
 
             .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName );
 
@@ -578,6 +581,7 @@ list[BodyPanelSettings]
            py::arg( "boresight_euler_angles" ),
            py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
            py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
            R"doc(
 
  Function for creating settings for a camera
@@ -587,7 +591,7 @@ list[BodyPanelSettings]
  Represents a pinhole camera model without any distortions added.
  The orientation of the camera is defined by the Euler angles of the camera boresight (z-axis) with respect to the body-fixed frame, in a 3-2-3 rotation sequence.
  A zero twist angle will make the body-fixed frame x-axis aligned with the pixels u direction (positive horizontal direction) when RA and DEC are zero.
- The focal lengths and optical center of the camera can also be defined, but default to (1.0, 1.0) and (0.0, 0.0), respectively.
+ The focal lengths, optical center, and body-fixed camera position can also be defined, but default to (1.0, 1.0), (0.0, 0.0), and (0.0, 0.0, 0.0), respectively.
 
  Parameters
  ----------
@@ -599,6 +603,8 @@ list[BodyPanelSettings]
     Tuple of the focal lengths of the camera in the x and y directions, respectively. Default is (1.0, 1.0)
  optical_center : tuple[float, float], optional
     Tuple of the optical center coordinates of the camera in the x and y directions, respectively. Default is (0.0, 0.0)
+ body_fixed_position : numpy.ndarray([3,1]), optional
+    Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
  Returns
  -------
  CameraSettings

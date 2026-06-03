@@ -26,7 +26,8 @@ namespace simulation_setup
 //! Class to hold settings for creating a camera
 /*!
  *  Class to hold settings for creating a camera, which can then be passed to createCamera function.
- *  This class allows setting the camera name, Euler angles with respect to the body-fixed frame, focal lengths, and optical center.
+ *  This class allows setting the camera name, Euler angles with respect to the body-fixed frame, focal lengths, optical center, and
+ *  body-fixed camera position.
  *
  *  Note that the camera is assumed to be fixed on the body and to point along the z-axis of its own frame, i.e. the focal plane is located
  * at z = 1 in the camera frame.
@@ -40,12 +41,15 @@ public:
      *  \param boresightEulerAngles Euler angles of camera boresight with respect to body-fixed frame [rad].
      *  \param focalLengths Focal lengths in x and y directions [px].
      *  \param opticalCenter Optical center of the camera [px].
+     *  \param bodyFixedCameraPosition Position of the camera in the body-fixed frame [m].
      */
     CameraSettings( const std::string& cameraName,
                     const Eigen::Vector3d& boresightEulerAngles,
                     const std::pair< double, double > focalLengths = std::make_pair( 1.0, 1.0 ),
-                    const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ) ):
-        cameraName_( cameraName ), boresightEulerAngles_( boresightEulerAngles ), focalLengths_( focalLengths ), opticalCenter_( opticalCenter )
+                    const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ),
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) ):
+        cameraName_( cameraName ), boresightEulerAngles_( boresightEulerAngles ), focalLengths_( focalLengths ),
+        opticalCenter_( opticalCenter ), bodyFixedCameraPosition_( bodyFixedCameraPosition )
     {}
 
     std::string getCameraName( )
@@ -67,8 +71,8 @@ public:
     {
         Eigen::Vector3d cameraEulerAngles = boresightEulerAngles_;
         cameraEulerAngles( 0 ) = boresightEulerAngles_( 2 );
-        cameraEulerAngles( 1 ) = -boresightEulerAngles_( 1 ) + mathematical_constants::PI/2.0;
-        cameraEulerAngles( 2 ) = boresightEulerAngles_( 0 ) + mathematical_constants::PI/2.0;
+        cameraEulerAngles( 1 ) = -boresightEulerAngles_( 1 ) + mathematical_constants::PI / 2.0;
+        cameraEulerAngles( 2 ) = boresightEulerAngles_( 0 ) + mathematical_constants::PI / 2.0;
         return cameraEulerAngles;
     }
 
@@ -92,6 +96,16 @@ public:
         opticalCenter_ = opticalCenter;
     }
 
+    Eigen::Vector3d getBodyFixedCameraPosition( )
+    {
+        return bodyFixedCameraPosition_;
+    }
+
+    void setBodyFixedCameraPosition( const Eigen::Vector3d& bodyFixedCameraPosition )
+    {
+        bodyFixedCameraPosition_ = bodyFixedCameraPosition;
+    }
+
 protected:
     std::string cameraName_;
 
@@ -100,29 +114,34 @@ protected:
     std::pair< double, double > focalLengths_;
 
     std::pair< double, double > opticalCenter_;
+
+    Eigen::Vector3d bodyFixedCameraPosition_;
 };
 
 //! Function to create a shared pointer to CameraSettings object
 /*!
  *  Function to create a shared pointer to CameraSettings object, which can then be passed to createCamera function.
- *  This function allows setting the camera name, Euler angles with respect to the body-fixed frame, focal lengths, and optical center.
+ *  This function allows setting the camera name, Euler angles with respect to the body-fixed frame, focal lengths, optical center, and
+ *  body-fixed camera position.
  *  Note that the camera is assumed to be fixed on the body and to point along the z-axis of its own frame, i.e. the focal plane is located
  * at z = 1 in the camera frame.
  *  Euler angles are in 3-2-3 convention representing the right ascension, declination and twist angle of camera boresight.
- *  
- *  \param cameraName Name of the camera. 
+ *
+ *  \param cameraName Name of the camera.
  *  \param boresightEulerAngles Euler angles of camera boresight with respect to
- * body-fixed frame. 
+ * body-fixed frame.
  *  \param focalLengths Focal lengths in x and y directions [px].
  *  \param opticalCenter Optical center of the camera [px].
+ *  \param bodyFixedCameraPosition Position of the camera in the body-fixed frame [m].
  *  \return Shared pointer to CameraSettings object created from input parameters.
  */
 inline std::shared_ptr< CameraSettings > cameraSettings( const std::string& cameraName,
                                                          const Eigen::Vector3d& boresightEulerAngles,
                                                          const std::pair< double, double > focalLengths = std::make_pair( 1.0, 1.0 ),
-                                                         const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ) )
+                                                         const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ),
+                                                         const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
 {
-    return std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, focalLengths, opticalCenter );
+    return std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, focalLengths, opticalCenter, bodyFixedCameraPosition );
 }
 
 //! Function to create a camera and add it to a Body object
@@ -133,12 +152,14 @@ inline std::shared_ptr< CameraSettings > cameraSettings( const std::string& came
  * \param boresightEulerAngles Euler angles of camera boresight with respect to body-fixed frame.
  * \param focalLengths Focal lengths in x and y directions [px].
  * \param opticalCenter Optical center of the camera [px].
+ * \param bodyFixedCameraPosition Position of the camera in the body-fixed frame [m].
  */
 void createCamera( const std::shared_ptr< Body > body,
                    const std::string& cameraName,
                    const Eigen::Vector3d& boresightEulerAngles,
                    const std::pair< double, double > focalLengths = std::make_pair( 1.0, 1.0 ),
-                   const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ) );
+                   const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ),
+                   const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) );
 
 //! Function to create a camera and add it to a Body object
 /*!
