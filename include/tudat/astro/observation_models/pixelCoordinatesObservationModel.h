@@ -53,7 +53,16 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< system_models::Camera > camera,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 2, ObservationScalarType, TimeType >( pixel_coordinates, linkEnds, observationBiasCalculator ),
+        ObservationModel< 2, ObservationScalarType, TimeType >(
+                pixel_coordinates,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ std::make_shared<
+                        FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) } ),
         lightTimeCalculator_( lightTimeCalculator ), camera_( camera )
     {}
 
@@ -118,6 +127,12 @@ public:
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), { lightTimeCalculator_ } } };
     }
 
 protected:

@@ -53,10 +53,10 @@ class ObservationViabilityCalculator
 {
 public:
     //! Base class constructor
-    ObservationViabilityCalculator( ) { }
+    ObservationViabilityCalculator( ) {}
 
     //! Base class destructor
-    virtual ~ObservationViabilityCalculator( ) { }
+    virtual ~ObservationViabilityCalculator( ) {}
 
     //! Pure virtual base class function for determining whether an observation is viable.
     /*!

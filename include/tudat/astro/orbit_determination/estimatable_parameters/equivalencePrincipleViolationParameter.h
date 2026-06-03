@@ -31,15 +31,14 @@ public:
      * Constuctor
      */
     EquivalencePrincipleLpiViolationParameter(
-            const std::function< double( ) >& parameterGetter = [ ]( ){ return 0.0; },
-            const std::function< void( const double ) >& parameterSetter = [ ]( const double ){ } ):
+            const std::function< double( ) >& parameterGetter = []( ) { return 0.0; },
+            const std::function< void( const double ) >& parameterSetter = []( const double ) {} ):
         EstimatableParameter< double >( equivalence_principle_lpi_violation_parameter, "global_metric" ),
-        parameterGetter_( parameterGetter ),
-        parameterSetter_( parameterSetter )
-    { }
+        parameterGetter_( parameterGetter ), parameterSetter_( parameterSetter )
+    {}
 
     //! Destructor
-    ~EquivalencePrincipleLpiViolationParameter( ) { }
+    ~EquivalencePrincipleLpiViolationParameter( ) {}
 
     //! Function to get the current value of the equivalence principle LPI violation parametera.
     /*!

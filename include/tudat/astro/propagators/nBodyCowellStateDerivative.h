@@ -41,10 +41,10 @@ public:
                                 const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate )
-    { }
+    {}
 
     //! Destructor
-    ~NBodyCowellStateDerivative( ) { }
+    ~NBodyCowellStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system.
     /*!

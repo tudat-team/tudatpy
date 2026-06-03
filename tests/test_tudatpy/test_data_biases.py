@@ -5,7 +5,6 @@ import pytest
 
 from numpy.testing import assert_allclose
 
-
 # 94% coverage of data/_biases.py
 table_input = [
     (3988, "a", np.array([0.440, -0.322, -0.30, 0.53])),

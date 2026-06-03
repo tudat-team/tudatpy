@@ -221,9 +221,7 @@ double computeLeastSquaresCostFunction( const Eigen::VectorXd& weightDiagonal, c
     return 0.5 * weightDiagonal.cwiseProduct( residual ).dot( residual );
 }
 
-double computeLeastSquaresCostFunctionFromFullWeights(
-        const Eigen::SparseMatrix< double >& weightMatrix,
-        const Eigen::VectorXd& residual )
+double computeLeastSquaresCostFunctionFromFullWeights( const Eigen::SparseMatrix< double >& weightMatrix, const Eigen::VectorXd& residual )
 {
     if( weightMatrix.rows( ) != weightMatrix.cols( ) )
     {
@@ -236,8 +234,7 @@ double computeLeastSquaresCostFunctionFromFullWeights(
     if( weightMatrix.rows( ) != residual.size( ) )
     {
         std::ostringstream message;
-        message << "computeLeastSquaresCostFunctionFromFullWeights: size mismatch: " << "weightMatrix.rows() = "
-                << weightMatrix.rows( )
+        message << "computeLeastSquaresCostFunctionFromFullWeights: size mismatch: " << "weightMatrix.rows() = " << weightMatrix.rows( )
                 << ", residual.size() = " << residual.size( ) << ".";
         throw std::runtime_error( message.str( ) );
     }

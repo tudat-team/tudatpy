@@ -142,7 +142,7 @@ ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
     int currentResponseIndex = 0;
 
     std::map< int, std::map< int, int > > orderIndexPerDegree;
-    for( auto it: loveNumberIndices )
+    for( auto it : loveNumberIndices )
     {
         if( it.first.first > maximumForcingDegree_ )
         {

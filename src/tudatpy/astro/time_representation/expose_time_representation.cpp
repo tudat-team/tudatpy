@@ -1763,13 +1763,9 @@ datetime.datetime
 
     /////////////// DEPRECATED
 
-    m.def( "date_time_from_epoch",
-           &tba::DateTime::fromTime< TIME_TYPE >,
-           py::arg( "epoch" ) );
+    m.def( "date_time_from_epoch", &tba::DateTime::fromTime< TIME_TYPE >, py::arg( "epoch" ) );
 
-    m.def( "date_time_from_iso_string",
-           &tba::DateTime::fromIsoString,
-           py::arg( "iso_string" ) );
+    m.def( "date_time_from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_string" ) );
 
     m.def( "calendar_date_to_julian_day_since_epoch",
            &convertCalendarDateToJulianDaySinceEpochPy< double >,
@@ -1786,43 +1782,22 @@ datetime.datetime
            py::arg( "datetime" ),
            py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
 
-    m.def( "julian_day_to_calendar_date",
-           &convertJulianDayToCalendarDatePy,
-           py::arg( "julian_day" ) );
+    m.def( "julian_day_to_calendar_date", &convertJulianDayToCalendarDatePy, py::arg( "julian_day" ) );
 
-    m.def( "julian_day_to_python_datetime",
-           &convertJulianDayToCalendarDatePy,
-           py::arg( "julian_day" ) );
+    m.def( "julian_day_to_python_datetime", &convertJulianDayToCalendarDatePy, py::arg( "julian_day" ) );
 
-    m.def( "calendar_date_to_julian_day",
-           &convertCalendarDateToJulianDayPy< double >,
-           py::arg( "calendar_date" ) );
+    m.def( "calendar_date_to_julian_day", &convertCalendarDateToJulianDayPy< double >, py::arg( "calendar_date" ) );
 
-    m.def( "python_datetime_to_julian_day",
-           &convertCalendarDateToJulianDayPy< double >,
-           py::arg( "datetime" ) );
-    m.def( "datetime_to_tudat",
-           &tba::DateTime::fromTimePoint,
-           py::arg( "datetime" ) );
+    m.def( "python_datetime_to_julian_day", &convertCalendarDateToJulianDayPy< double >, py::arg( "datetime" ) );
+    m.def( "datetime_to_tudat", &tba::DateTime::fromTimePoint, py::arg( "datetime" ) );
 
-    m.def( "year_and_days_in_year_to_calendar_date",
-           &tba::DateTime::fromYearAndDaysInYear,
-           py::arg( "year" ),
-           py::arg( "days_in_year" ) );
+    m.def( "year_and_days_in_year_to_calendar_date", &tba::DateTime::fromYearAndDaysInYear, py::arg( "year" ), py::arg( "days_in_year" ) );
 
-    m.def( "datetime_to_python",
-           &dateTimeToTimePoint,
-           py::arg( "datetime" ) );
+    m.def( "datetime_to_python", &dateTimeToTimePoint, py::arg( "datetime" ) );
 
-    m.def( "add_seconds_to_datetime",
-           &tba::addSecondsToDateTime< TIME_TYPE >,
-           py::arg( "datetime" ),
-           py::arg( "seconds_to_add" ) );
+    m.def( "add_seconds_to_datetime", &tba::addSecondsToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "seconds_to_add" ) );
 
-    m.def( "add_days_to_datetime",
-           &tba::addDaysToDateTime< TIME_TYPE >,
-           py::arg( "datetime" ),
-           py::arg( "days_to_add" ) );
+    m.def( "add_days_to_datetime", &tba::addDaysToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "days_to_add" ) );
 
     m.def( "epoch_from_date_time_components",
            &tba::timeFromDecomposedDateTime< TIME_TYPE >,
@@ -1833,9 +1808,7 @@ datetime.datetime
            py::arg( "minute" ),
            py::arg( "seconds" ) );
 
-    m.def( "epoch_from_date_time_iso_string",
-           &tba::timeFromIsoString< TIME_TYPE >,
-           py::arg( "iso_datetime" ) );
+    m.def( "epoch_from_date_time_iso_string", &tba::timeFromIsoString< TIME_TYPE >, py::arg( "iso_datetime" ) );
 }
 }  // namespace time_representation
 }  // namespace astro

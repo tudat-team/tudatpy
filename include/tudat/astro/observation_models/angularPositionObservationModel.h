@@ -54,15 +54,14 @@ public:
                 angular_position,
                 linkEnds,
                 observationBiasCalculator,
-                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                        std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                                std::vector< std::shared_ptr<
-                                        observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{ lightTimeCalculator },
-                                std::make_shared< LightTimeConvergenceCriteria >( ),
-                                false ) } ),
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ std::make_shared<
+                        FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                                lightTimeCalculator },
+                        std::make_shared< LightTimeConvergenceCriteria >( ),
+                        false ) } ),
         normalizeRightAscension_( normalizeRightAscension )
-    {
-    }
+    {}
 
     //! Destructor
     ~AngularPositionObservationModel( ) {}
@@ -87,7 +86,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
@@ -121,7 +120,6 @@ public:
         else
         {
             return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension * std::cos( declination ), declination ).finished( );
-
         }
     }
 
@@ -135,11 +133,16 @@ public:
         return this->getSingleLegLightTimeCalculator( );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( ) } } };
+    }
+
     bool getNormalizeRightAscension( )
     {
         return normalizeRightAscension_;
     }
-
 
 private:
     bool normalizeRightAscension_;

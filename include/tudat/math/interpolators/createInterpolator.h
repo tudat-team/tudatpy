@@ -55,8 +55,7 @@ public:
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                           const bool useLongDoubleTimeStep = false,
                           std::vector< BoundaryInterpolationType > boundaryHandling = std::vector< BoundaryInterpolationType >( ) ):
-        interpolatorType_( interpolatorType ),
-        selectedLookupScheme_( selectedLookupScheme ),
+        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
         boundaryHandling_( std::move( boundaryHandling ) )
     {
         // Check that if interpolator type matches with number of dimensions
@@ -94,10 +93,10 @@ public:
                               selectedLookupScheme,
                               useLongDoubleTimeStep,
                               std::vector< BoundaryInterpolationType >( 1, boundaryHandling ) )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~InterpolatorSettings( ) { }
+    virtual ~InterpolatorSettings( ) {}
 
     //! Function to get the selected type of interpolator.
     /*!
@@ -179,10 +178,10 @@ public:
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep, boundaryHandling ),
         interpolatorOrder_( interpolatorOrder ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
-    { }
+    {}
 
     //! Destructor
-    ~LagrangeInterpolatorSettings( ) { }
+    ~LagrangeInterpolatorSettings( ) {}
 
     //! Function to get the order of the Lagrange interpolator that is to be created.
     /*!
@@ -263,17 +262,17 @@ public:
     /*!
      * Empty constructor.
      */
-    DataMapSettings( ) { }
+    DataMapSettings( ) {}
 
     //! Constructor with a data map.
     /*!
      * Constructor to be used when the data map is provided directly.
      * \param dataMap The data map containing values for the independent and dependent variables.
      */
-    DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ): dataMap_( dataMap ) { }
+    DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ): dataMap_( dataMap ) {}
 
     //! Virtual destructor
-    virtual ~DataMapSettings( ) { }
+    virtual ~DataMapSettings( ) {}
 
     //! Get the data map associated to the current setting object.
     /*!
@@ -309,10 +308,10 @@ public:
                                          const std::vector< DependentType >& dependentVariableValues ):
         DataMapSettings< IndependentType, DependentType >( ), independentVariableValues_( independentVariableValues ),
         dependentVariableValues_( dependentVariableValues )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~IndependentDependentDataMapSettings( ) { }
+    virtual ~IndependentDependentDataMapSettings( ) {}
 
     //! Vector containing the values of the indepedent variable.
     std::vector< IndependentType > independentVariableValues_;
@@ -360,10 +359,10 @@ public:
      */
     FromFileDataMapSettings( const std::string& relativeFilePath ):
         DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >( ), relativeFilePath_( relativeFilePath )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~FromFileDataMapSettings( ) { }
+    virtual ~FromFileDataMapSettings( ) {}
 
     //! Relative path to the file from which the map is to be loaded.
     std::string relativeFilePath_;
@@ -399,10 +398,10 @@ public:
                          const std::vector< DependentType >& firstDerivativeOfDependentVariables ):
         DataMapSettings< IndependentType, DependentType >( dataToInterpolate ),
         firstDerivativeOfDependentVariables_( firstDerivativeOfDependentVariables )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~HermiteDataSettings( ) { }
+    virtual ~HermiteDataSettings( ) {}
 
     //! Vector containing the first derivatives of the depedent variables.
     std::vector< DependentType > firstDerivativeOfDependentVariables_;
@@ -417,7 +416,7 @@ public:
                                     const IndependentType finalTime,
                                     const IndependentType timeStep ):
         interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep )
-    { }
+    {}
 
     const std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
     const IndependentType initialTime_;
@@ -453,10 +452,10 @@ public:
     DataInterpolationSettings( const std::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
                                const std::shared_ptr< InterpolatorSettings >& interpolatorSettings ):
         dataSettings_( dataSettings ), interpolatorSettings_( interpolatorSettings )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~DataInterpolationSettings( ) { }
+    virtual ~DataInterpolationSettings( ) {}
 
     //! Object containing (the settings to create) the data needed for the interpolation.
     std::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;

@@ -44,7 +44,7 @@ template< typename T >
 void printArr( const T& arr )
 {
     std::cout << "[ ";
-    for( const auto& i: arr )
+    for( const auto& i : arr )
     {
         std::cout << i << ' ';
     }
@@ -55,7 +55,7 @@ void printArr( const T& arr )
 std::ostream& operator<<( std::ostream& os, const observation_models::LinkEnds& linkEnds )
 {
     os << "LinkEnds{\n";
-    for( auto& linkEnd: linkEnds )
+    for( auto& linkEnd : linkEnds )
     {
         os << "\t{type: " << std::to_string( linkEnd.first ) << ", body: " << linkEnd.second.getBodyName( )
            << ", station: " << linkEnd.second.getReferencePointName( ) << "}\n";
@@ -69,7 +69,7 @@ template< typename K, typename V >
 std::map< K, V > extractBlockFromVectorMap( const std::map< K, std::vector< V > >& vectorMap, int blockIndex )
 {
     std::map< K, V > singleBlock;
-    for( const auto& pair: vectorMap )
+    for( const auto& pair : vectorMap )
     {
         if( blockIndex < 0 )
         {

@@ -371,11 +371,11 @@ public:
                 for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
                     // Check if linkEndId is a ground station
-                    if( linkEndId.getReferencePointName() != "" && linkEndId.bodyName_ != spacecraftName_ )
+                    if( linkEndId.getReferencePointName( ) != "" && linkEndId.bodyName_ != spacecraftName_ )
                     {
-                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.getReferencePointName() ) )
+                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.getReferencePointName( ) ) )
                         {
-                            groundStations.push_back( linkEndId.getReferencePointName() );
+                            groundStations.push_back( linkEndId.getReferencePointName( ) );
                         }
                     }
                 }
@@ -857,15 +857,18 @@ private:
                         continue;
                     }
 
-                    // Check if adding ramp block vector to previously existing vector: add
-                    // connection point
+                    // Add a connection interval only when consecutive ODF files leave a real gap.
                     if( j == 0 && !unprocessedRampStartTimesPerStation_[ stationName ].empty( ) )
                     {
-                        unprocessedRampStartTimesPerStation_[ stationName ].push_back(
-                                unprocessedRampEndTimesPerStation_[ stationName ].back( ) );
-                        unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
-                        rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
-                        startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        Time previousRampEndTime = unprocessedRampEndTimesPerStation_[ stationName ].back( );
+                        Time currentRampStartTime = rampBlocks.at( j )->getRampStartTime( );
+                        if( previousRampEndTime < currentRampStartTime )
+                        {
+                            unprocessedRampStartTimesPerStation_[ stationName ].push_back( previousRampEndTime );
+                            unprocessedRampEndTimesPerStation_[ stationName ].push_back( currentRampStartTime );
+                            rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
+                            startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        }
                     }
 
                     unprocessedRampStartTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );

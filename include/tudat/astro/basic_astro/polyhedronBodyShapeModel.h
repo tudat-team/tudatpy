@@ -62,7 +62,7 @@ public:
     }
 
     //! Destructor
-    ~PolyhedronBodyShapeModel( ) { }
+    ~PolyhedronBodyShapeModel( ) {}
 
     //! Calculates the altitude above the polyhedron
     /*!

@@ -160,8 +160,7 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         if( linkEndIterator->second == linkEndId ||
-            ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) &&
-              linkEndId.getReferencePointName() == "") )
+            ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) && linkEndId.getReferencePointName( ) == "" ) )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }
@@ -321,7 +320,7 @@ bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch 
 {
     bool linkEndIsPresent = false;
 
-    for( auto linkEndIterator: linkEnds )
+    for( auto linkEndIterator : linkEnds )
     {
         if( linkEndIterator.second == linkEndToSearch )
         {

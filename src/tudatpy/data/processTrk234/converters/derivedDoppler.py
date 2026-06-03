@@ -1,4 +1,6 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_doppler_ancillary_settings
+from tudatpy.estimation.observations_setup.ancillary_settings import (
+    dsn_n_way_doppler_ancillary_settings,
+)
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
@@ -35,7 +37,9 @@ class DerivedDopplerConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(self, doppler_df: DataFrame, spacecraftName: str | None = None) -> list[SingleObservationSet]:
+    def process(
+        self, doppler_df: DataFrame, spacecraftName: str | None = None
+    ) -> list[SingleObservationSet]:
 
         observation_set_list = []
         for link_end in doppler_df["link_ends"].unique():
@@ -100,30 +104,20 @@ class DerivedDopplerConverter(RadioBase):
             else 0.0
         )
         uplinkDelay += (
-            sfdu.sec_chdo.ul_zheight_corr
-            if sfdu.sec_chdo.ul_zheight_corr != -99.0
-            else 0.0
+            sfdu.sec_chdo.ul_zheight_corr if sfdu.sec_chdo.ul_zheight_corr != -99.0 else 0.0
         )
 
         downlinkDelay = 0.0
         downlinkDelay += (
-            sfdu.sec_chdo.rcv_time_tag_delay
-            if sfdu.sec_chdo.rcv_time_tag_delay != -1.0
-            else 0.0
+            sfdu.sec_chdo.rcv_time_tag_delay if sfdu.sec_chdo.rcv_time_tag_delay != -1.0 else 0.0
         )
+        downlinkDelay += sfdu.sec_chdo.array_delay if sfdu.sec_chdo.array_flag != 0.0 else 0.0
         downlinkDelay += (
-            sfdu.sec_chdo.array_delay if sfdu.sec_chdo.array_flag != 0.0 else 0.0
-        )
-        downlinkDelay += (
-            sfdu.sec_chdo.dl_zheight_corr
-            if sfdu.sec_chdo.dl_zheight_corr != -99.0
-            else 0.0
+            sfdu.sec_chdo.dl_zheight_corr if sfdu.sec_chdo.dl_zheight_corr != -99.0 else 0.0
         )
 
         scft_transpd_delay = (
-            sfdu.sec_chdo.scft_transpd_delay
-            if sfdu.sec_chdo.scft_transpd_delay != -1.0
-            else 0.0
+            sfdu.sec_chdo.scft_transpd_delay if sfdu.sec_chdo.scft_transpd_delay != -1.0 else 0.0
         )
 
         return (uplinkDelay, scft_transpd_delay, downlinkDelay)

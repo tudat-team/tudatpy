@@ -34,9 +34,9 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createGcrsToItrsRotationMode
         const std::shared_ptr< GcrsToItrsRotationModelSettings >& gcrsToItrsRotationSettings );
 
 std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings( const std::string& originalFrame,
-                                                                                const std::string& targetFrame,
-                                                                                const std::string& targetFrameSpice,
-                                                                                const double initialTime )
+                                                                               const std::string& targetFrame,
+                                                                               const std::string& targetFrameSpice,
+                                                                               const double initialTime )
 {
     return std::make_shared< SimpleRotationModelSettings >(
             originalFrame,

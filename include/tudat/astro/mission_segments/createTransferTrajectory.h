@@ -64,9 +64,9 @@ static std::map< TransferLegTypes, bool > legRequiresInputFromFollowingNode = { 
 class TransferLegSettings
 {
 public:
-    TransferLegSettings( const TransferLegTypes legType ): legType_( legType ) { }
+    TransferLegSettings( const TransferLegTypes legType ): legType_( legType ) {}
 
-    virtual ~TransferLegSettings( ) { }
+    virtual ~TransferLegSettings( ) {}
 
     TransferLegTypes legType_;
 };
@@ -82,7 +82,7 @@ public:
         TransferLegSettings( spherical_shaping_low_thrust_leg ), rootFinderSettings_( rootFinderSettings ),
         lowerBoundFreeCoefficient_( lowerBoundFreeCoefficient ), upperBoundFreeCoefficient_( upperBoundFreeCoefficient ),
         initialValueFreeCoefficient_( initialValueFreeCoefficient ), timeToAzimuthInterpolatorStepSize_( timeToAzimuthInterpolatorStepSize )
-    { }
+    {}
 
     const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings_;
     const double lowerBoundFreeCoefficient_;
@@ -103,7 +103,7 @@ public:
         numberOfFreeRadialCoefficients_( radialVelocityFunctionComponents.size( ) - 3 ),
         numberOfFreeNormalCoefficients_( normalVelocityFunctionComponents.size( ) - 3 ),
         numberOfFreeAxialCoefficients_( axialVelocityFunctionComponents.size( ) - 3 )
-    { }
+    {}
 
     const shape_based_methods::HodographicBasisFunctionList radialVelocityFunctionComponents_;
     const shape_based_methods::HodographicBasisFunctionList normalVelocityFunctionComponents_;
@@ -135,9 +135,9 @@ std::shared_ptr< TransferLegSettings > hodographicShapingLeg(
 class TransferNodeSettings
 {
 public:
-    TransferNodeSettings( const TransferNodeTypes nodeType ): nodeType_( nodeType ) { }
+    TransferNodeSettings( const TransferNodeTypes nodeType ): nodeType_( nodeType ) {}
 
-    virtual ~TransferNodeSettings( ) { }
+    virtual ~TransferNodeSettings( ) {}
 
     TransferNodeTypes nodeType_;
 };
@@ -147,7 +147,7 @@ class SwingbyNodeSettings : public TransferNodeSettings
 public:
     SwingbyNodeSettings( const double minimumPeriapsisRadius ):
         TransferNodeSettings( swingby ), minimumPeriapsisRadius_( minimumPeriapsisRadius )
-    { }
+    {}
 
     double minimumPeriapsisRadius_;
 };
@@ -158,7 +158,7 @@ public:
     EscapeAndDepartureNodeSettings( const double departureSemiMajorAxis, const double departureEccentricity ):
         TransferNodeSettings( escape_and_departure ), departureSemiMajorAxis_( departureSemiMajorAxis ),
         departureEccentricity_( departureEccentricity )
-    { }
+    {}
 
     double departureSemiMajorAxis_;
     double departureEccentricity_;
@@ -170,7 +170,7 @@ public:
     CaptureAndInsertionNodeSettings( const double captureSemiMajorAxis, const double captureEccentricity ):
         TransferNodeSettings( capture_and_insertion ), captureSemiMajorAxis_( captureSemiMajorAxis ),
         captureEccentricity_( captureEccentricity )
-    { }
+    {}
 
     TransferNodeTypes nodeType_;
     double captureSemiMajorAxis_;

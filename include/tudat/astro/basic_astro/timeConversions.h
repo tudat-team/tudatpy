@@ -453,8 +453,7 @@ inline int getDaysInMonth( const int month, const int year )
     }
 
     int numberOfDays = daysPerMonth[ month - 1 ];
-    const bool isLeapYear =
-            ( ( year % 4 == 0 ) && !( ( year % 100 == 0 ) && !( year % 400 == 0 ) ) );
+    const bool isLeapYear = ( ( year % 4 == 0 ) && !( ( year % 100 == 0 ) && !( year % 400 == 0 ) ) );
     if( month == 2 && isLeapYear )
     {
         numberOfDays++;

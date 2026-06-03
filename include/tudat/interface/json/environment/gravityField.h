@@ -29,7 +29,7 @@ static std::map< GravityFieldType, std::string > gravityFieldTypes = { { central
                                                                        { spherical_harmonic, "sphericalHarmonic" } };
 
 //! `GravityFieldType` not supported by `json_interface`.
-static std::vector< GravityFieldType > unsupportedGravityFieldTypes = { };
+static std::vector< GravityFieldType > unsupportedGravityFieldTypes = {};
 
 //! Convert `GravityFieldType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const GravityFieldType& gravityFieldType )
@@ -52,7 +52,7 @@ static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels
                                                                                      { jgmro120d, "jgmro120d" } };
 
 //! `SphericalHarmonicsModel` not supported by `json_interface`.
-static std::vector< SphericalHarmonicsModel > unsupportedSphericalHarmonicsModels = { };
+static std::vector< SphericalHarmonicsModel > unsupportedSphericalHarmonicsModels = {};
 
 //! Convert `SphericalHarmonicsModel` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const SphericalHarmonicsModel& sphericalHarmonicsModel )

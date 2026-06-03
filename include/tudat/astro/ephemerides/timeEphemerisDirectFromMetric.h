@@ -31,30 +31,26 @@ class TimeEphemerisDirectFromMetric : public TimeEphemeris
 public:
     using TimeDifferenceInterpolator = std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateScalarType > >;
 
-    TimeEphemerisDirectFromMetric(
-            const std::string& centralBodyName,
-            const std::map< std::string, TimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
-            const std::map< std::string, TimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolators =
-            ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ) :
-        TimeEphemeris( centralBodyName ),
-        globalCoordinateToProperTimeInterpolators_( globalCoordinateToProperTimeInterpolators ),
+    TimeEphemerisDirectFromMetric( const std::string& centralBodyName,
+                                   const std::map< std::string, TimeDifferenceInterpolator > globalCoordinateToProperTimeInterpolators =
+                                           ( std::map< std::string, TimeDifferenceInterpolator >( ) ),
+                                   const std::map< std::string, TimeDifferenceInterpolator > properTimeToGlobalCoordinateInterpolators =
+                                           ( std::map< std::string, TimeDifferenceInterpolator >( ) ) ):
+        TimeEphemeris( centralBodyName ), globalCoordinateToProperTimeInterpolators_( globalCoordinateToProperTimeInterpolators ),
         properTimeToGlobalCoordinateInterpolators_( properTimeToGlobalCoordinateInterpolators )
-    { }
+    {}
 
-    void resetGlobalToProperTimeInterpolators(
-            const TimeDifferenceInterpolator globalCoordinateToProperTimeInterpolator,
-            const TimeDifferenceInterpolator properTimeToGlobalCoordinateInterpolator,
-            const std::string& referencePoint )
+    void resetGlobalToProperTimeInterpolators( const TimeDifferenceInterpolator globalCoordinateToProperTimeInterpolator,
+                                               const TimeDifferenceInterpolator properTimeToGlobalCoordinateInterpolator,
+                                               const std::string& referencePoint )
     {
         globalCoordinateToProperTimeInterpolators_[ referencePoint ] = globalCoordinateToProperTimeInterpolator;
         properTimeToGlobalCoordinateInterpolators_[ referencePoint ] = properTimeToGlobalCoordinateInterpolator;
     }
 
-    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime(
-            const basic_astrodynamics::TimeScales inputScale,
-            const basic_astrodynamics::TimeScales outputScale,
-            const std::string& pointIdentifier = "" ) override;
+    std::function< Time( const Time ) > getTimeDifferenceFunctionFromExtendedTime( const basic_astrodynamics::TimeScales inputScale,
+                                                                                   const basic_astrodynamics::TimeScales outputScale,
+                                                                                   const std::string& pointIdentifier = "" ) override;
 
     StateScalarType getGlobalCoordinateToProperTimeDifference( const std::string& pointId, const TimeType evaluationTime )
     {
@@ -79,8 +75,7 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric< TimeType, Sta
 {
     std::function< Time( const Time ) > timeDifferenceFunction;
 
-    if( !basic_astrodynamics::isTimeScaleRelativistic( inputScale ) ||
-            !basic_astrodynamics::isTimeScaleRelativistic( outputScale ) )
+    if( !basic_astrodynamics::isTimeScaleRelativistic( inputScale ) || !basic_astrodynamics::isTimeScaleRelativistic( outputScale ) )
     {
         throw std::runtime_error( "Error when getting relatvistic time conversion, scales are not both relativistic" );
     }
@@ -102,18 +97,14 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric< TimeType, Sta
             {
                 if( globalCoordinateToProperTimeInterpolators_.count( pointIdentifier ) == 0 )
                 {
-                    throw std::runtime_error(
-                                "Error, body-point " + pointIdentifier +
-                                " not found in direct-from-metric time ephemeris" );
+                    throw std::runtime_error( "Error, body-point " + pointIdentifier + " not found in direct-from-metric time ephemeris" );
                 }
                 else
                 {
-                    timeDifferenceFunction = [=]( const Time currentTime )
-                    {
-                        const TimeType interpolationTime =
-                                detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
+                    timeDifferenceFunction = [ = ]( const Time currentTime ) {
+                        const TimeType interpolationTime = detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
                         return Time( static_cast< long double >(
-                                         getGlobalCoordinateToProperTimeDifference( pointIdentifier, interpolationTime ) ) );
+                                getGlobalCoordinateToProperTimeDifference( pointIdentifier, interpolationTime ) ) );
                     };
                 }
             }
@@ -128,18 +119,14 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric< TimeType, Sta
             {
                 if( properTimeToGlobalCoordinateInterpolators_.count( pointIdentifier ) == 0 )
                 {
-                    throw std::runtime_error(
-                                "Error, body-point " + pointIdentifier +
-                                " not found in direct-from-metric time ephemeris" );
+                    throw std::runtime_error( "Error, body-point " + pointIdentifier + " not found in direct-from-metric time ephemeris" );
                 }
                 else
                 {
-                    timeDifferenceFunction = [=]( const Time currentTime )
-                    {
-                        const TimeType interpolationTime =
-                                detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
+                    timeDifferenceFunction = [ = ]( const Time currentTime ) {
+                        const TimeType interpolationTime = detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
                         return Time( static_cast< long double >(
-                                         getProperToGlobalCoordinateTimeDifference( pointIdentifier, interpolationTime ) ) );
+                                getProperToGlobalCoordinateTimeDifference( pointIdentifier, interpolationTime ) ) );
                     };
                 }
             }

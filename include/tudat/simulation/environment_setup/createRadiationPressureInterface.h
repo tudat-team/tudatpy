@@ -59,10 +59,10 @@ public:
                                         const std::string& sourceBody,
                                         const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
         radiationPressureType_( radiationPressureType ), sourceBody_( sourceBody ), occultingBodies_( occultingBodies )
-    { }
+    {}
 
     //  Destructor
-    virtual ~RadiationPressureInterfaceSettings( ) { }
+    virtual ~RadiationPressureInterfaceSettings( ) {}
 
     //  Function returning type of radiation pressure interface that is to be made.
     /*
@@ -124,7 +124,7 @@ public:
         RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ), area_( area ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
         radiationPressureCoefficientFunction_( [ = ]( const double ) { return radiationPressureCoefficient; } )
-    { }
+    {}
 
     CannonBallRadiationPressureInterfaceSettings( const std::string& sourceBody,
                                                   const double area,
@@ -132,7 +132,7 @@ public:
                                                   const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ), area_( area ),
         radiationPressureCoefficient_( TUDAT_NAN ), radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction )
-    { }
+    {}
 
     //  Function to return surface area that undergoes radiation pressure.
     /*

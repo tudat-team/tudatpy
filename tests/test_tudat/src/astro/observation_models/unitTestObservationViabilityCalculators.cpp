@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
             getTargetAnglesAndRange( bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ), "Moon", times, true );
     std::map< double, Eigen::VectorXd > targetAnglesAndRange2 =
             getTargetAnglesAndRange( bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ), "Moon", times, false );
-    for( auto it: targetAnglesAndRange )
+    for( auto it : targetAnglesAndRange )
     {
         double time = it.first;
         Eigen::Vector6d stateOfMoon = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( time );
@@ -319,7 +319,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
                 if( linkEndIterator->second.bodyName_ == referenceBody )
                 {
                     currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                              ->getGroundStation( linkEndIterator->second.getReferencePointName() )
+                                                              ->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
                                                               ->getPointingAnglesCalculator( );
                     if( linkEndIndex != 0 )
                     {
@@ -1194,7 +1194,7 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3 );
 
                         // Define tolerance for ambiguous cases near zero
-                        double tolerance = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
+                        double tolerance = 10.0 * std::numeric_limits< double >::epsilon( ) * rotatedSpacecraft.norm( );
 
                         // Skip ambiguous region near 0 (test on tolerance, not 0)
                         if( rotatedSpacecraft( 0 ) < tolerance )
@@ -1202,7 +1202,6 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                             currentObservationIsViable = false;
                         }
                     }
-
 
                     BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
 

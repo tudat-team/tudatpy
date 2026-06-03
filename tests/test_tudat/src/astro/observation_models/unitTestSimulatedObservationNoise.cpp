@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;

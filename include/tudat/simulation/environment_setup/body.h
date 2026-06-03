@@ -172,7 +172,8 @@ public:
             {
                 if( bodyEphemeris_ == nullptr )
                 {
-                    throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
+                    throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ +
+                                              ", body has no ephemeris" );
                 }
                 // If body is not global frame origin, set state.
                 if( bodyIsGlobalFrameOrigin_ == 0 )
@@ -200,8 +201,8 @@ public:
 
                     if( sizeof( StateScalarType ) == 8 )
                     {
-                        currentBarycentricState_ =
-                                ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).template cast< double >( );
+                        currentBarycentricState_ = ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time )
+                                                           .template cast< double >( );
                         currentBarycentricLongState_ = currentBarycentricState_.template cast< long double >( );
                     }
                     else
@@ -221,10 +222,10 @@ public:
             isStateSet_ = true;
         }
 
-        catch ( std::runtime_error& caughtException )
+        catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error when setting global state of " + bodyName_ + " from ephemeris" +
-                    ".\nOriginal error: " + std::string( caughtException.what( ) ) );
+                                      ".\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
     }
 
@@ -919,7 +920,6 @@ private:
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
-
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
@@ -1000,7 +1000,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
     }
 
     // Iterate over all bodies
-    for( auto bodyIterator: bodies )
+    for( auto bodyIterator : bodies )
     {
         // Check id body contains an ephemeris
         if( bodyIterator.second->getEphemeris( ) != nullptr )
@@ -1125,7 +1125,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
     }
 
     // Set body state-dependent environment variables
-    for( auto bodyIterator: bodies )
+    for( auto bodyIterator : bodies )
     {
         bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
     }
@@ -1155,16 +1155,13 @@ void addEmptyEphemeris( const std::shared_ptr< Body > body,
 }
 
 //! Struct with global space-time properties used by dynamics/observation models in a SystemOfBodies.
-struct SpaceTimeProperties
-{
+struct SpaceTimeProperties {
 public:
-    SpaceTimeProperties(
-            const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
-                    std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
-            const double equivalencePrincipleLpiViolationParameter = 0.0,
-            const std::shared_ptr< relativity::Metric >& baseMetric = nullptr ):
-        ppnParameterSet_( ppnParameterSet ),
-        equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter ),
+    SpaceTimeProperties( const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
+                                 std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
+                         const double equivalencePrincipleLpiViolationParameter = 0.0,
+                         const std::shared_ptr< relativity::Metric >& baseMetric = nullptr ):
+        ppnParameterSet_( ppnParameterSet ), equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter ),
         baseMetric_( baseMetric )
     {
         if( ppnParameterSet_ == nullptr )
@@ -1226,12 +1223,8 @@ public:
                     const std::string frameOrientation = "ECLIPJ2000",
                     const std::unordered_map< std::string, std::shared_ptr< Body > >& bodyMap =
                             std::unordered_map< std::string, std::shared_ptr< Body > >( ),
-                    const std::shared_ptr< SpaceTimeProperties >& spaceTimeProperties =
-                            std::make_shared< SpaceTimeProperties >( ) ):
-        frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation ),
-        bodyMap_( bodyMap ),
-        spaceTimeProperties_( spaceTimeProperties )
+                    const std::shared_ptr< SpaceTimeProperties >& spaceTimeProperties = std::make_shared< SpaceTimeProperties >( ) ):
+        frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ), bodyMap_( bodyMap ), spaceTimeProperties_( spaceTimeProperties )
     {
         if( spaceTimeProperties_ == nullptr )
         {

@@ -144,9 +144,7 @@ def calculate_delta_v_time_map(
     departure_epochs = np.linspace(
         earliest_departure_time.epoch(), latest_departure_time.epoch(), n_dep
     )
-    arrival_epochs = np.linspace(
-        earliest_arrival_time.epoch(), latest_arrival_time.epoch(), n_arr
-    )
+    arrival_epochs = np.linspace(earliest_arrival_time.epoch(), latest_arrival_time.epoch(), n_arr)
 
     # Determine the shape of the ΔV returned by the user-provided `function_to_calculate_delta_v`
     ΔV_shape = determine_shape_of_delta_v(

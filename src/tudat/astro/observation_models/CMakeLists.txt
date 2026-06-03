@@ -28,6 +28,7 @@ set(observation_models_SOURCES
 set(observation_models_HEADERS
         "angularPositionObservationModel.h"
         "pixelCoordinatesObservationModel.h"
+        "azimuthElevationObservationModel.h"
         "lightTimeSolution.h"
         "linkTypeDefs.h"
         "observableTypes.h"

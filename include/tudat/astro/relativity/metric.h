@@ -20,7 +20,6 @@
 namespace tudat
 {
 
-
 namespace relativity
 {
 
@@ -42,14 +41,12 @@ public:
                      const double parameterBeta,
                      const double parameterDelta = 0.0,
                      const double parameterEpsilon = 0.0 ):
-        parameterGamma_( parameterGamma ),
-        parameterBeta_( parameterBeta ),
-        parameterDelta_( parameterDelta ),
+        parameterGamma_( parameterGamma ), parameterBeta_( parameterBeta ), parameterDelta_( parameterDelta ),
         parameterEpsilon_( parameterEpsilon )
-    { }
+    {}
 
     //! Destructor
-    ~PPNParameterSet( ) { }
+    ~PPNParameterSet( ) {}
 
     //! Function to retrieve value of PPN parameter gamma.
     /*!
@@ -141,7 +138,6 @@ protected:
     double parameterDelta_;
 
     double parameterEpsilon_;
-
 };
 
 class Metric
@@ -152,7 +148,7 @@ public:
         currentChristoffelSymbols_.resize( 4 );
     }
 
-    virtual ~Metric( ){ }
+    virtual ~Metric( ) {}
 
     virtual std::shared_ptr< Metric > Clone( ) = 0;
 
@@ -173,7 +169,8 @@ public:
 
     Eigen::Matrix< double, 4, 4 > getCurrentContravariantMetricPeturbation( )
     {
-        return - ( getCurrentContravariantMetric( ) - minkowskiMetric );// minkowskiMetric * currentCovariantMetricContribution_ * minkowskiMetric;
+        return -( getCurrentContravariantMetric( ) -
+                  minkowskiMetric );  // minkowskiMetric * currentCovariantMetricContribution_ * minkowskiMetric;
     }
 
     std::vector< Eigen::Matrix< double, 4, 4 > > getCurrentChristoffelSymbols( )
@@ -191,12 +188,12 @@ public:
         return currentTime_;
     }
 
-    virtual void update( const Eigen::Matrix< double, 6, 1 >& state, const double time,
-                         const bool updateCurrentMetric, const bool updateCurrentChristoffelSymbols ) = 0;
-
+    virtual void update( const Eigen::Matrix< double, 6, 1 >& state,
+                         const double time,
+                         const bool updateCurrentMetric,
+                         const bool updateCurrentChristoffelSymbols ) = 0;
 
 protected:
-
     Eigen::Matrix< double, 4, 4 > currentCovariantMetricContribution_;
 
     std::vector< Eigen::Matrix< double, 4, 4 > > currentChristoffelSymbols_;
@@ -204,9 +201,7 @@ protected:
     Eigen::Matrix< double, 6, 1 > currentEvaluationState_;
 
     double currentTime_;
-
 };
-
 
 }  // namespace relativity
 

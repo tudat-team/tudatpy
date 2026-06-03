@@ -18,7 +18,7 @@ namespace propagation_setup
 namespace torque
 {
 
-void expose_torque_setup( py::module &m );
+void expose_torque_setup( py::module& m );
 
 }  // namespace torque
 }  // namespace propagation_setup

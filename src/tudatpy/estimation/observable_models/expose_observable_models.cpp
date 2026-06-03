@@ -33,10 +33,8 @@ namespace observable_models
 
 void expose_observable_models( py::module& m )
 {
-
     auto observables_simulation = m.def_submodule( "observables_simulation" );
     observables_simulation::expose_observables_simulation( observables_simulation );
-
 }
 
 }  // namespace observable_models

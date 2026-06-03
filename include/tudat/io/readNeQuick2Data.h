@@ -28,8 +28,7 @@ namespace input_output
 //! CCIR coefficient data for the NeQuick-2 model.
 //! Each monthly file contains foF2 coefficients (13 x 76 x 2) and M(3000)F2 coefficients (9 x 49 x 2).
 //! The two slices of the third dimension are for low and high solar activity respectively.
-struct CcirData
-{
+struct CcirData {
     //! foF2 coefficients: F2[month][solarActivity](row, col) where month=0..11, solarActivity=0(low)/1(high)
     //! Each matrix is 76 rows x 13 columns
     std::array< std::array< Eigen::MatrixXd, 2 >, 12 > foF2Coefficients;

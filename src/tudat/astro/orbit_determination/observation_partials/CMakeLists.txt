@@ -11,6 +11,7 @@
 set(observation_partials_SOURCES
   "angularPositionPartial.cpp"
   "pixelCoordinatesPartial.cpp"
+  "azimuthElevationPartial.cpp"
   "rotationMatrixPartial.cpp"
   "positionPartials.cpp"
   "differencedObservationPartial.cpp"
@@ -29,6 +30,7 @@ set(observation_partials_SOURCES
 set(observation_partials_HEADERS
   "angularPositionPartial.h"
   "pixelCoordinatesPartial.h"
+  "azimuthElevationPartial.h"
   "rotationMatrixPartial.h"
   "positionPartials.h"
   "oneWayRangePartial.h"
@@ -49,4 +51,3 @@ TUDAT_ADD_LIBRARY("observation_partials"
         "${observation_partials_SOURCES}"
         "${observation_partials_HEADERS}"
         )
-
