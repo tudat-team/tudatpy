@@ -1918,6 +1918,11 @@ public:
                                                                           ->getVehicleSystems( )
                                                                           ->getCamera( linkEnds.at( receiver ).getReferencePointName( ) );
 
+                std::shared_ptr< PixelCoordinatesObservationModelSettings > pixelCoordinatesSettings =
+                        std::dynamic_pointer_cast< PixelCoordinatesObservationModelSettings >( observationSettings );
+                const bool correctForStellarAberration =
+                        ( pixelCoordinatesSettings == nullptr ) ? false : pixelCoordinatesSettings->correctForStellarAberration_;
+
                 observationModel = std::make_shared< PixelCoordinatesObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
@@ -1928,7 +1933,8 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         camera,
-                        observationBias );
+                        observationBias,
+                        correctForStellarAberration );
                 break;
             }
             default:

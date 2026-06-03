@@ -526,7 +526,7 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
             const std::string block = readNamelistBlockContents( dataFile, trimmedLine );
             const std::vector< std::pair< std::string, std::string > > assigns = parseFortranNamelistAssignments( block );
 
-            std::map< int, CameraModel > camerasByIndex;
+            std::map< int, RawPsfCameraProperties > camerasByIndex;
 
             for( std::size_t i = 0; i < assigns.size( ); ++i )
             {
@@ -621,12 +621,12 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 }
             }
 
-            for( std::map< int, CameraModel >::const_iterator it = camerasByIndex.begin( ); it != camerasByIndex.end( ); ++it )
+            for( std::map< int, RawPsfCameraProperties >::const_iterator it = camerasByIndex.begin( ); it != camerasByIndex.end( ); ++it )
             {
-                const CameraModel& cam = it->second;
+                const RawPsfCameraProperties& cam = it->second;
                 if( !cam.cameraId_.empty( ) )
                 {
-                    fileContents.cameraModels_[ cam.cameraId_ ] = cam;
+                    fileContents.cameraProperties_[ cam.cameraId_ ] = cam;
                 }
             }
 
@@ -754,7 +754,7 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
             {
                 throwMissingPsfFieldError( "$PIC", "TWIST", pictureContext );
             }
-            if( fileContents.cameraModels_.count( imageContents.cameraId_ ) == 0 )
+            if( fileContents.cameraProperties_.count( imageContents.cameraId_ ) == 0 )
             {
                 throw std::runtime_error( "Error when reading PSF file: picture " + imageContents.pictureName_ +
                                           " references unknown camera " + imageContents.cameraId_ + "." );
@@ -912,10 +912,10 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
     {
         throw std::runtime_error( "Error when reading PSF file: no $CAM block found." );
     }
-    if( fileContents.numberOfCameras_ != static_cast< int >( fileContents.cameraModels_.size( ) ) )
+    if( fileContents.numberOfCameras_ != static_cast< int >( fileContents.cameraProperties_.size( ) ) )
     {
         throw std::runtime_error( "Error when reading PSF file: NCAM is " + std::to_string( fileContents.numberOfCameras_ ) + " but " +
-                                  std::to_string( fileContents.cameraModels_.size( ) ) + " camera models were parsed." );
+                                  std::to_string( fileContents.cameraProperties_.size( ) ) + " camera properties were parsed." );
     }
 
     return fileContents;

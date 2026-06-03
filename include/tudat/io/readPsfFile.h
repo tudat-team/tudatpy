@@ -19,6 +19,8 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/system_models/camera.h"
+
 namespace tudat
 {
 
@@ -30,10 +32,10 @@ namespace psf
 
 enum class OpticalImageType { star, planet, satellite, rock, end_marker, unknown };
 
-class CameraModel
+class RawPsfCameraProperties
 {
 public:
-    CameraModel( ) = default;
+    RawPsfCameraProperties( ) = default;
 
     std::string cameraId_;
     double focalLengthMm_ = 0.0;
@@ -109,11 +111,27 @@ public:
     std::vector< std::string > psfComments_;  // PSFCOM list
 
     // $CAM
-    std::map< std::string, CameraModel > cameraModels_;  // keyed by CAMID ('A','B',...)
+    std::map< std::string, RawPsfCameraProperties > cameraProperties_;  // keyed by CAMID ('A','B',...)
 
     // $PIC/$IM
     std::vector< RawPsfFileImageContents > images_;
 };
+
+//! Create a PSF/Jacobson camera projection model from raw PSF camera properties.
+/*!
+ *  This conversion only maps the camera calibration properties. Picture-specific pointing data from $PIC blocks must still be handled
+ *  separately when constructing a camera or evaluating an observation.
+ */
+inline std::shared_ptr< tudat::system_models::PsfCameraProjectionModel > createPsfCameraProjectionModel(
+        const RawPsfCameraProperties& cameraProperties )
+{
+    return std::make_shared< tudat::system_models::PsfCameraProjectionModel >( cameraProperties.focalLengthMm_,
+                                                                               cameraProperties.principalPoint_,
+                                                                               cameraProperties.kMatrix_,
+                                                                               cameraProperties.distortionCoefficients_,
+                                                                               cameraProperties.mountingOffsetsDegrees_,
+                                                                               cameraProperties.fieldOfViewBounds_ );
+}
 
 //! Read raw camera, picture and image-measurement data from a PSF file.
 /*!

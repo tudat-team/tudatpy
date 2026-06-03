@@ -17,6 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readPsfFile.h"
 
 namespace tudat
@@ -44,7 +45,7 @@ BOOST_AUTO_TEST_SUITE( test_psf_file_reader )
 
 BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
 {
-    const std::string file = "/home/dominic/Downloads/psf_vgr2_neptune.txt";
+    const std::string file = paths::getTudatTestDataPath( ) + "/psf/psf_vgr2_neptune.txt";
     const input_output::psf::RawPsfFileContents psfFile = input_output::psf::readPsfFile( file );
 
     BOOST_CHECK_EQUAL( psfFile.spacecraftId_, "VGR2" );
@@ -56,11 +57,11 @@ BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
     BOOST_REQUIRE_EQUAL( psfFile.psfComments_.size( ), 3 );
     BOOST_CHECK_EQUAL( psfFile.psfComments_.at( 0 ), "Voyager PSF used in creating the Neptunian" );
 
-    BOOST_REQUIRE_EQUAL( psfFile.cameraModels_.size( ), 2 );
-    BOOST_REQUIRE( psfFile.cameraModels_.count( "A" ) == 1 );
-    BOOST_REQUIRE( psfFile.cameraModels_.count( "B" ) == 1 );
+    BOOST_REQUIRE_EQUAL( psfFile.cameraProperties_.size( ), 2 );
+    BOOST_REQUIRE( psfFile.cameraProperties_.count( "A" ) == 1 );
+    BOOST_REQUIRE( psfFile.cameraProperties_.count( "B" ) == 1 );
 
-    const input_output::psf::CameraModel& cameraA = psfFile.cameraModels_.at( "A" );
+    const input_output::psf::RawPsfCameraProperties& cameraA = psfFile.cameraProperties_.at( "A" );
     BOOST_CHECK_EQUAL( cameraA.cameraId_, "A" );
     checkClose( cameraA.focalLengthMm_, 1503.4900 );
     checkVector2Close( cameraA.principalPoint_, 398.030, 399.390 );
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
     checkClose( cameraA.kMatrix_( 0, 2 ), -9.3650000E-03 );
     checkClose( cameraA.kMatrix_( 1, 2 ), 6.5570000E-03 );
 
-    const input_output::psf::CameraModel& cameraB = psfFile.cameraModels_.at( "B" );
+    const input_output::psf::RawPsfCameraProperties& cameraB = psfFile.cameraProperties_.at( "B" );
     BOOST_CHECK_EQUAL( cameraB.cameraId_, "B" );
     checkClose( cameraB.focalLengthMm_, 200.7260 );
     checkVector2Close( cameraB.principalPoint_, 402.631, 404.101 );

@@ -384,7 +384,9 @@ public:
                                 ->getCamera( linkEnds.at( observation_models::receiver ).getReferencePointName( ) );
                 positionPartialScaler = std::make_shared< PixelCoordinatesScaling >(
                         [ camera ]( const double time ) { return camera->getRotationFromInertialToCameraFrame( time ); },
-                        camera->getFocalLengthsMatrix( ) );
+                        [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
+                            return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
+                        } );
                 break;
             }
             case observation_models::azimuth_elevation_angle: {

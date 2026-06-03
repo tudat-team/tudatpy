@@ -53,9 +53,9 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfPixelsWrtLinkEndPositionCameraFr
 }
 
 void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                  const std::vector< double >& times,
-                                  const observation_models::LinkEndType fixedLinkEnd,
-                                  const Eigen::VectorXd )
+                                      const std::vector< double >& times,
+                                      const observation_models::LinkEndType fixedLinkEnd,
+                                      const Eigen::VectorXd )
 {
     if( fixedLinkEnd != observation_models::receiver )
     {
@@ -69,8 +69,7 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
 
     Eigen::Quaterniond rotationFromInertialToCameraFrame = rotationFromInertialToCameraFrameFunction_( times.at( observerIndex_ ) );
     Eigen::Vector3d relativeRangeVectorCameraFrame = rotationFromInertialToCameraFrame * relativeRangeVector;
-    positionScalingFactor_ =
-            calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( relativeRangeVectorCameraFrame, focalLengthsMatrix_, true );
+    positionScalingFactor_ = -pixelLinePartialWrtCameraFramePositionFunction_( relativeRangeVectorCameraFrame );
 
     positionScalingFactor_ = positionScalingFactor_ * rotationFromInertialToCameraFrame.toRotationMatrix( );
 

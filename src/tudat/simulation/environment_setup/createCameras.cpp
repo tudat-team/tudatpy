@@ -23,18 +23,20 @@ void createCamera( const std::shared_ptr< Body > body, const std::shared_ptr< Ca
 {
     Eigen::Quaterniond rotationQuaternion =
             basic_mathematics::getQuaternionFrom313EulerAngles( cameraSettings->getCamera313EulerAngles( ) );
-    std::pair< double, double > focalLengths = cameraSettings->getFocalLengths( );
-    std::pair< double, double > opticalCenter = cameraSettings->getOpticalCenter( );
     std::shared_ptr< tudat::ephemerides::RotationalEphemeris > rotationalEphemeris = body->getRotationalEphemeris( );
-    if( rotationalEphemeris == nullptr )
+    if( rotationalEphemeris == nullptr && !cameraSettings->getRotationFromInertialToCameraFrameFunction( ) )
     {
         throw std::runtime_error(
                 "Error when creating camera: body does not have a rotational ephemeris."
                 "If rotational states are being propagated, make sure to add an empty tabulated rotational ephemeris to the body before "
-                "creating the camera." );
+                "creating the camera, or provide a direct inertial-to-camera rotation function." );
     }
-    std::shared_ptr< system_models::Camera > camera = std::make_shared< system_models::Camera >(
-            cameraSettings->getCameraName( ), rotationQuaternion, focalLengths, opticalCenter, rotationalEphemeris );
+    std::shared_ptr< system_models::Camera > camera =
+            std::make_shared< system_models::Camera >( cameraSettings->getCameraName( ),
+                                                       rotationQuaternion,
+                                                       cameraSettings->getProjectionModel( ),
+                                                       rotationalEphemeris,
+                                                       cameraSettings->getRotationFromInertialToCameraFrameFunction( ) );
     body->getVehicleSystems( )->addCamera( cameraSettings->getCameraName( ), camera, cameraSettings->getBodyFixedCameraPosition( ) );
 }
 
