@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2023, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -10,7 +10,9 @@
 
 #include "tudat/io/readPsfFile.h"
 
+#include <cctype>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
@@ -107,6 +109,7 @@ std::int64_t toInt64( const std::string& s )
 std::string readNamelistBlockContents( std::istream& in, const std::string& firstLineWithDollarKeyword )
 {
     std::string blockText;
+    bool hasEndMarker = false;
 
     // Keep remainder of first line after "$XXX"
     {
@@ -140,18 +143,20 @@ std::string readNamelistBlockContents( std::istream& in, const std::string& firs
             {
                 blockText += " " + beforeEnd;
             }
+            hasEndMarker = true;
             break;
         }
 
         blockText += " " + trimmed;
     }
 
-    return blockText;
-}
+    if( !hasEndMarker )
+    {
+        throw std::runtime_error( "Error when reading PSF file: namelist block starting with '" + firstLineWithDollarKeyword +
+                                  "' has no $END marker." );
+    }
 
-bool isPotentialKeyStartChar( char c )
-{
-    return ( std::isalpha( static_cast< unsigned char >( c ) ) || c == '_' );
+    return blockText;
 }
 
 std::vector< std::pair< std::string, std::string > > parseFortranNamelistAssignments( const std::string& block )
@@ -411,6 +416,12 @@ Eigen::Vector2d parseVector2FromValueText( const std::string& valueText, const s
     return v;
 }
 
+void throwMissingPsfFieldError( const std::string& blockName, const std::string& fieldName, const std::string& context = "" )
+{
+    throw std::runtime_error( "Error when reading PSF file: missing required " + blockName + " field " + fieldName +
+                              ( context.empty( ) ? "." : " for " + context + "." ) );
+}
+
 }  // namespace
 
 RawPsfFileContents readPsfFile( const std::string& psfFile )
@@ -549,13 +560,14 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 {
                     const int icam = indices.at( 1 );
                     std::vector< std::string > vals = splitCommaSeparatedRespectingQuotes( rawValue );
-                    if( vals.size( ) >= 4 )
+                    if( vals.size( ) < 4 )
                     {
-                        camerasByIndex[ icam ].fieldOfViewBounds_( 0 ) = toDouble( vals.at( 0 ) );
-                        camerasByIndex[ icam ].fieldOfViewBounds_( 1 ) = toDouble( vals.at( 1 ) );
-                        camerasByIndex[ icam ].fieldOfViewBounds_( 2 ) = toDouble( vals.at( 2 ) );
-                        camerasByIndex[ icam ].fieldOfViewBounds_( 3 ) = toDouble( vals.at( 3 ) );
+                        throw std::runtime_error( "Error when reading PSF file: malformed PLSIZ entry, value='" + rawValue + "'" );
                     }
+                    camerasByIndex[ icam ].fieldOfViewBounds_( 0 ) = toDouble( vals.at( 0 ) );
+                    camerasByIndex[ icam ].fieldOfViewBounds_( 1 ) = toDouble( vals.at( 1 ) );
+                    camerasByIndex[ icam ].fieldOfViewBounds_( 2 ) = toDouble( vals.at( 2 ) );
+                    camerasByIndex[ icam ].fieldOfViewBounds_( 3 ) = toDouble( vals.at( 3 ) );
                 }
                 else if( baseKey == "KMAT" && indices.size( ) == 3 )
                 {
@@ -599,12 +611,13 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 {
                     const int icam = indices.at( 1 );
                     std::vector< std::string > vals = splitCommaSeparatedRespectingQuotes( rawValue );
-                    if( vals.size( ) >= 3 )
+                    if( vals.size( ) < 3 )
                     {
-                        camerasByIndex[ icam ].mountingOffsetsDegrees_( 0 ) = toDouble( vals.at( 0 ) );
-                        camerasByIndex[ icam ].mountingOffsetsDegrees_( 1 ) = toDouble( vals.at( 1 ) );
-                        camerasByIndex[ icam ].mountingOffsetsDegrees_( 2 ) = toDouble( vals.at( 2 ) );
+                        throw std::runtime_error( "Error when reading PSF file: malformed OFFSET entry, value='" + rawValue + "'" );
                     }
+                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 0 ) = toDouble( vals.at( 0 ) );
+                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 1 ) = toDouble( vals.at( 1 ) );
+                    camerasByIndex[ icam ].mountingOffsetsDegrees_( 2 ) = toDouble( vals.at( 2 ) );
                 }
             }
 
@@ -632,6 +645,15 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
             }
 
             RawPsfFileImageContents imageContents;
+            bool hasPictureName = false;
+            bool hasPictureNumber = false;
+            bool hasEndOfExposureTime = false;
+            bool hasCameraId = false;
+            bool hasExposureTime = false;
+            bool hasPictureDeletionFlag = false;
+            bool hasRightAscension = false;
+            bool hasDeclination = false;
+            bool hasTwist = false;
 
             const std::string block = readNamelistBlockContents( dataFile, trimmedLine );
             const std::vector< std::pair< std::string, std::string > > assigns = parseFortranNamelistAssignments( block );
@@ -644,45 +666,98 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                 if( key == "PICNM" )
                 {
                     imageContents.pictureName_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                    hasPictureName = true;
                 }
                 else if( key == "PICNO" )
                 {
                     imageContents.pictureNumber_ = toInt( value );
+                    hasPictureNumber = true;
                 }
                 else if( key == "TOB" )
                 {
                     imageContents.endOfExposureTimeUtcString_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                    hasEndOfExposureTime = true;
                 }
                 else if( key == "CAMERA" )
                 {
                     imageContents.cameraId_ = stripSingleQuotesIfPresent( stripTrailingCommaAndTrim( value ) );
+                    hasCameraId = true;
                 }
                 else if( key == "EXPTIM" )
                 {
                     imageContents.exposureTimeSeconds_ = toDouble( value );
+                    hasExposureTime = true;
                 }
                 else if( key == "PICDEL" )
                 {
                     imageContents.pictureDeletionFlag_ = toInt( value );
+                    hasPictureDeletionFlag = true;
                 }
                 else if( key == "RA" )
                 {
                     imageContents.rightAscensionDegrees_ = toDouble( value );
+                    hasRightAscension = true;
                 }
                 else if( key == "DEC" )
                 {
                     imageContents.declinationDegrees_ = toDouble( value );
+                    hasDeclination = true;
                 }
                 else if( key == "TWIST" )
                 {
                     imageContents.twistDegrees_ = toDouble( value );
+                    hasTwist = true;
                 }
+            }
+
+            if( !hasPictureName )
+            {
+                throwMissingPsfFieldError( "$PIC", "PICNM" );
             }
 
             // End-of-file sentinel picture
             if( imageContents.pictureName_ == "END" )
             {
                 break;
+            }
+
+            const std::string pictureContext = "picture " + imageContents.pictureName_;
+            if( !hasPictureNumber )
+            {
+                throwMissingPsfFieldError( "$PIC", "PICNO", pictureContext );
+            }
+            if( !hasEndOfExposureTime )
+            {
+                throwMissingPsfFieldError( "$PIC", "TOB", pictureContext );
+            }
+            if( !hasCameraId )
+            {
+                throwMissingPsfFieldError( "$PIC", "CAMERA", pictureContext );
+            }
+            if( !hasExposureTime )
+            {
+                throwMissingPsfFieldError( "$PIC", "EXPTIM", pictureContext );
+            }
+            if( !hasPictureDeletionFlag )
+            {
+                throwMissingPsfFieldError( "$PIC", "PICDEL", pictureContext );
+            }
+            if( !hasRightAscension )
+            {
+                throwMissingPsfFieldError( "$PIC", "RA", pictureContext );
+            }
+            if( !hasDeclination )
+            {
+                throwMissingPsfFieldError( "$PIC", "DEC", pictureContext );
+            }
+            if( !hasTwist )
+            {
+                throwMissingPsfFieldError( "$PIC", "TWIST", pictureContext );
+            }
+            if( fileContents.cameraModels_.count( imageContents.cameraId_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when reading PSF file: picture " + imageContents.pictureName_ +
+                                          " references unknown camera " + imageContents.cameraId_ + "." );
             }
 
             // -----------------------------
@@ -725,7 +800,6 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
                     opticalType = parseOpticalImageTypeFromPsfToken( fields[ "IMGTYP" ] );
                 }
 
-                // ✅ Sentinel detection FIRST (fixes your crash)
                 std::string imgNameForSentinel;
                 if( fields.count( "IMG" ) )
                 {
@@ -828,6 +902,20 @@ RawPsfFileContents readPsfFile( const std::string& psfFile )
         }
 
         // Ignore other lines
+    }
+
+    if( !idParsed )
+    {
+        throw std::runtime_error( "Error when reading PSF file: no $ID block found." );
+    }
+    if( !camParsed )
+    {
+        throw std::runtime_error( "Error when reading PSF file: no $CAM block found." );
+    }
+    if( fileContents.numberOfCameras_ != static_cast< int >( fileContents.cameraModels_.size( ) ) )
+    {
+        throw std::runtime_error( "Error when reading PSF file: NCAM is " + std::to_string( fileContents.numberOfCameras_ ) + " but " +
+                                  std::to_string( fileContents.cameraModels_.size( ) ) + " camera models were parsed." );
     }
 
     return fileContents;
