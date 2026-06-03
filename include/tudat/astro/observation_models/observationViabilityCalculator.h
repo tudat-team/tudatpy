@@ -38,7 +38,8 @@ namespace observation_models
 enum ObservationViabilityType {
     minimum_elevation_angle,  // properties: no string, double = elevation angle
     body_avoidance_angle,     // properties: string = body to avoid, double = avoidance angle
-    body_occultation          // properties: string = occulting body, no double
+    body_occultation,         // properties: string = occulting body, no double
+    observation_boundaries    // properties: vector of pairs of observation boundaries.
 };
 
 //! Base class for determining whether an observation is possible or not
@@ -64,11 +65,14 @@ public:
      *  viability is checked.
      *  \param linkEndStates Vector of states of the link ends involved in the observation, in the order as provided by the
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
-     *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the  of
+     *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     *  \param observationValue Current simulated observation value.
      *  \return True if observation is viable, false if not.
      */
-    virtual bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes ) = 0;
+    virtual bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                      const std::vector< double >& linkEndTimes,
+                                      const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) ) = 0;
 };
 
 double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& linkEndStates,
@@ -79,11 +83,12 @@ double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& 
 //! Function to check whether an observation is viable
 /*!
  * Function to check whether an observation is viable. The input from which the viability of an observation is calculated are a
- * vector  of times and states of the link ends involved in the observation.
+ * vector of times and states of the link ends involved in the observation, and the current observation value.
  * \param times Vector of times of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
  * \param states Vector of states of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
+ * \param observationValue Current simulated observation value.
  * \param linkEnds Link ends for current observation
  * \param viabilityCalculators List of viability calculators, for each set of link ends (function retrieves vector for linkEnds
  * input.
@@ -92,22 +97,25 @@ double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& 
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
+        const Eigen::VectorXd& observationValue,
         const LinkEnds& linkEnds,
         const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators );
 
 //! Function to check whether an observation is viable
 /*!
  * Function to check whether an observation is viable. The input from which the viability of an observation is calculated are a
- * vector  of times and states of the link ends involved in the observation.
+ * vector of times and states of the link ends involved in the observation, and the current observation value.
  * \param times Vector of times of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
  * \param states Vector of states of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
- * \param viabilityCalculators List of viability calculators
+ * \param observationValue Current simulated observation value.
+ * \param viabilityCalculators List of viability calculators.
  * \return True if observation is viable, false if not.
  */
 bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
                           const std::vector< double >& times,
+                          const Eigen::VectorXd& observationValue,
                           const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
 
 //! Function to check whether an observation is possible based on minimum elevation angle criterion at one link end.
@@ -143,9 +151,12 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the  of
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     *  \param observationValue Current simulated observation value. Not necessary for this viability calculator.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
 
 private:
     //! Vector of indices denoting which combinations of entries of vectors are to be used in isObservationViable  function
@@ -222,9 +233,12 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     * \param observationValue Current simulated observation value. Not necessary for this viability calculator.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
 
 private:
     //! Vector of indices denoting which combinations of entries of vectors to isObservationViable are to be used.
@@ -277,9 +291,12 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     *  \param observationValue Current simulated observation value. Not necessary for this viability calculator.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
 
 private:
     //! Vector of indices denoting which combinations of entries of vectors to isObservationViable are to be used.
@@ -299,6 +316,30 @@ private:
     double radiusOfOccultingBody_;
 };
 
+class ObservationBoundariesViabilityCalculator : public ObservationViabilityCalculator
+{
+public:
+    ObservationBoundariesViabilityCalculator( const std::vector< std::pair< double, double > > boundaries ): boundaries_( boundaries ) {}
+
+private:
+    std::vector< std::pair< double, double > > boundaries_;
+
+    //! Function for determining whether the observation value is within given boundaries.
+    /*!
+     *  Function for determining whether the observation value is within given boundaries.
+     * The input from which the viability of an observation is calculated are a vector of times and states of link ends involved
+     * in the observation, and the current observation value (only the latter is used in this observation viability calculator).
+     *  \param linkEndStates Vector of states of the link ends involved in the observation, in the order as provided by the
+     *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     *  \param linkEndTimes Vector of times of the link ends involved in the observation, in the order as provided by the
+     *  function computeObservationsAndLinkEndData of the associated ObservationModel.
+     *  \param observationValue Current simulated observation value.
+     *  \return True if observation is viable, false if not.
+     */
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue );
+};
 }  // namespace observation_models
 
 }  // namespace tudat

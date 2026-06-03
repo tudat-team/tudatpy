@@ -167,6 +167,38 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
             occultingBodyRadius );
 }
 
+std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBoundariesCalculator(
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+{
+    if( observationViabilitySettings->observationViabilityType_ != observation_boundaries )
+    {
+        throw std::runtime_error( "Error when making observation boundaries calculator, inconsistent input" );
+    }
+
+    std::shared_ptr< ObservationBoundariesViabilitySettings > boundariesSettings =
+            std::dynamic_pointer_cast< ObservationBoundariesViabilitySettings >( observationViabilitySettings );
+
+    if( boundariesSettings == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when making observation boundaries calculator, "
+                "input settings are not of type ObservationBoundariesViabilitySettings"
+            );
+    }
+
+    std::vector< std::pair< double, double > > boundaries = boundariesSettings->getBoundaries( );
+    
+    if ( boundaries.size() != getObservableSize( observationType ) )
+    {
+        throw std::runtime_error(
+                "Error when making observation boundaries calculator, "
+                "number of boundary pairs does not match size of observation" );
+    }
+
+    return std::make_shared< ObservationBoundariesViabilityCalculator >( boundaries );
+}
+
 //! Function to create an list of obervation viability conditions for a single set of link ends
 std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::SystemOfBodies& bodies,
@@ -183,6 +215,11 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
     {
         switch( relevantObservationViabilitySettings.at( i )->observationViabilityType_ )
         {
+            case observation_boundaries:
+                linkViabilityCalculators.push_back( createObservationBoundariesCalculator(
+                    observationType,
+                    relevantObservationViabilitySettings.at( i ) ) );
+                break;
             case minimum_elevation_angle: {
                 // Create list of ground stations for which elevation angle check is to be made.
                 std::vector< std::string > listOfGroundStations;
@@ -190,10 +227,10 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 {
                     if( linkEndIterator->second.bodyName_ == relevantObservationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first )
                     {
-                        if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.stationName_ ) ==
+                        if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.getReferencePointName() ) ==
                             listOfGroundStations.end( ) )
                         {
-                            listOfGroundStations.push_back( linkEndIterator->second.stationName_ );
+                            listOfGroundStations.push_back( linkEndIterator->second.getReferencePointName() );
                         }
                     }
                 }

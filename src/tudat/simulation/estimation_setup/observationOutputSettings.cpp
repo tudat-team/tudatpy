@@ -721,12 +721,12 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
                 else
                 {
                     // if station defined for start link end
-                    if( interlink.first.second.stationName_ != "" )
+                    if( interlink.first.second.getReferencePointName( ) != "" )
                     {
                         interlinksToCreateList.push_back( interlink );
                     }
                     // if station only defined for end link end
-                    else if( interlink.second.second.stationName_ != "" )
+                    else if( interlink.second.second.getReferencePointName( ) != "" )
                     {
                         // Reverse link order
                         interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );
