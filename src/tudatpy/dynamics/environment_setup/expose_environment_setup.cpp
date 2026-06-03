@@ -1090,18 +1090,20 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                               const std::string&,
                               const Eigen::Vector3d&,
                               const std::pair< double, double >,
-                              const std::pair< double, double > >( &tss::createCamera ),
+                              const std::pair< double, double >,
+                              const Eigen::Vector3d& >( &tss::createCamera ),
            py::arg( "body" ),
            py::arg( "camera_name" ),
            py::arg( "boresight_euler_angles" ),
            py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
            py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
            R"doc(
            Function to add a camera to an existing body.
            
            This function creates a camera with the provided properties, and adds it to the provided body.
            The camera is defined by its name, its boresight direction (defined by Euler angles), and its focal lengths
-           and optical center (defining the mapping from boresight to pixel coordinates).
+           optical center (defining the mapping from boresight to pixel coordinates), and body-fixed position.
            The camera is added to body's vehicle systems.
 
            Parameters
@@ -1116,6 +1118,8 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                Focal lengths of the camera in the x and y directions, in pixels. To obtain this value from focal lenght in meters and pixel size, do f_px = f_m / pixel_size. Default is (1.0, 1.0).
            optical_center : tuple[float, float], optional
                Optical center of the camera in the x and y directions, in pixels. Default is (0.0, 0.0).
+           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+               Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
 
             Examples
             --------

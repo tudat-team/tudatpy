@@ -51,15 +51,15 @@ enum LinkEndType {
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ): bodyName_( "" ), referencePointName_( "" ) {}
+    LinkEndId( ): bodyName_( "" ), stationName_( "" ) {}
 
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), referencePointName_( linkEnd.second ) {}
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) {}
 
     LinkEndId( const std::string& bodyName, const std::string& referencePointName ):
-        bodyName_( bodyName ), referencePointName_( referencePointName )
+        bodyName_( bodyName ), stationName_( referencePointName )
     {}
 
-    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), referencePointName_( "" ) {}
+    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) {}
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
@@ -68,7 +68,7 @@ struct LinkEndId {
 
     friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
-        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.referencePointName_ == linkEnd2.referencePointName_ ) );
+        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.stationName_ == linkEnd2.stationName_ ) );
     }
 
     friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
@@ -86,11 +86,11 @@ struct LinkEndId {
         {
             return false;
         }
-        else if( linkEnd1.referencePointName_ < linkEnd2.referencePointName_ )
+        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
         {
             return true;
         }
-        else if( linkEnd1.referencePointName_ > linkEnd2.referencePointName_ )
+        else if( linkEnd1.stationName_ > linkEnd2.stationName_ )
         {
             return false;
         }
@@ -102,7 +102,7 @@ struct LinkEndId {
 
     std::string bodyName_;
 
-    std::string referencePointName_;
+    std::string stationName_;
 
     std::string getBodyName( ) const
     {
@@ -111,7 +111,12 @@ struct LinkEndId {
 
     std::string getReferencePointName( ) const
     {
-        return referencePointName_;
+        return stationName_;
+    }
+
+    std::string getStationName( ) const
+    {
+        return stationName_;
     }
 };
 

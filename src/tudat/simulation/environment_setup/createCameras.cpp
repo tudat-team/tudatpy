@@ -35,7 +35,7 @@ void createCamera( const std::shared_ptr< Body > body, const std::shared_ptr< Ca
     }
     std::shared_ptr< system_models::Camera > camera = std::make_shared< system_models::Camera >(
             cameraSettings->getCameraName( ), rotationQuaternion, focalLengths, opticalCenter, rotationalEphemeris );
-    body->getVehicleSystems( )->addCamera( cameraSettings->getCameraName( ), camera );
+    body->getVehicleSystems( )->addCamera( cameraSettings->getCameraName( ), camera, cameraSettings->getBodyFixedCameraPosition( ) );
 }
 
 //! Function to create a camera and add it to a Body object
@@ -43,10 +43,11 @@ void createCamera( const std::shared_ptr< Body > body,
                    const std::string& cameraName,
                    const Eigen::Vector3d& boresightEulerAngles,
                    const std::pair< double, double > focalLengths,
-                   const std::pair< double, double > opticalCenter )
+                   const std::pair< double, double > opticalCenter,
+                   const Eigen::Vector3d& bodyFixedCameraPosition )
 {
     std::shared_ptr< CameraSettings > cameraSettings =
-            std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, focalLengths, opticalCenter );
+            std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, focalLengths, opticalCenter, bodyFixedCameraPosition );
     createCamera( body, cameraSettings );
 }
 

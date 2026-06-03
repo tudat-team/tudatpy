@@ -1395,7 +1395,6 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
                                           const std::vector< std::string >& centralBodies,
                                           const simulation_setup::SystemOfBodies& bodies,
                                           const bool setIntegratedResult = false,
-                                          const bool createStateProcessors = false,
                                           const bool isPartOfMultiArc = false )
 
 {
@@ -1431,9 +1430,7 @@ void checkTranslationalStatesFeasibility( const std::vector< std::string >& bodi
         }
         else
         {
-            // A tabulated ephemeris is needed both when integrated results are written back
-            // and when translational state processors are created (frame translations).
-            if( setIntegratedResult || createStateProcessors )
+            if( setIntegratedResult )
             {
                 if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
                 {
@@ -1523,7 +1520,6 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
                     translationalPropagatorSettings->centralBodies_,
                     bodies,
                     translationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ),
-                    translationalPropagatorSettings->getOutputSettings( )->getCreateStateProcessors( ),
                     isPartOfMultiArc );
             break;
         }
