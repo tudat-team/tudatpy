@@ -119,7 +119,17 @@ std::string readNamelistBlockContents( std::istream& in, const std::string& firs
         {
             remainder = remainder.substr( firstSpace + 1 );
             remainder = trimCopy( remainder );
-            if( !remainder.empty( ) )
+            const std::size_t endPos = remainder.find( "$END" );
+            if( endPos != std::string::npos )
+            {
+                const std::string beforeEnd = trimCopy( remainder.substr( 0, endPos ) );
+                if( !beforeEnd.empty( ) )
+                {
+                    blockText += " " + beforeEnd;
+                }
+                hasEndMarker = true;
+            }
+            else if( !remainder.empty( ) )
             {
                 blockText += " " + remainder;
             }
@@ -127,7 +137,7 @@ std::string readNamelistBlockContents( std::istream& in, const std::string& firs
     }
 
     std::string line;
-    while( std::getline( in, line ) )
+    while( !hasEndMarker && std::getline( in, line ) )
     {
         const std::string trimmed = trimCopy( line );
         if( trimmed.empty( ) )
