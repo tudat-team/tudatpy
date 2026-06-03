@@ -32,7 +32,6 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/readPsfFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/math/basic/rotationRepresentations.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
@@ -169,16 +168,26 @@ TimeType getPsfPictureObservationTime( const input_output::psf::RawPsfFileImageC
 //! Return the direct inertial-to-camera attitude encoded by PSF picture RA, DEC and TWIST.
 inline Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const input_output::psf::RawPsfFileImageContents& imageContents )
 {
-    const Eigen::Vector3d boresightAngles =
-            ( Eigen::Vector3d( ) << imageContents.rightAscensionDegrees_, imageContents.declinationDegrees_, imageContents.twistDegrees_ )
-                    .finished( ) *
-            mathematical_constants::PI / 180.0;
+    const double rightAscension = imageContents.rightAscensionDegrees_ * mathematical_constants::PI / 180.0;
+    const double declination = imageContents.declinationDegrees_ * mathematical_constants::PI / 180.0;
+    const double plateAngle = ( imageContents.twistDegrees_ - 90.0 ) * mathematical_constants::PI / 180.0;
 
-    Eigen::Vector3d camera313EulerAngles;
-    camera313EulerAngles( 0 ) = boresightAngles( 2 );
-    camera313EulerAngles( 1 ) = -boresightAngles( 1 ) + mathematical_constants::PI / 2.0;
-    camera313EulerAngles( 2 ) = boresightAngles( 0 ) + mathematical_constants::PI / 2.0;
-    return basic_mathematics::getQuaternionFrom313EulerAngles( camera313EulerAngles );
+    const Eigen::Vector3d boresight = ( Eigen::Vector3d( ) << std::cos( declination ) * std::cos( rightAscension ),
+                                        std::cos( declination ) * std::sin( rightAscension ),
+                                        std::sin( declination ) )
+                                              .finished( );
+    const Eigen::Vector3d east = ( Eigen::Vector3d( ) << -std::sin( rightAscension ), std::cos( rightAscension ), 0.0 ).finished( );
+    const Eigen::Vector3d north = ( Eigen::Vector3d( ) << -std::sin( declination ) * std::cos( rightAscension ),
+                                    -std::sin( declination ) * std::sin( rightAscension ),
+                                    std::cos( declination ) )
+                                          .finished( );
+
+    Eigen::Matrix3d rotationFromCameraToInertial;
+    rotationFromCameraToInertial.col( 0 ) = std::cos( plateAngle ) * east + std::sin( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 1 ) = -std::sin( plateAngle ) * east + std::cos( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 2 ) = boresight;
+
+    return Eigen::Quaterniond( rotationFromCameraToInertial.transpose( ) );
 }
 
 template< typename TimeType = double >
@@ -237,6 +246,12 @@ TimeType getPsfPictureObservationTime( const input_output::psf::RawPsfFileImageC
                                        const bool useMidExposureTime = true )
 {
     return detail::getPsfPictureObservationTime< TimeType >( imageContents, useMidExposureTime, true );
+}
+
+//! Return the direct inertial-to-camera attitude encoded by PSF picture RA, DEC and TWIST.
+inline Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const input_output::psf::RawPsfFileImageContents& imageContents )
+{
+    return detail::getPsfPictureRotationFromInertialToCameraFrame( imageContents );
 }
 
 template< typename TimeType = double >
