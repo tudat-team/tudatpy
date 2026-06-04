@@ -1914,9 +1914,14 @@ public:
                 }
 
                 // Create observation model
-                std::shared_ptr< system_models::Camera > camera = bodies.at( linkEnds.at( receiver ).bodyName_ )
-                                                                          ->getVehicleSystems( )
-                                                                          ->getCamera( linkEnds.at( receiver ).getReferencePointName( ) );
+                std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( linkEnds.at( receiver ).bodyName_ );
+                if( receiverBody->getRotationalEphemeris( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when making pixel coordinates model, receiver body " +
+                                              linkEnds.at( receiver ).bodyName_ + " does not have a rotational ephemeris." );
+                }
+                std::shared_ptr< system_models::Camera > camera =
+                        receiverBody->getVehicleSystems( )->getCamera( linkEnds.at( receiver ).getReferencePointName( ) );
 
                 observationModel = std::make_shared< PixelCoordinatesObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
@@ -1928,6 +1933,7 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         camera,
+                        receiverBody->getRotationalEphemeris( ),
                         observationBias );
                 break;
             }

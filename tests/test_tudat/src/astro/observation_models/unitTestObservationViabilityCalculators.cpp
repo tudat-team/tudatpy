@@ -192,6 +192,24 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testObservationBoundariesViabilityCalculator )
+{
+    std::shared_ptr< ObservationViabilityCalculator > calculator = std::make_shared< ObservationBoundariesViabilityCalculator >(
+            std::vector< std::pair< double, double > >{ { -1.0, 2.0 }, { 0.5, 3.0 } } );
+
+    const std::vector< Eigen::Vector6d > linkEndStates;
+    const std::vector< double > linkEndTimes;
+
+    BOOST_CHECK( calculator->isObservationViable( linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << -1.0, 3.0 ).finished( ) ) );
+    BOOST_CHECK( !calculator->isObservationViable(
+            linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << -1.0 - std::numeric_limits< double >::epsilon( ), 2.0 ).finished( ) ) );
+    BOOST_CHECK( !calculator->isObservationViable(
+            linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << 1.0, std::numeric_limits< double >::quiet_NaN( ) ).finished( ) ) );
+
+    BOOST_CHECK_THROW( calculator->isObservationViable( linkEndStates, linkEndTimes, Eigen::VectorXd::Constant( 1, 0.0 ) ),
+                       std::runtime_error );
+}
+
 BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 {
     // Load spice kernels.

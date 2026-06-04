@@ -10,12 +10,11 @@
 #ifndef TUDAT_CAMERA_H
 #define TUDAT_CAMERA_H
 
+#include <limits>
+#include <stdexcept>
 #include <string>
-#include <functional>
-#include <memory>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <tudat/astro/ephemerides/rotationalEphemeris.h>
 
 namespace tudat
 {
@@ -33,17 +32,13 @@ public:
      *  \param rotationFromBodyFixedToCameraFrame Rotation from body-fixed frame to camera frame.
      *  \param focal_lengths Focal lengths in x and y directions [px].
      *  \param optical_center Optical center of the camera [px].
-     *  \param bodyRotationalEphemeris Rotational ephemeris of the body to which the camera is fixed.
-     *  which can be used to determine the rotation from inertial to body fixed frame at a given time.
      */
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
-            std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris = nullptr ):
+            std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ) ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        K_( focal_lengths.first, focal_lengths.second ), opticalCenter_( optical_center.first, optical_center.second ),
-        bodyRotationalEphemeris_( bodyRotationalEphemeris )
+        K_( focal_lengths.first, focal_lengths.second ), opticalCenter_( optical_center.first, optical_center.second )
     {}
 
     /*! \brief Get the camera ID.
@@ -54,12 +49,12 @@ public:
         return cameraId_;
     }
 
-    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( )
+    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( ) const
     {
         return K_;
     }
 
-    Eigen::Vector2d getOpticalCenter( )
+    Eigen::Vector2d getOpticalCenter( ) const
     {
         return opticalCenter_;
     }
@@ -72,16 +67,9 @@ public:
         return rotationFromBodyFixedToCameraFrame_;
     }
 
-    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
+    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
     {
-        if( bodyRotationalEphemeris_ == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when calculating rotation from inertial to camera frame: no rotational ephemeris provided for the body "
-                    "using the camera." );
-        }
-        Eigen::Quaterniond rotationFromInertialToBodyFixed = bodyRotationalEphemeris_->getRotationToTargetFrame( secondsSinceEpoch );
-        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixed;
+        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame;
     }
 
     /*! \brief Calculate the observable position of a body in the camera frame.
@@ -95,27 +83,25 @@ public:
     Eigen::Vector2d calculateObservableFromBodyFixed( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
         Eigen::Vector3d positionInCameraFrame = bodyFixedToCameraFrame_( positionOfObservedBodyInBodyFrame );
+        const double cameraFrameDepth = positionInCameraFrame.z( );
+        if( cameraFrameDepth <= std::numeric_limits< double >::epsilon( ) )
+        {
+            throw std::runtime_error(
+                    "Error when calculating camera observable: observed point is behind the camera or too close to the focal plane." );
+        }
         return opticalCenter_ +
-                K_ *
-                Eigen::Vector2d( positionInCameraFrame.x( ) / positionInCameraFrame.z( ),
-                                 positionInCameraFrame.y( ) / positionInCameraFrame.z( ) );
+                K_ * Eigen::Vector2d( positionInCameraFrame.x( ) / cameraFrameDepth, positionInCameraFrame.y( ) / cameraFrameDepth );
     }
 
-    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the time at which this position is valid.
+    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the inertial-to-body-fixed rotation.
      *  \param positionOfObservedBodyInInertialFrame Position of the observed body in the observer centered inertial frame.
-     *  \param secondsSinceEpoch Seconds since Julian day reference epoch at which the position of the observed body is valid.
+     *  \param rotationFromInertialToBodyFixedFrame Rotation from inertial frame to the body-fixed frame of the camera host body.
      *  \return The observable position in the camera frame.
      */
     Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
-                                                     const double secondsSinceEpoch ) const
+                                                     const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
     {
-        if( bodyRotationalEphemeris_ == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when calculating observable: no rotational ephemeris provided for the body using the camera." );
-        }
-        Eigen::Quaterniond rotationFromInertialToBodyFixed = bodyRotationalEphemeris_->getRotationToTargetFrame( secondsSinceEpoch );
-        Eigen::Vector3d positionOfObservedBodyInBodyFrame = rotationFromInertialToBodyFixed * positionOfObservedBodyInInertialFrame;
+        Eigen::Vector3d positionOfObservedBodyInBodyFrame = rotationFromInertialToBodyFixedFrame * positionOfObservedBodyInInertialFrame;
         return calculateObservableFromBodyFixed( positionOfObservedBodyInBodyFrame );
     }
 
@@ -140,9 +126,6 @@ private:
 
     //! Optical center of the camera
     Eigen::Vector2d opticalCenter_;
-
-    //! Shared pointer to a rotational ephemeris of the body, which can be used to determine the rotation from inertial to body fixed frame at a given time.
-    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris_;
 };
 }  // namespace system_models
 }  // namespace tudat

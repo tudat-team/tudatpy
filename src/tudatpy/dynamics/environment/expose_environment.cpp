@@ -2558,23 +2558,32 @@ bool
          numpy.ndarray[numpy.float64[2, 1]]
              Observable position of the point in the camera frame, typically expressed in pixel coordinates.
         )doc" )
-            .def( "calculateObservableInertialPosition",
-                  &tsm::Camera::calculateObservableFromInertial,
-                  py::arg( "inertial_observable_position" ),
-                  py::arg( "current_time" ),
-                  R"doc(
+            .def(
+                    "calculateObservableInertialPosition",
+                    []( const tsm::Camera& self,
+                        const Eigen::Vector3d& inertialObservablePosition,
+                        const Eigen::Vector4d& rotationFromInertialToBodyFixed ) {
+                        return self.calculateObservableFromInertial( inertialObservablePosition,
+                                                                     Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
+                                                                                         rotationFromInertialToBodyFixed( 1 ),
+                                                                                         rotationFromInertialToBodyFixed( 2 ),
+                                                                                         rotationFromInertialToBodyFixed( 3 ) ) );
+                    },
+                    py::arg( "inertial_observable_position" ),
+                    py::arg( "rotation_from_inertial_to_body_fixed" ),
+                    R"doc(
 
          Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
 
-         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided ``rotational_ephemeris`` and ``current_time``, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided inertial-to-body-fixed rotation quaternion, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
 
          Parameters
          ----------
          inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
              Cartesian position of the point to be observed, expressed in the inertial frame.
 
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the transformation from inertial to body-fixed frame is computed.
+         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
+             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
 
          Returns
          -------

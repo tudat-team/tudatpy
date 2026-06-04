@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 #include <map>
 
@@ -378,12 +379,27 @@ public:
                 break;
             }
             case observation_models::pixel_coordinates: {
-                std::shared_ptr< system_models::Camera > camera =
-                        bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ )
-                                ->getVehicleSystems( )
-                                ->getCamera( linkEnds.at( observation_models::receiver ).getReferencePointName( ) );
+                std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( linkEnds.at( observation_models::receiver ).bodyName_ );
+                if( receiverBody->getRotationalEphemeris( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when making pixel coordinates partial scaling, receiver body " +
+                                              linkEnds.at( observation_models::receiver ).bodyName_ +
+                                              " does not have a rotational ephemeris." );
+                }
+                std::shared_ptr< system_models::Camera > camera = receiverBody->getVehicleSystems( )->getCamera(
+                        linkEnds.at( observation_models::receiver ).getReferencePointName( ) );
                 positionPartialScaler = std::make_shared< PixelCoordinatesScaling >(
-                        [ camera ]( const double time ) { return camera->getRotationFromInertialToCameraFrame( time ); },
+                        [ camera, receiverBody ]( const double time ) {
+                            if( receiverBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when calculating pixel coordinates partial scaling, receiver body does not have a "
+                                        "rotational "
+                                        "ephemeris." );
+                            }
+                            return camera->getRotationFromInertialToCameraFrame(
+                                    receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ) );
+                        },
                         camera->getFocalLengthsMatrix( ) );
                 break;
             }

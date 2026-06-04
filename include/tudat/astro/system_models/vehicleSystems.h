@@ -446,7 +446,7 @@ public:
             std::cerr << "Warning, camera with name " << cameraName << " already exists, overriding old camera" << std::endl;
         }
         cameraMap[ cameraName ] = camera;
-        this->setReferencePointPosition( cameraName, bodyFixedCameraPosition, camera->getCameraId( ), "" );
+        this->setReferencePointPosition( cameraName, bodyFixedCameraPosition );
     }
 
     //! Function to retrieve a camera
