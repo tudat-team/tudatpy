@@ -135,12 +135,11 @@ jobs:
             compilers: {c: gcc, cxx: g++}
 
     steps:
-    
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
            activate-environment: tudat
            auto-activate: false

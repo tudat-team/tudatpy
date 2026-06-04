@@ -23,7 +23,7 @@ namespace astro
 namespace element_conversion
 {
 
-void expose_element_conversion( py::module &m );
+void expose_element_conversion( py::module& m );
 
 }  // namespace element_conversion
 }  // namespace astro

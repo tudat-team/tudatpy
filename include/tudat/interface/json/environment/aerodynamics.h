@@ -34,7 +34,7 @@ static std::map< AerodynamicCoefficientsIndependentVariables, std::string > aero
 };
 
 //! `AerodynamicCoefficientsIndependentVariables` not supported by `json_interface`.
-static std::vector< AerodynamicCoefficientsIndependentVariables > unsupportedAerodynamicVariables = { };
+static std::vector< AerodynamicCoefficientsIndependentVariables > unsupportedAerodynamicVariables = {};
 
 //! Convert `AerodynamicCoefficientsIndependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AerodynamicCoefficientsIndependentVariables& aerodynamicVariable )

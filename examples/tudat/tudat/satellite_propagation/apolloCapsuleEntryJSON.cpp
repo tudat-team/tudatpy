@@ -19,7 +19,7 @@ public:
     // Inherit constructor.
     using JsonSimulationManager<>::JsonSimulationManager;
 
-    ~ApolloJsonSimulationManager( ) { }
+    ~ApolloJsonSimulationManager( ) {}
 
 protected:
     // Override resetBodies method

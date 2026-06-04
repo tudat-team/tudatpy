@@ -38,7 +38,7 @@ void updateInverseAPrioriCovarianceFromJSON( const nlohmann::json& jsonObject,
         }
     }
     catch( ... )
-    { }
+    {}
 
     if( inverseAprioriCovariance.rows( ) > 0 )
     {
@@ -53,7 +53,7 @@ void updateInverseAPrioriCovarianceFromJSON( const nlohmann::json& jsonObject,
         {
             std::map< int, double > data = getValue< std::map< int, double > >( jsonObject, K::inverseAprioriCovariance );
             inverseAprioriCovariance.setZero( numberOfParameters, numberOfParameters );
-            for( auto entry: data )
+            for( auto entry : data )
             {
                 inverseAprioriCovariance( entry.first, entry.first ) = entry.second;
             }
@@ -87,9 +87,9 @@ void updateObservationWeightsFromJSON(
     {
         double constantWeight = getValue< double >( jsonObject, K::dataWeights );
 
-        for( auto observable: numberOfObservations )
+        for( auto observable : numberOfObservations )
         {
-            for( auto linkEnds: observable.second )
+            for( auto linkEnds : observable.second )
             {
                 observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant( linkEnds.second, constantWeight );
             }
@@ -98,7 +98,7 @@ void updateObservationWeightsFromJSON(
         return;
     }
     catch( ... )
-    { }
+    {}
 
     //    try
     //    {

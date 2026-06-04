@@ -471,13 +471,12 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
 //     Eigen::Vector4d gradientParameters = troposphereData_->getGradient( stationTime );
 // }
 
-VMF3TroposphericCorrection::VMF3TroposphericCorrection(
-        const std::shared_ptr< TroposhericElevationMapping > elevationMapping,
-        const bool isUplinkCorrection,
-        const std::shared_ptr< ground_stations::StationTroposphereData > troposphereData,
-        const bool useGradient,
-        const LightTimeCorrectionType correctionType,
-        const double observationWavelengthNm ):
+VMF3TroposphericCorrection::VMF3TroposphericCorrection( const std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+                                                        const bool isUplinkCorrection,
+                                                        const std::shared_ptr< ground_stations::StationTroposphereData > troposphereData,
+                                                        const bool useGradient,
+                                                        const LightTimeCorrectionType correctionType,
+                                                        const double observationWavelengthNm ):
     MappedTroposphericCorrection( correctionType, elevationMapping, isUplinkCorrection ), troposphereData_( troposphereData ),
     useGradient_( useGradient ), correctionType_( correctionType ), observationWavelengthNm_( observationWavelengthNm ),
     hasWavelengthCorrectionParameters_( false )
@@ -501,9 +500,8 @@ void VMF3TroposphericCorrection::loadWavelengthCorrectionParameters( )
 
     if( correctionMatrix.rows( ) < 2 || correctionMatrix.cols( ) < 3 )
     {
-        throw std::runtime_error(
-                "Error when loading VMF3o wavelength correction coefficients from " + correctionPath +
-                ": expected at least 2x3 table for a_h and a_w." );
+        throw std::runtime_error( "Error when loading VMF3o wavelength correction coefficients from " + correctionPath +
+                                  ": expected at least 2x3 table for a_h and a_w." );
     }
 
     for( int i = 0; i < 2; ++i )
@@ -665,17 +663,11 @@ double VMF3MappingModel::computeMappingFunction( const double mappingCoefficient
 {
     const double a = mappingCoefficient;
     const VnmWnmMatrix vnmWnm = computeVnmWnmMatrix( 12, currentStationLatitude_, currentStationLongitude_ );
-    const double bh = evaluateSeasonalCoefficient( isHydrostatic ? anm_bh_ : anm_bw_,
-                                                   isHydrostatic ? bnm_bh_ : bnm_bw_,
-                                                   vnmWnm.V,
-                                                   vnmWnm.W,
-                                                   currentDayOfYear_ );
+    const double bh = evaluateSeasonalCoefficient(
+            isHydrostatic ? anm_bh_ : anm_bw_, isHydrostatic ? bnm_bh_ : bnm_bw_, vnmWnm.V, vnmWnm.W, currentDayOfYear_ );
 
-    const double ch = evaluateSeasonalCoefficient( isHydrostatic ? anm_ch_ : anm_cw_,
-                                                   isHydrostatic ? bnm_ch_ : bnm_cw_,
-                                                   vnmWnm.V,
-                                                   vnmWnm.W,
-                                                   currentDayOfYear_ );
+    const double ch = evaluateSeasonalCoefficient(
+            isHydrostatic ? anm_ch_ : anm_cw_, isHydrostatic ? bnm_ch_ : bnm_cw_, vnmWnm.V, vnmWnm.W, currentDayOfYear_ );
 
     return ( 1.0 + a / ( 1.0 + bh / ( 1.0 + ch ) ) ) /
             ( std::sin( currentElevation_ ) + a / ( std::sin( currentElevation_ ) + bh / ( std::sin( currentElevation_ ) + ch ) ) );
@@ -831,8 +823,7 @@ double VMF3MappingModel::evaluateSeasonalCoefficient( const Vmf3SphericalHarmoni
     const double sumB1 = evaluateSphericalExpansion( anmSet.B1, bnmSet.B1, V, W );
     const double sumA2 = evaluateSphericalExpansion( anmSet.A2, bnmSet.A2, V, W );
     const double sumB2 = evaluateSphericalExpansion( anmSet.B2, bnmSet.B2, V, W );
-    return sumA0 + sumA1 * std::cos( omega1 ) + sumB1 * std::sin( omega1 ) + sumA2 * std::cos( omega2 ) +
-            sumB2 * std::sin( omega2 );
+    return sumA0 + sumA1 * std::cos( omega1 ) + sumB1 * std::sin( omega1 ) + sumA2 * std::cos( omega2 ) + sumB2 * std::sin( omega2 );
 }
 
 double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( const double stationTime )

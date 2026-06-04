@@ -11,7 +11,7 @@ dependencies:
   # Other doc related
   - jinja2
   - yaml
-  - pydantic=1.10.9
+  - pydantic
   - numpydoc
   - tudatpy
   - pip

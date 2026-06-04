@@ -3,9 +3,7 @@ from . import converters as cnv
 from pandas import concat as pd_concat
 from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.astro import time_representation
-from tudatpy.dynamics.environment import (
-    PiecewiseLinearFrequencyInterpolator, SystemOfBodies
-)
+from tudatpy.dynamics.environment import PiecewiseLinearFrequencyInterpolator, SystemOfBodies
 
 
 class Trk234Processor:
@@ -24,20 +22,20 @@ class Trk234Processor:
     .. code-block:: python
 
         from tudatpy.data import Trk234Processor
-        
+
         # Define TNF file paths
         tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
-        
+
         # Create processor for both Doppler and range data
         tnf_processor = Trk234Processor(
             tnf_files,
             ["doppler", "range"],
             spacecraft_name="MRO"
         )
-        
+
         # Process observations
         observations = tnf_processor.process()
-        
+
         # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
         tnf_processor.set_tnf_information_in_bodies(bodies)
 
@@ -64,7 +62,7 @@ class Trk234Processor:
         self.spacecraft_name = spacecraft_name
 
         # Initialize observables converters.
-        self.converters : dict[str, cnv.Converter] = {}
+        self.converters: dict[str, cnv.Converter] = {}
         if "doppler" in requested_types:
             self.converters["doppler"] = cnv.DerivedDopplerConverter()
         if "range" in requested_types:
@@ -105,9 +103,7 @@ class Trk234Processor:
             if extracted_data[dtype]:
                 merged_df = pd_concat(extracted_data[dtype], ignore_index=True)
                 if not merged_df.empty:
-                    observation_sets.extend(
-                        converter.process(merged_df, self.spacecraft_name)
-                    )
+                    observation_sets.extend(converter.process(merged_df, self.spacecraft_name))
 
         return ObservationCollection(observation_sets)
 

@@ -64,24 +64,26 @@ namespace dynamics
 namespace environment_setup
 {
 
-std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
-directRelativisticTimeConverterSettings(
-        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >& barycentric_to_bodycentric_settings,
+std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
+        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >&
+                barycentric_to_bodycentric_settings,
         const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
-        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& bodycentric_to_topocentric_settings )
+        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                bodycentric_to_topocentric_settings )
 {
     return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
+            barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
 }
 
 void setRelativisticTimeConverters(
         const tss::SystemOfBodies& bodies,
-        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& settings )
+        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                settings )
 {
     tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
 }
 
-void expose_environment_setup( py::module &m )
+void expose_environment_setup( py::module& m )
 {
     auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
@@ -384,11 +386,10 @@ void expose_environment_setup( py::module &m )
 
 
      )doc" )
-            .def_property(
-                    "space_time_settings",
-                    &tss::BodyListSettings::getSpaceTimeSettings,
-                    &tss::BodyListSettings::setSpaceTimeSettings,
-                    R"doc(
+            .def_property( "space_time_settings",
+                           &tss::BodyListSettings::getSpaceTimeSettings,
+                           &tss::BodyListSettings::setSpaceTimeSettings,
+                           R"doc(
 
          Settings used to initialize :attr:`SystemOfBodies.space_time_properties`
          when calling :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`.
@@ -415,7 +416,7 @@ void expose_environment_setup( py::module &m )
       )doc" );
 
     m.def( "get_default_body_settings",
-           py::overload_cast< const std::vector< std::string > &, const std::string, const std::string >( &tss::getDefaultBodySettings ),
+           py::overload_cast< const std::vector< std::string >&, const std::string, const std::string >( &tss::getDefaultBodySettings ),
            py::arg( "bodies" ),
            py::arg( "base_frame_origin" ) = "SSB",
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
@@ -452,7 +453,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_body_settings_time_limited",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const double,
                               const double,
                               const std::string,
@@ -500,7 +501,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings",
-           py::overload_cast< const std::string &, const std::string & >( &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string&, const std::string& >( &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
            R"doc(
@@ -529,7 +530,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings_time_limited",
-           py::overload_cast< const std::string &, const double, const double, const std::string &, const double >(
+           py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
                    &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "initial_time" ),
@@ -568,7 +569,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings",
-           py::overload_cast< const std::string &, const std::string &, const std::string & >(
+           py::overload_cast< const std::string&, const std::string&, const std::string& >(
                    &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
@@ -604,7 +605,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings_time_limited",
-           py::overload_cast< const std::string &, const std::string &, const double, const double, const std::string &, const double >(
+           py::overload_cast< const std::string&, const std::string&, const double, const double, const std::string&, const double >(
                    &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
@@ -751,7 +752,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string &, const tss::SystemOfBodies & >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string&, const tss::SystemOfBodies& >(
                    &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
            "body_with_ground_station",
            "station_name" );
@@ -774,7 +775,7 @@ Returns
 ---------
 Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
-    )doc");
+    )doc" );
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,
@@ -1079,14 +1080,13 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
      )doc" );
 
-    m.def(
-        "direct_relativistic_time_converter_settings",
-        &directRelativisticTimeConverterSettings,
-        py::arg( "barycentric_to_bodycentric_settings" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "bodycentric_to_topocentric_settings" ) =
-                std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
-        R"doc(
+    m.def( "direct_relativistic_time_converter_settings",
+           &directRelativisticTimeConverterSettings,
+           py::arg( "barycentric_to_bodycentric_settings" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "bodycentric_to_topocentric_settings" ) =
+                   std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
+           R"doc(
 
  Create settings for a direct relativistic time converter.
 
@@ -1125,12 +1125,11 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
         )doc" );
 
-    m.def(
-        "set_relativistic_time_converters",
-        &setRelativisticTimeConverters,
-        py::arg( "bodies" ),
-        py::arg( "converter_settings" ),
-        R"doc(
+    m.def( "set_relativistic_time_converters",
+           &setRelativisticTimeConverters,
+           py::arg( "bodies" ),
+           py::arg( "converter_settings" ),
+           R"doc(
 
  Attach relativistic time converters to bodies.
 

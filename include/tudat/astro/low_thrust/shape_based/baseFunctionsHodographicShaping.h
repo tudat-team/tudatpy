@@ -47,13 +47,13 @@ public:
     /*!
      * Default constructor.
      */
-    BaseFunctionHodographicShaping( ) { }
+    BaseFunctionHodographicShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~BaseFunctionHodographicShaping( ) { }
+    virtual ~BaseFunctionHodographicShaping( ) {}
 
     virtual double evaluateFunction( const double independentVariable ) = 0;
 
@@ -72,10 +72,10 @@ class ConstantFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
     //! Default constructor.
-    ConstantFunctionHodographicShaping( ) { }
+    ConstantFunctionHodographicShaping( ) {}
 
     //! Default destructor.
-    ~ConstantFunctionHodographicShaping( ) { }
+    ~ConstantFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -107,7 +107,7 @@ public:
     }
 
     //! Default destructor.
-    ~SineFunctionHodographicShaping( ) { }
+    ~SineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -131,7 +131,7 @@ public:
     }
 
     //! Default destructor.
-    ~CosineFunctionHodographicShaping( ) { }
+    ~CosineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -155,7 +155,7 @@ public:
     }
 
     //! Default destructor.
-    ~ExponentialFunctionHodographicShaping( ) { }
+    ~ExponentialFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -180,7 +180,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledExponentialFunctionHodographicShaping( ) { }
+    ~ScaledExponentialFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -206,7 +206,7 @@ public:
     }
 
     //! Default destructor.
-    ~ExponentialSineFunctionHodographicShaping( ) { }
+    ~ExponentialSineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -233,7 +233,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledExponentialSineFunctionHodographicShaping( ) { }
+    ~ScaledExponentialSineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -260,7 +260,7 @@ public:
     }
 
     //! Default destructor.
-    ~ExponentialCosineFunctionHodographicShaping( ) { }
+    ~ExponentialCosineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -289,7 +289,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledExponentialCosineFunctionHodographicShaping( ) { }
+    ~ScaledExponentialCosineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -315,7 +315,7 @@ public:
     }
 
     //! Default destructor.
-    ~PowerFunctionHodographicShaping( ) { }
+    ~PowerFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -340,7 +340,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledPowerFunctionHodographicShaping( ) { }
+    ~ScaledPowerFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -366,7 +366,7 @@ public:
     }
 
     //! Default destructor.
-    ~PowerSineFunctionHodographicShaping( ) { }
+    ~PowerSineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -391,7 +391,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledPowerSineFunctionHodographicShaping( ) { }
+    ~ScaledPowerSineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -418,7 +418,7 @@ public:
     }
 
     //! Default destructor.
-    ~PowerCosineFunctionHodographicShaping( ) { }
+    ~PowerCosineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 
@@ -443,7 +443,7 @@ public:
     }
 
     //! Default destructor.
-    ~ScaledPowerCosineFunctionHodographicShaping( ) { }
+    ~ScaledPowerCosineFunctionHodographicShaping( ) {}
 
     double evaluateFunction( const double independentVariable );
 

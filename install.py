@@ -55,28 +55,20 @@ class Installer:
         # Resolve build directory
         self.build_dir = Path(self.args.build_dir)
         if not self.build_dir.exists():
-            raise FileNotFoundError(
-                f"Build directory {self.build_dir} does not exist."
-            )
+            raise FileNotFoundError(f"Build directory {self.build_dir} does not exist.")
 
         # Resolve base directories for tudat and tudatpy
         self.base_tudat = Path(__file__).parent
         if not self.base_tudat.exists():
-            raise FileNotFoundError(
-                f"Directory {self.base_tudat} does not exist."
-            )
+            raise FileNotFoundError(f"Directory {self.base_tudat} does not exist.")
         self.base_tudatpy = self.base_tudat
         if not self.base_tudatpy.exists():
-            raise FileNotFoundError(
-                f"Directory {self.base_tudatpy} does not exist."
-            )
+            raise FileNotFoundError(f"Directory {self.base_tudatpy} does not exist.")
 
         # Resolve conda prefix
         self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
         if not self.conda_prefix.exists():
-            raise FileNotFoundError(
-                f"Conda prefix {self.conda_prefix} does not exist."
-            )
+            raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Resolve pylib destination directory
         self.pylib_dir = (
@@ -86,9 +78,7 @@ class Installer:
             / "site-packages"
         )
         if not self.pylib_dir.exists():
-            raise FileNotFoundError(
-                f"Python library directory {self.pylib_dir} does not exist."
-            )
+            raise FileNotFoundError(f"Python library directory {self.pylib_dir} does not exist.")
 
         # Resolve path to stubs directory
         self.stubs_dir = self.build_dir / "tudatpy-stubs"
@@ -310,9 +300,7 @@ class Installer:
         print("installation. In this case, you will be able to use the ")
         print("`uninstall.py` script to uninstall the package.")
         print("-----------------------------------------------------")
-        input_request = (
-            "Do you want to continue with the regular installation? [y/N] "
-        )
+        input_request = "Do you want to continue with the regular installation? [y/N] "
         proceed = True if input(input_request).lower() == "y" else False
         if not proceed:
             print("Installation aborted.")
@@ -326,9 +314,7 @@ class Installer:
             ]
         )
         if outcome.returncode != 0:
-            raise RuntimeError(
-                f"Installation failed with error code {outcome.returncode}"
-            )
+            raise RuntimeError(f"Installation failed with error code {outcome.returncode}")
 
         return None
 

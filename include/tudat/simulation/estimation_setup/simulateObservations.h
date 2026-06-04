@@ -238,9 +238,10 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             std::make_shared< ObservationDependentVariableCalculator >(
                     observationsToSimulate->getObservationDependentVariableBookkeeping( ),
                     bodies,
-                    observationModel != nullptr ? observationModel->getLegLightTimeCalculators( )
-                                                : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                                                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
+                    observationModel != nullptr
+                            ? observationModel->getLegLightTimeCalculators( )
+                            : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                                        std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -405,9 +406,10 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 std::make_shared< ObservationDependentVariableCalculator >(
                         tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ),
                         bodies,
-                        observationModel != nullptr ? observationModel->getLegLightTimeCalculators( )
-                                                    : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                                                                std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
+                        observationModel != nullptr
+                                ? observationModel->getLegLightTimeCalculators( )
+                                : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
 
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(

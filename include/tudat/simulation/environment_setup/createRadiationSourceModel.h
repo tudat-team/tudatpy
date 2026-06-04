@@ -40,7 +40,7 @@ class RadiationSourceModelSettings
 public:
     explicit RadiationSourceModelSettings( const RadiationSourceModelType radiationSourceModelType ):
         radiationSourceModelType_( radiationSourceModelType )
-    { }
+    {}
 
     virtual ~RadiationSourceModelSettings( ) = default;
 
@@ -68,7 +68,7 @@ enum class LuminosityModelType { constant_radiant_power, time_variable_isotropic
 class LuminosityModelSettings
 {
 public:
-    explicit LuminosityModelSettings( const LuminosityModelType luminosityModelType ): luminosityModelType_( luminosityModelType ) { }
+    explicit LuminosityModelSettings( const LuminosityModelType luminosityModelType ): luminosityModelType_( luminosityModelType ) {}
 
     virtual ~LuminosityModelSettings( ) = default;
 
@@ -96,7 +96,7 @@ public:
      */
     explicit ConstantLuminosityModelSettings( const double luminosity ):
         LuminosityModelSettings( LuminosityModelType::constant_radiant_power ), luminosity_( luminosity )
-    { }
+    {}
 
     double getLuminosity( ) const
     {
@@ -117,7 +117,7 @@ public:
      */
     explicit TimeVariableLuminosityModelSettings( const std::function< double( const double ) > luminosityFunction ):
         LuminosityModelSettings( LuminosityModelType::time_variable_isotropic_radiant_power ), luminosityFunction_( luminosityFunction )
-    { }
+    {}
 
     std::function< double( const double ) > getLuminosityFuntion( ) const
     {
@@ -142,7 +142,7 @@ public:
     explicit IsotropicPointRadiationSourceModelSettings( const std::shared_ptr< LuminosityModelSettings >& luminosityModelSettings ):
         RadiationSourceModelSettings( RadiationSourceModelType::isotropic_point_source ),
         luminosityModelSettings_( luminosityModelSettings )
-    { }
+    {}
 
     const std::shared_ptr< LuminosityModelSettings >& getLuminosityModelSettings( ) const
     {
@@ -223,7 +223,7 @@ class PanelRadiosityModelSettings
 public:
     explicit PanelRadiosityModelSettings( const PanelRadiosityModelType panelRadiosityModelType ):
         panelRadiosityModelType_( panelRadiosityModelType )
-    { }
+    {}
 
     virtual ~PanelRadiosityModelSettings( ) = default;
 
@@ -249,7 +249,7 @@ class InherentPanelRadiosityModelSettings : public PanelRadiosityModelSettings
 public:
     explicit InherentPanelRadiosityModelSettings( const PanelRadiosityModelType panelRadiosityModelType ):
         PanelRadiosityModelSettings( panelRadiosityModelType )
-    { }
+    {}
 };
 
 /*!
@@ -266,7 +266,7 @@ public:
     explicit OriginalSourceDependentPanelRadiosityModelSettings( const PanelRadiosityModelType panelRadiosityModelType,
                                                                  const std::string& originalSourceName ):
         PanelRadiosityModelSettings( panelRadiosityModelType ), originalSourceName_( originalSourceName )
-    { }
+    {}
 
     const std::string& getOriginalSourceName( ) const
     {
@@ -294,7 +294,7 @@ public:
      */
     explicit ConstantPanelRadiosityModelSettings( const double constantRadiosity ):
         InherentPanelRadiosityModelSettings( PanelRadiosityModelType::constant ), constantRadiosity_( constantRadiosity )
-    { }
+    {}
 
     double getConstantRadiosity( ) const
     {
@@ -327,7 +327,7 @@ public:
                                                 const std::string& originalSourceName ):
         OriginalSourceDependentPanelRadiosityModelSettings( PanelRadiosityModelType::albedo, originalSourceName ),
         albedoDistribution_( albedoDistribution )
-    { }
+    {}
 
     const std::shared_ptr< SurfacePropertyDistributionSettings >& getAlbedoDistribution( ) const
     {
@@ -357,7 +357,7 @@ public:
             const std::string& originalSourceName ):
         OriginalSourceDependentPanelRadiosityModelSettings( PanelRadiosityModelType::thermal_delayed, originalSourceName ),
         emissivityDistribution_( emissivityDistribution )
-    { }
+    {}
 
     const std::shared_ptr< SurfacePropertyDistributionSettings >& getEmissivityDistribution( ) const
     {
@@ -391,7 +391,7 @@ public:
             const std::string& originalSourceName ):
         OriginalSourceDependentPanelRadiosityModelSettings( PanelRadiosityModelType::thermal_angle_based, originalSourceName ),
         minTemperature_( minTemperature ), maxTemperature_( maxTemperature ), emissivityDistribution_( emissivityDistribution )
-    { }
+    {}
 
     double getMinTemperature( ) const
     {
@@ -436,7 +436,7 @@ public:
         RadiationSourceModelSettings( RadiationSourceModelType::extended_source ),
         panelRadiosityModelSettings_( panelRadiosityModelSettings ), numberOfPanelsPerRing_( numberOfPanelsPerRing ),
         originalSourceToSourceOccultingBodies_( originalSourceToSourceOccultingBodies )
-    { }
+    {}
 
     const std::vector< int >& getNumberOfPanelsPerRing( ) const
     {
@@ -609,7 +609,7 @@ inline std::shared_ptr< RadiationSourceModelSettings > extendedRadiationSourceMo
 inline std::shared_ptr< RadiationSourceModelSettings > extendedRadiationSourceModelSettings(
         std::vector< std::shared_ptr< PanelRadiosityModelSettings > > panelRadiosityModels,
         const std::vector< int >& numberOfPanelsPerRing,
-        const std::vector< std::string >& originalSourceToSourceOccultingBodies = { } )
+        const std::vector< std::string >& originalSourceToSourceOccultingBodies = {} )
 {
     const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", originalSourceToSourceOccultingBodies } };
     return extendedRadiationSourceModelSettingsWithOccultationMap(

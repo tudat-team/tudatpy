@@ -107,7 +107,7 @@ public:
                              getAccelerationTypeOfThirdBodyGravity( partialOfDirectGravityOnBodyUndergoingAcceleration ) ),
         partialOfDirectGravityOnBodyUndergoingAcceleration_( partialOfDirectGravityOnBodyUndergoingAcceleration ),
         partialOfDirectGravityOnCentralBody_( partialOfDirectGravityOnCentralBody ), centralBodyName_( centralBodyName )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

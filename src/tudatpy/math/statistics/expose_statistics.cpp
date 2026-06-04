@@ -28,7 +28,7 @@ namespace tsm = tudat::system_models;
 namespace tudatpy
 {
 
-void expose_statistics( py::module &m )
+void expose_statistics( py::module& m )
 {
     m.def( "calculate_allan_variance_of_dataset",
            &ts::calculateAllanVarianceOfTimeDataSet,

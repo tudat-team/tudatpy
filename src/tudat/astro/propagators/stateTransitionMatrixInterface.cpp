@@ -45,7 +45,7 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     try
     {
         combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
-            stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
+                stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
 
         if( sensitivityMatrixSize_ > 0 )
         {
@@ -55,12 +55,9 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     }
     catch( std::runtime_error& caughtException )
     {
-        throw std::runtime_error( "Error variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        throw std::runtime_error( "Error variational equation solution interpolation.\nOriginal error: " +
+                                  std::string( caughtException.what( ) ) );
     }
-
-
-
-
 
     if( addCentralBodyDependency )
     {

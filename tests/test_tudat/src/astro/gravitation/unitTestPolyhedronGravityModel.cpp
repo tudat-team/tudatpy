@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     double expectedLaplacian, computedLaplacian;
     Eigen::Matrix3d expectedHessian, computedHessian;
 
-    for( unsigned int positionId: { 0, 1, 2, 3, 4 } )
+    for( unsigned int positionId : { 0, 1, 2, 3, 4 } )
     {
         bool testPotential = true;
         bool testGradient = true;

@@ -67,11 +67,12 @@ public:
         useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ), requiresClimateModel_( false )
     { }
 
+
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~AtmosphereModel( ) { }
+    virtual ~AtmosphereModel( ) {}
 
     //! Get local density.
     /*!
@@ -243,7 +244,7 @@ public:
                            const bool isScalingAbsolute = true ):
         AtmosphereModel( ), baseAtmosphere_( baseAtmosphere ), densityScalingFunction_( densityScalingFunction ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     double getDensity( const double altitude, const double longitude, const double latitude, const double time )
     {

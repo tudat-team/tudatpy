@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
 
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
                     dynamicsSimulator->getDependentVariableHistory( );
-            for( auto it: dependentVariableSolution )
+            for( auto it : dependentVariableSolution )
             {
                 double currentMass = it.second( 0 );
                 Eigen::Vector3d currentCenterOfMass = it.second.segment( 1, 3 );
