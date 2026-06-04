@@ -4,6 +4,7 @@ PropagationResults, and all registered derived classes.
 
 Run with: pytest test_pickle_support.py -v
 """
+
 import pickle
 from functools import lru_cache
 
@@ -12,11 +13,14 @@ import numpy as np
 
 # Adjust imports to match your actual tudatpy module paths
 from tudatpy.numerical_simulation.propagation_setup import acceleration as acc
+from tudatpy import numerical_simulation
 from tudatpy.interface import spice
 from tudatpy.astro import element_conversion
 from tudatpy.astro.time_representation import DateTime
 from tudatpy import constants
 from tudatpy.dynamics import environment_setup, parameters_setup, propagation_setup, simulator
+from tudatpy.numerical_simulation import estimation, estimation_setup, environment
+from tudatpy.numerical_simulation.estimation_setup import observation
 
 from tudatpy.dynamics.propagation import (
     SingleArcSimulationResults,
@@ -27,10 +31,10 @@ from tudatpy.dynamics.propagation import (
     HybridArcVariationalSimulationResults,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def roundtrip(obj):
     """Pickle and unpickle an object, returning the reconstructed instance."""
@@ -74,8 +78,64 @@ def assert_single_arc_variational_results_roundtrip(obj):
     assert type(restored) is type(obj)
     assert_single_arc_results_roundtrip(restored.dynamics_results)
     assert_single_arc_results_roundtrip(obj.dynamics_results)
-    assert_dict_of_arrays_equal(restored.state_transition_matrix_history, obj.state_transition_matrix_history)
+    assert_dict_of_arrays_equal(
+        restored.state_transition_matrix_history, obj.state_transition_matrix_history
+    )
     assert_dict_of_arrays_equal(restored.sensitivity_matrix_history, obj.sensitivity_matrix_history)
+
+
+def assert_array_roundtrip(restored, original):
+    np.testing.assert_allclose(restored, original)
+
+
+def assert_covariance_analysis_output_roundtrip(obj):
+    restored = roundtrip(obj)
+    assert type(restored) is type(obj)
+    assert_array_roundtrip(restored.inverse_covariance, obj.inverse_covariance)
+    assert_array_roundtrip(restored.covariance, obj.covariance)
+    assert_array_roundtrip(
+        restored.inverse_normalized_covariance, obj.inverse_normalized_covariance
+    )
+    assert_array_roundtrip(restored.normalized_covariance, obj.normalized_covariance)
+    assert_array_roundtrip(restored.formal_errors, obj.formal_errors)
+    assert_array_roundtrip(restored.correlations, obj.correlations)
+    assert_array_roundtrip(
+        restored.consider_covariance_contribution, obj.consider_covariance_contribution
+    )
+    assert_array_roundtrip(restored.normalized_design_matrix, obj.normalized_design_matrix)
+    assert_array_roundtrip(
+        restored.design_matrix_consider_parameters, obj.design_matrix_consider_parameters
+    )
+    assert_array_roundtrip(
+        restored.normalized_design_matrix_consider_parameters,
+        obj.normalized_design_matrix_consider_parameters,
+    )
+    assert_array_roundtrip(restored.normalization_terms, obj.normalization_terms)
+    assert_array_roundtrip(restored.consider_normalization_terms, obj.consider_normalization_terms)
+    assert_array_roundtrip(restored.consider_covariance, obj.consider_covariance)
+
+
+def assert_estimation_output_roundtrip(obj):
+    restored = roundtrip(obj)
+    assert type(restored) is type(obj)
+    assert_covariance_analysis_output_roundtrip(obj)
+    assert_array_roundtrip(restored.final_residuals, obj.final_residuals)
+    assert_array_roundtrip(restored.final_parameters, obj.final_parameters)
+    assert_array_roundtrip(restored.residual_history, obj.residual_history)
+    assert_array_roundtrip(restored.parameter_history, obj.parameter_history)
+    assert restored.best_iteration == obj.best_iteration
+    assert restored.exception_during_inversion == obj.exception_during_inversion
+    assert restored.exception_during_propagation == obj.exception_during_propagation
+    assert len(restored.simulation_results_per_iteration) == len(
+        obj.simulation_results_per_iteration
+    )
+    for restored_result, original_result in zip(
+        restored.simulation_results_per_iteration, obj.simulation_results_per_iteration
+    ):
+        assert type(restored_result) is type(original_result)
+        if isinstance(original_result, SingleArcSimulationResults):
+            assert_single_arc_results_roundtrip(restored_result)
+            assert_single_arc_results_roundtrip(original_result)
 
 
 def assert_multi_arc_results_roundtrip(obj):
@@ -121,6 +181,7 @@ def assert_hybrid_arc_variational_results_roundtrip(obj):
 # Base class
 # ---------------------------------------------------------------------------
 
+
 class TestAccelerationSettings:
     def test_point_mass_gravity(self):
         obj = acc.point_mass_gravity()
@@ -136,6 +197,7 @@ class TestAccelerationSettings:
 # Derived classes
 # ---------------------------------------------------------------------------
 
+
 class TestRadiationPressureAccelerationSettings:
     def test_default(self):
         obj = acc.radiation_pressure()  # adjust if constructor differs
@@ -147,23 +209,29 @@ class TestRadiationPressureAccelerationSettings:
 
 
 class TestSphericalHarmonicAccelerationSettings:
-    @pytest.mark.parametrize("degree,order", [
-        (2, 0),
-        (2, 2),
-        (8, 8),
-        (20, 20),
-    ])
+    @pytest.mark.parametrize(
+        "degree,order",
+        [
+            (2, 0),
+            (2, 2),
+            (8, 8),
+            (20, 20),
+        ],
+    )
     def test_various_degrees(self, degree, order):
         obj = acc.spherical_harmonic_gravity(degree, order)
         assert_roundtrip(obj)
 
 
 class TestMutualSphericalHarmonicAccelerationSettings:
-    @pytest.mark.parametrize("args", [
-        (2, 2, 2, 2),
-        (4, 4, 2, 2),
-        (8, 8, 4, 4),
-    ])
+    @pytest.mark.parametrize(
+        "args",
+        [
+            (2, 2, 2, 2),
+            (4, 4, 2, 2),
+            (8, 8, 4, 4),
+        ],
+    )
     def test_various_degrees(self, args):
         # adjust constructor name/signature if needed
         obj = acc.mutual_spherical_harmonic_gravity(*args)
@@ -173,16 +241,14 @@ class TestMutualSphericalHarmonicAccelerationSettings:
 class TestRelativisticAccelerationCorrectionSettings:
     def test_default(self):
         obj = acc.relativistic_correction(
-            use_schwarzschild=True,
-            use_lense_thirring=False,
-            use_de_sitter=False
+            use_schwarzschild=True, use_lense_thirring=False, use_de_sitter=False
         )
         assert_roundtrip(obj)
 
 
 class TestEmpiricalAccelerationSettings:
     def test_default(self):
-        obj = acc.empirical(constant_acceleration=np.array([1,2,3]))  # adjust if needed
+        obj = acc.empirical(constant_acceleration=np.array([1, 2, 3]))  # adjust if needed
         assert_roundtrip(obj)
 
 
@@ -202,10 +268,12 @@ class TestThrustAccelerationSettings:
         # adjust — ThrustAccelerationSettings likely requires direction/magnitude args
         obj = acc.thrust_from_engine("1")  # adjust if needed
         assert_roundtrip(obj)
+
     def test_from_all_engines(self):
         # adjust — ThrustAccelerationSettings likely requires direction/magnitude args
         obj = acc.thrust_from_all_engines()  # adjust if needed
         assert_roundtrip(obj)
+
 
 # class TestRTGAccelerationSettings:
 #     def test_default(self):
@@ -228,6 +296,7 @@ class TestDirectTidalDissipationAccelerationSettings:
 # ---------------------------------------------------------------------------
 # Polymorphism: all derived types must survive roundtrip through base
 # ---------------------------------------------------------------------------
+
 
 class TestPolymorphicDispatch:
     """
@@ -277,6 +346,7 @@ class TestPolymorphicDispatch:
 # Propagation Results Classes
 # ---------------------------------------------------------------------------
 
+
 class TestSimulationResultsPickle:
     """
     Tests for pickle serialization/deserialization of SimulationResults
@@ -303,12 +373,12 @@ class TestSimulationResultsPickle:
         simulation_start_epoch = DateTime(2008, 4, 28).to_epoch()
         initial_state = element_conversion.keplerian_to_cartesian_elementwise(
             gravitational_parameter=bodies.get("Earth").gravitational_parameter,
-            semi_major_axis=6.99276221e+06,
+            semi_major_axis=6.99276221e06,
             eccentricity=4.03294322e-03,
-            inclination=1.71065169e+00,
-            argument_of_periapsis=1.31226971e+00,
+            inclination=1.71065169e00,
+            argument_of_periapsis=1.31226971e00,
             longitude_of_ascending_node=3.82958313e-01,
-            true_anomaly=3.07018490e+00,
+            true_anomaly=3.07018490e00,
         )
 
         return bodies, simulation_start_epoch, initial_state
@@ -442,6 +512,13 @@ class TestSimulationResultsPickle:
             "Sun",
             "J2000",
         )
+        body_settings.get("Sun").radiation_source_settings = (
+            environment_setup.radiation_pressure.isotropic_radiation_source(
+                environment_setup.radiation_pressure.irradiance_based_constant_luminosity(
+                    1367.0, constants.ASTRONOMICAL_UNIT
+                )
+            )
+        )
         body_settings.add_empty_settings("Delfi-C3")
 
         bodies = environment_setup.create_system_of_bodies(body_settings)
@@ -457,18 +534,20 @@ class TestSimulationResultsPickle:
         )
         satellite_initial_state = element_conversion.keplerian_to_cartesian_elementwise(
             gravitational_parameter=bodies.get("Earth").gravitational_parameter,
-            semi_major_axis=6.99276221e+06,
+            semi_major_axis=6.99276221e06,
             eccentricity=4.03294322e-03,
-            inclination=1.71065169e+00,
-            argument_of_periapsis=1.31226971e+00,
+            inclination=1.71065169e00,
+            argument_of_periapsis=1.31226971e00,
             longitude_of_ascending_node=3.82958313e-01,
-            true_anomaly=3.07018490e+00,
+            true_anomaly=3.07018490e00,
         )
 
         return bodies, simulation_start_epoch, earth_initial_state, satellite_initial_state
 
     @classmethod
-    def _create_hybrid_single_arc_settings(cls, start_epoch, end_epoch, bodies, earth_initial_state):
+    def _create_hybrid_single_arc_settings(
+        cls, start_epoch, end_epoch, bodies, earth_initial_state
+    ):
         acceleration_settings = {
             "Earth": {
                 "Sun": [propagation_setup.acceleration.point_mass_gravity()],
@@ -557,6 +636,162 @@ class TestSimulationResultsPickle:
         """Test pickle support for HybridArcVariationalSimulationResults from an actual propagation."""
         obj = self._hybrid_arc_variational_simulation_results()
         assert_hybrid_arc_variational_results_roundtrip(obj)
+
+
+class TestEstimationAnalysisPickle:
+    """Tests for pickle serialization/deserialization of EstimationOutput and CovarianceAnalysisOutput."""
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def _estimation_analysis_outputs():
+        spice.load_standard_kernels()
+
+        bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
+        body_settings = environment_setup.get_default_body_settings(
+            bodies_to_create,
+            "Sun",
+            "J2000",
+        )
+        body_settings.add_empty_settings("Delfi-C3")
+
+        bodies = environment_setup.create_system_of_bodies(body_settings)
+        bodies.get("Delfi-C3").mass = 2.2
+        environment_setup.add_aerodynamic_coefficient_interface(
+            bodies,
+            "Delfi-C3",
+            environment_setup.aerodynamic_coefficients.constant(
+                (4 * 0.3 * 0.1 + 2 * 0.1 * 0.1) / 4,
+                [1.2, 0.0, 0.0],
+            ),
+        )
+        environment_setup.add_radiation_pressure_target_model(
+            bodies,
+            "Delfi-C3",
+            environment_setup.radiation_pressure.cannonball_radiation_target(
+                4.0, 1.2, {"Sun": ["Earth"]}
+            ),
+        )
+
+        simulation_start_epoch = DateTime(2008, 4, 28).to_epoch()
+        simulation_end_epoch = simulation_start_epoch + 6.0 * 3600.0
+
+        delfi_tle = environment.Tle(
+            "1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999",
+            "2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68",
+        )
+        delfi_ephemeris = environment.TleEphemeris("Earth", "J2000", delfi_tle, False)
+        initial_state = delfi_ephemeris.cartesian_state(simulation_start_epoch)
+
+        bodies_to_propagate = ["Delfi-C3"]
+        central_bodies = ["Earth"]
+        acceleration_settings = {
+            "Delfi-C3": {
+                "Sun": [
+                    propagation_setup.acceleration.radiation_pressure(),
+                    propagation_setup.acceleration.point_mass_gravity(),
+                ],
+                "Mars": [propagation_setup.acceleration.point_mass_gravity()],
+                "Moon": [propagation_setup.acceleration.point_mass_gravity()],
+                "Earth": [
+                    propagation_setup.acceleration.spherical_harmonic_gravity(8, 8),
+                    propagation_setup.acceleration.aerodynamic(),
+                ],
+            }
+        }
+        acceleration_models = propagation_setup.create_acceleration_models(
+            bodies,
+            acceleration_settings,
+            bodies_to_propagate,
+            central_bodies,
+        )
+
+        integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(
+            initial_time_step=60.0,
+            coefficient_set=propagation_setup.integrator.CoefficientSets.rkdp_87,
+        )
+        termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
+        propagator_settings = propagation_setup.propagator.translational(
+            central_bodies,
+            acceleration_models,
+            bodies_to_propagate,
+            initial_state,
+            simulation_start_epoch,
+            integrator_settings,
+            termination_condition,
+        )
+
+        environment_setup.add_ground_station(
+            bodies.get_body("Earth"),
+            "TrackingStation",
+            [0.0, np.deg2rad(52.00667), np.deg2rad(4.35556)],
+            element_conversion.geodetic_position_type,
+        )
+
+        link_ends = {
+            observation.transmitter: observation.body_reference_point_link_end_id(
+                "Earth", "TrackingStation"
+            ),
+            observation.receiver: observation.body_origin_link_end_id("Delfi-C3"),
+        }
+        link_definition = observation.LinkDefinition(link_ends)
+        observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
+
+        observation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 300.0)
+        observation_simulation_settings = observation.tabulated_simulation_settings(
+            observation.one_way_instantaneous_doppler_type,
+            link_definition,
+            observation_times,
+        )
+        noise_level = 1.0e-3
+        observation.add_gaussian_noise_to_observable(
+            [observation_simulation_settings],
+            noise_level,
+            observation.one_way_instantaneous_doppler_type,
+        )
+
+        parameter_settings = estimation_setup.parameter.initial_states(propagator_settings, bodies)
+        parameter_settings.append(estimation_setup.parameter.gravitational_parameter("Earth"))
+        parameter_settings.append(estimation_setup.parameter.constant_drag_coefficient("Delfi-C3"))
+        parameters_to_estimate = estimation_setup.create_parameter_set(parameter_settings, bodies)
+        estimator = numerical_simulation.Estimator(
+            bodies,
+            parameters_to_estimate,
+            observation_settings_list,
+            propagator_settings,
+        )
+
+        simulated_observations = estimation.simulate_observations(
+            [observation_simulation_settings],
+            estimator.observation_simulators,
+            bodies,
+        )
+
+        covariance_input = estimation.CovarianceAnalysisInput(simulated_observations)
+        covariance_input.define_covariance_settings(reintegrate_variational_equations=False)
+        covariance_input.set_constant_weight_per_observable(
+            {observation.one_way_instantaneous_doppler_type: noise_level**-2}
+        )
+        covariance_output = estimator.compute_covariance(covariance_input)
+
+        estimation_input = estimation.EstimationInput(
+            simulated_observations,
+            convergence_checker=estimation.estimation_convergence_checker(maximum_iterations=2),
+        )
+        estimation_input.define_estimation_settings(reintegrate_variational_equations=False)
+        estimation_input.set_constant_weight_per_observable(
+            {observation.one_way_instantaneous_doppler_type: noise_level**-2}
+        )
+        estimation_output = estimator.perform_estimation(estimation_input)
+
+        return covariance_output, estimation_output
+
+    def test_covariance_analysis_output_roundtrip(self):
+        covariance_output, _ = self._estimation_analysis_outputs()
+        assert_covariance_analysis_output_roundtrip(covariance_output)
+
+    def test_estimation_output_roundtrip(self):
+        _, estimation_output = self._estimation_analysis_outputs()
+        assert_estimation_output_roundtrip(estimation_output)
 
 
 class TestSimulationResultsPolymorphism:

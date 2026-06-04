@@ -137,6 +137,12 @@ TUDAT_ADD_TEST_CASE(PropagationResultsSerialization
         ${Tudat_ESTIMATION_LIBRARIES}
 )
 
+TUDAT_ADD_TEST_CASE(PodInputOutputTypesSerialization
+    PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        ${Tudat_ESTIMATION_LIBRARIES}
+)
+
 TUDAT_ADD_TEST_CASE(SettingsSerialization
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
