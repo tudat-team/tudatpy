@@ -441,6 +441,10 @@ public:
                     const std::shared_ptr< system_models::Camera >& camera,
                     const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
     {
+        if( cameraMap.count( cameraName ) != 0 )
+        {
+            std::cerr << "Warning, camera with name " << cameraName << " already exists, overriding old camera" << std::endl;
+        }
         cameraMap[ cameraName ] = camera;
         this->setReferencePointPosition( cameraName, bodyFixedCameraPosition, camera->getCameraId( ), "" );
     }

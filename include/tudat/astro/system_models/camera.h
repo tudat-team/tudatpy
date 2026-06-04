@@ -46,28 +46,6 @@ public:
         bodyRotationalEphemeris_( bodyRotationalEphemeris )
     {}
 
-    /*! \brief Constructor, sets the camera name, rotation from body-fixed to camera frame, and focal lengths in x and y directions.
-     *  \param cameraId Name of the camera.
-     *  \param r Real part of the quaternion.
-     *  \param i Imaginary part of the quaternion.
-     *  \param j Imaginary part of the quaternion.
-     *  \param k Imaginary part of the quaternion.
-     *  \param focal_lengths Focal lengths in x and y directions [px].
-     *  \param optical_center Optical center of the camera [px].
-     */
-    Camera( const std::string& cameraId,
-            const double& r,
-            const double& i,
-            const double& j,
-            const double& k,
-            std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
-            std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris = nullptr ):
-        cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( Eigen::Quaterniond( r, i, j, k ) ),
-        K_( focal_lengths.first, focal_lengths.second ), opticalCenter_( optical_center.first, optical_center.second ),
-        bodyRotationalEphemeris_( bodyRotationalEphemeris )
-    {}
-
     /*! \brief Get the camera ID.
      *  \return The camera ID.
      */

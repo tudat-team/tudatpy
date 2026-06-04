@@ -77,14 +77,14 @@ public:
             {
                 throw std::runtime_error(
                         "Error when making differenced time of arrival observation model, no state model found for receiver " +
-                        linkEnds.at( receiver ).bodyName_ + ", " + linkEnds.at( receiver ).getReferencePointName( ) );
+                        linkEnds.at( receiver ).bodyName_ + ", " + linkEnds.at( receiver ).getReferencePointName() );
             }
 
             if( stationStates.count( receiver2 ) == 0 )
             {
                 throw std::runtime_error(
                         "Error when making differenced time of arrival observation model, no state model found for receiver2 " +
-                        linkEnds.at( receiver2 ).bodyName_ + ", " + linkEnds.at( receiver2 ).getReferencePointName( ) );
+                        linkEnds.at( receiver2 ).bodyName_ + ", " + linkEnds.at( receiver2 ).getReferencePointName() );
             }
         }
     }
