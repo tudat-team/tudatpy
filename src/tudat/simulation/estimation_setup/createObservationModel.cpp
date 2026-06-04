@@ -48,10 +48,10 @@ std::function< double( observation_models::FrequencyBands, observation_models::F
 {
     std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
     // Check if retransmitter is a body
-    if( linkEnds.at( observation_models::retransmitter ).getReferencePointName() == "" ||
+    if( linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) == "" ||
         !simulation_setup::isReferencePointGroundStation( bodies,
                                                           linkEnds.at( observation_models::retransmitter ).bodyName_,
-                                                          linkEnds.at( observation_models::retransmitter ).getReferencePointName() ) )
+                                                          linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) ) )
     {
         if( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
         {
@@ -68,16 +68,16 @@ std::function< double( observation_models::FrequencyBands, observation_models::F
     else
     {
         if( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )
-                    ->getGroundStation( linkEnds.at( observation_models::retransmitter ).getReferencePointName() )
+                    ->getGroundStation( linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) )
                     ->getVehicleSystems( ) == nullptr )
         {
             throw std::runtime_error(
                     "Error when retrieving turnaround ratio: vehicle systems are not "
                     "defined for retransmitter link end ID " +
-                    linkEnds.at( observation_models::retransmitter ).getReferencePointName() + "." );
+                    linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) + "." );
         }
         turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )
-                                          ->getGroundStation( linkEnds.at( observation_models::retransmitter ).getReferencePointName() )
+                                          ->getGroundStation( linkEnds.at( observation_models::retransmitter ).getReferencePointName( ) )
                                           ->getVehicleSystems( )
                                           ->getTransponderTurnaroundRatio( );
     }
@@ -89,7 +89,7 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
         const LinkEnds& linkEnds )
 {
     std::string transmittingBody = linkEnds.at( observation_models::transmitter ).bodyName_;
-    std::string transmittingPoint = linkEnds.at( observation_models::transmitter ).getReferencePointName();
+    std::string transmittingPoint = linkEnds.at( observation_models::transmitter ).getReferencePointName( );
 
     bool transmitterFound = false;
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmitterFrequency;
@@ -126,7 +126,7 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
                 "Error when creating observation model: transmitted frequency not  "
                 "defined for link end " +
                 linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
-                linkEnds.at( observation_models::transmitter ).getReferencePointName() );
+                linkEnds.at( observation_models::transmitter ).getReferencePointName( ) );
     }
     return transmitterFrequency;
 }
