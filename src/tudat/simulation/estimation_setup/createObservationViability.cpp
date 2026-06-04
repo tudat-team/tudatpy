@@ -183,13 +183,12 @@ std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBou
     {
         throw std::runtime_error(
                 "Error when making observation boundaries calculator, "
-                "input settings are not of type ObservationBoundariesViabilitySettings"
-            );
+                "input settings are not of type ObservationBoundariesViabilitySettings" );
     }
 
     std::vector< std::pair< double, double > > boundaries = boundariesSettings->getBoundaries( );
-    
-    if ( boundaries.size() != getObservableSize( observationType ) )
+
+    if( boundaries.size( ) != getObservableSize( observationType ) )
     {
         throw std::runtime_error(
                 "Error when making observation boundaries calculator, "
@@ -216,9 +215,8 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
         switch( relevantObservationViabilitySettings.at( i )->observationViabilityType_ )
         {
             case observation_boundaries:
-                linkViabilityCalculators.push_back( createObservationBoundariesCalculator(
-                    observationType,
-                    relevantObservationViabilitySettings.at( i ) ) );
+                linkViabilityCalculators.push_back(
+                        createObservationBoundariesCalculator( observationType, relevantObservationViabilitySettings.at( i ) ) );
                 break;
             case minimum_elevation_angle: {
                 // Create list of ground stations for which elevation angle check is to be made.
@@ -227,10 +225,11 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 {
                     if( linkEndIterator->second.bodyName_ == relevantObservationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first )
                     {
-                        if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.getReferencePointName() ) ==
-                            listOfGroundStations.end( ) )
+                        if( std::find( listOfGroundStations.begin( ),
+                                       listOfGroundStations.end( ),
+                                       linkEndIterator->second.getReferencePointName( ) ) == listOfGroundStations.end( ) )
                         {
-                            listOfGroundStations.push_back( linkEndIterator->second.getReferencePointName() );
+                            listOfGroundStations.push_back( linkEndIterator->second.getReferencePointName( ) );
                         }
                     }
                 }

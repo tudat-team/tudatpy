@@ -63,7 +63,7 @@ public:
     {
         return opticalCenter_;
     }
-    
+
     /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
      *  \return The rotation from body-fixed to camera frame.
      */
@@ -142,7 +142,7 @@ private:
     Eigen::Vector2d opticalCenter_;
 
     //! Shared pointer to a rotational ephemeris of the body, which can be used to determine the rotation from inertial to body fixed frame at a given time.
-   std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris_;
+    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris_;
 };
 }  // namespace system_models
 }  // namespace tudat

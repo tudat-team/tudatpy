@@ -731,7 +731,7 @@ void setStationFrequenciesFromTrackingData(
         }
 
         LinkEnds currentLinkEnds = *( processedFileContent->getLinkEndsSet( ).begin( ) );
-        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).getReferencePointName();
+        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).getReferencePointName( );
 
         rampInformation[ transmitterName ].push_back( FrequencyRampData{ rampUtcTimes, frequencyValues, frequencyRampRates } );
     }

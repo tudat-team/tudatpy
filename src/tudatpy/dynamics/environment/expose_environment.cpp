@@ -2585,7 +2585,7 @@ bool
                     "quaternion",
                     []( const tsm::Camera& self ) -> Eigen::Vector4d {
                         Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
-                        return tudat::linear_algebra::convertQuaternionToVectorFormat(q);
+                        return tudat::linear_algebra::convertQuaternionToVectorFormat( q );
                     },
                     R"doc(
             **read-only**

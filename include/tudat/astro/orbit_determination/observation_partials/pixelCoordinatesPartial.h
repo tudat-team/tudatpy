@@ -45,8 +45,8 @@ public:
         DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ), focalLengthsMatrix_( focalLengthsMatrix )
     {
-        observerIndex_ =
-                observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates ).at( observation_models::receiver );
+        observerIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
+                                 .at( observation_models::receiver );
         observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
                                      .at( observation_models::transmitter );
     }

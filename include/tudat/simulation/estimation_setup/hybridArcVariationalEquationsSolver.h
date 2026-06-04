@@ -336,7 +336,7 @@ public:
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
         simulation_setup::setInitialStateVectorFromParameterSet< StateScalarType, TimeType >( parametersToEstimate_,
-                                                                                                originalPopagatorSettings_ );
+                                                                                              originalPopagatorSettings_ );
 
         propagatorSettings_->getSingleArcPropagatorSettings( )->resetInitialStates(
                 newParameterEstimate.segment( 0, singleArcDynamicsSize_ ) );

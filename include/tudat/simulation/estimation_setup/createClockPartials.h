@@ -36,7 +36,7 @@ std::map< int, std::shared_ptr< TimingPartial > > createTimingPartialWrtClockPro
          linkEndIterator++ )
     {
         if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
-            ( linkEndIterator->second.getReferencePointName() == parameterToEstimate->getParameterName( ).second.second ) )
+            ( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second ) )
         {
             for( unsigned int j = 0; j < clockInducedBiases.size( ); j++ )
             {
