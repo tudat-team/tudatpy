@@ -1050,11 +1050,48 @@ public:
     //! Default constructor for deserialization only — not for general use
     CovarianceAnalysisOutput( ): designMatrixSaved_( false ), exceptionDuringPropagation_( false ), considerParametersIncluded_( false ) {}
 
+    // Used for serialization testing
+    bool operator==( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+protected:
+    bool equals( const CovarianceAnalysisOutput& rhs ) const
+    {
+        const auto* rhsDerived = dynamic_cast< const CovarianceAnalysisOutput* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        return ( designMatrixSaved_ == rhsDerived->designMatrixSaved_ ) &&
+                ( exceptionDuringPropagation_ == rhsDerived->exceptionDuringPropagation_ ) &&
+                ( considerParametersIncluded_ == rhsDerived->considerParametersIncluded_ ) &&
+                ( normalizedDesignMatrix_ == rhsDerived->normalizedDesignMatrix_ ) &&
+                ( weightsMatrixDiagonal_ == rhsDerived->weightsMatrixDiagonal_ ) &&
+                ( designMatrixTransformationDiagonal_ == rhsDerived->designMatrixTransformationDiagonal_ ) &&
+                ( inverseNormalizedCovarianceMatrix_ == rhsDerived->inverseNormalizedCovarianceMatrix_ ) &&
+                ( inverseUnnormalizedCovarianceMatrix_ == rhsDerived->inverseUnnormalizedCovarianceMatrix_ ) &&
+                ( normalizedCovarianceMatrix_ == rhsDerived->normalizedCovarianceMatrix_ ) &&
+                ( unnormalizedCovarianceMatrix_ == rhsDerived->unnormalizedCovarianceMatrix_ ) &&
+                ( considerCovarianceContribution_ == rhsDerived->considerCovarianceContribution_ ) &&
+                ( normalizedCovarianceWithConsiderParameters_ == rhsDerived->normalizedCovarianceWithConsiderParameters_ ) &&
+                ( unnormalizedCovarianceWithConsiderParameters_ == rhsDerived->unnormalizedCovarianceWithConsiderParameters_ ) &&
+                ( normalizedDesignMatrixConsiderParameters_ == rhsDerived->normalizedDesignMatrixConsiderParameters_ ) &&
+                ( considerNormalizationFactors_ == rhsDerived->considerNormalizationFactors_ ) &&
+                ( considerCovariance_ == rhsDerived->considerCovariance_ );
+    }
+
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void save( Archive& ar, const std::uint32_t version )
+    void save( Archive& ar, const std::uint32_t version ) const
     {
         static_cast< void >( version );
         ar( normalizedDesignMatrix_ );
@@ -1292,11 +1329,31 @@ public:
         exceptionDuringInversion_( false ), numberOfParameters_( 0 )
     {}
 
+protected:
+    bool equals( const EstimationOutput& rhs ) const
+    {
+        const auto* rhsDerived = dynamic_cast< const EstimationOutput* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+        // for (auto result: simulationResultsPerIteration_) { @todo: finish checking all results for each iteraiton
+        //     if
+        // }
+        return CovarianceAnalysisOutput< ObservationScalarType, TimeType >::equals( rhs ) &&
+                ( parameterEstimate_ == rhsDerived->parameterEstimate_ ) && ( residuals_ == rhsDerived->residuals_ ) &&
+                ( bestIteration_ == rhsDerived->bestIteration_ ) &&
+                ( residualStandardDeviation_ == rhsDerived->residualStandardDeviation_ ) &&
+                ( residualHistory_ == rhsDerived->residualHistory_ ) && ( parameterHistory_ == rhsDerived->parameterHistory_ ) &&
+                ( exceptionDuringInversion_ == rhsDerived->exceptionDuringInversion_ ) &&
+                ( numberOfParameters_ == rhsDerived->numberOfParameters_ );
+    }
+
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void save( Archive& ar, const std::uint32_t version )
+    void save( Archive& ar, const std::uint32_t version ) const
     {
         static_cast< void >( version );
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
@@ -1347,8 +1404,6 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 }  // namespace tudat
 
 // Register all class versions for serialization
-CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
-                      tudat::serialization::ClassVersions::covariance_analysis_output_dd )
 CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
                       tudat::serialization::ClassVersions::covariance_analysis_output_dd )
 CEREAL_CLASS_VERSION( tudat::simulation_setup::EstimationOutputDD, tudat::serialization::ClassVersions::estimation_output_dd )
