@@ -38,6 +38,14 @@ jobs:
         GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
       shell: bash
       run: |
+        # check if token is set
+        echo "token is set: $([ -n "$GH_TOKEN" ] && echo 'yes' || echo 'no')"
+        echo "token length: ${#GH_TOKEN}"
+        
+        # check if we can access the repo
+        echo "=== checking repository access ==="
+        gh repo view nikemais/MCD
+
         # Create directories
         mkdir -p "${{ github.workspace }}/temp_mcd"
       
