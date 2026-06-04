@@ -46,15 +46,15 @@ double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& 
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const Eigen::VectorXd& observationValue,
         const LinkEnds& linkEnds,
-        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators )
+        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators,
+        const Eigen::VectorXd& observationValue )
 {
     bool isObservationFeasible = 1;
 
     if( viabilityCalculators.count( linkEnds ) > 0 )
     {
-        isObservationFeasible = isObservationViable( states, times, observationValue, viabilityCalculators.at( linkEnds ) );
+        isObservationFeasible = isObservationViable( states, times, viabilityCalculators.at( linkEnds ), observationValue );
     }
 
     return isObservationFeasible;
@@ -63,8 +63,8 @@ bool isObservationViable(
 //! Function to check whether an observation is viable
 bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
                           const std::vector< double >& times,
-                          const Eigen::VectorXd& observationValue,
-                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
+                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators,
+                          const Eigen::VectorXd& observationValue )
 {
     bool isObservationFeasible = 1;
 
@@ -265,11 +265,11 @@ bool ObservationBoundariesViabilityCalculator::isObservationViable( const std::v
 {
     bool isObservationPossible = 1;
 
-    if( observationValue.size( ) != boundaries_.size( ) )
+    if( static_cast< std::size_t >( observationValue.size( ) ) != boundaries_.size( ) )
     {
         throw std::runtime_error( "Error in observation viability calculator, size of observation value and boundaries do not match." );
     }
-    for( unsigned int i = 0; i < boundaries_.size( ); i++ )
+    for( std::size_t i = 0; i < boundaries_.size( ); i++ )
     {
         if( observationValue( i ) > boundaries_.at( i ).second || observationValue( i ) < boundaries_.at( i ).first ||
             std::isnan( observationValue( i ) ) )
