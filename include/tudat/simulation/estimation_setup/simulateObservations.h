@@ -100,7 +100,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
 
     // Check if observation is feasible
     bool observationFeasible = isObservationViable(
-            vectorOfStates, vectorOfTimes, calculatedObservation.template cast< double >( ), linkViabilityCalculators );
+            vectorOfStates, vectorOfTimes, linkViabilityCalculators, calculatedObservation.template cast< double >( ) );
 
     if( observationFeasible )
     {
@@ -275,7 +275,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
         // If observation is feasible, add to arc. If not, check if current arc is to be terminated.
         observationFeasible = isObservationViable(
-                vectorOfStates, vectorOfTimes, currentObservation.template cast< double >( ), arcDefiningViabilityCalculators );
+                vectorOfStates, vectorOfTimes, arcDefiningViabilityCalculators, currentObservation.template cast< double >( ) );
         if( observationFeasible )
         {
             bool isMaximumArcDurationExceeded = false;
@@ -341,7 +341,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             currentDependentVariable = Eigen::VectorXd::Zero( 0 );
 
             observationFeasible = isObservationViable(
-                    vectorOfStates, vectorOfTimes, currentObservation.template cast< double >( ), additionalViabilityCalculators );
+                    vectorOfStates, vectorOfTimes, additionalViabilityCalculators, currentObservation.template cast< double >( ) );
             if( observationFeasible )
             {
                 addNoiseAndDependentVariableToObservation< ObservationSize, ObservationScalarType, TimeType >(

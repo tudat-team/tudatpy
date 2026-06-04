@@ -88,18 +88,18 @@ double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& 
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
  * \param states Vector of states of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
- * \param observationValue Current simulated observation value.
  * \param linkEnds Link ends for current observation
  * \param viabilityCalculators List of viability calculators, for each set of link ends (function retrieves vector for linkEnds
  * input.
+ * \param observationValue Current simulated observation value.
  * \return True if observation is viable, false if not.
  */
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const Eigen::VectorXd& observationValue,
         const LinkEnds& linkEnds,
-        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators );
+        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators,
+        const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
 
 //! Function to check whether an observation is viable
 /*!
@@ -109,14 +109,14 @@ bool isObservationViable(
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
  * \param states Vector of states of the link ends involved in the observation, in the order as provided by the
  * function computeObservationsAndLinkEndData of the associated ObservationModel.
- * \param observationValue Current simulated observation value.
  * \param viabilityCalculators List of viability calculators.
+ * \param observationValue Current simulated observation value.
  * \return True if observation is viable, false if not.
  */
 bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
                           const std::vector< double >& times,
-                          const Eigen::VectorXd& observationValue = Eigen::VectorXd( ),
-                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
+                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators,
+                          const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
 
 //! Function to check whether an observation is possible based on minimum elevation angle criterion at one link end.
 class MinimumElevationAngleCalculator : public ObservationViabilityCalculator
