@@ -164,12 +164,12 @@ jobs:
         conda list
 
     - name: Build C++ kernel
+      id: build_kernel
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
-    - name: Build Python library
-      id: build_tudatpy
+    - name: Build Python package
       shell: bash -l {0}
       run: |
         python build.py --skip-setup --skip-build --skip-stubs --tests -j${{ matrix.platform.build_jobs }}
@@ -186,7 +186,7 @@ jobs:
         pytest
 
     - name: Test C++
-      if: steps.build_tudatpy.outcome == 'success' && steps.install_tudatpy.outcome == 'success'
+      if: always() && steps.build_kernel.outcome == 'success'
       working-directory: "${{ github.workspace }}/build"
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
