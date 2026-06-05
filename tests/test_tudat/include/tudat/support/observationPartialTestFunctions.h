@@ -234,6 +234,11 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::pixel_coordinates && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
         std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > modifiedAncillarySettings;

@@ -236,7 +236,7 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {}
 
@@ -271,7 +271,7 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -309,7 +309,7 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -349,7 +349,7 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
     {}
@@ -389,7 +389,7 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -425,7 +425,7 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
