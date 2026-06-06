@@ -8,7 +8,7 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
-import importlib.machinery
+from sys import platform
 
 
 @dataclass
@@ -1066,9 +1066,7 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
-            # Get the extension suffix for compiled modules on the current OS
-            # (Windows = '.pyd', Linux/macOS/WSL = '.so')
-            ext = importlib.machinery.EXTENSION_SUFFIXES[0]
+            ext = ".pyd" if platform == "win32" else ".so"
             shutil.copy(
                 self.extension_source_dir / f"kernel{ext}",
                 mock_prefix / f"tudatpy/kernel{ext}",
