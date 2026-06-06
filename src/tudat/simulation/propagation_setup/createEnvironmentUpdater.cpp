@@ -450,6 +450,20 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                 environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shList.at( i ) );
             }
 
+            // When the reference point is a ground station, the direct-from-metric path evaluates the
+            // metric at the station's inertial BCRS state, which is built from the central body's
+            // *stored* rotation (Body::getCurrentRotationToGlobalFrame, see
+            // createReferencePointStateFunctionDuringPropagation). That stored rotation is only
+            // refreshed by a body_rotational_state_update; without it the station's body-fixed->inertial
+            // rotation is frozen at the initial epoch and the integrated proper time picks up a ~us
+            // diurnal error. (A spherical-harmonic central body masks this because the SH-field update
+            // already pulls in the rotation; a point-mass central body does not.)
+            if( stateDerivativeModel->getReferencePointId( ).second != "" )
+            {
+                environmentModelsToUpdate[ body_rotational_state_update ].push_back(
+                        stateDerivativeModel->getReferencePointId( ).first );
+            }
+
             break;
         }
         default:

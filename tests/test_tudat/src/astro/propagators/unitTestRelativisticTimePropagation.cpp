@@ -652,10 +652,12 @@ BOOST_AUTO_TEST_CASE( testProgressiveComplexityDiagnostic )
     }
 }
 
-// Original strict one-year test: Earth equator station, 100 s step,
-// detrended residual amplitude < 6 ns (matches Dominic's baseline after
-// the body-fixed vs inertial station-position fix at
-// setNumericallyIntegratedStates.h:1259).
+// Strict one-year test: Earth equator station, 100 s step. Detrended residual amplitude
+// observed at ~0.1 ns after the direct-from-metric station-rotation fix
+// (createEnvironmentUpdater.cpp, direct_from_metric case, now requesting
+// body_rotational_state_update for the reference body); tolerance 1 ns gives ~10x headroom.
+// (Was ~3.9 ns before that fix, with the body-fixed vs inertial station-position fix at
+// setNumericallyIntegratedStates.h:1259 already in place.)
 BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun )
 {
     loadStandardSpiceKernels( );
@@ -771,7 +773,7 @@ BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun 
     residuals.reserve( sampleTimes.capacity( ) );
 
     double sumTime = 0.0, sumResidual = 0.0, sumTimeSquared = 0.0, sumTimeResidual = 0.0;
-    const double residualAmplitudeTolerance = 6.0e-9;
+    const double residualAmplitudeTolerance = 1.0e-9;
 
     for( double currentTime = initialEphemerisTime + integrationStep; currentTime <= finalEphemerisTime - integrationStep;
          currentTime += integrationStep )
@@ -808,6 +810,369 @@ BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun 
 
     BOOST_CHECK( std::isfinite( amp ) );
     BOOST_CHECK_SMALL( amp, residualAmplitudeTolerance );
+}
+
+// Data-driven growing-complexity ladder comparing the direct-from-metric proper
+// time against the concatenated post-Newtonian chain (TCB->TCG first order +
+// body->topocentric). Each rung shares one configuration struct; the chain's
+// per-leg spherical-harmonic settings and the topocentric central-body SH degree
+// are derived from the single metric SH map so the two formulations stay
+// consistent by construction.
+//
+// The ladder climbs from an Earth point-mass case up to the lunar target:
+// Moon as central body (TCL at the lunar centre), Earth+Sun as perturbers, and a
+// lunar-surface station (the proper time underlying TL). The detrended residual
+// amplitude (direct - chain), with the irrelevant constant rate offset removed,
+// is the discrepancy of interest; the per-scenario note below records the
+// post-fix agreement (~10 ps on every rung) and the root cause / fix.
+BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
+{
+    loadStandardSpiceKernels( );
+
+    struct LadderScenario
+    {
+        std::string name;
+        std::string centralBody;
+        std::vector< std::string > perturbingBodies;               // external bodies for the chain (also metric bodies)
+        std::map< std::string, std::pair< int, int > > metricShOrders;  // SH degree/order per body in the metric
+        double centralBodyRadius;                                  // for the equatorial surface station
+        double durationDays;
+        double integrationStep;
+        double detrendedTolerance;                                 // <= 0 => report only (no hard assert)
+    };
+
+    const double earthRadius = 6378137.0;
+    const double moonRadius  = 1737400.0;
+
+    // Each rung is also compared against an independent analytic first-order truth rate
+    //   dtau/dt - 1 = -( 1/2 |v_st|^2 + sum_i GM_i/|r_st - r_i| ) / c^2
+    // integrated on the same grid (see "vs analytic 1st-order truth" below). Both the direct
+    // metric and the post-Newtonian chain now track that truth, and each other, to ~10 ps on
+    // every rung (Earth and Moon, point-mass and SH), including the lunar TCL/TL target (M2).
+    //
+    // This followed a fix to the direct-from-metric environment updater: for a ground-station
+    // reference point it now requests body_rotational_state_update for the central body
+    // (createEnvironmentUpdater.cpp, direct_from_metric case). Previously the station's
+    // body-fixed->inertial rotation was frozen at the initial epoch during integration, giving a
+    // ~us diurnal error on point-mass central bodies (E1 ~9.7us, M1 ~0.6us); a spherical-harmonic
+    // central body masked it because the SH-field update already pulled in the rotation. The
+    // chain was always immune (its topocentric calculator reads the rotational ephemeris directly
+    // each step). The metric VALUE itself was correct throughout (see
+    // testPointMassVsShMetricAtRotatingStation in unitTestSolarSystemMetric.cpp).
+    //
+    // Tolerances (1 ns) are hard regression guards on every rung, with ~25x headroom over the
+    // observed ~10-40 ps; the chain-vs-truth bound below is enforced identically.
+    const std::vector< LadderScenario > scenarios = {
+        { "E1_Earth_Sun_PointMass",
+          "Earth", { "Sun" }, {},
+          earthRadius, 30.0, 120.0, 1.0e-9 },
+        { "E2_Earth_Sun_EarthSH20",
+          "Earth", { "Sun" }, { { "Earth", { 20, 20 } } },
+          earthRadius, 30.0, 120.0, 1.0e-9 },
+        { "E3_Earth_SunMoon_EarthSH20_MoonSH2",
+          "Earth", { "Sun", "Moon" }, { { "Earth", { 20, 20 } }, { "Moon", { 2, 2 } } },
+          earthRadius, 30.0, 120.0, 1.0e-9 },
+        { "M1_Moon_EarthSun_PointMass",
+          "Moon", { "Earth", "Sun" }, {},
+          moonRadius, 30.0, 120.0, 1.0e-9 },
+        { "M2_Moon_EarthSun_MoonSH2",   // <- lunar target: TCL centre + TL surface, Moon SH(2,2)
+          "Moon", { "Earth", "Sun" }, { { "Moon", { 2, 2 } } },
+          moonRadius, 30.0, 120.0, 1.0e-9 }
+    };
+
+    // Configure a body's gravity field from the scenario SH map (FromFile SH when
+    // requested, point-mass otherwise) and strip time-variable gravity so the two
+    // environments are static and identical.
+    auto configureGravity = [ ]( BodyListSettings& bodySettings,
+                                 const std::string& body,
+                                 const std::map< std::string, std::pair< int, int > >& shOrders ) {
+        if( shOrders.count( body ) )
+        {
+            const int degree = shOrders.at( body ).first;
+            if( body == "Earth" )
+            {
+                bodySettings.at( body )->gravityFieldSettings =
+                        std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( ggm02c, degree );
+            }
+            else if( body == "Moon" )
+            {
+                bodySettings.at( body )->gravityFieldSettings =
+                        std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200, degree );
+            }
+            else
+            {
+                bodySettings.at( body )->gravityFieldSettings =
+                        std::make_shared< SpiceCentralGravityFieldSettings >( body );
+            }
+        }
+        else
+        {
+            bodySettings.at( body )->gravityFieldSettings =
+                    std::make_shared< SpiceCentralGravityFieldSettings >( body );
+        }
+        bodySettings.at( body )->bodyDeformationSettings.clear( );
+        bodySettings.at( body )->gravityFieldVariationSettings.clear( );
+    };
+
+    for( const LadderScenario& scenario : scenarios )
+    {
+        std::cout << "\n=== " << scenario.name << " ===" << std::endl;
+
+        const double duration = scenario.durationDays * physical_constants::JULIAN_DAY;
+        const double initialEphemerisTime = -0.5 * duration;
+        const double finalEphemerisTime = 0.5 * duration;
+        const double integrationStep = scenario.integrationStep;
+        const double buffer = 5.0 * integrationStep;
+        const std::string stationName = "LadderStation";
+
+        // Body list: central body + perturbers (unique), metric evaluates over all of them.
+        std::vector< std::string > bodyNames{ scenario.centralBody };
+        for( const std::string& body : scenario.perturbingBodies )
+        {
+            if( std::find( bodyNames.begin( ), bodyNames.end( ), body ) == bodyNames.end( ) )
+            {
+                bodyNames.push_back( body );
+            }
+        }
+
+        // Derive the chain's per-leg SH config from the single metric SH map:
+        //  - TCB->TCG perturber SH: any perturber that carries SH in the metric;
+        //  - topocentric central-body SH degree: the central body's metric SH degree.
+        std::map< std::string, std::pair< int, int > > chainPerturberShOrders;
+        for( const std::string& body : scenario.perturbingBodies )
+        {
+            if( scenario.metricShOrders.count( body ) )
+            {
+                chainPerturberShOrders[ body ] = scenario.metricShOrders.at( body );
+            }
+        }
+        const int topoCentralShDegree =
+                scenario.metricShOrders.count( scenario.centralBody ) ?
+                scenario.metricShOrders.at( scenario.centralBody ).first : 0;
+
+        auto bodySettings = getDefaultBodySettings(
+                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+        // Sun always a point mass; other bodies per the SH map.
+        bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
+        bodySettings.at( "Sun" )->bodyDeformationSettings.clear( );
+        bodySettings.at( "Sun" )->gravityFieldVariationSettings.clear( );
+        for( const std::string& body : bodyNames )
+        {
+            if( body != "Sun" )
+            {
+                configureGravity( bodySettings, body, scenario.metricShOrders );
+            }
+        }
+
+        const Eigen::Vector3d equatorStationPosition =
+                ( Eigen::Vector3d( ) <<
+                  scenario.centralBodyRadius / std::sqrt( 2.0 ),
+                  scenario.centralBodyRadius / std::sqrt( 2.0 ),
+                  0.0 ).finished( );
+        std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStations;
+        groundStations[ std::make_pair( scenario.centralBody, stationName ) ] = equatorStationPosition;
+
+        SystemOfBodies bodiesDirect = createSystemOfBodies( bodySettings );
+        SystemOfBodies bodiesPn = createSystemOfBodies( bodySettings );
+        createGroundStations( bodiesDirect, groundStations );
+        createGroundStations( bodiesPn, groundStations );
+
+        for( const std::string& body : bodyNames )
+        {
+            if( bodiesDirect.doesBodyExist( body ) )
+            {
+                bodiesDirect.getBody( body )->setStateFromEphemeris( initialEphemerisTime );
+            }
+            if( bodiesPn.doesBodyExist( body ) )
+            {
+                bodiesPn.getBody( body )->setStateFromEphemeris( initialEphemerisTime );
+            }
+        }
+        bodiesDirect.getBody( scenario.centralBody )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
+        bodiesPn.getBody( scenario.centralBody )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
+
+        auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
+        auto intSetDirect = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+        auto intSetTcb = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+        auto intSetTopo = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+
+        // --- Direct-from-metric: SolarSystemMetric over all bodies, evaluated at the station. ---
+        auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
+                bodyNames,
+                std::vector< std::string >( ),
+                scenario.metricShOrders,
+                std::vector< std::string >( ),
+                false );
+        auto baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
+        evaluatedMetricObjects.clear( );
+        evaluatedMetricObjects[ std::make_pair( scenario.centralBody, stationName ) ] = baseMetric->Clone( );
+
+        auto directFromMetricSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
+                std::make_pair( scenario.centralBody, stationName ),
+                initialEphemerisTime, intSetDirect, terminationSettings );
+        directFromMetricSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > directDynamicsSimulator( bodiesDirect, directFromMetricSettings, true );
+
+        // --- PN chain: TCB->TCG (first order) then body->topocentric. ---
+        auto firstOrderPnSettings =
+                std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< double, double > >(
+                        scenario.centralBody, scenario.perturbingBodies,
+                        initialEphemerisTime, intSetTcb, terminationSettings, chainPerturberShOrders );
+        firstOrderPnSettings->getOutputSettings( )->setIntegratedResult( true );
+
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialRelativisticState =
+                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 1 );
+        auto bodyToTopoSettings =
+                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
+                        std::make_pair( scenario.centralBody, stationName ),
+                        false,  // acceleration term off (IBP-paired with the -v_E.r/c^2 direct correction)
+                        topoCentralShDegree,
+                        false,
+                        scenario.perturbingBodies,
+                        initialRelativisticState,
+                        initialEphemerisTime, intSetTopo, terminationSettings );
+        bodyToTopoSettings->getOutputSettings( )->setIntegratedResult( true );
+
+        SingleArcDynamicsSimulator< double > barycentricPnDynamicsSimulator( bodiesPn, firstOrderPnSettings, true );
+        SingleArcDynamicsSimulator< double > topocentricPnDynamicsSimulator( bodiesPn, bodyToTopoSettings, true );
+
+        auto timeEphemerisDirect = bodiesDirect.getBody( scenario.centralBody )->getTimeScaleConverter( );
+        auto timeEphemerisPn = bodiesPn.getBody( scenario.centralBody )->getTimeScaleConverter( );
+        BOOST_REQUIRE_NE( timeEphemerisDirect, nullptr );
+        BOOST_REQUIRE_NE( timeEphemerisPn, nullptr );
+
+        const auto directFunction = timeEphemerisDirect->getTimeDifferenceFunction(
+                barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
+        const auto pnFunction = timeEphemerisPn->getTimeDifferenceFunction(
+                barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
+
+        // Station-position term (reported for context, NOT subtracted): the body-fixed-vs-
+        // inertial difference delta(t) = -v_C * ( R(t)*y - y ) / c^2, where v_C is the central
+        // body's barycentric velocity and R(t) its rotation to the inertial frame. The
+        // converters already apply this correction on the SH path (raw residual << |delta|);
+        // it is shown only to gauge whether a rung's residual is dominated by it.
+        auto centralEphemeris = bodiesDirect.getBody( scenario.centralBody )->getEphemeris( );
+        auto centralRotation = bodiesDirect.getBody( scenario.centralBody )->getRotationalEphemeris( );
+        const double inv_c2 = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+        auto stationPositionTerm = [ & ]( const double t ) {
+            const Eigen::Vector3d velocityCentral = centralEphemeris->getCartesianState( t ).segment( 3, 3 );
+            const Eigen::Matrix3d rotationToInertial = centralRotation->getRotationToBaseFrame( t ).toRotationMatrix( );
+            const Eigen::Vector3d stationInertial = rotationToInertial * equatorStationPosition;
+            return -velocityCentral.dot( stationInertial - equatorStationPosition ) * inv_c2;
+        };
+
+        std::vector< double > sampleTimes, residualsRaw, stationTermValues;
+        double maxAbsRaw = 0.0;
+        for( double currentTime = initialEphemerisTime + integrationStep;
+             currentTime <= finalEphemerisTime - integrationStep;
+             currentTime += integrationStep )
+        {
+            const double raw = directFunction( currentTime ) - pnFunction( currentTime );
+            sampleTimes.push_back( currentTime );
+            residualsRaw.push_back( raw );
+            stationTermValues.push_back( stationPositionTerm( currentTime ) );
+            maxAbsRaw = std::max( maxAbsRaw, std::fabs( raw ) );
+        }
+        BOOST_REQUIRE( !residualsRaw.empty( ) );
+
+        // Linear detrend (remove the physically irrelevant constant rate offset) and report the
+        // remaining periodic amplitude.
+        auto detrend = [ & ]( const std::vector< double >& residuals ) {
+            double sumTime = 0.0, sumResidual = 0.0, sumTimeSquared = 0.0, sumTimeResidual = 0.0;
+            for( size_t i = 0; i < sampleTimes.size( ); ++i )
+            {
+                sumTime += sampleTimes[ i ]; sumResidual += residuals[ i ];
+                sumTimeSquared += sampleTimes[ i ] * sampleTimes[ i ];
+                sumTimeResidual += sampleTimes[ i ] * residuals[ i ];
+            }
+            const double N = static_cast< double >( residuals.size( ) );
+            const double den = N * sumTimeSquared - sumTime * sumTime;
+            const double slope = std::fabs( den ) > std::numeric_limits< double >::epsilon( ) ?
+                    ( N * sumTimeResidual - sumTime * sumResidual ) / den : 0.0;
+            const double offset = ( sumResidual - slope * sumTime ) / N;
+            double amplitude = 0.0;
+            for( size_t i = 0; i < residuals.size( ); ++i )
+            {
+                amplitude = std::max( amplitude, std::fabs( residuals[ i ] - ( offset + slope * sampleTimes[ i ] ) ) );
+            }
+            return std::make_tuple( slope, offset, amplitude );
+        };
+
+        const auto [ slopeRaw, offsetRaw, amplitudeRaw ] = detrend( residualsRaw );
+        const auto [ slopeStation, offsetStation, amplitudeStation ] = detrend( stationTermValues );
+        ( void ) slopeStation; ( void ) offsetStation;
+
+        std::cout << std::scientific << std::setprecision( 3 )
+                  << "  samples=" << residualsRaw.size( ) << std::endl
+                  << "  raw (direct - chain):  slope=" << slopeRaw
+                  << " s/s  offset=" << offsetRaw << " s  max|raw|=" << maxAbsRaw
+                  << " s  det_amp=" << amplitudeRaw << " s" << std::endl
+                  << "  station-position term |delta| det_amp=" << amplitudeStation << " s (context)";
+        if( scenario.detrendedTolerance > 0.0 )
+        {
+            std::cout << "  tol=" << scenario.detrendedTolerance << " s (on raw)";
+        }
+        std::cout << std::endl;
+
+        BOOST_CHECK( std::isfinite( amplitudeRaw ) );
+        BOOST_CHECK( std::isfinite( amplitudeStation ) );
+        if( scenario.detrendedTolerance > 0.0 )
+        {
+            BOOST_CHECK_SMALL( amplitudeRaw, scenario.detrendedTolerance );
+        }
+
+        // DIAG: which side is wrong? Reconstruct the analytic first-order proper-time rate at the
+        // rotating station, rate(t) = -( 1/2 |v_st|^2 + sum_i GM_i/|r_st - r_i| ) / c^2, integrate it
+        // (trapezoid) on the same grid, and compare against BOTH converters. The correct side tracks
+        // this truth (to ~ns 2nd-order level); the buggy side shows the us-scale deviation.
+        std::vector< std::function< Eigen::Vector6d( double ) > > bodyStateFns;
+        std::vector< double > bodyGms;
+        for( const std::string& body : bodyNames )
+        {
+            bodyStateFns.push_back( [ &, body ]( double t ) {
+                return bodiesDirect.getBody( body )->getEphemeris( )->getCartesianState( t ); } );
+            bodyGms.push_back( bodiesDirect.getBody( body )->getGravityFieldModel( )->getGravitationalParameter( ) );
+        }
+        auto truthRate = [ & ]( const double t ) {
+            const Eigen::Vector6d centralState = centralEphemeris->getCartesianState( t );
+            const Eigen::Matrix3d rotationToInertial = centralRotation->getRotationToBaseFrame( t ).toRotationMatrix( );
+            const Eigen::Vector3d stationInertial = rotationToInertial * equatorStationPosition;
+            const Eigen::Vector3d omega = centralRotation->getRotationalVelocityVectorInBaseFrame( t );
+            const Eigen::Vector3d stationBcrsPos = centralState.segment( 0, 3 ) + stationInertial;
+            const Eigen::Vector3d stationBcrsVel = centralState.segment( 3, 3 ) + omega.cross( stationInertial );
+            double potential = 0.0;
+            for( size_t b = 0; b < bodyStateFns.size( ); ++b )
+            {
+                potential += bodyGms[ b ] / ( stationBcrsPos - bodyStateFns[ b ]( t ).segment( 0, 3 ) ).norm( );
+            }
+            return -( 0.5 * stationBcrsVel.squaredNorm( ) + potential ) * inv_c2;
+        };
+        std::vector< double > truthCumulative( sampleTimes.size( ), 0.0 );
+        for( size_t i = 1; i < sampleTimes.size( ); ++i )
+        {
+            truthCumulative[ i ] = truthCumulative[ i - 1 ] +
+                    0.5 * ( truthRate( sampleTimes[ i ] ) + truthRate( sampleTimes[ i - 1 ] ) ) *
+                    ( sampleTimes[ i ] - sampleTimes[ i - 1 ] );
+        }
+        std::vector< double > directVsTruth( sampleTimes.size( ) ), chainVsTruth( sampleTimes.size( ) );
+        for( size_t i = 0; i < sampleTimes.size( ); ++i )
+        {
+            directVsTruth[ i ] = directFunction( sampleTimes[ i ] ) - truthCumulative[ i ];
+            chainVsTruth[ i ]  = pnFunction( sampleTimes[ i ] ) - truthCumulative[ i ];
+        }
+        const auto [ sD, oD, ampDirectVsTruth ] = detrend( directVsTruth );
+        const auto [ sC, oC, ampChainVsTruth ] = detrend( chainVsTruth );
+        ( void ) sD; ( void ) oD; ( void ) sC; ( void ) oC;
+        std::cout << "  vs analytic 1st-order truth:  direct det_amp=" << ampDirectVsTruth
+                  << " s   chain det_amp=" << ampChainVsTruth << " s" << std::endl;
+
+        // Strong validation, enforced on EVERY rung (Earth and Moon): the post-Newtonian chain
+        // must track the independent analytic first-order proper-time integral to sub-ns. This is
+        // the cross-check that isolates the direct-from-metric point-mass defect to the direct side.
+        BOOST_CHECK( std::isfinite( ampDirectVsTruth ) );
+        BOOST_CHECK( std::isfinite( ampChainVsTruth ) );
+        BOOST_CHECK_SMALL( ampChainVsTruth, 1.0e-9 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
