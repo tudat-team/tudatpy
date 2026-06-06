@@ -1066,7 +1066,7 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
-            ext = ".pyd" if platform == "win32" else ".so"
+            ext = ".lib" if platform == "win32" else ".so"
             shutil.copy(
                 self.extension_source_dir / f"kernel{ext}",
                 mock_prefix / f"tudatpy/kernel{ext}",

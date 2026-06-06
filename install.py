@@ -255,7 +255,7 @@ class Installer:
             self.link_content(
                 self.build_dir / "src/tudatpy",
                 self.pylib_dir / "tudatpy",
-                [".so", ".dll", ".dylib", ".pyd"],
+                [".so", ".dll", ".dylib", ".lib"],
             )
 
             # Install stubs
