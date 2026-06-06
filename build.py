@@ -8,6 +8,7 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+import importlib.machinery
 
 
 @dataclass
@@ -1065,9 +1066,12 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
+            # Get the extension suffix for compiled modules on the current OS
+            # (Windows = '.pyd', Linux/macOS/WSL = '.so')
+            ext = importlib.machinery.EXTENSION_SUFFIXES[0]
             shutil.copy(
-                self.extension_source_dir / "kernel.so",
-                mock_prefix / "tudatpy/kernel.so",
+                self.extension_source_dir / f"kernel{ext}",
+                mock_prefix / f"tudatpy/kernel{ext}",
             )
 
             # Create mock environment with tudatpy in PYTHONPATH
