@@ -42,6 +42,9 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
         case receiver:
             linkEndString = "receiver";
             break;
+        case receiver2:
+            linkEndString = "receiver_2";
+            break;
         case observed_body:
             linkEndString = "observed body";
             break;

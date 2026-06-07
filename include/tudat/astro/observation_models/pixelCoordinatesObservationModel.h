@@ -13,12 +13,15 @@
 
 #include <cmath>
 #include <map>
-#include <functional>
+#include <memory>
+#include <stdexcept>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
-#include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/system_models/camera.h"
 
 namespace tudat
@@ -32,8 +35,8 @@ namespace observation_models
  *  Class for simulating camera pixel observables, using light-time (with light-time corrections)
  *  to determine the states of the link ends (source and receiver).
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
- *  The mapping from relative inertial position to pixel coordinates can be obtained from a tudat::system_models::Camera object, or be
- * defined as a custom function.
+ *  The camera maps body-fixed relative positions to pixel coordinates; the receiver body's rotational ephemeris maps inertial relative
+ *  positions to the receiver body-fixed frame.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PixelCoordinatesObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
@@ -54,6 +57,7 @@ public:
             const LinkEnds linkEnds,
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< system_models::Camera > camera,
+            const std::shared_ptr< ephemerides::RotationalEphemeris > receiverBodyRotationalEphemeris,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
             const bool correctForStellarAberration = false ):
         ObservationModel< 2, ObservationScalarType, TimeType >(
@@ -66,8 +70,19 @@ public:
                                 lightTimeCalculator },
                         std::make_shared< LightTimeConvergenceCriteria >( ),
                         false ) } ),
-        lightTimeCalculator_( lightTimeCalculator ), camera_( camera ), correctForStellarAberration_( correctForStellarAberration )
-    {}
+        lightTimeCalculator_( lightTimeCalculator ), camera_( camera ), receiverBodyRotationalEphemeris_( receiverBodyRotationalEphemeris ),
+        correctForStellarAberration_( correctForStellarAberration )
+    {
+        if( camera_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating pixel coordinates observation model: camera is nullptr." );
+        }
+        if( receiverBodyRotationalEphemeris_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating pixel coordinates observation model: receiver body does not have a rotational ephemeris." );
+        }
+    }
 
     //! Destructor
     ~PixelCoordinatesObservationModel( ) {}
@@ -130,8 +145,17 @@ public:
                     observerState.segment( 3, 3 ).template cast< double >( ) / physical_constants::SPEED_OF_LIGHT );
         }
 
-        Eigen::Vector2d pixelCoordinates =
-                camera_->calculateObservableFromInertial( inertialDirectionToProject, static_cast< double >( time ) );
+        Eigen::Vector2d pixelCoordinates;
+        if( camera_->hasRotationFromInertialToCameraFrameFunction( ) )
+        {
+            pixelCoordinates = camera_->calculateObservableFromInertial( inertialDirectionToProject, static_cast< double >( time ) );
+        }
+        else
+        {
+            pixelCoordinates = camera_->calculateObservableFromInertial(
+                    inertialDirectionToProject,
+                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ) );
+        }
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }
 
@@ -167,6 +191,9 @@ protected:
 
     //! Camera object to map relative position of source and receiver to camera pixel coordinates.
     std::shared_ptr< system_models::Camera > camera_;
+
+    //! Rotational ephemeris of the camera host body.
+    std::shared_ptr< ephemerides::RotationalEphemeris > receiverBodyRotationalEphemeris_;
 
     //! If true, project the apparent incoming direction obtained from the geometric light-time direction and receiver velocity.
     bool correctForStellarAberration_;

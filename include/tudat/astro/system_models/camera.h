@@ -11,16 +11,15 @@
 #define TUDAT_CAMERA_H
 
 #include <cmath>
-#include <string>
 #include <functional>
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
-#include <tudat/astro/ephemerides/rotationalEphemeris.h>
 
 namespace tudat
 {
@@ -111,9 +110,10 @@ public:
 private:
     void validateProjectionDirection( const Eigen::Vector3d& cameraFrameVector ) const
     {
-        if( std::fabs( cameraFrameVector.z( ) ) <= std::numeric_limits< double >::epsilon( ) )
+        if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
-            throw std::runtime_error( "Error when projecting camera-frame vector: z-component is zero." );
+            throw std::runtime_error(
+                    "Error when projecting camera-frame vector: observed point is behind the camera or too close to the focal plane." );
         }
     }
 
@@ -219,9 +219,10 @@ private:
         {
             throw std::runtime_error( "Error when projecting with PSF camera model: focal length is zero." );
         }
-        if( std::fabs( cameraFrameVector.z( ) ) <= std::numeric_limits< double >::epsilon( ) )
+        if( cameraFrameVector.z( ) <= std::numeric_limits< double >::epsilon( ) )
         {
-            throw std::runtime_error( "Error when projecting PSF camera-frame vector: z-component is zero." );
+            throw std::runtime_error(
+                    "Error when projecting PSF camera-frame vector: observed point is behind the camera or too close to the focal plane." );
         }
     }
 
@@ -275,29 +276,23 @@ public:
      *  \param rotationFromBodyFixedToCameraFrame Rotation from body-fixed frame to camera frame.
      *  \param focal_lengths Focal lengths in x and y directions [px].
      *  \param optical_center Optical center of the camera [px].
-     *  \param bodyRotationalEphemeris Rotational ephemeris of the body to which the camera is fixed.
-     *  which can be used to determine the rotation from inertial to body fixed frame at a given time.
      */
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
             std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris = nullptr,
             std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
         projectionModel_( std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) ),
-        bodyRotationalEphemeris_( bodyRotationalEphemeris ),
         rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {}
 
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             const std::shared_ptr< CameraProjectionModel > projectionModel,
-            std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris = nullptr,
             std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( projectionModel ), bodyRotationalEphemeris_( bodyRotationalEphemeris ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
     {
         if( projectionModel_ == nullptr )
         {
@@ -313,19 +308,24 @@ public:
         return cameraId_;
     }
 
-    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( )
+    Eigen::DiagonalMatrix< double, 2 > getFocalLengthsMatrix( ) const
     {
         return projectionModel_->getFocalLengthsMatrix( );
     }
 
-    Eigen::Vector2d getOpticalCenter( )
+    Eigen::Vector2d getOpticalCenter( ) const
     {
         return projectionModel_->getOpticalCenter( );
     }
 
-    std::shared_ptr< CameraProjectionModel > getProjectionModel( )
+    std::shared_ptr< CameraProjectionModel > getProjectionModel( ) const
     {
         return projectionModel_;
+    }
+
+    bool hasRotationFromInertialToCameraFrameFunction( ) const
+    {
+        return static_cast< bool >( rotationFromInertialToCameraFrameFunction_ );
     }
 
     /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
@@ -336,20 +336,20 @@ public:
         return rotationFromBodyFixedToCameraFrame_;
     }
 
+    Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
+    {
+        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame;
+    }
+
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
     {
-        if( rotationFromInertialToCameraFrameFunction_ )
-        {
-            return rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch );
-        }
-        if( bodyRotationalEphemeris_ == nullptr )
+        if( !rotationFromInertialToCameraFrameFunction_ )
         {
             throw std::runtime_error(
-                    "Error when calculating rotation from inertial to camera frame: no rotational ephemeris provided for the body "
-                    "using the camera." );
+                    "Error when calculating rotation from inertial to camera frame: no direct inertial-to-camera rotation function was "
+                    "provided for the camera." );
         }
-        Eigen::Quaterniond rotationFromInertialToBodyFixed = bodyRotationalEphemeris_->getRotationToTargetFrame( secondsSinceEpoch );
-        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixed;
+        return rotationFromInertialToCameraFrameFunction_( secondsSinceEpoch );
     }
 
     /*! \brief Calculate the observable position of a body in the camera frame.
@@ -377,27 +377,23 @@ public:
         return projectionModel_->getPixelLinePartialWrtCameraFramePosition( positionOfObservedBodyInCameraFrame );
     }
 
-    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the time at which this position is valid.
+    /*! \brief Calculate the observable position of a body in the camera frame, given its position in the observer centered inertial frame and the inertial-to-body-fixed rotation.
      *  \param positionOfObservedBodyInInertialFrame Position of the observed body in the observer centered inertial frame.
-     *  \param secondsSinceEpoch Seconds since Julian day reference epoch at which the position of the observed body is valid.
+     *  \param rotationFromInertialToBodyFixedFrame Rotation from inertial frame to the body-fixed frame of the camera host body.
      *  \return The observable position in the camera frame.
      */
     Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
+                                                     const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
+    {
+        Eigen::Vector3d positionOfObservedBodyInBodyFrame = rotationFromInertialToBodyFixedFrame * positionOfObservedBodyInInertialFrame;
+        return calculateObservableFromBodyFixed( positionOfObservedBodyInBodyFrame );
+    }
+
+    Eigen::Vector2d calculateObservableFromInertial( const Eigen::Vector3d& positionOfObservedBodyInInertialFrame,
                                                      const double secondsSinceEpoch ) const
     {
-        if( bodyRotationalEphemeris_ == nullptr )
-        {
-            if( !rotationFromInertialToCameraFrameFunction_ )
-            {
-                throw std::runtime_error(
-                        "Error when calculating observable: no rotational ephemeris or direct inertial-to-camera rotation function "
-                        "provided "
-                        "for the body using the camera." );
-            }
-        }
-        Eigen::Vector3d positionOfObservedBodyInCameraFrame =
-                getRotationFromInertialToCameraFrame( secondsSinceEpoch ) * positionOfObservedBodyInInertialFrame;
-        return projectionModel_->projectUnitVectorToPixelLine( positionOfObservedBodyInCameraFrame );
+        return projectionModel_->projectUnitVectorToPixelLine( getRotationFromInertialToCameraFrame( secondsSinceEpoch ) *
+                                                               positionOfObservedBodyInInertialFrame );
     }
 
 private:
@@ -418,9 +414,6 @@ private:
 
     //! Projection model mapping camera-frame directions to pixel/line coordinates.
     std::shared_ptr< CameraProjectionModel > projectionModel_;
-
-    //! Shared pointer to a rotational ephemeris of the body, which can be used to determine the rotation from inertial to body fixed frame at a given time.
-    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > bodyRotationalEphemeris_;
 
     //! Optional direct rotation from inertial to camera frame, used for picture-specific camera pointing data.
     std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;

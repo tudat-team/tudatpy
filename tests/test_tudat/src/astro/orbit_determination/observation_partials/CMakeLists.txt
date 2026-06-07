@@ -55,6 +55,12 @@ TUDAT_ADD_TEST_CASE(AzimuthElevationPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(PixelCoordinatesPartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(PositionPartials
         PRIVATE_LINKS
         tudat_test_support
