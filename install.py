@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import subprocess
+import sysconfig
 
 
 class InstallParser(argparse.ArgumentParser):
@@ -71,12 +72,7 @@ class Installer:
             raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Resolve pylib destination directory
-        self.pylib_dir = (
-            Path(sys.exec_prefix)
-            / sys.platlibdir
-            / f"python{sys.version_info.major}.{sys.version_info.minor}"
-            / "site-packages"
-        )
+        self.pylib_dir = Path(sysconfig.get_path("purelib"))
         if not self.pylib_dir.exists():
             raise FileNotFoundError(f"Python library directory {self.pylib_dir} does not exist.")
 
