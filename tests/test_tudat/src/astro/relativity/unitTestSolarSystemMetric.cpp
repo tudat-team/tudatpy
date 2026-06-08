@@ -12,6 +12,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 #include <vector>
@@ -256,6 +258,203 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicGravityInMetric )
             }
         }
     }
+}
+
+// Evaluate the metric VALUE directly (no propagator/converter) at a genuinely rotating
+// ground-station BCRS state over a day, for a point-mass central body (no SH wrapper) vs an SH
+// central body. This guards the metric-value path the direct-from-metric propagator relies on:
+//   (a) the point-mass perturbation matches the analytic post-Newtonian form at every epoch;
+//   (b) the central-body distance is rotation-invariant (constant station radius);
+//   (c) the point-mass and SH perturbations differ only by a TIME-CONSTANT (the SH J2 term),
+//       i.e. neither carries a spurious diurnal term.
+BOOST_AUTO_TEST_CASE( testPointMassVsShMetricAtRotatingStation )
+{
+    loadStandardSpiceKernels( );
+
+    const double t0 = 1.0E7;
+    const double buffer = 5.0 * 3600.0;
+    const std::vector< std::string > bodyNames{ "Sun", "Earth" };
+    const double inv_c2 = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    const double inv_c4 = inv_c2 * inv_c2;
+
+    // Two environments sharing identical ephemerides/rotation; only Earth's gravity-field TYPE differs.
+    auto makeBodies = [ & ]( const bool earthAsPointMass ) {
+        BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, t0 - buffer, t0 + 26.0 * 3600.0 + buffer );
+        bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
+        if( earthAsPointMass )
+        {
+            bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Earth" );
+        }
+        bodySettings.at( "Earth" )->bodyDeformationSettings.clear( );
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+        return createSystemOfBodies( bodySettings );
+    };
+
+    SystemOfBodies bodiesPm = makeBodies( true );
+    SystemOfBodies bodiesSh = makeBodies( false );
+
+    auto pmMetric = createSpaceTimeMetric(
+            std::make_shared< SolarSystemSpaceTimeMetricSettings >( bodyNames,
+                                                                    std::vector< std::string >( ),
+                                                                    std::map< std::string, std::pair< int, int > >( ),
+                                                                    std::vector< std::string >( ) ),
+            bodiesPm );
+    auto shMetric = createSpaceTimeMetric(
+            std::make_shared< SolarSystemSpaceTimeMetricSettings >( bodyNames,
+                                                                    std::vector< std::string >( ),
+                                                                    std::map< std::string, std::pair< int, int > >{ { "Earth", { 2, 2 } } },
+                                                                    std::vector< std::string >( ) ),
+            bodiesSh );
+
+    const double earthGm = bodiesPm.getBody( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const double sunGm = bodiesPm.getBody( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    const double earthRadius = 6378137.0;
+    const Eigen::Vector3d stationBodyFixed =
+            ( Eigen::Vector3d( ) << earthRadius / std::sqrt( 2.0 ), earthRadius / std::sqrt( 2.0 ), 0.0 ).finished( );
+
+    double firstH00Difference = 0.0;
+    double maxH00DifferenceVariation = 0.0;
+    for( int hour = 0; hour <= 26; ++hour )
+    {
+        const double t = t0 + hour * 3600.0;
+        for( SystemOfBodies* bodies : { &bodiesPm, &bodiesSh } )
+        {
+            bodies->getBody( "Sun" )->setStateFromEphemeris( t );
+            bodies->getBody( "Earth" )->setStateFromEphemeris( t );
+            bodies->getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( t );
+        }
+        auto earthRot = bodiesPm.getBody( "Earth" )->getRotationalEphemeris( );
+        const Eigen::Matrix3d R = earthRot->getRotationToBaseFrame( t ).toRotationMatrix( );
+        const Eigen::Vector3d omega = earthRot->getRotationalVelocityVectorInBaseFrame( t );
+        const Eigen::Vector6d earthState = bodiesPm.getBody( "Earth" )->getState( );
+        const Eigen::Vector6d sunState = bodiesPm.getBody( "Sun" )->getState( );
+        const Eigen::Vector3d stationInertial = R * stationBodyFixed;
+        Eigen::Vector6d stationState;
+        stationState.segment( 0, 3 ) = earthState.segment( 0, 3 ) + stationInertial;
+        stationState.segment( 3, 3 ) = earthState.segment( 3, 3 ) + omega.cross( stationInertial );
+
+        pmMetric->update( stationState, t, true, false );
+        shMetric->update( stationState, t, true, false );
+        const Eigen::Matrix4d hPm = pmMetric->getCurrentCovariantMetricPeturbation( );
+        const Eigen::Matrix4d hSh = shMetric->getCurrentCovariantMetricPeturbation( );
+
+        // (a) Point-mass perturbation vs analytic post-Newtonian form (beta=gamma=1):
+        //     h00 = 2 U/c^2 - 2 (sum U_i^2)/c^4 ;  h_ii = 2 U/c^2 ;  h_0i = -4 w_i/c^3.
+        const double uEarth = earthGm / ( stationState.segment( 0, 3 ) - earthState.segment( 0, 3 ) ).norm( );
+        const double uSun = sunGm / ( stationState.segment( 0, 3 ) - sunState.segment( 0, 3 ) ).norm( );
+        const double uTotal = uEarth + uSun;
+        const double uSquaredSum = uEarth * uEarth + uSun * uSun;
+        const Eigen::Vector3d vectorPotential = uEarth * earthState.segment( 3, 3 ) + uSun * sunState.segment( 3, 3 );
+
+        const double expectedH00 = 2.0 * ( uTotal * inv_c2 - uSquaredSum * inv_c4 );
+        BOOST_CHECK_CLOSE_FRACTION( hPm( 0, 0 ), expectedH00, 1.0E-12 );
+        for( int i = 1; i < 4; ++i )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( hPm( i, i ), 2.0 * uTotal * inv_c2, 1.0E-12 );
+        }
+        const Eigen::Vector3d expectedSpaceTime = -4.0 * vectorPotential * inv_c2 / physical_constants::SPEED_OF_LIGHT;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( hPm.block( 1, 0, 3, 1 ), expectedSpaceTime, 1.0E-10 );
+
+        // (b) Central-body (Earth) distance is rotation-invariant: equals the station radius.
+        auto pmSolar = std::dynamic_pointer_cast< SolarSystemMetric >( pmMetric );
+        BOOST_CHECK_CLOSE_FRACTION( pmSolar->getCurrentBodyDistance( 1 ), earthRadius, 1.0E-9 );
+
+        // (c) Point-mass vs SH h00 differ only by a TIME-CONSTANT (the SH J2 term).
+        const double h00Difference = hPm( 0, 0 ) - hSh( 0, 0 );
+        if( hour == 0 )
+        {
+            firstH00Difference = h00Difference;
+        }
+        maxH00DifferenceVariation = std::max( maxH00DifferenceVariation, std::fabs( h00Difference - firstH00Difference ) );
+    }
+    // The SH J2 contribution to h00 is ~7.5e-13; its variation over a day must be far below that.
+    BOOST_CHECK_SMALL( maxH00DifferenceVariation, 1.0E-16 );
+}
+
+// Analytic vs numeric partials: the SolarSystemMetric computes analytic position- and
+// time-partials of the scalar potential (updatePotentialPartials, used to build the Christoffel
+// symbols). Validate them against central finite differences of the scalar-potential VALUE.
+BOOST_AUTO_TEST_CASE( testSolarSystemMetricPotentialPartialsAgainstFiniteDifferences )
+{
+    loadStandardSpiceKernels( );
+
+    const double t0 = 1.0E7;
+    const double buffer = 5.0 * 3600.0;
+    const std::vector< std::string > bodyNames{ "Sun", "Earth" };
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, t0 - buffer, t0 + buffer );
+    bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Earth" );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.clear( );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    auto metric = std::dynamic_pointer_cast< SolarSystemMetric >( createSpaceTimeMetric(
+            std::make_shared< SolarSystemSpaceTimeMetricSettings >( bodyNames,
+                                                                    std::vector< std::string >( ),
+                                                                    std::map< std::string, std::pair< int, int > >( ),
+                                                                    std::vector< std::string >( ) ),
+            bodies ) );
+    BOOST_REQUIRE( metric != nullptr );
+
+    auto tickBodies = [ & ]( const double t ) {
+        bodies.getBody( "Sun" )->setStateFromEphemeris( t );
+        bodies.getBody( "Earth" )->setStateFromEphemeris( t );
+    };
+
+    // Evaluation point: a fixed BCRS position offset from Earth at a low-orbit-like radius, where
+    // the scalar-potential gradient is large enough that a 1 m position step is roundoff-clean.
+    tickBodies( t0 );
+    Eigen::Vector6d evaluationState = Eigen::Vector6d::Zero( );
+    evaluationState.segment( 0, 3 ) =
+            bodies.getBody( "Earth" )->getState( ).segment( 0, 3 ) + ( Eigen::Vector3d( ) << 7.0E6, 1.0E6, 2.0E6 ).finished( );
+
+    // Analytic partials (populated by the Christoffel update).
+    metric->update( evaluationState, t0, true, true );
+    const Eigen::Vector3d analyticPositionPartial = metric->getCurrentScalarPotentialPositionPartial( );
+    const double analyticTimePartial = metric->getCurrentScalarPotentialTimePartial( );
+
+    auto scalarPotentialAt = [ & ]( const Eigen::Vector6d& state, const double t ) {
+        metric->update( state, t, true, false );
+        return metric->getCurrentScalarPotential( );
+    };
+    // 4th-order central difference: f'(x) = [ -f(x+2h) + 8 f(x+h) - 8 f(x-h) + f(x-2h) ] / (12 h).
+    auto fourthOrder = [ ]( const double fm2, const double fm1, const double fp1, const double fp2, const double h ) {
+        return ( -fp2 + 8.0 * fp1 - 8.0 * fm1 + fm2 ) / ( 12.0 * h );
+    };
+
+    // Numeric position partial: perturb the evaluation point (bodies fixed at t0).
+    const double positionStep = 1.0;  // m
+    Eigen::Vector3d numericPositionPartial;
+    tickBodies( t0 );
+    for( int axis = 0; axis < 3; ++axis )
+    {
+        auto shifted = [ & ]( const double delta ) {
+            Eigen::Vector6d s = evaluationState;
+            s( axis ) += delta;
+            return scalarPotentialAt( s, t0 );
+        };
+        numericPositionPartial( axis ) = fourthOrder( shifted( -2.0 * positionStep ),
+                                                      shifted( -positionStep ),
+                                                      shifted( positionStep ),
+                                                      shifted( 2.0 * positionStep ),
+                                                      positionStep );
+    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticPositionPartial, numericPositionPartial, 1.0E-7 );
+
+    // Numeric time partial: perturb time (move the bodies), evaluation point fixed.
+    const double timeStep = 1.0;  // s
+    auto potentialAtTime = [ & ]( const double dt ) {
+        tickBodies( t0 + dt );
+        return scalarPotentialAt( evaluationState, t0 + dt );
+    };
+    const double numericTimePartial = fourthOrder( potentialAtTime( -2.0 * timeStep ),
+                                                   potentialAtTime( -timeStep ),
+                                                   potentialAtTime( timeStep ),
+                                                   potentialAtTime( 2.0 * timeStep ),
+                                                   timeStep );
+    BOOST_CHECK_CLOSE_FRACTION( analyticTimePartial, numericTimePartial, 1.0E-7 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

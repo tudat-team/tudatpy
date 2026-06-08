@@ -55,17 +55,19 @@ enum LinkEndType {
 // typedef std::pair< std::string, std::string > LinkEndId;
 
 struct LinkEndId {
-    LinkEndId( ) {}
+    LinkEndId( ): bodyName_( "" ), stationName_( "" ) {}
 
     LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) {}
 
-    LinkEndId( const std::string& bodyName, const std::string& stationName ): bodyName_( bodyName ), stationName_( stationName ) {}
+    LinkEndId( const std::string& bodyName, const std::string& referencePointName ):
+        bodyName_( bodyName ), stationName_( referencePointName )
+    {}
 
     LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) {}
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
-        return std::make_pair( bodyName_, stationName_ );
+        return std::make_pair( bodyName_, getReferencePointName( ) );
     }
 
     friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
@@ -92,6 +94,10 @@ struct LinkEndId {
         {
             return true;
         }
+        else if( linkEnd1.stationName_ > linkEnd2.stationName_ )
+        {
+            return false;
+        }
         else
         {
             return false;
@@ -105,6 +111,11 @@ struct LinkEndId {
     std::string getBodyName( ) const
     {
         return bodyName_;
+    }
+
+    std::string getReferencePointName( ) const
+    {
+        return stationName_;
     }
 
     std::string getStationName( ) const
@@ -123,9 +134,14 @@ private:
     }
 };
 
-inline LinkEndId linkEndId( const std::string& bodyName, const std::string& stationName )
+inline LinkEndId linkEndId( const std::string& bodyName, const std::string& referencePointName )
 {
-    return LinkEndId( bodyName, stationName );
+    return LinkEndId( bodyName, referencePointName );
+}
+
+inline LinkEndId linkEndId( const std::pair< std::string, std::string >& linkEnd )
+{
+    return LinkEndId( linkEnd );
 }
 
 inline LinkEndId linkEndId( const std::string& bodyName )

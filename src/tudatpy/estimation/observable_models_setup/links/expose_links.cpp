@@ -310,11 +310,11 @@ Examples
 
       )doc" )
             .def_property_readonly( "reference_point",
-                                    &tom::LinkEndId::getStationName,
+                                    &tom::LinkEndId::getReferencePointName,
                                     R"doc(
-         Function for setting a name for the reference point on a body.
+         Function for retrieving the name of the reference point on a body.
 
-         Function for setting a name for the reference point on a body (typically, the name of a ground station).
+         Function for retrieving the name of the reference point on a body (typically, the name of a ground station).
 
      Examples
      --------
@@ -346,6 +346,14 @@ Examples
                                 data.cast< std::string >( ) );
                     } ),
                   R"doc(Pickle support for LinkEndId.)doc" );
+            .def_property_readonly( "station_name",
+                                    &tom::LinkEndId::getReferencePointName,
+                                    R"doc(
+         Name of the ground station reference point on the body, str. Empty if there is no reference point.
+      )doc" )
+            .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
+            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
+            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),

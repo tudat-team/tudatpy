@@ -10,6 +10,7 @@
 # Set the source files.
 set(observation_partials_SOURCES
   "angularPositionPartial.cpp"
+  "pixelCoordinatesPartial.cpp"
   "azimuthElevationPartial.cpp"
   "rotationMatrixPartial.cpp"
   "positionPartials.cpp"
@@ -28,6 +29,7 @@ set(observation_partials_SOURCES
 # Set the header files.
 set(observation_partials_HEADERS
   "angularPositionPartial.h"
+  "pixelCoordinatesPartial.h"
   "azimuthElevationPartial.h"
   "rotationMatrixPartial.h"
   "positionPartials.h"

@@ -1115,6 +1115,9 @@ output_variables : list[SingleDependentVariableSaveSettings], default=[]
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
     Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+body : str, default=""
+    Name of the body for which this custom state is propagated. If left empty, the custom state is
+    not set in any :class:`~tudatpy.dynamics.environment.Body` during propagation.
 
 Returns
 -------
@@ -1177,11 +1180,14 @@ propagator : RotationalPropagatorType, default=quaternions
     Type of rotational propagator to be used (see `RotationalPropagatorType` enum).
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
-processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
-    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+	processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+	    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
+	    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+	body : str, default=""
+	    Name of the body for which this custom state is propagated. If left empty, the custom state is
+	    not set in any :class:`~tudatpy.dynamics.environment.Body` during propagation.
 
-Returns
+	Returns
 -------
 RotationalStatePropagatorSettings
     Rotational state propagator settings object.
@@ -1259,6 +1265,7 @@ SingleArcPropagatorSettings
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "processing_settings" ) = nullptr,
+           py::arg( "body" ) = "",
            R"doc(
 
 Function to create custom propagator settings.

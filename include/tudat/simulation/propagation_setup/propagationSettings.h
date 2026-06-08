@@ -2084,7 +2084,8 @@ public:
                                    const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                   const double statePrintInterval = TUDAT_NAN ):
+                                   const double statePrintInterval = TUDAT_NAN,
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   ( StateVectorType( 1 ) << initialState ).finished( ),
                                                                   terminationSettings,
@@ -2094,7 +2095,7 @@ public:
                                              stateDerivativeFunction,
                                              std::placeholders::_1,
                                              std::placeholders::_2 ) ),
-        stateSize_( 1 )
+        stateSize_( 1 ), bodyName_( bodyName )
     {}
 
     //! Constructor for vector custom state
@@ -2113,13 +2114,14 @@ public:
                                    const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                   const double statePrintInterval = TUDAT_NAN ):
+                                   const double statePrintInterval = TUDAT_NAN,
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   initialState,
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   statePrintInterval ),
-        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ), bodyName_( bodyName )
     {}
 
     CustomStatePropagatorSettings( const std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
@@ -2130,7 +2132,8 @@ public:
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                    const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   initialState,
                                                                   initialTime,
@@ -2138,7 +2141,7 @@ public:
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   outputSettings ),
-        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ), bodyName_( bodyName )
     {}
 
     //! Destructor
@@ -2149,6 +2152,9 @@ public:
 
     //! Size of the state that is propagated.
     int stateSize_;
+
+    //! Body for which the custom state is propagated. Empty if the custom state is not associated with a body.
+    std::string bodyName_;
 
     //! Function to create the integrated state models. Always throws an error.
     /*!
@@ -2171,10 +2177,11 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double statePrintInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN,
+        const std::string& bodyName = "" )
 {
     return std::make_shared< CustomStatePropagatorSettings< StateScalarType, TimeType > >(
-            stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval );
+            stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval, bodyName );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -2188,7 +2195,8 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr,
+        const std::string& bodyName = "" )
 {
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
     if( outputSettingsToUse == nullptr )
@@ -2201,7 +2209,8 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
                                                                                            integratorSettings,
                                                                                            terminationSettings,
                                                                                            dependentVariablesToSave,
-                                                                                           outputSettingsToUse );
+                                                                                           outputSettingsToUse,
+                                                                                           bodyName );
 }
 
 //! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
@@ -2910,7 +2919,8 @@ std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string
             }
 
             std::vector< std::tuple< std::string, std::string, PropagatorType > > customList;
-            customList.push_back( std::make_tuple( "", "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
+            customList.push_back(
+                    std::make_tuple( customPropagatorSettings->bodyName_, "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
             integratedStateList[ custom_state ] = customList;
             break;
         }
@@ -2979,6 +2989,10 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
                     {
                         throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
                     }
+                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
+                    {
+                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    }
                     break;
                 }
                 default:
@@ -3040,6 +3054,10 @@ inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
                     if( stateSize <= 0 )
                     {
                         throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                    }
+                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
+                    {
+                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     }
                     break;
                 }

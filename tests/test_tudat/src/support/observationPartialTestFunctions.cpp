@@ -501,7 +501,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     {
         checkStationId = 0;
         LinkEndId currentAssociatedLinkEndid = estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndid.stationName_ != "" )
+        if( currentAssociatedLinkEndid.getReferencePointName( ) != "" )
         {
             checkStationId = 1;
         }
@@ -515,7 +515,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
+                    if( linkEndIterator->second.getReferencePointName( ) == currentAssociatedLinkEndid.getReferencePointName( ) )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -552,7 +552,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     {
         checkStationId = 0;
         LinkEndId currentAssociatedLinkEndid = estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndid.stationName_ != "" )
+        if( currentAssociatedLinkEndid.getReferencePointName( ) != "" )
         {
             checkStationId = 1;
         }
@@ -566,7 +566,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
+                    if( linkEndIterator->second.getReferencePointName( ) == currentAssociatedLinkEndid.getReferencePointName( ) )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
