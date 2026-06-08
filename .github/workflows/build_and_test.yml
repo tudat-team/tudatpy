@@ -62,7 +62,7 @@ jobs:
         # Copy data folder 
         cp -r data "${{ github.workspace }}/third_parties/mcd/"
         # Copy contents of sources 
-        cp -r sources/* "${{ github.workspace }}/third_parties/mcd/"
+        cp -r source/* "${{ github.workspace }}/third_parties/mcd/"
         # Cleanup
         cd "${{ github.workspace }}"
         rm -rf temp_mcd
