@@ -38,7 +38,9 @@
 
 #include "tudat/basics/timeType.h"
 
+#include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 // Provide Eigen matrix serialization for cereal
 namespace cereal
@@ -144,6 +146,50 @@ void deserializeFromBinaryString( const std::string& data, T& object )
     std::istringstream iss( data, std::ios::binary );
     cereal::BinaryInputArchive ia( iss );
     ia( object );
+}
+
+//! Helper function to serialize an object to a binary file
+template< typename T >
+void saveToBinaryFile( const T& object, const std::string& path )
+{
+    std::ofstream outputStream( path, std::ios::binary );
+    if( !outputStream )
+    {
+        throw std::runtime_error( "Unable to open file for binary save: " + path );
+    }
+
+    cereal::BinaryOutputArchive archive( outputStream );
+    archive( object );
+}
+
+//! Helper function to deserialize an object from a binary file
+template< typename T >
+T loadFromBinaryFile( const std::string& path )
+{
+    std::ifstream inputStream( path, std::ios::binary );
+    if( !inputStream )
+    {
+        throw std::runtime_error( "Unable to open file for binary load: " + path );
+    }
+
+    cereal::BinaryInputArchive archive( inputStream );
+    T object;
+    archive( object );
+    return object;
+}
+
+//! Helper function to deserialize from a binary file into an existing object
+template< typename T >
+void loadFromBinaryFile( const std::string& path, T& object )
+{
+    std::ifstream inputStream( path, std::ios::binary );
+    if( !inputStream )
+    {
+        throw std::runtime_error( "Unable to open file for binary load: " + path );
+    }
+
+    cereal::BinaryInputArchive archive( inputStream );
+    archive( object );
 }
 
 }  // namespace serialization

@@ -882,15 +882,56 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
-            .def( py::pickle(
-                    []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+            .def(
+                    "save_binary",
+                    []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
+                        tudat::serialization::saveToBinaryFile( object, path );
                     },
-                    []( py::bytes data ) {
-                        return tudat::serialization::deserializeFromBinaryString<
-                                tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                                        data.cast< std::string >( ) );
-                    } ),
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save this covariance-analysis output object to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path to the output binary file.
+
+         Returns
+         -------
+         None
+
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return tudat::serialization::loadFromBinaryFile< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                path );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load a covariance-analysis output object from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path to the input binary file.
+
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput`
+             Loaded object.
+
+      )doc" )
+            .def( py::pickle(
+                          []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                          },
+                          []( py::bytes data ) {
+                              return tudat::serialization::deserializeFromBinaryString<
+                                      tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
+                          } ),
                   R"doc(Pickle support for CovarianceAnalysisOutput.)doc" );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -958,15 +999,55 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
                            R"doc(No documentation found.)doc" )
-            .def( py::pickle(
-                    []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+            .def(
+                    "save_binary",
+                    []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
+                        tudat::serialization::saveToBinaryFile( object, path );
                     },
-                    []( py::bytes data ) {
-                        return tudat::serialization::deserializeFromBinaryString<
-                                tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                                        data.cast< std::string >( ) );
-                    } ),
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save this estimation output object to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path to the output binary file.
+
+         Returns
+         -------
+         None
+
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return tudat::serialization::loadFromBinaryFile< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( path );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load an estimation output object from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path to the input binary file.
+
+         Returns
+         -------
+         :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
+             Loaded object.
+
+      )doc" )
+            .def( py::pickle(
+                          []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                          },
+                          []( py::bytes data ) {
+                              return tudat::serialization::deserializeFromBinaryString<
+                                      tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
+                          } ),
                   R"doc(Pickle support for EstimationOutput.)doc" );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );

@@ -19,9 +19,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <fstream>
-#include <stdexcept>
-
 #include <tudat/simulation/propagation_setup/dependentVariablesInterface.h>
 #include <tudat/simulation/propagation_setup/propagationResults.h>
 #include <tudat/simulation/propagation_setup/propagationTermination.h>
@@ -198,6 +195,18 @@ void expose_propagation_results_bindings( py::module& m )
 
 
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >& object, const std::string& path ) {
+                        tse::saveToBinaryFile( object, path );
+                    },
+                    py::arg( "path" ) )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) -> std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > {
+                        return tse::loadFromBinaryFile< std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > >( path );
+                    },
+                    py::arg( "path" ) )
             .def( "__eq__", &tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) );
 
     py::class_< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -464,34 +473,6 @@ void expose_propagation_results_bindings( py::module& m )
 
          :type: int
 )doc" )
-            .def(
-                    "save_binary",
-                    []( const tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
-                        std::ofstream outputStream( path, std::ios::binary );
-                        if( !outputStream )
-                        {
-                            throw std::runtime_error( "Unable to open file for binary save: " + path );
-                        }
-
-                        cereal::BinaryOutputArchive archive( outputStream );
-                        archive( object );
-                    },
-                    py::arg( "path" ) )
-            .def_static(
-                    "load_binary",
-                    []( const std::string& path ) {
-                        std::ifstream inputStream( path, std::ios::binary );
-                        if( !inputStream )
-                        {
-                            throw std::runtime_error( "Unable to open file for binary load: " + path );
-                        }
-
-                        cereal::BinaryInputArchive archive( inputStream );
-                        tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > object;
-                        archive( object );
-                        return object;
-                    },
-                    py::arg( "path" ) )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
                   R"doc(
