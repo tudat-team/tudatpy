@@ -24,6 +24,7 @@
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/system_models/camera.h"
 
 namespace tudat
 {
@@ -428,6 +429,51 @@ public:
         transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
     }
 
+    //! Function to add a camera to the vehicle systems
+    /*!
+     * Function to add a camera to the vehicle systems
+     * Also creates a reference point at the camera location with the same name as the camera.
+     * \param cameraName Name of camera
+     * \param camera Camera object that is to be set
+     * \param bodyFixedCameraPosition Position of the camera in the body-fixed frame [m]
+     */
+    void addCamera( const std::string& cameraName,
+                    const std::shared_ptr< system_models::Camera >& camera,
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
+    {
+        if( cameraMap.count( cameraName ) != 0 )
+        {
+            std::cerr << "Warning, camera with name " << cameraName << " already exists, overriding old camera" << std::endl;
+        }
+        cameraMap[ cameraName ] = camera;
+        this->setReferencePointPosition( cameraName, bodyFixedCameraPosition );
+    }
+
+    //! Function to retrieve a camera
+    /*!
+     * Function to retrieve a camera
+     * \param cameraName Name of camera
+     * \return Camera object that is retrieved
+     */
+    std::shared_ptr< system_models::Camera > getCamera( const std::string& cameraName ) const
+    {
+        if( cameraMap.count( cameraName ) == 0 )
+        {
+            throw std::runtime_error( "Error, camera " + cameraName + " does not exist" );
+        }
+        return cameraMap.at( cameraName );
+    }
+
+    //! Function to retrieve full list of cameras
+    /*!
+     * Function to retrieve full list of cameras
+     * \return Full list of cameras
+     */
+    std::map< std::string, std::shared_ptr< system_models::Camera > > getCameraMap( ) const
+    {
+        return cameraMap;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
@@ -436,6 +482,9 @@ private:
     std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels_;
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels_;
+
+    //! List of camera objects
+    std::map< std::string, std::shared_ptr< system_models::Camera > > cameraMap;
 
     bool panelGeometryDefined_;
 

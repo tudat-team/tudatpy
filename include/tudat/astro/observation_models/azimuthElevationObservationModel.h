@@ -51,7 +51,7 @@ public:
                         false ) } ),
         pointingAnglesCalculator_( pointingAnglesCalculator ), normalizeAzimuth_( normalizeAzimuth )
     {
-        if( linkEnds.count( receiver ) == 0 || linkEnds.at( receiver ).stationName_ == "" )
+        if( linkEnds.count( receiver ) == 0 || linkEnds.at( receiver ).getReferencePointName( ) == "" )
         {
             throw std::runtime_error( "Error when creating azimuth/elevation model: receiver link end must be a ground station." );
         }

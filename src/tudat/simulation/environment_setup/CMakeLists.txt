@@ -38,6 +38,7 @@ set(environment_HEADERS
         createThrustModelGuidance.h
         thrustSettings.h
         createClimateModel.h
+        createCameras.h
         createRelativisticTimeConverter.h
         createMetric.h
         )
@@ -71,6 +72,7 @@ set(environment_SOURCES
         createOccultationModel.cpp
         createSurfacePropertyDistribution.cpp
         createClimateModel.cpp
+        createCameras.cpp
         createRelativisticTimeConverter.cpp
         createMetric.cpp
         )

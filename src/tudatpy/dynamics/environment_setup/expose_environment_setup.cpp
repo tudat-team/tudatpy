@@ -25,6 +25,7 @@
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 #include <tudat/simulation/environment_setup/createFlightConditions.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
+#include <tudat/simulation/environment_setup/createCameras.h>
 #include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createSystemModel.h>
 #include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
@@ -229,6 +230,12 @@ void expose_environment_setup( py::module& m )
 
          :type: list[BodyDeformationSettings]
       )doc" )
+            .def_readwrite( "camera_settings",
+                            &tss::BodySettings::cameraSettings,
+                            R"doc(
+            List of objects that define the settings of the cameras on the body, which are used as link ends of observations
+            Entries in this list are  typically assigned by using a function from the :ref:`cameras` module.
+            )doc" )
             .def_readwrite( "ground_station_settings",
                             &tss::BodySettings::groundStationSettings,
                             R"doc(
@@ -1062,6 +1069,81 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
     //                                                       environment_setup.add_ground_station(
     //                                                                                bodies.get_body("Earth"),
     //                                                                                ground_station_settings )
+
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::CameraSettings > >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_settings" ),
+           R"doc(
+           Function to add a camera to an existing body.
+
+           This function creates a camera from settings, and adds it to an existing body. It requires settings for the camera, created using one of the functions from the :ref:`camera` module. This function creates the actual camera from these settings, and assigns it to the
+           selected body.
+
+            Parameters
+            ----------
+            body : Body
+                Body to which the camera is added. The camera is added to the vehicle systems of this body.
+            camera_settings : CameraSettings
+                Settings defining the camera that is to be created and added to the body.
+            
+            Examples
+            --------
+            In this example, we create a basic camera settings aligned with y axis:
+
+                .. code-block:: python
+
+                    from tudatpy.dynamics.environment_setup import add_camera
+                    from tudatpy.dynamics.environment_setup.vehicle_systems import pinhole_camera
+                    camera_settings = pinhole_camera("Camera", [np.pi/2.0, 0.0, 0.0])
+                    add_camera(body, camera_settings)
+           )doc" );
+
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string&,
+                              const Eigen::Vector3d&,
+                              const std::pair< double, double >,
+                              const std::pair< double, double >,
+                              const Eigen::Vector3d& >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           py::arg( "boresight_euler_angles" ),
+           py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
+           py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
+           R"doc(
+           Function to add a camera to an existing body.
+           
+           This function creates a camera with the provided properties, and adds it to the provided body.
+           The camera is defined by its name, its boresight direction (defined by Euler angles), and its focal lengths
+           optical center (defining the mapping from boresight to pixel coordinates), and body-fixed position.
+           The camera is added to body's vehicle systems.
+
+           Parameters
+           ----------
+           body : Body
+               Body to which the camera is added. The camera is added to the vehicle systems of this body.
+           camera_name : str
+               Name of the camera to be created.
+           boresight_euler_angles : numpy.ndarray[numpy.float64[3, 1]]
+               Euler angles (in radians) defining the camera boresight direction. The rotation sequence RA, DEC, Twist. A zero twist angle will result in the x-axis being aligned with the horizontal direction in the focal plane.
+           focal_lengths : tuple[float, float], optional
+               Focal lengths of the camera in the x and y directions, in pixels. To obtain this value from focal lenght in meters and pixel size, do f_px = f_m / pixel_size. Default is (1.0, 1.0).
+           optical_center : tuple[float, float], optional
+               Optical center of the camera in the x and y directions, in pixels. Default is (0.0, 0.0).
+           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+               Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
+
+            Examples
+            --------
+            In this example, we create a basic camera settings aligned with y axis:
+
+                .. code-block:: python
+
+                    from tudapy.dynamics.environment_setup import add_camera
+                    add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
+           )doc" );
 
     m.def( "create_radiation_pressure_interface",
            &tss::createRadiationPressureInterface,

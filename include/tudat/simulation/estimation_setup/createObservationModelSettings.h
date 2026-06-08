@@ -1230,6 +1230,32 @@ inline std::shared_ptr< ObservationModelSettings > azimuthElevationSettings(
             linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, normalizeAzimuth );
 }
 
+inline std::shared_ptr< ObservationModelSettings > pixelCoordinatesSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    const auto linkEndMap = linkEnds.getLinkEnds( );
+    if( linkEndMap.count( transmitter ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, transmitter link end not provided." );
+    }
+    if( linkEndMap.count( receiver ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, receiver link end not provided." );
+    }
+    if( linkEndMap.at( receiver ).getReferencePointName( ).empty( ) )
+    {
+        throw std::runtime_error( "Error when creating pixel coordinates settings, receiver reference point name is empty." );
+    }
+
+    return std::make_shared< ObservationModelSettings >(
+            pixel_coordinates, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+}
+
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =

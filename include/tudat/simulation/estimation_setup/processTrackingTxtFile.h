@@ -308,7 +308,7 @@ public:
         {
             try
             {
-                std::string currentGroundStation = linkEnds.at( referenceLinkEnd ).getStationName( );
+                std::string currentGroundStation = linkEnds.at( referenceLinkEnd ).getReferencePointName( );
                 groundStationPositions.push_back( earthFixedGroundStationPositions_.at( currentGroundStation ) );
             }
             catch( const std::runtime_error& error )
@@ -731,7 +731,7 @@ void setStationFrequenciesFromTrackingData(
         }
 
         LinkEnds currentLinkEnds = *( processedFileContent->getLinkEndsSet( ).begin( ) );
-        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).stationName_;
+        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).getReferencePointName( );
 
         rampInformation[ transmitterName ].push_back( FrequencyRampData{ rampUtcTimes, frequencyValues, frequencyRampRates } );
     }
