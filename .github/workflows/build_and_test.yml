@@ -58,7 +58,7 @@ jobs:
       run: |
         cd "${{ github.workspace }}/temp_mcd"
         # Extract tgz
-        tar -xzf *.tgz
+        tar -xzf *.tgz --strip-components=1
         # Copy data folder 
         cp -r data "${{ github.workspace }}/third_parties/mcd/"
         # Copy contents of sources 
