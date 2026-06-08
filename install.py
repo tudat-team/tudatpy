@@ -6,6 +6,40 @@ import subprocess
 import sysconfig
 
 
+def PrintDebugInfo(dir: Path, exts: str | list[str], extrainfo: str) -> None:
+    print("********** DEBUGG **********")
+    print(extrainfo)
+    # Convert to Path if string
+    dir = Path(dir)
+    if not dir.exists():
+        print(f"ERROR: Directory does not exist")
+        return None
+    
+    # Turn extension into list if needed
+    if isinstance(exts, str):
+        exts = [exts]
+    exts_str = ", ".join(exts)
+    print(f"Searching in {dir} for: {exts_str}")
+
+    # Look for files
+    found_files = []
+    for ext in exts:
+        files = list(dir.glob(f"*{ext}"))
+        found_files.extend(files)
+    
+    # Print files
+    if found_files:
+        print(f"Found {len(found_files)} file(s):")
+        for file in found_files:
+            print(f"  - {file}")
+    else:
+        print(f"No files found")
+    
+    print("****************************\n")
+    return None
+
+
+
 class InstallParser(argparse.ArgumentParser):
 
     def __init__(self) -> None:
@@ -210,6 +244,7 @@ class Installer:
         if self.args.install_tudat:
 
             # Install tudat static libraries
+            PrintDebugInfo(self.build_dir / "lib", [".a", ".lib"], "Tudat static libraries")
             self.link_content(
                 self.build_dir / "lib",
                 self.conda_prefix / "lib",
@@ -217,6 +252,7 @@ class Installer:
             )
 
             # Install tudat headers
+            PrintDebugInfo(self.build_dir / "include/tudat", [".hpp", ".h"], "Tudat headers")
             self.link_content(
                 self.build_dir / "include/tudat",
                 self.conda_prefix / "include/tudat",
@@ -248,11 +284,22 @@ class Installer:
             )
 
             # Install kernel
-            self.link_content(
-                self.build_dir / "src/tudatpy",
-                self.pylib_dir / "tudatpy",
-                [".so", ".dll", ".dylib", ".pyd"],
-            )
+            if sys.platform == "win32":
+                # On Windows, kernel.pyd is in build/src/tudatpy/<build_config>
+                for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
+                    kernel_dir = self.build_dir / "src/tudatpy" / build_config
+                    if kernel_dir.exists():
+                        PrintDebugInfo(kernel_dir, ".pyd", "Tudatpy kernel")
+                        self.link_content(kernel_dir, self.pylib_dir / "tudatpy",[".pyd"])
+                        break
+            else:
+                # On Linux/macOS, kernel is in build/src/tudatpy/
+                PrintDebugInfo(self.build_dir/"src/tudatpy", [".so", ".dll", ".dylib", ".pyd"], "Tudatpy kernel")
+                self.link_content(
+                    self.build_dir / "src/tudatpy",
+                    self.pylib_dir / "tudatpy",
+                    [".so", ".dll", ".dylib", ".pyd"],
+                )
 
             # Install stubs
             if self.stubs_dir.exists():
