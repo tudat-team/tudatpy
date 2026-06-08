@@ -129,6 +129,14 @@ public:
      */
     Eigen::Vector6d getState( );
 
+    //! Get current custom state.
+    /*!
+     * Returns the internally stored current custom state vector. This state is only valid while
+     * it is being set during propagation.
+     * \return Current custom state.
+     */
+    Eigen::VectorXd getCustomState( );
+
     //! Set current state of body manually
     /*!
      * Set current state of body manually, which must be in the global frame. Note that this
@@ -137,6 +145,12 @@ public:
      * \param state Current state of the body that is set.
      */
     void setState( const Eigen::Vector6d& state );
+
+    //! Set current custom state of body manually.
+    /*!
+     * \param customState Current custom state of the body that is set.
+     */
+    void setCustomState( const Eigen::VectorXd& customState );
 
     //! Set current state of body manually in long double precision.
     /*!
@@ -825,6 +839,9 @@ private:
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
 
+    //! Current custom state.
+    Eigen::VectorXd currentCustomState_;
+
     //! Current state.
     Eigen::Vector6d currentBarycentricState_;
 
@@ -914,6 +931,8 @@ private:
     std::string bodyName_;
 
     bool isStateSet_;
+
+    bool isCustomStateSet_;
 
     bool isRotationSet_;
 

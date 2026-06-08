@@ -2926,6 +2926,16 @@ bool
          dynamics or dependent variables require the body's state.
 
 
+	         :type: numpy.ndarray
+	      )doc" )
+            .def_property_readonly( "custom_state", &tss::Body::getCustomState, R"doc(
+
+         **read-only**
+
+         The custom state of the Body, as set during the current step of the numerical propagation.
+         This property is only valid during propagation, and only when exactly one custom state is
+         propagated for this body.
+
          :type: numpy.ndarray
       )doc" )
             .def( "get_ionosphere_model", &tudat::simulation_setup::Body::getIonosphereModel )
