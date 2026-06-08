@@ -44,7 +44,7 @@ jobs:
         
         # check if we can access the repo
         echo "=== checking repository access ==="
-        gh repo view tudat-team/MCD
+        gh api repos/tudat-team/MCD --jq '.full_name'
 
         # Create directories
         mkdir -p "${{ github.workspace }}/temp_mcd"
