@@ -22,6 +22,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
@@ -489,6 +490,21 @@ public:
         return considerParametersIncluded_;
     }
 
+    //! Configure soft inter-arc translational state continuity constraints (Cicalo et al. 2021 Eq. 28).
+    //! Each settings entry attaches one or more constrained boundaries (k, k+1) for a single multi-arc body.
+    //! Multiple entries (e.g. one per body) accumulate into a single normal-equation contribution at each
+    //! iteration. Passing an empty vector disables the feature.
+    void setInterArcContinuityConstraints(
+            const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
+    {
+        interArcContinuityConstraints_ = constraints;
+    }
+
+    const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& getInterArcContinuityConstraints( ) const
+    {
+        return interArcContinuityConstraints_;
+    }
+
 protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
@@ -518,6 +534,9 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
+
+    //! Soft inter-arc translational state continuity constraints. Empty by default (feature off).
+    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
@@ -1189,6 +1208,27 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return simulationResultsPerIteration_;
     }
 
+    void setInterArcContinuityCostHistory( const std::vector< double >& history )
+    {
+        interArcContinuityCostHistory_ = history;
+    }
+
+    const std::vector< double >& getInterArcContinuityCostHistory( ) const
+    {
+        return interArcContinuityCostHistory_;
+    }
+
+    void setInterArcContinuityDiscrepancyHistory(
+            const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& history )
+    {
+        interArcContinuityDiscrepancyHistory_ = history;
+    }
+
+    const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& getInterArcContinuityDiscrepancyHistory( ) const
+    {
+        return interArcContinuityDiscrepancyHistory_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1217,6 +1257,17 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     int numberOfParameters_;
 
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration_;
+
+    //! Total inter-arc continuity cost contribution per iteration (sum across all constrained pairs). Empty if
+    //! no inter-arc continuity constraints were attached. Populated via setInterArcContinuityCostHistory rather
+    //! than through the constructor (the ctor already takes 14+ positional args; extending it would be unwieldy
+    //! for an opt-in feature).
+    std::vector< double > interArcContinuityCostHistory_;
+
+    //! Per-iteration list of per-pair 6-component discrepancies d = x_right(t_c) - x_left(t_c) at every
+    //! constrained boundary. Outer index is iteration, inner index is pair index in the assembly order.
+    //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
+    std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > > interArcContinuityDiscrepancyHistory_;
 
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >

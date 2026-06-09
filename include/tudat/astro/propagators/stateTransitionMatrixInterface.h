@@ -615,6 +615,130 @@ public:
         return fullCombinedStateTransitionMatrix;
     }
 
+    //! Function to get the concatenated single-arc state transition and sensitivity matrix for an explicit arc.
+    /*!
+     *  Like getCombinedStateTransitionAndSensitivityMatrix, but evaluates the supplied arcIndex directly instead of
+     *  looking it up from evaluationTime. Needed for shared-arc-boundary evaluation where the time-keyed lookup
+     *  always returns the left arc, but the right arc's matrix is also required (e.g. inter-arc continuity
+     *  constraint partials).
+     *  \param arcIndex Arc to evaluate (0-based).
+     *  \param evaluationTime Time at which to evaluate the matrix interpolator; must lie in
+     *      [arcStartTimes_[arcIndex], arcEndTimes_[arcIndex]].
+     *  \param addCentralBodyDependency See getCombinedStateTransitionAndSensitivityMatrix.
+     *  \return Concatenated state transition and sensitivity matrices for the requested arc.
+     */
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrixForArc( const int arcIndex,
+                                                                          const double evaluationTime,
+                                                                          const bool addCentralBodyDependency = true ) const
+    {
+        if( arcIndex < 0 || arcIndex >= numberOfStateArcs_ )
+        {
+            throw std::runtime_error( "Error when getting combined state transition and sensitivity matrix for arc " +
+                                      std::to_string( arcIndex ) + ", arc index out of range [0, " +
+                                      std::to_string( numberOfStateArcs_ ) + ")." );
+        }
+        if( evaluationTime < arcStartTimes_.at( arcIndex ) || evaluationTime > arcEndTimes_.at( arcIndex ) )
+        {
+            throw std::runtime_error( "Error when getting combined state transition and sensitivity matrix for arc " +
+                                      std::to_string( arcIndex ) + " at time " + std::to_string( evaluationTime ) +
+                                      ", time is outside arc interval [" + std::to_string( arcStartTimes_.at( arcIndex ) ) +
+                                      ", " + std::to_string( arcEndTimes_.at( arcIndex ) ) + "]." );
+        }
+
+        const int stateTransitionMatrixSize = arcWiseStateTransitionMatrixSize_[ arcIndex ];
+        const int sensitivityMatrixSize = arcWiseSensitivityMatrixSize_[ arcIndex ];
+
+        Eigen::MatrixXd combinedStateTransitionMatrix =
+                Eigen::MatrixXd::Zero( stateTransitionMatrixSize, stateTransitionMatrixSize + sensitivityMatrixSize );
+
+        try
+        {
+            combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize, stateTransitionMatrixSize ) =
+                    stateTransitionMatrixInterpolators_.at( arcIndex )->interpolate( evaluationTime );
+            combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
+                    sensitivityMatrixInterpolators_.at( arcIndex )->interpolate( evaluationTime );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in variational equation solution interpolation for arc " +
+                                      std::to_string( arcIndex ) + ".\nOriginal error: " +
+                                      std::string( caughtException.what( ) ) );
+        }
+
+        if( addCentralBodyDependency )
+        {
+            for( unsigned int i = 0; i < statePartialAdditionIndices_.at( arcIndex ).size( ); i++ )
+            {
+                int indicesToAdd = stateTransitionMatrixSize + sensitivityMatrixSize;
+                combinedStateTransitionMatrix.block(
+                        statePartialAdditionIndices_.at( arcIndex ).at( i ).first, 0, 6, indicesToAdd ) +=
+                        combinedStateTransitionMatrix.block(
+                                statePartialAdditionIndices_.at( arcIndex ).at( i ).second, 0, 6, indicesToAdd );
+            }
+        }
+        return combinedStateTransitionMatrix;
+    }
+
+    //! Function to get the full (padded) state transition and sensitivity matrix for an explicit arc.
+    /*!
+     *  Like getFullCombinedStateTransitionAndSensitivityMatrix, but evaluates the supplied arcIndex directly. Other
+     *  arcs' state-block columns are zero. Used by the inter-arc continuity constraint assembly to retrieve
+     *  M_right(t_c) at a shared OCM boundary while the time-keyed overload would return M_left(t_c).
+     */
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrixForArc( const int arcIndex,
+                                                                              const double evaluationTime,
+                                                                              const bool addCentralBodyDependency = true ) const
+    {
+        Eigen::MatrixXd combinedStateTransitionMatrix =
+                getCombinedStateTransitionAndSensitivityMatrixForArc( arcIndex, evaluationTime, addCentralBodyDependency );
+
+        Eigen::MatrixXd fullCombinedStateTransitionMatrix =
+                Eigen::MatrixXd::Zero( fullStateSize_, fullStateTransitionMatrixSize_ + fullSensitivityMatrixSize_ );
+
+        std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > >
+                arcWiseAndFullSolutionIndices = arcWiseAndFullSolutionInitialStateIndices_.at( arcIndex );
+        for( auto itr : arcWiseAndFullSolutionIndices )
+        {
+            std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
+            std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
+            int indexInFullState = indicesInFullSolution.first.first;
+            int indexInFullMatrix = indicesInFullSolution.first.second;
+            int sizeInFullSolution = indicesInFullSolution.second;
+
+            fullCombinedStateTransitionMatrix.block( indexInFullState, indexInFullMatrix, sizeInFullSolution, sizeInFullSolution ) =
+                    combinedStateTransitionMatrix.block( indicesInArcWiseSolution.first,
+                                                         indicesInArcWiseSolution.first,
+                                                         indicesInArcWiseSolution.second,
+                                                         indicesInArcWiseSolution.second );
+
+            for( auto itr2 : arcWiseAndFullSolutionIndices )
+            {
+                if( itr2.first != itr.first )
+                {
+                    std::pair< int, int > indicesInArcWiseSolutionOtherBody = itr2.second.first;
+                    std::pair< std::pair< int, int >, int > indicesInFullSolutionOtherBody = itr2.second.second;
+                    int indexInFullMatrixOtherBody = indicesInFullSolutionOtherBody.first.second;
+                    int sizeInFullSolutionOtherBody = indicesInFullSolutionOtherBody.second;
+
+                    fullCombinedStateTransitionMatrix.block(
+                            indexInFullState, indexInFullMatrixOtherBody, indicesInFullSolution.second, sizeInFullSolutionOtherBody ) =
+                            combinedStateTransitionMatrix.block( indicesInArcWiseSolution.first,
+                                                                 indicesInArcWiseSolutionOtherBody.first,
+                                                                 indicesInArcWiseSolution.second,
+                                                                 indicesInArcWiseSolutionOtherBody.second );
+                }
+            }
+
+            fullCombinedStateTransitionMatrix.block(
+                    indexInFullState, fullStateTransitionMatrixSize_, indicesInFullSolution.second, fullSensitivityMatrixSize_ ) =
+                    combinedStateTransitionMatrix.block( indicesInArcWiseSolution.first,
+                                                         arcWiseStateTransitionMatrixSize_[ arcIndex ],
+                                                         indicesInArcWiseSolution.second,
+                                                         arcWiseSensitivityMatrixSize_[ arcIndex ] );
+        }
+        return fullCombinedStateTransitionMatrix;
+    }
+
     //! Function to retrieve the current arc for a given time
     /*!
      * Function to retrieve the current arc for a given time
