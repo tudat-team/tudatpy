@@ -252,6 +252,16 @@ TUDAT_ADD_TEST_CASE(EstimationDragScaling
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
          )
 
+TUDAT_ADD_TEST_CASE(EstimationDragWithWind
+         PRIVATE_LINKS
+         ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+         )
+
+TUDAT_ADD_TEST_CASE(EstimationComaModelDrag
+         PRIVATE_LINKS
+         ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+         )
+
  TUDAT_ADD_TEST_CASE(ParameterPropagatorConsistency
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}

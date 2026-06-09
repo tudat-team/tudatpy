@@ -1123,27 +1123,34 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             reference_frames::AerodynamicsReferenceFrames targetFrame = windVelocitySettings->targetFrame_;
 
+            std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+                    bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+
             // If target frame is corotating frame, return wind velocity directly
             if( targetFrame == reference_frames::corotating_frame )
             {
                 variableFunction = std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
-                                              bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+                                              aerodynamicAngleCalculator );
             }
             else
             {
                 // Create function to transform wind velocity to target frame
                 std::function< Eigen::Vector3d( ) > windVelocityCorotatingFunction =
                         std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
-                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+                                   aerodynamicAngleCalculator );
 
                 std::function< Eigen::Matrix3d( ) > rotationMatrixFunction =
                         std::bind( &reference_frames::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
-                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                   aerodynamicAngleCalculator,
                                    reference_frames::corotating_frame,
                                    targetFrame );
 
-                variableFunction = [ windVelocityCorotatingFunction, rotationMatrixFunction ]( ) {
-                    return rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
+                variableFunction = [ windVelocityCorotatingFunction, rotationMatrixFunction ]( )
+                {
+                    // Evaluate before returning; the Eigen product expression would otherwise
+                    // reference temporaries created by the function calls above.
+                    Eigen::Vector3d transformedWindVelocity = rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
+                    return transformedWindVelocity;
                 };
             }
 
