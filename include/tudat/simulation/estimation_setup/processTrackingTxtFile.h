@@ -13,6 +13,13 @@
 #ifndef TUDAT_PROCESSTRACKINGTXTFILE_H
 #define TUDAT_PROCESSTRACKINGTXTFILE_H
 
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
+
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -466,23 +473,101 @@ public:
 private:
     double getObservationTimeStep( )
     {
+        const double cadenceTolerance = 0.01;
+
         if( observationTimesUtc_.size( ) < 2 )
         {
             throw std::runtime_error( "Error when getting integration time for processed file contents, size is < 2" );
         }
-        double observationTimeStep = observationTimesUtc_.at( 1 ) - observationTimesUtc_.at( 0 );
+
+        struct CadenceGap {
+            unsigned int index;
+            TimeType previousTime;
+            TimeType nextTime;
+            double observedDelta;
+        };
+
+        std::vector< double > observationTimeSteps;
+        observationTimeSteps.reserve( observationTimesUtc_.size( ) - 1 );
+        double firstObservationTimeStep = std::numeric_limits< double >::infinity( );
+        double minimumObservationTimeStep = std::numeric_limits< double >::infinity( );
+
         for( unsigned int i = 1; i < observationTimesUtc_.size( ); i++ )
         {
-            double testObservationTimeStep = observationTimesUtc_.at( i ) - observationTimesUtc_.at( i - 1 );
-            if( std::fabs( observationTimeStep - testObservationTimeStep ) >
-                0.01 )  // 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 )  )
+            double testObservationTimeStep = static_cast< double >( observationTimesUtc_.at( i ) - observationTimesUtc_.at( i - 1 ) );
+            observationTimeSteps.push_back( testObservationTimeStep );
+            if( std::isfinite( testObservationTimeStep ) && testObservationTimeStep > cadenceTolerance )
             {
-                std::cout << std::setprecision( 19 ) << i << " " << observationTimesUtc_.at( i ) << " " << observationTimesUtc_.at( i - 1 )
-                          << " " << observationTimesUtc_.at( i - 2 ) << " " << testObservationTimeStep << " " << observationTimeStep << " "
-                          << testObservationTimeStep - observationTimeStep << " "
-                          << 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 ) << std::endl;
-                throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
+                if( !std::isfinite( firstObservationTimeStep ) )
+                {
+                    firstObservationTimeStep = testObservationTimeStep;
+                }
+                if( testObservationTimeStep < minimumObservationTimeStep )
+                {
+                    minimumObservationTimeStep = testObservationTimeStep;
+                }
             }
+        }
+
+        if( !std::isfinite( minimumObservationTimeStep ) )
+        {
+            throw std::runtime_error(
+                    "Error when getting integration time for processed file contents, no positive cadence could be inferred" );
+        }
+
+        double observationTimeStep = firstObservationTimeStep;
+        if( firstObservationTimeStep > minimumObservationTimeStep + cadenceTolerance )
+        {
+            observationTimeStep = minimumObservationTimeStep;
+        }
+
+        std::vector< CadenceGap > cadenceGaps;
+        for( unsigned int i = 1; i < observationTimesUtc_.size( ); i++ )
+        {
+            double testObservationTimeStep = observationTimeSteps.at( i - 1 );
+            if( !std::isfinite( testObservationTimeStep ) || testObservationTimeStep <= cadenceTolerance )
+            {
+                throw std::runtime_error(
+                        "Error when getting integration time for processed file contents, non-positive or too-small time step found" );
+            }
+            else if( std::fabs( observationTimeStep - testObservationTimeStep ) > cadenceTolerance )
+            {
+                if( testObservationTimeStep > observationTimeStep + cadenceTolerance )
+                {
+                    cadenceGaps.push_back(
+                            CadenceGap{ i, observationTimesUtc_.at( i - 1 ), observationTimesUtc_.at( i ), testObservationTimeStep } );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                            "Error when getting integration time for processed file contents, step is smaller than inferred cadence" );
+                }
+            }
+        }
+
+        if( !cadenceGaps.empty( ) )
+        {
+            const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap( );
+            auto fileNameIterator = metaDataStrMap.find( input_output::TrackingDataType::file_name );
+            std::string fileName = fileNameIterator == metaDataStrMap.end( ) ? "unknown tracking file" : fileNameIterator->second;
+
+            const unsigned int maximumNumberOfGapsToPrint = 5;
+            std::ostringstream warningMessage;
+            warningMessage << std::setprecision( 19 )
+                           << "Warning when getting integration time for processed tracking file '" << fileName << "': found "
+                           << cadenceGaps.size( ) << " cadence gap(s), nominal cadence " << observationTimeStep << " s.";
+            for( unsigned int i = 0; i < std::min( maximumNumberOfGapsToPrint, static_cast< unsigned int >( cadenceGaps.size( ) ) ); i++ )
+            {
+                warningMessage << "\n  gap " << i + 1 << ": index " << cadenceGaps.at( i ).index
+                               << ", previous UTC " << cadenceGaps.at( i ).previousTime << ", next UTC " << cadenceGaps.at( i ).nextTime
+                               << ", observed delta " << cadenceGaps.at( i ).observedDelta << " s";
+            }
+            if( cadenceGaps.size( ) > maximumNumberOfGapsToPrint )
+            {
+                warningMessage << "\n  ... " << cadenceGaps.size( ) - maximumNumberOfGapsToPrint << " additional gap(s) omitted";
+            }
+            warningMessage << std::endl;
+            std::cout << warningMessage.str( );
         }
 
         return observationTimeStep;
