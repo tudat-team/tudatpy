@@ -460,8 +460,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             // already pulls in the rotation; a point-mass central body does not.)
             if( stateDerivativeModel->getReferencePointId( ).second != "" )
             {
-                environmentModelsToUpdate[ body_rotational_state_update ].push_back(
-                        stateDerivativeModel->getReferencePointId( ).first );
+                environmentModelsToUpdate[ body_rotational_state_update ].push_back( stateDerivativeModel->getReferencePointId( ).first );
             }
 
             break;

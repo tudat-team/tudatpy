@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE( testSolarSystemMetricPotentialPartialsAgainstFiniteDiffere
         return metric->getCurrentScalarPotential( );
     };
     // 4th-order central difference: f'(x) = [ -f(x+2h) + 8 f(x+h) - 8 f(x-h) + f(x-2h) ] / (12 h).
-    auto fourthOrder = [ ]( const double fm2, const double fm1, const double fp1, const double fp2, const double h ) {
+    auto fourthOrder = []( const double fm2, const double fm1, const double fp1, const double fp2, const double h ) {
         return ( -fp2 + 8.0 * fp1 - 8.0 * fm1 + fm2 ) / ( 12.0 * h );
     };
 
