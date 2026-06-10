@@ -36,21 +36,15 @@ namespace aerodynamics
 class McdAtmosphereModel : public AtmosphereModel
 {
 public:
-
-    McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel ) :
-        AtmosphereModel( false, false, true ),
-        marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel ) 
+    McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel ):
+        AtmosphereModel( false, false, false ), marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel )
     {
-        requiredExtVar_ = { 
-            mcd_interface::ExtVar::ratio_of_specific_heats, 
-            mcd_interface::ExtVar::reduced_molecular_gas_constant
-        };
+        requiredExtVar_ = { mcd_interface::ExtVar::ratio_of_specific_heats, mcd_interface::ExtVar::reduced_molecular_gas_constant };
 
         requiresClimateModel_ = true;
 
         marsClimateDatabaseClimateModel_->addExtraVariableKeys( requiredExtVar_ );
         marsClimateDatabaseClimateModel_->setZkey( 3 );
-        
     }
 
     //! Destructor
@@ -69,11 +63,9 @@ public:
     double getMeridionalWind( double, double, double, double ) const;
 
 protected:
-
     std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel_;
 
     std::vector< mcd_interface::ExtVar > requiredExtVar_;
-    
 };
 
 }  // namespace aerodynamics

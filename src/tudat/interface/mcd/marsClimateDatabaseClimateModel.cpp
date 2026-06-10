@@ -1,29 +1,22 @@
 #include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
-#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/simulation/environment_setup/body.h"
-#include <limits>
 
-namespace tudat 
+namespace tudat
 {
 
 namespace mcd_interface
 {
 
-MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel( 
-                                          std::shared_ptr< simulation_setup::Body > bodyWithClimateModel,
-                                          const std::string& mcdDataPath,
-                                          const int dustScenario,
-                                          const int perturbationKey,
-                                          const double perturbationSeed,
-                                          const double gravityWaveLength,
-                                          const int highResolutionMode ) : 
-    ClimateModel( bodyWithClimateModel ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), 
-    perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ), 
-    highResolutionMode_( highResolutionMode ), density_( 0.0 ), pressure_( 0.0 ),
-    temperature_( 0.0 ), zonalWind_( 0.0 ), meridionalWind_( 0.0 ),
-    currentTime_( std::numeric_limits< double >::quiet_NaN( ) )
+MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel( const std::string& mcdDataPath,
+                                                                  const int dustScenario,
+                                                                  const int perturbationKey,
+                                                                  const double perturbationSeed,
+                                                                  const double gravityWaveLength,
+                                                                  const int highResolutionMode ):
+    ClimateModel( ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), perturbationKey_( perturbationKey ),
+    perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ), highResolutionMode_( highResolutionMode ),
+    density_( 0.0 ), pressure_( 0.0 ), temperature_( 0.0 ), zonalWind_( 0.0 ), meridionalWind_( 0.0 )
 {
     zkey_ = 3;
 
@@ -50,8 +43,7 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
 
     if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
     {
-        throw std::runtime_error( "McdClimateModel: Invalid dustScenario " + std::to_string( dustScenario_ ) +
-                                  ". Must be 1-8 or 24-35." );
+        throw std::runtime_error( "McdClimateModel: Invalid dustScenario " + std::to_string( dustScenario_ ) + ". Must be 1-8 or 24-35." );
     }
 
     if( perturbationKey_ < 0 || perturbationKey_ > 5 )
@@ -87,37 +79,25 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
     }
 }
 
-void MarsClimateDatabaseClimateModel::update( double currentTime )
+void MarsClimateDatabaseClimateModel::setZkey( int zkey )
 {
-    if ( currentTime_ != currentTime )
+    if( zkey < 1 || zkey > 4 )
     {
-        currentTime_ = currentTime;
-        mcdCache_.clear( );
-
-        for ( auto it : listBodiesRequiringClimateModel_ )
-        {   
-            std::shared_ptr< simulation_setup::Body > bodyRequiringClimateModel = it.lock( );
-            if( bodyRequiringClimateModel == nullptr )
-            {
-                continue;
-            }
-            double currentLongitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLongitude( );
-            double currentLatitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLatitude( );
-
-            double distance =  ( bodyWithClimateModel_.lock( )->getPosition( ) - bodyRequiringClimateModel->getPosition( ) ).norm( );
-
-            updateCache( distance, currentLongitude, currentLatitude, currentTime );
-        }
+        throw std::runtime_error( "McdClimateModel: Invalid zkey " + std::to_string( zkey ) + ". Must be 1-4." );
     }
-
+    if( zkey_ != zkey )
+    {
+        zkey_ = zkey;
+        mcdCache_.clear( );
+    }
 }
 
-void MarsClimateDatabaseClimateModel::updateCache( const double positionInput,
+void MarsClimateDatabaseClimateModel::updateCache( const double verticalCoordinate,
                                                    const double longitude,
                                                    const double latitude,
                                                    const double time )
 {
-    const std::tuple< double, double, double > cacheKey = { longitude, latitude, time };
+    const McdCacheKey cacheKey = getCacheKey( verticalCoordinate, longitude, latitude, time );
     if( mcdCache_.count( cacheKey ) > 0 )
     {
         return;
@@ -128,14 +108,14 @@ void MarsClimateDatabaseClimateModel::updateCache( const double positionInput,
     float localTime = 0.0f;
     float seedin_f = static_cast< float >( perturbationSeed_ );
     float gwlength_f = static_cast< float >( gravityWaveLength_ );
-    float positionInput_f = static_cast< float >( positionInput );
+    float verticalCoordinate_f = static_cast< float >( verticalCoordinate );
     float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( longitude ) );
     float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( latitude ) );
     float seedout;
     int ier;
 
     __mcd_MOD_call_mcd( &zkey_,
-                        &positionInput_f,
+                        &verticalCoordinate_f,
                         &longitudeDeg,
                         &latitudeDeg,
                         &highResolutionMode_,
@@ -180,14 +160,15 @@ void MarsClimateDatabaseClimateModel::updateCache( const double positionInput,
     mcdCache_[ cacheKey ]->extraVariables_ = extraVariables;
 }
 
-void MarsClimateDatabaseClimateModel::addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables )
+void MarsClimateDatabaseClimateModel::addExtraVariableKeys( std::vector< mcd_interface::ExtVar > requiredExtraVariables )
 {
-    for ( auto it:requiredExtraVariables )
+    for( auto it : requiredExtraVariables )
     {
         extraVariableKeys_[ static_cast< int >( it ) ] = 1;
     }
+    mcdCache_.clear( );
 }
 
-}
+}  // namespace mcd_interface
 
-}
+}  // namespace tudat

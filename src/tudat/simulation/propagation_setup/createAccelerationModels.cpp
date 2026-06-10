@@ -1059,11 +1059,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
         if( bodyExertingAcceleration->getClimateModel( ) == nullptr )
         {
             throw std::runtime_error( "Error when making aerodynamic acceleration for body" + nameOfBodyUndergoingAcceleration +
-                ", central body " + nameOfBodyExertingAcceleration + " has no climate model." );
-        }
-        else
-        {
-            bodyExertingAcceleration->getClimateModel( )->addBodyRequiringClimateModel( bodyUndergoingAcceleration );
+                                      ", central body " + nameOfBodyExertingAcceleration + " has no climate model." );
         }
     }
 

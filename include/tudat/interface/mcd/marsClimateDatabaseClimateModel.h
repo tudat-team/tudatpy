@@ -11,17 +11,20 @@
 #define TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <map>
 #include <tuple>
 #include "mcd.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 
-namespace tudat 
+namespace tudat
 {
 
 namespace mcd_interface
 {
+
+using McdCacheKey = std::tuple< int, double, double, double, double >;
 
 enum class MeanVar {
     mean_atmospheric_pressure = 0,
@@ -121,11 +124,11 @@ enum class ExtVar {
 };
 
 struct McdCache {
+    McdCache( ) = default;
 
-    McdCache() = default;
-
-    McdCache( double density, double pressure, double temperature, double zonalWind, double meridionalWind ) :
-        density_( density ), pressure_( pressure ), temperature_( temperature ), zonalWind_( zonalWind ), meridionalWind_( meridionalWind ) {};
+    McdCache( double density, double pressure, double temperature, double zonalWind, double meridionalWind ):
+        density_( density ), pressure_( pressure ), temperature_( temperature ), zonalWind_( zonalWind ),
+        meridionalWind_( meridionalWind ) {};
 
     //! Atmospheric density (kg/m^3)
     double density_;
@@ -147,11 +150,10 @@ struct McdCache {
 
     //! Extra variables
     std::vector< double > extraVariables_;
-
 };
 
-class MarsClimateDatabaseClimateModel : public environment::ClimateModel {
-
+class MarsClimateDatabaseClimateModel : public environment::ClimateModel
+{
 public:
     //! Constructor
     /*!
@@ -163,55 +165,63 @@ public:
      * \param gravityWaveLength Gravity wave wavelength in meters (default: 0.0 = use MCD default)
      * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
      */
-    MarsClimateDatabaseClimateModel( 
-        std::shared_ptr< simulation_setup::Body > bodyWithClimateModel,
-        const std::string& mcdDataPath = "",
-        const int dustScenario = 1,
-        const int perturbationKey = 0,
-        const double perturbationSeed = 0.0,
-        const double gravityWaveLength = 0.0,
-        const int highResolutionMode = 0 );
+    MarsClimateDatabaseClimateModel( const std::string& mcdDataPath = "",
+                                     const int dustScenario = 1,
+                                     const int perturbationKey = 0,
+                                     const double perturbationSeed = 0.0,
+                                     const double gravityWaveLength = 0.0,
+                                     const int highResolutionMode = 0 );
 
     //! Destructor
-    ~MarsClimateDatabaseClimateModel() override = default;
+    ~MarsClimateDatabaseClimateModel( ) override = default;
 
-    //! Copy constructor
-
-    void update( double currentTime ) override;
-
-    void updateCache( const double positionInput,
-                      const double longitude,
-                      const double latitude,
-                      const double time );
+    void updateCache( const double verticalCoordinate, const double longitude, const double latitude, const double time );
 
     int* getExtraVariableKeys( )
     {
         return extraVariableKeys_;
-    } 
-
-     void setZkey( int zkey )
-    {
-        zkey_ = zkey;
     }
 
-    std::shared_ptr< McdCache > getCache( std::tuple< double, double, double > input ) const
+    void setZkey( int zkey );
+
+    std::shared_ptr< McdCache > getCache( const double verticalCoordinate,
+                                          const double longitude,
+                                          const double latitude,
+                                          const double time )
     {
-        return mcdCache_.at( input );
+        updateCache( verticalCoordinate, longitude, latitude, time );
+        return mcdCache_.at( getCacheKey( verticalCoordinate, longitude, latitude, time ) );
     }
 
-    double getMeanVariable( MeanVar variable, std::tuple< double, double, double > input ) const
+    double getMeanVariable( const MeanVar variable,
+                            const double verticalCoordinate,
+                            const double longitude,
+                            const double latitude,
+                            const double time )
     {
-        return mcdCache_.at( input )->meanVariables_[ static_cast< std::size_t >( variable ) ];
+        updateCache( verticalCoordinate, longitude, latitude, time );
+        return mcdCache_.at( getCacheKey( verticalCoordinate, longitude, latitude, time ) )
+                ->meanVariables_[ static_cast< std::size_t >( variable ) ];
     }
 
-    double getExtraVariable( ExtVar variable, std::tuple< double, double, double > input ) const
+    double getExtraVariable( const ExtVar variable,
+                             const double verticalCoordinate,
+                             const double longitude,
+                             const double latitude,
+                             const double time )
     {
-        return mcdCache_.at( input )->extraVariables_[ static_cast< std::size_t >( variable ) ];
+        updateCache( verticalCoordinate, longitude, latitude, time );
+        return mcdCache_.at( getCacheKey( verticalCoordinate, longitude, latitude, time ) )
+                ->extraVariables_[ static_cast< std::size_t >( variable ) ];
     }
 
-    void addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables );
-    
+    void addExtraVariableKeys( std::vector< mcd_interface::ExtVar > requiredExtraVariables );
+
 private:
+    McdCacheKey getCacheKey( const double verticalCoordinate, const double longitude, const double latitude, const double time ) const
+    {
+        return { zkey_, verticalCoordinate, longitude, latitude, time };
+    }
 
     int zkey_;
 
@@ -249,22 +259,19 @@ private:
     float meridionalWind_;
 
     //! Keys to extract external variables
-    int extraVariableKeys_[100] = { 0 };
+    int extraVariableKeys_[ 100 ] = { 0 };
 
     //! Mean variables
-    float meanVariables_[5] = { 0 };
+    float meanVariables_[ 5 ] = { 0 };
 
     //! Extra variables
-    float extraVariables_[100] = { 0 };
+    float extraVariables_[ 100 ] = { 0 };
 
-    std::map< std::tuple< double, double, double >, std::shared_ptr< McdCache > > mcdCache_;
-
-    double currentTime_;
-
+    std::map< McdCacheKey, std::shared_ptr< McdCache > > mcdCache_;
 };
 
-}
+}  // namespace mcd_interface
 
-}
+}  // namespace tudat
 
 #endif

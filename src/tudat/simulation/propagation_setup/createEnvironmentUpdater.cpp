@@ -175,15 +175,14 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         }
                         break;
                     }
-                    case climate_model_update: 
-                    {
+                    case climate_model_update: {
                         std::shared_ptr< environment::ClimateModel > climateModel =
                                 bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
                         if( climateModel == nullptr )
                         {
                             throw std::runtime_error(
-                                            "Error when making environment model update settings, could not find climate model of body " +
-                                            updateIterator->second.at( i ) );
+                                    "Error when making environment model update settings, could not find climate model of body " +
+                                    updateIterator->second.at( i ) );
                         }
                         break;
                     }
@@ -544,11 +543,6 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
-                        }
-
-                        if( bodies.at( accelerationModelIterator->first )->getAtmosphereModel( )->getRequiresClimateModel( ) )
-                        {
-                            singleAccelerationUpdateNeeds[ climate_model_update ].push_back( accelerationModelIterator->first );
                         }
 
                         // Check if atmosphere model is a ComaModel (requires Sun state for solar longitude calculation)

@@ -767,20 +767,14 @@ private:
                             break;
                         }
                         case climate_model_update: {
-                            std::shared_ptr< environment::ClimateModel > climateModel = 
-                                bodyList_.at( currentBodies.at( i ) )->getClimateModel( );
+                            std::shared_ptr< environment::ClimateModel > climateModel =
+                                    bodyList_.at( currentBodies.at( i ) )->getClimateModel( );
                             // Check if current body has climate model set
                             if( climateModel == nullptr )
                             {
                                 throw std::runtime_error( "Request climate model update of " + currentBodies.at( i ) +
                                                           ", but body has no climate model" );
                             }
-                            // If body has climate model, add its update function to update list
-                            updateTimeFunctionList[ climate_model_update ].push_back(
-                                    std::make_pair( currentBodies.at( i ),
-                                                    std::bind( &environment::ClimateModel::update, 
-                                                        bodyList_.at( currentBodies.at( i ) )->getClimateModel( ), 
-                                                        std::placeholders::_1 ) ) );
                             break;
                         }
                         case space_time_metric_update: {

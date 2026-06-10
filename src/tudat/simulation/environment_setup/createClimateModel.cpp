@@ -22,40 +22,35 @@ namespace simulation_setup
 {
 
 //! Function to create an atmosphere model.
-std::shared_ptr< environment::ClimateModel > createClimateModel( 
-    std::shared_ptr< ClimateModelSettings > climateModelSettings,
-    std::shared_ptr< simulation_setup::Body > body )
+std::shared_ptr< environment::ClimateModel > createClimateModel( std::shared_ptr< ClimateModelSettings > climateModelSettings,
+                                                                 std::shared_ptr< simulation_setup::Body > body )
 {
     std::shared_ptr< environment::ClimateModel > climateModel;
 
     switch( climateModelSettings->climateModelType_ )
     {
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
-        case mars_climate_database : {
-
-            std::shared_ptr< MarsClimateDatabaseClimateModelSettings > mcdClimateModelSettings = 
-                std::dynamic_pointer_cast< MarsClimateDatabaseClimateModelSettings >( climateModelSettings );
-            if ( mcdClimateModelSettings == nullptr ) {
-
+        case mars_climate_database: {
+            std::shared_ptr< MarsClimateDatabaseClimateModelSettings > mcdClimateModelSettings =
+                    std::dynamic_pointer_cast< MarsClimateDatabaseClimateModelSettings >( climateModelSettings );
+            if( mcdClimateModelSettings == nullptr )
+            {
                 throw std::runtime_error( "Error in creating MCD climate model" );
-
             }
 
-            if ( body->getBodyName( ) != "Mars" ) {
-
+            if( body->getBodyName( ) != "Mars" )
+            {
                 throw std::runtime_error( "Error, trying to create MCD for a body different than Mars" );
             }
-            
-            climateModel = std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( 
-                body,
-                mcdClimateModelSettings->mcdDataPath_, 
-                mcdClimateModelSettings->dustScenario_,
-                mcdClimateModelSettings->perturbationKey_,
-                mcdClimateModelSettings->perturbationSeed_,
-                mcdClimateModelSettings->gravityWaveLength_,
-                mcdClimateModelSettings->highResolutionMode_
-            );
-            break;        
+
+            climateModel =
+                    std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( mcdClimateModelSettings->mcdDataPath_,
+                                                                                        mcdClimateModelSettings->dustScenario_,
+                                                                                        mcdClimateModelSettings->perturbationKey_,
+                                                                                        mcdClimateModelSettings->perturbationSeed_,
+                                                                                        mcdClimateModelSettings->gravityWaveLength_,
+                                                                                        mcdClimateModelSettings->highResolutionMode_ );
+            break;
         }
 #endif
         default:
@@ -65,6 +60,6 @@ std::shared_ptr< environment::ClimateModel > createClimateModel(
     return climateModel;
 };
 
-}
+}  // namespace simulation_setup
 
-}
+}  // namespace tudat

@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
- /*
+/*
  * ================================================================================
  * MARS CLIMATE DATABASE (MCD) ATMOSPHERE MODEL - UNIT TESTS
  * ================================================================================
@@ -113,7 +113,6 @@
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
 #include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
@@ -139,25 +138,6 @@ double convertDateToJ2000( int day, int month, int year, int hour, int min, int 
     return daysSinceJ2000 * physical_constants::JULIAN_DAY;
 }
 
-class FlightConditionsUnprotected : public aerodynamics::FlightConditions
-{
-    public:
-
-    FlightConditionsUnprotected( ) : aerodynamics::FlightConditions( nullptr, "" ) { };
-
-    using FlightConditions::scalarFlightConditions_;
-    using FlightConditions::isScalarFlightConditionComputed_;
-
-    void setLongitudeAndLatitude( double longitude, double latitude )
-    {
-        scalarFlightConditions_[ longitude_flight_condition ] = longitude;
-        scalarFlightConditions_[ latitude_flight_condition ] = latitude;
-        isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
-        isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
-    }
-
-};
-
 // Test Case 1: INPUT_K1.txt - clim scenario 1, 20km, high-res, no perturbation
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 {
@@ -165,37 +145,20 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
     double altitude = 20000.0;  // meters
     double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
     double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
-    
-    std::shared_ptr< simulation_setup::Body > mars = std::make_shared< simulation_setup::Body >( );
-    mars->setState( Eigen::Vector6d::Zero( ) );
-    mars->setIsBodyInPropagation( true);
-    Eigen::Vector6d satelliteState = { altitude, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    std::shared_ptr< FlightConditionsUnprotected > flightConditions = std::make_shared< FlightConditionsUnprotected >( );
-    
-    flightConditions->setLongitudeAndLatitude( longitude, latitude );
-
-    std::shared_ptr< simulation_setup::Body > satellite = std::make_shared< simulation_setup::Body >( satelliteState );
-    satellite->setState( satelliteState );
-    satellite->setIsBodyInPropagation( true);
-    satellite->setFlightConditions( flightConditions );
 
     std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > mcdClimateModel =
-            std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( mars, "", 1, 0, 5.0, 0.0, 1 );
-    
-    mcdClimateModel->addBodyRequiringClimateModel( satellite );
+            std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( "", 1, 0, 5.0, 0.0, 1 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< McdAtmosphereModel >( mcdClimateModel );
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel = std::make_shared< McdAtmosphereModel >( mcdClimateModel );
 
     mcdClimateModel->setZkey( 2 );
-    mcdClimateModel->update( time );
     double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
     double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
     double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
     double zonalWind = atmosphereModel->getZonalWind( altitude, longitude, latitude, time );
     double meridionalWind = atmosphereModel->getMeridionalWind( altitude, longitude, latitude, time );
 
-    // REF_OUTPUT_K1 values 
+    // REF_OUTPUT_K1 values
     double expectedPressure = 75.7;
     double expectedDensity = 2.23e-3;
     double expectedTemperature = 177.0;
@@ -221,18 +184,17 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
-    
+
     // Create Mars with MCD atmosphere
     BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Mars" } );
 
     defaultBodySettings.at( "Mars" )->climateModelSettings =
             std::make_shared< simulation_setup::MarsClimateDatabaseClimateModelSettings >( "", 1, 0, 0.0, 0.0, 0 );
 
-    defaultBodySettings.at( "Mars" )->atmosphereSettings =
-            std::make_shared< simulation_setup::McdAtmosphereSettings >( );
+    defaultBodySettings.at( "Mars" )->atmosphereSettings = std::make_shared< simulation_setup::McdAtmosphereSettings >( );
 
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
-    
+
     // Create vehicle
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
@@ -250,7 +212,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
     bodies.at( "Vehicle" )
             ->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
-    
+
     // Define accelerations
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
@@ -295,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
                                                                                 terminationSettings,
                                                                                 cowell,
                                                                                 dependentVariables );
-    
+
     // Create simulation object and propagate
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
