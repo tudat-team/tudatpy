@@ -16,62 +16,28 @@ on:
 jobs:
   download-data:
 
-    env:
-        MCD_CACHE_NUMBER: 1
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    # MCD data setup: download and cache
-    - name: Cache MCD data files
-      id: cache-mcd
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/third_parties/mcd
-        key: mcd-data-${{ env.MCD_CACHE_NUMBER }}
-        enableCrossOsArchive: true
-
-    - name: Download MCD release 
-      if: steps.cache-mcd.outputs.cache-hit != 'true'
+    - name: Download and place MCD files
       env:
         GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
       shell: bash
       run: |
-        # check if token is set
-        echo "token is set: $([ -n "$GH_TOKEN" ] && echo 'yes' || echo 'no')"
-        echo "token length: ${#GH_TOKEN}"
-        
-        # check if we can access the repo
-        echo "=== checking repository access ==="
-        gh api repos/tudat-team/MCD --jq '.full_name'
-
-        # Create directories
         mkdir -p "${{ github.workspace }}/temp_mcd"
-      
-        # Download release data
-        gh release download v1 --repo tudat-team/MCD --pattern "*.tgz" --dir "${{ github.workspace }}/temp_mcd"
-
-    - name: Extract and place MCD files
-      if: steps.cache-mcd.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        cd "${{ github.workspace }}/temp_mcd"
-        # Extract tgz
-        tar -xzf *.tgz --strip-components=1
-        test -f source/MCD.F90
-        test -f source/mcd.h
-        test -d data
-
         mkdir -p "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces"
+        gh release download v1 --repo tudat-team/MCD --pattern "dataset.tgz" --dir "${{ github.workspace }}/temp_mcd"
+        tar -xzf "${{ github.workspace }}/temp_mcd/dataset.tgz" -C "${{ github.workspace }}/temp_mcd" --strip-components=1
+        cp -r "${{ github.workspace }}/temp_mcd/data" "${{ github.workspace }}/third_parties/mcd/"
+        cp "${{ github.workspace }}/temp_mcd/source/MCD.F90" "${{ github.workspace }}/third_parties/mcd/MCD.F90"
+        cp "${{ github.workspace }}/temp_mcd/source/mcd.h" "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
 
-        cp -r data "${{ github.workspace }}/third_parties/mcd/"
-        cp source/MCD.F90 "${{ github.workspace }}/third_parties/mcd/MCD.F90"
-        cp source/mcd.h "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
-
-        # Cleanup
-        cd "${{ github.workspace }}"
-        rm -rf temp_mcd
+    - name: Upload MCD files
+      uses: actions/upload-artifact@v4
+      with:
+        name: mcd-files
+        path: ${{ github.workspace }}/third_parties/mcd/**
+        retention-days: 1
 
   build-and-test:
 
@@ -79,7 +45,6 @@ jobs:
 
     env:
         CACHE_NUMBER: 0
-        MCD_CACHE_NUMBER: 1
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -144,20 +109,11 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Restore MCD data files
-      uses: actions/cache@v4
+    - name: Download MCD files
+      uses: actions/download-artifact@v4
       with:
+        name: mcd-files
         path: ${{ github.workspace }}/third_parties/mcd
-        key: mcd-data-${{ env.MCD_CACHE_NUMBER }}
-        enableCrossOsArchive: true
-        fail-on-cache-miss: true
-
-    - name: Validate MCD source tree
-      shell: bash
-      run: |
-        test -f "${{ github.workspace }}/third_parties/mcd/MCD.F90"
-        test -f "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
-        test -d "${{ github.workspace }}/third_parties/mcd/data"
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
