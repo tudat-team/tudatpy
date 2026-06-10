@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testSchwarzschildChristoffelAgainstFiniteDifferences )
         metric->update( s, 0.0, true, false );
         return metric->getCurrentCovariantMetricPeturbation( );
     };
-    const double step = 100.0;  // m
+    const double step = 100.0;                                                       // m
     std::vector< Eigen::Matrix4d > metricDerivative( 4, Eigen::Matrix4d::Zero( ) );  // d_sigma g (sigma=0 stays zero)
     for( int axis = 0; axis < 3; ++axis )
     {
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE( testSchwarzschildChristoffelAgainstFiniteDifferences )
                 for( int sigma = 0; sigma < 4; ++sigma )
                 {
                     value += 0.5 * contravariantMetric( lambda, sigma ) *
-                            ( metricDerivative[ mu ]( sigma, nu ) + metricDerivative[ nu ]( sigma, mu )
-                            - metricDerivative[ sigma ]( mu, nu ) );
+                            ( metricDerivative[ mu ]( sigma, nu ) + metricDerivative[ nu ]( sigma, mu ) -
+                              metricDerivative[ sigma ]( mu, nu ) );
                 }
                 numericChristoffel[ lambda ]( mu, nu ) = value;
             }
@@ -146,8 +146,7 @@ BOOST_AUTO_TEST_CASE( testSchwarzschildChristoffelAgainstFiniteDifferences )
     for( int lambda = 0; lambda < 4; ++lambda )
     {
         maxMagnitude = std::max( maxMagnitude, analyticChristoffel[ lambda ].cwiseAbs( ).maxCoeff( ) );
-        maxDifference = std::max( maxDifference,
-                ( analyticChristoffel[ lambda ] - numericChristoffel[ lambda ] ).cwiseAbs( ).maxCoeff( ) );
+        maxDifference = std::max( maxDifference, ( analyticChristoffel[ lambda ] - numericChristoffel[ lambda ] ).cwiseAbs( ).maxCoeff( ) );
     }
     BOOST_CHECK_GT( maxMagnitude, 0.0 );
     BOOST_CHECK_SMALL( maxDifference / maxMagnitude, 1.0E-6 );

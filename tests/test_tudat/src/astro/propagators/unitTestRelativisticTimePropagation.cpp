@@ -829,20 +829,19 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
 {
     loadStandardSpiceKernels( );
 
-    struct LadderScenario
-    {
+    struct LadderScenario {
         std::string name;
         std::string centralBody;
-        std::vector< std::string > perturbingBodies;               // external bodies for the chain (also metric bodies)
+        std::vector< std::string > perturbingBodies;                    // external bodies for the chain (also metric bodies)
         std::map< std::string, std::pair< int, int > > metricShOrders;  // SH degree/order per body in the metric
-        double centralBodyRadius;                                  // for the equatorial surface station
+        double centralBodyRadius;                                       // for the equatorial surface station
         double durationDays;
         double integrationStep;
-        double detrendedTolerance;                                 // <= 0 => report only (no hard assert)
+        double detrendedTolerance;  // <= 0 => report only (no hard assert)
     };
 
     const double earthRadius = 6378137.0;
-    const double moonRadius  = 1737400.0;
+    const double moonRadius = 1737400.0;
 
     // Each rung is also compared against an independent analytic first-order truth rate
     //   dtau/dt - 1 = -( 1/2 |v_st|^2 + sum_i GM_i/|r_st - r_i| ) / c^2
@@ -863,56 +862,57 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
     // Tolerances (1 ns) are hard regression guards on every rung, with ~25x headroom over the
     // observed ~10-40 ps; the chain-vs-truth bound below is enforced identically.
     const std::vector< LadderScenario > scenarios = {
-        { "E1_Earth_Sun_PointMass",
-          "Earth", { "Sun" }, {},
-          earthRadius, 30.0, 120.0, 1.0e-9 },
-        { "E2_Earth_Sun_EarthSH20",
-          "Earth", { "Sun" }, { { "Earth", { 20, 20 } } },
-          earthRadius, 30.0, 120.0, 1.0e-9 },
+        { "E1_Earth_Sun_PointMass", "Earth", { "Sun" }, {}, earthRadius, 30.0, 120.0, 1.0e-9 },
+        { "E2_Earth_Sun_EarthSH20", "Earth", { "Sun" }, { { "Earth", { 20, 20 } } }, earthRadius, 30.0, 120.0, 1.0e-9 },
         { "E3_Earth_SunMoon_EarthSH20_MoonSH2",
-          "Earth", { "Sun", "Moon" }, { { "Earth", { 20, 20 } }, { "Moon", { 2, 2 } } },
-          earthRadius, 30.0, 120.0, 1.0e-9 },
-        { "M1_Moon_EarthSun_PointMass",
-          "Moon", { "Earth", "Sun" }, {},
-          moonRadius, 30.0, 120.0, 1.0e-9 },
-        { "M2_Moon_EarthSun_MoonSH2",   // <- lunar target: TCL centre + TL surface, Moon SH(2,2)
-          "Moon", { "Earth", "Sun" }, { { "Moon", { 2, 2 } } },
-          moonRadius, 30.0, 120.0, 1.0e-9 }
+          "Earth",
+          { "Sun", "Moon" },
+          { { "Earth", { 20, 20 } }, { "Moon", { 2, 2 } } },
+          earthRadius,
+          30.0,
+          120.0,
+          1.0e-9 },
+        { "M1_Moon_EarthSun_PointMass", "Moon", { "Earth", "Sun" }, {}, moonRadius, 30.0, 120.0, 1.0e-9 },
+        { "M2_Moon_EarthSun_MoonSH2",  // <- lunar target: TCL centre + TL surface, Moon SH(2,2)
+          "Moon",
+          { "Earth", "Sun" },
+          { { "Moon", { 2, 2 } } },
+          moonRadius,
+          30.0,
+          120.0,
+          1.0e-9 }
     };
 
     // Configure a body's gravity field from the scenario SH map (FromFile SH when
     // requested, point-mass otherwise) and strip time-variable gravity so the two
     // environments are static and identical.
-    auto configureGravity = [ ]( BodyListSettings& bodySettings,
-                                 const std::string& body,
-                                 const std::map< std::string, std::pair< int, int > >& shOrders ) {
-        if( shOrders.count( body ) )
-        {
-            const int degree = shOrders.at( body ).first;
-            if( body == "Earth" )
-            {
-                bodySettings.at( body )->gravityFieldSettings =
-                        std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( ggm02c, degree );
-            }
-            else if( body == "Moon" )
-            {
-                bodySettings.at( body )->gravityFieldSettings =
-                        std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200, degree );
-            }
-            else
-            {
-                bodySettings.at( body )->gravityFieldSettings =
-                        std::make_shared< SpiceCentralGravityFieldSettings >( body );
-            }
-        }
-        else
-        {
-            bodySettings.at( body )->gravityFieldSettings =
-                    std::make_shared< SpiceCentralGravityFieldSettings >( body );
-        }
-        bodySettings.at( body )->bodyDeformationSettings.clear( );
-        bodySettings.at( body )->gravityFieldVariationSettings.clear( );
-    };
+    auto configureGravity =
+            []( BodyListSettings& bodySettings, const std::string& body, const std::map< std::string, std::pair< int, int > >& shOrders ) {
+                if( shOrders.count( body ) )
+                {
+                    const int degree = shOrders.at( body ).first;
+                    if( body == "Earth" )
+                    {
+                        bodySettings.at( body )->gravityFieldSettings =
+                                std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( ggm02c, degree );
+                    }
+                    else if( body == "Moon" )
+                    {
+                        bodySettings.at( body )->gravityFieldSettings =
+                                std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200, degree );
+                    }
+                    else
+                    {
+                        bodySettings.at( body )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( body );
+                    }
+                }
+                else
+                {
+                    bodySettings.at( body )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( body );
+                }
+                bodySettings.at( body )->bodyDeformationSettings.clear( );
+                bodySettings.at( body )->gravityFieldVariationSettings.clear( );
+            };
 
     for( const LadderScenario& scenario : scenarios )
     {
@@ -947,11 +947,9 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
             }
         }
         const int topoCentralShDegree =
-                scenario.metricShOrders.count( scenario.centralBody ) ?
-                scenario.metricShOrders.at( scenario.centralBody ).first : 0;
+                scenario.metricShOrders.count( scenario.centralBody ) ? scenario.metricShOrders.at( scenario.centralBody ).first : 0;
 
-        auto bodySettings = getDefaultBodySettings(
-                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+        auto bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
         // Sun always a point mass; other bodies per the SH map.
         bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< SpiceCentralGravityFieldSettings >( "Sun" );
         bodySettings.at( "Sun" )->bodyDeformationSettings.clear( );
@@ -965,10 +963,8 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         }
 
         const Eigen::Vector3d equatorStationPosition =
-                ( Eigen::Vector3d( ) <<
-                  scenario.centralBodyRadius / std::sqrt( 2.0 ),
-                  scenario.centralBodyRadius / std::sqrt( 2.0 ),
-                  0.0 ).finished( );
+                ( Eigen::Vector3d( ) << scenario.centralBodyRadius / std::sqrt( 2.0 ), scenario.centralBodyRadius / std::sqrt( 2.0 ), 0.0 )
+                        .finished( );
         std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStations;
         groundStations[ std::make_pair( scenario.centralBody, stationName ) ] = equatorStationPosition;
 
@@ -998,39 +994,37 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
 
         // --- Direct-from-metric: SolarSystemMetric over all bodies, evaluated at the station. ---
         auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
-                bodyNames,
-                std::vector< std::string >( ),
-                scenario.metricShOrders,
-                std::vector< std::string >( ),
-                false );
+                bodyNames, std::vector< std::string >( ), scenario.metricShOrders, std::vector< std::string >( ), false );
         auto baseMetric = createSpaceTimeMetric( metricSettings, bodiesDirect );
         evaluatedMetricObjects.clear( );
         evaluatedMetricObjects[ std::make_pair( scenario.centralBody, stationName ) ] = baseMetric->Clone( );
 
         auto directFromMetricSettings = std::make_shared< DirectRelativisticTimePropagatorSettings< double, double > >(
-                std::make_pair( scenario.centralBody, stationName ),
-                initialEphemerisTime, intSetDirect, terminationSettings );
+                std::make_pair( scenario.centralBody, stationName ), initialEphemerisTime, intSetDirect, terminationSettings );
         directFromMetricSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > directDynamicsSimulator( bodiesDirect, directFromMetricSettings, true );
 
         // --- PN chain: TCB->TCG (first order) then body->topocentric. ---
         auto firstOrderPnSettings =
-                std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< double, double > >(
-                        scenario.centralBody, scenario.perturbingBodies,
-                        initialEphemerisTime, intSetTcb, terminationSettings, chainPerturberShOrders );
+                std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< double, double > >( scenario.centralBody,
+                                                                                                               scenario.perturbingBodies,
+                                                                                                               initialEphemerisTime,
+                                                                                                               intSetTcb,
+                                                                                                               terminationSettings,
+                                                                                                               chainPerturberShOrders );
         firstOrderPnSettings->getOutputSettings( )->setIntegratedResult( true );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialRelativisticState =
-                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 1 );
-        auto bodyToTopoSettings =
-                std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
-                        std::make_pair( scenario.centralBody, stationName ),
-                        false,  // acceleration term off (IBP-paired with the -v_E.r/c^2 direct correction)
-                        topoCentralShDegree,
-                        false,
-                        scenario.perturbingBodies,
-                        initialRelativisticState,
-                        initialEphemerisTime, intSetTopo, terminationSettings );
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialRelativisticState = Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 1 );
+        auto bodyToTopoSettings = std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< double, double > >(
+                std::make_pair( scenario.centralBody, stationName ),
+                false,  // acceleration term off (IBP-paired with the -v_E.r/c^2 direct correction)
+                topoCentralShDegree,
+                false,
+                scenario.perturbingBodies,
+                initialRelativisticState,
+                initialEphemerisTime,
+                intSetTopo,
+                terminationSettings );
         bodyToTopoSettings->getOutputSettings( )->setIntegratedResult( true );
 
         SingleArcDynamicsSimulator< double > barycentricPnDynamicsSimulator( bodiesPn, firstOrderPnSettings, true );
@@ -1041,10 +1035,10 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         BOOST_REQUIRE_NE( timeEphemerisDirect, nullptr );
         BOOST_REQUIRE_NE( timeEphemerisPn, nullptr );
 
-        const auto directFunction = timeEphemerisDirect->getTimeDifferenceFunction(
-                barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
-        const auto pnFunction = timeEphemerisPn->getTimeDifferenceFunction(
-                barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
+        const auto directFunction =
+                timeEphemerisDirect->getTimeDifferenceFunction( barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
+        const auto pnFunction =
+                timeEphemerisPn->getTimeDifferenceFunction( barycentric_coordinate_time_scale, local_proper_time_scale, stationName );
 
         // Station-position term (reported for context, NOT subtracted): the body-fixed-vs-
         // inertial difference delta(t) = -v_C * ( R(t)*y - y ) / c^2, where v_C is the central
@@ -1063,8 +1057,7 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
 
         std::vector< double > sampleTimes, residualsRaw, stationTermValues;
         double maxAbsRaw = 0.0;
-        for( double currentTime = initialEphemerisTime + integrationStep;
-             currentTime <= finalEphemerisTime - integrationStep;
+        for( double currentTime = initialEphemerisTime + integrationStep; currentTime <= finalEphemerisTime - integrationStep;
              currentTime += integrationStep )
         {
             const double raw = directFunction( currentTime ) - pnFunction( currentTime );
@@ -1081,14 +1074,16 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
             double sumTime = 0.0, sumResidual = 0.0, sumTimeSquared = 0.0, sumTimeResidual = 0.0;
             for( size_t i = 0; i < sampleTimes.size( ); ++i )
             {
-                sumTime += sampleTimes[ i ]; sumResidual += residuals[ i ];
+                sumTime += sampleTimes[ i ];
+                sumResidual += residuals[ i ];
                 sumTimeSquared += sampleTimes[ i ] * sampleTimes[ i ];
                 sumTimeResidual += sampleTimes[ i ] * residuals[ i ];
             }
             const double N = static_cast< double >( residuals.size( ) );
             const double den = N * sumTimeSquared - sumTime * sumTime;
-            const double slope = std::fabs( den ) > std::numeric_limits< double >::epsilon( ) ?
-                    ( N * sumTimeResidual - sumTime * sumResidual ) / den : 0.0;
+            const double slope = std::fabs( den ) > std::numeric_limits< double >::epsilon( )
+                    ? ( N * sumTimeResidual - sumTime * sumResidual ) / den
+                    : 0.0;
             const double offset = ( sumResidual - slope * sumTime ) / N;
             double amplitude = 0.0;
             for( size_t i = 0; i < residuals.size( ); ++i )
@@ -1100,12 +1095,11 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
 
         const auto [ slopeRaw, offsetRaw, amplitudeRaw ] = detrend( residualsRaw );
         const auto [ slopeStation, offsetStation, amplitudeStation ] = detrend( stationTermValues );
-        ( void ) slopeStation; ( void ) offsetStation;
+        (void)slopeStation;
+        (void)offsetStation;
 
-        std::cout << std::scientific << std::setprecision( 3 )
-                  << "  samples=" << residualsRaw.size( ) << std::endl
-                  << "  raw (direct - chain):  slope=" << slopeRaw
-                  << " s/s  offset=" << offsetRaw << " s  max|raw|=" << maxAbsRaw
+        std::cout << std::scientific << std::setprecision( 3 ) << "  samples=" << residualsRaw.size( ) << std::endl
+                  << "  raw (direct - chain):  slope=" << slopeRaw << " s/s  offset=" << offsetRaw << " s  max|raw|=" << maxAbsRaw
                   << " s  det_amp=" << amplitudeRaw << " s" << std::endl
                   << "  station-position term |delta| det_amp=" << amplitudeStation << " s (context)";
         if( scenario.detrendedTolerance > 0.0 )
@@ -1129,8 +1123,8 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         std::vector< double > bodyGms;
         for( const std::string& body : bodyNames )
         {
-            bodyStateFns.push_back( [ &, body ]( double t ) {
-                return bodiesDirect.getBody( body )->getEphemeris( )->getCartesianState( t ); } );
+            bodyStateFns.push_back(
+                    [ &, body ]( double t ) { return bodiesDirect.getBody( body )->getEphemeris( )->getCartesianState( t ); } );
             bodyGms.push_back( bodiesDirect.getBody( body )->getGravityFieldModel( )->getGravitationalParameter( ) );
         }
         auto truthRate = [ & ]( const double t ) {
@@ -1152,19 +1146,22 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         {
             truthCumulative[ i ] = truthCumulative[ i - 1 ] +
                     0.5 * ( truthRate( sampleTimes[ i ] ) + truthRate( sampleTimes[ i - 1 ] ) ) *
-                    ( sampleTimes[ i ] - sampleTimes[ i - 1 ] );
+                            ( sampleTimes[ i ] - sampleTimes[ i - 1 ] );
         }
         std::vector< double > directVsTruth( sampleTimes.size( ) ), chainVsTruth( sampleTimes.size( ) );
         for( size_t i = 0; i < sampleTimes.size( ); ++i )
         {
             directVsTruth[ i ] = directFunction( sampleTimes[ i ] ) - truthCumulative[ i ];
-            chainVsTruth[ i ]  = pnFunction( sampleTimes[ i ] ) - truthCumulative[ i ];
+            chainVsTruth[ i ] = pnFunction( sampleTimes[ i ] ) - truthCumulative[ i ];
         }
         const auto [ sD, oD, ampDirectVsTruth ] = detrend( directVsTruth );
         const auto [ sC, oC, ampChainVsTruth ] = detrend( chainVsTruth );
-        ( void ) sD; ( void ) oD; ( void ) sC; ( void ) oC;
-        std::cout << "  vs analytic 1st-order truth:  direct det_amp=" << ampDirectVsTruth
-                  << " s   chain det_amp=" << ampChainVsTruth << " s" << std::endl;
+        (void)sD;
+        (void)oD;
+        (void)sC;
+        (void)oC;
+        std::cout << "  vs analytic 1st-order truth:  direct det_amp=" << ampDirectVsTruth << " s   chain det_amp=" << ampChainVsTruth
+                  << " s" << std::endl;
 
         // Strong validation, enforced on EVERY rung (Earth and Moon): the post-Newtonian chain
         // must track the independent analytic first-order proper-time integral to sub-ns. This is
