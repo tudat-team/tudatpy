@@ -185,13 +185,16 @@ jobs:
       run: |
         conda activate tudat
 
+        selected_c_compiler="${CC:-${{ matrix.compilers.c }}}"
+        selected_cxx_compiler="${CXX:-${{ matrix.compilers.cxx }}}"
+
         cmake_args=(
           -B "${{ github.workspace }}/build"
           -S "${{ github.workspace }}"
           -G "${{ matrix.platform.cmake_generator }}"
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
-          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
+          -DCMAKE_CXX_COMPILER="${selected_cxx_compiler}"
+          -DCMAKE_C_COMPILER="${selected_c_compiler}"
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }}
           -DTUDAT_BUILD_WITH_TEST_PCH=ON
           -DTUDAT_BUILD_WITH_PCH=ON
@@ -200,12 +203,46 @@ jobs:
           -DCMAKE_UNITY_BUILD=ON
         )
 
-        if [[ -z "${FC:-}" ]]; then
-          echo "::error::Conda did not set FC; cannot build MCD with a compiler-compatible NetCDF Fortran module."
+        conda_prefix="${CONDA_PREFIX}"
+        if command -v cygpath >/dev/null 2>&1; then
+          conda_prefix="$(cygpath -u "${conda_prefix}")"
+        fi
+
+        selected_fortran_compiler="${FC:-}"
+        if [[ -n "${selected_fortran_compiler}" ]] && command -v "${selected_fortran_compiler}" >/dev/null 2>&1; then
+          selected_fortran_compiler="$(command -v "${selected_fortran_compiler}")"
+        fi
+        if [[ -n "${selected_fortran_compiler}" ]] && command -v cygpath >/dev/null 2>&1; then
+          selected_fortran_compiler="$(cygpath -u "${selected_fortran_compiler}")"
+        fi
+
+        if [[ -z "${selected_fortran_compiler}" || "${selected_fortran_compiler}" != "${conda_prefix}"/* ]]; then
+          selected_fortran_compiler=""
+          for compiler_name in \
+            flang-new.exe flang.exe x86_64-w64-mingw32-gfortran.exe gfortran.exe \
+            flang-new flang gfortran
+          do
+            selected_fortran_compiler="$(find "${conda_prefix}" -type f -name "${compiler_name}" -print -quit)"
+            if [[ -n "${selected_fortran_compiler}" ]]; then
+              break
+            fi
+          done
+        fi
+
+        if [[ -z "${selected_fortran_compiler}" ]]; then
+          echo "::error::Could not find a Fortran compiler inside ${conda_prefix}; refusing to use a system compiler for MCD."
+          find "${conda_prefix}" -type f \( -iname "*flang*" -o -iname "*gfortran*" \) || true
           exit 1
         fi
-        echo "Using conda Fortran compiler: ${FC}"
-        cmake_args+=("-DCMAKE_Fortran_COMPILER=${FC}")
+
+        if command -v cygpath >/dev/null 2>&1; then
+          selected_fortran_compiler="$(cygpath -m "${selected_fortran_compiler}")"
+        fi
+
+        echo "Using C compiler: ${selected_c_compiler}"
+        echo "Using CXX compiler: ${selected_cxx_compiler}"
+        echo "Using conda Fortran compiler: ${selected_fortran_compiler}"
+        cmake_args+=("-DCMAKE_Fortran_COMPILER=${selected_fortran_compiler}")
 
         cmake "${cmake_args[@]}"
 
