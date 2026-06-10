@@ -114,7 +114,7 @@ public:
     double getNumberDensity( double radius,
                              double longitude,
                              double latitude,
-                             double time );
+                             double time ) override;
 
     /*!
      * \brief Returns the local pressure of the coma in Newton per meter^2.

@@ -219,9 +219,19 @@ public:
      *  \param time Time at which density is to be computed.
      *  \return Atmospheric density at specified altitude.
      */
-    double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
+    double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
     {
         return densityFunction_( altitude, longitude, latitude, time );
+    }
+
+    //! Get local total number density.
+    /*!
+     *  Returns the local total number density of the atmosphere in m^-3, using the
+     *  mass density and specific gas constant.
+     */
+    double getNumberDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        return getDensity( altitude, longitude, latitude, time ) * specificGasConstant_ / physical_constants::BOLTZMANN_CONSTANT;
     }
 
     //! Get local pressure.
@@ -233,7 +243,7 @@ public:
      *  \param time Time at which pressure is to be computed.
      *  \return Atmospheric pressure at specified altitude.
      */
-    double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
+    double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
     {
         return getDensity( altitude, longitude, latitude, time ) * specificGasConstant_ * constantTemperature_;
     }
@@ -251,7 +261,7 @@ public:
      *      consistency with base class interface).
      *  \return constantTemperature Atmospheric temperature at specified altitude.
      */
-    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -272,7 +282,7 @@ public:
      *      consistency with base class interface).
      *  \return Atmospheric speed of sounds at specified altitude.
      */
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
     {
         return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_, specificGasConstant_ );
     }
@@ -309,6 +319,94 @@ private:
 
 //! Typedef for shared-pointer to CustomConstantTemperatureAtmosphere object.
 typedef std::shared_ptr< CustomConstantTemperatureAtmosphere > CustomConstantTemperatureAtmospherePointer;
+
+//! Custom number density atmosphere class.
+/*!
+ *  Custom atmosphere model initialized from a total number density function.
+ *  The mass density is computed from the supplied number density and molar mass.
+ */
+class CustomNumberDensityAtmosphere : public AtmosphereModel
+{
+public:
+    typedef std::function< double( const double, const double, const double, const double ) > NumberDensityFunction;
+
+    CustomNumberDensityAtmosphere( const NumberDensityFunction& numberDensityFunction,
+                                   const double molarMass,
+                                   const double constantTemperature = TUDAT_NAN,
+                                   const double ratioOfSpecificHeats = 1.4 ):
+        numberDensityFunction_( numberDensityFunction ), molarMass_( molarMass ), constantTemperature_( constantTemperature ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    { }
+
+    NumberDensityFunction getNumberDensityFunction( )
+    {
+        return numberDensityFunction_;
+    }
+
+    double getMolarMass( )
+    {
+        return molarMass_;
+    }
+
+    double getNumberDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        return numberDensityFunction_( altitude, longitude, latitude, time );
+    }
+
+    double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        return getNumberDensity( altitude, longitude, latitude, time ) * molarMass_ / physical_constants::AVOGADRO_CONSTANT;
+    }
+
+    double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        if( !std::isfinite( constantTemperature_ ) )
+        {
+            throw std::runtime_error( "Error, pressure is not available for custom number density atmosphere without temperature." );
+        }
+        return getNumberDensity( altitude, longitude, latitude, time ) * physical_constants::BOLTZMANN_CONSTANT * constantTemperature_;
+    }
+
+    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        TUDAT_UNUSED_PARAMETER( altitude );
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        if( !std::isfinite( constantTemperature_ ) )
+        {
+            throw std::runtime_error( "Error, temperature is not available for custom number density atmosphere." );
+        }
+        return constantTemperature_;
+    }
+
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    {
+        TUDAT_UNUSED_PARAMETER( altitude );
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        if( !std::isfinite( constantTemperature_ ) )
+        {
+            throw std::runtime_error( "Error, speed of sound is not available for custom number density atmosphere without temperature." );
+        }
+        return computeSpeedOfSound(
+                constantTemperature_,
+                ratioOfSpecificHeats_,
+                physical_constants::MOLAR_GAS_CONSTANT / molarMass_ );
+    }
+
+private:
+    NumberDensityFunction numberDensityFunction_;
+
+    double molarMass_;
+
+    double constantTemperature_;
+
+    double ratioOfSpecificHeats_;
+};
+
+typedef std::shared_ptr< CustomNumberDensityAtmosphere > CustomNumberDensityAtmospherePointer;
 
 }  // namespace aerodynamics
 

@@ -207,6 +207,10 @@ The values in this class may be recomputed every time step to reflect changing a
                 std::shared_ptr< tss::CustomConstantTemperatureAtmosphereSettings >,
                 tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
 
+    py::class_< tss::CustomNumberDensityAtmosphereSettings,
+                std::shared_ptr< tss::CustomNumberDensityAtmosphereSettings >,
+                tss::AtmosphereSettings >( m, "CustomNumberDensityAtmosphereSettings", R"doc(No documentation found.)doc" );
+
     py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
             m, "ScaledAtmosphereSettings", R"doc(No documentation found.)doc" );
 
@@ -794,6 +798,41 @@ using the NRLMSISE-00 global reference model:
        specific_gas_constant,
        ratio_of_specific_heats )
 
+
+     )doc" );
+
+    m.def( "custom_number_density",
+           py::overload_cast< const std::function< double( const double, const double, const double, const double ) >,
+                              const double,
+                              const double,
+                              const double >( &tss::customNumberDensityAtmosphereSettings ),
+           py::arg( "number_density_function" ),
+           py::arg( "molar_mass" ),
+           py::arg( "constant_temperature" ) = TUDAT_NAN,
+           py::arg( "ratio_of_specific_heats" ) = 1.4,
+           R"doc(
+
+ Function for creating atmospheric model settings from a custom number-density profile.
+
+ The supplied function returns total number density in m^-3 as a function of altitude,
+ longitude, latitude and time. Mass density is computed internally from the molar mass
+ using Avogadro's constant.
+
+ Parameters
+ ----------
+ number_density_function : callable[[float, float, float, float], float]
+     Function to retrieve the total number density at the current altitude, longitude,
+     latitude and time.
+ molar_mass : float
+     Molar mass of the atmospheric species in kg/mol.
+ constant_temperature : float, optional
+     Constant temperature used only for pressure and speed-of-sound queries.
+ ratio_of_specific_heats : float, default = 1.4
+     Ratio of specific heats used only for speed-of-sound queries.
+ Returns
+ -------
+ CustomNumberDensityAtmosphereSettings
+     Settings for a custom number-density-driven atmosphere.
 
      )doc" );
 
