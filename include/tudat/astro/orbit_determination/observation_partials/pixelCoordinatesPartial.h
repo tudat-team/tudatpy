@@ -17,6 +17,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/system_models/camera.h"
 #include <functional>
 #include <Eigen/Core>
 
@@ -41,9 +42,25 @@ class PixelCoordinatesScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
     PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
+                             std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+                                     pixelLinePartialWrtCameraFramePositionFunction ):
+        DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pixelLinePartialWrtCameraFramePositionFunction_( pixelLinePartialWrtCameraFramePositionFunction )
+    {
+        observerIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
+                                 .at( observation_models::receiver );
+        observedBodyIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
+                                     .at( observation_models::transmitter );
+    }
+
+    PixelCoordinatesScaling( std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction,
                              Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix ):
         DirectPositionPartialScaling< 2 >( observation_models::pixel_coordinates ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ), focalLengthsMatrix_( focalLengthsMatrix )
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pixelLinePartialWrtCameraFramePositionFunction_( [ focalLengthsMatrix ]( const Eigen::Vector3d& cameraFramePosition ) {
+            return calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( cameraFramePosition, focalLengthsMatrix, false );
+        } )
     {
         observerIndex_ = observation_models::getSingleLinkStateEntryIndices( observation_models::pixel_coordinates )
                                  .at( observation_models::receiver );
@@ -120,7 +137,8 @@ private:
     Eigen::Matrix< double, 2, 3 > realPositionScalingFactor_;
     Eigen::Vector2d lightTimeCorrectionScalingFactor_;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
-    Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix_;
+    std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
+            pixelLinePartialWrtCameraFramePositionFunction_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;

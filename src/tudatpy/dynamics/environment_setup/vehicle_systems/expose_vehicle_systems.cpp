@@ -575,14 +575,21 @@ list[BodyPanelSettings]
 
             .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName );
 
-    m.def( "pinhole_camera",
-           &tss::cameraSettings,
-           py::arg( "camera_name" ),
-           py::arg( "boresight_euler_angles" ),
-           py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
-           py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
-           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
-           R"doc(
+    m.def(
+            "pinhole_camera",
+            []( const std::string& cameraName,
+                const Eigen::Vector3d& boresightEulerAngles,
+                const std::pair< double, double >& focalLengths,
+                const std::pair< double, double >& opticalCenter,
+                const Eigen::Vector3d& bodyFixedPosition ) {
+                return tss::cameraSettings( cameraName, boresightEulerAngles, focalLengths, opticalCenter, bodyFixedPosition );
+            },
+            py::arg( "camera_name" ),
+            py::arg( "boresight_euler_angles" ),
+            py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
+            py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+            py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
+            R"doc(
 
  Function for creating settings for a camera
 
