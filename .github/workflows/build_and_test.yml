@@ -81,16 +81,19 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
+            cmake_generator: Unix Makefiles
             build_jobs: 3
             ccache: ON
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
+            cmake_generator: Ninja
             build_jobs: 2
             ccache: OFF
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
+            cmake_generator: Unix Makefiles
             build_jobs: 2
             ccache: ON
         build_type: [Release]
@@ -182,6 +185,7 @@ jobs:
       run: |
         cmake -B "${{ github.workspace }}/build" \
           -S "${{ github.workspace }}" \
+          -G "${{ matrix.platform.cmake_generator }}" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
           -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \

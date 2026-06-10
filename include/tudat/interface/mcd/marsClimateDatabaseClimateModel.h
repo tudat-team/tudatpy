@@ -10,13 +10,40 @@
 #ifndef TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
 #define TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
 
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <map>
 #include <tuple>
-#include "mcd.h"
 #include "tudat/astro/basic_astro/climateModel.h"
+
+extern "C" {
+void __mcd_MOD_call_mcd( int* zkey,
+                         float* xz,
+                         float* xlon,
+                         float* xlat,
+                         int* hireskey,
+                         int* datekey,
+                         double* xdate,
+                         float* localtime,
+                         const char* dset,
+                         int* scena,
+                         int* perturkey,
+                         float* seedin,
+                         float* gwlength,
+                         int* extvarkeys,
+                         float* pres,
+                         float* dens,
+                         float* temp,
+                         float* zonwind,
+                         float* merwind,
+                         float* meanvar,
+                         float* extvar,
+                         float* seedout,
+                         int* ier,
+                         std::size_t dsetLength );
+}
 
 namespace tudat
 {

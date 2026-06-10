@@ -5,6 +5,7 @@ channels:
 dependencies:
   - cmake
   - make
+  - ninja
   - eigen
   - boost-cpp
   - tudat-resources

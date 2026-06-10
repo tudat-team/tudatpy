@@ -86,6 +86,10 @@ target_link_libraries(mcd_fortran PUBLIC
     NetCDF::NetCDF_C
 )
 
+if(APPLE)
+    target_link_options(mcd_fortran INTERFACE "LINKER:-no_compact_unwind")
+endif()
+
 # Set MCD data directory path (absolute path to the data directory)
 set(MCD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 

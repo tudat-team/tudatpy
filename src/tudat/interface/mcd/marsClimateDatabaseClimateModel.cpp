@@ -137,7 +137,7 @@ void MarsClimateDatabaseClimateModel::updateCache( const double verticalCoordina
                         extraVariables_,
                         &seedout,
                         &ier,
-                        static_cast< int >( mcdDataPath_.length( ) ) );
+                        mcdDataPath_.length( ) );
 
     if( ier != 0 )
     {
