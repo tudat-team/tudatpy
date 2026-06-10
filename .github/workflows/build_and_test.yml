@@ -17,7 +17,7 @@ jobs:
   download-data:
 
     env:
-        MCD_CACHE_NUMBER: 0
+        MCD_CACHE_NUMBER: 1
 
     runs-on: ubuntu-latest
 
@@ -59,10 +59,16 @@ jobs:
         cd "${{ github.workspace }}/temp_mcd"
         # Extract tgz
         tar -xzf *.tgz --strip-components=1
-        # Copy data folder 
+        test -f source/MCD.F90
+        test -f source/mcd.h
+        test -d data
+
+        mkdir -p "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces"
+
         cp -r data "${{ github.workspace }}/third_parties/mcd/"
-        # Copy contents of sources 
-        cp -r source/* "${{ github.workspace }}/third_parties/mcd/"
+        cp source/MCD.F90 "${{ github.workspace }}/third_parties/mcd/MCD.F90"
+        cp source/mcd.h "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
+
         # Cleanup
         cd "${{ github.workspace }}"
         rm -rf temp_mcd
@@ -73,6 +79,7 @@ jobs:
 
     env:
         CACHE_NUMBER: 0
+        MCD_CACHE_NUMBER: 1
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -136,6 +143,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+
+    - name: Restore MCD data files
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/third_parties/mcd
+        key: mcd-data-${{ env.MCD_CACHE_NUMBER }}
+        enableCrossOsArchive: true
+        fail-on-cache-miss: true
+
+    - name: Validate MCD source tree
+      shell: bash
+      run: |
+        test -f "${{ github.workspace }}/third_parties/mcd/MCD.F90"
+        test -f "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
+        test -d "${{ github.workspace }}/third_parties/mcd/data"
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
