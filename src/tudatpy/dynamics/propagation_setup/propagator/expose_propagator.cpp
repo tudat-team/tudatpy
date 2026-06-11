@@ -1775,7 +1775,12 @@ HybridArcPropagatorSettings
      )doc" );
 
     // Relativistic time propagator settings
+    // NOTE: declare the SingleArcPropagatorSettings base so Python recognises
+    // these as propagator settings (matches the C++ hierarchy
+    // RelativisticTimeStatePropagatorSettings : public SingleArcPropagatorSettings);
+    // this lets create_dynamics_simulator() run the direct-from-metric propagator.
     py::class_< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m, "RelativisticTimePropagatorSettings", R"doc(
 
