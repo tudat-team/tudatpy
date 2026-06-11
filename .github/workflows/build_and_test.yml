@@ -228,8 +228,16 @@ jobs:
         selected_c_compiler="${{ matrix.compilers.c }}"
         selected_cxx_compiler="${{ matrix.compilers.cxx }}"
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          selected_c_compiler="cl"
-          selected_cxx_compiler="cl"
+          selected_c_compiler="${CONDA_PREFIX}/Library/bin/clang.exe"
+          selected_cxx_compiler="${CONDA_PREFIX}/Library/bin/clang.exe"
+          if [[ ! -x "${selected_c_compiler}" ]]; then
+            echo "::error::Could not find conda clang compiler at ${selected_c_compiler}"
+            exit 1
+          fi
+          if command -v cygpath >/dev/null 2>&1; then
+            selected_c_compiler="$(cygpath -m "${selected_c_compiler}")"
+            selected_cxx_compiler="$(cygpath -m "${selected_cxx_compiler}")"
+          fi
         fi
 
         cmake_args=(
