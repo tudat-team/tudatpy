@@ -30,12 +30,10 @@
 
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
-#include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tsi = tudat::sofa_interface;
-namespace pc = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 namespace tutil = tudat::utilities;
 
@@ -97,11 +95,6 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverterPy( )
 
 }  // namespace earth_orientation
 
-namespace basic_astrodynamics
-{
-
-}  // namespace basic_astrodynamics
-
 }  // namespace tudat
 
 // Convert from Gregorian date to time_point (Python datetime). Only
@@ -155,9 +148,6 @@ namespace time_representation
 
 void expose_time_representation( py::module& m )
 {
-    //    m.attr("default_time_converter") =
-    //    tudat::earth_orientation::defaultTimeConverter;
-
     py::class_< tudat::Time >( m, "Time", R"doc(
         
     Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
@@ -389,7 +379,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "hour" ) = 12,
                   py::arg( "minute" ) = 0,
                   py::arg( "seconds" ) = 0.0L )
-            .def( "__str__", []( tba::DateTime& datetime ) { return datetime.isoString( ); } )
+            .def( "__str__", []( const tba::DateTime& datetime ) { return datetime.isoString( ); } )
             .def( "__repr__",
                   []( const tba::DateTime& datetime ) {
                       return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
@@ -1779,17 +1769,6 @@ datetime.datetime
      Time object representing the epoch as seconds since J2000.
 
      )doc" );
-
-    //    m.def("epoch_from_julian_day",
-    //          &tudat::timeFromJulianDay< TIME_TYPE >,
-    //          py::arg("julian_day"),
-    //          get_docstring("epoch_from_julian_day").c_str() );
-
-    //    m.def("epoch_from_modified_julian_day",
-    //          &tudat::timeFromModifiedJulianDay< TIME_TYPE >,
-    //          py::arg("modified_julian_day"),
-    //          get_docstring("epoch_from_modified_julian_day").c_str()
-    //          );
 
     /////////////// DEPRECATED
 
