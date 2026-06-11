@@ -661,20 +661,37 @@ void expose_time_representation( py::module& m )
 
 
  )doc" )
-            .def_static( "from_python_datetime", &tba::DateTime::fromTimePoint, py::arg( "datetime" ), R"doc(
-            
+            .def_static(
+                    "from_python_datetime",
+                    []( py::object dt ) {
+                        const int year = dt.attr( "year" ).cast< int >( );
+                        const int month = dt.attr( "month" ).cast< int >( );
+                        const int day = dt.attr( "day" ).cast< int >( );
+                        const int hour = dt.attr( "hour" ).cast< int >( );
+                        const int minute = dt.attr( "minute" ).cast< int >( );
+                        const int second = dt.attr( "second" ).cast< int >( );
+                        const int microsecond = dt.attr( "microsecond" ).cast< int >( );
+                        return tba::DateTime(
+                                year,
+                                month,
+                                day,
+                                hour,
+                                minute,
+                                static_cast< long double >( second ) + static_cast< long double >( microsecond ) / 1000000.0L );
+                    },
+                    py::arg( "datetime" ),
+                    R"doc(
+
 Function to convert a Python `datetime.datetime` object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version.
 
-.. warning::
+.. note::
 
-    This function uses the C++ `std::chrono` library, which is limited in the time range it can represent. If the range is exceeded, the conversion will overflow and **NOT** throw an exception.
-
-    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
+    The calendar fields (year, month, day, hour, minute, second, microsecond) are read directly from the Python object and are not affected by the local timezone or DST settings. Any timezone information (``tzinfo``) attached to the datetime object is silently ignored.
 
 Parameters
 ----------
 datetime : datetime.datetime
-    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
+    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to microsecond resolution.
 Returns
 -------
 DateTime
@@ -852,15 +869,28 @@ In this example, the calendar date corresponding to when 122 days have passed in
      print(dt) # prints 2000-01-01 12:00:00.000000000000000
                          
                          )doc" )
-            .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
-                
-Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_representation.DateTime.from_python_datetime` method.
+            .def(
+                    "to_python_datetime",
+                    []( const tba::DateTime& self ) {
+                        const auto sec_int = static_cast< int >( self.getSeconds( ) );
+                        const auto microsecond = static_cast< int >(
+                                std::round( ( self.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
+                        return py::module_::import( "datetime" )
+                                .attr( "datetime" )( self.getYear( ),
+                                                     self.getMonth( ),
+                                                     self.getDay( ),
+                                                     self.getHour( ),
+                                                     self.getMinute( ),
+                                                     sec_int,
+                                                     microsecond );
+                    },
+                    R"doc(
+
+Method to retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_representation.DateTime.from_python_datetime` method.
 
 .. note::
 
-    The conversion uses the C++ `std::chrono` library, which is limited the time range it can represent. If the range is exceeded, the conversion will fail and throw an exception.
-    
-    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
+    The calendar fields are written directly to the Python object. The returned datetime is always naive (no ``tzinfo``), representing the same year, month, day, hour, minute, second and microsecond as stored in the Tudat object.
 
 Returns
 -------
