@@ -156,10 +156,6 @@ jobs:
         echo "=== Installed packages in tudat environment ==="
         conda list
 
-    - name: Setup MSVC for Ninja
-      if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1
-
     - name: Compiler diagnostics
       shell: bash -l {0}
       run: |
