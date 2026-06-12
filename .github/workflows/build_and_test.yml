@@ -14,34 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  download-data:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download and place MCD files
-      env:
-        GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
-      shell: bash
-      run: |
-        mkdir -p "${{ github.workspace }}/temp_mcd"
-        mkdir -p "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces"
-        gh release download v1 --repo tudat-team/MCD --pattern "dataset.tgz" --dir "${{ github.workspace }}/temp_mcd"
-        tar -xzf "${{ github.workspace }}/temp_mcd/dataset.tgz" -C "${{ github.workspace }}/temp_mcd" --strip-components=1
-        cp -r "${{ github.workspace }}/temp_mcd/data" "${{ github.workspace }}/third_parties/mcd/"
-        cp "${{ github.workspace }}/temp_mcd/source/MCD.F90" "${{ github.workspace }}/third_parties/mcd/MCD.F90"
-        cp "${{ github.workspace }}/temp_mcd/source/mcd.h" "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
-
-    - name: Upload MCD files
-      uses: actions/upload-artifact@v4
-      with:
-        name: mcd-files
-        path: ${{ github.workspace }}/third_parties/mcd/**
-        retention-days: 1
-
   build-and-test:
-
-    needs: download-data
 
     env:
         CACHE_NUMBER: 0
@@ -81,19 +54,16 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            cmake_generator: Unix Makefiles
             build_jobs: 3
             ccache: ON
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
-            cmake_generator: Ninja
             build_jobs: 2
             ccache: OFF
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
-            cmake_generator: Unix Makefiles
             build_jobs: 2
             ccache: ON
         build_type: [Release]
@@ -111,12 +81,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-
-    - name: Download MCD files
-      uses: actions/download-artifact@v4
-      with:
-        name: mcd-files
-        path: ${{ github.workspace }}/third_parties/mcd
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
@@ -183,85 +147,17 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
       run: |
-        conda activate tudat
-
-        selected_c_compiler="${{ matrix.compilers.c }}"
-        selected_cxx_compiler="${{ matrix.compilers.cxx }}"
-        selected_fortran_compiler="${FC:-}"
-
-        if [[ "${{ runner.os }}" == "Windows" ]]; then
-          conda_prefix="${CONDA_PREFIX}"
-          if command -v cygpath >/dev/null 2>&1; then
-            conda_prefix="$(cygpath -u "${conda_prefix}")"
-          fi
-
-          find_conda_tool() {
-            local tool_name
-            for tool_name in "$@"; do
-              local candidate="${conda_prefix}/Library/bin/${tool_name}"
-              if [[ -x "${candidate}" ]]; then
-                echo "${candidate}"
-                return 0
-              fi
-            done
-            return 1
-          }
-
-          selected_c_compiler="$(find_conda_tool clang-cl.exe clang.exe || true)"
-          selected_cxx_compiler="$(find_conda_tool clang-cl.exe clang++.exe clang.exe || true)"
-          selected_fortran_compiler="$(find_conda_tool flang-new.exe flang.exe x86_64-w64-mingw32-gfortran.exe gfortran.exe || true)"
-          selected_rc_compiler="$(find_conda_tool llvm-rc.exe rc.exe || true)"
-
-          if [[ -z "${selected_c_compiler}" || -z "${selected_cxx_compiler}" ]]; then
-            echo "::error::Could not find conda C/CXX compiler in ${conda_prefix}/Library/bin"
-            exit 1
-          fi
-          if [[ -z "${selected_fortran_compiler}" ]]; then
-            echo "::error::Could not find conda Fortran compiler in ${conda_prefix}/Library/bin"
-            exit 1
-          fi
-
-          if command -v cygpath >/dev/null 2>&1; then
-            selected_c_compiler="$(cygpath -m "${selected_c_compiler}")"
-            selected_cxx_compiler="$(cygpath -m "${selected_cxx_compiler}")"
-            selected_fortran_compiler="$(cygpath -m "${selected_fortran_compiler}")"
-            if [[ -n "${selected_rc_compiler}" ]]; then
-              selected_rc_compiler="$(cygpath -m "${selected_rc_compiler}")"
-            fi
-          fi
-        fi
-
-        if [[ -z "${selected_fortran_compiler}" ]]; then
-          echo "::error::Conda did not provide a Fortran compiler; cannot build MCD with a compiler-compatible NetCDF Fortran module."
-          exit 1
-        fi
-
-        echo "Using C compiler: ${selected_c_compiler}"
-        echo "Using CXX compiler: ${selected_cxx_compiler}"
-        echo "Using conda Fortran compiler: ${selected_fortran_compiler}"
-
-        cmake_args=(
-          -B "${{ github.workspace }}/build"
-          -S "${{ github.workspace }}"
-          -G "${{ matrix.platform.cmake_generator }}"
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_COMPILER="${selected_cxx_compiler}"
-          -DCMAKE_C_COMPILER="${selected_c_compiler}"
-          -DCMAKE_Fortran_COMPILER="${selected_fortran_compiler}"
-          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }}
-          -DTUDAT_BUILD_WITH_TEST_PCH=ON
-          -DTUDAT_BUILD_WITH_PCH=ON
-          -DTUDAT_BUILD_WITH_MCD_INTERFACE=ON
-          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON
+        cmake -B "${{ github.workspace }}/build" \
+          -S "${{ github.workspace }}" \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
+          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
+          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} \
+          -DTUDAT_BUILD_WITH_TEST_PCH=ON \
+          -DTUDAT_BUILD_WITH_PCH=ON \
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=OFF \
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
           -DCMAKE_UNITY_BUILD=ON
-        )
-
-        if [[ -n "${selected_rc_compiler:-}" ]]; then
-          echo "Using RC compiler: ${selected_rc_compiler}"
-          cmake_args+=("-DCMAKE_RC_COMPILER=${selected_rc_compiler}")
-        fi
-
-        cmake "${cmake_args[@]}"
 
     - name: Debug
       run: |

@@ -5,7 +5,6 @@ channels:
 dependencies:
   - cmake
   - make
-  - ninja
   - eigen
   - boost-cpp
   - tudat-resources
@@ -15,9 +14,6 @@ dependencies:
   - fftw
   - c-compiler
   - cxx-compiler
-  - fortran-compiler
-  - libnetcdf
-  - netcdf-fortran
   - python
   - pybind11
   - pybind11-abi
