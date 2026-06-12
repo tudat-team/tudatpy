@@ -11,10 +11,7 @@
 #ifndef TUDAT_DATETIME_H
 #define TUDAT_DATETIME_H
 
-#include <algorithm>
 #include <array>
-#include <chrono>
-#include <ctime>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -338,104 +335,6 @@ public:
         return julianDay< TimeType >( ) - referenceJulianDay;
     }
 
-    static double minimumChronoRepresentableEpoch( )
-    {
-        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
-        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
-
-        constexpr std::chrono::system_clock::duration::rep minTickCount =
-                std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
-
-        std::chrono::system_clock::duration minDuration( minTickCount );
-
-        std::chrono::duration< double > secondsDuration = minDuration;
-
-        double lowerRepresentationCount = secondsDuration.count( );
-
-        double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
-
-#if defined( _WIN64 ) || defined( _WIN32 )
-        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
-
-#elif defined( __APPLE__ )
-        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
-#endif
-
-        return minimumRepresentableEpoch;
-    }
-
-    static double maximumChronoRepresentableEpoch( )
-    {
-        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
-        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
-
-        constexpr std::chrono::system_clock::duration::rep maxTickCount =
-                std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
-
-        std::chrono::system_clock::duration maxDuration( maxTickCount );
-
-        std::chrono::duration< double > secondsDuration = maxDuration;
-
-        double upperRepresentationCount = secondsDuration.count( );
-
-        double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
-
-#if defined( _WIN64 ) || defined( _WIN32 )
-        maximumRepresentableEpoch = std::min( maximumRepresentableEpoch, DateTime( 3000, 12, 31, 23, 59, 59.0L ).epoch< double >( ) );
-#endif
-        return maximumRepresentableEpoch;
-    }
-
-    std::chrono::system_clock::time_point timePoint( ) const
-    {
-        double minimumChronoEpoch = minimumChronoRepresentableEpoch( );
-        double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
-
-        if( this->epoch< double >( ) >= maximumChronoEpoch || this->epoch< double >( ) <= minimumChronoEpoch )
-        {
-            throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
-                                      " is out of range for conversion to time point. Lower limit (in seconds from J2000) is: " +
-                                      std::to_string( minimumChronoEpoch ) + ", upper limit: " + std::to_string( maximumChronoEpoch ) );
-        }
-
-        std::tm tm = {};
-        tm.tm_sec = static_cast< int >( this->getSeconds( ) );
-        tm.tm_min = this->getMinute( );
-        tm.tm_hour = this->getHour( );
-        tm.tm_mday = this->getDay( );
-        tm.tm_mon = this->getMonth( ) - 1;
-        tm.tm_year = this->getYear( ) - 1900;
-
-        tm.tm_isdst = -1;
-
-        std::time_t tt = std::mktime( &tm );
-
-        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
-        return timePoint +
-                std::chrono::microseconds(
-                        static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                                                        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
-    }
-
-    static DateTime fromTimePoint( const std::chrono::system_clock::time_point datetime )
-    {
-        std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
-
-        std::tm local_tm = *localtime( &tt );
-
-        using namespace std::chrono;
-        microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
-        long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
-
-        return DateTime( local_tm.tm_year + 1900,
-                         local_tm.tm_mon + 1,
-                         local_tm.tm_mday,
-                         local_tm.tm_hour,
-                         local_tm.tm_min,
-                         static_cast< long double >( local_tm.tm_sec ) +
-                                 static_cast< long double >( fractional_seconds ) /
-                                         tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
-    }
     static DateTime fromYearAndDaysInYear( const int year, const int daysInYear )
     {
         boost::gregorian::date boostDateTime = convertYearAndDaysInYearToDate( year, daysInYear );

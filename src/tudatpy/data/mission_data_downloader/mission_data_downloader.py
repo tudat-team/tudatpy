@@ -15,11 +15,7 @@ import subprocess
 from tabulate import tabulate
 from colorama import Fore
 from collections import defaultdict
-from tudatpy.astro.time_representation import (
-    calendar_date_to_julian_day,
-    date_time_from_iso_string,
-    datetime_to_python,
-)
+from tudatpy.astro.time_representation import DateTime
 import shutil
 import time
 
@@ -4592,16 +4588,10 @@ class DownloadAtmosphericData:
         # Get DOY range
         year = start_utc[0:4]
         base_date = year + "-01-01T00:00:00"
-        doy0 = calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(base_date)))
+        doy0 = DateTime.from_iso_string(base_date).to_julian_day()
 
-        doy_start = int(
-            calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(start_utc)))
-            - doy0
-        )
-        doy_end = int(
-            calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(end_utc)))
-            - doy0
-        )
+        doy_start = int(DateTime.from_iso_string(start_utc).to_julian_day() - doy0)
+        doy_end = int(DateTime.from_iso_string(end_utc).to_julian_day() - doy0)
 
         # Prepare HTTP session
         session = requests.Session()
