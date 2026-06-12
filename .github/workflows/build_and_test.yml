@@ -62,7 +62,7 @@ jobs:
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 2
             ccache: OFF
-            mcd: "OFF"
+            mcd: "ON"
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
@@ -165,17 +165,50 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
       run: |
-        cmake -B "${{ github.workspace }}/build" \
-          -S "${{ github.workspace }}" \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }} \
-          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }} \
-          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} \
-          -DTUDAT_BUILD_WITH_TEST_PCH=ON \
-          -DTUDAT_BUILD_WITH_PCH=ON \
-          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${{ matrix.platform.mcd }} \
-          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
+        cmake_args=(
+          -B "${{ github.workspace }}/build"
+          -S "${{ github.workspace }}"
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
+          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
+          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }}
+          -DTUDAT_BUILD_WITH_TEST_PCH=ON
+          -DTUDAT_BUILD_WITH_PCH=ON
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${{ matrix.platform.mcd }}
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON
           -DCMAKE_UNITY_BUILD=ON
+        )
+
+        if [[ "${{ runner.os }}" == "Windows" && "${{ matrix.platform.mcd }}" == "ON" ]]; then
+          conda_prefix="${CONDA_PREFIX:-${{ matrix.platform.path_conda_env }}}"
+          if command -v cygpath >/dev/null 2>&1; then
+            conda_prefix="$(cygpath -u "${conda_prefix}")"
+          fi
+
+          fortran_compiler="${conda_prefix}/Library/bin/flang-new.exe"
+          rc_compiler="${conda_prefix}/Library/bin/llvm-rc.exe"
+
+          if [[ ! -x "${fortran_compiler}" ]]; then
+            echo "::error::Could not find conda Fortran compiler at ${fortran_compiler}"
+            exit 1
+          fi
+          if [[ ! -x "${rc_compiler}" ]]; then
+            echo "::error::Could not find conda LLVM resource compiler at ${rc_compiler}"
+            exit 1
+          fi
+
+          if command -v cygpath >/dev/null 2>&1; then
+            fortran_compiler="$(cygpath -m "${fortran_compiler}")"
+            rc_compiler="$(cygpath -m "${rc_compiler}")"
+          fi
+
+          cmake_args+=(
+            "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
+            "-DCMAKE_RC_COMPILER=${rc_compiler}"
+          )
+        fi
+
+        cmake "${cmake_args[@]}"
 
     - name: Debug
       run: |
