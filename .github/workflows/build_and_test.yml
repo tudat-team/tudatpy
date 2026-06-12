@@ -6,9 +6,6 @@
 
 name: Build and Test w/ Conda
 
-permissions:
-  contents: read
-
 on:
   push:
     branches: [ "master", "develop"]
@@ -159,46 +156,6 @@ jobs:
         echo "=== Installed packages in tudat environment ==="
         conda list
 
-    - name: Compiler diagnostics
-      shell: bash -l {0}
-      run: |
-        conda activate tudat
-
-        echo "runner.os=${{ runner.os }}"
-        echo "CONDA_PREFIX=${CONDA_PREFIX}"
-        echo "CC=${CC:-}"
-        echo "CXX=${CXX:-}"
-        echo "FC=${FC:-}"
-        echo "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-}"
-        echo "PATH=${PATH}"
-
-        for tool in cmake ninja make gcc g++ clang clang++ cl flang-new flang gfortran windres; do
-          echo "---- ${tool} ----"
-          command -v "${tool}" || true
-          type -a "${tool}" || true
-        done
-
-        conda_prefix="${CONDA_PREFIX}"
-        if command -v cygpath >/dev/null 2>&1; then
-          conda_prefix="$(cygpath -u "${conda_prefix}")"
-        fi
-        echo "Compiler-like executables inside ${conda_prefix}:"
-        find "${conda_prefix}" -type f \( \
-          -iname "cl.exe" -o \
-          -iname "gcc.exe" -o \
-          -iname "g++.exe" -o \
-          -iname "clang.exe" -o \
-          -iname "clang++.exe" -o \
-          -iname "flang*.exe" -o \
-          -iname "*gfortran*.exe" -o \
-          -name "gcc" -o \
-          -name "g++" -o \
-          -name "clang" -o \
-          -name "clang++" -o \
-          -name "flang*" -o \
-          -name "*gfortran*" \
-        \) | sort || true
-
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
     #   # the tudat-resources conda package in the previous step, but the data files are
@@ -230,10 +187,58 @@ jobs:
 
         selected_c_compiler="${{ matrix.compilers.c }}"
         selected_cxx_compiler="${{ matrix.compilers.cxx }}"
+        selected_fortran_compiler="${FC:-}"
+
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          selected_c_compiler="cl"
-          selected_cxx_compiler="cl"
+          conda_prefix="${CONDA_PREFIX}"
+          if command -v cygpath >/dev/null 2>&1; then
+            conda_prefix="$(cygpath -u "${conda_prefix}")"
+          fi
+
+          find_conda_tool() {
+            local tool_name
+            for tool_name in "$@"; do
+              local candidate="${conda_prefix}/Library/bin/${tool_name}"
+              if [[ -x "${candidate}" ]]; then
+                echo "${candidate}"
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          selected_c_compiler="$(find_conda_tool clang-cl.exe clang.exe || true)"
+          selected_cxx_compiler="$(find_conda_tool clang-cl.exe clang++.exe clang.exe || true)"
+          selected_fortran_compiler="$(find_conda_tool flang-new.exe flang.exe x86_64-w64-mingw32-gfortran.exe gfortran.exe || true)"
+          selected_rc_compiler="$(find_conda_tool llvm-rc.exe rc.exe || true)"
+
+          if [[ -z "${selected_c_compiler}" || -z "${selected_cxx_compiler}" ]]; then
+            echo "::error::Could not find conda C/CXX compiler in ${conda_prefix}/Library/bin"
+            exit 1
+          fi
+          if [[ -z "${selected_fortran_compiler}" ]]; then
+            echo "::error::Could not find conda Fortran compiler in ${conda_prefix}/Library/bin"
+            exit 1
+          fi
+
+          if command -v cygpath >/dev/null 2>&1; then
+            selected_c_compiler="$(cygpath -m "${selected_c_compiler}")"
+            selected_cxx_compiler="$(cygpath -m "${selected_cxx_compiler}")"
+            selected_fortran_compiler="$(cygpath -m "${selected_fortran_compiler}")"
+            if [[ -n "${selected_rc_compiler}" ]]; then
+              selected_rc_compiler="$(cygpath -m "${selected_rc_compiler}")"
+            fi
+          fi
         fi
+
+        if [[ -z "${selected_fortran_compiler}" ]]; then
+          echo "::error::Conda did not provide a Fortran compiler; cannot build MCD with a compiler-compatible NetCDF Fortran module."
+          exit 1
+        fi
+
+        echo "Using C compiler: ${selected_c_compiler}"
+        echo "Using CXX compiler: ${selected_cxx_compiler}"
+        echo "Using conda Fortran compiler: ${selected_fortran_compiler}"
 
         cmake_args=(
           -B "${{ github.workspace }}/build"
@@ -242,6 +247,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_CXX_COMPILER="${selected_cxx_compiler}"
           -DCMAKE_C_COMPILER="${selected_c_compiler}"
+          -DCMAKE_Fortran_COMPILER="${selected_fortran_compiler}"
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }}
           -DTUDAT_BUILD_WITH_TEST_PCH=ON
           -DTUDAT_BUILD_WITH_PCH=ON
@@ -250,67 +256,12 @@ jobs:
           -DCMAKE_UNITY_BUILD=ON
         )
 
-        conda_prefix="${CONDA_PREFIX}"
-        if command -v cygpath >/dev/null 2>&1; then
-          conda_prefix="$(cygpath -u "${conda_prefix}")"
+        if [[ -n "${selected_rc_compiler:-}" ]]; then
+          echo "Using RC compiler: ${selected_rc_compiler}"
+          cmake_args+=("-DCMAKE_RC_COMPILER=${selected_rc_compiler}")
         fi
-
-        selected_fortran_compiler="${FC:-}"
-        if [[ -n "${selected_fortran_compiler}" ]] && command -v "${selected_fortran_compiler}" >/dev/null 2>&1; then
-          selected_fortran_compiler="$(command -v "${selected_fortran_compiler}")"
-        fi
-        if [[ -n "${selected_fortran_compiler}" ]] && command -v cygpath >/dev/null 2>&1; then
-          selected_fortran_compiler="$(cygpath -u "${selected_fortran_compiler}")"
-        fi
-
-        if [[ -z "${selected_fortran_compiler}" || "${selected_fortran_compiler}" != "${conda_prefix}"/* ]]; then
-          selected_fortran_compiler=""
-          for compiler_name in \
-            flang-new.exe flang.exe x86_64-w64-mingw32-gfortran.exe gfortran.exe \
-            flang-new flang gfortran
-          do
-            selected_fortran_compiler="$(find "${conda_prefix}" -type f -name "${compiler_name}" -print -quit)"
-            if [[ -n "${selected_fortran_compiler}" ]]; then
-              break
-            fi
-          done
-        fi
-
-        if [[ -z "${selected_fortran_compiler}" ]]; then
-          echo "::error::Could not find a Fortran compiler inside ${conda_prefix}; refusing to use a system compiler for MCD."
-          find "${conda_prefix}" -type f \( -iname "*flang*" -o -iname "*gfortran*" \) || true
-          exit 1
-        fi
-
-        if command -v cygpath >/dev/null 2>&1; then
-          selected_fortran_compiler="$(cygpath -m "${selected_fortran_compiler}")"
-        fi
-
-        echo "Using C compiler: ${selected_c_compiler}"
-        echo "Using CXX compiler: ${selected_cxx_compiler}"
-        echo "Using conda Fortran compiler: ${selected_fortran_compiler}"
-        cmake_args+=("-DCMAKE_Fortran_COMPILER=${selected_fortran_compiler}")
-
-        printf 'CMake configure arguments:\n'
-        printf '  %q\n' "${cmake_args[@]}"
 
         cmake "${cmake_args[@]}"
-
-    - name: Dump CMake configure diagnostics
-      if: failure()
-      shell: bash -l {0}
-      run: |
-        for file in \
-          "${{ github.workspace }}/build/CMakeCache.txt" \
-          "${{ github.workspace }}/build/CMakeFiles/CMakeConfigureLog.yaml" \
-          "${{ github.workspace }}/build/CMakeFiles/CMakeOutput.log" \
-          "${{ github.workspace }}/build/CMakeFiles/CMakeError.log"
-        do
-          if [[ -f "${file}" ]]; then
-            echo "===== ${file} ====="
-            cat "${file}"
-          fi
-        done
 
     - name: Debug
       run: |
@@ -327,18 +278,3 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
-
-    - name: Dump CTest diagnostics
-      if: failure()
-      working-directory: "${{ github.workspace }}/build"
-      shell: bash -l {0}
-      run: |
-        for file in \
-          Testing/Temporary/LastTestsFailed.log \
-          Testing/Temporary/LastTest.log
-        do
-          if [[ -f "${file}" ]]; then
-            echo "===== ${file} ====="
-            cat "${file}"
-          fi
-        done
