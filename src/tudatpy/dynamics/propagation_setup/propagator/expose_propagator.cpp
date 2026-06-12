@@ -70,7 +70,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
         const py::array_t< double, py::array::c_style | py::array::forcecast >& initial_state,
         const TIME_TYPE& initial_time,
         const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integrator_settings,
-        const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings )
+        const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings,
+        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >& dependent_variables_to_save = {} )
 {
     Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > state_vector;
     const auto buffer = initial_state.request( );
@@ -109,7 +110,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
                                                                                                 state_vector,
                                                                                                 initial_time,
                                                                                                 integrator_settings,
-                                                                                                termination_settings );
+                                                                                                termination_settings,
+                                                                                                dependent_variables_to_save );
 }
 
 void expose_propagator_setup( py::module& m )
@@ -1775,7 +1777,12 @@ HybridArcPropagatorSettings
      )doc" );
 
     // Relativistic time propagator settings
+    // NOTE: declare the SingleArcPropagatorSettings base so Python recognises
+    // these as propagator settings (matches the C++ hierarchy
+    // RelativisticTimeStatePropagatorSettings : public SingleArcPropagatorSettings);
+    // this lets create_dynamics_simulator() run the direct-from-metric propagator.
     py::class_< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m, "RelativisticTimePropagatorSettings", R"doc(
 
@@ -1818,6 +1825,7 @@ HybridArcPropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
+           py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            R"doc(
 
  Creates settings for first-order barycentric↔body-centered relativistic time conversion.
@@ -1880,6 +1888,12 @@ HybridArcPropagatorSettings
  spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
      Optional map from body name to ``(degree, order)`` defining spherical-harmonic gravity expansions
      in the potential evaluation.
+ dependent_variables_to_save : list[SingleDependentVariableSaveSettings], default=[]
+     Dependent variables to save during the relativistic time-state propagation, for example the
+     kinematic and potential proper-time-rate terms
+     (:func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_kinematic_term`
+     and
+     :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_potential_term`).
 
  Returns
  -------
@@ -1899,6 +1913,7 @@ HybridArcPropagatorSettings
            py::arg( "initial_time" ),
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
+           py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            R"doc(
 
  Creates settings for body-centered↔topocentric relativistic time conversion.
@@ -1964,6 +1979,12 @@ HybridArcPropagatorSettings
      Numerical integrator settings used to propagate the relativistic time state.
  termination_settings : PropagationTerminationSettings
      Termination settings for the relativistic time-state propagation.
+ dependent_variables_to_save : list[SingleDependentVariableSaveSettings], default=[]
+     Dependent variables to save during the relativistic time-state propagation, for example the
+     kinematic and potential proper-time-rate terms
+     (:func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_kinematic_term`
+     and
+     :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_potential_term`).
 
  Returns
  -------
