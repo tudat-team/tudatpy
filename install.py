@@ -215,10 +215,7 @@ class Installer:
                 for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
                     lib_dir = self.build_dir / "lib" / build_config
                     if lib_dir.exists():
-                        self.link_content(
-                            lib_dir,
-                            self.conda_prefix / "lib",
-                            [".a", ".lib"])
+                        self.link_content(lib_dir, self.conda_prefix / "lib", [".a", ".lib"])
                         break
             else:
                 self.link_content(
@@ -264,10 +261,7 @@ class Installer:
                 for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
                     kernel_dir = self.build_dir / "src/tudatpy" / build_config
                     if kernel_dir.exists():
-                        self.link_content(
-                            kernel_dir,
-                            self.pylib_dir / "tudatpy",
-                            [".pyd"])
+                        self.link_content(kernel_dir, self.pylib_dir / "tudatpy", [".pyd"])
                         break
             else:
                 # On Linux/macOS, kernel is in build/src/tudatpy/
