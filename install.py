@@ -6,40 +6,6 @@ import subprocess
 import sysconfig
 
 
-def PrintDebugInfo(dir: Path, exts: str | list[str], extrainfo: str) -> None:
-    print("********** DEBUGG **********")
-    print(extrainfo)
-    # Convert to Path if string
-    dir = Path(dir)
-    if not dir.exists():
-        print(f"ERROR: Directory does not exist")
-        return None
-    
-    # Turn extension into list if needed
-    if isinstance(exts, str):
-        exts = [exts]
-    exts_str = ", ".join(exts)
-    print(f"Searching in {dir} for: {exts_str}")
-
-    # Look for files
-    found_files = []
-    for ext in exts:
-        files = list(dir.glob(f"*{ext}"))
-        found_files.extend(files)
-    
-    # Print files
-    if found_files:
-        print(f"Found {len(found_files)} file(s):")
-        for file in found_files:
-            print(f"  - {file}")
-    else:
-        print(f"No files found")
-    
-    print("****************************\n")
-    return None
-
-
-
 class InstallParser(argparse.ArgumentParser):
 
     def __init__(self) -> None:
@@ -249,11 +215,12 @@ class Installer:
                 for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
                     lib_dir = self.build_dir / "lib" / build_config
                     if lib_dir.exists():
-                        PrintDebugInfo(lib_dir, [".a", ".lib"], "Tudat static libraries")
-                        self.link_content(lib_dir, self.conda_prefix / "lib", [".a", ".lib"])
+                        self.link_content(
+                            lib_dir,
+                            self.conda_prefix / "lib",
+                            [".a", ".lib"])
                         break
             else:
-                PrintDebugInfo(self.build_dir / "lib", [".a", ".lib"], "Tudat static libraries")
                 self.link_content(
                     self.build_dir / "lib",
                     self.conda_prefix / "lib",
@@ -261,13 +228,11 @@ class Installer:
                 )
 
             # Install tudat headers
-            PrintDebugInfo(self.build_dir / "include/tudat", [".hpp", ".h"], "Tudat headers 1")
             self.link_content(
                 self.build_dir / "include/tudat",
                 self.conda_prefix / "include/tudat",
                 [".hpp", ".h"],
             )
-            PrintDebugInfo(self.base_tudat / "include/tudat", "", "Tudat headers 2")
             self.link_content(
                 self.base_tudat / "include/tudat",
                 self.conda_prefix / "include/tudat",
@@ -275,7 +240,6 @@ class Installer:
             )
 
             # Install tudat CMake files
-            PrintDebugInfo(self.build_dir, ".cmake", "CMake headers")
             self.link_content(
                 self.build_dir,
                 self.conda_prefix / "lib/cmake/tudat",
@@ -300,12 +264,13 @@ class Installer:
                 for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
                     kernel_dir = self.build_dir / "src/tudatpy" / build_config
                     if kernel_dir.exists():
-                        PrintDebugInfo(kernel_dir, ".pyd", "Tudatpy kernel")
-                        self.link_content(kernel_dir, self.pylib_dir / "tudatpy", [".pyd"])
+                        self.link_content(
+                            kernel_dir,
+                            self.pylib_dir / "tudatpy",
+                            [".pyd"])
                         break
             else:
                 # On Linux/macOS, kernel is in build/src/tudatpy/
-                PrintDebugInfo(self.build_dir/"src/tudatpy", [".so", ".dll", ".dylib", ".pyd"], "Tudatpy kernel")
                 self.link_content(
                     self.build_dir / "src/tudatpy",
                     self.pylib_dir / "tudatpy",
