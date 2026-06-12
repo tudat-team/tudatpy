@@ -94,6 +94,6 @@ def test_datetime_conversions():
 
     julian_day = 2443494.5
     tudat_datettime = time_representation.DateTime.from_python_datetime(
-        time_representation.julian_day_to_calendar_date(julian_day)
+        time_representation.DateTime.from_julian_day(julian_day).to_python_datetime()
     )
-    assert julian_day == pytest.approx(tudat_datettime.julian_day(), abs=1e-9)
+    assert julian_day == pytest.approx(tudat_datettime.to_julian_day(), abs=1e-9)
