@@ -90,15 +90,16 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: |
         set -euo pipefail
-        mkdir -p "${{ github.workspace }}/temp_mcd"
-        mkdir -p "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces"
-        gh release download v1 --repo tudat-team/MCD --pattern "dataset.tgz" --dir "${{ github.workspace }}/temp_mcd"
-        tar -xzf "${{ github.workspace }}/temp_mcd/dataset.tgz" -C "${{ github.workspace }}/temp_mcd" --strip-components=1
-        cp -R "${{ github.workspace }}/temp_mcd/data" "${{ github.workspace }}/third_parties/mcd/"
-        cp "${{ github.workspace }}/temp_mcd/source/MCD.F90" "${{ github.workspace }}/third_parties/mcd/MCD.F90"
-        cp "${{ github.workspace }}/temp_mcd/source/mcd.h" "${{ github.workspace }}/third_parties/mcd/interfaces/c_interfaces/mcd.h"
+        mkdir -p temp_mcd
+        mkdir -p third_parties/mcd/interfaces/c_interfaces
+        gh release download v1 --repo tudat-team/MCD --pattern "dataset.tgz" --dir temp_mcd
+        tar -xzf temp_mcd/dataset.tgz -C temp_mcd --strip-components=1
+        cp -R temp_mcd/data third_parties/mcd/
+        cp temp_mcd/source/MCD.F90 third_parties/mcd/MCD.F90
+        cp temp_mcd/source/mcd.h third_parties/mcd/interfaces/c_interfaces/mcd.h
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
