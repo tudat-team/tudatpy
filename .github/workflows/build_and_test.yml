@@ -62,7 +62,7 @@ jobs:
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 2
             ccache: OFF
-            mcd: "ON"
+            mcd: "OFF"
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
