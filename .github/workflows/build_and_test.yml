@@ -62,7 +62,7 @@ jobs:
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 2
             ccache: OFF
-            mcd: "OFF"
+            mcd: "ON"
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
@@ -166,12 +166,54 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
       run: |
+        set -euo pipefail
+
+        dump_configure_diagnostics() {
+          echo "::group::CMake configure diagnostics"
+          echo "runner.os=${{ runner.os }}"
+          echo "matrix.platform.mcd=${{ matrix.platform.mcd }}"
+          echo "CONDA_PREFIX=${CONDA_PREFIX:-}"
+          echo "PATH=${PATH}"
+
+          for tool in cmake ninja clang-cl clang clang++ cl flang-new flang gfortran llvm-rc lld-link llvm-lib link lib; do
+            echo "---- ${tool} ----"
+            command -v "${tool}" || true
+            type -a "${tool}" || true
+          done
+
+          if [[ -n "${conda_prefix:-}" && -d "${conda_prefix}" ]]; then
+            echo "Compiler-like executables inside ${conda_prefix}:"
+            find "${conda_prefix}" -maxdepth 4 -type f \( \
+              -iname "clang-cl.exe" -o \
+              -iname "clang.exe" -o \
+              -iname "clang++.exe" -o \
+              -iname "flang-new.exe" -o \
+              -iname "flang.exe" -o \
+              -iname "llvm-rc.exe" -o \
+              -iname "lld-link.exe" -o \
+              -iname "llvm-lib.exe" -o \
+              -iname "ninja.exe" \
+            \) | sort || true
+          fi
+
+          for file in \
+            "${{ github.workspace }}/build/CMakeCache.txt" \
+            "${{ github.workspace }}/build/CMakeFiles/CMakeConfigureLog.yaml" \
+            "${{ github.workspace }}/build/CMakeFiles/CMakeOutput.log" \
+            "${{ github.workspace }}/build/CMakeFiles/CMakeError.log"
+          do
+            if [[ -f "${file}" ]]; then
+              echo "===== ${file} ====="
+              cat "${file}"
+            fi
+          done
+          echo "::endgroup::"
+        }
+
         cmake_args=(
           -B "${{ github.workspace }}/build"
           -S "${{ github.workspace }}"
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
-          -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }}
           -DTUDAT_BUILD_WITH_TEST_PCH=ON
           -DTUDAT_BUILD_WITH_PCH=ON
@@ -186,30 +228,99 @@ jobs:
             conda_prefix="$(cygpath -u "${conda_prefix}")"
           fi
 
-          fortran_compiler="${conda_prefix}/Library/bin/flang-new.exe"
-          rc_compiler="${conda_prefix}/Library/bin/llvm-rc.exe"
+          find_conda_tool() {
+            local tool_name
+            for tool_name in "$@"; do
+              local candidate="${conda_prefix}/Library/bin/${tool_name}"
+              if [[ -x "${candidate}" ]]; then
+                echo "${candidate}"
+                return 0
+              fi
+            done
+            return 1
+          }
 
-          if [[ ! -x "${fortran_compiler}" ]]; then
-            echo "::error::Could not find conda Fortran compiler at ${fortran_compiler}"
+          c_compiler="$(find_conda_tool clang-cl.exe clang.exe || true)"
+          cxx_compiler="$(find_conda_tool clang-cl.exe clang++.exe clang.exe || true)"
+          fortran_compiler="$(find_conda_tool flang-new.exe flang.exe || true)"
+          rc_compiler="$(find_conda_tool llvm-rc.exe || true)"
+          ninja_program="$(command -v ninja || find_conda_tool ninja.exe || true)"
+          linker="$(find_conda_tool lld-link.exe || true)"
+          archiver="$(find_conda_tool llvm-lib.exe || true)"
+
+          if [[ -z "${c_compiler}" || -z "${cxx_compiler}" ]]; then
+            echo "::error::Could not find conda clang/clang-cl C/CXX compiler in ${conda_prefix}/Library/bin"
+            dump_configure_diagnostics
             exit 1
           fi
-          if [[ ! -x "${rc_compiler}" ]]; then
-            echo "::error::Could not find conda LLVM resource compiler at ${rc_compiler}"
+          if [[ -z "${fortran_compiler}" ]]; then
+            echo "::error::Could not find conda Fortran compiler at ${fortran_compiler}"
+            dump_configure_diagnostics
+            exit 1
+          fi
+          if [[ -z "${rc_compiler}" ]]; then
+            echo "::error::Could not find conda LLVM resource compiler in ${conda_prefix}/Library/bin"
+            dump_configure_diagnostics
+            exit 1
+          fi
+          if [[ -z "${ninja_program}" ]]; then
+            echo "::error::Could not find Ninja. Windows MCD builds need a non-Visual Studio generator because CMake cannot enable conda flang-new with the Visual Studio generator."
+            dump_configure_diagnostics
             exit 1
           fi
 
           if command -v cygpath >/dev/null 2>&1; then
+            c_compiler="$(cygpath -m "${c_compiler}")"
+            cxx_compiler="$(cygpath -m "${cxx_compiler}")"
             fortran_compiler="$(cygpath -m "${fortran_compiler}")"
             rc_compiler="$(cygpath -m "${rc_compiler}")"
+            ninja_program="$(cygpath -m "${ninja_program}")"
+            if [[ -n "${linker}" ]]; then
+              linker="$(cygpath -m "${linker}")"
+            fi
+            if [[ -n "${archiver}" ]]; then
+              archiver="$(cygpath -m "${archiver}")"
+            fi
           fi
 
+          echo "Using Windows MCD Ninja toolchain:"
+          echo "  C compiler: ${c_compiler}"
+          echo "  CXX compiler: ${cxx_compiler}"
+          echo "  Fortran compiler: ${fortran_compiler}"
+          echo "  RC compiler: ${rc_compiler}"
+          echo "  Ninja: ${ninja_program}"
+
           cmake_args+=(
+            -G Ninja
+            "-DCMAKE_MAKE_PROGRAM=${ninja_program}"
+            "-DCMAKE_C_COMPILER=${c_compiler}"
+            "-DCMAKE_CXX_COMPILER=${cxx_compiler}"
             "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
             "-DCMAKE_RC_COMPILER=${rc_compiler}"
           )
+
+          if [[ -n "${linker}" ]]; then
+            echo "  Linker: ${linker}"
+            cmake_args+=("-DCMAKE_LINKER=${linker}")
+          fi
+          if [[ -n "${archiver}" ]]; then
+            echo "  Archiver: ${archiver}"
+            cmake_args+=("-DCMAKE_AR=${archiver}")
+          fi
+        else
+          cmake_args+=(
+            -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
+            -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
+          )
         fi
 
-        cmake "${cmake_args[@]}"
+        printf 'CMake configure arguments:\n'
+        printf '  %q\n' "${cmake_args[@]}"
+
+        if ! cmake "${cmake_args[@]}"; then
+          dump_configure_diagnostics
+          exit 1
+        fi
 
     - name: Debug
       run: |
