@@ -175,7 +175,7 @@ jobs:
           echo "CONDA_PREFIX=${CONDA_PREFIX:-}"
           echo "PATH=${PATH}"
 
-          for tool in cmake ninja clang-cl clang clang++ cl flang-new flang gfortran llvm-rc lld-link llvm-lib link lib; do
+          for tool in cmake ninja clang-cl clang clang++ cl flang-new flang gfortran llvm-rc mt lld-link llvm-lib link lib; do
             echo "---- ${tool} ----"
             command -v "${tool}" || true
             type -a "${tool}" || true
@@ -194,6 +194,21 @@ jobs:
               -iname "llvm-lib.exe" -o \
               -iname "ninja.exe" \
             \) | sort || true
+          fi
+
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            echo "Windows SDK manifest tools:"
+            for sdk_bin in \
+              "C:/Program Files (x86)/Windows Kits/10/bin" \
+              "C:/Program Files/Windows Kits/10/bin"
+            do
+              if command -v cygpath >/dev/null 2>&1; then
+                sdk_bin="$(cygpath -u "${sdk_bin}" 2>/dev/null || true)"
+              fi
+              if [[ -n "${sdk_bin}" && -d "${sdk_bin}" ]]; then
+                find "${sdk_bin}" -maxdepth 3 -type f -iname "mt.exe" | sort || true
+              fi
+            done
           fi
 
           for file in \
@@ -240,10 +255,37 @@ jobs:
             return 1
           }
 
+          find_windows_sdk_tool() {
+            local tool_name="$1"
+            local sdk_bin
+            if command -v "${tool_name}" >/dev/null 2>&1; then
+              command -v "${tool_name}"
+              return 0
+            fi
+            for sdk_bin in \
+              "C:/Program Files (x86)/Windows Kits/10/bin" \
+              "C:/Program Files/Windows Kits/10/bin"
+            do
+              if command -v cygpath >/dev/null 2>&1; then
+                sdk_bin="$(cygpath -u "${sdk_bin}" 2>/dev/null || true)"
+              fi
+              if [[ -n "${sdk_bin}" && -d "${sdk_bin}" ]]; then
+                local candidate
+                candidate="$(find "${sdk_bin}" -maxdepth 3 -type f -ipath "*/x64/${tool_name}" | sort | tail -n 1 || true)"
+                if [[ -n "${candidate}" ]]; then
+                  echo "${candidate}"
+                  return 0
+                fi
+              fi
+            done
+            return 1
+          }
+
           c_compiler="$(find_conda_tool clang-cl.exe clang.exe || true)"
           cxx_compiler="$(find_conda_tool clang-cl.exe clang++.exe clang.exe || true)"
           fortran_compiler="$(find_conda_tool flang-new.exe flang.exe || true)"
           rc_compiler="$(find_conda_tool llvm-rc.exe || true)"
+          mt_tool="$(find_windows_sdk_tool mt.exe || true)"
           ninja_program="$(command -v ninja || find_conda_tool ninja.exe || true)"
           linker="$(find_conda_tool lld-link.exe || true)"
           archiver="$(find_conda_tool llvm-lib.exe || true)"
@@ -263,6 +305,11 @@ jobs:
             dump_configure_diagnostics
             exit 1
           fi
+          if [[ -z "${mt_tool}" ]]; then
+            echo "::error::Could not find Windows SDK manifest tool mt.exe. CMake needs it to link MSVC-like clang/flang try-compile executables with Ninja."
+            dump_configure_diagnostics
+            exit 1
+          fi
           if [[ -z "${ninja_program}" ]]; then
             echo "::error::Could not find Ninja. Windows MCD builds need a non-Visual Studio generator because CMake cannot enable conda flang-new with the Visual Studio generator."
             dump_configure_diagnostics
@@ -274,6 +321,7 @@ jobs:
             cxx_compiler="$(cygpath -m "${cxx_compiler}")"
             fortran_compiler="$(cygpath -m "${fortran_compiler}")"
             rc_compiler="$(cygpath -m "${rc_compiler}")"
+            mt_tool="$(cygpath -m "${mt_tool}")"
             ninja_program="$(cygpath -m "${ninja_program}")"
             if [[ -n "${linker}" ]]; then
               linker="$(cygpath -m "${linker}")"
@@ -288,6 +336,7 @@ jobs:
           echo "  CXX compiler: ${cxx_compiler}"
           echo "  Fortran compiler: ${fortran_compiler}"
           echo "  RC compiler: ${rc_compiler}"
+          echo "  Manifest tool: ${mt_tool}"
           echo "  Ninja: ${ninja_program}"
 
           cmake_args+=(
@@ -297,6 +346,7 @@ jobs:
             "-DCMAKE_CXX_COMPILER=${cxx_compiler}"
             "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
             "-DCMAKE_RC_COMPILER=${rc_compiler}"
+            "-DCMAKE_MT=${mt_tool}"
           )
 
           if [[ -n "${linker}" ]]; then
