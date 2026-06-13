@@ -139,12 +139,6 @@ jobs:
         echo "=== Installed packages in tudat environment ==="
         conda list
 
-    - name: Setup MSVC command-line environment
-      if: runner.os == 'Windows' && matrix.platform.mcd == 'ON'
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x64
-
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
     #   # the tudat-resources conda package in the previous step, but the data files are
@@ -180,6 +174,14 @@ jobs:
           echo "matrix.platform.mcd=${{ matrix.platform.mcd }}"
           echo "CONDA_PREFIX=${CONDA_PREFIX:-}"
           echo "PATH=${PATH}"
+          echo "CC=${CC:-}"
+          echo "CXX=${CXX:-}"
+          echo "VSINSTALLDIR=${VSINSTALLDIR:-}"
+          echo "VCINSTALLDIR=${VCINSTALLDIR:-}"
+          echo "VCToolsInstallDir=${VCToolsInstallDir:-}"
+          echo "WindowsSdkDir=${WindowsSdkDir:-}"
+          echo "INCLUDE=${INCLUDE:-}"
+          echo "LIB=${LIB:-}"
 
           for tool in cmake ninja cl.exe link.exe lib.exe clang-cl clang clang++ cl flang-new flang gfortran llvm-rc mt lld-link llvm-lib link lib; do
             echo "---- ${tool} ----"
