@@ -306,8 +306,6 @@ jobs:
           rc_compiler="$(find_conda_tool llvm-rc.exe || true)"
           mt_tool="$(find_windows_sdk_tool mt.exe || true)"
           ninja_program="$(command -v ninja || find_conda_tool ninja.exe || true)"
-          linker="$(find_path_tool link.exe || true)"
-          archiver="$(find_path_tool lib.exe || true)"
 
           if [[ -z "${c_compiler}" || -z "${cxx_compiler}" ]]; then
             echo "::error::Could not find MSVC cl.exe. The Windows MCD Ninja build needs the MSVC command-line environment."
@@ -334,11 +332,6 @@ jobs:
             dump_configure_diagnostics
             exit 1
           fi
-          if [[ -z "${linker}" || -z "${archiver}" ]]; then
-            echo "::error::Could not find MSVC link.exe/lib.exe. The Windows MCD Ninja build needs the MSVC command-line environment."
-            dump_configure_diagnostics
-            exit 1
-          fi
 
           mt_tool_dir="$(dirname "${mt_tool}")"
           export PATH="${mt_tool_dir}:${PATH}"
@@ -354,12 +347,6 @@ jobs:
             rc_compiler="$(cygpath -m "${rc_compiler}")"
             mt_tool="$(cygpath -m "${mt_tool}")"
             ninja_program="$(cygpath -m "${ninja_program}")"
-            if [[ -n "${linker}" ]]; then
-              linker="$(cygpath -m "${linker}")"
-            fi
-            if [[ -n "${archiver}" ]]; then
-              archiver="$(cygpath -m "${archiver}")"
-            fi
           fi
 
           echo "Using Windows MCD Ninja toolchain:"
@@ -369,8 +356,6 @@ jobs:
           echo "  RC compiler: ${rc_compiler}"
           echo "  Manifest tool: ${mt_tool}"
           echo "  Ninja: ${ninja_program}"
-          echo "  Linker: ${linker}"
-          echo "  Archiver: ${archiver}"
 
           cmake_args+=(
             -G Ninja
@@ -380,8 +365,6 @@ jobs:
             "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
             "-DCMAKE_RC_COMPILER=${rc_compiler}"
             "-DCMAKE_MT=${mt_tool}"
-            "-DCMAKE_LINKER=${linker}"
-            "-DCMAKE_AR=${archiver}"
           )
         else
           cmake_args+=(
