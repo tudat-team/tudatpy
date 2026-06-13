@@ -432,7 +432,7 @@
 
 if (MSVC)
   message(STATUS "Setting /bigobj")
-  add_compile_options(/bigobj)
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/bigobj>")
 else()
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
 endif ()

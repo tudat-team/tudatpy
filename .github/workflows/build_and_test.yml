@@ -139,6 +139,12 @@ jobs:
         echo "=== Installed packages in tudat environment ==="
         conda list
 
+    - name: Setup MSVC command-line environment
+      if: runner.os == 'Windows' && matrix.platform.mcd == 'ON'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
     #   # the tudat-resources conda package in the previous step, but the data files are
@@ -175,7 +181,7 @@ jobs:
           echo "CONDA_PREFIX=${CONDA_PREFIX:-}"
           echo "PATH=${PATH}"
 
-          for tool in cmake ninja clang-cl clang clang++ cl flang-new flang gfortran llvm-rc mt lld-link llvm-lib link lib; do
+          for tool in cmake ninja cl.exe link.exe lib.exe clang-cl clang clang++ cl flang-new flang gfortran llvm-rc mt lld-link llvm-lib link lib; do
             echo "---- ${tool} ----"
             command -v "${tool}" || true
             type -a "${tool}" || true
@@ -255,6 +261,17 @@ jobs:
             return 1
           }
 
+          find_path_tool() {
+            local tool_name
+            for tool_name in "$@"; do
+              if command -v "${tool_name}" >/dev/null 2>&1; then
+                command -v "${tool_name}"
+                return 0
+              fi
+            done
+            return 1
+          }
+
           find_windows_sdk_tool() {
             local tool_name="$1"
             local sdk_bin
@@ -281,17 +298,17 @@ jobs:
             return 1
           }
 
-          c_compiler="$(find_conda_tool clang-cl.exe clang.exe || true)"
-          cxx_compiler="$(find_conda_tool clang-cl.exe clang++.exe clang.exe || true)"
+          c_compiler="$(find_path_tool cl.exe || true)"
+          cxx_compiler="${c_compiler}"
           fortran_compiler="$(find_conda_tool flang-new.exe flang.exe || true)"
           rc_compiler="$(find_conda_tool llvm-rc.exe || true)"
           mt_tool="$(find_windows_sdk_tool mt.exe || true)"
           ninja_program="$(command -v ninja || find_conda_tool ninja.exe || true)"
-          linker="$(find_conda_tool lld-link.exe || true)"
-          archiver="$(find_conda_tool llvm-lib.exe || true)"
+          linker="$(find_path_tool link.exe || true)"
+          archiver="$(find_path_tool lib.exe || true)"
 
           if [[ -z "${c_compiler}" || -z "${cxx_compiler}" ]]; then
-            echo "::error::Could not find conda clang/clang-cl C/CXX compiler in ${conda_prefix}/Library/bin"
+            echo "::error::Could not find MSVC cl.exe. The Windows MCD Ninja build needs the MSVC command-line environment."
             dump_configure_diagnostics
             exit 1
           fi
@@ -315,6 +332,18 @@ jobs:
             dump_configure_diagnostics
             exit 1
           fi
+          if [[ -z "${linker}" || -z "${archiver}" ]]; then
+            echo "::error::Could not find MSVC link.exe/lib.exe. The Windows MCD Ninja build needs the MSVC command-line environment."
+            dump_configure_diagnostics
+            exit 1
+          fi
+
+          mt_tool_dir="$(dirname "${mt_tool}")"
+          export PATH="${mt_tool_dir}:${PATH}"
+          if [[ -n "${GITHUB_PATH:-}" ]]; then
+            echo "${mt_tool_dir}" >> "${GITHUB_PATH}"
+          fi
+          echo "Added Windows SDK manifest tool directory to PATH: ${mt_tool_dir}"
 
           if command -v cygpath >/dev/null 2>&1; then
             c_compiler="$(cygpath -m "${c_compiler}")"
@@ -338,6 +367,8 @@ jobs:
           echo "  RC compiler: ${rc_compiler}"
           echo "  Manifest tool: ${mt_tool}"
           echo "  Ninja: ${ninja_program}"
+          echo "  Linker: ${linker}"
+          echo "  Archiver: ${archiver}"
 
           cmake_args+=(
             -G Ninja
@@ -347,17 +378,9 @@ jobs:
             "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
             "-DCMAKE_RC_COMPILER=${rc_compiler}"
             "-DCMAKE_MT=${mt_tool}"
-            -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY
+            "-DCMAKE_LINKER=${linker}"
+            "-DCMAKE_AR=${archiver}"
           )
-
-          if [[ -n "${linker}" ]]; then
-            echo "  Linker: ${linker}"
-            cmake_args+=("-DCMAKE_LINKER=${linker}")
-          fi
-          if [[ -n "${archiver}" ]]; then
-            echo "  Archiver: ${archiver}"
-            cmake_args+=("-DCMAKE_AR=${archiver}")
-          fi
         else
           cmake_args+=(
             -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
