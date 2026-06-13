@@ -347,6 +347,7 @@ jobs:
             "-DCMAKE_Fortran_COMPILER=${fortran_compiler}"
             "-DCMAKE_RC_COMPILER=${rc_compiler}"
             "-DCMAKE_MT=${mt_tool}"
+            -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY
           )
 
           if [[ -n "${linker}" ]]; then
