@@ -300,6 +300,77 @@ jobs:
             return 1
           }
 
+          configure_msvc_environment() {
+            local vswhere vs_install candidate vc_tools sdk_root sdk_version_dir sdk_version vc_bin sdk_bin
+            if ! command -v cygpath >/dev/null 2>&1; then
+              return 1
+            fi
+
+            vswhere="$(find_conda_tool vswhere.exe || command -v vswhere.exe || true)"
+            if [[ -n "${vswhere}" ]]; then
+              vs_install="$("${vswhere}" -latest -products "*" -property installationPath 2>/dev/null | tr -d '\r' | tail -n 1 || true)"
+              if [[ -n "${vs_install}" ]]; then
+                vs_install="$(cygpath -u "${vs_install}")"
+              fi
+            fi
+
+            for candidate in \
+              "${vs_install:-}" \
+              "/c/Program Files/Microsoft Visual Studio/18/Enterprise" \
+              "/c/Program Files/Microsoft Visual Studio/2022/Enterprise" \
+              "/c/Program Files/Microsoft Visual Studio/2022/BuildTools" \
+              "/c/Program Files (x86)/Microsoft Visual Studio/2022/Enterprise" \
+              "/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
+            do
+              if [[ -n "${candidate}" && -d "${candidate}/VC/Tools/MSVC" ]]; then
+                vs_install="${candidate}"
+                break
+              fi
+            done
+
+            if [[ -z "${vs_install:-}" || ! -d "${vs_install}/VC/Tools/MSVC" ]]; then
+              return 1
+            fi
+
+            vc_tools="$(find "${vs_install}/VC/Tools/MSVC" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+            sdk_root="/c/Program Files (x86)/Windows Kits/10"
+            if [[ ! -d "${sdk_root}/Include" || ! -d "${sdk_root}/Lib" || ! -d "${sdk_root}/bin" ]]; then
+              return 1
+            fi
+            sdk_version_dir="$(find "${sdk_root}/Include" -mindepth 1 -maxdepth 1 -type d -name "10.*" | sort -V | tail -n 1)"
+            if [[ -z "${vc_tools}" || -z "${sdk_version_dir}" ]]; then
+              return 1
+            fi
+            sdk_version="$(basename "${sdk_version_dir}")"
+            vc_bin="${vc_tools}/bin/Hostx64/x64"
+            sdk_bin="${sdk_root}/bin/${sdk_version}/x64"
+
+            if [[ ! -x "${vc_bin}/cl.exe" || ! -x "${vc_bin}/link.exe" || ! -x "${vc_bin}/lib.exe" || ! -x "${sdk_bin}/mt.exe" ]]; then
+              return 1
+            fi
+
+            export PATH="${vc_bin}:${sdk_bin}:${PATH}"
+            export INCLUDE="$(cygpath -w "${vc_tools}/include");$(cygpath -w "${sdk_root}/Include/${sdk_version}/ucrt");$(cygpath -w "${sdk_root}/Include/${sdk_version}/shared");$(cygpath -w "${sdk_root}/Include/${sdk_version}/um");$(cygpath -w "${sdk_root}/Include/${sdk_version}/winrt")${INCLUDE:+;${INCLUDE}}"
+            export LIB="$(cygpath -w "${vc_tools}/lib/x64");$(cygpath -w "${sdk_root}/Lib/${sdk_version}/ucrt/x64");$(cygpath -w "${sdk_root}/Lib/${sdk_version}/um/x64")${LIB:+;${LIB}}"
+            export LIBPATH="${LIB}${LIBPATH:+;${LIBPATH}}"
+
+            if [[ -n "${GITHUB_PATH:-}" ]]; then
+              cygpath -w "${vc_bin}" >> "${GITHUB_PATH}"
+              cygpath -w "${sdk_bin}" >> "${GITHUB_PATH}"
+            fi
+            if [[ -n "${GITHUB_ENV:-}" ]]; then
+              echo "INCLUDE=${INCLUDE}" >> "${GITHUB_ENV}"
+              echo "LIB=${LIB}" >> "${GITHUB_ENV}"
+              echo "LIBPATH=${LIBPATH}" >> "${GITHUB_ENV}"
+            fi
+
+            echo "Configured MSVC environment from: ${vs_install}"
+            echo "  MSVC tools: ${vc_tools}"
+            echo "  Windows SDK: ${sdk_version}"
+          }
+
+          configure_msvc_environment || true
+
           c_compiler="$(find_path_tool cl.exe || true)"
           cxx_compiler="${c_compiler}"
           fortran_compiler="$(find_conda_tool flang-new.exe flang.exe || true)"
