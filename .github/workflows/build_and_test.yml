@@ -181,13 +181,18 @@ jobs:
       run: |
         for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
         if "%VSINSTALL%"=="" exit /b 1
-        echo VS_DEV_CMD=%VSINSTALL%\Common7\Tools\VsDevCmd.bat>>"%GITHUB_ENV%"
-        call "%VSINSTALL%\Common7\Tools\VsDevCmd.bat" -arch=x64
-        "${{ matrix.platform.path_conda_env }}\Library\bin\cmake.exe" -B "%GITHUB_WORKSPACE%\build" -S "%GITHUB_WORKSPACE%" -G Ninja ^
+        set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+        if not exist "%VCVARS64%" exit /b 1
+        echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
+        call "%VCVARS64%"
+        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
+        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
+        set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
+        "%CONDA_ENV%\Library\bin\cmake.exe" -B "%GITHUB_WORKSPACE%\build" -S "%GITHUB_WORKSPACE%" -G Ninja ^
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
           -DCMAKE_C_COMPILER=cl ^
           -DCMAKE_CXX_COMPILER=cl ^
-          -DCMAKE_Fortran_COMPILER="${{ matrix.platform.path_conda_env }}\Library\bin\flang-new.exe" ^
+          -DCMAKE_Fortran_COMPILER="%CONDA_ENV%\Library\bin\flang-new.exe" ^
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} ^
           -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
           -DTUDAT_BUILD_WITH_PCH=ON ^
@@ -210,8 +215,10 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd
       run: |
-        call "%VS_DEV_CMD%" -arch=x64
-        "${{ matrix.platform.path_conda_env }}\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+        call "%VCVARS64%"
+        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
+        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
