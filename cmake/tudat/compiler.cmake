@@ -361,7 +361,7 @@
      endif ()
      if (MSVC_VERSION GREATER 1500)
          # Multiprocessor support during compilation
-         add_definitions("/MP")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/MP>")
      endif ()
  else ()
      message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}")
@@ -427,7 +427,10 @@
      endif ()
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-     add_definitions(${MSVC_DISABLED_WARNINGS_STR})
+     foreach (MSVC_DISABLED_WARNING ${MSVC_DISABLED_WARNINGS_LIST})
+         string(REGEX REPLACE "^C" "" MSVC_DISABLED_WARNING_NUMBER "${MSVC_DISABLED_WARNING}")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-wd${MSVC_DISABLED_WARNING_NUMBER}>")
+     endforeach ()
  endif ()
 
 if (MSVC)
