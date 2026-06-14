@@ -24,7 +24,7 @@ namespace environment_setup
 namespace climate_model
 {
 
-void expose_climate_model_setup( py::module &m );
+void expose_climate_model_setup( py::module& m );
 
 }  // namespace climate_model
 }  // namespace environment_setup

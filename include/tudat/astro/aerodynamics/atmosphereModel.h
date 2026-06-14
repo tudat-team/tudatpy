@@ -62,11 +62,9 @@ enum AtmosphericCompositionSpecies { he_species, o_species, n2_species, o2_speci
 class AtmosphereModel
 {
 public:
-
     AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
         useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ), requiresClimateModel_( false )
-    { }
-
+    {}
 
     //! Default destructor.
     /*!
@@ -204,7 +202,6 @@ public:
     {
         return useUtc_;
     }
-
 
     void setRequiresClimateModel( )
     {

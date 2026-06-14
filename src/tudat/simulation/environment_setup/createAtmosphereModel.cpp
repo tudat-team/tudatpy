@@ -376,14 +376,14 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             else
             {
-                if ( bodyName != "Mars" )
+                if( bodyName != "Mars" )
                 {
                     throw std::runtime_error( "Error, trying to create MCD atmosphere model for a planet that is not Mars" );
                 }
                 std::shared_ptr< Body > bodyObject = bodies.at( bodyName );
-                std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel = 
-                    std::dynamic_pointer_cast< mcd_interface::MarsClimateDatabaseClimateModel>( bodyObject->getClimateModel( ) );
-                if ( marsClimateDatabaseClimateModel == nullptr )
+                std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel =
+                        std::dynamic_pointer_cast< mcd_interface::MarsClimateDatabaseClimateModel >( bodyObject->getClimateModel( ) );
+                if( marsClimateDatabaseClimateModel == nullptr )
                 {
                     throw std::runtime_error( "Error, Mars has not MCD climate model set" );
                 }

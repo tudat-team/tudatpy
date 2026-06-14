@@ -93,7 +93,7 @@ struct BodySettings {
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
 
     std::shared_ptr< ClimateModelSettings > climateModelSettings;
-  
+
     std::vector< std::shared_ptr< CameraSettings > > cameraSettings;
 };
 

@@ -34,35 +34,30 @@ enum ClimateModelTypes {
 
 };
 
-class ClimateModelSettings {
-
+class ClimateModelSettings
+{
 public:
+    ClimateModelSettings( ClimateModelTypes climateModelType ): climateModelType_( climateModelType ) {}
 
-    ClimateModelSettings( ClimateModelTypes climateModelType ) :  climateModelType_( climateModelType ) { }
-
-virtual ~ClimateModelSettings() = default;
+    virtual ~ClimateModelSettings( ) = default;
 
     ClimateModelTypes climateModelType_;
-
 };
 
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
-class MarsClimateDatabaseClimateModelSettings : public ClimateModelSettings {
-
+class MarsClimateDatabaseClimateModelSettings : public ClimateModelSettings
+{
 public:
-
-    explicit MarsClimateDatabaseClimateModelSettings(
-        const std::string& mcdDataPath = "",
-        const int dustScenario = 1,
-        const int perturbationKey = 0,
-        const double perturbationSeed = 0.0,
-        const double gravityWaveLength = 0.0,
-        const int highResolutionMode = 0
-    ) :
-    ClimateModelSettings( mars_climate_database ), mcdDataPath_( mcdDataPath ), 
-    dustScenario_( dustScenario ), perturbationKey_( perturbationKey ), 
-    perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ), 
-    highResolutionMode_( highResolutionMode ) { }
+    explicit MarsClimateDatabaseClimateModelSettings( const std::string& mcdDataPath = "",
+                                                      const int dustScenario = 1,
+                                                      const int perturbationKey = 0,
+                                                      const double perturbationSeed = 0.0,
+                                                      const double gravityWaveLength = 0.0,
+                                                      const int highResolutionMode = 0 ):
+        ClimateModelSettings( mars_climate_database ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
+        perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
+        highResolutionMode_( highResolutionMode )
+    {}
 
     //! Path to MCD data files
     std::string mcdDataPath_;
@@ -81,29 +76,26 @@ public:
 
     //! High resolution topography flag (0 or 1)
     int highResolutionMode_;
-
 };
 
-inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSettings(
-    const std::string& mcdDataPath = "",
-    const int dustScenario = 1,
-    const int perturbationKey = 0,
-    const double perturbationSeed = 0.0,
-    const double gravityWaveLength = 0.0,
-    const int highResolutionMode = 0 ) 
+inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSettings( const std::string& mcdDataPath = "",
+                                                                                        const int dustScenario = 1,
+                                                                                        const int perturbationKey = 0,
+                                                                                        const double perturbationSeed = 0.0,
+                                                                                        const double gravityWaveLength = 0.0,
+                                                                                        const int highResolutionMode = 0 )
 {
     return std::make_shared< MarsClimateDatabaseClimateModelSettings >(
-        mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode);
+            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
 }
 
 #endif
 
-std::shared_ptr< environment::ClimateModel > createClimateModel( 
-    std::shared_ptr< ClimateModelSettings > ClimateModelSettings,
-    std::shared_ptr< simulation_setup::Body > body );
+std::shared_ptr< environment::ClimateModel > createClimateModel( std::shared_ptr< ClimateModelSettings > ClimateModelSettings,
+                                                                 std::shared_ptr< simulation_setup::Body > body );
 
-}
+}  // namespace simulation_setup
 
-}
+}  // namespace tudat
 
 #endif

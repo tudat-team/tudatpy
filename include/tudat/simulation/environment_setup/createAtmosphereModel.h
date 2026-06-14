@@ -950,13 +950,10 @@ private:
 
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
 
-class McdAtmosphereSettings: public AtmosphereSettings
+class McdAtmosphereSettings : public AtmosphereSettings
 {
 public:
-
-    McdAtmosphereSettings( ):
-        AtmosphereSettings( mcd_atmosphere ){ }
-
+    McdAtmosphereSettings( ): AtmosphereSettings( mcd_atmosphere ) {}
 };
 
 #endif

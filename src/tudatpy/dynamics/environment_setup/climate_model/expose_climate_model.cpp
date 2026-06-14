@@ -30,16 +30,16 @@ namespace environment_setup
 namespace climate_model
 {
 
-void expose_climate_model_setup( py::module &m )
+void expose_climate_model_setup( py::module& m )
 {
     py::class_< tss::ClimateModelSettings, std::shared_ptr< tss::ClimateModelSettings > >( m,
-                                                                                     "ClimateModelSettings",
-                                                                                     R"doc(
+                                                                                           "ClimateModelSettings",
+                                                                                           R"doc(
 
          Base class for providing settings for climate model.
 
       )doc" );
-      
+
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
 
     m.def( "mars_climate_database",
@@ -77,7 +77,6 @@ high_resolution_mode : int, default = 0
      )doc" );
 
 #endif
-
 }
 
 }  // namespace climate_model

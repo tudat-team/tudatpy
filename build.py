@@ -1130,7 +1130,7 @@ class Builder:
             # Set up build directory
             self.build_dir.mkdir(parents=True, exist_ok=True)
             with chdir(self.build_dir):
-                
+
                 # Base cmake command
                 cmake_command = [
                     "cmake",
