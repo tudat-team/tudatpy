@@ -390,6 +390,10 @@ public:
                         linkEnds.at( observation_models::receiver ).getReferencePointName( ) );
                 positionPartialScaler = std::make_shared< PixelCoordinatesScaling >(
                         [ camera, receiverBody ]( const double time ) {
+                            if( camera->hasRotationFromInertialToCameraFrameFunction( ) )
+                            {
+                                return camera->getRotationFromInertialToCameraFrame( time );
+                            }
                             if( receiverBody->getRotationalEphemeris( ) == nullptr )
                             {
                                 throw std::runtime_error(
@@ -400,7 +404,9 @@ public:
                             return camera->getRotationFromInertialToCameraFrame(
                                     receiverBody->getRotationalEphemeris( )->getRotationToTargetFrame( time ) );
                         },
-                        camera->getFocalLengthsMatrix( ) );
+                        [ camera ]( const Eigen::Vector3d& cameraFramePosition ) {
+                            return camera->getPixelLinePartialWrtCameraFramePosition( cameraFramePosition );
+                        } );
                 break;
             }
             case observation_models::azimuth_elevation_angle: {

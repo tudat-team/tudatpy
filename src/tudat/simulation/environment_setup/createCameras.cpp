@@ -23,10 +23,11 @@ void createCamera( const std::shared_ptr< Body > body, const std::shared_ptr< Ca
 {
     Eigen::Quaterniond rotationQuaternion =
             basic_mathematics::getQuaternionFrom313EulerAngles( cameraSettings->getCamera313EulerAngles( ) );
-    std::pair< double, double > focalLengths = cameraSettings->getFocalLengths( );
-    std::pair< double, double > opticalCenter = cameraSettings->getOpticalCenter( );
     std::shared_ptr< system_models::Camera > camera =
-            std::make_shared< system_models::Camera >( cameraSettings->getCameraName( ), rotationQuaternion, focalLengths, opticalCenter );
+            std::make_shared< system_models::Camera >( cameraSettings->getCameraName( ),
+                                                       rotationQuaternion,
+                                                       cameraSettings->getProjectionModel( ),
+                                                       cameraSettings->getRotationFromInertialToCameraFrameFunction( ) );
     body->getVehicleSystems( )->addCamera( cameraSettings->getCameraName( ), camera, cameraSettings->getBodyFixedCameraPosition( ) );
 }
 

@@ -39,6 +39,7 @@ Body::Body( const Eigen::Vector6d& state ):
 {
     currentLongState_ = currentState_.cast< long double >( );
     isStateSet_ = false;
+    isCustomStateSet_ = false;
     isRotationSet_ = false;
 }
 
@@ -61,10 +62,25 @@ Eigen::Vector6d Body::getState( )
     return currentState_;
 }
 
+Eigen::VectorXd Body::getCustomState( )
+{
+    if( !isCustomStateSet_ )
+    {
+        throw exceptions::BodyDuringPropagationError( bodyName_, "custom state" );
+    }
+    return currentCustomState_;
+}
+
 void Body::setState( const Eigen::Vector6d& state )
 {
     currentState_ = state;
     isStateSet_ = true;
+}
+
+void Body::setCustomState( const Eigen::VectorXd& customState )
+{
+    currentCustomState_ = customState;
+    isCustomStateSet_ = true;
 }
 
 void Body::setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
@@ -719,6 +735,7 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
     if( !isBodyInPropagation )
     {
         isStateSet_ = false;
+        isCustomStateSet_ = false;
         isRotationSet_ = false;
     }
 }

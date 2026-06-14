@@ -1557,6 +1557,11 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
             {
                 throw std::runtime_error( "Error, input type for custom dynamics is inconsistent when checking dynamics feasibility" );
             }
+            if( customPropagatorSettings->bodyName_ != "" && bodies.count( customPropagatorSettings->bodyName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when checking custom dynamics feasibility, no body named " +
+                                          customPropagatorSettings->bodyName_ + " exists." );
+            }
 
             break;
         }

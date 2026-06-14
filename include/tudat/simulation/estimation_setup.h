@@ -34,5 +34,6 @@
 #include "estimation_setup/podProcessing.h"
 #include "estimation_setup/variationalEquationsSolver.h"
 #include "estimation_setup/processOdfFile.h"
+#include "estimation_setup/processPsfFile.h"
 
 #endif  // TUDAT_ESTIMATION_SETUP_H

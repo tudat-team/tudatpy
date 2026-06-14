@@ -69,8 +69,7 @@ void PixelCoordinatesScaling::update( const std::vector< Eigen::Vector6d >& link
 
     Eigen::Quaterniond rotationFromInertialToCameraFrame = rotationFromInertialToCameraFrameFunction_( times.at( observerIndex_ ) );
     Eigen::Vector3d relativeRangeVectorCameraFrame = rotationFromInertialToCameraFrame * relativeRangeVector;
-    positionScalingFactor_ =
-            calculatePartialOfPixelsWrtLinkEndPositionCameraFrame( relativeRangeVectorCameraFrame, focalLengthsMatrix_, true );
+    positionScalingFactor_ = -pixelLinePartialWrtCameraFramePositionFunction_( relativeRangeVectorCameraFrame );
 
     positionScalingFactor_ = positionScalingFactor_ * rotationFromInertialToCameraFrame.toRotationMatrix( );
 

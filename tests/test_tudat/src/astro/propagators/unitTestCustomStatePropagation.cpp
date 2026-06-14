@@ -11,7 +11,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <memory>
+#include <sstream>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -62,6 +64,11 @@ double getDummyCustomState4( const double currentTime, const double currentCusto
     return -0.00002 * currentCustomState * currentTime;
 }
 
+Eigen::VectorXd getConstantCustomStateDerivative( const double, const Eigen::VectorXd& currentCustomState )
+{
+    return Eigen::VectorXd::Constant( currentCustomState.rows( ), -0.02 );
+}
+
 // Test custom state propagation, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 {
@@ -91,6 +98,74 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
         BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
         BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 0 ) - ( 500.0 - 0.02 * stateIterator->first ) ), 1.0E-9 );
     }
+}
+
+BOOST_AUTO_TEST_CASE( testSingleCustomStateSetInBodyDuringPropagation )
+{
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Vehicle" );
+
+    double maximumCustomStateError = 0.0;
+    auto customStateDerivative = [ &bodies, &maximumCustomStateError ]( const double, const Eigen::VectorXd& currentCustomState ) {
+        Eigen::VectorXd bodyCustomState = bodies.at( "Vehicle" )->getCustomState( );
+        maximumCustomStateError = std::max( maximumCustomStateError, ( bodyCustomState - currentCustomState ).cwiseAbs( ).maxCoeff( ) );
+        return Eigen::VectorXd::Constant( 1, -0.02 );
+    };
+
+    Eigen::VectorXd initialCustomState = ( Eigen::VectorXd( 1 ) << 500.0 ).finished( );
+    std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                    customStateDerivative,
+                    initialCustomState,
+                    std::make_shared< PropagationTimeTerminationSettings >( 10.0 ),
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    TUDAT_NAN,
+                    "Vehicle" );
+
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
+
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+
+    BOOST_CHECK_SMALL( maximumCustomStateError, 1.0E-14 );
+    BOOST_CHECK_THROW( bodies.at( "Vehicle" )->getCustomState( ), exceptions::BodyDuringPropagationError );
+}
+
+BOOST_AUTO_TEST_CASE( testMultipleCustomStatesOfBodyNotSetInBody )
+{
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Vehicle" );
+
+    Eigen::VectorXd initialCustomState = ( Eigen::VectorXd( 1 ) << 500.0 ).finished( );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > firstCustomPropagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                    &getConstantCustomStateDerivative,
+                    initialCustomState,
+                    std::make_shared< PropagationTimeTerminationSettings >( 1.0 ),
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    TUDAT_NAN,
+                    "Vehicle" );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > secondCustomPropagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                    &getConstantCustomStateDerivative,
+                    initialCustomState,
+                    std::make_shared< PropagationTimeTerminationSettings >( 1.0 ),
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    TUDAT_NAN,
+                    "Vehicle" );
+
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >{ firstCustomPropagatorSettings,
+                                                                                     secondCustomPropagatorSettings },
+            std::make_shared< PropagationTimeTerminationSettings >( 1.0 ) );
+
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
+
+    std::stringstream capturedErrorStream;
+    std::streambuf* originalErrorStreamBuffer = std::cerr.rdbuf( capturedErrorStream.rdbuf( ) );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    std::cerr.rdbuf( originalErrorStreamBuffer );
+
+    BOOST_CHECK( capturedErrorStream.str( ).find( "multiple custom states of this body are propagated" ) != std::string::npos );
 }
 
 // Test custom state propagation, quadratically decreasing with time
