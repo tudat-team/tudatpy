@@ -39,7 +39,11 @@ target_include_directories(tudat_mcd_interface
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd/interfaces/c_interfaces>
         )
 
-target_link_libraries(tudat_mcd_interface PRIVATE mcd_fortran)
+target_link_libraries(tudat_mcd_interface PUBLIC mcd_fortran)
+
+if(WIN32 AND CMAKE_Fortran_COMPILER_ID STREQUAL "LLVMFlang")
+    target_compile_definitions(tudat_mcd_interface PUBLIC TUDAT_MCD_USE_LLVM_FLANG_SYMBOLS=1)
+endif()
 
 set(MCD_DATA_DIR "${CMAKE_SOURCE_DIR}/third_parties/mcd/data")
 # probably reduntant as its public under mcd_fortran

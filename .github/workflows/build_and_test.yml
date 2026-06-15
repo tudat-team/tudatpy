@@ -183,8 +183,12 @@ jobs:
         if "%VSINSTALL%"=="" exit /b 1
         set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
         if not exist "%VCVARS64%" exit /b 1
+        rem Keep MSVC headers/libs aligned with the conda-selected toolset, if conda pinned one.
+        set "VCVARS_VERSION_ARG="
+        if not "%VCToolsVersion%"=="" set "VCVARS_VERSION_ARG=-vcvars_ver=%VCToolsVersion:~0,5%"
         echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
-        call "%VCVARS64%"
+        echo VCVARS_VERSION_ARG=%VCVARS_VERSION_ARG%>>"%GITHUB_ENV%"
+        call "%VCVARS64%" %VCVARS_VERSION_ARG%
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
@@ -194,6 +198,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl ^
           -DCMAKE_Fortran_COMPILER="%CONDA_ENV%\Library\bin\flang-new.exe" ^
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} ^
+          -DTUDAT_FORCE_DYNAMIC_RUNTIME=ON ^
           -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
           -DTUDAT_BUILD_WITH_PCH=ON ^
           -DTUDAT_BUILD_WITH_MCD_INTERFACE=ON ^
@@ -215,7 +220,7 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd
       run: |
-        call "%VCVARS64%"
+        call "%VCVARS64%" %VCVARS_VERSION_ARG%
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}

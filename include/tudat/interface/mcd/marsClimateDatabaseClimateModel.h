@@ -18,31 +18,37 @@
 #include <tuple>
 #include "tudat/astro/basic_astro/climateModel.h"
 
+#if defined( TUDAT_MCD_USE_LLVM_FLANG_SYMBOLS )
+#define TUDAT_MCD_FORTRAN_CALL_MCD _QMmcdPcall_mcd
+#else
+#define TUDAT_MCD_FORTRAN_CALL_MCD __mcd_MOD_call_mcd
+#endif
+
 extern "C" {
-void __mcd_MOD_call_mcd( int* zkey,
-                         float* xz,
-                         float* xlon,
-                         float* xlat,
-                         int* hireskey,
-                         int* datekey,
-                         double* xdate,
-                         float* localtime,
-                         const char* dset,
-                         int* scena,
-                         int* perturkey,
-                         float* seedin,
-                         float* gwlength,
-                         int* extvarkeys,
-                         float* pres,
-                         float* dens,
-                         float* temp,
-                         float* zonwind,
-                         float* merwind,
-                         float* meanvar,
-                         float* extvar,
-                         float* seedout,
-                         int* ier,
-                         std::size_t dsetLength );
+void TUDAT_MCD_FORTRAN_CALL_MCD( int* zkey,
+                                 float* xz,
+                                 float* xlon,
+                                 float* xlat,
+                                 int* hireskey,
+                                 int* datekey,
+                                 double* xdate,
+                                 float* localtime,
+                                 const char* dset,
+                                 int* scena,
+                                 int* perturkey,
+                                 float* seedin,
+                                 float* gwlength,
+                                 int* extvarkeys,
+                                 float* pres,
+                                 float* dens,
+                                 float* temp,
+                                 float* zonwind,
+                                 float* merwind,
+                                 float* meanvar,
+                                 float* extvar,
+                                 float* seedout,
+                                 int* ier,
+                                 std::size_t dsetLength );
 }
 
 namespace tudat
