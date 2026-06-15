@@ -223,7 +223,7 @@ jobs:
         call "%VCVARS64%" %VCVARS_VERSION_ARG%
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
