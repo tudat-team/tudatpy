@@ -197,7 +197,8 @@ std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwo
     {
         throw std::runtime_error(
                 "Error when creating full two-body spherical harmonic torque, expected full two-body spherical harmonic "
-                "acceleration settings on " + nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque );
+                "acceleration settings on " +
+                nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque );
     }
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > fullTwoBodyAcceleration =
@@ -214,8 +215,7 @@ std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwo
     return std::make_shared< gravitation::FullTwoBodySphericalHarmonicTorque >( fullTwoBodyAcceleration, true );
 }
 
-std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >
-createFourthDegreeFullTwoBodyGravitationalTorqueModel(
+std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > createFourthDegreeFullTwoBodyGravitationalTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,
@@ -231,27 +231,23 @@ createFourthDegreeFullTwoBodyGravitationalTorqueModel(
     }
     if( bodyUndergoingTorque->getMassProperties( ) == nullptr )
     {
-        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " +
-                                  nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque +
-                                  ", body undergoing torque has no mass properties." );
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body undergoing torque has no mass properties." );
     }
     if( bodyExertingTorque->getMassProperties( ) == nullptr )
     {
-        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " +
-                                  nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque +
-                                  ", body exerting torque has no mass properties." );
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body exerting torque has no mass properties." );
     }
     if( bodyUndergoingTorque->getRotationalEphemeris( ) == nullptr )
     {
-        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " +
-                                  nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque +
-                                  ", body undergoing torque has no rotational ephemeris." );
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body undergoing torque has no rotational ephemeris." );
     }
     if( bodyExertingTorque->getRotationalEphemeris( ) == nullptr )
     {
-        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " +
-                                  nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque +
-                                  ", body exerting torque has no rotational ephemeris." );
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body exerting torque has no rotational ephemeris." );
     }
 
     return std::make_shared< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >(

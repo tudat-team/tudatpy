@@ -26,8 +26,7 @@ namespace gravitation
  * angular-momentum-operator torque summation (Dirkx et al. (2019), Eq. (67)).
  */
 std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getBody2TorqueCombinationsToUse(
-        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
-                coefficientCombinationsToUse );
+        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse );
 
 //! Compute transformed angular-momentum coefficient fields from explicit Wigner D-matrices.
 /*!
@@ -55,17 +54,13 @@ void computeTransformedAngularMomentumCoefficientsFromWignerCache(
         std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
 
 //! Full two-body mutual spherical-harmonic torque model (independent of the fourth-degree tensor torque model).
-class FullTwoBodySphericalHarmonicTorque: public basic_astrodynamics::TorqueModel
+class FullTwoBodySphericalHarmonicTorque : public basic_astrodynamics::TorqueModel
 {
-
 public:
-
     //! Constructor.
-    FullTwoBodySphericalHarmonicTorque(
-            const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
-            const bool acceleratedBodyIsBody1 ):
-        accelerationBetweenBodies_( accelerationBetweenBodies ),
-        acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
+    FullTwoBodySphericalHarmonicTorque( const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
+                                        const bool acceleratedBodyIsBody1 ):
+        accelerationBetweenBodies_( accelerationBetweenBodies ), acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
     {
         coefficientCombinationsToUse_ = accelerationBetweenBodies_->getEffectiveMutualPotentialField( )->getCoefficientCombinationsToUse( );
         body2TorqueCombinationsToUse_ = gravitation::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
@@ -87,8 +82,7 @@ public:
         currentTime_ = TUDAT_NAN;
     }
     //! Return selected coefficient combinations used by this torque model.
-    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
-    getCoefficientCombinationsToUse( ) const
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& getCoefficientCombinationsToUse( ) const
     {
         return coefficientCombinationsToUse_;
     }
@@ -110,13 +104,12 @@ public:
      * Helper used by this model and analytical partials to evaluate the \hat{J}-mapped coefficient fields
      * entering Dirkx et al. (2019), Eq. (67) (through Eq. (60)).
      */
-    void computeTransformedAngularMomentumCoefficients(
-            const Eigen::MatrixXd& cosineCoefficientsBody2,
-            const Eigen::MatrixXd& sineCoefficientsBody2,
-            const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
-            const bool areCoefficientsNormalized,
-            std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
-            std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
+    void computeTransformedAngularMomentumCoefficients( const Eigen::MatrixXd& cosineCoefficientsBody2,
+                                                        const Eigen::MatrixXd& sineCoefficientsBody2,
+                                                        const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+                                                        const bool areCoefficientsNormalized,
+                                                        std::array< Eigen::MatrixXd, 3 >& transformedCosineCoefficientsBody2AngularMomentum,
+                                                        std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum );
 
 private:
     Eigen::Vector3d currentTorque_;
@@ -130,11 +123,10 @@ private:
     std::array< Eigen::MatrixXd, 3 > transformedSineCoefficientsBody2AngularMomentum_;
 
     bool acceleratedBodyIsBody1_;
-
 };
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-#endif // MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP
+#endif  // MUTUALEXTENDEDBODYSPHERICALHARMONICTORQUE_CPP

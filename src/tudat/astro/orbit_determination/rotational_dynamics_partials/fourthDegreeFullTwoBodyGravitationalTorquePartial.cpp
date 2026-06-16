@@ -26,8 +26,7 @@ namespace acceleration_partials
 namespace detail
 {
 
-enum FourthDegreeIndependentInertiaTensorComponentIndices
-{
+enum FourthDegreeIndependentInertiaTensorComponentIndices {
     aComponentIndex = 0,
     bComponentIndex = 1,
     cComponentIndex = 2,
@@ -36,8 +35,7 @@ enum FourthDegreeIndependentInertiaTensorComponentIndices
     iyzComponentIndex = 5
 };
 
-enum FourthDegreeAuxiliaryFunctionIndices
-{
+enum FourthDegreeAuxiliaryFunctionIndices {
     fyzFunctionIndex = 0,
     fxzFunctionIndex = 1,
     fxyFunctionIndex = 2,
@@ -46,16 +44,11 @@ enum FourthDegreeAuxiliaryFunctionIndices
     gxyFunctionIndex = 5
 };
 
-Eigen::Matrix< double, 6, 1 > getIndependentInertiaTensorComponentsFromMatrix(
-        const Eigen::Matrix3d& inertiaTensor )
+Eigen::Matrix< double, 6, 1 > getIndependentInertiaTensorComponentsFromMatrix( const Eigen::Matrix3d& inertiaTensor )
 {
     Eigen::Matrix< double, 6, 1 > independentInertiaTensorComponents;
-    independentInertiaTensorComponents << inertiaTensor( 0, 0 ),
-            inertiaTensor( 1, 1 ),
-            inertiaTensor( 2, 2 ),
-            -inertiaTensor( 0, 1 ),
-            -inertiaTensor( 0, 2 ),
-            -inertiaTensor( 1, 2 );
+    independentInertiaTensorComponents << inertiaTensor( 0, 0 ), inertiaTensor( 1, 1 ), inertiaTensor( 2, 2 ), -inertiaTensor( 0, 1 ),
+            -inertiaTensor( 0, 2 ), -inertiaTensor( 1, 2 );
     return independentInertiaTensorComponents;
 }
 
@@ -64,8 +57,7 @@ std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatri
 {
     std::vector< Eigen::Matrix3d > derivativeList( 4, Eigen::Matrix3d::Zero( ) );
     linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-            linear_algebra::convertQuaternionToVectorFormat( rotationFromInertialToBodyFixedFrame.inverse( ) ),
-            derivativeList );
+            linear_algebra::convertQuaternionToVectorFormat( rotationFromInertialToBodyFixedFrame.inverse( ) ), derivativeList );
 
     std::array< Eigen::Matrix3d, 4 > derivativeArray;
     for( int i = 0; i < 4; i++ )
@@ -94,14 +86,12 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
     auxiliaryQuantities.yzTerm = auxiliaryQuantities.yCoordinate * auxiliaryQuantities.zCoordinate;
 
     auxiliaryQuantities.relativeDistanceSquared =
-            auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared +
-            auxiliaryQuantities.zCoordinateSquared;
+            auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared;
     auxiliaryQuantities.inverseRelativeDistanceSquared = 1.0 / auxiliaryQuantities.relativeDistanceSquared;
     auxiliaryQuantities.inverseRelativeDistanceToFourthPower =
             auxiliaryQuantities.inverseRelativeDistanceSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    auxiliaryQuantities.relativeDistanceToFifthPower =
-            auxiliaryQuantities.relativeDistanceSquared * auxiliaryQuantities.relativeDistanceSquared *
-            std::sqrt( auxiliaryQuantities.relativeDistanceSquared );
+    auxiliaryQuantities.relativeDistanceToFifthPower = auxiliaryQuantities.relativeDistanceSquared *
+            auxiliaryQuantities.relativeDistanceSquared * std::sqrt( auxiliaryQuantities.relativeDistanceSquared );
     auxiliaryQuantities.torquePrefactor =
             3.0 * physical_constants::GRAVITATIONAL_CONSTANT / auxiliaryQuantities.relativeDistanceToFifthPower;
 
@@ -118,9 +108,8 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
     auxiliaryQuantities.iyzComponentOfBodyExertingTorque =
             independentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( iyzComponentIndex );
 
-    auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque =
-            auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque +
-            auxiliaryQuantities.cComponentOfBodyExertingTorque;
+    auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque = auxiliaryQuantities.aComponentOfBodyExertingTorque +
+            auxiliaryQuantities.bComponentOfBodyExertingTorque + auxiliaryQuantities.cComponentOfBodyExertingTorque;
 
     auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque =
             auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinateSquared +
@@ -130,57 +119,50 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm -
             2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm;
 
-    auxiliaryQuantities.wPrimeQuantity =
-            massOfBodyExertingTorque +
-            7.5 * auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+    auxiliaryQuantities.wPrimeQuantity = massOfBodyExertingTorque +
+            7.5 * auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared -
             17.5 * auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque *
                     auxiliaryQuantities.inverseRelativeDistanceToFourthPower;
 
-    auxiliaryQuantities.fyzFunction =
-            auxiliaryQuantities.yzTerm *
+    auxiliaryQuantities.fyzFunction = auxiliaryQuantities.yzTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) -
+                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) -
             5.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared +
             auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
-                    ( 1.0 - 5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
-                                    auxiliaryQuantities.inverseRelativeDistanceSquared );
+                    ( 1.0 -
+                      5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared );
 
-    auxiliaryQuantities.fxzFunction =
-            auxiliaryQuantities.xzTerm *
+    auxiliaryQuantities.fxzFunction = auxiliaryQuantities.xzTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) +
+                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
             auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
-                    ( 1.0 - 5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
-                                    auxiliaryQuantities.inverseRelativeDistanceSquared ) -
+                    ( 1.0 -
+                      5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared ) -
             5.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    auxiliaryQuantities.fxyFunction =
-            auxiliaryQuantities.xyTerm *
+    auxiliaryQuantities.fxyFunction = auxiliaryQuantities.xyTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) -
+                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) -
             5.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared +
             auxiliaryQuantities.ixyComponentOfBodyExertingTorque *
-                    ( 1.0 - 5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
-                                    auxiliaryQuantities.inverseRelativeDistanceSquared ) -
+                    ( 1.0 -
+                      5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared ) -
             5.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     auxiliaryQuantities.gyzFunction =
-            ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) *
-                    auxiliaryQuantities.wPrimeQuantity +
-            auxiliaryQuantities.bComponentOfBodyExertingTorque -
-            auxiliaryQuantities.cComponentOfBodyExertingTorque -
+            ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
+            auxiliaryQuantities.bComponentOfBodyExertingTorque - auxiliaryQuantities.cComponentOfBodyExertingTorque -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
@@ -188,21 +170,17 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             20.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.zCoordinateSquared *
-                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque +
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque -
+                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque -
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.yCoordinateSquared *
-                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque -
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque +
+                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     auxiliaryQuantities.gxzFunction =
-            ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) *
-                    auxiliaryQuantities.wPrimeQuantity +
-            auxiliaryQuantities.cComponentOfBodyExertingTorque -
-            auxiliaryQuantities.aComponentOfBodyExertingTorque -
+            ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
+            auxiliaryQuantities.cComponentOfBodyExertingTorque - auxiliaryQuantities.aComponentOfBodyExertingTorque -
             20.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
@@ -210,21 +188,17 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.xCoordinateSquared *
-                    ( -auxiliaryQuantities.aComponentOfBodyExertingTorque +
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque +
+                    ( -auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.zCoordinateSquared *
-                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque +
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque -
+                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque -
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     auxiliaryQuantities.gxyFunction =
-            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) *
-                    auxiliaryQuantities.wPrimeQuantity +
-            auxiliaryQuantities.aComponentOfBodyExertingTorque -
-            auxiliaryQuantities.bComponentOfBodyExertingTorque -
+            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
+            auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             20.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
@@ -232,13 +206,11 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.yCoordinateSquared *
-                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque -
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque +
+                    ( auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.xCoordinateSquared *
-                    ( -auxiliaryQuantities.aComponentOfBodyExertingTorque +
-                      auxiliaryQuantities.bComponentOfBodyExertingTorque +
+                    ( -auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
@@ -249,32 +221,23 @@ Eigen::Vector3d computeFourthDegreeTorqueFunctionVector(
         const FourthDegreeTorqueAuxiliaryQuantities& auxiliaryQuantities,
         const Eigen::Matrix< double, 6, 1 >& independentInertiaTensorComponentsOfBodyUndergoingTorque )
 {
-    const double aComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( aComponentIndex );
-    const double bComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( bComponentIndex );
-    const double cComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( cComponentIndex );
-    const double ixyComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( ixyComponentIndex );
-    const double ixzComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( ixzComponentIndex );
-    const double iyzComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( iyzComponentIndex );
+    const double aComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( aComponentIndex );
+    const double bComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( bComponentIndex );
+    const double cComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( cComponentIndex );
+    const double ixyComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( ixyComponentIndex );
+    const double ixzComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( ixzComponentIndex );
+    const double iyzComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( iyzComponentIndex );
 
     Eigen::Vector3d torqueFunctionVector;
-    torqueFunctionVector( 0 ) =
-            ( cComponentOfBodyUndergoingTorque - bComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fyzFunction -
+    torqueFunctionVector( 0 ) = ( cComponentOfBodyUndergoingTorque - bComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fyzFunction -
             ixzComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxyFunction +
             ixyComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxzFunction +
             iyzComponentOfBodyUndergoingTorque * auxiliaryQuantities.gyzFunction;
-    torqueFunctionVector( 1 ) =
-            ( aComponentOfBodyUndergoingTorque - cComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fxzFunction +
+    torqueFunctionVector( 1 ) = ( aComponentOfBodyUndergoingTorque - cComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fxzFunction +
             ixzComponentOfBodyUndergoingTorque * auxiliaryQuantities.gxzFunction -
             ixyComponentOfBodyUndergoingTorque * auxiliaryQuantities.fyzFunction +
             iyzComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxyFunction;
-    torqueFunctionVector( 2 ) =
-            ( bComponentOfBodyUndergoingTorque - aComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fxyFunction +
+    torqueFunctionVector( 2 ) = ( bComponentOfBodyUndergoingTorque - aComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fxyFunction +
             ixzComponentOfBodyUndergoingTorque * auxiliaryQuantities.fyzFunction +
             ixyComponentOfBodyUndergoingTorque * auxiliaryQuantities.gxyFunction -
             iyzComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxzFunction;
@@ -284,21 +247,14 @@ Eigen::Vector3d computeFourthDegreeTorqueFunctionVector(
 Eigen::Matrix< double, 3, 6 > computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions(
         const Eigen::Matrix< double, 6, 1 >& independentInertiaTensorComponentsOfBodyUndergoingTorque )
 {
-    const double aComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( aComponentIndex );
-    const double bComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( bComponentIndex );
-    const double cComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( cComponentIndex );
-    const double ixyComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( ixyComponentIndex );
-    const double ixzComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( ixzComponentIndex );
-    const double iyzComponentOfBodyUndergoingTorque =
-            independentInertiaTensorComponentsOfBodyUndergoingTorque( iyzComponentIndex );
+    const double aComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( aComponentIndex );
+    const double bComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( bComponentIndex );
+    const double cComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( cComponentIndex );
+    const double ixyComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( ixyComponentIndex );
+    const double ixzComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( ixzComponentIndex );
+    const double iyzComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( iyzComponentIndex );
 
-    Eigen::Matrix< double, 3, 6 > partialOfTorqueFunctionVectorWrtAuxiliaryFunctions =
-            Eigen::Matrix< double, 3, 6 >::Zero( );
+    Eigen::Matrix< double, 3, 6 > partialOfTorqueFunctionVectorWrtAuxiliaryFunctions = Eigen::Matrix< double, 3, 6 >::Zero( );
 
     partialOfTorqueFunctionVectorWrtAuxiliaryFunctions( 0, fyzFunctionIndex ) =
             cComponentOfBodyUndergoingTorque - bComponentOfBodyUndergoingTorque;
@@ -369,20 +325,20 @@ double computePartialOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate(
 {
     switch( coordinateIndex )
     {
-    case 0:
-        return 2.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
-                2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
-                2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
-    case 1:
-        return 2.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
-                2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
-                2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
-    case 2:
-        return 2.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate -
-                2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
-                2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate;
-    default:
-        throw std::runtime_error( "Error when computing position partial of fourth-degree torque: invalid coordinate index." );
+        case 0:
+            return 2.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
+                    2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
+                    2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
+        case 1:
+            return 2.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
+                    2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
+                    2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
+        case 2:
+            return 2.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate -
+                    2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
+                    2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate;
+        default:
+            throw std::runtime_error( "Error when computing position partial of fourth-degree torque: invalid coordinate index." );
     }
 }
 
@@ -390,72 +346,67 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
         const FourthDegreeTorqueAuxiliaryQuantities& auxiliaryQuantities,
         const int coordinateIndex )
 {
-    const double coordinateValue = ( coordinateIndex == 0 ) ? auxiliaryQuantities.xCoordinate :
-            ( coordinateIndex == 1 ) ? auxiliaryQuantities.yCoordinate : auxiliaryQuantities.zCoordinate;
+    const double coordinateValue = ( coordinateIndex == 0 ) ? auxiliaryQuantities.xCoordinate
+            : ( coordinateIndex == 1 )                      ? auxiliaryQuantities.yCoordinate
+                                                            : auxiliaryQuantities.zCoordinate;
     const double derivativeOfInverseRelativeDistanceSquaredWrtCoordinate =
             -2.0 * coordinateValue * auxiliaryQuantities.inverseRelativeDistanceToFourthPower;
     const double derivativeOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate =
             computePartialOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate( auxiliaryQuantities, coordinateIndex );
     const double derivativeOfWPrimeQuantityWrtCoordinate =
-            7.5 * auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque *
-                    derivativeOfInverseRelativeDistanceSquaredWrtCoordinate -
-            17.5 * ( derivativeOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate *
-                             auxiliaryQuantities.inverseRelativeDistanceToFourthPower +
-                     2.0 * auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque *
-                             auxiliaryQuantities.inverseRelativeDistanceSquared *
-                             derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
+            7.5 * auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate -
+            17.5 *
+                    ( derivativeOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate *
+                              auxiliaryQuantities.inverseRelativeDistanceToFourthPower +
+                      2.0 * auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared *
+                              derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
-    const double derivativeOfxyTermWrtCoordinate = ( coordinateIndex == 0 ) ? auxiliaryQuantities.yCoordinate :
-            ( coordinateIndex == 1 ) ? auxiliaryQuantities.xCoordinate : 0.0;
-    const double derivativeOfxzTermWrtCoordinate = ( coordinateIndex == 0 ) ? auxiliaryQuantities.zCoordinate :
-            ( coordinateIndex == 2 ) ? auxiliaryQuantities.xCoordinate : 0.0;
-    const double derivativeOfyzTermWrtCoordinate = ( coordinateIndex == 1 ) ? auxiliaryQuantities.zCoordinate :
-            ( coordinateIndex == 2 ) ? auxiliaryQuantities.yCoordinate : 0.0;
+    const double derivativeOfxyTermWrtCoordinate = ( coordinateIndex == 0 ) ? auxiliaryQuantities.yCoordinate
+            : ( coordinateIndex == 1 )                                      ? auxiliaryQuantities.xCoordinate
+                                                                            : 0.0;
+    const double derivativeOfxzTermWrtCoordinate = ( coordinateIndex == 0 ) ? auxiliaryQuantities.zCoordinate
+            : ( coordinateIndex == 2 )                                      ? auxiliaryQuantities.xCoordinate
+                                                                            : 0.0;
+    const double derivativeOfyzTermWrtCoordinate = ( coordinateIndex == 1 ) ? auxiliaryQuantities.zCoordinate
+            : ( coordinateIndex == 2 )                                      ? auxiliaryQuantities.yCoordinate
+                                                                            : 0.0;
 
-    const double derivativeOfxSquaredPluszSquaredWrtCoordinate =
-            ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate :
-            ( coordinateIndex == 2 ) ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0;
-    const double derivativeOfxSquaredPlusySquaredWrtCoordinate =
-            ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate :
-            ( coordinateIndex == 1 ) ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0;
-    const double derivativeOfySquaredPluszSquaredWrtCoordinate =
-            ( coordinateIndex == 1 ) ? 2.0 * auxiliaryQuantities.yCoordinate :
-            ( coordinateIndex == 2 ) ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0;
+    const double derivativeOfxSquaredPluszSquaredWrtCoordinate = ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate
+            : ( coordinateIndex == 2 )                                                    ? 2.0 * auxiliaryQuantities.zCoordinate
+                                                                                          : 0.0;
+    const double derivativeOfxSquaredPlusySquaredWrtCoordinate = ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate
+            : ( coordinateIndex == 1 )                                                    ? 2.0 * auxiliaryQuantities.yCoordinate
+                                                                                          : 0.0;
+    const double derivativeOfySquaredPluszSquaredWrtCoordinate = ( coordinateIndex == 1 ) ? 2.0 * auxiliaryQuantities.yCoordinate
+            : ( coordinateIndex == 2 )                                                    ? 2.0 * auxiliaryQuantities.zCoordinate
+                                                                                          : 0.0;
 
-    const double derivativeOfzSquaredMinusySquaredWrtCoordinate =
-            ( coordinateIndex == 2 ) ? 2.0 * auxiliaryQuantities.zCoordinate :
-            ( coordinateIndex == 1 ) ? -2.0 * auxiliaryQuantities.yCoordinate : 0.0;
-    const double derivativeOfxSquaredMinuszSquaredWrtCoordinate =
-            ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate :
-            ( coordinateIndex == 2 ) ? -2.0 * auxiliaryQuantities.zCoordinate : 0.0;
-    const double derivativeOfySquaredMinusxSquaredWrtCoordinate =
-            ( coordinateIndex == 1 ) ? 2.0 * auxiliaryQuantities.yCoordinate :
-            ( coordinateIndex == 0 ) ? -2.0 * auxiliaryQuantities.xCoordinate : 0.0;
+    const double derivativeOfzSquaredMinusySquaredWrtCoordinate = ( coordinateIndex == 2 ) ? 2.0 * auxiliaryQuantities.zCoordinate
+            : ( coordinateIndex == 1 )                                                     ? -2.0 * auxiliaryQuantities.yCoordinate
+                                                                                           : 0.0;
+    const double derivativeOfxSquaredMinuszSquaredWrtCoordinate = ( coordinateIndex == 0 ) ? 2.0 * auxiliaryQuantities.xCoordinate
+            : ( coordinateIndex == 2 )                                                     ? -2.0 * auxiliaryQuantities.zCoordinate
+                                                                                           : 0.0;
+    const double derivativeOfySquaredMinusxSquaredWrtCoordinate = ( coordinateIndex == 1 ) ? 2.0 * auxiliaryQuantities.yCoordinate
+            : ( coordinateIndex == 0 )                                                     ? -2.0 * auxiliaryQuantities.xCoordinate
+                                                                                           : 0.0;
 
-    const double aPlusBMinusC =
-            auxiliaryQuantities.aComponentOfBodyExertingTorque +
-            auxiliaryQuantities.bComponentOfBodyExertingTorque -
+    const double aPlusBMinusC = auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque -
             auxiliaryQuantities.cComponentOfBodyExertingTorque;
-    const double aMinusBPlusC =
-            auxiliaryQuantities.aComponentOfBodyExertingTorque -
-            auxiliaryQuantities.bComponentOfBodyExertingTorque +
+    const double aMinusBPlusC = auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
             auxiliaryQuantities.cComponentOfBodyExertingTorque;
-    const double minusAPlusBPlusC =
-            -auxiliaryQuantities.aComponentOfBodyExertingTorque +
-            auxiliaryQuantities.bComponentOfBodyExertingTorque +
-            auxiliaryQuantities.cComponentOfBodyExertingTorque;
+    const double minusAPlusBPlusC = -auxiliaryQuantities.aComponentOfBodyExertingTorque +
+            auxiliaryQuantities.bComponentOfBodyExertingTorque + auxiliaryQuantities.cComponentOfBodyExertingTorque;
 
     Eigen::Matrix< double, 6, 1 > partialOfAuxiliaryFunctionsWrtPositionCoordinate;
 
-    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fyzFunctionIndex ) =
-            derivativeOfyzTermWrtCoordinate *
+    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fyzFunctionIndex ) = derivativeOfyzTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) +
+                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
             auxiliaryQuantities.yzTerm *
                     ( derivativeOfWPrimeQuantityWrtCoordinate -
-                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque *
-                              derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
+                      5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxyTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xyTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
@@ -463,23 +414,18 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
             auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
-                    ( -5.0 * derivativeOfySquaredPluszSquaredWrtCoordinate *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    ( -5.0 * derivativeOfySquaredPluszSquaredWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared -
                       5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
                               derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
-    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxzFunctionIndex ) =
-            derivativeOfxzTermWrtCoordinate *
+    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxzFunctionIndex ) = derivativeOfxzTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) +
+                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
             auxiliaryQuantities.xzTerm *
                     ( derivativeOfWPrimeQuantityWrtCoordinate -
-                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque *
-                              derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
+                      5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
             auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
-                    ( -5.0 * derivativeOfxSquaredPluszSquaredWrtCoordinate *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    ( -5.0 * derivativeOfxSquaredPluszSquaredWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared -
                       5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
                               derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
@@ -489,21 +435,17 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
-    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxyFunctionIndex ) =
-            derivativeOfxyTermWrtCoordinate *
+    partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxyFunctionIndex ) = derivativeOfxyTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
-                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared ) +
+                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
             auxiliaryQuantities.xyTerm *
                     ( derivativeOfWPrimeQuantityWrtCoordinate -
-                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque *
-                              derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
+                      5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
             auxiliaryQuantities.ixyComponentOfBodyExertingTorque *
-                    ( -5.0 * derivativeOfxSquaredPlusySquaredWrtCoordinate *
-                              auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    ( -5.0 * derivativeOfxSquaredPlusySquaredWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared -
                       5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
                               derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
@@ -512,8 +454,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
 
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gyzFunctionIndex ) =
             derivativeOfzSquaredMinusySquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
-            ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) *
-                    derivativeOfWPrimeQuantityWrtCoordinate -
+            ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
@@ -524,16 +465,14 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC +
-                      auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC ) -
+                    ( auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC + auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC ) -
             5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
                     ( ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) * aPlusBMinusC +
                       ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) * aMinusBPlusC );
 
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxzFunctionIndex ) =
             derivativeOfxSquaredMinuszSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
-            ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) *
-                    derivativeOfWPrimeQuantityWrtCoordinate -
+            ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
             20.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
@@ -544,16 +483,14 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC +
-                      auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC ) -
+                    ( auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC + auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC ) -
             5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
                     ( ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) * minusAPlusBPlusC +
                       ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) * aPlusBMinusC );
 
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxyFunctionIndex ) =
             derivativeOfySquaredMinusxSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
-            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) *
-                    derivativeOfWPrimeQuantityWrtCoordinate -
+            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
@@ -564,8 +501,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC +
-                      auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC ) -
+                    ( auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC + auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC ) -
             5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
                     ( ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) * aMinusBPlusC +
                       ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) * minusAPlusBPlusC );
@@ -578,26 +514,24 @@ Eigen::Matrix3d computePartialOfTorqueWrtBodyFixedRelativePosition(
         const Eigen::Matrix< double, 6, 1 >& independentInertiaTensorComponentsOfBodyUndergoingTorque )
 {
     Eigen::Matrix3d partialOfTorqueWrtBodyFixedRelativePosition = Eigen::Matrix3d::Zero( );
-    const Eigen::Vector3d torqueFunctionVector = computeFourthDegreeTorqueFunctionVector(
-            auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );
+    const Eigen::Vector3d torqueFunctionVector =
+            computeFourthDegreeTorqueFunctionVector( auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );
     const Eigen::Matrix< double, 3, 6 > partialOfTorqueFunctionVectorWrtAuxiliaryFunctions =
-            computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions(
-                    independentInertiaTensorComponentsOfBodyUndergoingTorque );
+            computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions( independentInertiaTensorComponentsOfBodyUndergoingTorque );
 
-    const std::array< double, 3 > coordinateValues = {
-        auxiliaryQuantities.xCoordinate, auxiliaryQuantities.yCoordinate, auxiliaryQuantities.zCoordinate };
+    const std::array< double, 3 > coordinateValues = { auxiliaryQuantities.xCoordinate,
+                                                       auxiliaryQuantities.yCoordinate,
+                                                       auxiliaryQuantities.zCoordinate };
 
     for( int coordinateIndex = 0; coordinateIndex < 3; coordinateIndex++ )
     {
-        const double derivativeOfTorquePrefactorWrtCoordinate =
-                -5.0 * coordinateValues.at( coordinateIndex ) *
+        const double derivativeOfTorquePrefactorWrtCoordinate = -5.0 * coordinateValues.at( coordinateIndex ) *
                 auxiliaryQuantities.inverseRelativeDistanceSquared * auxiliaryQuantities.torquePrefactor;
         const Eigen::Matrix< double, 6, 1 > partialOfAuxiliaryFunctionsWrtPositionCoordinate =
                 computePartialOfAuxiliaryFunctionsWrtPositionCoordinate( auxiliaryQuantities, coordinateIndex );
         partialOfTorqueWrtBodyFixedRelativePosition.col( coordinateIndex ) =
                 derivativeOfTorquePrefactorWrtCoordinate * torqueFunctionVector +
-                auxiliaryQuantities.torquePrefactor *
-                        partialOfTorqueFunctionVectorWrtAuxiliaryFunctions *
+                auxiliaryQuantities.torquePrefactor * partialOfTorqueFunctionVectorWrtAuxiliaryFunctions *
                         partialOfAuxiliaryFunctionsWrtPositionCoordinate;
     }
 
@@ -619,145 +553,107 @@ Eigen::Matrix< double, 6, 6 > computePartialOfAuxiliaryFunctionsWrtIndependentIn
                 17.5 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceToFourthPower,
         35.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceToFourthPower,
         35.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceToFourthPower,
-        35.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceToFourthPower };
+        35.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceToFourthPower
+    };
 
     for( int inertiaComponentIndex = 0; inertiaComponentIndex < 6; inertiaComponentIndex++ )
     {
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                fyzFunctionIndex, inertiaComponentIndex ) =
-                auxiliaryQuantities.yzTerm * partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                fxzFunctionIndex, inertiaComponentIndex ) =
-                auxiliaryQuantities.xzTerm * partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                fxyFunctionIndex, inertiaComponentIndex ) =
-                auxiliaryQuantities.xyTerm * partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                gyzFunctionIndex, inertiaComponentIndex ) =
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, inertiaComponentIndex ) =
+                auxiliaryQuantities.yzTerm *
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxzFunctionIndex, inertiaComponentIndex ) =
+                auxiliaryQuantities.xzTerm *
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, inertiaComponentIndex ) =
+                auxiliaryQuantities.xyTerm *
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, inertiaComponentIndex ) =
                 ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) *
-                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                gxzFunctionIndex, inertiaComponentIndex ) =
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, inertiaComponentIndex ) =
                 ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) *
-                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
-        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                gxyFunctionIndex, inertiaComponentIndex ) =
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
+        partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, inertiaComponentIndex ) =
                 ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) *
-                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at(
-                        inertiaComponentIndex );
+                partialOfWPrimeQuantityWrtIndependentInertiaTensorComponentsOfBodyExertingTorque.at( inertiaComponentIndex );
     }
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fyzFunctionIndex, aComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, aComponentIndex ) +=
             -5.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fyzFunctionIndex, ixyComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, ixyComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fyzFunctionIndex, ixzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, ixzComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fyzFunctionIndex, iyzComponentIndex ) +=
-            1.0 - 5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
-                          auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, iyzComponentIndex ) += 1.0 -
+            5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
+                    auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxzFunctionIndex, bComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxzFunctionIndex, bComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxzFunctionIndex, ixyComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxzFunctionIndex, ixyComponentIndex ) +=
             -5.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxzFunctionIndex, ixzComponentIndex ) +=
-            1.0 - 5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
-                          auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxzFunctionIndex, iyzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxzFunctionIndex, ixzComponentIndex ) += 1.0 -
+            5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
+                    auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxzFunctionIndex, iyzComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxyFunctionIndex, cComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, cComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxyFunctionIndex, ixyComponentIndex ) +=
-            1.0 - 5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
-                          auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxyFunctionIndex, ixzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, ixyComponentIndex ) += 1.0 -
+            5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
+                    auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, ixzComponentIndex ) +=
             -5.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            fxyFunctionIndex, iyzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, iyzComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, aComponentIndex ) +=
-            -5.0 * ( auxiliaryQuantities.zCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, aComponentIndex ) += -5.0 *
+            ( auxiliaryQuantities.zCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
             auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, bComponentIndex ) +=
-            1.0 - 5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, bComponentIndex ) += 1.0 -
+            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, cComponentIndex ) +=
-            -1.0 + 5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, cComponentIndex ) += -1.0 +
+            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, ixyComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, ixyComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, ixzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, ixzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gyzFunctionIndex, iyzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, iyzComponentIndex ) +=
             -20.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, aComponentIndex ) +=
-            -1.0 + 5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, aComponentIndex ) += -1.0 +
+            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, bComponentIndex ) +=
-            -5.0 * ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, bComponentIndex ) += -5.0 *
+            ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
             auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, cComponentIndex ) +=
-            1.0 - 5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, cComponentIndex ) += 1.0 -
+            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, ixyComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, ixyComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, ixzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, ixzComponentIndex ) +=
             -20.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxzFunctionIndex, iyzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, iyzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, aComponentIndex ) +=
-            1.0 - 5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, aComponentIndex ) += 1.0 -
+            5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, bComponentIndex ) +=
-            -1.0 + 5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, bComponentIndex ) += -1.0 +
+            5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, cComponentIndex ) +=
-            -5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.xCoordinateSquared ) *
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, cComponentIndex ) += -5.0 *
+            ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.xCoordinateSquared ) *
             auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, ixyComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, ixyComponentIndex ) +=
             -20.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, ixzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, ixzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-            gxyFunctionIndex, iyzComponentIndex ) +=
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, iyzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     return partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque;
@@ -768,10 +664,8 @@ Eigen::Matrix< double, 3, 6 > computePartialOfTorqueWrtIndependentInertiaTensorC
         const Eigen::Matrix< double, 6, 1 >& independentInertiaTensorComponentsOfBodyUndergoingTorque )
 {
     return auxiliaryQuantities.torquePrefactor *
-            computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions(
-                    independentInertiaTensorComponentsOfBodyUndergoingTorque ) *
-            computePartialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
-                    auxiliaryQuantities );
+            computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions( independentInertiaTensorComponentsOfBodyUndergoingTorque ) *
+            computePartialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( auxiliaryQuantities );
 }
 
 }  // namespace detail
@@ -783,15 +677,13 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
         const std::string& acceleratedBody,
         const std::string& acceleratingBody ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque ),
-    torqueModel_( torqueModel ),
-    gravityFieldOfBodyUndergoingTorque_( gravityFieldOfBodyUndergoingTorque ),
+    torqueModel_( torqueModel ), gravityFieldOfBodyUndergoingTorque_( gravityFieldOfBodyUndergoingTorque ),
     gravityFieldOfBodyExertingTorque_( gravityFieldOfBodyExertingTorque ),
     currentPartialWrtQuaternionOfBodyUndergoingTorque_( Eigen::Matrix< double, 3, 4 >::Zero( ) ),
     currentPartialWrtQuaternionOfBodyExertingTorque_( Eigen::Matrix< double, 3, 4 >::Zero( ) ),
     currentPartialWrtPositionOfBodyUndergoingTorque_( Eigen::Matrix3d::Zero( ) ),
     currentPartialWrtPositionOfBodyExertingTorque_( Eigen::Matrix3d::Zero( ) ),
-    currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_(
-            Eigen::Matrix< double, 3, 6 >::Zero( ) ),
+    currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_( Eigen::Matrix< double, 3, 6 >::Zero( ) ),
     currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_(
             Eigen::Matrix< double, 3, 6 >::Zero( ) ),
     currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Matrix3d::Identity( ) ),
@@ -803,20 +695,17 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
 {
     if( torqueModel_ == nullptr )
     {
-        throw std::runtime_error(
-                "Error when creating FourthDegreeFullTwoBodyGravitationalTorquePartial, torque model is nullptr." );
+        throw std::runtime_error( "Error when creating FourthDegreeFullTwoBodyGravitationalTorquePartial, torque model is nullptr." );
     }
 }
 
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > )
 {
     return std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 }
 
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace estimatable_parameters;
@@ -828,109 +717,96 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
     {
         switch( parameter->getParameterName( ).first )
         {
-        case spherical_harmonics_cosine_coefficient_block:
-        {
-            std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
-                    std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
-            int c20Index, c21Index, c22Index;
-            coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
-            if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
-            {
-                partialFunction = std::make_pair(
-                        std::bind(
-                                &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                        wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
-                                this,
-                                std::placeholders::_1,
-                                c20Index,
-                                c21Index,
-                                c22Index ),
-                        coefficientsParameter->getParameterSize( ) );
+            case spherical_harmonics_cosine_coefficient_block: {
+                std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
+                int c20Index, c21Index, c22Index;
+                coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
+                if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
+                {
+                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                         wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 c20Index,
+                                                                 c21Index,
+                                                                 c22Index ),
+                                                      coefficientsParameter->getParameterSize( ) );
+                }
+                break;
             }
-            break;
-        }
-        case spherical_harmonics_sine_coefficient_block:
-        {
-            std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
-                    std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
-            int s21Index, s22Index;
-            coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
-            if( s21Index >= 0 || s22Index >= 0 )
-            {
-                partialFunction = std::make_pair(
-                        std::bind(
-                                &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                        wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
-                                this,
-                                std::placeholders::_1,
-                                s21Index,
-                                s22Index ),
-                        coefficientsParameter->getParameterSize( ) );
+            case spherical_harmonics_sine_coefficient_block: {
+                std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
+                int s21Index, s22Index;
+                coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
+                if( s21Index >= 0 || s22Index >= 0 )
+                {
+                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                         wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 s21Index,
+                                                                 s22Index ),
+                                                      coefficientsParameter->getParameterSize( ) );
+                }
+                break;
             }
-            break;
-        }
-        default:
-            break;
+            default:
+                break;
         }
     }
     else if( parameter->getParameterName( ).second.first == bodyExertingTorque_ )
     {
         switch( parameter->getParameterName( ).first )
         {
-        case spherical_harmonics_cosine_coefficient_block:
-        {
-            std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
-                    std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
-            int c20Index, c21Index, c22Index;
-            coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
-            if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
-            {
-                partialFunction = std::make_pair(
-                        std::bind(
-                                &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                        wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque,
-                                this,
-                                std::placeholders::_1,
-                                c20Index,
-                                c21Index,
-                                c22Index ),
-                        coefficientsParameter->getParameterSize( ) );
+            case spherical_harmonics_cosine_coefficient_block: {
+                std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
+                int c20Index, c21Index, c22Index;
+                coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
+                if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
+                {
+                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                         wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 c20Index,
+                                                                 c21Index,
+                                                                 c22Index ),
+                                                      coefficientsParameter->getParameterSize( ) );
+                }
+                break;
             }
-            break;
-        }
-        case spherical_harmonics_sine_coefficient_block:
-        {
-            std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
-                    std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
-            int s21Index, s22Index;
-            coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
-            if( s21Index >= 0 || s22Index >= 0 )
-            {
-                partialFunction = std::make_pair(
-                        std::bind(
-                                &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                        wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque,
-                                this,
-                                std::placeholders::_1,
-                                s21Index,
-                                s22Index ),
-                        coefficientsParameter->getParameterSize( ) );
+            case spherical_harmonics_sine_coefficient_block: {
+                std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
+                int s21Index, s22Index;
+                coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
+                if( s21Index >= 0 || s22Index >= 0 )
+                {
+                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                         wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 s21Index,
+                                                                 s22Index ),
+                                                      coefficientsParameter->getParameterSize( ) );
+                }
+                break;
             }
-            break;
-        }
-        default:
-            break;
+            default:
+                break;
         }
     }
 
     return partialFunction;
 }
 
-void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtOrientationOfAcceleratedBody(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
-        const bool addContribution,
-        const int startRow,
-        const int startColumn )
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                                                         const bool addContribution,
+                                                                                         const int startRow,
+                                                                                         const int startColumn )
 {
     if( addContribution )
     {
@@ -942,11 +818,10 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtOrientationOfAccelera
     }
 }
 
-void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtOrientationOfAcceleratingBody(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
-        const bool addContribution,
-        const int startRow,
-        const int startColumn )
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtOrientationOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                                                          const bool addContribution,
+                                                                                          const int startRow,
+                                                                                          const int startColumn )
 {
     if( addContribution )
     {
@@ -984,8 +859,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtNonRotationalStateOfA
     }
 }
 
-Eigen::Matrix< double, 6, 1 >
-FourthDegreeFullTwoBodyGravitationalTorquePartial::getIndependentInertiaTensorComponentsFromMatrixDerivative(
+Eigen::Matrix< double, 6, 1 > FourthDegreeFullTwoBodyGravitationalTorquePartial::getIndependentInertiaTensorComponentsFromMatrixDerivative(
         const Eigen::Matrix3d& inertiaTensorDerivative ) const
 {
     return detail::getIndependentInertiaTensorComponentsFromMatrix( inertiaTensorDerivative );
@@ -1001,25 +875,24 @@ Eigen::Matrix3d FourthDegreeFullTwoBodyGravitationalTorquePartial::getInertiaTen
                 "Error when computing fourth-degree torque partial w.r.t. cosine coefficient: gravity field is nullptr." );
     }
 
-    const double scalingFactor =
-            basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, order ) *
+    const double scalingFactor = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, order ) *
             gravityField->getInertiaTensorNormalizationFactor( );
 
     Eigen::Matrix3d unscaledInertiaTensorPartial = Eigen::Matrix3d::Zero( );
     switch( order )
     {
-    case 0:
-        unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20;
-        break;
-    case 1:
-        unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21;
-        break;
-    case 2:
-        unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22;
-        break;
-    default:
-        throw std::runtime_error(
-                "Error when computing fourth-degree torque partial w.r.t. cosine coefficient: invalid degree-2 order." );
+        case 0:
+            unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20;
+            break;
+        case 1:
+            unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21;
+            break;
+        case 2:
+            unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22;
+            break;
+        default:
+            throw std::runtime_error(
+                    "Error when computing fourth-degree torque partial w.r.t. cosine coefficient: invalid degree-2 order." );
     }
 
     return scalingFactor * unscaledInertiaTensorPartial;
@@ -1031,26 +904,24 @@ Eigen::Matrix3d FourthDegreeFullTwoBodyGravitationalTorquePartial::getInertiaTen
 {
     if( gravityField == nullptr )
     {
-        throw std::runtime_error(
-                "Error when computing fourth-degree torque partial w.r.t. sine coefficient: gravity field is nullptr." );
+        throw std::runtime_error( "Error when computing fourth-degree torque partial w.r.t. sine coefficient: gravity field is nullptr." );
     }
 
-    const double scalingFactor =
-            basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, order ) *
+    const double scalingFactor = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, order ) *
             gravityField->getInertiaTensorNormalizationFactor( );
 
     Eigen::Matrix3d unscaledInertiaTensorPartial = Eigen::Matrix3d::Zero( );
     switch( order )
     {
-    case 1:
-        unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21;
-        break;
-    case 2:
-        unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22;
-        break;
-    default:
-        throw std::runtime_error(
-                "Error when computing fourth-degree torque partial w.r.t. sine coefficient: invalid degree-2 order." );
+        case 1:
+            unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21;
+            break;
+        case 2:
+            unscaledInertiaTensorPartial = UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22;
+            break;
+        default:
+            throw std::runtime_error(
+                    "Error when computing fourth-degree torque partial w.r.t. sine coefficient: invalid degree-2 order." );
     }
 
     return scalingFactor * unscaledInertiaTensorPartial;
@@ -1084,24 +955,18 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmon
 
     if( c20Index >= 0 )
     {
-        partialMatrix.col( c20Index ) =
-                currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient(
-                        0, gravityFieldOfBodyUndergoingTorque_ );
+        partialMatrix.col( c20Index ) = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient( 0, gravityFieldOfBodyUndergoingTorque_ );
     }
     if( c21Index >= 0 )
     {
-        partialMatrix.col( c21Index ) =
-                currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient(
-                        1, gravityFieldOfBodyUndergoingTorque_ );
+        partialMatrix.col( c21Index ) = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient( 1, gravityFieldOfBodyUndergoingTorque_ );
     }
     if( c22Index >= 0 )
     {
-        partialMatrix.col( c22Index ) =
-                currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient(
-                        2, gravityFieldOfBodyUndergoingTorque_ );
+        partialMatrix.col( c22Index ) = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                getIndependentInertiaTensorComponentsPartialWrtNormalizedCosineCoefficient( 2, gravityFieldOfBodyUndergoingTorque_ );
     }
 }
 
@@ -1114,17 +979,13 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
 
     if( s21Index >= 0 )
     {
-        partialMatrix.col( s21Index ) =
-                currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsPartialWrtNormalizedSineCoefficient(
-                        1, gravityFieldOfBodyUndergoingTorque_ );
+        partialMatrix.col( s21Index ) = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                getIndependentInertiaTensorComponentsPartialWrtNormalizedSineCoefficient( 1, gravityFieldOfBodyUndergoingTorque_ );
     }
     if( s22Index >= 0 )
     {
-        partialMatrix.col( s22Index ) =
-                currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsPartialWrtNormalizedSineCoefficient(
-                        2, gravityFieldOfBodyUndergoingTorque_ );
+        partialMatrix.col( s22Index ) = currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_ *
+                getIndependentInertiaTensorComponentsPartialWrtNormalizedSineCoefficient( 2, gravityFieldOfBodyUndergoingTorque_ );
     }
 }
 
@@ -1144,8 +1005,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmon
                 currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( );
         partialMatrix.col( c20Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsFromMatrixDerivative(
-                        inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+                getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
     }
     if( c21Index >= 0 )
     {
@@ -1155,8 +1015,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmon
                 currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( );
         partialMatrix.col( c21Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsFromMatrixDerivative(
-                        inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+                getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
     }
     if( c22Index >= 0 )
     {
@@ -1166,8 +1025,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmon
                 currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( );
         partialMatrix.col( c22Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsFromMatrixDerivative(
-                        inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+                getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
     }
 }
 
@@ -1186,8 +1044,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
                 currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( );
         partialMatrix.col( s21Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsFromMatrixDerivative(
-                        inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+                getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
     }
     if( s22Index >= 0 )
     {
@@ -1197,8 +1054,7 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
                 currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( );
         partialMatrix.col( s22Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
-                getIndependentInertiaTensorComponentsFromMatrixDerivative(
-                        inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+                getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
     }
 }
 
@@ -1215,15 +1071,13 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
         currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_ =
                 currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_ *
                 currentRotationFromInertialToBodyFixedFrameOfBodyExertingTorque_.transpose( );
-        currentRelativePositionOfBodyExertingTorqueInInertialFrame_ =
-                torqueModel_->getCurrentRelativePositionInInertialFrame( );
+        currentRelativePositionOfBodyExertingTorqueInInertialFrame_ = torqueModel_->getCurrentRelativePositionInInertialFrame( );
         currentRelativePositionOfBodyExertingTorqueInBodyFixedFrameOfBodyUndergoingTorque_ =
                 torqueModel_->getCurrentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque( );
         currentInertiaTensorOfBodyExertingTorque_ = torqueModel_->getCurrentInertiaTensorOfBodyExertingTorque( );
 
         const Eigen::Matrix< double, 6, 1 > independentInertiaTensorComponentsOfBodyUndergoingTorque =
-                detail::getIndependentInertiaTensorComponentsFromMatrix(
-                        torqueModel_->getCurrentInertiaTensorOfBodyUndergoingTorque( ) );
+                detail::getIndependentInertiaTensorComponentsFromMatrix( torqueModel_->getCurrentInertiaTensorOfBodyUndergoingTorque( ) );
         const Eigen::Matrix< double, 6, 1 > independentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque =
                 detail::getIndependentInertiaTensorComponentsFromMatrix(
                         torqueModel_->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) );
@@ -1237,15 +1091,12 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
                 detail::computePartialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque( auxiliaryQuantities );
         currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ =
                 detail::computePartialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque(
-                        auxiliaryQuantities,
-                        independentInertiaTensorComponentsOfBodyUndergoingTorque );
-
-        const Eigen::Matrix3d partialOfTorqueWrtBodyFixedRelativePosition =
-                detail::computePartialOfTorqueWrtBodyFixedRelativePosition(
                         auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );
+
+        const Eigen::Matrix3d partialOfTorqueWrtBodyFixedRelativePosition = detail::computePartialOfTorqueWrtBodyFixedRelativePosition(
+                auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );
         currentPartialWrtPositionOfBodyExertingTorque_ =
-                partialOfTorqueWrtBodyFixedRelativePosition *
-                currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_;
+                partialOfTorqueWrtBodyFixedRelativePosition * currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_;
         currentPartialWrtPositionOfBodyUndergoingTorque_ = -currentPartialWrtPositionOfBodyExertingTorque_;
 
         const std::array< Eigen::Matrix3d, 4 > derivativeOfBodyUndergoingTorqueRotationFromBodyFixedToInertialWrtQuaternion =
@@ -1261,8 +1112,9 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
                     derivativeOfBodyUndergoingTorqueRotationFromBodyFixedToInertialWrtQuaternion.at( i ).transpose( ) *
                     currentRelativePositionOfBodyExertingTorqueInInertialFrame_;
 
-            const Eigen::Matrix3d partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque =
-                    derivativeOfBodyUndergoingTorqueRotationFromBodyFixedToInertialWrtQuaternion.at( i ).transpose( ) *
+            const Eigen::Matrix3d
+                    partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque =
+                            derivativeOfBodyUndergoingTorqueRotationFromBodyFixedToInertialWrtQuaternion.at( i ).transpose( ) *
                     currentRotationFromInertialToBodyFixedFrameOfBodyExertingTorque_.transpose( );
 
             const Eigen::Matrix3d partialOfInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque =
@@ -1271,17 +1123,18 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
                             currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( ) +
                     currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_ *
                             currentInertiaTensorOfBodyExertingTorque_ *
-                            partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque.transpose( );
+                            partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque
+                                    .transpose( );
 
             currentPartialWrtQuaternionOfBodyUndergoingTorque_.col( i ) =
-                    partialOfTorqueWrtBodyFixedRelativePosition *
-                            partialOfBodyFixedRelativePositionWrtQuaternionOfBodyUndergoingTorque +
+                    partialOfTorqueWrtBodyFixedRelativePosition * partialOfBodyFixedRelativePositionWrtQuaternionOfBodyUndergoingTorque +
                     currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
                             getIndependentInertiaTensorComponentsFromMatrixDerivative(
                                     partialOfInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyUndergoingTorque );
 
-            const Eigen::Matrix3d partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyExertingTorque =
-                    currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_ *
+            const Eigen::Matrix3d
+                    partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyExertingTorque =
+                            currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_ *
                     derivativeOfBodyExertingTorqueRotationFromBodyFixedToInertialWrtQuaternion.at( i );
 
             const Eigen::Matrix3d partialOfInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyExertingTorque =
@@ -1290,7 +1143,8 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
                             currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_.transpose( ) +
                     currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_ *
                             currentInertiaTensorOfBodyExertingTorque_ *
-                            partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyExertingTorque.transpose( );
+                            partialOfRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorqueWrtQuaternionOfBodyExertingTorque
+                                    .transpose( );
 
             currentPartialWrtQuaternionOfBodyExertingTorque_.col( i ) =
                     currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *

@@ -56,31 +56,27 @@ BOOST_AUTO_TEST_CASE( test_CayleyKleinConversions )
             // Test 3-2-3 rotation convention
             if( angleTest == 0 )
             {
-                directRotationMatrix =
-                        Eigen::AngleAxisd( -angleGamma, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) *
+                directRotationMatrix = Eigen::AngleAxisd( -angleGamma, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) *
                         Eigen::AngleAxisd( -angleBeta, Eigen::Vector3d::UnitY( ) ).toRotationMatrix( ) *
                         Eigen::AngleAxisd( -angleAlpha, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
                 basic_mathematics::convert323EulerAnglesToCayleyKleinParameters(
-                            angleAlpha, angleBeta, angleGamma, cayleyKleinA, cayleyKleinB );
+                        angleAlpha, angleBeta, angleGamma, cayleyKleinA, cayleyKleinB );
             }
             // Test 3-1-3 rotation convention
             else
             {
                 basic_mathematics::convert313EulerAnglesToCayleyKleinParameters(
-                            angleAlpha, angleBeta, angleGamma, cayleyKleinA, cayleyKleinB );
-                directRotationMatrix =
-                        Eigen::AngleAxisd( -angleGamma, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) *
+                        angleAlpha, angleBeta, angleGamma, cayleyKleinA, cayleyKleinB );
+                directRotationMatrix = Eigen::AngleAxisd( -angleGamma, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) *
                         Eigen::AngleAxisd( -angleBeta, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( ) *
                         Eigen::AngleAxisd( -angleAlpha, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
             }
             std::complex< double > cayleyKleinC = -std::conj( cayleyKleinB );
             std::complex< double > cayleyKleinD = std::conj( cayleyKleinA );
 
-
             Eigen::Quaterniond directQuaternion = Eigen::Quaterniond( directRotationMatrix );
             std::complex< double > cayleyKleinATest, cayleyKleinBTest;
-            basic_mathematics::convertQuaterionToCayleyKleinParameters(
-                        directQuaternion, cayleyKleinATest, cayleyKleinBTest );
+            basic_mathematics::convertQuaterionToCayleyKleinParameters( directQuaternion, cayleyKleinATest, cayleyKleinBTest );
 
             BOOST_CHECK_CLOSE_FRACTION( cayleyKleinA.real( ), cayleyKleinATest.real( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( cayleyKleinA.imag( ), cayleyKleinATest.imag( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
@@ -88,14 +84,14 @@ BOOST_AUTO_TEST_CASE( test_CayleyKleinConversions )
             BOOST_CHECK_CLOSE_FRACTION( cayleyKleinB.real( ), cayleyKleinBTest.real( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( cayleyKleinB.imag( ), cayleyKleinBTest.imag( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
 
-
-
-            BOOST_CHECK_CLOSE_FRACTION( directQuaternion.w( ), ( 0.5 * ( cayleyKleinA + cayleyKleinD ) ).real( ),
+            BOOST_CHECK_CLOSE_FRACTION( directQuaternion.w( ),
+                                        ( 0.5 * ( cayleyKleinA + cayleyKleinD ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.x( ),
                                         ( 0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinB + cayleyKleinC ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( directQuaternion.y( ), ( 0.5 * ( cayleyKleinB - cayleyKleinC ) ).real( ),
+            BOOST_CHECK_CLOSE_FRACTION( directQuaternion.y( ),
+                                        ( 0.5 * ( cayleyKleinB - cayleyKleinC ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.z( ),
                                         ( 0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinA - cayleyKleinD ) ).real( ),
@@ -106,6 +102,6 @@ BOOST_AUTO_TEST_CASE( test_CayleyKleinConversions )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

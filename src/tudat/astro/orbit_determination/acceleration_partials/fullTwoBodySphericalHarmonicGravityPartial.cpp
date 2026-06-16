@@ -32,15 +32,13 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
         const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel ):
-    AccelerationPartial(
-            acceleratedBody,
-            acceleratingBody,
-            accelerationModel,
-            basic_astrodynamics::full_two_body_spherical_harmonic_gravity ),
-    accelerationModel_( accelerationModel ),
-    effectiveMutualPotentialField_( accelerationModel_->getEffectiveMutualPotentialField( ) ),
-    sphericalHarmonicsCache_( std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
-            *accelerationModel_->getSphericalHarmonicsCache( ) ) ),
+    AccelerationPartial( acceleratedBody,
+                         acceleratingBody,
+                         accelerationModel,
+                         basic_astrodynamics::full_two_body_spherical_harmonic_gravity ),
+    accelerationModel_( accelerationModel ), effectiveMutualPotentialField_( accelerationModel_->getEffectiveMutualPotentialField( ) ),
+    sphericalHarmonicsCache_(
+            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( *accelerationModel_->getSphericalHarmonicsCache( ) ) ),
     coefficientCombinationsToUse_( effectiveMutualPotentialField_->getCoefficientCombinationsToUse( ) )
 {
     // Cache setup supports derivatives of the Eq. (49) expansion used in translational Eq. (55),
@@ -48,24 +46,17 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     sphericalHarmonicsCache_->getLegendreCache( ).setComputeSecondDerivatives( 1 );
 
     const int numberOfEffectiveCoefficients = effectiveMutualPotentialField_->getTotalVectorSize( );
-    currentPartialsWrtEffectiveCoefficients_.resize(
-            numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
-    currentBodyFixedPartialsWrtEffectiveCoefficients_.resize(
-            numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
+    currentPartialsWrtEffectiveCoefficients_.resize( numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
+    currentBodyFixedPartialsWrtEffectiveCoefficients_.resize( numberOfEffectiveCoefficients, Eigen::Matrix< double, 3, 2 >::Zero( ) );
     currentEffectiveCoefficientsWrtTransformedBody2Coefficients_.resize( numberOfEffectiveCoefficients, Eigen::Matrix2d::Zero( ) );
 
-    const Eigen::MatrixXd& transformedCosineCoefficients =
-            effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
-    const Eigen::MatrixXd& transformedSineCoefficients =
-            effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
-    body2BasisCosineCoefficients_.setZero(
-            transformedCosineCoefficients.rows( ), transformedCosineCoefficients.cols( ) );
-    body2BasisSineCoefficients_.setZero(
-            transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
-    transformedCosineBody2CoefficientPartialsScratch_.setZero(
-            transformedCosineCoefficients.rows( ), transformedCosineCoefficients.cols( ) );
-    transformedSineBody2CoefficientPartialsScratch_.setZero(
-            transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
+    const Eigen::MatrixXd& transformedCosineCoefficients = effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
+    const Eigen::MatrixXd& transformedSineCoefficients = effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
+    body2BasisCosineCoefficients_.setZero( transformedCosineCoefficients.rows( ), transformedCosineCoefficients.cols( ) );
+    body2BasisSineCoefficients_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
+    transformedCosineBody2CoefficientPartialsScratch_.setZero( transformedCosineCoefficients.rows( ),
+                                                               transformedCosineCoefficients.cols( ) );
+    transformedSineBody2CoefficientPartialsScratch_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
 }
 
 void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTime )
@@ -123,10 +114,10 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
     // Accumulate spherical Hessian contribution for each selected (l1,m1,l2,m2) term from Eq. (49).
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
-        const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
-        const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
-        const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
 
         const int totalDegree = degreeOfBody1 + degreeOfBody2;
         const double equatorialRadiusRatioPower = currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
@@ -136,17 +127,15 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
         {
             int signedOrderOfBody1 = 0;
             int signedOrderOfBody2 = 0;
-            const bool computeTerm = gravitation::getSignedOrdersForCombinationCase(
-                    j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
+            const bool computeTerm =
+                    gravitation::getSignedOrdersForCombinationCase( j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             if( computeTerm )
             {
                 const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
-                const double effectiveCosineCoefficient =
-                        effectiveMutualPotentialField_->getEffectiveCosineCoefficient(
-                                degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
-                const double effectiveSineCoefficient =
-                        effectiveMutualPotentialField_->getEffectiveSineCoefficient(
-                                degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double effectiveCosineCoefficient = effectiveMutualPotentialField_->getEffectiveCosineCoefficient(
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double effectiveSineCoefficient = effectiveMutualPotentialField_->getEffectiveSineCoefficient(
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
 
                 computePotentialSphericalHessian(
                         currentDistance_,
@@ -175,11 +164,9 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
     currentBodyFixedPartialWrtPosition_ =
             sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.transpose( );
     currentBodyFixedPartialWrtPosition_ += coordinate_conversions::getDerivativeOfSphericalToCartesianGradient(
-            currentBodyFixedSphericalGradient_,
-            currentBodyFixedRelativePosition_ );
+            currentBodyFixedSphericalGradient_, currentBodyFixedRelativePosition_ );
     // Eq. (55): Cartesian Jacobian of acceleration from the gradient/Hessian of the mutual potential.
-    currentPartialWrtPosition_ =
-            currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
+    currentPartialWrtPosition_ = currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
 }
 
 //! Update \partial a / \partial C_eff and \partial a / \partial S_eff for all effective indices.
@@ -202,10 +189,10 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
     // Loop over all selected interaction tuples and accumulate signed-order contributions.
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( i ));
-        const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( i ));
-        const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( i ));
-        const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( i ));
+        const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
+        const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
+        const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
 
         const int totalDegree = degreeOfBody1 + degreeOfBody2;
         const double equatorialRadiusRatioPower = currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
@@ -214,8 +201,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
         {
             int signedOrderOfBody1 = 0;
             int signedOrderOfBody2 = 0;
-            const bool computeTerm = gravitation::getSignedOrdersForCombinationCase(
-                    j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
+            const bool computeTerm =
+                    gravitation::getSignedOrdersForCombinationCase( j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 );
             if( computeTerm )
             {
                 const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
@@ -228,34 +215,32 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
 
                 // Eq. (49): basis-gradient contribution for one signed (l,m) term.
                 currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ).block( 0, 0, 3, 1 ) +=
-                        basic_mathematics::computePotentialGradient(
-                                currentDistance_,
-                                equatorialRadiusRatioPower,
-                                sphericalHarmonicsCache_->getCosineOfMultipleLongitude( totalOrder ),
-                                sphericalHarmonicsCache_->getSineOfMultipleLongitude( totalOrder ),
-                                cosineOfLatitude,
-                                preMultiplier,
-                                totalDegree,
-                                totalOrder,
-                                1.0,
-                                0.0,
-                                legendrePolynomial,
-                                legendrePolynomialDerivative );
+                        basic_mathematics::computePotentialGradient( currentDistance_,
+                                                                     equatorialRadiusRatioPower,
+                                                                     sphericalHarmonicsCache_->getCosineOfMultipleLongitude( totalOrder ),
+                                                                     sphericalHarmonicsCache_->getSineOfMultipleLongitude( totalOrder ),
+                                                                     cosineOfLatitude,
+                                                                     preMultiplier,
+                                                                     totalDegree,
+                                                                     totalOrder,
+                                                                     1.0,
+                                                                     0.0,
+                                                                     legendrePolynomial,
+                                                                     legendrePolynomialDerivative );
 
                 currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ).block( 0, 1, 3, 1 ) +=
-                        basic_mathematics::computePotentialGradient(
-                                currentDistance_,
-                                equatorialRadiusRatioPower,
-                                sphericalHarmonicsCache_->getCosineOfMultipleLongitude( totalOrder ),
-                                sphericalHarmonicsCache_->getSineOfMultipleLongitude( totalOrder ),
-                                cosineOfLatitude,
-                                preMultiplier,
-                                totalDegree,
-                                totalOrder,
-                                0.0,
-                                1.0,
-                                legendrePolynomial,
-                                legendrePolynomialDerivative );
+                        basic_mathematics::computePotentialGradient( currentDistance_,
+                                                                     equatorialRadiusRatioPower,
+                                                                     sphericalHarmonicsCache_->getCosineOfMultipleLongitude( totalOrder ),
+                                                                     sphericalHarmonicsCache_->getSineOfMultipleLongitude( totalOrder ),
+                                                                     cosineOfLatitude,
+                                                                     preMultiplier,
+                                                                     totalDegree,
+                                                                     totalOrder,
+                                                                     0.0,
+                                                                     1.0,
+                                                                     legendrePolynomial,
+                                                                     legendrePolynomialDerivative );
             }
         }
     }
@@ -267,14 +252,11 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
         {
             currentBodyFixedPartialsWrtEffectiveCoefficients.block( 0, 0, 3, 1 ) =
                     coordinate_conversions::convertSphericalToCartesianGradient(
-                            currentPartialsWrtEffectiveCoefficients_.at( i ).block( 0, 0, 3, 1 ),
-                            currentBodyFixedRelativePosition_ );
+                            currentPartialsWrtEffectiveCoefficients_.at( i ).block( 0, 0, 3, 1 ), currentBodyFixedRelativePosition_ );
             currentBodyFixedPartialsWrtEffectiveCoefficients.block( 0, 1, 3, 1 ) =
                     coordinate_conversions::convertSphericalToCartesianGradient(
-                            currentPartialsWrtEffectiveCoefficients_.at( i ).block( 0, 1, 3, 1 ),
-                            currentBodyFixedRelativePosition_ );
-            currentBodyFixedPartialsWrtEffectiveCoefficients_.at( i ) =
-                    currentBodyFixedPartialsWrtEffectiveCoefficients;
+                            currentPartialsWrtEffectiveCoefficients_.at( i ).block( 0, 1, 3, 1 ), currentBodyFixedRelativePosition_ );
+            currentBodyFixedPartialsWrtEffectiveCoefficients_.at( i ) = currentBodyFixedPartialsWrtEffectiveCoefficients;
             currentPartialsWrtEffectiveCoefficients_.at( i ) =
                     currentRotationToInertialFrame_ * currentBodyFixedPartialsWrtEffectiveCoefficients;
         }
@@ -300,10 +282,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentTransformedBody2C
     const Eigen::MatrixXd& transformedCosineCoefficients = effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
     const Eigen::MatrixXd& transformedSineCoefficients = effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
 
-    body2BasisCosineCoefficients_.setZero(
-            transformedCosineCoefficients.rows( ), transformedCosineCoefficients.cols( ) );
-    body2BasisSineCoefficients_.setZero(
-            transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
+    body2BasisCosineCoefficients_.setZero( transformedCosineCoefficients.rows( ), transformedCosineCoefficients.cols( ) );
+    body2BasisSineCoefficients_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
 
     if( degree < body2BasisCosineCoefficients_.rows( ) && order < body2BasisCosineCoefficients_.cols( ) )
     {
@@ -335,17 +315,16 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
 
     const Eigen::MatrixXd& transformedCosineCoefficientsOfBody2 =
             effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
-    const Eigen::MatrixXd& transformedSineCoefficientsOfBody2 =
-            effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
+    const Eigen::MatrixXd& transformedSineCoefficientsOfBody2 = effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
-            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
+            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
             if( blockIndices.at( i ).first != degreeOfBody1 )
             {
@@ -376,17 +355,15 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
 
                 const int effectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
                         degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
-                const double coefficientMultiplier =
-                        effectiveMutualPotentialField_->getMultiplier(
-                                degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double coefficientMultiplier = effectiveMutualPotentialField_->getMultiplier(
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
                 const double signOrderOfBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
                 const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
 
                 Eigen::Vector2d effectiveCoefficientsPartial;
                 effectiveCoefficientsPartial( 0 ) =
                         coefficientMultiplier * transformedCosineCoefficientsOfBody2( degreeOfBody2, transformedOrderOfBody2 );
-                effectiveCoefficientsPartial( 1 ) =
-                        coefficientMultiplier * signOrderOfBody2 * signTotalOrder *
+                effectiveCoefficientsPartial( 1 ) = coefficientMultiplier * signOrderOfBody2 * signTotalOrder *
                         transformedSineCoefficientsOfBody2( degreeOfBody2, transformedOrderOfBody2 );
                 partialMatrix.block( 0, i, 3, 1 ) +=
                         currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ) * effectiveCoefficientsPartial;
@@ -396,25 +373,23 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
 }
 
 //! Compute partial of acceleration w.r.t. a sine coefficient block of body 1.
-void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1(
-        const std::vector< std::pair< int, int > >& blockIndices,
-        Eigen::MatrixXd& partialMatrix )
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1( const std::vector< std::pair< int, int > >& blockIndices,
+                                                                                  Eigen::MatrixXd& partialMatrix )
 {
     partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
 
     const Eigen::MatrixXd& transformedCosineCoefficientsOfBody2 =
             effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
-    const Eigen::MatrixXd& transformedSineCoefficientsOfBody2 =
-            effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
+    const Eigen::MatrixXd& transformedSineCoefficientsOfBody2 = effectiveMutualPotentialField_->getTransformedSineCoefficientsOfBody2( );
 
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
-            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
+            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
             if( blockIndices.at( i ).first != degreeOfBody1 )
             {
@@ -445,19 +420,16 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1
 
                 const int effectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
                         degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
-                const double coefficientMultiplier =
-                        effectiveMutualPotentialField_->getMultiplier(
-                                degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+                const double coefficientMultiplier = effectiveMutualPotentialField_->getMultiplier(
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
                 const double signOrderOfBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
                 const double signOrderOfBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
                 const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
 
                 Eigen::Vector2d effectiveCoefficientsPartial;
-                effectiveCoefficientsPartial( 0 ) =
-                        -coefficientMultiplier * signOrderOfBody1 * signOrderOfBody2 *
+                effectiveCoefficientsPartial( 0 ) = -coefficientMultiplier * signOrderOfBody1 * signOrderOfBody2 *
                         transformedSineCoefficientsOfBody2( degreeOfBody2, transformedOrderOfBody2 );
-                effectiveCoefficientsPartial( 1 ) =
-                        coefficientMultiplier * signOrderOfBody1 * signTotalOrder *
+                effectiveCoefficientsPartial( 1 ) = coefficientMultiplier * signOrderOfBody1 * signTotalOrder *
                         transformedCosineCoefficientsOfBody2( degreeOfBody2, transformedOrderOfBody2 );
                 partialMatrix.block( 0, i, 3, 1 ) +=
                         currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ) * effectiveCoefficientsPartial;
@@ -479,18 +451,14 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
         const int order = blockIndices.at( i ).second;
 
         updateCurrentTransformedBody2CoefficientPartials(
-                degree,
-                order,
-                true,
-                transformedCosineBody2CoefficientPartialsScratch_,
-                transformedSineBody2CoefficientPartialsScratch_ );
+                degree, order, true, transformedCosineBody2CoefficientPartialsScratch_, transformedSineBody2CoefficientPartialsScratch_ );
 
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
-            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
+            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
             if( degreeOfBody2 != degree )
             {
@@ -517,8 +485,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
                 const int effectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
                         degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
                 const Eigen::Vector2d transformedCoefficientPartials =
-                        ( Eigen::Vector2d( ) <<
-                          transformedCosineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ),
+                        ( Eigen::Vector2d( ) << transformedCosineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ),
                           transformedSineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ) )
                                 .finished( );
                 partialMatrix.block( 0, i, 3, 1 ) += currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ) *
@@ -530,9 +497,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBod
 }
 
 //! Compute partial of acceleration w.r.t. a sine coefficient block of body 2.
-void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2(
-        const std::vector< std::pair< int, int > >& blockIndices,
-        Eigen::MatrixXd& partialMatrix )
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2( const std::vector< std::pair< int, int > >& blockIndices,
+                                                                                  Eigen::MatrixXd& partialMatrix )
 {
     partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
 
@@ -542,18 +508,14 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2
         const int order = blockIndices.at( i ).second;
 
         updateCurrentTransformedBody2CoefficientPartials(
-                degree,
-                order,
-                false,
-                transformedCosineBody2CoefficientPartialsScratch_,
-                transformedSineBody2CoefficientPartialsScratch_ );
+                degree, order, false, transformedCosineBody2CoefficientPartialsScratch_, transformedSineBody2CoefficientPartialsScratch_ );
 
         for( unsigned int j = 0; j < coefficientCombinationsToUse_.size( ); j++ )
         {
-            const int degreeOfBody1 = std::get<0>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody1 = std::get<1>(coefficientCombinationsToUse_.at( j ));
-            const int degreeOfBody2 = std::get<2>(coefficientCombinationsToUse_.at( j ));
-            const int orderOfBody2 = std::get<3>(coefficientCombinationsToUse_.at( j ));
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( j ) );
+            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( j ) );
+            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( j ) );
 
             if( degreeOfBody2 != degree )
             {
@@ -580,8 +542,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2
                 const int effectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
                         degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
                 const Eigen::Vector2d transformedCoefficientPartials =
-                        ( Eigen::Vector2d( ) <<
-                          transformedCosineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ),
+                        ( Eigen::Vector2d( ) << transformedCosineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ),
                           transformedSineBody2CoefficientPartialsScratch_( degreeOfBody2, transformedOrderOfBody2 ) )
                                 .finished( );
                 partialMatrix.block( 0, i, 3, 1 ) += currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ) *
@@ -615,26 +576,23 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
                 std::dynamic_pointer_cast< estimatable_parameters::SphericalHarmonicsCosineCoefficients >( parameter );
         if( coefficientsParameter == nullptr )
         {
-            throw std::runtime_error(
-                    "Error when creating mutual extended-body SH partial w.r.t. cosine coefficients, cast failed." );
+            throw std::runtime_error( "Error when creating mutual extended-body SH partial w.r.t. cosine coefficients, cast failed." );
         }
 
         if( parameter->getParameterName( ).second.first == acceleratedBody_ )
         {
-            partialFunction = std::bind(
-                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1,
-                    this,
-                    coefficientsParameter->getBlockIndices( ),
-                    std::placeholders::_1 );
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody1,
+                                         this,
+                                         coefficientsParameter->getBlockIndices( ),
+                                         std::placeholders::_1 );
             numberOfRows = coefficientsParameter->getParameterSize( );
         }
         else if( parameter->getParameterName( ).second.first == acceleratingBody_ )
         {
-            partialFunction = std::bind(
-                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2,
-                    this,
-                    coefficientsParameter->getBlockIndices( ),
-                    std::placeholders::_1 );
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtCosineCoefficientBlockOfBody2,
+                                         this,
+                                         coefficientsParameter->getBlockIndices( ),
+                                         std::placeholders::_1 );
             numberOfRows = coefficientsParameter->getParameterSize( );
         }
     }
@@ -644,26 +602,23 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
                 std::dynamic_pointer_cast< estimatable_parameters::SphericalHarmonicsSineCoefficients >( parameter );
         if( coefficientsParameter == nullptr )
         {
-            throw std::runtime_error(
-                    "Error when creating mutual extended-body SH partial w.r.t. sine coefficients, cast failed." );
+            throw std::runtime_error( "Error when creating mutual extended-body SH partial w.r.t. sine coefficients, cast failed." );
         }
 
         if( parameter->getParameterName( ).second.first == acceleratedBody_ )
         {
-            partialFunction = std::bind(
-                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1,
-                    this,
-                    coefficientsParameter->getBlockIndices( ),
-                    std::placeholders::_1 );
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody1,
+                                         this,
+                                         coefficientsParameter->getBlockIndices( ),
+                                         std::placeholders::_1 );
             numberOfRows = coefficientsParameter->getParameterSize( );
         }
         else if( parameter->getParameterName( ).second.first == acceleratingBody_ )
         {
-            partialFunction = std::bind(
-                    &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2,
-                    this,
-                    coefficientsParameter->getBlockIndices( ),
-                    std::placeholders::_1 );
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2,
+                                         this,
+                                         coefficientsParameter->getBlockIndices( ),
+                                         std::placeholders::_1 );
             numberOfRows = coefficientsParameter->getParameterSize( );
         }
     }

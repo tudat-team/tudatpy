@@ -25,8 +25,7 @@ namespace acceleration_partials
 namespace detail
 {
 
-struct FourthDegreeTorqueAuxiliaryQuantities
-{
+struct FourthDegreeTorqueAuxiliaryQuantities {
     double xCoordinate;
     double yCoordinate;
     double zCoordinate;
@@ -76,7 +75,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
 Eigen::Matrix< double, 6, 6 > computePartialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque(
         const FourthDegreeTorqueAuxiliaryQuantities& auxiliaryQuantities );
 
-}
+}  // namespace detail
 
 //! Class to calculate partials of fourth-degree full two-body gravitational torque.
 class FourthDegreeFullTwoBodyGravitationalTorquePartial : public TorquePartial
@@ -89,7 +88,7 @@ public:
             const std::string& acceleratedBody,
             const std::string& acceleratingBody );
 
-    ~FourthDegreeFullTwoBodyGravitationalTorquePartial( ) { }
+    ~FourthDegreeFullTwoBodyGravitationalTorquePartial( ) {}
 
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter ) override;
@@ -107,9 +106,8 @@ public:
                                            const int startRow = 0,
                                            const int startColumn = 0 ) override;
 
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ) override;
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType ) override;
 
     void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                                 const std::pair< std::string, std::string >& stateReferencePoint,
@@ -137,27 +135,21 @@ private:
             const unsigned int order,
             const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField ) const;
 
-    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const int c20Index,
-            const int c21Index,
-            const int c22Index );
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                       const int c20Index,
+                                                                       const int c21Index,
+                                                                       const int c22Index );
 
-    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const int s21Index,
-            const int s22Index );
+    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const int s21Index,
+                                                                     const int s22Index );
 
-    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const int c20Index,
-            const int c21Index,
-            const int c22Index );
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const int c20Index,
+                                                                     const int c21Index,
+                                                                     const int c22Index );
 
-    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const int s21Index,
-            const int s22Index );
+    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix, const int s21Index, const int s22Index );
 
     std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque_;

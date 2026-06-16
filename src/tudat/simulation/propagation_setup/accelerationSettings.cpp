@@ -34,6 +34,6 @@ std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int 
     return coefficientCombinationsToUse;
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

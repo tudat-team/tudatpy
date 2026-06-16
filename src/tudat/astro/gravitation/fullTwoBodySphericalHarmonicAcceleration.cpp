@@ -9,7 +9,6 @@ namespace tudat
 namespace gravitation
 {
 
-
 FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAcceleration(
         const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
         const std::function< Eigen::Vector3d( ) > positionOfBody2Function,
@@ -26,12 +25,10 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
         const bool isMutualAttractionUsed,
         const bool areCoefficientsNormalized ):
     positionOfBody1Function_( positionOfBody1Function ), positionOfBody2Function_( positionOfBody2Function ),
-    gravitationalParameterFunction_( gravitationalParameterFunction ),
-    equatorialRadiusOfBody1_( equatorialRadiusOfBody1 ), equatorialRadiusOfBody2_( equatorialRadiusOfBody2 ),
-    coefficientCombinationsToUse_( coefficientCombinationsToUse ),
+    gravitationalParameterFunction_( gravitationalParameterFunction ), equatorialRadiusOfBody1_( equatorialRadiusOfBody1 ),
+    equatorialRadiusOfBody2_( equatorialRadiusOfBody2 ), coefficientCombinationsToUse_( coefficientCombinationsToUse ),
     toLocalFrameOfBody1Transformation_( toLocalFrameOfBody1Transformation ),
-    toLocalFrameOfBody2Transformation_( toLocalFrameOfBody2Transformation ),
-    isMutualAttractionUsed_( isMutualAttractionUsed ),
+    toLocalFrameOfBody2Transformation_( toLocalFrameOfBody2Transformation ), isMutualAttractionUsed_( isMutualAttractionUsed ),
     areCoefficientsNormalized_( areCoefficientsNormalized )
 {
     // Determine the maximum effective degree/order l,m used in the Eq. (49) summation of Dirkx et al. (2019),
@@ -42,10 +39,10 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
     unsigned int degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2;
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
-        degreeOfBody1 = std::get<0>(coefficientCombinationsToUse.at( i ));
-        orderOfBody1 = std::get<1>(coefficientCombinationsToUse.at( i ));
-        degreeOfBody2 = std::get<2>(coefficientCombinationsToUse.at( i ));
-        orderOfBody2 = std::get<3>(coefficientCombinationsToUse.at( i ));
+        degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse.at( i ) );
+        orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse.at( i ) );
+        degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse.at( i ) );
+        orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse.at( i ) );
 
         if( degreeOfBody1 + degreeOfBody2 > maximumDegree_ )
         {
@@ -64,30 +61,30 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
 
     // Initialize cache and effective-field object that converts two-body coefficients to effective one-body
     // coefficients (Dirkx et al. (2019), Eqs. (47)-(48)).
-    sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >(
-                maximumDegree_ + 1, maximumOrder_ + 1 );
-    effectiveMutualPotentialField_ =  std::make_shared< EffectiveMutualSphericalHarmonicsField >(
-                coefficientCombinationsToUse_,
-                cosineHarmonicCoefficientsOfBody1Function, sineHarmonicCoefficientsOfBody1Function,
-                cosineHarmonicCoefficientsOfBody2Function, sineHarmonicCoefficientsOfBody2Function,
-                gravitationalParameterFunction, equatorialRadiusOfBody1_, equatorialRadiusOfBody2_, areCoefficientsNormalized );
-    effectiveCosineCoefficientFunction_ = std::bind(
-                &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
-                effectiveMutualPotentialField_,
-                std::placeholders::_1,
-                std::placeholders::_2,
-                std::placeholders::_3,
-                std::placeholders::_4 );
-    effectiveSineCoefficientFunction_ = std::bind(
-                &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
-                effectiveMutualPotentialField_,
-                std::placeholders::_1,
-                std::placeholders::_2,
-                std::placeholders::_3,
-                std::placeholders::_4 );
+    sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( maximumDegree_ + 1, maximumOrder_ + 1 );
+    effectiveMutualPotentialField_ = std::make_shared< EffectiveMutualSphericalHarmonicsField >( coefficientCombinationsToUse_,
+                                                                                                 cosineHarmonicCoefficientsOfBody1Function,
+                                                                                                 sineHarmonicCoefficientsOfBody1Function,
+                                                                                                 cosineHarmonicCoefficientsOfBody2Function,
+                                                                                                 sineHarmonicCoefficientsOfBody2Function,
+                                                                                                 gravitationalParameterFunction,
+                                                                                                 equatorialRadiusOfBody1_,
+                                                                                                 equatorialRadiusOfBody2_,
+                                                                                                 areCoefficientsNormalized );
+    effectiveCosineCoefficientFunction_ = std::bind( &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
+                                                     effectiveMutualPotentialField_,
+                                                     std::placeholders::_1,
+                                                     std::placeholders::_2,
+                                                     std::placeholders::_3,
+                                                     std::placeholders::_4 );
+    effectiveSineCoefficientFunction_ = std::bind( &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
+                                                   effectiveMutualPotentialField_,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2,
+                                                   std::placeholders::_3,
+                                                   std::placeholders::_4 );
     radius1Powers_.resize( effectiveMutualPotentialField_->getMaximumDegree1( ) + 1 );
     radius2Powers_.resize( effectiveMutualPotentialField_->getMaximumDegree2( ) + 1 );
-
 }
 
 void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double currentTime )
@@ -96,13 +93,11 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
     {
         // Step 1: update current frame rotations.
         currentRotationFromInertialToBody1_ = toLocalFrameOfBody1Transformation_( );
-        currentRotationFromBody2ToBody1_ =
-                currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
+        currentRotationFromBody2ToBody1_ = currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
 
         // Step 2: compute relative state and express it in body-1 frame, in which Eq. (49) is evaluated.
         currentRelativePosition_ = positionOfBody1Function_( ) - positionOfBody2Function_( );
-        currentBodyFixedRelativePosition_ =
-                currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
+        currentBodyFixedRelativePosition_ = currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
 
         // Step 3: transform body-2 coefficients to frame F1 and build effective coefficients used in Eq. (49)
         // through the Eq. (47)-(48) mapping.
@@ -113,40 +108,43 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
         {
             radius1Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1_ / currentDistance, i );
-
         }
 
         for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree2( ); i++ )
         {
             radius2Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
-
         }
-
 
         if( areCoefficientsNormalized_ )
         {
             // Step 5a: evaluate the Cartesian gradient of the effective potential in F1 for normalized coefficients.
             // This applies Eq. (55) with potential terms from Eq. (49).
-            mutualPotentialGradient_ = computeGeodesyNormalizedMutualGravitationalAccelerationSum(
-                        currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
-                        equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
-                        effectiveCosineCoefficientFunction_, effectiveSineCoefficientFunction_,
-                        coefficientCombinationsToUse_,
-                        effectiveMutualPotentialField_->getMaximumDegree1( ),
-                        effectiveMutualPotentialField_->getMaximumDegree2( ),
-                        maximumDegree_,
-                        radius1Powers_,
-                        radius2Powers_,
-                        sphericalHarmonicsCache_ );
+            mutualPotentialGradient_ =
+                    computeGeodesyNormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
+                                                                                gravitationalParameterFunction_( ),
+                                                                                equatorialRadiusOfBody1_,
+                                                                                equatorialRadiusOfBody2_,
+                                                                                effectiveCosineCoefficientFunction_,
+                                                                                effectiveSineCoefficientFunction_,
+                                                                                coefficientCombinationsToUse_,
+                                                                                effectiveMutualPotentialField_->getMaximumDegree1( ),
+                                                                                effectiveMutualPotentialField_->getMaximumDegree2( ),
+                                                                                maximumDegree_,
+                                                                                radius1Powers_,
+                                                                                radius2Powers_,
+                                                                                sphericalHarmonicsCache_ );
         }
         else
         {
             // Step 5b: same as above, but for unnormalized coefficients.
-            mutualPotentialGradient_ = computeUnnormalizedMutualGravitationalAccelerationSum(
-                        currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
-                        equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
-                        effectiveCosineCoefficientFunction_, effectiveSineCoefficientFunction_,
-                        coefficientCombinationsToUse_, sphericalHarmonicsCache_ );
+            mutualPotentialGradient_ = computeUnnormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
+                                                                                              gravitationalParameterFunction_( ),
+                                                                                              equatorialRadiusOfBody1_,
+                                                                                              equatorialRadiusOfBody2_,
+                                                                                              effectiveCosineCoefficientFunction_,
+                                                                                              effectiveSineCoefficientFunction_,
+                                                                                              coefficientCombinationsToUse_,
+                                                                                              sphericalHarmonicsCache_ );
         }
 
         // Step 6: output acceleration in inertial orientation.
@@ -157,6 +155,6 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
     }
 }
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat

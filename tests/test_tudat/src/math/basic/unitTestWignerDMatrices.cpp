@@ -47,13 +47,15 @@ using namespace tudat::basic_mathematics;
 BOOST_AUTO_TEST_SUITE( test_WignerDMatrices )
 
 //! Compute values of Wigner D-matrix components at edge of blocks, Varschalovich et al., p. 115, Section 4.17, Eq. (8)
-void getWignerDValueAtBoundary(
-        const int degree, const int orderToEvaluate,
-        const double angleAlpha, const double angleBeta, const double angleGamma,
-        std::complex< double >& valueOrderEqualsDegree,
-        std::complex< double >& valueOrderEqualsMinusDegree,
-        std::complex< double >& valueOrderPrimeEqualsDegree,
-        std::complex< double >& valueOrderPrimeEqualsMinusDegree )
+void getWignerDValueAtBoundary( const int degree,
+                                const int orderToEvaluate,
+                                const double angleAlpha,
+                                const double angleBeta,
+                                const double angleGamma,
+                                std::complex< double >& valueOrderEqualsDegree,
+                                std::complex< double >& valueOrderEqualsMinusDegree,
+                                std::complex< double >& valueOrderPrimeEqualsDegree,
+                                std::complex< double >& valueOrderPrimeEqualsMinusDegree )
 {
     double factorialTerm = std::sqrt( boost::math::factorial< double >( 2 * degree ) /
                                       ( boost::math::factorial< double >( degree + orderToEvaluate ) *
@@ -94,15 +96,13 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
     // Check that Wigner D-matrices are real unit matrices: Varschalovich et al., p. 112, Section 4.16, Eq. (1)
     for( unsigned int i = 0; i <= maximumDegree; i++ )
     {
-        Eigen::MatrixXcd dMatrixError = wignerDMatrixCache.getWignerDMatrix( i ) -
-                Eigen::MatrixXcd::Identity( 2 * i + 1, 2 * i + 1 );
+        Eigen::MatrixXcd dMatrixError = wignerDMatrixCache.getWignerDMatrix( i ) - Eigen::MatrixXcd::Identity( 2 * i + 1, 2 * i + 1 );
         for( unsigned int j = 0; j < 2 * i + 1; j++ )
         {
             for( unsigned int k = 0; k < 2 * i + 1; k++ )
             {
                 BOOST_CHECK_SMALL( dMatrixError( j, k ).real( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL( dMatrixError( j, k ).imag( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
-
             }
         }
     }
@@ -133,12 +133,13 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                 else
                 {
                     // Compute expected value on diagonal
-                    std::complex< double > expectedDMatrixValue =
-                            std::exp( -static_cast< double >( m ) * tudat::mathematical_constants::COMPLEX_I * (
-                                                         angleAlpha + angleGamma ) );
-                    BOOST_CHECK_CLOSE_FRACTION( currentDMatrix( j, k ).real( ), expectedDMatrixValue.real( ),
+                    std::complex< double > expectedDMatrixValue = std::exp(
+                            -static_cast< double >( m ) * tudat::mathematical_constants::COMPLEX_I * ( angleAlpha + angleGamma ) );
+                    BOOST_CHECK_CLOSE_FRACTION( currentDMatrix( j, k ).real( ),
+                                                expectedDMatrixValue.real( ),
                                                 100.0 * std::numeric_limits< double >::epsilon( ) );
-                    BOOST_CHECK_CLOSE_FRACTION( currentDMatrix( j, k ).imag( ), expectedDMatrixValue.imag( ),
+                    BOOST_CHECK_CLOSE_FRACTION( currentDMatrix( j, k ).imag( ),
+                                                expectedDMatrixValue.imag( ),
                                                 100.0 * std::numeric_limits< double >::epsilon( ) );
                 }
             }
@@ -178,18 +179,25 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
             {
                 if( i == 1 )
                 {
-                    testMatrix << ( 1.0 + cosBeta ) / 2.0, sinBeta / std::sqrt( 2.0 ), ( 1.0 - cosBeta ) / 2.0,
-                            -sinBeta / std::sqrt( 2.0 ), cosBeta, sinBeta / std::sqrt( 2.0 ),
-                            ( 1.0 - cosBeta ) / 2.0, -sinBeta / std::sqrt( 2.0 ), ( 1.0 + cosBeta ) / 2.0;
+                    testMatrix << ( 1.0 + cosBeta ) / 2.0, sinBeta / std::sqrt( 2.0 ), ( 1.0 - cosBeta ) / 2.0, -sinBeta / std::sqrt( 2.0 ),
+                            cosBeta, sinBeta / std::sqrt( 2.0 ), ( 1.0 - cosBeta ) / 2.0, -sinBeta / std::sqrt( 2.0 ),
+                            ( 1.0 + cosBeta ) / 2.0;
                 }
                 else if( i == 2 )
                 {
-                    testMatrix << std::pow( 1.0 + cosBeta, 2 ) / 4.0, sinBeta * ( 1.0 + cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, sinBeta * ( 1.0 - cosBeta ) / 2.0, std::pow( 1.0 - cosBeta, 2 ) / 4.0,
-                            -sinBeta * ( 1.0 + cosBeta )/ 2.0, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 - cosBeta )/ 2.0,
-                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 3.0 * cosBeta * cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta,
-                            -sinBeta * ( 1.0 - cosBeta )/ 2.0, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 + cosBeta )/ 2.0,
-                            std::pow( 1.0 - cosBeta, 2 ) / 4.0, - sinBeta * ( 1.0 - cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -sinBeta * ( 1.0 + cosBeta ) / 2.0, std::pow( 1.0 + cosBeta, 2 ) / 4.0;
-
+                    testMatrix << std::pow( 1.0 + cosBeta, 2 ) / 4.0, sinBeta * ( 1.0 + cosBeta ) / 2.0,
+                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, sinBeta * ( 1.0 - cosBeta ) / 2.0,
+                            std::pow( 1.0 - cosBeta, 2 ) / 4.0, -sinBeta * ( 1.0 + cosBeta ) / 2.0,
+                            ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta,
+                            -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 - cosBeta ) / 2.0,
+                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -std::sqrt( 1.5 ) * sinBeta * cosBeta,
+                            ( 3.0 * cosBeta * cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta,
+                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -sinBeta * ( 1.0 - cosBeta ) / 2.0,
+                            -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, -std::sqrt( 1.5 ) * sinBeta * cosBeta,
+                            ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 + cosBeta ) / 2.0,
+                            std::pow( 1.0 - cosBeta, 2 ) / 4.0, -sinBeta * ( 1.0 - cosBeta ) / 2.0,
+                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -sinBeta * ( 1.0 + cosBeta ) / 2.0,
+                            std::pow( 1.0 + cosBeta, 2 ) / 4.0;
                 }
             }
 
@@ -202,7 +210,7 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                     // Check if diagonal values from Varschalovich et al., p. 114, Section 4.17, Eq (2)
                     if( j == i && k == i )
                     {
-                        double testValue =  boost::math::legendre_p< double >( i, std::cos( angleBeta ) );
+                        double testValue = boost::math::legendre_p< double >( i, std::cos( angleBeta ) );
                         BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).real( ) - testValue ),
                                            10000.0 * std::numeric_limits< double >::epsilon( ) );
                         BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ),
@@ -219,8 +227,7 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                         }
 
                         // Check that imaginary parts are zero for no z-rotations
-                        BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ),
-                                           10.0 * std::numeric_limits< double >::epsilon( ) );
+                        BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );
                     }
                 }
             }
@@ -233,31 +240,34 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                 std::complex< double > valueOrderPrimeEqualsDegree;
                 std::complex< double > valueOrderPrimeEqualsMinusDegree;
 
-                getWignerDValueAtBoundary(
-                            i, j, angleAlpha, angleBeta, angleGamma,
-                            valueOrderEqualsDegree,
-                            valueOrderEqualsMinusDegree,
-                            valueOrderPrimeEqualsDegree,
-                            valueOrderPrimeEqualsMinusDegree );
+                getWignerDValueAtBoundary( i,
+                                           j,
+                                           angleAlpha,
+                                           angleBeta,
+                                           angleGamma,
+                                           valueOrderEqualsDegree,
+                                           valueOrderEqualsMinusDegree,
+                                           valueOrderPrimeEqualsDegree,
+                                           valueOrderPrimeEqualsMinusDegree );
 
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 0, j + i )- valueOrderEqualsMinusDegree ).real( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 0, j + i ) - valueOrderEqualsMinusDegree ).real( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 0, j + i )- valueOrderEqualsMinusDegree ).imag( ) ),
-                                   10.0 * std::numeric_limits< double >::epsilon( ) );
-
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 2 * i, j + i )- valueOrderEqualsDegree ).real( ) ),
-                                   10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 2 * i, j + i )- valueOrderEqualsDegree ).imag( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 0, j + i ) - valueOrderEqualsMinusDegree ).imag( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
 
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 2 * i )- valueOrderPrimeEqualsDegree ).real( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 2 * i, j + i ) - valueOrderEqualsDegree ).real( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 2 * i )- valueOrderPrimeEqualsDegree ).imag( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( 2 * i, j + i ) - valueOrderEqualsDegree ).imag( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
 
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 0 )- valueOrderPrimeEqualsMinusDegree ).real( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 2 * i ) - valueOrderPrimeEqualsDegree ).real( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 0 )- valueOrderPrimeEqualsMinusDegree ).imag( ) ),
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 2 * i ) - valueOrderPrimeEqualsDegree ).imag( ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 0 ) - valueOrderPrimeEqualsMinusDegree ).real( ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( ( currentDMatrix( j + i, 0 ) - valueOrderPrimeEqualsMinusDegree ).imag( ) ),
                                    10.0 * std::numeric_limits< double >::epsilon( ) );
             }
         }
@@ -266,6 +276,6 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

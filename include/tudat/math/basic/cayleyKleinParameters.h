@@ -13,19 +13,24 @@ namespace tudat
 namespace basic_mathematics
 {
 
-void convertQuaterionToCayleyKleinParameters(
-        const Eigen::Quaterniond quaternion, std::complex< double >& cayleyKleinA, std::complex< double >& cayleyKleinB );
+void convertQuaterionToCayleyKleinParameters( const Eigen::Quaterniond quaternion,
+                                              std::complex< double >& cayleyKleinA,
+                                              std::complex< double >& cayleyKleinB );
 
-void convert323EulerAnglesToCayleyKleinParameters(
-        const double firstZRotation, const double yRotation, const double secondZRotation,
-        std::complex< double >& cayleyKleinA, std::complex< double >& cayleyKleinB );
+void convert323EulerAnglesToCayleyKleinParameters( const double firstZRotation,
+                                                   const double yRotation,
+                                                   const double secondZRotation,
+                                                   std::complex< double >& cayleyKleinA,
+                                                   std::complex< double >& cayleyKleinB );
 
-void convert313EulerAnglesToCayleyKleinParameters(
-        const double firstZRotation, const double xRotation, const double secondZRotation,
-        std::complex< double >& cayleyKleinA, std::complex< double >& cayleyKleinB );
+void convert313EulerAnglesToCayleyKleinParameters( const double firstZRotation,
+                                                   const double xRotation,
+                                                   const double secondZRotation,
+                                                   std::complex< double >& cayleyKleinA,
+                                                   std::complex< double >& cayleyKleinB );
 
-} // namespace basic_mathematics
+}  // namespace basic_mathematics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CALYLEY_KLEIN_PARAMETERS_H
+#endif  // TUDAT_CALYLEY_KLEIN_PARAMETERS_H

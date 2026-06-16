@@ -37,7 +37,7 @@ public:
             const std::string& acceleratedBody,
             const std::string& acceleratingBody );
 
-    ~FullTwoBodySphericalHarmonicGravitationalTorquePartial( ) { }
+    ~FullTwoBodySphericalHarmonicGravitationalTorquePartial( ) {}
 
     //! Retrieve scalar-parameter partial function (none implemented).
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
@@ -60,9 +60,8 @@ public:
                                            const int startColumn = 0 ) override;
 
     //! Return whether the torque derivative depends on a given additional integrated state type.
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ) override;
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType ) override;
 
     //! Insert partial w.r.t. non-rotational state of an additional body.
     void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -74,38 +73,32 @@ public:
 
 private:
     //! Partial w.r.t. cosine SH coefficient block of body undergoing torque.
-    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const std::vector< std::pair< int, int > >& blockIndices );
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                       const std::vector< std::pair< int, int > >& blockIndices );
 
     //! Partial w.r.t. sine SH coefficient block of body undergoing torque.
-    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const std::vector< std::pair< int, int > >& blockIndices );
+    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const std::vector< std::pair< int, int > >& blockIndices );
 
     //! Partial w.r.t. cosine SH coefficient block of body exerting torque.
-    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const std::vector< std::pair< int, int > >& blockIndices );
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const std::vector< std::pair< int, int > >& blockIndices );
 
     //! Partial w.r.t. sine SH coefficient block of body exerting torque.
-    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque(
-            Eigen::MatrixXd& partialMatrix,
-            const std::vector< std::pair< int, int > >& blockIndices );
+    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                   const std::vector< std::pair< int, int > >& blockIndices );
 
     //! Add body-2 spin torque contribution partial w.r.t. one body-1 coefficient.
-    void addBody2SpinTorquePartialWrtBody1Coefficient(
-            Eigen::Vector3d& partial,
-            const int degree,
-            const int order,
-            const bool wrtCosineCoefficient ) const;
+    void addBody2SpinTorquePartialWrtBody1Coefficient( Eigen::Vector3d& partial,
+                                                       const int degree,
+                                                       const int order,
+                                                       const bool wrtCosineCoefficient ) const;
 
     //! Add body-2 spin torque contribution partial w.r.t. one body-2 coefficient.
-    void addBody2SpinTorquePartialWrtBody2Coefficient(
-            Eigen::Vector3d& partial,
-            const int degree,
-            const int order,
-            const bool wrtCosineCoefficient );
+    void addBody2SpinTorquePartialWrtBody2Coefficient( Eigen::Vector3d& partial,
+                                                       const int degree,
+                                                       const int order,
+                                                       const bool wrtCosineCoefficient );
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel_;
     std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial_;

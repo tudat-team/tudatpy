@@ -35,7 +35,6 @@ namespace basic_mathematics
 class WignerDMatricesCache
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -44,7 +43,7 @@ public:
     WignerDMatricesCache( const int maximumDegree );
 
     //! Destructor
-    ~WignerDMatricesCache( ){ }
+    ~WignerDMatricesCache( ) {}
 
     //! Function to update contents of this object to new orientation
     /*!
@@ -69,7 +68,6 @@ public:
         return wignerDMatrices_[ degree ]( originalOrder + degree, newOrder + degree );
     }
 
-
     //! Function to retrieve single Wigner D-matrix
     /*!
      * Function to retrieve single Wigner D-matrix
@@ -92,10 +90,7 @@ public:
     }
 
     //! Function to retrieve \hat{J}D^l_{m,k} in Cartesian basis.
-    Eigen::Vector3cd getAngularMomentumOperatorOnWignerCoefficient(
-            const int degree,
-            const int originalOrder,
-            const int newOrder )
+    Eigen::Vector3cd getAngularMomentumOperatorOnWignerCoefficient( const int degree, const int originalOrder, const int newOrder )
     {
         if( std::abs( originalOrder ) > degree || std::abs( newOrder ) > degree )
         {
@@ -112,7 +107,6 @@ public:
     }
 
 private:
-
     void updateAngularMomentumOperators( )
     {
         if( !areAngularMomentumOperatorsUpdated_ )
@@ -163,8 +157,8 @@ private:
     bool areAngularMomentumOperatorsUpdated_;
 };
 
-} // namespace basic_mathematics
+}  // namespace basic_mathematics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_WIGNER_D_MATRIXRES_H
+#endif  // TUDAT_WIGNER_D_MATRIXRES_H

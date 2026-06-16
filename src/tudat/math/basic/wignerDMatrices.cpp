@@ -24,7 +24,6 @@ WignerDMatricesCache::WignerDMatricesCache( const int maximumDegree ):
         angularMomentumOperatorsX_[ l ] = Eigen::MatrixXd::Zero( 2 * l + 1, 2 * l + 1 );
         angularMomentumOperatorsY_[ l ] = Eigen::MatrixXd::Zero( 2 * l + 1, 2 * l + 1 );
         angularMomentumOperatorsZ_[ l ] = Eigen::MatrixXd::Zero( 2 * l + 1, 2 * l + 1 );
-
     }
     wignerDMatrices_[ 0 ]( 0, 0 ) = std::complex< double >( 1.0, 0.0 );
 
@@ -61,7 +60,7 @@ void WignerDMatricesCache::updateMatrices( const std::complex< double > cayleyKl
         for( int i = l; i <= 2 * l; i++ )
         {
             for( int j = 0; j <= 2 * l; j++ )
-            {                
+            {
                 if( i - 2 >= 0 )
                 {
                     wignerDMatrices_[ l ]( i, j ) = 0.0;
@@ -69,19 +68,18 @@ void WignerDMatricesCache::updateMatrices( const std::complex< double > cayleyKl
                     // For each part in equation, check if contribution is non-zer0
                     if( j > 1 )
                     {
-                       wignerDMatrices_[ l ]( i, j ) += coefficientsIndexMinusOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 2 ) *
+                        wignerDMatrices_[ l ]( i, j ) += coefficientsIndexMinusOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 2 ) *
                                 wignerDMatrices_[ l - 1 ]( i - 2, j - 2 );
                     }
                     if( ( j > 0 ) && ( j <= 2 * l - 1 ) )
                     {
-                        wignerDMatrices_[ l ]( i, j ) +=
-                                coefficientsIndexZero_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 1 ) *
+                        wignerDMatrices_[ l ]( i, j ) += coefficientsIndexZero_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 1 ) *
                                 wignerDMatrices_[ l - 1 ]( i - 2, j - 1 );
                     }
                     if( j < 2 * l - 1 )
                     {
-                        wignerDMatrices_[ l ]( i, j ) += coefficientsIndexOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 0 ) *
-                                wignerDMatrices_[ l - 1 ]( i - 2, j );
+                        wignerDMatrices_[ l ]( i, j ) +=
+                                coefficientsIndexOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 0 ) * wignerDMatrices_[ l - 1 ]( i - 2, j );
                     }
                 }
                 else
@@ -99,10 +97,9 @@ void WignerDMatricesCache::updateMatrices( const std::complex< double > cayleyKl
             for( int j = 0; j <= 2 * l; j++ )
             {
                 k = j - l;
-                wignerDMatrices_[ l ]( i, j ) = ( ( ( ( m - k ) % 2 ) == 0 ) ? 1.0 : -1.0 ) *
-                        std::conj( wignerDMatrices_[ l ]( -m + l, -k + l ) );
+                wignerDMatrices_[ l ]( i, j ) =
+                        ( ( ( ( m - k ) % 2 ) == 0 ) ? 1.0 : -1.0 ) * std::conj( wignerDMatrices_[ l ]( -m + l, -k + l ) );
             }
-
         }
     }
 
@@ -120,19 +117,18 @@ void WignerDMatricesCache::computeAngularMomentumOperators( )
         {
             const int orderM = rowIndex - degree;
 
-            const double plusScaling = std::sqrt(
-                    std::max( 0.0, static_cast< double >(
-                            degree * ( degree + 1 ) - orderM * ( orderM - 1 ) ) ) ) / std::sqrt( 2.0 );
-            const double minusScaling = std::sqrt(
-                    std::max( 0.0, static_cast< double >(
-                            degree * ( degree + 1 ) - orderM * ( orderM + 1 ) ) ) ) / std::sqrt( 2.0 );
+            const double plusScaling =
+                    std::sqrt( std::max( 0.0, static_cast< double >( degree * ( degree + 1 ) - orderM * ( orderM - 1 ) ) ) ) /
+                    std::sqrt( 2.0 );
+            const double minusScaling =
+                    std::sqrt( std::max( 0.0, static_cast< double >( degree * ( degree + 1 ) - orderM * ( orderM + 1 ) ) ) ) /
+                    std::sqrt( 2.0 );
 
             for( int columnIndex = 0; columnIndex <= 2 * degree; columnIndex++ )
             {
                 const int orderK = columnIndex - degree;
 
-                const auto getWignerCoefficient = [ & ]( const int requestedOrderM, const int requestedOrderK )
-                {
+                const auto getWignerCoefficient = [ & ]( const int requestedOrderM, const int requestedOrderK ) {
                     if( std::abs( requestedOrderM ) > degree || std::abs( requestedOrderK ) > degree )
                     {
                         return std::complex< double >( 0.0, 0.0 );
@@ -140,8 +136,7 @@ void WignerDMatricesCache::computeAngularMomentumOperators( )
                     return wignerDMatrices_[ degree ]( requestedOrderM + degree, requestedOrderK + degree );
                 };
 
-                const std::complex< double > angularMomentumPlus =
-                        imaginaryUnit * plusScaling * getWignerCoefficient( orderM - 1, orderK );
+                const std::complex< double > angularMomentumPlus = imaginaryUnit * plusScaling * getWignerCoefficient( orderM - 1, orderK );
                 const std::complex< double > angularMomentumMinus =
                         imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( orderM + 1, orderK );
                 const std::complex< double > angularMomentumZero =
@@ -180,21 +175,17 @@ void WignerDMatricesCache::computeCoefficients( )
             for( int j = 0; j <= 2 * l; j++ )
             {
                 k = j - l;
-                coefficientsIndexMinusOne_[ l ]( i, j ) = std::sqrt(
-                            static_cast< double >( ( l + k ) * ( l + k - 1 ) ) /
-                            static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
-                coefficientsIndexZero_[ l ]( i, j ) = std::sqrt(
-                            static_cast< double >( 2 * ( l + k ) * ( l - k ) ) /
-                            static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
-                coefficientsIndexOne_[ l ]( i, j ) = std::sqrt(
-                            static_cast< double >( ( l - k ) * ( l - k - 1 ) ) /
-                            static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
+                coefficientsIndexMinusOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l + k ) * ( l + k - 1 ) ) /
+                                                                     static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
+                coefficientsIndexZero_[ l ]( i, j ) = std::sqrt( static_cast< double >( 2 * ( l + k ) * ( l - k ) ) /
+                                                                 static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
+                coefficientsIndexOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l - k ) * ( l - k - 1 ) ) /
+                                                                static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
             }
         }
     }
-
 }
 
-} // namespace basic_mathematics
+}  // namespace basic_mathematics
 
-} // namespace tudat
+}  // namespace tudat

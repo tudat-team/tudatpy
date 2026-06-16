@@ -5,7 +5,6 @@
 #include <functional>
 #include <memory>
 
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -29,11 +28,9 @@ namespace gravitation
  * of Dirkx et al. (2019), in particular the effective coefficient mapping (Eqs. (47)-(48)) and potential
  * summation (Eq. (49)), evaluated as a Cartesian gradient for the translational equations (Eq. (55)).
  */
-class FullTwoBodySphericalHarmonicAcceleration: public basic_astrodynamics::AccelerationModel3d
+class FullTwoBodySphericalHarmonicAcceleration : public basic_astrodynamics::AccelerationModel3d
 {
-
 public:
-
     //! Constructor for the full two-body mutual spherical-harmonic acceleration model.
     FullTwoBodySphericalHarmonicAcceleration(
             const std::function< Eigen::Vector3d( ) > positionOfBody1Function,
@@ -59,7 +56,6 @@ public:
     {
         return currentAcceleration_;
     }
-
 
     //! Return whether mutual attraction is included in the gravitational parameter.
     /*!
@@ -162,7 +158,6 @@ public:
     }
 
 private:
-
     //! Function returning the position of body 1
     std::function< Eigen::Vector3d( ) > positionOfBody1Function_;
 
@@ -246,12 +241,10 @@ private:
 
     //! List of integer powers of (distance / equatorial radius of body 2)
     std::vector< double > radius2Powers_;
-
-
 };
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-#endif // MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H
+#endif  // MUTUALEXTENDEDBODYSPHERICALHARMONICACCELERATION_H

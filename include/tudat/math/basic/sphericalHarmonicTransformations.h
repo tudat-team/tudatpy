@@ -33,28 +33,24 @@ namespace basic_mathematics
 {
 
 //! Transform real-valued spherical harmonic coefficients with a provided set of Wigner D matrices.
-void transformSphericalHarmonicCoefficientsWithWignerD(
-        const Eigen::MatrixXd& originalCosineCoefficients,
-        const Eigen::MatrixXd& originalSineCoefficients,
-        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
-        Eigen::MatrixXd& transformedCosineCoefficients,
-        Eigen::MatrixXd& transformedSineCoefficients,
-        const bool areCoefficientsNormalized = 1 );
+void transformSphericalHarmonicCoefficientsWithWignerD( const Eigen::MatrixXd& originalCosineCoefficients,
+                                                        const Eigen::MatrixXd& originalSineCoefficients,
+                                                        const std::vector< Eigen::MatrixXcd >& wignerMatrices,
+                                                        Eigen::MatrixXd& transformedCosineCoefficients,
+                                                        Eigen::MatrixXd& transformedSineCoefficients,
+                                                        const bool areCoefficientsNormalized = 1 );
 
 //! Class to compute the transformation of spherical harmonic coefficients under a change of reference frame orientation
 class SphericalHarmonicTransformationCache
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param maxiumDegree Maximum degree of spherical harmonic expansion that will be handled by object
      * \param maximumOrder Maximum order of spherical harmonic expansion that will be handled by object
      */
-    SphericalHarmonicTransformationCache(
-            const int maxiumDegree,
-            const int maximumOrder ):
+    SphericalHarmonicTransformationCache( const int maxiumDegree, const int maximumOrder ):
         maximumDegree_( maxiumDegree ), maximumOrder_( maximumOrder ), updatePartials_( false )
     {
         wignerDMatricesCache_ = std::make_shared< WignerDMatricesCache >( maxiumDegree );
@@ -66,17 +62,14 @@ public:
      * \param cayleyKleinA Cayley-Klein parameter a denoting current orientation
      * \param cayleyKleinB Cayley-Klein parameter b denoting current orientation
      */
-    void updateFromCayleyKleinParameters(
-            const std::complex< double > cayleyKleinA,
-            const std::complex< double > cayleyKleinB );
+    void updateFromCayleyKleinParameters( const std::complex< double > cayleyKleinA, const std::complex< double > cayleyKleinB );
 
     //! Function to update Wigner D-matrices for current orientation, parameterized by quaternion
     /*!
      *  Function to update Wigner D-matrices for current orientation, parameterized by quaternion
      * \param rotationQuaternion Quaternion denoting current orientation
      */
-    void updateFromQuaternion(
-            const Eigen::Quaterniond& rotationQuaternion );
+    void updateFromQuaternion( const Eigen::Quaterniond& rotationQuaternion );
 
     //! Function to update Wigner D-matrices for current orientation, parameterized by 3-1-3 Euler angles
     /*!
@@ -85,13 +78,11 @@ public:
      * \param XRotation X-axis rotation
      * \param secondZRotation Second z-axis rotation
      */
-    void updateFrom313EulerAngles(
-            const double firstZRotation, const double XRotation, const double secondZRotation )
+    void updateFrom313EulerAngles( const double firstZRotation, const double XRotation, const double secondZRotation )
     {
-        updateFromQuaternion(
-                    Eigen::Quaterniond( Eigen::AngleAxisd( -secondZRotation, Eigen::Vector3d::UnitZ( ) ) *
-                                        Eigen::AngleAxisd( -XRotation, Eigen::Vector3d::UnitX( ) ) *
-                                        Eigen::AngleAxisd( -firstZRotation, Eigen::Vector3d::UnitZ( ) ) ) );
+        updateFromQuaternion( Eigen::Quaterniond( Eigen::AngleAxisd( -secondZRotation, Eigen::Vector3d::UnitZ( ) ) *
+                                                  Eigen::AngleAxisd( -XRotation, Eigen::Vector3d::UnitX( ) ) *
+                                                  Eigen::AngleAxisd( -firstZRotation, Eigen::Vector3d::UnitZ( ) ) ) );
     }
 
     //! Function to transform spherical harmonic coefficients using current wignerDMatricesCache_
@@ -103,19 +94,17 @@ public:
      * \param currentSineCoefficients Transformed sine coefficients (returned by reference)
      * \param areCoefficientsNormalized Boolean denoting whether coefficients ar fully normalized or unnormalized
      */
-    void transformCoefficientsAtDegree(
-            const Eigen::MatrixXd& originalCosineCoefficients,
-            const Eigen::MatrixXd& originalSineCoefficients,
-            Eigen::MatrixXd& currentCosineCoefficients,
-            Eigen::MatrixXd& currentSineCoefficients,
-            const bool areCoefficientsNormalized = 1 );
+    void transformCoefficientsAtDegree( const Eigen::MatrixXd& originalCosineCoefficients,
+                                        const Eigen::MatrixXd& originalSineCoefficients,
+                                        Eigen::MatrixXd& currentCosineCoefficients,
+                                        Eigen::MatrixXd& currentSineCoefficients,
+                                        const bool areCoefficientsNormalized = 1 );
 
     //! Function to set boolean denoting whether partial derivatives of coefficients are to be computed
     /*!
      * Function to set boolean denoting whether partial derivatives of coefficients are to be computed
      */
-    void setUpdatePartials(
-            const bool updatePartials = 1 )
+    void setUpdatePartials( const bool updatePartials = 1 )
     {
         updatePartials_ = updatePartials;
     }
@@ -126,9 +115,7 @@ public:
         return wignerDMatricesCache_;
     }
 
-
 private:
-
     //! Object used to compute Wigner D-matrices
     std::shared_ptr< WignerDMatricesCache > wignerDMatricesCache_;
 
@@ -140,11 +127,10 @@ private:
 
     //! Boolean denoting whether partial derivatives of coefficients are to be computed
     bool updatePartials_;
-
 };
 
-}
+}  // namespace basic_mathematics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALHARMONICTRANSFORMATIONS_H
+#endif  // TUDAT_SPHERICALHARMONICTRANSFORMATIONS_H

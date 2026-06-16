@@ -36,7 +36,7 @@ public:
             const std::string& acceleratingBody,
             const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel );
 
-    ~FullTwoBodySphericalHarmonicsGravityPartial( ) { }
+    ~FullTwoBodySphericalHarmonicsGravityPartial( ) {}
 
     //! Update all cached partial terms to the current model state.
     void update( const double currentTime = TUDAT_NAN ) override;
@@ -133,19 +133,17 @@ public:
         return currentEffectiveCoefficientsWrtTransformedBody2Coefficients_;
     }
 
-    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
-    getCoefficientCombinationsToUse( ) const
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& getCoefficientCombinationsToUse( ) const
     {
         return coefficientCombinationsToUse_;
     }
 
     //! Convenience wrapper used by torque partials to get transformed body-2 coefficient derivatives.
-    void calculateCurrentTransformedBody2CoefficientPartials(
-            const int degree,
-            const int order,
-            const bool wrtCosineCoefficient,
-            Eigen::MatrixXd& transformedCosinePartials,
-            Eigen::MatrixXd& transformedSinePartials )
+    void calculateCurrentTransformedBody2CoefficientPartials( const int degree,
+                                                              const int order,
+                                                              const bool wrtCosineCoefficient,
+                                                              Eigen::MatrixXd& transformedCosinePartials,
+                                                              Eigen::MatrixXd& transformedSinePartials )
     {
         updateCurrentTransformedBody2CoefficientPartials(
                 degree, order, wrtCosineCoefficient, transformedCosinePartials, transformedSinePartials );
@@ -159,32 +157,23 @@ private:
     void updateCurrentPartialsWrtEffectiveCoefficients( );
 
     //! Update derivatives of transformed body-2 coefficients w.r.t. a single original body-2 coefficient.
-    void updateCurrentTransformedBody2CoefficientPartials(
-            const int degree,
-            const int order,
-            const bool wrtCosineCoefficient,
-            Eigen::MatrixXd& transformedCosinePartials,
-            Eigen::MatrixXd& transformedSinePartials );
+    void updateCurrentTransformedBody2CoefficientPartials( const int degree,
+                                                           const int order,
+                                                           const bool wrtCosineCoefficient,
+                                                           Eigen::MatrixXd& transformedCosinePartials,
+                                                           Eigen::MatrixXd& transformedSinePartials );
 
     //! Partial w.r.t. cosine coefficient block of body 1.
-    void wrtCosineCoefficientBlockOfBody1(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialMatrix );
+    void wrtCosineCoefficientBlockOfBody1( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialMatrix );
 
     //! Partial w.r.t. sine coefficient block of body 1.
-    void wrtSineCoefficientBlockOfBody1(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialMatrix );
+    void wrtSineCoefficientBlockOfBody1( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialMatrix );
 
     //! Partial w.r.t. cosine coefficient block of body 2.
-    void wrtCosineCoefficientBlockOfBody2(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialMatrix );
+    void wrtCosineCoefficientBlockOfBody2( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialMatrix );
 
     //! Partial w.r.t. sine coefficient block of body 2.
-    void wrtSineCoefficientBlockOfBody2(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialMatrix );
+    void wrtSineCoefficientBlockOfBody2( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialMatrix );
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 

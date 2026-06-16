@@ -62,8 +62,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
     // 3) "mutual": full degree-2 mutual interactions.
     // This structure checks both correctness of each subset and that enabling figure-figure terms changes
     // the partials in physically expected directions.
-    struct PartialSet
-    {
+    struct PartialSet {
         Eigen::MatrixXd wrtBody1Position;
         Eigen::MatrixXd wrtBody2Position;
         Eigen::MatrixXd wrtBody1Velocity;
@@ -74,8 +73,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
         Eigen::MatrixXd wrtBody2Sine;
     };
 
-    struct CaseDefinition
-    {
+    struct CaseDefinition {
         std::string name;
         std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
         bool hasBody2ShapeTerms;
@@ -121,18 +119,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
     const std::vector< std::pair< int, int > > sineIndices = { { 2, 1 }, { 2, 2 } };
 
     const std::vector< CaseDefinition > testCases = {
-        { "regular",
-          FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_,
-          false,
-          false },
-        { "mutualSinglePoint",
-          getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ),
-          true,
-          false },
-        { "mutual",
-          FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_,
-          true,
-          true } };
+        { "regular", FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_, false, false },
+        { "mutualSinglePoint", getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ), true, false },
+        { "mutual", FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_, true, true }
+    };
 
     const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 10.0 );
     const Eigen::Vector3d velocityPerturbation = Eigen::Vector3d::Constant( 1.0 );
@@ -151,14 +141,12 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
         }
         else
         {
-            rotationToBody1 = Eigen::Quaterniond(
-                    Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
-                    Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
-                    Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) );
-            rotationToBody2 = Eigen::Quaterniond(
-                    Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
-                    Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
-                    Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) );
+            rotationToBody1 = Eigen::Quaterniond( Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
+                                                  Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
+                                                  Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) );
+            rotationToBody2 = Eigen::Quaterniond( Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
+                                                  Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
+                                                  Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) );
             stateOfBody1.segment( 0, 3 ) = ( Eigen::Vector3d( ) << -4300.0, 3100.0, 2800.0 ).finished( );
             stateOfBody2.segment( 0, 3 ) = Eigen::Vector3d::Zero( );
         }
@@ -184,14 +172,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             body2GravityField->setCosineCoefficients( cosineCoefficientsOfBody2Base );
             body2GravityField->setSineCoefficients( sineCoefficientsOfBody2Base );
 
-            std::function< void( Eigen::Vector6d ) > body1StateSetFunction =
-                    std::bind( &Body::setState, body1, std::placeholders::_1 );
-            std::function< void( Eigen::Vector6d ) > body2StateSetFunction =
-                    std::bind( &Body::setState, body2, std::placeholders::_1 );
+            std::function< void( Eigen::Vector6d ) > body1StateSetFunction = std::bind( &Body::setState, body1, std::placeholders::_1 );
+            std::function< void( Eigen::Vector6d ) > body2StateSetFunction = std::bind( &Body::setState, body2, std::placeholders::_1 );
 
             std::shared_ptr< AccelerationSettings > accelerationSettings =
-                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
-                            testCase.coefficientCombinations );
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( testCase.coefficientCombinations );
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationModel =
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( body1, body2, accelerationSettings, "Body1", "Body2" ) );
@@ -199,8 +184,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             BOOST_REQUIRE( accelerationModel != nullptr );
 
             std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial =
-                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
-                            "Body1", "Body2", accelerationModel );
+                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( "Body1", "Body2", accelerationModel );
 
             std::shared_ptr< SphericalHarmonicsCosineCoefficients > body1CosineCoefficientsParameter =
                     std::make_shared< SphericalHarmonicsCosineCoefficients >(
@@ -252,8 +236,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             // each acceleration evaluation advances the time tag by 1 second so the bodies refresh their current
             // rotational states through the ephemeris interface before model evaluation.
             double finiteDifferenceTimeTag = evaluationTime;
-            auto evaluateAcceleration = [ & ]( )
-            {
+            auto evaluateAcceleration = [ & ]( ) {
                 finiteDifferenceTimeTag += 1.0;
                 body1->setCurrentRotationToLocalFrameFromEphemeris( finiteDifferenceTimeTag );
                 body2->setCurrentRotationToLocalFrameFromEphemeris( finiteDifferenceTimeTag );
@@ -264,8 +247,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             auto calculateStatePartial = [ & ]( const std::function< void( Eigen::Vector6d ) >& setState,
                                                 Eigen::Vector6d nominalState,
                                                 const Eigen::Vector3d& perturbation,
-                                                const int startIndex )
-            {
+                                                const int startIndex ) {
                 Eigen::Matrix3d partial = Eigen::Matrix3d::Zero( );
                 Eigen::Vector6d perturbedState = nominalState;
 
@@ -289,10 +271,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                 return partial;
             };
 
-            auto calculateVectorParameterPartial = [ & ](
-                                                          const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
-                                                          const Eigen::VectorXd& perturbation )
-            {
+            auto calculateVectorParameterPartial = [ & ]( const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
+                                                          const Eigen::VectorXd& perturbation ) {
                 const Eigen::VectorXd nominalValue = parameter->getParameterValue( );
                 Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( 3, nominalValue.size( ) );
                 Eigen::VectorXd perturbedValue = nominalValue;
@@ -340,10 +320,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
 
             // State Jacobians: analytical partial blocks should match numerical references.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalPartialWrtBody2Position, analyticalPartials.wrtBody2Position, 5.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Position, analyticalPartials.wrtBody2Position, 5.0E-5 );
 
             // Gravitational acceleration has no explicit velocity dependence in this model.
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
@@ -352,17 +330,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             BOOST_CHECK_SMALL( numericalPartialWrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
 
             // Coefficient Jacobians: active coefficient sets must match finite-difference references.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-3 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalPartialWrtBody1Sine, analyticalPartials.wrtBody1Sine, 1.0E-3 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-3 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, analyticalPartials.wrtBody1Sine, 1.0E-3 );
 
             if( testCase.hasBody2ShapeTerms )
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        numericalPartialWrtBody2Cosine, analyticalPartials.wrtBody2Cosine, 1.0E-3 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        numericalPartialWrtBody2Sine, analyticalPartials.wrtBody2Sine, 1.0E-3 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, analyticalPartials.wrtBody2Cosine, 1.0E-3 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, analyticalPartials.wrtBody2Sine, 1.0E-3 );
             }
             else
             {
@@ -375,10 +349,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             analyticalPartialsByCase[ testCase.name ] = analyticalPartials;
         }
 
-        BOOST_CHECK_GT( ( analyticalPartialsByCase.at( "mutual" ).wrtBody1Position -
-                          analyticalPartialsByCase.at( "regular" ).wrtBody1Position )
-                                .norm( ),
-                        1.0E-7 );
+        BOOST_CHECK_GT(
+                ( analyticalPartialsByCase.at( "mutual" ).wrtBody1Position - analyticalPartialsByCase.at( "regular" ).wrtBody1Position )
+                        .norm( ),
+                1.0E-7 );
         BOOST_CHECK_GT( ( analyticalPartialsByCase.at( "mutualSinglePoint" ).wrtBody1Position -
                           analyticalPartialsByCase.at( "regular" ).wrtBody1Position )
                                 .norm( ),
@@ -403,16 +377,14 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
     // 4) mutual single-point interactions <-> legacy mutual spherical-harmonic model.
     //
     // The equivalences follow directly from selecting subsets of the Dirkx interaction sum over coefficient pairs.
-    enum EquivalentModelType
-    {
+    enum EquivalentModelType {
         pointMassEquivalent = 0,
         sphericalBody1OnBody2Equivalent = 1,
         sphericalBody2OnBody1Equivalent = 2,
         mutualSphericalEquivalent = 3
     };
 
-    struct EquivalentCaseDefinition
-    {
+    struct EquivalentCaseDefinition {
         std::string name;
         std::shared_ptr< AccelerationSettings > mutualExtendedSettings;
         EquivalentModelType equivalentModelType;
@@ -475,11 +447,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
           false,
           true },
         { "mutualSinglePointInteractions",
-          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
-                  getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) ),
+          std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) ),
           mutualSphericalEquivalent,
           true,
-          true } };
+          true }
+    };
 
     for( unsigned int rotationCase = 0; rotationCase < 2; rotationCase++ )
     {
@@ -495,14 +467,12 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
         }
         else
         {
-            rotationToBody1 = Eigen::Quaterniond(
-                    Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
-                    Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
-                    Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) );
-            rotationToBody2 = Eigen::Quaterniond(
-                    Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
-                    Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
-                    Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) );
+            rotationToBody1 = Eigen::Quaterniond( Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) *
+                                                  Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
+                                                  Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) );
+            rotationToBody2 = Eigen::Quaterniond( Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitZ( ) ) *
+                                                  Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitY( ) ) *
+                                                  Eigen::AngleAxisd( 0.25, Eigen::Vector3d::UnitX( ) ) );
             stateOfBody1.segment( 0, 3 ) = ( Eigen::Vector3d( ) << -4300.0, 3100.0, 2800.0 ).finished( );
             stateOfBody2.segment( 0, 3 ) = Eigen::Vector3d::Zero( );
         }
@@ -557,8 +527,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             BOOST_REQUIRE( mutualExtendedModel != nullptr );
 
             std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > mutualExtendedPartial =
-                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
-                            "Body1", "Body2", mutualExtendedModel );
+                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( "Body1", "Body2", mutualExtendedModel );
 
             mutualExtendedModel->updateMembers( evaluationTime );
             mutualExtendedPartial->update( evaluationTime );
@@ -579,13 +548,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             if( testCase.equivalentModelType == pointMassEquivalent )
             {
                 std::shared_ptr< CentralGravitationalAccelerationModel3d > pointMassModel =
-                        std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-                                createAccelerationModel(
-                                        body1,
-                                        body2,
-                                        std::make_shared< AccelerationSettings >( point_mass_gravity ),
-                                        "Body1",
-                                        "Body2" ) );
+                        std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( createAccelerationModel(
+                                body1, body2, std::make_shared< AccelerationSettings >( point_mass_gravity ), "Body1", "Body2" ) );
                 BOOST_REQUIRE( pointMassModel != nullptr );
                 equivalentModel = pointMassModel;
                 equivalentPartial = std::make_shared< CentralGravitationPartial >( pointMassModel, "Body1", "Body2" );
@@ -593,55 +557,39 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             else if( testCase.equivalentModelType == sphericalBody1OnBody2Equivalent )
             {
                 std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicModel =
-                        std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
-                                createAccelerationModel(
-                                        body2,
-                                        body1,
-                                        std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ),
-                                        "Body2",
-                                        "Body1" ) );
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( createAccelerationModel(
+                                body2, body1, std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ), "Body2", "Body1" ) );
                 BOOST_REQUIRE( sphericalHarmonicModel != nullptr );
                 equivalentModel = sphericalHarmonicModel;
-                equivalentPartial =
-                        std::make_shared< SphericalHarmonicsGravityPartial >( "Body2", "Body1", sphericalHarmonicModel );
+                equivalentPartial = std::make_shared< SphericalHarmonicsGravityPartial >( "Body2", "Body1", sphericalHarmonicModel );
                 // Sign/scale conversion: this equivalent model computes acceleration of body 2 due to body 1.
                 // The mutual model here is defined for body 1 due to body 2, hence the factor below.
-                scaleToMutual = -body2GravityField->getGravitationalParameter( ) /
-                        body1GravityField->getGravitationalParameter( );
+                scaleToMutual = -body2GravityField->getGravitationalParameter( ) / body1GravityField->getGravitationalParameter( );
             }
             else if( testCase.equivalentModelType == sphericalBody2OnBody1Equivalent )
             {
                 std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicModel =
-                        std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
-                                createAccelerationModel(
-                                        body1,
-                                        body2,
-                                        std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ),
-                                        "Body1",
-                                        "Body2" ) );
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( createAccelerationModel(
+                                body1, body2, std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ), "Body1", "Body2" ) );
                 BOOST_REQUIRE( sphericalHarmonicModel != nullptr );
                 equivalentModel = sphericalHarmonicModel;
-                equivalentPartial =
-                        std::make_shared< SphericalHarmonicsGravityPartial >( "Body1", "Body2", sphericalHarmonicModel );
+                equivalentPartial = std::make_shared< SphericalHarmonicsGravityPartial >( "Body1", "Body2", sphericalHarmonicModel );
             }
             else
             {
                 std::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > mutualSphericalModel =
                         std::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
-                                createAccelerationModel(
-                                        body1,
-                                        body2,
-                                        std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ),
-                                        "Body1",
-                                        "Body2" ) );
+                                createAccelerationModel( body1,
+                                                         body2,
+                                                         std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ),
+                                                         "Body1",
+                                                         "Body2" ) );
                 BOOST_REQUIRE( mutualSphericalModel != nullptr );
                 equivalentModel = mutualSphericalModel;
 
                 std::shared_ptr< SphericalHarmonicsGravityPartial > body2OnBody1Partial =
                         std::make_shared< SphericalHarmonicsGravityPartial >(
-                                "Body1",
-                                "Body2",
-                                mutualSphericalModel->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( ) );
+                                "Body1", "Body2", mutualSphericalModel->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( ) );
                 std::shared_ptr< SphericalHarmonicsGravityPartial > body1OnBody2Partial =
                         std::make_shared< SphericalHarmonicsGravityPartial >(
                                 "Body2",
@@ -661,17 +609,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
 
             if( testCase.equivalentModelType == sphericalBody1OnBody2Equivalent )
             {
-                equivalentPartial->wrtPositionOfAcceleratingBody(
-                        equivalentPartialWrtBody1Position.block( 0, 0, 3, 3 ) );
-                equivalentPartial->wrtPositionOfAcceleratedBody(
-                        equivalentPartialWrtBody2Position.block( 0, 0, 3, 3 ) );
+                equivalentPartial->wrtPositionOfAcceleratingBody( equivalentPartialWrtBody1Position.block( 0, 0, 3, 3 ) );
+                equivalentPartial->wrtPositionOfAcceleratedBody( equivalentPartialWrtBody2Position.block( 0, 0, 3, 3 ) );
             }
             else
             {
-                equivalentPartial->wrtPositionOfAcceleratedBody(
-                        equivalentPartialWrtBody1Position.block( 0, 0, 3, 3 ) );
-                equivalentPartial->wrtPositionOfAcceleratingBody(
-                        equivalentPartialWrtBody2Position.block( 0, 0, 3, 3 ) );
+                equivalentPartial->wrtPositionOfAcceleratedBody( equivalentPartialWrtBody1Position.block( 0, 0, 3, 3 ) );
+                equivalentPartial->wrtPositionOfAcceleratingBody( equivalentPartialWrtBody2Position.block( 0, 0, 3, 3 ) );
             }
 
             equivalentPartialWrtBody1Position *= scaleToMutual;
@@ -683,10 +627,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             BOOST_CHECK_GT( equivalentPartialWrtBody2Position.norm( ), 1.0E-12 );
 
             // Position Jacobians from the full-two-body model must collapse to the equivalent model Jacobians.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    mutualPartialWrtBody1Position, equivalentPartialWrtBody1Position, 2.0E-14 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    mutualPartialWrtBody2Position, equivalentPartialWrtBody2Position, 2.0E-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody1Position, equivalentPartialWrtBody1Position, 2.0E-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody2Position, equivalentPartialWrtBody2Position, 2.0E-14 );
 
             if( testCase.compareBody1Coefficients )
             {
@@ -700,10 +642,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 BOOST_CHECK_GT( equivalentPartialWrtBody1Cosine.norm( ), 1.0E-16 );
                 BOOST_CHECK_GT( equivalentPartialWrtBody1Sine.norm( ), 1.0E-16 );
 
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualPartialWrtBody1Cosine, equivalentPartialWrtBody1Cosine, 2.0E-14 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualPartialWrtBody1Sine, equivalentPartialWrtBody1Sine, 2.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody1Cosine, equivalentPartialWrtBody1Cosine, 2.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody1Sine, equivalentPartialWrtBody1Sine, 2.0E-14 );
             }
             else
             {
@@ -723,10 +663,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 BOOST_CHECK_GT( equivalentPartialWrtBody2Cosine.norm( ), 1.0E-16 );
                 BOOST_CHECK_GT( equivalentPartialWrtBody2Sine.norm( ), 1.0E-16 );
 
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualPartialWrtBody2Cosine, equivalentPartialWrtBody2Cosine, 2.0E-14 );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualPartialWrtBody2Sine, equivalentPartialWrtBody2Sine, 2.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody2Cosine, equivalentPartialWrtBody2Cosine, 2.0E-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody2Sine, equivalentPartialWrtBody2Sine, 2.0E-14 );
             }
             else
             {
@@ -788,39 +726,28 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     std::shared_ptr< Body > centralBody = std::make_shared< Body >( );
 
     body1->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
-            gravitationalParameterBody1,
-            equatorialRadiusBody1,
-            cosineCoefficientsOfBody1,
-            sineCoefficientsOfBody1,
-            "IAU_Body1" ) );
+            gravitationalParameterBody1, equatorialRadiusBody1, cosineCoefficientsOfBody1, sineCoefficientsOfBody1, "IAU_Body1" ) );
     body2->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
-            gravitationalParameterBody2,
-            equatorialRadiusBody2,
-            cosineCoefficientsOfBody2,
-            sineCoefficientsOfBody2,
-            "IAU_Body2" ) );
-    centralBody->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >(
-            gravitationalParameterCentralBody,
-            equatorialRadiusCentralBody,
-            cosineCoefficientsOfCentralBody,
-            sineCoefficientsOfCentralBody,
-            "IAU_CentralBody" ) );
+            gravitationalParameterBody2, equatorialRadiusBody2, cosineCoefficientsOfBody2, sineCoefficientsOfBody2, "IAU_Body2" ) );
+    centralBody->setGravityFieldModel( std::make_shared< SphericalHarmonicsGravityField >( gravitationalParameterCentralBody,
+                                                                                           equatorialRadiusCentralBody,
+                                                                                           cosineCoefficientsOfCentralBody,
+                                                                                           sineCoefficientsOfCentralBody,
+                                                                                           "IAU_CentralBody" ) );
 
     const double evaluationTime = 1000.0;
     body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
             Eigen::Quaterniond::Identity( ), 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body1" ) );
     body2->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
-            Eigen::Quaterniond(
-                    Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) *
-                    Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) ),
+            Eigen::Quaterniond( Eigen::AngleAxisd( 0.3, Eigen::Vector3d::UnitZ( ) ) *
+                                Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) ),
             0.0,
             evaluationTime,
             "ECLIPJ2000",
             "IAU_Body2" ) );
     centralBody->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
-            Eigen::Quaterniond(
-                    Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitY( ) ) *
-                    Eigen::AngleAxisd( 0.15, Eigen::Vector3d::UnitZ( ) ) ),
+            Eigen::Quaterniond( Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitY( ) ) *
+                                Eigen::AngleAxisd( 0.15, Eigen::Vector3d::UnitZ( ) ) ),
             0.0,
             evaluationTime,
             "ECLIPJ2000",
@@ -848,12 +775,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     bodies.addBody( centralBody, "CentralBody" );
 
     std::shared_ptr< AccelerationSettings > mutualExtendedSettings =
-            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
-                    getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) );
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) );
     std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
             std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
-                    createAccelerationModel(
-                            body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );
+                    createAccelerationModel( body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );
     BOOST_REQUIRE( mutualExtendedModel != nullptr );
 
     mutualExtendedModel->updateMembers( evaluationTime );
@@ -877,8 +802,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
 
     mutualExtendedPartial->wrtPositionOfAcceleratedBody( partialWrtBody1PositionExtended.block( 0, 0, 3, 3 ) );
     mutualExtendedPartial->wrtPositionOfAcceleratingBody( partialWrtBody2PositionExtended.block( 0, 0, 3, 3 ) );
-    mutualExtendedPartial->wrtPositionOfAdditionalBody(
-            "CentralBody", partialWrtCentralBodyPositionExtended.block( 0, 0, 3, 3 ) );
+    mutualExtendedPartial->wrtPositionOfAdditionalBody( "CentralBody", partialWrtCentralBodyPositionExtended.block( 0, 0, 3, 3 ) );
 
     BOOST_CHECK_GT( partialWrtBody1PositionExtended.norm( ), 1.0E-16 );
     BOOST_CHECK_GT( partialWrtBody2PositionExtended.norm( ), 1.0E-16 );

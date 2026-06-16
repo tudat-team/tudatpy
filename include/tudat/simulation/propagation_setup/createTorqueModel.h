@@ -99,8 +99,7 @@ std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwo
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
-std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >
-createFourthDegreeFullTwoBodyGravitationalTorqueModel(
+std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > createFourthDegreeFullTwoBodyGravitationalTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,

@@ -51,8 +51,7 @@ std::pair< int, int > getMaximumDegrees(
  * \param k Parameter k used by Compere & Lemaitre (2014); order of body 2
  * \return Term gamma for mutual two-body potential, according to formulation of Compere & Lemaitre (2014)
  */
-double getGammaCoefficientForMutualForcePotential(
-        const int l, const int m, const int j, const int k );
+double getGammaCoefficientForMutualForcePotential( const int l, const int m, const int j, const int k );
 
 //! Function to compute cross-body normalization terms for mutual two-body potential, for unnormalized or fully normalized
 //! coefficients
@@ -66,8 +65,11 @@ double getGammaCoefficientForMutualForcePotential(
  * \param areCoefficientsNormalized Boolean denoting whether the coefficients are fully normalized or unnormalized
  * \return Cross-body normalization terms for mutual two-body potential
  */
-double getMutualPotentialEffectiveCoefficientMultiplier(
-        const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized );
+double getMutualPotentialEffectiveCoefficientMultiplier( const int degree1,
+                                                         const int order1,
+                                                         const int degree2,
+                                                         const int order2,
+                                                         const bool areCoefficientsNormalized );
 
 //! Function to compute single-term in two-body potential, from effective one-body formulation of Dirkx et al. (2018)
 /*!
@@ -82,14 +84,13 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
  * \param order2 Order of body 2
  * \return Single-term in effective one-body formulation, omitting the radius power term, and the common multiplier for all terms
  */
-double computeSingleMutualForcePotentialTerm(
-        const double effectiveCosineCoefficient,
-        const double effectiveSineCoefficient,
-        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const int degreeOfBody1,
-        const int orderOfBody1,
-        const int degreeOfBody2,
-        const int orderOfBody2 );
+double computeSingleMutualForcePotentialTerm( const double effectiveCosineCoefficient,
+                                              const double effectiveSineCoefficient,
+                                              std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+                                              const int degreeOfBody1,
+                                              const int orderOfBody1,
+                                              const int degreeOfBody2,
+                                              const int orderOfBody2 );
 
 double computeMutualForcePotential(
         const Eigen::Vector3d& bodyFixedPosition,
@@ -145,7 +146,7 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const std::function< int( const int, const int, const int, const int )> effectiveIndexFunction );
+        const std::function< int( const int, const int, const int, const int ) > effectiveIndexFunction );
 
 inline double getSigmaSignFunction( const int order )
 {
@@ -160,35 +161,34 @@ inline double getSigmaSignFunction( const int order )
  * This centralizes the signed-order branching used by the full two-body acceleration/potential evaluation in the
  * Eq. (49) summation and the Eq. (47)-(48) effective-coefficient construction.
  */
-inline bool getSignedOrdersForCombinationCase(
-        const int combinationCase,
-        const int orderOfBody1,
-        const int orderOfBody2,
-        int& signedOrderOfBody1,
-        int& signedOrderOfBody2 )
+inline bool getSignedOrdersForCombinationCase( const int combinationCase,
+                                               const int orderOfBody1,
+                                               const int orderOfBody2,
+                                               int& signedOrderOfBody1,
+                                               int& signedOrderOfBody2 )
 {
     // This switch enumerates the signed-order variants needed by the Eq. (49) summation
     // and the effective-coefficient combinations in Eqs. (47)-(48).
     switch( combinationCase )
     {
-    case 0:
-        signedOrderOfBody1 = orderOfBody1;
-        signedOrderOfBody2 = orderOfBody2;
-        return true;
-    case 1:
-        signedOrderOfBody1 = -orderOfBody1;
-        signedOrderOfBody2 = orderOfBody2;
-        return ( orderOfBody1 != 0 );
-    case 2:
-        signedOrderOfBody1 = orderOfBody1;
-        signedOrderOfBody2 = -orderOfBody2;
-        return ( orderOfBody2 != 0 );
-    case 3:
-        signedOrderOfBody1 = -orderOfBody1;
-        signedOrderOfBody2 = -orderOfBody2;
-        return ( orderOfBody1 != 0 && orderOfBody2 != 0 );
-    default:
-        return false;
+        case 0:
+            signedOrderOfBody1 = orderOfBody1;
+            signedOrderOfBody2 = orderOfBody2;
+            return true;
+        case 1:
+            signedOrderOfBody1 = -orderOfBody1;
+            signedOrderOfBody2 = orderOfBody2;
+            return ( orderOfBody1 != 0 );
+        case 2:
+            signedOrderOfBody1 = orderOfBody1;
+            signedOrderOfBody2 = -orderOfBody2;
+            return ( orderOfBody2 != 0 );
+        case 3:
+            signedOrderOfBody1 = -orderOfBody1;
+            signedOrderOfBody2 = -orderOfBody2;
+            return ( orderOfBody1 != 0 && orderOfBody2 != 0 );
+        default:
+            return false;
     }
 }
 
@@ -210,25 +210,20 @@ public:
         sineCoefficientFunctionOfBody1_( sineCoefficientFunctionOfBody1 ),
         cosineCoefficientFunctionOfBody2_( cosineCoefficientFunctionOfBody2 ),
         sineCoefficientFunctionOfBody2_( sineCoefficientFunctionOfBody2 ),
-        gravitationalParameterFunction_( gravitationalParameterFunction ),
-        equatorialRadiusOfBody1_( equatorialRadiusOfBody1 ),
-        equatorialRadiusOfBody2_( equatorialRadiusOfBody2 ),
-        areCoefficientsNormalized_( areCoefficientsNormalized ),
+        gravitationalParameterFunction_( gravitationalParameterFunction ), equatorialRadiusOfBody1_( equatorialRadiusOfBody1 ),
+        equatorialRadiusOfBody2_( equatorialRadiusOfBody2 ), areCoefficientsNormalized_( areCoefficientsNormalized ),
         calculatePartials_( false )
     {
         std::pair< int, int > maximumDegrees = getMaximumDegrees( coefficientCombinationsToUse_ );
         maximumDegree1_ = maximumDegrees.first;
         maximumDegree2_ = maximumDegrees.second;
 
-        effectiveCosineCoefficients_.resize(
-                    getTotalVectorSize( ) );
-        effectiveSineCoefficients_.resize(
-                    getTotalVectorSize( ) );
-        multipliers_.resize(
-                    getTotalVectorSize( ) );
+        effectiveCosineCoefficients_.resize( getTotalVectorSize( ) );
+        effectiveSineCoefficients_.resize( getTotalVectorSize( ) );
+        multipliers_.resize( getTotalVectorSize( ) );
         transformationCache_ = std::make_shared< basic_mathematics::SphericalHarmonicTransformationCache >(
-                    cosineCoefficientFunctionOfBody1( ).rows( ) + cosineCoefficientFunctionOfBody2( ).rows( ),
-                    cosineCoefficientFunctionOfBody1( ).cols( ) + cosineCoefficientFunctionOfBody2( ).cols( ) );
+                cosineCoefficientFunctionOfBody1( ).rows( ) + cosineCoefficientFunctionOfBody2( ).rows( ),
+                cosineCoefficientFunctionOfBody1( ).cols( ) + cosineCoefficientFunctionOfBody2( ).cols( ) );
         initializeMultipliers( );
     }
 
@@ -247,60 +242,60 @@ public:
         return ( 2 * maximumDegree1_ + 1 ) * ( maximumDegree1_ + 1 ) * ( 2 * maximumDegree2_ + 1 ) * ( maximumDegree2_ + 1 );
     }
 
-    void getCurrentEffectiveCoefficients(
-            const int degree1, const int order1, const int degree2, const int order2, const int effectiveIndex,
-            double& cosineCoefficient, double& sineCoefficient );
+    void getCurrentEffectiveCoefficients( const int degree1,
+                                          const int order1,
+                                          const int degree2,
+                                          const int order2,
+                                          const int effectiveIndex,
+                                          double& cosineCoefficient,
+                                          double& sineCoefficient );
 
     void computeCurrentEffectiveCoefficients( const Eigen::Quaterniond coefficientRotationQuaterion );
 
-    void computeCurrentEffectiveCoefficientsFromManualTransformedCoefficients(
-            const Eigen::MatrixXd& transformedCosineCoefficients,
-            const Eigen::MatrixXd& transformedSineCoefficients );
+    void computeCurrentEffectiveCoefficientsFromManualTransformedCoefficients( const Eigen::MatrixXd& transformedCosineCoefficients,
+                                                                               const Eigen::MatrixXd& transformedSineCoefficients );
 
     void updateEffectiveMutualPotential( );
 
-    int getEffectiveIndex(
-            const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
+    int getEffectiveIndex( const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-        return degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + maximumDegree1_ +( 2 * maximumDegree1_ + 1 ) *
-                                                ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * ( orderOfBody2 + maximumDegree2_ ) ) );
+        return degreeOfBody1 +
+                ( maximumDegree1_ + 1 ) *
+                ( orderOfBody1 + maximumDegree1_ +
+                  ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * ( orderOfBody2 + maximumDegree2_ ) ) );
     }
 
-    double getGravitationalPotential(
-            const Eigen::Vector3d& bodyFixedPosition,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,
+                                      std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
     {
-
-        return computeMutualForcePotential(
-                    bodyFixedPosition, gravitationalParameterFunction_( ), equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
-                    maximumDegree1_, maximumDegree2_,
-                    std::bind(
-                        &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
-                        this,
-                        std::placeholders::_1,
-                        std::placeholders::_2,
-                        std::placeholders::_3,
-                        std::placeholders::_4 ),
-                    std::bind(
-                        &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
-                        this,
-                        std::placeholders::_1,
-                        std::placeholders::_2,
-                        std::placeholders::_3,
-                        std::placeholders::_4 ),
-                    coefficientCombinationsToUse_,
-                    sphericalHarmonicsCache );
+        return computeMutualForcePotential( bodyFixedPosition,
+                                            gravitationalParameterFunction_( ),
+                                            equatorialRadiusOfBody1_,
+                                            equatorialRadiusOfBody2_,
+                                            maximumDegree1_,
+                                            maximumDegree2_,
+                                            std::bind( &EffectiveMutualSphericalHarmonicsField::getEffectiveCosineCoefficient,
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       std::placeholders::_2,
+                                                       std::placeholders::_3,
+                                                       std::placeholders::_4 ),
+                                            std::bind( &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       std::placeholders::_2,
+                                                       std::placeholders::_3,
+                                                       std::placeholders::_4 ),
+                                            coefficientCombinationsToUse_,
+                                            sphericalHarmonicsCache );
     }
 
-
-    double getEffectiveCosineCoefficient(
-            const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
+    double getEffectiveCosineCoefficient( const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
         return effectiveCosineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
-    double getEffectiveSineCoefficient(
-            const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
+    double getEffectiveSineCoefficient( const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
         return effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
@@ -320,8 +315,7 @@ public:
         calculatePartials_ = true;
     }
 
-    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >&
-    getCoefficientCombinationsToUse( ) const
+    const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& getCoefficientCombinationsToUse( ) const
     {
         return coefficientCombinationsToUse_;
     }
@@ -348,8 +342,7 @@ public:
 
     double getMultiplier( const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-        return multipliers_[ getEffectiveIndex(
-                    degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ] ;
+        return multipliers_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
     void computePartialsOfFullCoefficientsWrtTransformedCoefficients(
@@ -366,9 +359,7 @@ public:
     }
 
 private:
-
-    double getEffectiveCoefficientMultiplier(
-            const int degree1, const int order1, const int degree2, const int order2 );
+    double getEffectiveCoefficientMultiplier( const int degree1, const int order1, const int degree2, const int order2 );
 
     void initializeMultipliers( );
 
@@ -378,7 +369,6 @@ private:
     std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody1_;
     std::function< Eigen::MatrixXd( ) > cosineCoefficientFunctionOfBody2_;
     std::function< Eigen::MatrixXd( ) > sineCoefficientFunctionOfBody2_;
-
 
     Eigen::MatrixXd cosineCoefficientsOfBody1_;
     Eigen::MatrixXd sineCoefficientsOfBody1_;
@@ -409,12 +399,10 @@ private:
     int maximumDegree1_;
 
     int maximumDegree2_;
-
 };
 
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-}
-
-#endif // TUDAT_MUTUALFORCEPOTENTIAL_H
+#endif  // TUDAT_MUTUALFORCEPOTENTIAL_H

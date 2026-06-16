@@ -126,8 +126,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                         acceleratingBody.first );
             }
             break;
-        case full_two_body_spherical_harmonic_gravitational_torque:
-        {
+        case full_two_body_spherical_harmonic_gravitational_torque: {
             if( std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel ) == nullptr )
             {
                 throw std::runtime_error(
@@ -161,8 +160,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
             }
             if( acceleratingBody.second == nullptr )
             {
-                throw std::runtime_error(
-                        "Error when creating fourth-degree full two-body torque partial: accelerating body is nullptr." );
+                throw std::runtime_error( "Error when creating fourth-degree full two-body torque partial: accelerating body is nullptr." );
             }
             torquePartial = std::make_shared< FourthDegreeFullTwoBodyGravitationalTorquePartial >(
                     std::dynamic_pointer_cast< FourthDegreeFullTwoBodyGravitationalTorqueModel >( torqueModel ),
