@@ -19,6 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
@@ -131,7 +132,7 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
 
@@ -166,10 +167,10 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
 
@@ -205,13 +206,13 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
- observable_type : :class:`ObservableType`
+ observable_type : :class:`tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
- link_ends : :class:`~tudatpy.astro.LinkDefinition`
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Identifies the link ends in the observation simulation settings for which the dependent variables are to be included.
 
      )doc" );
@@ -242,13 +243,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        link_end_type : tudatpy.astro.LinkEndType, optional
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the elevation angle is computed.
-        link_end_id : tudatpy.astro.LinkEndId, optional
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the link end for which the elevation angle is computed.
-        originating_link_end_type : tudatpy.astro.LinkEndType, optional
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.astro.LinkEndId, optional
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -271,13 +272,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        link_end_type : tudatpy.astro.LinkEndType, optional
+        link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the azimuth angle is computed.
-        link_end_id : tudatpy.astro.LinkEndId, optional
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the link end for which the azimuth angle is computed.
-        originating_link_end_type : tudatpy.astro.LinkEndType, optional
+        originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.astro.LinkEndId, optional
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -300,13 +301,13 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -332,13 +333,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the avoidance angle is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -364,13 +365,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the distance is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -396,13 +397,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body to which the distance is calculated.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -428,13 +429,13 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         body_name : str
             Name of the body defining the orbital plane.
-        start_link_end_type : tudatpy.astro.LinkEndType, optional
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the starting link end.
-        end_link_end_type : tudatpy.astro.LinkEndType, optional
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.astro.LinkEndId, optional
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the starting link end.
-        end_link_end_id : tudatpy.astro.LinkEndId, optional
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -453,7 +454,7 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the integration time.
 
         Returns
@@ -470,7 +471,7 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the retransmission delays.
 
         Returns
@@ -491,8 +492,56 @@ void expose_observations_dependent_variables( py::module& m )
 
         Parameters
         ----------
-        observable_type : tudatpy.astro.ObservableType, optional
+        observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType, optional
             Observable type for which to retrieve the link-end epochs.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
+    m.def( "light_time_correction_components_dependent_variable",
+           &tss::lightTimeCorrectionComponentsDependentVariable,
+           py::arg( "transmitter_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "receiver_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "transmitter_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "receiver_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "correction_type_filter" ) = std::vector< tom::LightTimeCorrectionType >( ),
+           R"doc(
+        Function to create a dependent variable that saves each light-time correction contribution
+        individually for a single leg (transmitter → receiver) of the observable.
+
+        The returned vector contains one entry per registered :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrection`
+        on the selected leg, in light-time-calculator order and registration order within each calculator. If ``correction_type_filter`` is supplied,
+        all registered contributions whose type matches any requested type are returned.
+        Matching contributions are grouped by the order in which each distinct type first appears
+        in the filter; repeated occurrences of the same type in the filter do not duplicate output
+        entries. Consequently, the returned vector does not necessarily have the same length as
+        ``correction_type_filter`` and may be longer if multiple registered corrections share a
+        requested type.
+
+        Supported for observables that expose their light-time leg calculators through the
+        observation-model interface. Requesting this dependent variable for an unsupported
+        observable, or for a transmitter/receiver pair that does not correspond to an actual
+        leg of the chosen observable, raises a ``RuntimeError`` when the observation is
+        simulated (i.e. on the first call to
+        :func:`~tudatpy.estimation.observations.simulate_observations` for that
+        :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`),
+        not silently dropped.
+
+        Parameters
+        ----------
+        transmitter_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the transmitting side of the leg (e.g. ``transmitter``, ``retransmitter``).
+        receiver_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Link-end type on the receiving side of the leg.
+        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the transmitting side (body/station).
+        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, optional
+            Optional specific link-end ID for the receiving side.
+        correction_type_filter : list[tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionType], optional
+            Subset of correction types to save. Empty list = save all registered corrections.
 
         Returns
         -------

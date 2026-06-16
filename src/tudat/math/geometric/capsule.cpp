@@ -171,7 +171,7 @@ Capsule::Capsule( const double noseRadius,
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, Capsule &capsule )
+std::ostream& operator<<( std::ostream& stream, Capsule& capsule )
 {
     stream << "This is a capsule." << std::endl;
     stream << "The defining parameters are: " << std::endl

@@ -7,7 +7,7 @@ namespace mission_segments
 
 TransferNode::TransferNode( const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris, const TransferNodeTypes nodeType ):
     nodeEphemeris_( nodeEphemeris ), nodeType_( nodeType ), nodeParameters_( Eigen::VectorXd::Zero( 0 ) )
-{ }
+{}
 
 void TransferNode::updateNodeParameters( const Eigen::VectorXd nodeParameters )
 {
@@ -49,7 +49,7 @@ DepartureWithFixedOutgoingVelocityNode::DepartureWithFixedOutgoingVelocityNode(
     TransferNode( nodeEphemeris, escape_and_departure ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     departureSemiMajorAxis_( departureSemiMajorAxis ), departureEccentricity_( departureEccentricity ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
-{ }
+{}
 
 Eigen::Vector3d DepartureWithFixedOutgoingVelocityNode::getIncomingVelocity( )
 {
@@ -90,7 +90,7 @@ DepartureWithFreeOutgoingVelocityNode::DepartureWithFreeOutgoingVelocityNode( co
                                                                               const double departureEccentricity ):
     TransferNode( nodeEphemeris, escape_and_departure ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     departureSemiMajorAxis_( departureSemiMajorAxis ), departureEccentricity_( departureEccentricity )
-{ }
+{}
 
 Eigen::Vector3d DepartureWithFreeOutgoingVelocityNode::getIncomingVelocity( )
 {
@@ -150,7 +150,7 @@ CaptureWithFixedIncomingVelocityNode::CaptureWithFixedIncomingVelocityNode(
     TransferNode( nodeEphemeris, capture_and_insertion ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     captureSemiMajorAxis_( captureSemiMajorAxis ), captureEccentricity_( captureEccentricity ),
     incomingVelocityFunction_( incomingVelocityFunction )
-{ }
+{}
 
 Eigen::Vector3d CaptureWithFixedIncomingVelocityNode::getOutgoingVelocity( )
 {
@@ -192,7 +192,7 @@ CaptureWithFreeIncomingVelocityNode::CaptureWithFreeIncomingVelocityNode( const 
                                                                           const double captureEccentricity ):
     TransferNode( nodeEphemeris, capture_and_insertion ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     captureSemiMajorAxis_( captureSemiMajorAxis ), captureEccentricity_( captureEccentricity )
-{ }
+{}
 
 Eigen::Vector3d CaptureWithFreeIncomingVelocityNode::getOutgoingVelocity( )
 {
@@ -252,7 +252,7 @@ SwingbyWithFixedIncomingFixedOutgoingVelocity::SwingbyWithFixedIncomingFixedOutg
     TransferNode( nodeEphemeris, swingby ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     minimumPeriapsisRadius_( minimumPeriapsisRadius ), incomingVelocityFunction_( incomingVelocityFunction ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
-{ }
+{}
 
 bool SwingbyWithFixedIncomingFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
@@ -291,7 +291,7 @@ SwingbyWithFixedIncomingFreeOutgoingVelocity::SwingbyWithFixedIncomingFreeOutgoi
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction ):
     TransferNode( nodeEphemeris, swingby ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     incomingVelocityFunction_( incomingVelocityFunction )
-{ }
+{}
 
 bool SwingbyWithFixedIncomingFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
@@ -334,7 +334,7 @@ SwingbyWithFreeIncomingFreeOutgoingVelocity::SwingbyWithFreeIncomingFreeOutgoing
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter ):
     TransferNode( nodeEphemeris, swingby ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
-{ }
+{}
 
 bool SwingbyWithFreeIncomingFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
@@ -393,7 +393,7 @@ SwingbyWithFreeIncomingFixedOutgoingVelocity::SwingbyWithFreeIncomingFixedOutgoi
         const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction ):
     TransferNode( nodeEphemeris, swingby ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
-{ }
+{}
 
 bool SwingbyWithFreeIncomingFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {

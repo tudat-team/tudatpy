@@ -6,7 +6,7 @@ dependencies:
   - cmake
   - make
   - eigen
-  - boost-cpp=1.84.0
+  - boost-cpp
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
@@ -14,12 +14,12 @@ dependencies:
   - fftw
   - c-compiler
   - cxx-compiler
-  - python=3.11
+  - python
   - pybind11
   - pybind11-abi
   - pybind11-stubgen
   # Python dependencies
-  - numpy<2.0.0
+  - numpy
   - pytest
   - mypy
   - pandas     # for tudatpy.io
@@ -38,7 +38,7 @@ dependencies:
   # Documentation
   - jinja2
   - pyyaml
-  - pydantic == 1.10.9
+  - pydantic
   - numpydoc
   - doxygen # for cpp api
   # Pip
@@ -52,3 +52,4 @@ dependencies:
      - furo
      - sphinx_copybutton
      - git+https://github.com/NASA-PDS/PyTrk234.git
+     - pre-commit

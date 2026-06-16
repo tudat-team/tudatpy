@@ -420,49 +420,104 @@ public:
         return considerParameters_;
     }
 
-    //! Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+    //! Retrieve parameter indices and parameter objects from an identifier.
     /*!
-     * Function to retrieve the start index and size of (a) parameters(s) with a given identifier
-     * \param requiredParameterId Parameter identifier that is to be searched in full list of patameters
-     * \return List of start indices and sizes of parameters corresponding to requiredParameterId
+     * Returns start index and size pairs, together with the matching parameter objects, for parameter block(s) that
+     * match \p requiredParameterId.
+     * If both identifier strings are empty, only the enum is used for matching and all matching
+     * parameter blocks are returned.
+     * \param requiredParameterId Parameter identifier to search for in the estimated-parameter set.
+     * \return List of ((start index, size), parameter object) entries for matching parameter block(s).
      */
-    std::vector< std::pair< int, int > > getIndicesForParameterType( const EstimatebleParameterIdentifier requiredParameterId )
+    std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > >
+    getParametersAndIndicesForParameterIdentifier( const EstimatebleParameterIdentifier& requiredParameterId )
     {
-        std::vector< std::pair< int, int > > typeIndices;
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > typeIndices;
+
+        const bool isTypeOnlyIdentifier = requiredParameterId.second.first.empty( ) && requiredParameterId.second.second.empty( );
 
         for( auto parameterIterator : initialSingleArcStateParameters_ )
         {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
             {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+                typeIndices.push_back(
+                        std::make_pair( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ),
+                                        std::static_pointer_cast< EstimatableParameterBase >( parameterIterator.second ) ) );
             }
         }
 
         for( auto parameterIterator : initialMultiArcStateParameters_ )
         {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
             {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+                typeIndices.push_back(
+                        std::make_pair( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ),
+                                        std::static_pointer_cast< EstimatableParameterBase >( parameterIterator.second ) ) );
             }
         }
 
         for( auto parameterIterator : doubleParameters_ )
         {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
             {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+                typeIndices.push_back(
+                        std::make_pair( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ),
+                                        std::static_pointer_cast< EstimatableParameterBase >( parameterIterator.second ) ) );
             }
         }
 
         for( auto parameterIterator : vectorParameters_ )
         {
-            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            if( ( isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ).first == requiredParameterId.first ) ||
+                ( !isTypeOnlyIdentifier && parameterIterator.second->getParameterName( ) == requiredParameterId ) )
             {
-                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+                typeIndices.push_back(
+                        std::make_pair( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ),
+                                        std::static_pointer_cast< EstimatableParameterBase >( parameterIterator.second ) ) );
             }
         }
 
         return typeIndices;
+    }
+
+    //! Retrieve only indices for parameters matching a parameter identifier.
+    /*!
+     * Retrieves indices for all parameter blocks matching \p requiredParameterId.
+     * If both identifier strings are empty, matching is performed on enum only.
+     * \param requiredParameterId Parameter identifier for which matching parameter-block indices are retrieved.
+     * \return Matching (start index, size) entries in parameter-set order.
+     */
+    std::vector< std::pair< int, int > > getIndicesForParameterType( const EstimatebleParameterIdentifier& requiredParameterId )
+    {
+        std::vector< std::pair< int, int > > parameterIndices;
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
+                getParametersAndIndicesForParameterIdentifier( requiredParameterId );
+
+        for( const std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > >& parameterEntry : parameterEntries )
+        {
+            parameterIndices.push_back( parameterEntry.first );
+        }
+
+        return parameterIndices;
+    }
+
+    //! Retrieve only parameter objects for parameters matching an identifier.
+    std::vector< std::shared_ptr< EstimatableParameterBase > > getParametersForParameterIdentifier(
+            const EstimatebleParameterIdentifier& requiredParameterId )
+    {
+        std::vector< std::shared_ptr< EstimatableParameterBase > > parameters;
+        std::vector< std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > > > parameterEntries =
+                getParametersAndIndicesForParameterIdentifier( requiredParameterId );
+
+        for( const std::pair< std::pair< int, int >, std::shared_ptr< EstimatableParameterBase > >& parameterEntry : parameterEntries )
+        {
+            parameters.push_back( parameterEntry.second );
+        }
+
+        return parameters;
     }
 
     //! Function to retrieve the start index and size of a parameter with a given parameter description
@@ -579,15 +634,15 @@ public:
     {
         std::vector< EstimatebleParameterIdentifier > parametersIdentifiers;
 
+        for( auto itr : initialStateParameters_ )
+        {
+            parametersIdentifiers.push_back( itr.second->getParameterName( ) );
+        }
         for( auto itr : doubleParameters_ )
         {
             parametersIdentifiers.push_back( itr.second->getParameterName( ) );
         }
         for( auto itr : vectorParameters_ )
-        {
-            parametersIdentifiers.push_back( itr.second->getParameterName( ) );
-        }
-        for( auto itr : initialStateParameters_ )
         {
             parametersIdentifiers.push_back( itr.second->getParameterName( ) );
         }
@@ -1542,6 +1597,8 @@ void getParametersToEstimatePerArcTest(
                                         currentArcCentralBody,
                                         currentArcInitialStateParameter->getFrameOrientation( ) );
 
+                        arcWiseInitialStateParameter->setCustomPartialSettings(
+                                currentArcInitialStateParameter->getCustomPartialSettings( ) );
                         arcWiseStatesParameters.push_back( arcWiseInitialStateParameter );
 
                         //                        arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );

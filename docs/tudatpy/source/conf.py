@@ -20,7 +20,12 @@
 import os
 import sys
 import importlib
+import re
 from datetime import datetime
+
+from sphinx.util import logging as sphinx_logging
+
+LOGGER = sphinx_logging.getLogger(__name__)
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -71,6 +76,7 @@ def filter_mcd_docs(app, docname, source):
     )
     source[0] = text
 
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -95,7 +101,7 @@ extensions = [
     "sphinx_copybutton",
     # 'breathe',
     # 'exhale'
-    "sphinxcontrib.bibtex"
+    "sphinxcontrib.bibtex",
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
@@ -105,7 +111,6 @@ autodoc_member_order = "groupwise"
 
 autodoc_default_options = {
     "show-inheritance": True,
-    "exclude-members": "pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1",
 }
 
 bibtex_bibfiles = ["refs.bib"]
@@ -118,7 +123,7 @@ bibtex_default_style = "plain"
 # }
 
 # custom section to define the size of dependent variables
-napoleon_custom_sections = [('Variable Size', 'params_style')]
+napoleon_custom_sections = [("Variable Size", "params_style")]
 # to not skip __init__
 # def skip(app, what, name, obj, would_skip, options):
 #     if name == "__init__":
@@ -140,10 +145,6 @@ def process_constants_docstring(app, what, name, obj, options, lines):
     The function applies only to the modules specified in the modules_to_process list.
     """
 
-    if is_internal_pybind_record(name, obj):
-        lines[:] = ["Pybind11 overload helper record."]
-        return
-
     modules_to_process = ("tudatpy.constants",)
 
     attribute_module = name.rsplit(".", 1)[0]
@@ -153,8 +154,173 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         lines.clear()
         # retrieve variable type directly from the object
         lines.append(f":type: {type(obj).__name__}")
-        
-import re
+
+
+NUMPY_DOCSTRING_SECTION_TITLES = {
+    "Parameters",
+    "Returns",
+    "Yields",
+    "Raises",
+    "Warns",
+    "Warnings",
+    "Examples",
+    "Notes",
+    "See Also",
+    "Attributes",
+    "Methods",
+    "References",
+}
+
+
+def _leading_whitespace_width(text: str) -> int:
+    """Return indentation width of a line in spaces."""
+    return len(text) - len(text.lstrip())
+
+
+def _is_dash_underline(text: str) -> bool:
+    """Return whether a line is a non-empty dash-only underline."""
+    stripped = text.strip()
+    return bool(stripped) and set(stripped) == {"-"}
+
+
+def _is_numpy_section_header(lines, index: int) -> bool:
+    """Check whether lines[index:index+2] form a NumPy-style section header.
+
+    The section header consists of a title line (with text in NUMPY_DOCSTRING_SECTION_TITLES) followed by an underline line of dashes.
+    The title and underline must have the same indentation, and the underline must be at least as
+    long as the title.
+    """
+
+    if index + 1 >= len(lines):
+        return False
+
+    title_line = lines[index]
+    underline_line = lines[index + 1]
+    title = title_line.strip()
+
+    if title not in NUMPY_DOCSTRING_SECTION_TITLES:
+        return False
+
+    if not _is_dash_underline(underline_line):
+        return False
+
+    if _leading_whitespace_width(title_line) != _leading_whitespace_width(underline_line):
+        return False
+
+    if len(underline_line.strip()) < len(title):
+        return False
+
+    return True
+
+
+def _is_overloaded_pybind_docstring(lines) -> bool:
+    """Detect pybind-generated overloaded-function docstrings."""
+    return any(line.strip() == "Overloaded function." for line in lines[:3])
+
+
+def _rewrite_overloaded_list_items(lines):
+    """Rewrite numbered overload entries into labeled code-style signatures.
+
+    This function detects lines of the form "   1. signature" in pybind-generated docstrings for overloaded functions and rewrites them into a more Sphinx-friendly format:
+         Overload 1:
+         ``signature``
+    This allows Sphinx to correctly parse the signatures and display them in the documentation, rather than treating them as plain text list items.
+    """
+
+    OVERLOAD_LIST_ITEM_PATTERN = re.compile(r"^(\s*)(\d+)\.\s+(.*)$")
+
+    rewritten_lines = []
+    for line in lines:
+        match = OVERLOAD_LIST_ITEM_PATTERN.match(line)
+        if match is None:
+            rewritten_lines.append(line)
+            continue
+
+        indent, index, signature = match.groups()
+        rewritten_lines.append(f"{indent}Overload {index}:")
+        rewritten_lines.append(f"{indent}``{signature}``")
+
+    return rewritten_lines
+
+
+def _dedent_to_numpy_headers(lines):
+    """Dedent all docstring lines to the minimum NumPy-section header indent.
+
+    This function detects all NumPy-style section headers in the docstring and computes the minimum indentation among them. It then dedents all lines by that amount, ensuring that section headers are flush with the left margin and that relative indentation within sections is preserved.
+    """
+
+    header_indents = []
+
+    for i in range(len(lines) - 1):
+        title = lines[i].strip()
+        underline = lines[i + 1]
+
+        if (
+            title in NUMPY_DOCSTRING_SECTION_TITLES
+            and _is_dash_underline(underline)
+            and len(underline.strip()) >= len(title)
+        ):
+            header_indents.append(_leading_whitespace_width(lines[i]))
+
+    if not header_indents:
+        return lines
+
+    base_indent = min(header_indents)
+
+    return [
+        line[base_indent:] if _leading_whitespace_width(line) >= base_indent else line
+        for line in lines
+    ]
+
+
+def fix_docstring_section_title_spacing(app, what, name, obj, options, lines):
+    """Fix docstring section title spacing for Sphinx parsing.
+
+    This function processes docstrings to ensure that NumPy-style section headers are correctly recognized by Sphinx. It detects section headers, ensures they are flush with the left margin, and that they are followed by an empty line if needed. This allows Sphinx to properly parse the sections and display them in the documentation.
+    This fixes `CRITICAL: Unexpected section title.` errors in the Sphinx build.
+    """
+
+    if not lines:
+        return
+
+    try:
+        working_lines = list(lines)
+
+        if _is_overloaded_pybind_docstring(working_lines):
+            working_lines = _rewrite_overloaded_list_items(working_lines)
+
+        working_lines = _dedent_to_numpy_headers(working_lines)
+
+        normalized_lines = []
+        i = 0
+
+        while i < len(working_lines):
+            if _is_numpy_section_header(working_lines, i):
+                normalized_lines.append(working_lines[i])
+                normalized_lines.append(working_lines[i + 1])
+
+                has_content_line = (i + 2) < len(working_lines)
+                missing_empty_line = has_content_line and working_lines[i + 2].strip() != ""
+                if missing_empty_line:
+                    empty_line = " " * _leading_whitespace_width(working_lines[i])
+                    normalized_lines.append(empty_line)
+
+                i += 2
+                continue
+
+            normalized_lines.append(working_lines[i])
+            i += 1
+
+        lines[:] = normalized_lines
+
+    except Exception as exc:
+
+        LOGGER.warning(
+            f"Docstring preprocessing failed for {{{name}}} ({what}): {exc}. Leaving original docstring unchanged.",
+            exc_info=True,
+        )
+        return
+
 
 def replace_annotated_nparrays(text: str) -> str:
     """
@@ -199,21 +365,7 @@ def replace_annotated_nparrays(text: str) -> str:
     return text
 
 
-def is_internal_pybind_record(name, obj):
-    """Detect pybind overload helper records exposed to Python."""
-    marker = "pybind11_detail_function_record"
-    if marker in name:
-        return True
-
-    for attr in ("__qualname__", "__name__", "__module__"):
-        value = getattr(obj, attr, "")
-        if isinstance(value, str) and marker in value:
-            return True
-
-    return False
-
 def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
-
 
     # map complex type hints to simpler representations
     type_replacements = {
@@ -244,18 +396,14 @@ def simplify_signature_types(app, what, name, obj, options, signature, return_an
     return signature, return_annotation
 
 
-def skip_internal_pybind_members(app, what, name, obj, would_skip, options):
-    """Suppress pybind-internal helper records from autodoc output."""
-    if is_internal_pybind_record(name, obj):
-        return True
-    return would_skip
-    
 def setup(app):
-    app.connect('autodoc-process-docstring', process_constants_docstring)
+    app.connect("autodoc-process-docstring", process_constants_docstring)
+    # run before default-priority (500) docstring processors
+    app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
-    app.connect("autodoc-skip-member", skip_internal_pybind_members)
     app.connect("source-read", filter_mcd_docs)
-    
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -403,4 +551,5 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
 }

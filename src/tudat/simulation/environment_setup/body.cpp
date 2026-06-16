@@ -39,6 +39,7 @@ Body::Body( const Eigen::Vector6d& state ):
 {
     currentLongState_ = currentState_.cast< long double >( );
     isStateSet_ = false;
+    isCustomStateSet_ = false;
     isRotationSet_ = false;
 }
 
@@ -61,10 +62,25 @@ Eigen::Vector6d Body::getState( )
     return currentState_;
 }
 
+Eigen::VectorXd Body::getCustomState( )
+{
+    if( !isCustomStateSet_ )
+    {
+        throw exceptions::BodyDuringPropagationError( bodyName_, "custom state" );
+    }
+    return currentCustomState_;
+}
+
 void Body::setState( const Eigen::Vector6d& state )
 {
     currentState_ = state;
     isStateSet_ = true;
+}
+
+void Body::setCustomState( const Eigen::VectorXd& customState )
+{
+    currentCustomState_ = customState;
+    isCustomStateSet_ = true;
 }
 
 void Body::setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
@@ -77,7 +93,8 @@ void Body::setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
 Eigen::Vector7d Body::getRotationalStateVector( )
 {
     Eigen::Vector7d rotationalStateVector;
-    rotationalStateVector.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
+    rotationalStateVector.segment( 0, 4 ) =
+            linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
     rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
     return rotationalStateVector;
 }
@@ -718,6 +735,7 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
     if( !isBodyInPropagation )
     {
         isStateSet_ = false;
+        isCustomStateSet_ = false;
         isRotationSet_ = false;
     }
 }
@@ -740,7 +758,7 @@ std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( auto bodyIterator: bodies.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
@@ -767,7 +785,7 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 {
     // Get ephemerides from bodies
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
-    for( auto bodyIterator: bodies )
+    for( auto bodyIterator : bodies )
     {
         if( bodyIterator.second->getEphemeris( ) != nullptr )
         {
@@ -780,7 +798,7 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 //! Function to set whether the bodies are currently being propagated, or not
 void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator: bodies.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }

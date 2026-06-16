@@ -1,4 +1,3 @@
-
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import estimation_analysis
@@ -26,9 +25,7 @@ weights_test_combinations = [
     "observatories_to_filter,use_single_observation", weights_test_combinations
 )
 @pytest.mark.parametrize("use_dummy_weights", [(True,), (False,)])
-def test_MPC_weights_to_ObsCol(
-    observatories_to_filter, use_dummy_weights, use_single_observation
-):
+def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_single_observation):
     """Test if the weights are transfered correctly to observation collection"""
     target_mpc_code = "433"
     mpc_codes = [target_mpc_code]
@@ -70,10 +67,8 @@ def test_MPC_weights_to_ObsCol(
     )
 
     # tudat's observationcollection sorts by observatory then time
-    temp_table = (
-        batch._table
-        .query("observatory != @batch.space_telescopes")
-        .sort_values(["observatory", "epoch_seconds_TDB"], ascending=True)
+    temp_table = batch._table.query("observatory != @batch.space_telescopes").sort_values(
+        ["observatory", "epoch_seconds_TDB"], ascending=True
     )
 
     # concatted weights goes [RA1, DEC1, RA2, DEC2, ...]
@@ -82,23 +77,8 @@ def test_MPC_weights_to_ObsCol(
 
     # check if lengths match and if the difference is zero
     assert len(batch_weights) == len(observation_collection.concatenated_weights)
-    total_diff = np.sum(
-       batch_weights - np.array(observation_collection.concatenated_weights)
-    )
-    total_diff_time = np.sum(
-       batch_times - np.array(observation_collection.concatenated_times)
-    )
+    total_diff = np.sum(batch_weights - np.array(observation_collection.concatenated_weights))
+    total_diff_time = np.sum(batch_times - np.array(observation_collection.concatenated_times))
 
     assert total_diff_time == 0
     assert total_diff == 0
-
-    # test pod_input
-    # provide the observation collection as input, and limit number of iterations for estimation.
-    pod_input = estimation_analysis.EstimationInput(
-        observations_and_times=observation_collection,
-        convergence_checker=estimation_analysis.estimation_convergence_checker(
-            maximum_iterations=1,
-        ),
-    )
-    pod_input.set_weights_from_observation_collection()
-

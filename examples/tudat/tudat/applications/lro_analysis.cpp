@@ -69,7 +69,7 @@ void analyzeIrradianceAtLRO( )
 
     auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime( simulationStart );
 
-    for( auto& radiosityModel:
+    for( auto& radiosityModel :
          std::vector< std::shared_ptr< PanelRadiosityModelSettings > >{ albedoPanelRadiosityModelSettings( 0.12 ),
                                                                         angleBasedThermalPanelRadiosityModelSettings( 100, 375, 0.95 ),
                                                                         delayedThermalPanelRadiosityModelSettings( 0.95 ) } )
@@ -118,13 +118,14 @@ void analyzeVariationOfIrradianceWithSubsolarAngle( )
 
     // Create planets
     auto bodySettings = getDefaultBodySettings( { "Sun", "Earth", "Moon" }, globalFrameOrigin, globalFrameOrientation );
-    bodySettings.at( "Moon" )->radiationSourceModelSettings = extendedRadiationSourceModelSettings(
-            "Sun",
-            {
-                    albedoPanelRadiosityModelSettings( 0.12 ), angleBasedThermalPanelRadiosityModelSettings( 100, 375, 0.95 ),
-                    //                delayedThermalPanelRadiosityModelSettings(0.95)
-            },
-            { 6, 12, 18, 24, 30, 36 } );
+    bodySettings.at( "Moon" )->radiationSourceModelSettings =
+            extendedRadiationSourceModelSettings( "Sun",
+                                                  {
+                                                          albedoPanelRadiosityModelSettings( 0.12 ),
+                                                          angleBasedThermalPanelRadiosityModelSettings( 100, 375, 0.95 ),
+                                                          //                delayedThermalPanelRadiosityModelSettings(0.95)
+                                                  },
+                                                  { 6, 12, 18, 24, 30, 36 } );
 
     auto bodies = createSystemOfBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
@@ -175,7 +176,7 @@ void loadLROSpiceKernels( )
     loadSpiceKernelInTudat( path + "/sclk/lro_clkcor_2022075_v00.tsc" );
 
     // LRO ephemeris
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bsp" )
         {
@@ -184,7 +185,7 @@ void loadLROSpiceKernels( )
     }
 
     // LRO orientation
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/ck" ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/ck" ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bc" )
         {

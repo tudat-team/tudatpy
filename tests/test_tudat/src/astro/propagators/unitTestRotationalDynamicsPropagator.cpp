@@ -220,17 +220,16 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
 
         const double scaledMeanMomentOfInertia = 0.35;
 
-        addGravityFieldModel(
-                bodies,
-                bodyName,
-                std::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                        gravitationalParameter,
-                        referenceRadius,
-                        cosineCoefficients,
-                        sineCoefficients,
-                        bodies.at( bodyName )->getRotationalEphemeris( )->getTargetFrameOrientation( ),
-                        scaledMeanMomentOfInertia ),
-                std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
+        addGravityFieldModel( bodies,
+                              bodyName,
+                              std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                                      gravitationalParameter,
+                                      referenceRadius,
+                                      cosineCoefficients,
+                                      sineCoefficients,
+                                      bodies.at( bodyName )->getRotationalEphemeris( )->getTargetFrameOrientation( ),
+                                      scaledMeanMomentOfInertia ),
+                              std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
     }
 
     return bodies;
@@ -1139,7 +1138,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     double normalization21 = calculateLegendreGeodesyNormalizationFactor( 2, 1 );
     double normalization22 = calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         Eigen::Matrix3d inertiaTensor = getMatrixFromVectorRotationRepresentation( it.second.segment( 0, 9 ) );
         Eigen::Vector3d secondDegreeTorque = it.second.segment( 9, 3 );
@@ -1227,10 +1226,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                 getInitialRotationalStatesOfBodies< double, double >( bodiesToIntegrate, baseOrientations, bodies, initialEpoch );
 
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-        dependentVariablesList.push_back( std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-                torqueModelTypes.at( modelCase ), "Io", "Jupiter", false ) );
-        dependentVariablesList.push_back( std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-                torqueModelTypes.at( modelCase ), "Jupiter", "Io", false ) );
+        dependentVariablesList.push_back(
+                std::make_shared< SingleTorqueDependentVariableSaveSettings >( torqueModelTypes.at( modelCase ), "Io", "Jupiter", false ) );
+        dependentVariablesList.push_back(
+                std::make_shared< SingleTorqueDependentVariableSaveSettings >( torqueModelTypes.at( modelCase ), "Jupiter", "Io", false ) );
 
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
                 std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEpoch, integrationStep );
@@ -1261,9 +1260,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
     const Eigen::VectorXd& fourthDegreeInitialState = initialStates.at( 0 );
 
     // Ensure propagated rotational state of Io is non-trivial over the arc.
-    BOOST_CHECK_GT(
-            ( fourthDegreeStateHistory.rbegin( )->second.segment( 4, 3 ) - fourthDegreeInitialState.segment( 4, 3 ) ).norm( ),
-            1.0E-18 );
+    BOOST_CHECK_GT( ( fourthDegreeStateHistory.rbegin( )->second.segment( 4, 3 ) - fourthDegreeInitialState.segment( 4, 3 ) ).norm( ),
+                    1.0E-18 );
 
     BOOST_REQUIRE_EQUAL( fourthDegreeStateHistory.size( ), fullTwoBodyStateHistory.size( ) );
     BOOST_REQUIRE_EQUAL( fourthDegreeDependentVariableHistory.size( ), fullTwoBodyDependentVariableHistory.size( ) );
@@ -1278,14 +1276,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
     double maximumJupiterTorqueNormRelativeDifference = 0.0;
     double maximumIoTorqueNormAbsoluteDifference = 0.0;
     double maximumJupiterTorqueNormAbsoluteDifference = 0.0;
-    for( auto fourthDegreeStateIterator = fourthDegreeStateHistory.begin( );
-         fourthDegreeStateIterator != fourthDegreeStateHistory.end( );
+    for( auto fourthDegreeStateIterator = fourthDegreeStateHistory.begin( ); fourthDegreeStateIterator != fourthDegreeStateHistory.end( );
          ++fourthDegreeStateIterator, ++fullTwoBodyStateIterator, ++fullTwoBodyDependentVariableIterator )
     {
         BOOST_CHECK_SMALL( fourthDegreeStateIterator->first - fullTwoBodyStateIterator->first, 1.0E-15 );
-        BOOST_CHECK_SMALL(
-                fourthDegreeStateIterator->first - fullTwoBodyDependentVariableIterator->first,
-                1.0E-15 );
+        BOOST_CHECK_SMALL( fourthDegreeStateIterator->first - fullTwoBodyDependentVariableIterator->first, 1.0E-15 );
 
         for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
         {
@@ -1303,10 +1298,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                 fullTwoBodyQuaternion.coeffs( ) *= -1.0;
             }
 
-            const double rotationDifference =
-                    Eigen::AngleAxisd( fourthDegreeQuaternion * fullTwoBodyQuaternion.inverse( ) ).angle( );
-            const Eigen::Vector3d angularVelocityDifference =
-                    fourthDegreeStateIterator->second.segment( stateStartIndex + 4, 3 ) -
+            const double rotationDifference = Eigen::AngleAxisd( fourthDegreeQuaternion * fullTwoBodyQuaternion.inverse( ) ).angle( );
+            const Eigen::Vector3d angularVelocityDifference = fourthDegreeStateIterator->second.segment( stateStartIndex + 4, 3 ) -
                     fullTwoBodyStateIterator->second.segment( stateStartIndex + 4, 3 );
             const double angularVelocityScale =
                     std::max( std::max( fourthDegreeStateIterator->second.segment( stateStartIndex + 4, 3 ).norm( ),
@@ -1332,31 +1325,26 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
         std::cout << "Time: " << fourthDegreeStateIterator->first << std::endl;
         std::cout << "Io fourth-degree torque: " << fourthDegreeIoTorque.transpose( ) << std::endl;
         std::cout << "Io full-two-body torque: " << fullTwoBodyIoTorque.transpose( ) << std::endl;
-        std::cout << "Io torque difference: " << ioTorqueDifference.transpose( )
-                  << " |norm|=" << ioTorqueDifference.norm( ) << std::endl;
+        std::cout << "Io torque difference: " << ioTorqueDifference.transpose( ) << " |norm|=" << ioTorqueDifference.norm( ) << std::endl;
         std::cout << "Jupiter fourth-degree torque: " << fourthDegreeJupiterTorque.transpose( ) << std::endl;
         std::cout << "Jupiter full-two-body torque: " << fullTwoBodyJupiterTorque.transpose( ) << std::endl;
-        std::cout << "Jupiter torque difference: " << jupiterTorqueDifference.transpose( )
-                  << " |norm|=" << jupiterTorqueDifference.norm( ) << std::endl;
+        std::cout << "Jupiter torque difference: " << jupiterTorqueDifference.transpose( ) << " |norm|=" << jupiterTorqueDifference.norm( )
+                  << std::endl;
 
-        const double ioTorqueScale =
-                std::max( std::max( fourthDegreeIoTorque.norm( ), fullTwoBodyIoTorque.norm( ) ), std::numeric_limits< double >::epsilon( ) );
-        const double jupiterTorqueScale =
-                std::max( std::max( fourthDegreeJupiterTorque.norm( ), fullTwoBodyJupiterTorque.norm( ) ),
-                          std::numeric_limits< double >::epsilon( ) );
+        const double ioTorqueScale = std::max( std::max( fourthDegreeIoTorque.norm( ), fullTwoBodyIoTorque.norm( ) ),
+                                               std::numeric_limits< double >::epsilon( ) );
+        const double jupiterTorqueScale = std::max( std::max( fourthDegreeJupiterTorque.norm( ), fullTwoBodyJupiterTorque.norm( ) ),
+                                                    std::numeric_limits< double >::epsilon( ) );
 
-        maximumIoTorqueNormRelativeDifference = std::max(
-                maximumIoTorqueNormRelativeDifference,
-                std::fabs( fourthDegreeIoTorque.norm( ) - fullTwoBodyIoTorque.norm( ) ) / ioTorqueScale );
-        maximumJupiterTorqueNormRelativeDifference = std::max(
-                maximumJupiterTorqueNormRelativeDifference,
-                std::fabs( fourthDegreeJupiterTorque.norm( ) - fullTwoBodyJupiterTorque.norm( ) ) / jupiterTorqueScale );
-        maximumIoTorqueNormAbsoluteDifference = std::max(
-                maximumIoTorqueNormAbsoluteDifference,
-                ioTorqueDifference.norm( ) );
-        maximumJupiterTorqueNormAbsoluteDifference = std::max(
-                maximumJupiterTorqueNormAbsoluteDifference,
-                jupiterTorqueDifference.norm( ) );
+        maximumIoTorqueNormRelativeDifference =
+                std::max( maximumIoTorqueNormRelativeDifference,
+                          std::fabs( fourthDegreeIoTorque.norm( ) - fullTwoBodyIoTorque.norm( ) ) / ioTorqueScale );
+        maximumJupiterTorqueNormRelativeDifference =
+                std::max( maximumJupiterTorqueNormRelativeDifference,
+                          std::fabs( fourthDegreeJupiterTorque.norm( ) - fullTwoBodyJupiterTorque.norm( ) ) / jupiterTorqueScale );
+        maximumIoTorqueNormAbsoluteDifference = std::max( maximumIoTorqueNormAbsoluteDifference, ioTorqueDifference.norm( ) );
+        maximumJupiterTorqueNormAbsoluteDifference =
+                std::max( maximumJupiterTorqueNormAbsoluteDifference, jupiterTorqueDifference.norm( ) );
     }
 
     std::cout << "Maximum rotation difference: " << maximumRotationDifference << std::endl;
@@ -1368,12 +1356,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
     std::cout << "Maximum Jupiter torque-norm absolute difference: " << maximumJupiterTorqueNormAbsoluteDifference << std::endl;
 
     BOOST_CHECK_SMALL( maximumRotationDifference, rotationalStateTolerance );
-    BOOST_CHECK_SMALL( maximumAngularVelocityAbsoluteDifference,
-                       angularVelocityAbsoluteTolerance + angularVelocityRelativeTolerance );
-    BOOST_CHECK_SMALL( maximumIoTorqueNormAbsoluteDifference,
-                       absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
-    BOOST_CHECK_SMALL( maximumJupiterTorqueNormAbsoluteDifference,
-                       absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
+    BOOST_CHECK_SMALL( maximumAngularVelocityAbsoluteDifference, angularVelocityAbsoluteTolerance + angularVelocityRelativeTolerance );
+    BOOST_CHECK_SMALL( maximumIoTorqueNormAbsoluteDifference, absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
+    BOOST_CHECK_SMALL( maximumJupiterTorqueNormAbsoluteDifference, absoluteTorqueNormTolerance + relativeTorqueNormTolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

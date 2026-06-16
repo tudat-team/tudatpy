@@ -38,13 +38,13 @@ public:
     /*!
      * Default constructor.
      */
-    BaseFunctionSphericalShaping( ) { }
+    BaseFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~BaseFunctionSphericalShaping( ) { }
+    virtual ~BaseFunctionSphericalShaping( ) {}
 
     virtual double evaluateFunction( const double independentVariable ) = 0;
 
@@ -66,13 +66,13 @@ public:
     /*!
      * Default constructor.
      */
-    ConstantFunctionSphericalShaping( ) { }
+    ConstantFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ConstantFunctionSphericalShaping( ) { }
+    ~ConstantFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -106,13 +106,13 @@ public:
     /*!
      * Default constructor.
      */
-    LinearFunctionSphericalShaping( ) { }
+    LinearFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~LinearFunctionSphericalShaping( ) { }
+    ~LinearFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -146,13 +146,13 @@ public:
     /*!
      * Default constructor.
      */
-    SquaredFunctionSphericalShaping( ) { }
+    SquaredFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SquaredFunctionSphericalShaping( ) { }
+    ~SquaredFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -186,13 +186,13 @@ public:
     /*!
      * Default constructor.
      */
-    CosineFunctionSphericalShaping( ) { }
+    CosineFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CosineFunctionSphericalShaping( ) { }
+    ~CosineFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -226,13 +226,13 @@ public:
     /*!
      * Default constructor.
      */
-    PowerCosineFunctionSphericalShaping( ) { }
+    PowerCosineFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~PowerCosineFunctionSphericalShaping( ) { }
+    ~PowerCosineFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -266,13 +266,13 @@ public:
     /*!
      * Default constructor.
      */
-    SineFunctionSphericalShaping( ) { }
+    SineFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SineFunctionSphericalShaping( ) { }
+    ~SineFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {
@@ -306,13 +306,13 @@ public:
     /*!
      * Default constructor.
      */
-    PowerSineFunctionSphericalShaping( ) { }
+    PowerSineFunctionSphericalShaping( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~PowerSineFunctionSphericalShaping( ) { }
+    ~PowerSineFunctionSphericalShaping( ) {}
 
     double evaluateFunction( const double independentVariable )
     {

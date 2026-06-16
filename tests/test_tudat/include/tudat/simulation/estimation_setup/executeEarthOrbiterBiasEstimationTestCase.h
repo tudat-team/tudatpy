@@ -448,6 +448,27 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
 
     printEstimatableParameterEntries( parametersToEstimate );
 
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > deferredBiasValuesToApply =
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 );
+    {
+        // Set bias entries before closure; these values should be deferred and then applied during closure.
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > preClosureParameterValues =
+                parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+        if( preClosureParameterValues.rows( ) <= 6 )
+        {
+            throw std::runtime_error( "Error when testing deferred bias reset: no bias parameters found in test case." );
+        }
+
+        deferredBiasValuesToApply = preClosureParameterValues.segment( 6, preClosureParameterValues.rows( ) - 6 );
+        for( int i = 0; i < deferredBiasValuesToApply.rows( ); i++ )
+        {
+            deferredBiasValuesToApply( i ) = static_cast< StateScalarType >( 1.0E-8 * static_cast< double >( i + 1 ) );
+        }
+
+        preClosureParameterValues.segment( 6, deferredBiasValuesToApply.rows( ) ) = deferredBiasValuesToApply;
+        parametersToEstimate->resetParameterValues( preClosureParameterValues );
+    }
+
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( );
@@ -534,6 +555,22 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+
+    {
+        // Verify that pre-closure parameter assignments were transferred to linked bias models.
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > postClosureParameterValues =
+                parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentBiasValues =
+                postClosureParameterValues.segment( 6, deferredBiasValuesToApply.rows( ) );
+
+        const double maximumDifference =
+                ( currentBiasValues.template cast< double >( ) - deferredBiasValuesToApply.template cast< double >( ) )
+                        .template lpNorm< Eigen::Infinity >( );
+        if( !( maximumDifference < 1.0E-14 ) )
+        {
+            throw std::runtime_error( "Error when testing deferred bias reset: pre-closure values were not applied after closure." );
+        }
+    }
 
     std::vector< TimeType > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 600.0;

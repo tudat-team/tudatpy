@@ -22,7 +22,7 @@ namespace astro
 namespace polyhedron_utilities
 {
 
-void expose_polyhedron_utilities( py::module &m );
+void expose_polyhedron_utilities( py::module& m );
 
 }  // namespace polyhedron_utilities
 }  // namespace astro

@@ -44,7 +44,7 @@ public:
     }
 
     //! Destructor.
-    ~DesaturationDeltaV( ) { }
+    ~DesaturationDeltaV( ) {}
 
     //! Get deltaV values for each momentum wheel desaturation maneuver.
     /*!

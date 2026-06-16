@@ -29,6 +29,7 @@
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/system_models/rtgAccelerationModel.h"
 
 #include <stdexcept>
@@ -113,7 +114,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case rtg_acceleration:
             accelerationName = "rtg anisotropic radiation acceleration";
-        break;
+            break;
+        case relativistic_acceleration_from_metric:
+            accelerationName = "direct relativistic acceleration from metric";
+            break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
@@ -153,8 +157,8 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
-                     accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) !=
+             nullptr )
     {
         accelerationType = third_body_full_two_body_spherical_harmonic_gravity;
     }
@@ -201,6 +205,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) != nullptr )
     {
         accelerationType = relativistic_correction_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< relativity::DirectRelativisticAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = relativistic_acceleration_from_metric;
     }
     else if( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != nullptr )
     {
@@ -275,6 +283,7 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case einstein_infeld_hoffmann_acceleration:
         case yarkovsky_acceleration:
         case rtg_acceleration:
+        case relativistic_acceleration_from_metric:
             return false;
         case aerodynamic:
         case cannon_ball_radiation_pressure:
@@ -341,9 +350,8 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
 {
     bool accelerationIsDirectGravity = 0;
     if( accelerationType == point_mass_gravity || accelerationType == spherical_harmonic_gravity ||
-        accelerationType == mutual_spherical_harmonic_gravity ||
-        accelerationType == full_two_body_spherical_harmonic_gravity || accelerationType == polyhedron_gravity ||
-        accelerationType == ring_gravity )
+        accelerationType == mutual_spherical_harmonic_gravity || accelerationType == full_two_body_spherical_harmonic_gravity ||
+        accelerationType == polyhedron_gravity || accelerationType == ring_gravity )
     {
         accelerationIsDirectGravity = 1;
     }
@@ -357,8 +365,8 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
     bool accelerationIsFromThirdBody = false;
     if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
         accelerationType == third_body_mutual_spherical_harmonic_gravity ||
-        accelerationType == third_body_full_two_body_spherical_harmonic_gravity ||
-        accelerationType == third_body_polyhedron_gravity || accelerationType == third_body_ring_gravity )
+        accelerationType == third_body_full_two_body_spherical_harmonic_gravity || accelerationType == third_body_polyhedron_gravity ||
+        accelerationType == third_body_ring_gravity )
     {
         accelerationIsFromThirdBody = true;
     }

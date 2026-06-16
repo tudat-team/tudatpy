@@ -68,6 +68,12 @@ Functions
 
    non_sequential_termination
 
+   first_order_bodycentric_relativistic_time_settings
+
+   bodycentered_to_topocentric_time_settings
+
+   direct_relativistic_time_settings
+
    add_dependent_variable_settings
 
 
@@ -99,6 +105,12 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.hybrid_termination
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.non_sequential_termination
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.add_dependent_variable_settings
 
@@ -158,6 +170,14 @@ Classes
 
    MultiTypePropagatorSettings
 
+   RelativisticTimePropagatorSettings
+
+   FirstOrderBodycentricRelativisticTimePropagatorSettings
+
+   BodycenteredToTopocentricTimePropagatorSettings
+
+   DirectRelativisticTimePropagatorSettings
+
    PropagationTerminationSettings
 
    PropagationDependentVariableTerminationSettings
@@ -203,6 +223,18 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.MultiTypePropagatorSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.RelativisticTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.FirstOrderBodycentricRelativisticTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.BodycenteredToTopocentricTimePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.DirectRelativisticTimePropagatorSettings
+   :members:
+
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings
    :members:
 
@@ -235,4 +267,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.HybridArcPropagatorProcessingSettings
    :members:
-

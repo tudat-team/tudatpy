@@ -52,7 +52,7 @@ public:
     {
         std::map< int, Eigen::MatrixXd > cosineVariations = polynomialVariationModel->getCosineAmplitudes( );
         int cosineIndexCounter = 0;
-        for( auto it: cosineBlockIndicesPerPower )
+        for( auto it : cosineBlockIndicesPerPower )
         {
             if( cosineVariations.count( it.first ) == 0 )
             {
@@ -89,7 +89,7 @@ public:
 
         std::map< int, Eigen::MatrixXd > sineVariations = polynomialVariationModel->getSineAmplitudes( );
         int sineIndexCounter = 0;
-        for( auto it: sineBlockIndicesPerPower )
+        for( auto it : sineBlockIndicesPerPower )
         {
             if( sineVariations.count( it.first ) == 0 )
             {
@@ -126,7 +126,7 @@ public:
     }
 
     //! Virtual destructor.
-    ~PolynomialGravityFieldVariationsParameters( ) { }
+    ~PolynomialGravityFieldVariationsParameters( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!
@@ -243,7 +243,7 @@ public:
     {
         std::vector< Eigen::MatrixXd > cosineVariations = periodicVariationModel->getCosineShAmplitudesCosineTime( );
         int cosineIndexCounter = 0;
-        for( auto it: cosineBlockIndicesPerPeriod )
+        for( auto it : cosineBlockIndicesPerPeriod )
         {
             if( static_cast< int >( cosineVariations.size( ) ) < it.first )
             {
@@ -279,7 +279,7 @@ public:
 
         std::vector< Eigen::MatrixXd > sineVariations = periodicVariationModel->getSineShAmplitudesCosineTime( );
         int sineIndexCounter = 0;
-        for( auto it: sineBlockIndicesPerPeriod )
+        for( auto it : sineBlockIndicesPerPeriod )
         {
             if( static_cast< int >( sineVariations.size( ) ) < it.first )
             {
@@ -315,7 +315,7 @@ public:
     }
 
     //! Virtual destructor.
-    ~PeriodicGravityFieldVariationsParameters( ) { }
+    ~PeriodicGravityFieldVariationsParameters( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!

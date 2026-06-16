@@ -64,7 +64,8 @@ enum AvailableAcceleration {
     custom_acceleration,
     einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration,
-    rtg_acceleration
+    rtg_acceleration,
+    relativistic_acceleration_from_metric
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type
@@ -94,8 +95,6 @@ AvailableAcceleration getAccelerationModelType(
         const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel );
 
 bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType );
-
-
 
 // Function to identify the type of a mass rate model.
 /*

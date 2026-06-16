@@ -35,7 +35,7 @@ std::false_type test( ... );
 }  // namespace is_eigen_matrix_detail
 
 template< typename T >
-struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) ){ };
+struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) ){};
 
 // template< typename T,
 //           enable_if_t< is_eigen_matrix< T >::value, int > = 0 >

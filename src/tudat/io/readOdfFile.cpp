@@ -9,6 +9,7 @@
  */
 
 #include "tudat/io/readOdfFile.h"
+#include "tudat/io/readBinaryFile.h"
 
 namespace tudat
 {

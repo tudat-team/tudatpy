@@ -40,7 +40,7 @@ public:
         radiationPressureAcceleration_->getTargetModel( )->enableTorqueComputation( centerOfMassFunction );
     }
 
-    ~IsotropicPointSourceRadiationPressureTorque( ) { }
+    ~IsotropicPointSourceRadiationPressureTorque( ) {}
 
     /*!
      * Update class members.

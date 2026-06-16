@@ -28,7 +28,14 @@ namespace gravitation
 
 Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
 {
-    return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
+    if( cosineCoefficients_.size( ) > 2 && sineCoefficients_.size( ) > 2 )
+    {
+        return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
+    }
+    else
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
 }
 
 //! Compute gravitational acceleration due to single spherical harmonics term.

@@ -66,7 +66,7 @@ void from_json( const nlohmann::json& jsonObject,
             sourceBody = getParentKey( jsonObject );
         }
         catch( ... )
-        { }
+        {}
     }
     if( sourceBody.empty( ) )
     {

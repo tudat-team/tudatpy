@@ -290,7 +290,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
 template< typename ValueType >
 ValueType getAs( const nlohmann::json& jsonObject )
 {
-    return getValue< ValueType >( jsonObject, { } );
+    return getValue< ValueType >( jsonObject, {} );
 }
 
 //! Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
@@ -376,7 +376,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const std::vector< KeyPath
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSON( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = { } )
+void updateFromJSON( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = {} )
 {
     value = getValue< T >( jsonObject, keyPath );
 }
@@ -396,7 +396,7 @@ void updateFromJSON( T& value, const nlohmann::json& jsonObject, const KeyPath& 
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSONIfDefined( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = { } )
+void updateFromJSONIfDefined( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = {} )
 {
     try
     {

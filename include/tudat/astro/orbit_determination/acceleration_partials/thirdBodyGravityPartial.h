@@ -112,7 +112,7 @@ public:
                              getAccelerationTypeOfThirdBodyGravity( partialOfDirectGravityOnBodyUndergoingAcceleration ) ),
         partialOfDirectGravityOnBodyUndergoingAcceleration_( partialOfDirectGravityOnBodyUndergoingAcceleration ),
         partialOfDirectGravityOnCentralBody_( partialOfDirectGravityOnCentralBody ), centralBodyName_( centralBodyName )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -562,11 +562,10 @@ inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial( const std
                     std::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >( accelerationPartial )
                             ->getCentralBodyName( );
         }
-        else if( accelerationPartial->getAccelerationType( ) ==
-                 basic_astrodynamics::third_body_full_two_body_spherical_harmonic_gravity )
+        else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_full_two_body_spherical_harmonic_gravity )
         {
-            centralBody = std::dynamic_pointer_cast<
-                    ThirdBodyGravityPartial< FullTwoBodySphericalHarmonicsGravityPartial > >( accelerationPartial )
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< FullTwoBodySphericalHarmonicsGravityPartial > >(
+                                  accelerationPartial )
                                   ->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_polyhedron_gravity )

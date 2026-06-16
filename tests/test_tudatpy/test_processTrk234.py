@@ -289,9 +289,7 @@ def test_reader():
     dopplerCount = obs_set.ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
-    assert (
-        dopplerCount == 1.0
-    ), f"Expected doppler integration time 1.0, got {dopplerCount}"
+    assert dopplerCount == 1.0, f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
     linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
@@ -313,18 +311,18 @@ def test_reader():
 
     # Check observation times and values.
     obsTimes = obs_set.observation_times
-    
+
     # Check observation times and values.
     obsTimes = obs_set.observation_times
     # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"
-    assert float( obsTimes[0] ) == pytest.approx(
+    assert float(obsTimes[0]) == pytest.approx(
         617245672.6834568
     ), f"Unexpected observation time: {obsTimes[0]}"
     obsValues = obs_set.concatenated_observations
-    assert float( obsValues[0] ) == pytest.approx(
+    assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
 

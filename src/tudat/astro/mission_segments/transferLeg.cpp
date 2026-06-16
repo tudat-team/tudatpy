@@ -13,7 +13,7 @@ TransferLeg::TransferLeg( const std::shared_ptr< ephemerides::Ephemeris > depart
                           const TransferLegTypes legType ):
     departureBodyEphemeris_( departureBodyEphemeris ), arrivalBodyEphemeris_( arrivalBodyEphemeris ), legType_( legType ),
     legParameters_( Eigen::VectorXd::Zero( 0 ) )
-{ }
+{}
 
 void TransferLeg::updateLegParameters( const Eigen::VectorXd legParameters )
 {
@@ -141,7 +141,7 @@ DsmPositionBasedTransferLeg::DsmPositionBasedTransferLeg( const std::shared_ptr<
                                                           const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
                                                           const double centralBodyGravitationalParameter ):
     DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, centralBodyGravitationalParameter )
-{ }
+{}
 
 //! Calculates the Dsm location
 Eigen::Vector3d calculatePositionBasedDsmLocation( const Eigen::Vector6d& departureBodyState,
@@ -237,7 +237,7 @@ DsmVelocityBasedTransferLeg::DsmVelocityBasedTransferLeg( const std::shared_ptr<
                                                           const std::function< Eigen::Vector3d( ) > departureVelocityFunction ):
     DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, centralBodyGravitationalParameter ),
     departureVelocityFunction_( departureVelocityFunction )
-{ }
+{}
 
 void DsmVelocityBasedTransferLeg::computeTransfer( )
 {

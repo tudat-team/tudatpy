@@ -47,7 +47,7 @@ namespace shape_based_methods
 
 //! Test function for a new low-thrust trajectory class in Tudat
 struct FixedTimeHodographicShapingOptimisationProblem {
-    FixedTimeHodographicShapingOptimisationProblem( ) { }
+    FixedTimeHodographicShapingOptimisationProblem( ) {}
 
     FixedTimeHodographicShapingOptimisationProblem(
             const Eigen::Vector6d& initialState,
@@ -64,7 +64,7 @@ struct FixedTimeHodographicShapingOptimisationProblem {
         radialVelocityFunctionComponents_( radialVelocityFunctionComponents ),
         normalVelocityFunctionComponents_( normalVelocityFunctionComponents ),
         axialVelocityFunctionComponents_( axialVelocityFunctionComponents ), problemBounds_( freeCoefficientsBounds )
-    { }
+    {}
 
     // Calculates the fitness
     std::vector< double > fitness( const std::vector< double >& x ) const;
@@ -110,7 +110,7 @@ private:
 struct HodographicShapingOptimisationProblem {
     typedef std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > BaseFunctionVector;
 
-    HodographicShapingOptimisationProblem( ) { }
+    HodographicShapingOptimisationProblem( ) {}
 
     HodographicShapingOptimisationProblem( const std::function< Eigen::Vector6d( const double ) >& initialStateFunction,
                                            const std::function< Eigen::Vector6d( const double ) >& finalStateFunction,
@@ -124,7 +124,7 @@ struct HodographicShapingOptimisationProblem {
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), numberOfRevolutions_( numberOfRevolutions ),
         basisFunctionsFunction_( basisFunctionsFunction ), problemBounds_( freeCoefficientsBounds ),
         minimizeMaximumThrust_( minimizeMaximumThrust ), initialMass_( initialMass )
-    { }
+    {}
 
     // Calculates the fitness
     std::vector< double > fitness( const std::vector< double >& x ) const;

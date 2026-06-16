@@ -92,6 +92,9 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AccelerationSet
             jsonObject[ K::centralBodyAngularMomentum ] = relativisticAccelerationCorrectionSettings->centralBodyAngularMomentum_;
             return;
         }
+        case relativistic_acceleration_from_metric: {
+            return;
+        }
         case empirical_acceleration: {
             std::shared_ptr< EmpiricalAccelerationSettings > empiricalAccelerationSettings =
                     std::dynamic_pointer_cast< EmpiricalAccelerationSettings >( accelerationSettings );
@@ -153,6 +156,10 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationS
                     getValue( jsonObject, K::calculateDeSitterCorrection, defaults.calculateDeSitterCorrection_ ),
                     getValue( jsonObject, K::primaryBody, defaults.primaryBody_ ),
                     getValue( jsonObject, K::centralBodyAngularMomentum, defaults.centralBodyAngularMomentum_ ) );
+            return;
+        }
+        case relativistic_acceleration_from_metric: {
+            accelerationSettings = std::make_shared< AccelerationSettings >( relativistic_acceleration_from_metric );
             return;
         }
         case empirical_acceleration: {

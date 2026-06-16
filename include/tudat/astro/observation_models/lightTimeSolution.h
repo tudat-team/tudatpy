@@ -13,16 +13,19 @@
 
 #include <memory>
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <numeric>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 
 namespace tudat
@@ -239,6 +242,27 @@ private:
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
 };
 
+//! Non-templated base class providing type-erased access to light-time correction data.
+/*!
+ *  Non-templated base class of `LightTimeCalculator`, exposing only the subset of the API that
+ *  does not depend on the `ObservationScalarType` / `TimeType` template parameters. This allows
+ *  callers that do not want to commit to a specific instantiation (e.g. dependent-variable
+ *  plumbing or Python bindings) to hold a pointer to any `LightTimeCalculator` and read its
+ *  per-correction breakdown from the last evaluation.
+ */
+class LightTimeCalculatorBase
+{
+public:
+    virtual ~LightTimeCalculatorBase( ) {}
+
+    //! Returns the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
+    //! Order matches `getLightTimeCorrectionList()`.
+    virtual const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const = 0;
+
+    //! Returns the list of light-time correction objects registered on this calculator.
+    virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
+};
+
 //! Class to calculate the light time between two points.
 /*!
  *  This class calculates the light time between two points, of which the state functions
@@ -247,7 +271,7 @@ private:
  *  light time is taken into account in the calculations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class LightTimeCalculator
+class LightTimeCalculator : public LightTimeCalculatorBase
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
@@ -451,6 +475,7 @@ public:
                         ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
                 currentCorrection_ = 0.0;
+                currentCorrectionComponents_.clear( );
 
                 previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
             }
@@ -494,6 +519,7 @@ public:
             else
             {
                 currentCorrection_ = 0.0;
+                currentCorrectionComponents_.clear( );
             }
 
             // Compute new light time estimate
@@ -669,6 +695,22 @@ public:
         return currentCorrection_;
     }
 
+    //! Function to get the values of the individual light-time corrections that were summed into
+    //! `currentCorrection_` during the last call to `setTotalLightTimeCorrection`. Order matches
+    //! `correctionFunctions_` / `getLightTimeCorrection()`. Stored as `double` to match the
+    //! native return type of `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`
+    //! — the values are computed in `double` regardless of `ObservationScalarType`, so a wider
+    //! cache would not buy precision.
+    const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const override
+    {
+        return currentCorrectionComponents_;
+    }
+
+    std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override
+    {
+        return correctionFunctions_;
+    }
+
     unsigned int getNumberOfIterations( )
     {
         return iterationCounter_;
@@ -734,6 +776,11 @@ protected:
     //! Current light-time correction.
     ObservationScalarType currentCorrection_;
 
+    //! Per-correction values from the last `setTotalLightTimeCorrection` call (same order as
+    //! `correctionFunctions_`). Stored as `double` (the native type returned by
+    //! `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`).
+    std::vector< double > currentCorrectionComponents_;
+
     // Number of iterations until light time convergence
     unsigned int iterationCounter_;
 
@@ -793,11 +840,16 @@ protected:
             linkEndStatesDouble.at( i ) = linkEndStates.at( i ).template cast< double >( );
         }
 
+        // Cache each correction's contribution; they are returned as `double` regardless of
+        // `ObservationScalarType`. The cumulative total is then formed by widening to the
+        // calculator's working precision.
+        currentCorrectionComponents_.resize( correctionFunctions_.size( ) );
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            totalLightTimeCorrections +=
-                    static_cast< ObservationScalarType >( correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
+            const double singleCorrection = correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings );
+            currentCorrectionComponents_[ i ] = singleCorrection;
+            totalLightTimeCorrections += static_cast< ObservationScalarType >( singleCorrection );
         }
         currentCorrection_ = totalLightTimeCorrections;
     }
@@ -819,12 +871,12 @@ private:
 };
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-class MultiLegLightTimeCalculator
+class FullLinkLightTimeCalculator
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
-    MultiLegLightTimeCalculator(
+    FullLinkLightTimeCalculator(
             const std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ),
@@ -833,11 +885,11 @@ public:
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
         iterateMultiLegLightTime_( iterateMultiLegLightTime )
     {
-        initializeMultiLegLightTimeCalculator( );
+        initializeFullLinkLightTimeCalculator( );
     }
 
     // Constructor for a single leg
-    MultiLegLightTimeCalculator( const std::function< StateType( const TimeType ) > ephemerisOfTransmittingBody,
+    FullLinkLightTimeCalculator( const std::function< StateType( const TimeType ) > ephemerisOfTransmittingBody,
                                  const std::function< StateType( const TimeType ) > ephemerisOfReceivingBody,
                                  const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
                                          std::vector< std::shared_ptr< LightTimeCorrection > >( ),
@@ -849,7 +901,7 @@ public:
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
                 ephemerisOfTransmittingBody, ephemerisOfReceivingBody, correctionFunctions, lightTimeConvergenceCriteria ) );
-        initializeMultiLegLightTimeCalculator( );
+        initializeFullLinkLightTimeCalculator( );
     }
 
     void resetLinkEndDelays( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
@@ -909,6 +961,50 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndsStatesOutput,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
+        if( numberOfLinks_ == 1 )
+        {
+            resetLinkEndDelays( ancillarySettings, true );
+
+            bool isTimeAtReception;
+            if( linkEndAssociatedWithTime == receiver )
+            {
+                isTimeAtReception = true;
+            }
+            else if( linkEndAssociatedWithTime == transmitter )
+            {
+                isTimeAtReception = false;
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when computing single-leg light time with FullLinkLightTimeCalculator: reference link end is invalid." );
+            }
+
+            StateType receiverState;
+            StateType transmitterState;
+            TimeType linkEndTime = isTimeAtReception ? time - linkEndsDelays_.at( 1 ) : time + linkEndsDelays_.at( 0 );
+            ObservationScalarType lightTime = getSingleLegLightTimeCalculator( )->calculateLightTimeWithLinkEndsStates(
+                    receiverState, transmitterState, linkEndTime, isTimeAtReception, ancillarySettings );
+            ObservationScalarType totalSignalTime =
+                    lightTime + static_cast< ObservationScalarType >( linkEndsDelays_.at( 0 ) + linkEndsDelays_.at( 1 ) );
+
+            linkEndsTimesOutput.clear( );
+            linkEndsStatesOutput.clear( );
+            if( isTimeAtReception )
+            {
+                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime - lightTime ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
+            }
+            else
+            {
+                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime + lightTime ) );
+            }
+            linkEndsStatesOutput.push_back( transmitterState.template cast< double >( ) );
+            linkEndsStatesOutput.push_back( receiverState.template cast< double >( ) );
+            return totalSignalTime;
+        }
+
         resetLinkEndDelays( ancillarySettings, true );
         setStartLinkIndex( linkEndAssociatedWithTime );
 
@@ -1012,6 +1108,21 @@ public:
         return lightTimeCalculators_;
     }
 
+    bool isSingleLegCalculator( ) const
+    {
+        return numberOfLinks_ == 1;
+    }
+
+    std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getSingleLegLightTimeCalculator(
+            const unsigned int legIndex = 0 ) const
+    {
+        if( legIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( legIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving single-leg light-time calculator: leg index is invalid." );
+        }
+        return lightTimeCalculators_.at( legIndex );
+    }
+
     unsigned int getNumberOfMultiLegIterations( )
     {
         return iterationCounter_;
@@ -1028,7 +1139,7 @@ public:
     }
 
 private:
-    void initializeMultiLegLightTimeCalculator( )
+    void initializeFullLinkLightTimeCalculator( )
     {
         correctionsNeedFrequency_ = false;
         for( unsigned int i = 0; i < lightTimeCalculators_.size( ); i++ )

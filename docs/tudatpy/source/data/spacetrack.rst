@@ -15,18 +15,13 @@ Classes
 .. autosummary::
 
    SpaceTrackQuery
-   SpaceTrackQuery.DownloadTle
-   SpaceTrackQuery.OMMUtils
+   OMMUtils
 
 
 .. autoclass:: tudatpy.data.spacetrack.SpaceTrackQuery
    :members:
    :special-members: __init__
 
-.. autoclass:: tudatpy.data.spacetrack.SpaceTrackQuery.DownloadTle
-   :members:
-   :special-members: __init__
-
-.. autoclass:: tudatpy.data.spacetrack.SpaceTrackQuery.OMMUtils
+.. autoclass:: tudatpy.data.spacetrack.OMMUtils
    :members:
    :special-members: __init__

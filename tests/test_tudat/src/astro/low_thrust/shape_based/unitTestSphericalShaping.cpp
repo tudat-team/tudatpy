@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
-    SphericalShapingLeg *sphericalShapingLegPointer;
+    SphericalShapingLeg* sphericalShapingLegPointer;
     for( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
         if( creationType == 0 )
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
 
         // Loop over computed acceleration values and check peak acceleration
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
-    SphericalShapingLeg *sphericalShapingLegPointer;
+    SphericalShapingLeg* sphericalShapingLegPointer;
     for( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
         if( creationType == 0 )
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
 
         // Loop over computed acceleration values and check peak acceleration
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )

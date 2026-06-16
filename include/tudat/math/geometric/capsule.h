@@ -141,7 +141,7 @@ public:
      * \param capsule Capsule of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator<<( std::ostream &stream, Capsule &capsule );
+    friend std::ostream& operator<<( std::ostream& stream, Capsule& capsule );
 
 protected:
 private:

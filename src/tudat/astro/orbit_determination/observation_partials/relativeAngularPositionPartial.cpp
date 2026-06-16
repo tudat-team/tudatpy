@@ -40,8 +40,10 @@ void RelativeAngularPositionScaling::update( const std::vector< Eigen::Vector6d 
     Eigen::Vector3d normalizedRelativeRangeVectorSecondTransmitter = relativeRangeVectorSecondTransmitter.normalized( );
 
     // Compute common scaling factor
-    scalingFactorFirstTransmitter_ = calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVectorFirstTransmitter, true );
-    scalingFactorSecondTransmitter_ = calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVectorSecondTransmitter, true );
+    scalingFactorFirstTransmitter_ =
+            calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVectorFirstTransmitter, true, false );
+    scalingFactorSecondTransmitter_ =
+            calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVectorSecondTransmitter, true, false );
 
     // Compute scaling for receiver reference
     //    if( fixedLinkEnd == observation_models::receiver )

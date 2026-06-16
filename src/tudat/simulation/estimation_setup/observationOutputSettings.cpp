@@ -112,6 +112,10 @@ std::string getObservationDependentVariableName( const ObservationDependentVaria
             dependentVariableName = "Link-end epochs ";
             break;
         }
+        case light_time_correction_components: {
+            dependentVariableName = "Per-correction light-time correction contributions ";
+            break;
+        }
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " + std::to_string( variableType ) +
                                       " not found when retrieving variable name." );
@@ -161,6 +165,9 @@ bool isObservationDependentVariableVectorial( const ObservationDependentVariable
         case link_end_epochs_dependent_variable:
             isVariableVectorial = true;
             break;
+        case light_time_correction_components:
+            isVariableVectorial = true;
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
@@ -198,6 +205,8 @@ bool isObservationDependentVariableAncillarySetting( const ObservationDependentV
         case link_end_epochs_dependent_variable:
             isAncillarySetting = true;
             break;
+        case light_time_correction_components:
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
@@ -233,6 +242,8 @@ bool isObservationDependentVariableGroundStationProperty( const ObservationDepen
         case retransmission_delays_dependent_variable:
             break;
         case link_end_epochs_dependent_variable:
+            break;
+        case light_time_correction_components:
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -273,6 +284,9 @@ bool isObservationDependentVariableInterlinkProperty( const ObservationDependent
             break;
         case link_end_epochs_dependent_variable:
             break;
+        case light_time_correction_components:
+            isInterlinkProperty = true;
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
@@ -300,6 +314,27 @@ int getObservationDependentVariableSize( const std::shared_ptr< ObservationDepen
             case link_end_epochs_dependent_variable:
                 variableSize = 2 * ( linkEnds.size( ) - 1 );
                 break;
+            case light_time_correction_components: {
+                // Size depends on the LightTimeCalculator for this leg (= number of registered
+                // `LightTimeCorrection` objects matching the optional type filter). A single
+                // requested type may match multiple registered corrections, so the resolved size
+                // is stored on the settings once the calculator is available.
+                auto lightTimeSettings =
+                        std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
+                if( lightTimeSettings != nullptr && lightTimeSettings->resolvedSize_ >= 0 )
+                {
+                    variableSize = lightTimeSettings->resolvedSize_;
+                }
+                else if( lightTimeSettings != nullptr && !lightTimeSettings->correctionTypeFilter_.empty( ) )
+                {
+                    variableSize = static_cast< int >( lightTimeSettings->correctionTypeFilter_.size( ) );
+                }
+                else
+                {
+                    variableSize = 0;
+                }
+                break;
+            }
             default:
                 throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                           getObservationDependentVariableId( variableSettings ) +
@@ -422,6 +457,21 @@ bool doesObservationDependentVariableExistForGivenLink( const observation_models
         case link_end_epochs_dependent_variable:
             doesLinkHaveDependency = true;
             break;
+        case light_time_correction_components:
+            // Leg exists if both receiving and originating link ends are either unspecified or
+            // present in the observable's link ends map.
+            doesLinkHaveDependency = true;
+            if( variableSettings->linkEndType_ != observation_models::unidentified_link_end &&
+                linkEnds.count( variableSettings->linkEndType_ ) == 0 )
+            {
+                doesLinkHaveDependency = false;
+            }
+            if( variableSettings->originatingLinkEndType_ != observation_models::unidentified_link_end &&
+                linkEnds.count( variableSettings->originatingLinkEndType_ ) == 0 )
+            {
+                doesLinkHaveDependency = false;
+            }
+            break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableId( variableSettings ) +
@@ -452,6 +502,8 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
             break;
         case link_end_epochs_dependent_variable:
             linkEndDependent = false;
+            break;
+        case light_time_correction_components:
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -484,6 +536,10 @@ bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables v
             isDirectionAgnostic = true;
             break;
         case link_angle_with_orbital_plane:
+            break;
+        case light_time_correction_components:
+            // A specific transmitter → receiver leg is being selected; reverted links refer to a
+            // different physical leg and should not be considered equivalent.
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
@@ -570,6 +626,15 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
                                                                                    interlinkSettings->integratedObservableHandling_,
                                                                                    interlinkSettings->relativeBody_ );
     }
+    else if( std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( originalSettings ) != nullptr )
+    {
+        // For a light-time-correction leg, the "receiving" end maps to `linkEndType` and the
+        // "originating" end to `originatingLinkEndType`, matching the base-class convention.
+        std::shared_ptr< LightTimeCorrectionComponentsDependentVariableSettings > lightTimeSettings =
+                std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( originalSettings );
+        completeSettings = std::make_shared< LightTimeCorrectionComponentsDependentVariableSettings >(
+                originatingLinkEndType, linkEndType, originatingLinkEndId, linkEndId, lightTimeSettings->correctionTypeFilter_ );
+    }
     else
     {
         completeSettings = std::make_shared< ObservationDependentVariableSettings >(
@@ -637,8 +702,9 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
 
             // Check if inverting the receiving/originating ends of the link would lead to compatible link definitions (for dependent
             // variables that are independent of the link "direction").
-            bool revertedLinksMatch = areInterlinksCompatible(
-                    receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
+            bool revertedLinksMatch = !directLinksMatch &&
+                    areInterlinksCompatible(
+                            receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
             if( revertedLinksMatch )
             {
                 interlink = std::make_pair( interlink.second, interlink.first );
@@ -655,12 +721,12 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
                 else
                 {
                     // if station defined for start link end
-                    if( interlink.first.second.stationName_ != "" )
+                    if( interlink.first.second.getReferencePointName( ) != "" )
                     {
                         interlinksToCreateList.push_back( interlink );
                     }
                     // if station only defined for end link end
-                    else if( interlink.second.second.stationName_ != "" )
+                    else if( interlink.second.second.getReferencePointName( ) != "" )
                     {
                         // Reverse link order
                         interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );

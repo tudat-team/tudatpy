@@ -46,7 +46,11 @@ Classes
 
 
    Ephemeris
-   
+
+   TimeEphemeris
+
+   Tle
+
    RotationalEphemeris
 
    GcrsToItrsRotationModel
@@ -96,6 +100,13 @@ Classes
    
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.Tle
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
    :members:
@@ -163,6 +174,5 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
-
 
 

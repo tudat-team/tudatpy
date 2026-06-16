@@ -173,7 +173,7 @@ int main( )
                                                          dependentVariablesTrajectory,
                                                          false );
 
-    for( auto itr: patchedConicsTrajectory )
+    for( auto itr : patchedConicsTrajectory )
     {
         std::cout << "Leg " << itr.first << "\n\n";
         std::cout << "Departure: "
@@ -228,7 +228,7 @@ int main( )
                                                          dependentVariablesPerturbedCase,
                                                          true );
 
-    for( auto itr: patchedConicsTrajectoryPerturbedCase )
+    for( auto itr : patchedConicsTrajectoryPerturbedCase )
     {
         std::cout << "Leg " << itr.first << "\n\n";
         std::cout << "Departure: "

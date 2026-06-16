@@ -15,13 +15,6 @@ Classes
 .. autosummary::
 
    Trk234Processor
-
-
-Converter Classes
-~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-
    converters.Converter
    converters.RadioBase
    converters.DerivedDopplerConverter

@@ -1413,15 +1413,28 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
 
             case ppn_parameter_gamma: {
-                doubleParameterToEstimate = std::make_shared< PPNParameterGamma >( relativity::ppnParameterSet );
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+                doubleParameterToEstimate = std::make_shared< PPNParameterGamma >( ppnParameterSet );
                 break;
             }
             case ppn_parameter_beta: {
-                doubleParameterToEstimate = std::make_shared< PPNParameterBeta >( relativity::ppnParameterSet );
+                std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = bodies.getSpaceTimeProperties( )->getPpnParameterSet( );
+                doubleParameterToEstimate = std::make_shared< PPNParameterBeta >( ppnParameterSet );
                 break;
             }
             case equivalence_principle_lpi_violation_parameter: {
-                doubleParameterToEstimate = std::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+                std::shared_ptr< simulation_setup::SpaceTimeProperties > spaceTimeProperties = bodies.getSpaceTimeProperties( );
+                if( spaceTimeProperties == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating equivalence_principle_lpi_violation_parameter parameter: "
+                            "SystemOfBodies has no space-time properties." );
+                }
+                doubleParameterToEstimate = std::make_shared< EquivalencePrincipleLpiViolationParameter >(
+                        [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); },
+                        [ spaceTimeProperties ]( const double parameterValue ) {
+                            spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
+                        } );
                 break;
             }
             case direct_dissipation_tidal_time_lag: {
@@ -1917,11 +1930,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                                  std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                                  biasSettings->linkEnds_.linkEnds_,
-                                                                                  biasSettings->observableType_,
-                                                                                  true );
+                            std::make_shared< SingleArcObservationBiasParameter >( constant_additive_observation_bias,
+                                                                                   std::function< Eigen::VectorXd( ) >( ),
+                                                                                   std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                   biasSettings->linkEnds_.linkEnds_,
+                                                                                   biasSettings->observableType_ );
                 }
                 break;
             }
@@ -1935,11 +1948,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                                  std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                                  biasSettings->linkEnds_.linkEnds_,
-                                                                                  biasSettings->observableType_,
-                                                                                  false );
+                            std::make_shared< SingleArcObservationBiasParameter >( constant_relative_observation_bias,
+                                                                                   std::function< Eigen::VectorXd( ) >( ),
+                                                                                   std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                   biasSettings->linkEnds_.linkEnds_,
+                                                                                   biasSettings->observableType_ );
                 }
                 break;
             }
@@ -1952,7 +1965,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 else
                 {
-                    vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
+                    vectorParameterToEstimate = std::make_shared< MultiArcObservationBiasParameter >(
+                            arcwise_constant_additive_observation_bias,
                             biasSettings->arcStartTimes_,
                             std::function< std::vector< Eigen::VectorXd >( ) >( ),
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
@@ -1960,8 +1974,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_,
-                            true );
+                            biasSettings->observableType_ );
                 }
                 break;
             }
@@ -1974,7 +1987,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 else
                 {
-                    vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
+                    vectorParameterToEstimate = std::make_shared< MultiArcObservationBiasParameter >(
+                            arcwise_constant_relative_observation_bias,
                             biasSettings->arcStartTimes_,
                             std::function< std::vector< Eigen::VectorXd >( ) >( ),
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
@@ -1982,8 +1996,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
                                     .at( 0 ),
                             biasSettings->linkEnds_.linkEnds_,
-                            biasSettings->observableType_,
-                            false );
+                            biasSettings->observableType_ );
                 }
                 break;
             }
@@ -1997,6 +2010,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
+                            constant_time_drift_observation_bias,
                             std::function< Eigen::VectorXd( ) >( ),
                             std::function< void( const Eigen::VectorXd& ) >( ),
                             observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
@@ -2018,6 +2032,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
+                            arc_wise_time_drift_observation_bias,
                             timeBiasSettings->arcStartTimes_,
                             std::function< std::vector< Eigen::VectorXd >( ) >( ),
                             std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
@@ -2041,11 +2056,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< ConstantTimeBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                           std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                           biasSettings->linkEndForTime_,
-                                                                           biasSettings->linkEnds_,
-                                                                           biasSettings->observableType_ );
+                            std::make_shared< SingleArcTimeBiasParameter >( constant_time_observation_bias,
+                                                                            std::function< Eigen::VectorXd( ) >( ),
+                                                                            std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                            biasSettings->linkEndForTime_,
+                                                                            biasSettings->linkEnds_,
+                                                                            biasSettings->observableType_ );
                 }
                 break;
             }
@@ -2058,13 +2074,14 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 else
                 {
-                    vectorParameterToEstimate =
-                            std::make_shared< ArcWiseTimeBiasParameter >( timeBiasSettings->arcStartTimes_,
-                                                                          std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                                                                          std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                                                                          timeBiasSettings->linkEndForTime_,
-                                                                          timeBiasSettings->linkEnds_,
-                                                                          timeBiasSettings->observableType_ );
+                    vectorParameterToEstimate = std::make_shared< MultiArcTimeBiasParameter >(
+                            arc_wise_time_observation_bias,
+                            timeBiasSettings->arcStartTimes_,
+                            std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            timeBiasSettings->linkEndForTime_,
+                            timeBiasSettings->linkEnds_,
+                            timeBiasSettings->observableType_ );
                 }
                 break;
             }

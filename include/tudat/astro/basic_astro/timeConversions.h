@@ -70,6 +70,16 @@ const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
 //! Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00, in long double precision.
 const static long double JULIAN_DAY_AT_0_MJD_LONG = 2400000.5L;
 
+//! Function to determine whether a time scale is a general, relativistic time scale.
+/*!
+ *  Function to determine whether a time scale is a general, relativistic time scale. Available time scales are barycentric (TCB),
+ *  bodycentric, of which TCG is a specific (Earth-centered) case, and topocentric, which represents the proper time at a
+ *  body-fixed point.
+ *  \param timeScale Time scale which is to be checked.
+ *  \return True if timeScale is one of the general, relativistic scales, false otherwise.
+ */
+bool isTimeScaleRelativistic( const TimeScales timeScale );
+
 //! Function to get the Julian day on zero modified Julian day.
 /*!
  *  Function to get the Julian day on on zero modified Julian day, in the requested time representation type
@@ -443,8 +453,7 @@ inline int getDaysInMonth( const int month, const int year )
     }
 
     int numberOfDays = daysPerMonth[ month - 1 ];
-    const bool isLeapYear =
-            ( ( year % 4 == 0 ) && !( ( year % 100 == 0 ) && !( year % 400 == 0 ) ) );
+    const bool isLeapYear = ( ( year % 4 == 0 ) && !( ( year % 100 == 0 ) && !( year % 400 == 0 ) ) );
     if( month == 2 && isLeapYear )
     {
         numberOfDays++;

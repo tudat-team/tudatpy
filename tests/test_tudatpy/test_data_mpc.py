@@ -65,15 +65,15 @@ weights_test_combinations = [
     (None, False),  # all data
 ]
 
-#@pytest.mark.parametrize("inp,expected", get_observations_input)
-#def test_BatchMPC_getobservations(inp, expected):
+# @pytest.mark.parametrize("inp,expected", get_observations_input)
+# def test_BatchMPC_getobservations(inp, expected):
 #    query = BatchMPC()
 #    query.get_observations(inp)
 #    assert set(query.MPC_objects) == expected
 
 
-#@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-#def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+# @pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+# def test_BatchMPC_getobservations2(inp, errtype, errvalue):
 #    query = BatchMPC()
 #    with pytest.raises(Exception) as exc_info:
 #        query.get_observations(inp)
@@ -95,27 +95,38 @@ def test_create_observations_from_astropy_table(mpc_code):
     times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
     times = np.array([times, times])  # concat times are doubled due to RA + DEC
 
-    #we created a table by using get_observations.
+    # we created a table by using get_observations.
     # This yields observations in radians, so we have to set
     # in_degrees = False
     observation_collection = query.create_observations_from_astropy_table(
-        query._table,
-        apply_weights_VFCC17 = True,
-        apply_star_catalog_debias = False,
-        in_degrees = False
+        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
     obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
         2, -1, order="F"
     )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
-        2, -1, order="F"
-    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
 
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
+def test_mpc_custom_name_metadata(mpc_code):
+    batch = BatchMPC()
+    # Use a real MPC code but provide a custom name
+    custom_name = "Death_Star"
+    batch.get_observations([mpc_code], custom_name=custom_name)
+
+    # Verify the custom_name column exists and has the correct value
+    assert "custom_name" in batch.table.columns
+    assert (batch.table["custom_name"] == custom_name).all()
+
+    # Verify MPC_objects returns the custom name instead of mpc code
+    assert custom_name in batch.MPC_objects
+    assert mpc_code not in batch.MPC_objects
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -144,22 +155,19 @@ def test_BatchMPC_to_tudat(mpc_code):
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     observation_collection = query.to_tudat(
-        bodies=bodies,
-        included_satellites=None,
-        apply_star_catalog_debias=False
+        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
     obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
         2, -1, order="F"
     )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
-        2, -1, order="F"
-    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
 
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat_with_satelite(mpc_code):
@@ -188,18 +196,14 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     bodies.create_empty_body("Wise")
 
     observation_collection = query.to_tudat(
-        bodies=bodies,
-        included_satellites={"C51": "Wise"},
-        apply_star_catalog_debias=False
+        bodies=bodies, included_satellites={"C51": "Wise"}, apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
     obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
         2, -1, order="F"
     )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(
-        2, -1, order="F"
-    )
+    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
 
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
@@ -228,9 +232,7 @@ def test_compare_mpc_horizons_eph():
     radec_horizons = eros.interpolated_observations(degrees=False)
 
     # the retrieved batch.table has time columns: epoch [julian days in UTC], epoch_seconds_UTC [UTC datetime], epoch_seconds_TDB [TDB seconds]
-    radec_mpc = batch.table.loc[:, ["epoch_seconds_TDB", "RA", "DEC"]].reset_index(
-        drop=True
-    )
+    radec_mpc = batch.table.loc[:, ["epoch_seconds_TDB", "RA", "DEC"]].reset_index(drop=True)
 
     diff = (radec_horizons - radec_mpc).to_numpy()
     diff = np.abs(diff).max(axis=0)

@@ -31,10 +31,10 @@ class SpiceSettings
 {
 public:
     //! Empty constructor.
-    SpiceSettings( ) { }
+    SpiceSettings( ) {}
 
     //! Destructor.
-    virtual ~SpiceSettings( ) { }
+    virtual ~SpiceSettings( ) {}
 
     //! Whether the standard kernel should be preloaded.
     bool useStandardKernels_ = true;

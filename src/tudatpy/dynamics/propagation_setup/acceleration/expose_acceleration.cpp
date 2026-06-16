@@ -133,7 +133,7 @@ namespace propagation_setup
 namespace acceleration
 {
 
-void expose_acceleration_setup( py::module &m )
+void expose_acceleration_setup( py::module& m )
 {
     /*
      * This contains the addition of IntegratorSettings and
@@ -225,6 +225,10 @@ void expose_acceleration_setup( py::module &m )
       )doc" )
             .value( "yarkovsky_acceleration_type",
                     tba::AvailableAcceleration::yarkovsky_acceleration,
+                    R"doc(
+      )doc" )
+            .value( "relativistic_acceleration_from_metric_type",
+                    tba::AvailableAcceleration::relativistic_acceleration_from_metric,
                     R"doc(
       )doc" )
             .export_values( );
@@ -941,6 +945,49 @@ In this example, we define the relativistic correction acceleration for a Mars o
        de_sitter_central_body,
        lense_thirring_angular_momentum)]
 
+
+     )doc" );
+
+    m.def( "relativistic_from_metric",
+           &tss::relativisticAccelerationFromMetric,
+           R"doc(
+
+Creates settings for direct relativistic acceleration from a configured space-time metric.
+
+The acceleration is evaluated from the geodesic equation in coordinate time:
+
+.. math::
+
+    a^i = \frac{d^2 x^i}{dt^2}
+    = \frac{v^i}{c}\,\Gamma^{0}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta}
+      - \Gamma^{i}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta},
+
+with
+
+.. math::
+
+    \dot{x}^{0}=c,\qquad \dot{x}^{i}=v^{i},
+
+and Christoffel symbols
+
+.. math::
+
+    \Gamma^{\mu}_{\alpha\beta}
+    =\frac{1}{2}g^{\mu\nu}\left(
+      \partial_{\alpha}g_{\nu\beta}
+      +\partial_{\beta}g_{\nu\alpha}
+      -\partial_{\nu}g_{\alpha\beta}\right).
+
+Here, :math:`x^i` are Cartesian coordinates, :math:`v^i` are Cartesian velocity components,
+:math:`t` is coordinate time, :math:`c` is the speed of light, and :math:`g_{\mu\nu}` is the metric tensor.
+
+The metric is read from ``bodies.space_time_properties.base_metric`` and this acceleration must be
+assigned with an empty string as body exerting acceleration.
+
+Returns
+-------
+AccelerationSettings
+    Settings object for direct relativistic acceleration from metric.
 
      )doc" );
 
