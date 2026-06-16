@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     // Map of Yarkokvsky Accelerations;
     std::map< double, Eigen::Vector3d > yarkovskyAccelerations;
 
-    for( const auto& pair: dependentVariableHistory )
+    for( const auto& pair : dependentVariableHistory )
     {
         const Eigen::VectorXd& currentDependentVariables = pair.second;
         yarkovskyAccelerations[ pair.first ] = currentDependentVariables.head( 3 );  // First three elements of the depVar vector
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
         double time = 0.0;
 
         // Calculate Expected Yarkovsky acceleration
-        for( const auto& pair: stateHistory )
+        for( const auto& pair : stateHistory )
         {
             if( pair.first > time + timeBetweenChecks )
             {

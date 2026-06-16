@@ -32,7 +32,7 @@ static std::map< AtmosphereIndependentVariables, std::string > atmosphereIndepen
 };
 
 //! `AtmosphereIndependentVariables` not supported by `json_interface`.
-static std::vector< AtmosphereIndependentVariables > unsupportedAtmosphereIndependentVariables = { };
+static std::vector< AtmosphereIndependentVariables > unsupportedAtmosphereIndependentVariables = {};
 
 //! Convert `AtmosphereIndependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AtmosphereIndependentVariables& atmosphereIndependentVariable )
@@ -59,7 +59,7 @@ static std::map< AtmosphereDependentVariables, std::string > atmosphereDependent
 };
 
 //! `AtmosphereDependentVariables` not supported by `json_interface`.
-static std::vector< AtmosphereDependentVariables > unsupportedAtmosphereDependentVariables = { };
+static std::vector< AtmosphereDependentVariables > unsupportedAtmosphereDependentVariables = {};
 
 //! Convert `AtmosphereDependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AtmosphereDependentVariables& atmosphereDependentVariable )

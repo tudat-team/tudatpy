@@ -7,6 +7,7 @@ from pandas import DataFrame
 from trk234 import SFDU
 from tudatpy.estimation.observations import SingleObservationSet
 
+
 class Converter(ABC):
     @abstractmethod
     def extract(self, sfdu_list: list[SFDU]) -> DataFrame:

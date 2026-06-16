@@ -48,10 +48,12 @@
 #include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
+#include <tudat/math/basic/linearAlgebra.h>
 
 #include "scalarTypes.h"
 
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -62,7 +64,6 @@ namespace tr = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
-namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
@@ -255,8 +256,7 @@ void expose_environment( py::module& m )
          :type: str
       )doc" );
 
-    py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >(
-            m, "TimeEphemeris", R"doc(
+    py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >( m, "TimeEphemeris", R"doc(
 
          Relativistic time-scale converter for a body (and optional reference points on bodies,
          such as ground stations).
@@ -302,11 +302,10 @@ void expose_environment( py::module& m )
 
       )doc" )
             .def( "get_time_difference",
-                  static_cast< double ( tudat::TimeEphemeris::* )(
-                      const tudat::basic_astrodynamics::TimeScales,
-                      const tudat::basic_astrodynamics::TimeScales,
-                      const double,
-                      const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference ),
+                  static_cast< double ( tudat::TimeEphemeris::* )( const tudat::basic_astrodynamics::TimeScales,
+                                                                   const tudat::basic_astrodynamics::TimeScales,
+                                                                   const double,
+                                                                   const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference ),
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_time" ),
@@ -333,11 +332,11 @@ void expose_environment( py::module& m )
 
       )doc" )
             .def( "get_time_difference_from_time",
-                  static_cast< tudat::Time ( tudat::TimeEphemeris::* )(
-                      const tudat::basic_astrodynamics::TimeScales,
-                      const tudat::basic_astrodynamics::TimeScales,
-                      const tudat::Time,
-                      const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference< tudat::Time > ),
+                  static_cast< tudat::Time ( tudat::TimeEphemeris::* )( const tudat::basic_astrodynamics::TimeScales,
+                                                                        const tudat::basic_astrodynamics::TimeScales,
+                                                                        const tudat::Time,
+                                                                        const std::string& ) >(
+                          &tudat::TimeEphemeris::getTimeDifference< tudat::Time > ),
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_time" ),
@@ -700,8 +699,8 @@ float
     py::class_< tudat::environment::TabulatedIonosphereModel,
                 std::shared_ptr< tudat::environment::TabulatedIonosphereModel >,
                 tudat::environment::IonosphereModel >( m,
-                "TabulatedIonosphereModel",
-                R"doc(
+                                                       "TabulatedIonosphereModel",
+                                                       R"doc(
 
 Ionospheric model backed by tabulated IONEX global ionosphere map data.
 
@@ -1456,7 +1455,34 @@ bool
 
 
      )doc" )
-            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) );
+            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) )
+            .def( "get_camera",
+                  &tsm::VehicleSystems::getCamera,
+                  py::arg( "camera_name" ),
+                  R"doc(
+
+            This function extracts a camera object from the body.
+
+            This function extracts a camera object, for a camera of a given name, from the body.
+            If no camera of this name exists, an exception is thrown.
+
+            Parameters
+            ----------
+            camera_name : str
+                Name of the camera that is to be retrieved.
+            Returns
+            -------
+            Camera
+                Camera object of the camera of requested name
+        )doc" )
+            .def_property_readonly( "camera_dict",
+                                    &tsm::VehicleSystems::getCameraMap,
+                                    R"doc(
+
+         Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
+         and the camera object the value of the dictionary.
+            :type: dict[str,Camera]
+        )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
 
@@ -2240,17 +2266,18 @@ bool
          :type: EarthOrientationAnglesCalculator
 
      )doc" )
-            .def( "get_rotation_between_intermediate_frames",
-                  []( te::GcrsToItrsRotationModel& self,
-                      const te::EarthOrientationIntermediateFrame originalFrame,
-                      const te::EarthOrientationIntermediateFrame targetFrame,
-                      const double epoch ) {
-                      return self.getRotationBetweenIntermediateFrames( originalFrame, targetFrame, epoch ).toRotationMatrix( );
-                  },
-                  py::arg( "original_frame" ),
-                  py::arg( "target_frame" ),
-                  py::arg( "epoch" ),
-                  R"doc(
+            .def(
+                    "get_rotation_between_intermediate_frames",
+                    []( te::GcrsToItrsRotationModel& self,
+                        const te::EarthOrientationIntermediateFrame originalFrame,
+                        const te::EarthOrientationIntermediateFrame targetFrame,
+                        const double epoch ) {
+                        return self.getRotationBetweenIntermediateFrames( originalFrame, targetFrame, epoch ).toRotationMatrix( );
+                    },
+                    py::arg( "original_frame" ),
+                    py::arg( "target_frame" ),
+                    py::arg( "epoch" ),
+                    R"doc(
 
          Function to compute a rotation matrix between two IERS Earth-orientation intermediate frames.
 
@@ -2482,7 +2509,99 @@ bool
 
      )doc" );
 
-    /*!
+    py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera", R"doc(
+        Object that defines a camera for use in observation models.
+
+        Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
+        and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
+     )doc" )
+            .def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
+
+         **read-only**
+
+         Identifier of the camera, used in other parts of the simulation to refer to this camera.
+
+         :type: str
+         )doc" )
+            .def_property_readonly( "optical_center", &tsm::Camera::getOpticalCenter, R"doc(
+
+         **read-only**
+
+         Optical center of the camera, typically expressed in pixel coordinates.
+
+         :type: numpy.ndarray[numpy.float64[2, 1]]
+         )doc" )
+            .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
+
+            **read-only**
+
+            Diagonal Matrix representing the camera's focal lengths on the x and y axis.
+
+            :type:: numpy.ndarray[numpy.float64[2, 2]]
+            )doc" )
+            .def( "calculateObservableBodyFixedPosition",
+                  &tsm::Camera::calculateObservableFromBodyFixed,
+                  py::arg( "body_fixed_observable_position" ),
+                  R"doc(
+
+         Function to compute the observable position of a point in the camera frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the body-fixed frame. The observable position is defined as the projection of the point onto the camera's sensor plane, and is typically expressed in pixel coordinates. The calculation takes into account the camera's orientation (given by :attr:`~Camera.quat`) and any other relevant properties of the camera.
+
+         Parameters
+         ----------
+         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the body-fixed frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def(
+                    "calculateObservableInertialPosition",
+                    []( const tsm::Camera& self,
+                        const Eigen::Vector3d& inertialObservablePosition,
+                        const Eigen::Vector4d& rotationFromInertialToBodyFixed ) {
+                        return self.calculateObservableFromInertial( inertialObservablePosition,
+                                                                     Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
+                                                                                         rotationFromInertialToBodyFixed( 1 ),
+                                                                                         rotationFromInertialToBodyFixed( 2 ),
+                                                                                         rotationFromInertialToBodyFixed( 3 ) ) );
+                    },
+                    py::arg( "inertial_observable_position" ),
+                    py::arg( "rotation_from_inertial_to_body_fixed" ),
+                    R"doc(
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided inertial-to-body-fixed rotation quaternion, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
+
+         Parameters
+         ----------
+         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the inertial frame.
+
+         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
+             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def_property_readonly(
+                    "quaternion",
+                    []( const tsm::Camera& self ) -> Eigen::Vector4d {
+                        Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
+                        return tudat::linear_algebra::convertQuaternionToVectorFormat( q );
+                    },
+                    R"doc(
+            **read-only**
+
+            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
+            )doc" );
+    /*
      **************   GROUND STATION FUNCTIONALITY
      *******************
      */
@@ -2658,6 +2777,13 @@ bool
     py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
             m, "TransmittingFrequencyCalculator", R"doc(No documentation found.)doc" );
 
+    py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
+            .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
+            .value( "throw_exception_at_gaps", tgs::throw_exception_at_gaps )
+            .value( "print_error_at_gaps", tgs::print_error_at_gaps )
+            .value( "print_error_once_at_gaps", tgs::print_error_once_at_gaps )
+            .export_values( );
+
     py::class_< tgs::ConstantFrequencyInterpolator,
                 std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
                 tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
@@ -2669,11 +2795,13 @@ bool
             .def( py::init< const std::vector< tudat::Time >&,
                             const std::vector< tudat::Time >&,
                             const std::vector< double >&,
-                            const std::vector< double >& >( ),
+                            const std::vector< double >&,
+                            const tgs::FrequencyGapHandling >( ),
                   py::arg( "start_times" ),
                   py::arg( "end_times" ),
                   py::arg( "ramp_rates" ),
-                  py::arg( "start_frequency" ) )
+                  py::arg( "start_frequency" ),
+                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps )
             .def_property_readonly( "start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
             .def_property_readonly( "end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
             .def_property_readonly( "ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
@@ -2797,6 +2925,16 @@ bool
          valid during the numerical propagation if any aspects of the
          dynamics or dependent variables require the body's state.
 
+
+	         :type: numpy.ndarray
+	      )doc" )
+            .def_property_readonly( "custom_state", &tss::Body::getCustomState, R"doc(
+
+         **read-only**
+
+         The custom state of the Body, as set during the current step of the numerical propagation.
+         This property is only valid during propagation, and only when exactly one custom state is
+         propagated for this body.
 
          :type: numpy.ndarray
       )doc" )
@@ -3090,9 +3228,9 @@ bool
         :type: list[RadiationPressureTargetModel]
 
      )doc" )
-    .def_property_readonly( "time_ephemeris",
-      &tss::Body::getTimeScaleConverter,
-      R"doc(
+            .def_property_readonly( "time_ephemeris",
+                                    &tss::Body::getTimeScaleConverter,
+                                    R"doc(
 
          Object defining the relativistic time conversion model of this body, used to convert between
          barycentric coordinate time, body-centered coordinate time and proper time.
@@ -3163,29 +3301,26 @@ bool
          :type: dict[str,GroundStation]
       )doc" );
 
-    py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >(
-            m, "SpaceTimeProperties", R"doc(
+    py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >( m, "SpaceTimeProperties", R"doc(
 
          Space-time properties associated with a :class:`~SystemOfBodies`.
          This container stores the PPN parameter set, the equivalence-principle
          LPI-violation parameter, and the internally used base metric.
 
       )doc" )
-            .def_property(
-                    "ppn_parameter_set",
-                    &tss::SpaceTimeProperties::getPpnParameterSet,
-                    &tss::SpaceTimeProperties::setPpnParameterSet,
-                    R"doc(
+            .def_property( "ppn_parameter_set",
+                           &tss::SpaceTimeProperties::getPpnParameterSet,
+                           &tss::SpaceTimeProperties::setPpnParameterSet,
+                           R"doc(
 
          PPN parameter set used by models built from this environment.
 
          :type: PPNParameterSet
       )doc" )
-            .def_property(
-                    "equivalence_principle_lpi_violation_parameter",
-                    &tss::SpaceTimeProperties::getEquivalencePrincipleLpiViolationParameter,
-                    &tss::SpaceTimeProperties::setEquivalencePrincipleLpiViolationParameter,
-                    R"doc(
+            .def_property( "equivalence_principle_lpi_violation_parameter",
+                           &tss::SpaceTimeProperties::getEquivalencePrincipleLpiViolationParameter,
+                           &tss::SpaceTimeProperties::setEquivalencePrincipleLpiViolationParameter,
+                           R"doc(
 
          Equivalence-principle local-position-invariance violation parameter.
 
@@ -3193,10 +3328,7 @@ bool
       )doc" )
             .def_property_readonly(
                     "has_base_metric",
-                    []( const tss::SpaceTimeProperties& properties )
-                    {
-                        return ( properties.getBaseMetric( ) != nullptr );
-                    },
+                    []( const tss::SpaceTimeProperties& properties ) { return ( properties.getBaseMetric( ) != nullptr ); },
                     R"doc(
 
          **read-only**
@@ -3426,10 +3558,9 @@ bool
          Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`__.
 
      )doc" )
-            .def_property_readonly(
-                    "space_time_properties",
-                    &tss::SystemOfBodies::getSpaceTimeProperties,
-                    R"doc(
+            .def_property_readonly( "space_time_properties",
+                                    &tss::SystemOfBodies::getSpaceTimeProperties,
+                                    R"doc(
 
          Space-time properties container used by models created from this system of bodies.
          This is the canonical access point for PPN parameters and the

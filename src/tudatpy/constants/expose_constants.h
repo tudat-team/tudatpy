@@ -19,7 +19,7 @@ namespace tudatpy
 {
 namespace constants
 {
-void expose_constants( py::module &m );
+void expose_constants( py::module& m );
 }
 }  // namespace tudatpy
 

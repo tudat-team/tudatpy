@@ -30,11 +30,8 @@
 //
 // BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
 
-
 int main( )
 {
-
-
     using namespace tudat;
     using namespace tudat::observation_models;
     using namespace tudat::orbit_determination;
@@ -175,7 +172,7 @@ int main( )
         printEstimatableParameterEntries( parametersToEstimate );
 
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-        for( auto linkEndIterator: linkEndsPerObservable )
+        for( auto linkEndIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = linkEndIterator.first;
 
@@ -228,7 +225,7 @@ int main( )
         }
 
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        for( auto linkEndIterator: linkEndsPerObservable )
+        for( auto linkEndIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = linkEndIterator.first;
 

@@ -402,7 +402,6 @@ void expose_simulator_dynamics_bindings( py::module& m )
 
 
         )doc" );
-
 }
 
 }  // namespace simulator

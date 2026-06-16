@@ -133,11 +133,10 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
             }
 
             localWindVelocity = getRotationQuaternionBetweenFrames( windModel_->getAssociatedFrame( ), corotating_frame ) *
-                    windModel_->getCurrentBodyFixedCartesianWindVelocity(
-                            altitudeOrRadius,
-                            currentAerodynamicAngles_[ longitude_angle ],
-                            currentAerodynamicAngles_[ latitude_angle ],
-                            currentTime );
+                    windModel_->getCurrentBodyFixedCartesianWindVelocity( altitudeOrRadius,
+                                                                          currentAerodynamicAngles_[ longitude_angle ],
+                                                                          currentAerodynamicAngles_[ latitude_angle ],
+                                                                          currentTime );
         }
 
         currentLocalWindVelocity_ = localWindVelocity;
@@ -179,8 +178,8 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
             if( rotationMatrixDerivativeToLocalFrameFunction_ )
             {
                 // First convert position from body-fixed to inertial frame
-                Eigen::Vector3d r_inertial = currentRotationFromCorotatingToInertialFrame_ *
-                                             currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 );
+                Eigen::Vector3d r_inertial =
+                        currentRotationFromCorotatingToInertialFrame_ * currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 );
                 // Then compute Ṙ*r_inertial (rotational velocity in body-fixed frame)
                 Eigen::Matrix3d rotationMatrixDerivative = rotationMatrixDerivativeToLocalFrameFunction_( );
                 rotationalVelocity = rotationMatrixDerivative * r_inertial;

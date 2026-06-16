@@ -32,7 +32,7 @@ template< template< typename... > class MapType, typename KeyType, typename Valu
 nlohmann::json jsonFromMap( const MapType< KeyType, ValueType >& map )
 {
     nlohmann::json jsonObject;
-    for( auto entry: map )
+    for( auto entry : map )
     {
         jsonObject[ boost::lexical_cast< std::string >( entry.first ) ] = entry.second;
     }

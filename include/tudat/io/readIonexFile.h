@@ -67,7 +67,7 @@ public:
     //! Validate consistency
     void validate( ) const
     {
-        for( const auto& entry: tecMaps )
+        for( const auto& entry : tecMaps )
         {
             const Eigen::MatrixXd& tec = entry.second;
             if( static_cast< std::size_t >( tec.rows( ) ) != latitudes.size( ) ||
@@ -76,7 +76,7 @@ public:
                 throw std::runtime_error( "IONEX: TEC data matrix size inconsistent with lat/lon grid." );
             }
         }
-        for( const auto& entry: rmsMaps )
+        for( const auto& entry : rmsMaps )
         {
             const Eigen::MatrixXd& rms = entry.second;
             if( static_cast< std::size_t >( rms.rows( ) ) != latitudes.size( ) ||

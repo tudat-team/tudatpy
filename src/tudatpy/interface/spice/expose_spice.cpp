@@ -32,8 +32,7 @@ namespace tudat
 namespace spice_interface
 {
 
-void loadStandardDepracatedSpiceKernels(
-        const std::vector< std::string > alternativeEphemerisKernels )
+void loadStandardDepracatedSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
 {
     std::string kernelPath = paths::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
@@ -64,7 +63,7 @@ namespace interface
 namespace spice
 {
 
-void expose_spice( py::module &m )
+void expose_spice( py::module& m )
 {
     // time related
     m.def( "convert_julian_date_to_ephemeris_time",
@@ -94,11 +93,10 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-
     m.def( "get_approximate_utc_from_tdb",
-       &tudat::spice_interface::getApproximateUtcFromTdb,
-       py::arg( "ephemeris_time" ),
-       R"doc(
+           &tudat::spice_interface::getApproximateUtcFromTdb,
+           py::arg( "ephemeris_time" ),
+           R"doc(
 
  Get an approximate UTC time from ephemeris time (TDB).
 
@@ -635,9 +633,6 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-
-
-
     m.def( "load_standard_kernels",
            &tudat::spice_interface::loadStandardSpiceKernels,
            py::arg( "alternative_kernels" ) = std::vector< std::string >( ),  // <pybind11/stl.h>
@@ -782,13 +777,9 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-    m.def( "continue_after_errors",
-           &tudat::spice_interface::toggleErrorReturn,
-           R"doc(No documentation found.)doc" );
+    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(No documentation found.)doc" );
 
-    m.def( "suppress_error_output",
-           &tudat::spice_interface::suppressErrorOutput,
-           R"doc(No documentation found.)doc" );
+    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(No documentation found.)doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

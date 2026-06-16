@@ -18,7 +18,7 @@ namespace py = pybind11;
 namespace tudatpy
 {
 
-void expose_geometry( py::module &m );
+void expose_geometry( py::module& m );
 
 }
 

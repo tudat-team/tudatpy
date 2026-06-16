@@ -1,12 +1,12 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
-*    All rigths reserved
-*
-*    This file is part of the Tudat. Redistribution and use in source and
-*    binary forms, with or without modification, are permitted exclusively
-*    under the terms of the Modified BSD license. You should have received
-*    a copy of the license with this file. If not, please or visit:
-*    http://tudat.tudelft.nl/LICENSE.
-*/
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
 #include "tudat/astro/system_models/panelGeometryUtils.h"
 
@@ -20,37 +20,20 @@ namespace tudat
 namespace system_models
 {
 
-Triangle2d::Triangle2d( )
-    : vertexA_( Eigen::Vector2d::Zero( ) ),
-      vertexB_( Eigen::Vector2d::Zero( ) ),
-      vertexC_( Eigen::Vector2d::Zero( ) )
-{
-}
+Triangle2d::Triangle2d( ): vertexA_( Eigen::Vector2d::Zero( ) ), vertexB_( Eigen::Vector2d::Zero( ) ), vertexC_( Eigen::Vector2d::Zero( ) )
+{}
 
-Triangle2d::Triangle2d( const Eigen::Vector2d& vertexA,
-                        const Eigen::Vector2d& vertexB,
-                        const Eigen::Vector2d& vertexC )
-    : vertexA_( vertexA ),
-      vertexB_( vertexB ),
-      vertexC_( vertexC )
-{
-}
+Triangle2d::Triangle2d( const Eigen::Vector2d& vertexA, const Eigen::Vector2d& vertexB, const Eigen::Vector2d& vertexC ):
+    vertexA_( vertexA ), vertexB_( vertexB ), vertexC_( vertexC )
+{}
 
-Triangle3d::Triangle3d( )
-    : vertexA_( Eigen::Vector3d::Zero( ) ),
-      vertexB_( Eigen::Vector3d::Zero( ) ),
-      vertexC_( Eigen::Vector3d::Zero( ) ),
-      versorL_( Eigen::Vector3d::Zero( ) ),
-      versorM_( Eigen::Vector3d::Zero( ) )
-{
-}
+Triangle3d::Triangle3d( ):
+    vertexA_( Eigen::Vector3d::Zero( ) ), vertexB_( Eigen::Vector3d::Zero( ) ), vertexC_( Eigen::Vector3d::Zero( ) ),
+    versorL_( Eigen::Vector3d::Zero( ) ), versorM_( Eigen::Vector3d::Zero( ) )
+{}
 
-Triangle3d::Triangle3d( const Eigen::Vector3d& vertexA,
-                        const Eigen::Vector3d& vertexB,
-                        const Eigen::Vector3d& vertexC )
-    : vertexA_( vertexA ),
-      vertexB_( vertexB ),
-      vertexC_( vertexC )
+Triangle3d::Triangle3d( const Eigen::Vector3d& vertexA, const Eigen::Vector3d& vertexB, const Eigen::Vector3d& vertexC ):
+    vertexA_( vertexA ), vertexB_( vertexB ), vertexC_( vertexC )
 {
     // For simplicity, l is chosen as edge AB and m as n x l.
     versorL_ = ( vertexB_ - vertexA_ ).normalized( );
@@ -60,15 +43,10 @@ Triangle3d::Triangle3d( const Eigen::Vector3d& vertexA,
     versorM_ = normal.cross( versorL_ ).normalized( );
 }
 
-ParallelProjection::ParallelProjection( )
-    : minimumCoordinateL_( 0.0 ),
-      maximumCoordinateL_( 0.0 ),
-      minimumCoordinateM_( 0.0 ),
-      maximumCoordinateM_( 0.0 ),
-      triangle2d_( ),
-      lambdas_( )
-{
-}
+ParallelProjection::ParallelProjection( ):
+    minimumCoordinateL_( 0.0 ), maximumCoordinateL_( 0.0 ), minimumCoordinateM_( 0.0 ), maximumCoordinateM_( 0.0 ), triangle2d_( ),
+    lambdas_( )
+{}
 
 ParallelProjection::ParallelProjection( const Triangle3d& triangle,
                                         const Triangle3d& triangleToBeProjected,
@@ -85,10 +63,9 @@ ParallelProjection::ParallelProjection( const Triangle3d& triangle,
     A( 1, 2 ) = -projectionDirection[ 1 ];
     A( 2, 2 ) = -projectionDirection[ 2 ];
 
-    const std::vector< Eigen::Vector3d > vertices = {
-        triangleToBeProjected.getVertexA( ),
-        triangleToBeProjected.getVertexB( ),
-        triangleToBeProjected.getVertexC( ) };
+    const std::vector< Eigen::Vector3d > vertices = { triangleToBeProjected.getVertexA( ),
+                                                      triangleToBeProjected.getVertexB( ),
+                                                      triangleToBeProjected.getVertexC( ) };
     std::vector< Eigen::Vector2d > vertices2d;
     std::vector< double > lambdas( 3 );
     std::vector< double > coordinatesL( 3 );

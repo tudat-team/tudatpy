@@ -20,7 +20,7 @@ namespace environment
 class IonosphereModel
 {
 public:
-    virtual ~IonosphereModel( ) { }
+    virtual ~IonosphereModel( ) {}
 
     //! Get vertical total electron content in TECU (1e16 e-/m^2)
     virtual double getVerticalTotalElectronContent( const double latitude, const double longitude, const double time ) = 0;
@@ -55,7 +55,7 @@ public:
             const std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > >& interpolator,
             const double referenceIonosphereHeight ):
         tecInterpolator_( interpolator ), referenceIonosphereHeight_( referenceIonosphereHeight )
-    { }
+    {}
 
     //! Get vertical TEC at given lat [deg], lon [deg], and time [s since J2000]
     double getVerticalTotalElectronContent( const double latitude, const double longitude, const double time ) override
@@ -70,7 +70,6 @@ public:
         {
             throw std::runtime_error( "Error in TEC interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
     }
 
     //! Get vertical TEC RMS/uncertainty at given lat [deg], lon [deg], and time [s since J2000].
@@ -99,8 +98,7 @@ public:
     }
 
     //! Set the RMS interpolator (call after construction to add uncertainty data).
-    void setRmsInterpolator(
-            const std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > >& rmsInterpolator )
+    void setRmsInterpolator( const std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > >& rmsInterpolator )
     {
         rmsInterpolator_ = rmsInterpolator;
     }

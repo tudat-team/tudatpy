@@ -50,15 +50,19 @@ public:
             const std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyUndergoingAcceleration,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
-            const std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > mutualSphericalHarmonicAcceleration ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, mutualSphericalHarmonicAcceleration, basic_astrodynamics::mutual_spherical_harmonic_gravity ),
+            const std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
+                    mutualSphericalHarmonicAcceleration ):
+        AccelerationPartial( acceleratedBody,
+                             acceleratingBody,
+                             mutualSphericalHarmonicAcceleration,
+                             basic_astrodynamics::mutual_spherical_harmonic_gravity ),
         accelerationPartialOfShExpansionOfBodyExertingAcceleration_( accelerationPartialOfShExpansionOfBodyExertingAcceleration ),
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_( accelerationPartialOfShExpansionOfBodyUndergoingAcceleration ),
-        accelerationUsesMutualAttraction_(  mutualSphericalHarmonicAcceleration->getUseCentralBodyFixedFrame( )  )
-    { }
+        accelerationUsesMutualAttraction_( mutualSphericalHarmonicAcceleration->getUseCentralBodyFixedFrame( ) )
+    {}
 
     //! Destructor
-    ~MutualSphericalHarmonicsGravityPartial( ) { }
+    ~MutualSphericalHarmonicsGravityPartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

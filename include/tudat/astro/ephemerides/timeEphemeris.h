@@ -58,7 +58,7 @@ namespace detail
 template< typename TimeType >
 inline TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifference )
 {
-    if constexpr ( std::is_same_v< TimeType, Time > )
+    if constexpr( std::is_same_v< TimeType, Time > )
     {
         return timeDifference;
     }
@@ -71,7 +71,7 @@ inline TimeType convertTimeDifferenceFromExtendedTime( const Time& timeDifferenc
 template< typename TimeType >
 inline TimeType convertInterpolatorTimeFromExtendedTime( const Time& currentTime )
 {
-    if constexpr ( std::is_same_v< TimeType, Time > )
+    if constexpr( std::is_same_v< TimeType, Time > )
     {
         return currentTime;
     }
@@ -86,11 +86,9 @@ inline TimeType convertInterpolatorTimeFromExtendedTime( const Time& currentTime
 class TimeEphemeris
 {
 public:
+    explicit TimeEphemeris( const std::string& centralBodyName ): centralBodyName_( centralBodyName ) {}
 
-    explicit TimeEphemeris( const std::string& centralBodyName ) : centralBodyName_( centralBodyName )
-    { }
-
-    virtual ~TimeEphemeris( ) { }
+    virtual ~TimeEphemeris( ) {}
 
     //! Function to retrieve the time difference at a given time between two scales.
     /*!
@@ -137,9 +135,9 @@ public:
      */
     template< typename TimeType >
     std::map< TimeType, TimeType > getTimeDifferences( const basic_astrodynamics::TimeScales inputScale,
-                                                        const basic_astrodynamics::TimeScales outputScale,
-                                                        const std::vector< TimeType >& inputTimes,
-                                                        const std::string& pointIdentifier = "" )
+                                                       const basic_astrodynamics::TimeScales outputScale,
+                                                       const std::vector< TimeType >& inputTimes,
+                                                       const std::string& pointIdentifier = "" )
     {
         const std::function< TimeType( const TimeType ) > timeDifferenceFunction =
                 getTimeDifferenceFunction< TimeType >( inputScale, outputScale, pointIdentifier );
@@ -161,15 +159,13 @@ public:
      *  \return Function object evaluating \f$t_{\mathrm{output}}-t_{\mathrm{input}}\f$.
      */
     template< typename TimeType >
-    std::function< TimeType( const TimeType ) > getTimeDifferenceFunction(
-            const basic_astrodynamics::TimeScales inputScale,
-            const basic_astrodynamics::TimeScales outputScale,
-            const std::string& pointIdentifier = "" )
+    std::function< TimeType( const TimeType ) > getTimeDifferenceFunction( const basic_astrodynamics::TimeScales inputScale,
+                                                                           const basic_astrodynamics::TimeScales outputScale,
+                                                                           const std::string& pointIdentifier = "" )
     {
         const std::function< Time( const Time ) > timeDifferenceFunction =
                 getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
-        return [=]( const TimeType inputTime )
-        {
+        return [ = ]( const TimeType inputTime ) {
             return detail::convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
         };
     }
@@ -197,17 +193,13 @@ public:
      *  \param pointIdentifier Optional point identifier for topocentric/proper-time conversions.
      *  \return Function object evaluating \f$t_{\mathrm{output}}-t_{\mathrm{input}}\f$.
      */
-    std::function< double( const double ) > getTimeDifferenceFunction(
-            const basic_astrodynamics::TimeScales inputScale,
-            const basic_astrodynamics::TimeScales outputScale,
-            const std::string& pointIdentifier = "" )
+    std::function< double( const double ) > getTimeDifferenceFunction( const basic_astrodynamics::TimeScales inputScale,
+                                                                       const basic_astrodynamics::TimeScales outputScale,
+                                                                       const std::string& pointIdentifier = "" )
     {
         const std::function< Time( const Time ) > timeDifferenceFunction =
                 getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
-        return [=]( const double inputTime )
-        {
-            return timeDifferenceFunction( Time( inputTime ) ).getSeconds< double >( );
-        };
+        return [ = ]( const double inputTime ) { return timeDifferenceFunction( Time( inputTime ) ).getSeconds< double >( ); };
     }
 
     //! Retrieve the callable that computes the requested conversion at a given epoch.

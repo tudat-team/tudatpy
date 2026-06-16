@@ -27,7 +27,7 @@ namespace math
 namespace root_finders
 {
 
-void expose_root_finders( py::module &m )
+void expose_root_finders( py::module& m )
 {
     /*
      *
@@ -77,20 +77,15 @@ The program will not accept the root at the final iteration, and will throw a :c
 )doc" )
             .export_values( );
 
-    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >(
-            m, "RootFinderCore" );
+    py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >( m, "RootFinderCore" );
 
-    py::class_< trf::NewtonRaphson< double >,
-                std::shared_ptr< trf::NewtonRaphson< double > >,
-                trf::RootFinder< double > >( m, "NewtonRaphsonCore" )
-            .def( py::init< const double, const unsigned int >( ),
-                  py::arg( "x_tol" ),
-                  py::arg( "max_iter" ) );
+    py::class_< trf::NewtonRaphson< double >, std::shared_ptr< trf::NewtonRaphson< double > >, trf::RootFinder< double > >(
+            m, "NewtonRaphsonCore" )
+            .def( py::init< const double, const unsigned int >( ), py::arg( "x_tol" ), py::arg( "max_iter" ) );
 
-    py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >(
-            m,
-            "RootFinderSettings",
-            R"doc(
+    py::class_< trf::RootFinderSettings, std::shared_ptr< trf::RootFinderSettings > >( m,
+                                                                                       "RootFinderSettings",
+                                                                                       R"doc(
 
          Class to define settings for a root finder.
 

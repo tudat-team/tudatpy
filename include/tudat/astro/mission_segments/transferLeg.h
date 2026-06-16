@@ -47,9 +47,9 @@ struct TrajectoryManeuver {
 public:
     TrajectoryManeuver( const Eigen::Vector3d position, const double velocityChange, const double time ):
         position_( position ), velocityChange_( velocityChange ), time_( time )
-    { }
+    {}
 
-    TrajectoryManeuver( ): position_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), velocityChange_( TUDAT_NAN ), time_( TUDAT_NAN ) { }
+    TrajectoryManeuver( ): position_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), velocityChange_( TUDAT_NAN ), time_( TUDAT_NAN ) {}
 
     Eigen::Vector3d getPosition( )
     {
@@ -81,7 +81,7 @@ public:
                  const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
                  const TransferLegTypes legType );
 
-    virtual ~TransferLeg( ) { }
+    virtual ~TransferLeg( ) {}
 
     void updateLegParameters( const Eigen::VectorXd legParameters );
 
@@ -213,7 +213,7 @@ public:
                                      const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
                                      const double centralBodyGravitationalParameter );
 
-    virtual ~UnpoweredUnperturbedTransferLeg( ) { }
+    virtual ~UnpoweredUnperturbedTransferLeg( ) {}
 
     void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time );
 
@@ -234,9 +234,9 @@ public:
                     const double centralBodyGravitationalParameter ):
         TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType ),
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
-    { }
+    {}
 
-    virtual ~DsmTransferLeg( ) { }
+    virtual ~DsmTransferLeg( ) {}
 
     void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time );
 
@@ -289,7 +289,7 @@ public:
                                  const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
                                  const double centralBodyGravitationalParameter );
 
-    virtual ~DsmPositionBasedTransferLeg( ) { }
+    virtual ~DsmPositionBasedTransferLeg( ) {}
 
 protected:
     void computeTransfer( );
@@ -312,7 +312,7 @@ public:
                                  const double centralBodyGravitationalParameter,
                                  const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
 
-    virtual ~DsmVelocityBasedTransferLeg( ) { }
+    virtual ~DsmVelocityBasedTransferLeg( ) {}
 
 protected:
     void computeTransfer( );

@@ -41,10 +41,10 @@ public:
      * Constructor
      * \param dependentVariablesSettings Vector of single dependent variable settings
      */
-    DependentVariablesInterface( ) { }
+    DependentVariablesInterface( ) {}
 
     //! Destructor.
-    virtual ~DependentVariablesInterface( ) { }
+    virtual ~DependentVariablesInterface( ) {}
 
     //! Function to get the dependent variables at a given time.
     /*!
@@ -102,7 +102,7 @@ public:
     }
 
     //! Destructor.
-    ~SingleArcDependentVariablesInterface( ) { }
+    ~SingleArcDependentVariablesInterface( ) {}
 
     //! Function to reset the dependent variables interpolator
     /*!
@@ -158,10 +158,9 @@ public:
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in dependent variable interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in dependent variable interpolation.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
-
         }
         return dependentVariables_;
     }
@@ -278,10 +277,10 @@ public:
             const std::vector< double >& arcEndTimes ):
         DependentVariablesInterface< TimeType >( ), singleArcInterfaces_( singleArcInterfaces ), arcStartTimes_( arcStartTimes ),
         arcEndTimes_( arcEndTimes )
-    { }
+    {}
 
     //! Destructor
-    ~MultiArcDependentVariablesInterface( ) { }
+    ~MultiArcDependentVariablesInterface( ) {}
 
     //! Function to reset the dependent variables interpolators
     /*!
@@ -442,10 +441,10 @@ public:
     HybridArcDependentVariablesInterface( const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > singleArcInterface,
                                           const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > multiArcInterface ):
         DependentVariablesInterface< TimeType >( ), singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
-    { }
+    {}
 
     //! Destructor
-    ~HybridArcDependentVariablesInterface( ) { }
+    ~HybridArcDependentVariablesInterface( ) {}
 
     //! Function to get the dependent variable at a given time.
     /*!

@@ -96,7 +96,7 @@ public:
                    const int maximumNumberOfPixels,
                    const bool multiThreading = false ):
         allPanels_( allPanels ), maximumNumberOfPixels_( maximumNumberOfPixels ), multiThreading_( multiThreading ),
-        isComputed_( false ){ };
+        isComputed_( false ) {};
 
     void updateIlluminatedPanelFractions( const Eigen::Vector3d& incomingDirection );
 

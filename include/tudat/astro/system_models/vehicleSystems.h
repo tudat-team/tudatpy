@@ -24,6 +24,7 @@
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/system_models/camera.h"
 
 namespace tudat
 {
@@ -44,10 +45,10 @@ public:
      * Constructor
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
-    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) { }
+    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) {}
 
     //! Destructor
-    ~VehicleSystems( ) { }
+    ~VehicleSystems( ) {}
 
     //! Function to retrieve the engine models
     /*!
@@ -188,13 +189,13 @@ public:
     {
         if( !( time == currentOrientationTime_ ) )
         {
-            for( auto it: vehiclePartOrientation_ )
+            for( auto it : vehiclePartOrientation_ )
             {
                 currentVehiclePartRotationToBodyFixedFrame_[ it.first ] = it.second->getRotationToBaseFrame( time );
             }
             currentVehiclePartRotationToBodyFixedFrame_[ "" ] = Eigen::Quaterniond::Identity( );
             unsigned int buffer = 0;
-            for( auto it: vehicleExteriorPanels_ )
+            for( auto it : vehicleExteriorPanels_ )
             {
                 for( unsigned int i = 0; i < it.second.size( ); i++ )
                 {
@@ -234,7 +235,7 @@ public:
         vehicleExteriorPanels_ = vehicleExteriorPanels;
         // group all panels in a vector
         totalNumberOfPanels_ = 0;
-        for( auto it: vehicleExteriorPanels_ )
+        for( auto it : vehicleExteriorPanels_ )
         {
             allPanels_.insert( allPanels_.end( ), it.second.begin( ), it.second.end( ) );
             totalNumberOfPanels_ += it.second.size( );
@@ -305,7 +306,7 @@ public:
     int getTotalNumberOfPanels( )
     {
         int numberOfPanels = 0;
-        for( auto it: vehicleExteriorPanels_ )
+        for( auto it : vehicleExteriorPanels_ )
         {
             numberOfPanels += it.second.size( );
         }
@@ -391,7 +392,7 @@ public:
     std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > getFixedReferencePoints( )
     {
         std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > fixedReferencePoints;
-        for( auto it: referencePoints_ )
+        for( auto it : referencePoints_ )
         {
             if( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second ) != nullptr )
             {
@@ -428,6 +429,51 @@ public:
         transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
     }
 
+    //! Function to add a camera to the vehicle systems
+    /*!
+     * Function to add a camera to the vehicle systems
+     * Also creates a reference point at the camera location with the same name as the camera.
+     * \param cameraName Name of camera
+     * \param camera Camera object that is to be set
+     * \param bodyFixedCameraPosition Position of the camera in the body-fixed frame [m]
+     */
+    void addCamera( const std::string& cameraName,
+                    const std::shared_ptr< system_models::Camera >& camera,
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
+    {
+        if( cameraMap.count( cameraName ) != 0 )
+        {
+            std::cerr << "Warning, camera with name " << cameraName << " already exists, overriding old camera" << std::endl;
+        }
+        cameraMap[ cameraName ] = camera;
+        this->setReferencePointPosition( cameraName, bodyFixedCameraPosition );
+    }
+
+    //! Function to retrieve a camera
+    /*!
+     * Function to retrieve a camera
+     * \param cameraName Name of camera
+     * \return Camera object that is retrieved
+     */
+    std::shared_ptr< system_models::Camera > getCamera( const std::string& cameraName ) const
+    {
+        if( cameraMap.count( cameraName ) == 0 )
+        {
+            throw std::runtime_error( "Error, camera " + cameraName + " does not exist" );
+        }
+        return cameraMap.at( cameraName );
+    }
+
+    //! Function to retrieve full list of cameras
+    /*!
+     * Function to retrieve full list of cameras
+     * \return Full list of cameras
+     */
+    std::map< std::string, std::shared_ptr< system_models::Camera > > getCameraMap( ) const
+    {
+        return cameraMap;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
@@ -436,6 +482,9 @@ private:
     std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels_;
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels_;
+
+    //! List of camera objects
+    std::map< std::string, std::shared_ptr< system_models::Camera > > cameraMap;
 
     bool panelGeometryDefined_;
 

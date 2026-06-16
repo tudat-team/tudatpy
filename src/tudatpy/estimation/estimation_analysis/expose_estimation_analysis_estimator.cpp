@@ -36,7 +36,7 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_estimator( py::module &m )
+void expose_estimation_analysis_estimator( py::module& m )
 {
     py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
@@ -52,9 +52,9 @@ void expose_estimation_analysis_estimator( py::module &m )
 
 
       )doc" )
-            .def( py::init< const tss::SystemOfBodies &,
+            .def( py::init< const tss::SystemOfBodies&,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
+                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
                             const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
                             const bool >( ),
                   py::arg( "bodies" ),

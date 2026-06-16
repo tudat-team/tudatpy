@@ -1041,9 +1041,9 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings( con
 
 //! @get_docstring(simpleRotationModelFromSpiceSettings)
 std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings( const std::string& originalFrame,
-                                                                                const std::string& targetFrame,
-                                                                                const std::string& targetFrameSpice,
-                                                                                const double initialTime );
+                                                                               const std::string& targetFrame,
+                                                                               const std::string& targetFrameSpice,
+                                                                               const double initialTime );
 
 //! @get_docstring(constantRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings( const std::string& originalFrame,

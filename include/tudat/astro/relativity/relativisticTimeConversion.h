@@ -48,13 +48,14 @@ double calculateFirstCentralBodyProperTimeRateDifference( const Eigen::Vector6d&
                                                           const std::vector< Eigen::Vector6d >& perturbedStates,
                                                           const std::vector< double >& centralBodyGravitationalParameters,
                                                           const double equivalencePrincipleLpiViolationParameter = 0.0 );
-                                        
+
 //! Function to calculate the 1st order integrand term in Eq. (58) of Soffel et al. (2003)
 /*!
  *  Function to calculate the 1st order integrand term in Eq. (58) of Soffel et al. (2003), for barycentric to bodycentric coordinate time
  *  conversion.
  *  \param velocityVector Velocity vector of body in barycentric frame.
- *  \param gravitationalScalarPotential Gravitational (scalar) potential, evaluated at the center of the body (excluding its own gravitational potential).
+ *  \param gravitationalScalarPotential Gravitational (scalar) potential, evaluated at the center of the body (excluding its own
+ * gravitational potential).
  *  \return First-order (1/c^2) contribution to barycentric to bodycentric coordinate time integral
  */
 double calculateFirstOrderTcbToTcgIntegrand( const Eigen::Vector3d velocityVector, const double gravitationalScalarPotential );
@@ -64,7 +65,8 @@ double calculateFirstOrderTcbToTcgIntegrand( const Eigen::Vector3d velocityVecto
  *  Function to calculate the 1st order integrand term in Eq. (58) of Soffel et al. (2003), for barycentric to bodycentric coordinate time
  *  conversion.
  *  \param barycentricSpeed Speed (norm of velocity vector) of body in barycentric frame.
- *  \param gravitationalScalarPotential Gravitational (scalar) potential, evaluated at the center of the body (excluding its own gravitational potential).
+ *  \param gravitationalScalarPotential Gravitational (scalar) potential, evaluated at the center of the body (excluding its own
+ * gravitational potential).
  *  \return First-order (1/c^2) contribution to barycentric to bodycentric coordinate time integral
  */
 double calculateFirstOrderTcbToTcgIntegrand( const double barycentricSpeed, const double gravitationalScalarPotential );
@@ -73,21 +75,18 @@ double calculateFirstOrderTcbToTcgIntegrand( const double barycentricSpeed, cons
 double calculateFirstOrderTcbToTcgDirectCorrection( const Eigen::Vector3d& geocentricPositionVector,
                                                     const Eigen::Vector3d& barycentricVelocityVector );
 
+//! Function to calculate the 2nd order integrand term in Eq. (58) of Soffel et al. (2003)
+double calculateSecondOrderTcbToTcgIntegrand( const double gravitationalScalarPotential,
+                                              const Eigen::Vector3d& barycentricVelocity,
+                                              const Eigen::Vector3d& gravitationalVectorPotential,
+                                              const double currentSecondOrderExternalPotentialCorrection );
 
 //! Function to calculate the 2nd order integrand term in Eq. (58) of Soffel et al. (2003)
-double calculateSecondOrderTcbToTcgIntegrand(
-        const double gravitationalScalarPotential,
-        const Eigen::Vector3d& barycentricVelocity,
-        const Eigen::Vector3d& gravitationalVectorPotential,
-        const double currentSecondOrderExternalPotentialCorrection);
-
-//! Function to calculate the 2nd order integrand term in Eq. (58) of Soffel et al. (2003)
-double calculateSecondOrderTcbToTcgIntegrand(
-        const double barycentricSpeed,
-        const double gravitationalScalarPotential,
-        const Eigen::Vector3d& barycentricVelocity,
-        const Eigen::Vector3d& gravitationalVectorPotential,
-        const double currentSecondOrderExternalPotentialCorrection);
+double calculateSecondOrderTcbToTcgIntegrand( const double barycentricSpeed,
+                                              const double gravitationalScalarPotential,
+                                              const Eigen::Vector3d& barycentricVelocity,
+                                              const Eigen::Vector3d& gravitationalVectorPotential,
+                                              const double currentSecondOrderExternalPotentialCorrection );
 
 //! Function to calculate the 2nd order direct term (i.e. not in integral) in Eq. (58) of Soffel et al. (2003)
 double calculateSecondOrderTcbToTcgDirectCorrection( const Eigen::Vector3d& geocentricPositionVector,
@@ -103,7 +102,6 @@ double calculateFirstOrderPlanetocentricToTopocentricConversion(
         const Eigen::Vector3d centralBodyAcceleration = Eigen::Vector3d::Zero( ),
         const std::vector< Eigen::Vector3d >& relativeTidalBodyPositions = std::vector< Eigen::Vector3d >( ),
         const std::vector< double >& tidalBodyGravitationalParameters = std::vector< double >( ) );
-
 
 }  // namespace relativity
 

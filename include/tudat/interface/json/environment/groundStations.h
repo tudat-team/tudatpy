@@ -29,7 +29,7 @@ static std::map< coordinate_conversions::PositionElementTypes, std::string > pos
 };
 
 //! `PositionElementTypes` not supported by `json_interface`.
-static std::vector< coordinate_conversions::PositionElementTypes > unsupportedPositionElementTypes = { };
+static std::vector< coordinate_conversions::PositionElementTypes > unsupportedPositionElementTypes = {};
 
 //! Convert `PositionElementTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const coordinate_conversions::PositionElementTypes& positionElementType )
