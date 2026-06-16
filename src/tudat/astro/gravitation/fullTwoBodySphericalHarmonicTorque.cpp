@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <set>
 #include <vector>
 
@@ -16,116 +15,6 @@ namespace gravitation
 
 namespace
 {
-
-bool isSingleC21ByC20Combination(
-        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
-{
-    return coefficientCombinationsToUse.size( ) == 1 && std::get< 0 >( coefficientCombinationsToUse.at( 0 ) ) == 2 &&
-            std::get< 1 >( coefficientCombinationsToUse.at( 0 ) ) == 1 && std::get< 2 >( coefficientCombinationsToUse.at( 0 ) ) == 2 &&
-            std::get< 3 >( coefficientCombinationsToUse.at( 0 ) ) == 0;
-}
-
-bool isUnitC21ByC20DebugCase(
-        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        const Eigen::Vector3d& bodyFixedRelativePosition,
-        const Eigen::MatrixXd& cosineCoefficientsOfBody1,
-        const Eigen::MatrixXd& sineCoefficientsOfBody1,
-        const Eigen::MatrixXd& cosineCoefficientsOfBody2,
-        const Eigen::MatrixXd& sineCoefficientsOfBody2 )
-{
-    if( !isSingleC21ByC20Combination( coefficientCombinationsToUse ) )
-    {
-        return false;
-    }
-
-    if( cosineCoefficientsOfBody1.rows( ) < 3 || cosineCoefficientsOfBody1.cols( ) < 3 || cosineCoefficientsOfBody2.rows( ) < 3 ||
-        cosineCoefficientsOfBody2.cols( ) < 3 )
-    {
-        return false;
-    }
-
-    const double tolerance = 1.0E-14;
-    const bool isRequestedRelativePositionOnXAxis = std::fabs( std::fabs( bodyFixedRelativePosition.x( ) ) - 1.0 ) < tolerance &&
-            std::fabs( bodyFixedRelativePosition.y( ) ) < tolerance && std::fabs( bodyFixedRelativePosition.z( ) ) < tolerance;
-    const bool hasBody1OnlyC21 = std::fabs( cosineCoefficientsOfBody1( 2, 1 ) - 1.0 ) < tolerance &&
-            std::fabs( cosineCoefficientsOfBody1( 2, 0 ) ) < tolerance && std::fabs( cosineCoefficientsOfBody1( 2, 2 ) ) < tolerance &&
-            std::fabs( sineCoefficientsOfBody1( 2, 1 ) ) < tolerance && std::fabs( sineCoefficientsOfBody1( 2, 2 ) ) < tolerance;
-    const bool hasBody2OnlyC20 = std::fabs( cosineCoefficientsOfBody2( 2, 0 ) - 1.0 ) < tolerance &&
-            std::fabs( cosineCoefficientsOfBody2( 2, 1 ) ) < tolerance && std::fabs( cosineCoefficientsOfBody2( 2, 2 ) ) < tolerance &&
-            std::fabs( sineCoefficientsOfBody2( 2, 1 ) ) < tolerance && std::fabs( sineCoefficientsOfBody2( 2, 2 ) ) < tolerance;
-    return isRequestedRelativePositionOnXAxis && hasBody1OnlyC21 && hasBody2OnlyC20;
-}
-
-struct DegreeTwoCoefficientDescriptor {
-    bool isValid = false;
-    bool isCosine = true;
-    int order = -1;
-    std::string name = "";
-    double value = 0.0;
-};
-
-DegreeTwoCoefficientDescriptor getSingleActiveDegreeTwoCoefficient( const Eigen::MatrixXd& cosineCoefficients,
-                                                                    const Eigen::MatrixXd& sineCoefficients )
-{
-    DegreeTwoCoefficientDescriptor descriptor;
-    if( cosineCoefficients.rows( ) < 3 || cosineCoefficients.cols( ) < 3 || sineCoefficients.rows( ) < 3 || sineCoefficients.cols( ) < 3 )
-    {
-        return descriptor;
-    }
-
-    const double tolerance = 1.0E-14;
-    int activeCount = 0;
-    auto setIfActive = [ & ]( const double value, const bool isCosine, const int order, const std::string& name ) {
-        if( std::fabs( value ) > tolerance )
-        {
-            activeCount++;
-            descriptor.isValid = true;
-            descriptor.isCosine = isCosine;
-            descriptor.order = order;
-            descriptor.name = name;
-            descriptor.value = value;
-        }
-    };
-
-    setIfActive( cosineCoefficients( 2, 0 ), true, 0, "C20" );
-    setIfActive( cosineCoefficients( 2, 1 ), true, 1, "C21" );
-    setIfActive( sineCoefficients( 2, 1 ), false, 1, "S21" );
-    setIfActive( cosineCoefficients( 2, 2 ), true, 2, "C22" );
-    setIfActive( sineCoefficients( 2, 2 ), false, 2, "S22" );
-
-    if( activeCount != 1 )
-    {
-        descriptor = DegreeTwoCoefficientDescriptor( );
-    }
-    return descriptor;
-}
-
-bool isSingleDegreeTwoByDegreeTwoCombination(
-        const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
-{
-    return coefficientCombinationsToUse.size( ) == 1 && std::get< 0 >( coefficientCombinationsToUse.at( 0 ) ) == 2 &&
-            std::get< 2 >( coefficientCombinationsToUse.at( 0 ) ) == 2;
-}
-
-Eigen::Vector3d computeExpectedJHatFromDerivationDocument( const Eigen::Vector3d& relativePosition )
-{
-    const double x = relativePosition.x( );
-    const double y = relativePosition.y( );
-    const double z = relativePosition.z( );
-    const double r2 = relativePosition.squaredNorm( );
-    const double r = std::sqrt( r2 );
-    const double x2 = x * x;
-    const double y2 = y * y;
-    const double z2 = z * z;
-    const double x4 = x2 * x2;
-    const double y4 = y2 * y2;
-    const double z4 = z2 * z2;
-
-    const double prefactor = 10.0 * std::sqrt( 3.0 ) / std::pow( r, 9.0 );
-    Eigen::Vector3d expectedJHat = Eigen::Vector3d::Zero( );
-    expectedJHat << -10.0 * x * y * ( r2 - 7.0 * z2 ), 4.0 * x4 + 3.0 * x2 * y2 - 27.0 * x2 * z2 - y4 + 3.0 * y2 * z2 + 4.0 * z4, 0.0;
-    return prefactor * expectedJHat;
-}
 
 //! Apply the angular momentum operator to one Wigner-D coefficient entry.
 /*!
@@ -431,60 +320,13 @@ void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime
                                                        transformedSineCoefficientsBody2AngularMomentum_ );
 
         const Eigen::Vector3d bodyFixedRelativePosition = accelerationBetweenBodies_->getCurrentBodyFixedRelativePosition( );
-        const DegreeTwoCoefficientDescriptor activeBody1DegreeTwoCoefficient =
-                getSingleActiveDegreeTwoCoefficient( cosineCoefficientsOfBody1, sineCoefficientsOfBody1 );
-        const DegreeTwoCoefficientDescriptor activeBody2DegreeTwoCoefficient =
-                getSingleActiveDegreeTwoCoefficient( cosineCoefficientsOfBody2, sineCoefficientsOfBody2 );
-        const bool isExpandedSingleInteractionDebugCase = isSingleDegreeTwoByDegreeTwoCombination( coefficientCombinationsToUse_ ) &&
-                activeBody1DegreeTwoCoefficient.isValid && activeBody2DegreeTwoCoefficient.isValid &&
-                ( activeBody1DegreeTwoCoefficient.name == "C21" || activeBody1DegreeTwoCoefficient.name == "S21" ||
-                  activeBody1DegreeTwoCoefficient.name == "S22" );
-        const bool isDebugCase = isUnitC21ByC20DebugCase( coefficientCombinationsToUse_,
-                                                          bodyFixedRelativePosition,
-                                                          cosineCoefficientsOfBody1,
-                                                          sineCoefficientsOfBody1,
-                                                          cosineCoefficientsOfBody2,
-                                                          sineCoefficientsOfBody2 );
-        if( isDebugCase )
-        {
-            const double sqrtThree = std::sqrt( 3.0 );
-            std::cout << "[DBG Eq66/67 transformed J*C/J*S for body2 degree-2]" << std::endl;
-            std::cout << "  m=0 JC computed=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 0 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 0 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 0 ) << " expected=0 0 0" << std::endl;
-            std::cout << "  m=0 JS computed=" << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 0 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 0 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 0 ) << " expected=0 0 0" << std::endl;
-            std::cout << "  m=1 JC computed=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 1 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 1 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 1 ) << " expected=0 " << sqrtThree << " 0"
-                      << std::endl;
-            std::cout << "  m=1 JS computed=" << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 1 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 1 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 1 ) << " expected=" << sqrtThree << " 0 0"
-                      << std::endl;
-            std::cout << "  m=2 JC computed=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 2 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 2 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 2 ) << " expected=0 0 0" << std::endl;
-            std::cout << "  m=2 JS computed=" << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 2 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 2 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 2 ) << " expected=0 0 0" << std::endl;
-        }
         const double currentDistance = bodyFixedRelativePosition.norm( );
         const double preMultiplier = accelerationBetweenBodies_->getCurrentGravitationalParameter( ) / currentDistance;
-        if( isDebugCase )
-        {
-            std::cout << "[DBG state] r=" << currentDistance << " preMultiplier(GM/r)=" << preMultiplier
-                      << " mu=" << accelerationBetweenBodies_->getCurrentGravitationalParameter( ) << std::endl;
-        }
 
         const std::vector< double >& radius1Powers = accelerationBetweenBodies_->getRadius1Powers( );
         const std::vector< double >& radius2Powers = accelerationBetweenBodies_->getRadius2Powers( );
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
                 accelerationBetweenBodies_->getSphericalHarmonicsCache( );
-
-        const Eigen::Vector3d expectedJHatFromDerivation = computeExpectedJHatFromDerivationDocument( bodyFixedRelativePosition );
-        Eigen::Vector3d debugEq67AlternativeSourceOrder0 = Eigen::Vector3d::Zero( );
 
         // Step 3: evaluate body-2 spin torque contribution in frame F1 from Eq. (67), then apply Eq. (60).
         Eigen::Vector3d body2TorqueInBodyFixedFrameOfBody1 = Eigen::Vector3d::Zero( );
@@ -554,130 +396,16 @@ void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime
                         ( effectiveAngularMomentumCosineCoefficients * cosineOfMultipleLongitude +
                           effectiveAngularMomentumSineCoefficients * sineOfMultipleLongitude );
                 body2TorqueInBodyFixedFrameOfBody1 += currentEq67Contribution;
-
-                Eigen::Vector3d currentEq67ContributionSourceOrder0 = Eigen::Vector3d::Zero( );
-                if( isDebugCase && coefficientCombinationsToUse_.size( ) == 1 )
-                {
-                    const int selectedOrderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( 0 ) );
-                    const int signedSelectedOrderOfBody2 = ( selectedOrderOfBody2 == 0 ) ? 0 : signedOrderOfBody2;
-                    const double signSelectedOrderBody2 = ( signedSelectedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
-                    const double signSelectedTotalOrder = ( ( signedOrderOfBody1 + signedSelectedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
-                    const int selectedTotalOrder = std::abs( signedOrderOfBody1 + signedSelectedOrderOfBody2 );
-                    const double selectedLegendrePolynomial =
-                            sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, selectedTotalOrder );
-                    const double selectedCosineOfMultipleLongitude =
-                            sphericalHarmonicsCache->getCosineOfMultipleLongitude( selectedTotalOrder );
-                    const double selectedSineOfMultipleLongitude =
-                            sphericalHarmonicsCache->getSineOfMultipleLongitude( selectedTotalOrder );
-                    const double selectedOrderMultiplier =
-                            getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1,
-                                                                              signedOrderOfBody1,
-                                                                              degreeOfBody2,
-                                                                              signedSelectedOrderOfBody2,
-                                                                              accelerationBetweenBodies_->getAreCoefficientsNormalized( ) );
-                    const Eigen::Vector3d effectiveAngularMomentumCosineCoefficientsSourceOrder0 =
-                            ( body1CosineCoefficient * angularMomentumTransformedCosineCoefficientsBody2 -
-                              signOrderBody1 * signSelectedOrderBody2 * body1SineCoefficient *
-                                      angularMomentumTransformedSineCoefficientsBody2 ) *
-                            selectedOrderMultiplier;
-                    const Eigen::Vector3d effectiveAngularMomentumSineCoefficientsSourceOrder0 =
-                            ( signSelectedOrderBody2 * body1CosineCoefficient * angularMomentumTransformedSineCoefficientsBody2 +
-                              signOrderBody1 * body1SineCoefficient * angularMomentumTransformedCosineCoefficientsBody2 ) *
-                            signSelectedTotalOrder * selectedOrderMultiplier;
-                    currentEq67ContributionSourceOrder0 = equatorialRadiusRatioPower * selectedLegendrePolynomial *
-                            ( effectiveAngularMomentumCosineCoefficientsSourceOrder0 * selectedCosineOfMultipleLongitude +
-                              effectiveAngularMomentumSineCoefficientsSourceOrder0 * selectedSineOfMultipleLongitude );
-                    debugEq67AlternativeSourceOrder0 += currentEq67ContributionSourceOrder0;
-                }
-
-                if( isDebugCase )
-                {
-                    std::cout << "[DBG Eq67 term] (l1,m1,l2,m2)=(" << degreeOfBody1 << "," << signedOrderOfBody1 << "," << degreeOfBody2
-                              << "," << signedOrderOfBody2 << ") "
-                              << "term_computed=" << currentEq67Contribution.transpose( )
-                              << " term_alt_source_order0=" << currentEq67ContributionSourceOrder0.transpose( )
-                              << " running_sum_computed=" << body2TorqueInBodyFixedFrameOfBody1.transpose( )
-                              << " running_sum_expected_final=" << expectedJHatFromDerivation.transpose( ) << std::endl;
-                    std::cout << "  [DBG Eq67 term factors] P_lm=" << legendrePolynomial << " cos(m*lon)=" << cosineOfMultipleLongitude
-                              << " sin(m*lon)=" << sineOfMultipleLongitude << " multiplier=" << multiplier << " body1(C,S)=("
-                              << body1CosineCoefficient << "," << body1SineCoefficient << ")"
-                              << " JC=" << angularMomentumTransformedCosineCoefficientsBody2.transpose( )
-                              << " JS=" << angularMomentumTransformedSineCoefficientsBody2.transpose( ) << std::endl;
-                }
             }
         }
-        if( isDebugCase )
-        {
-            std::cout << "[DBG Eq67 sum Jhat(V1-2)] computed=" << body2TorqueInBodyFixedFrameOfBody1.transpose( )
-                      << " alt_source_order0=" << debugEq67AlternativeSourceOrder0.transpose( )
-                      << " expected=" << expectedJHatFromDerivation.transpose( ) << std::endl;
-        }
-        const Eigen::Vector3d body2TorqueEq67SumBeforePremult = body2TorqueInBodyFixedFrameOfBody1;
         body2TorqueInBodyFixedFrameOfBody1 *= -preMultiplier;
         // Eq. (60): M_2 = -\hat{J}(V_1-2), with preMultiplier carrying the common -GM/r factor.
-        if( isDebugCase )
-        {
-            const Eigen::Vector3d expectedBody2TorqueFromDerivation = -preMultiplier * expectedJHatFromDerivation;
-            std::cout << "[DBG Eq60 M2=-Jhat(V1-2)] computed=" << body2TorqueInBodyFixedFrameOfBody1.transpose( )
-                      << " expected=" << expectedBody2TorqueFromDerivation.transpose( ) << std::endl;
-        }
 
         // Step 4: compute total relative-frame torque from translational side using Eq. (68),
         // then isolate body-1 torque by subtracting body-2 contribution.
         const Eigen::Vector3d totalTorqueInBodyFixedFrameOfBody1 =
                 bodyFixedRelativePosition.cross( accelerationBetweenBodies_->getMutualPotentialGradient( ) );
         const Eigen::Vector3d body1TorqueInBodyFixedFrameOfBody1 = totalTorqueInBodyFixedFrameOfBody1 - body2TorqueInBodyFixedFrameOfBody1;
-        if( isExpandedSingleInteractionDebugCase )
-        {
-            std::cout << "[DBG degree2 Eq67/Eq68 breakdown] case=" << activeBody1DegreeTwoCoefficient.name << "x"
-                      << activeBody2DegreeTwoCoefficient.name << " r=" << bodyFixedRelativePosition.transpose( ) << std::endl;
-            std::cout << "  Eq67_sum_before_premult=" << body2TorqueEq67SumBeforePremult.transpose( )
-                      << " preMultiplier(GM/r)=" << preMultiplier << std::endl;
-            std::cout << "  body2_torque_from_Eq60=" << body2TorqueInBodyFixedFrameOfBody1.transpose( ) << std::endl;
-            std::cout << "  total_torque_from_Eq68=rxdUdr=" << totalTorqueInBodyFixedFrameOfBody1.transpose( ) << std::endl;
-            std::cout << "  body1_torque_from_Eq68_minus_Eq60=" << body1TorqueInBodyFixedFrameOfBody1.transpose( ) << std::endl;
-            std::cout << "  transformed_JC(m=0,1,2)_x=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 0 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 1 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 2 ) << std::endl;
-            std::cout << "  transformed_JC(m=0,1,2)_y=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 0 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 1 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 2 ) << std::endl;
-            std::cout << "  transformed_JC(m=0,1,2)_z=" << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 0 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 1 ) << " "
-                      << transformedCosineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 2 ) << std::endl;
-            std::cout << "  transformed_JS(m=0,1,2)_x=" << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 0 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 1 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 0 )( 2, 2 ) << std::endl;
-            std::cout << "  transformed_JS(m=0,1,2)_y=" << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 0 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 1 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 2 ) << std::endl;
-            std::cout << "  transformed_JS(m=0,1,2)_z=" << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 0 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 1 ) << " "
-                      << transformedSineCoefficientsBody2AngularMomentum_.at( 2 )( 2, 2 ) << std::endl;
-        }
-        if( isDebugCase )
-        {
-            // For this exact debug setup (unit C21 x C20, r=[+/-1,0,0]), Eq. (8) analytical body-1 torque
-            // in the test-side normalized convention is [0, -35*sqrt(3)/2, 0].
-            const Eigen::Vector3d expectedCurrentTorqueFromDerivation( 0.0, -35.0 * std::sqrt( 3.0 ) / 2.0, 0.0 );
-            const Eigen::Vector3d expectedBody1TorqueFromDerivation = -expectedCurrentTorqueFromDerivation;
-            const Eigen::Vector3d expectedBody2TorqueFromDerivationClosure =
-                    totalTorqueInBodyFixedFrameOfBody1 - expectedBody1TorqueFromDerivation;
-            const Eigen::Vector3d expectedEq67SumFromDerivationClosure = -expectedBody2TorqueFromDerivationClosure / preMultiplier;
-            const double requiredEq67ScalingFromClosure = ( std::fabs( body2TorqueEq67SumBeforePremult.y( ) ) > 1.0E-15 )
-                    ? ( expectedEq67SumFromDerivationClosure.y( ) / body2TorqueEq67SumBeforePremult.y( ) )
-                    : TUDAT_NAN;
-            const double computedJCyDegreeTwoOrderOne = transformedCosineCoefficientsBody2AngularMomentum_.at( 1 )( 2, 1 );
-            const double expectedJCyFromClosure = computedJCyDegreeTwoOrderOne * requiredEq67ScalingFromClosure;
-
-            const Eigen::Vector3d expectedTotalTorqueFromEquation68 =
-                    body1TorqueInBodyFixedFrameOfBody1 + body2TorqueInBodyFixedFrameOfBody1;
-            std::cout << "[DBG Eq68 torque balance] r x dU/dr=" << totalTorqueInBodyFixedFrameOfBody1.transpose( )
-                      << " expected_eq67_from_closure=" << expectedEq67SumFromDerivationClosure.transpose( )
-                      << " eq67_required_scaling_from_closure=" << requiredEq67ScalingFromClosure
-                      << " JC_y_computed=" << computedJCyDegreeTwoOrderOne << " JC_y_implied_from_closure=" << expectedJCyFromClosure
-                      << " expected(body1+body2)=" << expectedTotalTorqueFromEquation68.transpose( ) << std::endl;
-        }
 
         // Step 5: return requested body's torque, applying frame mapping for body 2 using Eq. (69).
         if( acceleratedBodyIsBody1_ )

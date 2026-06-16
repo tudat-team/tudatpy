@@ -61,7 +61,8 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
 
     // Initialize cache and effective-field object that converts two-body coefficients to effective one-body
     // coefficients (Dirkx et al. (2019), Eqs. (47)-(48)).
-    sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( maximumDegree_ + 1, maximumOrder_ + 1 );
+    sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( static_cast< int >( maximumDegree_ + 1 ),
+                                                                                               static_cast< int >( maximumOrder_ + 1 ) );
     effectiveMutualPotentialField_ = std::make_shared< EffectiveMutualSphericalHarmonicsField >( coefficientCombinationsToUse_,
                                                                                                  cosineHarmonicCoefficientsOfBody1Function,
                                                                                                  sineHarmonicCoefficientsOfBody1Function,
@@ -96,8 +97,11 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         currentRotationFromBody2ToBody1_ = currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
 
         // Step 2: compute relative state and express it in body-1 frame, in which Eq. (49) is evaluated.
-        currentRelativePosition_ = positionOfBody1Function_( ) - positionOfBody2Function_( );
+        const Eigen::Vector3d positionBody1 = positionOfBody1Function_( );
+        const Eigen::Vector3d positionBody2 = positionOfBody2Function_( );
+        currentRelativePosition_ = positionBody1 - positionBody2;
         currentBodyFixedRelativePosition_ = currentRotationFromInertialToBody1_ * ( currentRelativePosition_ );
+        const double currentGravitationalParameter = gravitationalParameterFunction_( );
 
         // Step 3: transform body-2 coefficients to frame F1 and build effective coefficients used in Eq. (49)
         // through the Eq. (47)-(48) mapping.
@@ -121,7 +125,7 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
             // This applies Eq. (55) with potential terms from Eq. (49).
             mutualPotentialGradient_ =
                     computeGeodesyNormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
-                                                                                gravitationalParameterFunction_( ),
+                                                                                currentGravitationalParameter,
                                                                                 equatorialRadiusOfBody1_,
                                                                                 equatorialRadiusOfBody2_,
                                                                                 effectiveCosineCoefficientFunction_,
@@ -138,7 +142,7 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         {
             // Step 5b: same as above, but for unnormalized coefficients.
             mutualPotentialGradient_ = computeUnnormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
-                                                                                              gravitationalParameterFunction_( ),
+                                                                                              currentGravitationalParameter,
                                                                                               equatorialRadiusOfBody1_,
                                                                                               equatorialRadiusOfBody2_,
                                                                                               effectiveCosineCoefficientFunction_,
@@ -151,6 +155,7 @@ void FullTwoBodySphericalHarmonicAcceleration::updateMembers( const double curre
         // The mutual potential gradient is assembled in body-1-fixed coordinates, so we always rotate it back
         // to inertial orientation for translational propagation consistency.
         currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
+        basic_astrodynamics::AccelerationModel3d::currentAcceleration_ = currentAcceleration_;
         currentTime_ = currentTime;
     }
 }

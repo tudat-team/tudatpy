@@ -473,12 +473,6 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                         appliedQuaternionPerturbationOfBodyUndergoingTorque.at( index );
                 const Eigen::Vector3d numericalTorqueDeviationOfBodyUndergoingTorque =
                         torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 );
-                std::cout << "Fourth-degree quaternion test, body undergoing torque, rotation case " << useArbitraryRotationStates
-                          << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << ", perturbation index " << index << '\n'
-                          << "Analytical torque deviation:\n"
-                          << analyticalTorqueDeviationOfBodyUndergoingTorque << '\n'
-                          << "Numerical torque deviation:\n"
-                          << numericalTorqueDeviationOfBodyUndergoingTorque << std::endl;
                 checkMatrixClosePerElement(
                         analyticalTorqueDeviationOfBodyUndergoingTorque, numericalTorqueDeviationOfBodyUndergoingTorque, 5.0E-9 );
 
@@ -486,12 +480,6 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                         analyticalPartialWrtOrientationOfBodyExertingTorque * appliedQuaternionPerturbationOfBodyExertingTorque.at( index );
                 const Eigen::Vector3d numericalTorqueDeviationOfBodyExertingTorque =
                         torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 );
-                std::cout << "Fourth-degree quaternion test, body exerting torque, rotation case " << useArbitraryRotationStates
-                          << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << ", perturbation index " << index << '\n'
-                          << "Analytical torque deviation:\n"
-                          << analyticalTorqueDeviationOfBodyExertingTorque << '\n'
-                          << "Numerical torque deviation:\n"
-                          << numericalTorqueDeviationOfBodyExertingTorque << std::endl;
                 checkMatrixClosePerElement(
                         analyticalTorqueDeviationOfBodyExertingTorque, numericalTorqueDeviationOfBodyExertingTorque, 5.0E-9 );
             }
@@ -505,33 +493,13 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
             BOOST_CHECK_GT( analyticalPositionPartialNorm, 1.0E-20 );
             BOOST_CHECK_GT( numericalPositionPartialNorm, 1.0E-20 );
 
-            std::cout << "Fourth-degree position partial test, body undergoing torque, rotation case " << useArbitraryRotationStates
-                      << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical position partial:\n"
-                      << analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ) << '\n'
-                      << "Numerical position partial:\n"
-                      << numericalPartialWrtPositionOfBodyUndergoingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
                                         numericalPartialWrtPositionOfBodyUndergoingTorque,
                                         5.0E-9 );
-            std::cout << "Fourth-degree position partial test, body exerting torque, rotation case " << useArbitraryRotationStates
-                      << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical position partial:\n"
-                      << analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ) << '\n'
-                      << "Numerical position partial:\n"
-                      << numericalPartialWrtPositionOfBodyExertingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ),
                                         numericalPartialWrtPositionOfBodyExertingTorque,
                                         5.0E-9 );
-            std::cout << "Fourth-degree velocity partial test, body undergoing torque, rotation case " << useArbitraryRotationStates
-                      << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical velocity partial:\n"
-                      << analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ) << std::endl;
             BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
-            std::cout << "Fourth-degree velocity partial test, body exerting torque, rotation case " << useArbitraryRotationStates
-                      << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical velocity partial:\n"
-                      << analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 3, 3, 3 ) << std::endl;
             BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
 
             const Eigen::MatrixXd numericalPartialWrtVelocityOfBodyUndergoingTorque =
@@ -550,13 +518,7 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                                                                   3,
                                                                   emptyFunction,
                                                                   testTime );
-            std::cout << "Fourth-degree velocity partial test, body undergoing torque, numerical reference, rotation case "
-                      << useArbitraryRotationStates << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << numericalPartialWrtVelocityOfBodyUndergoingTorque << std::endl;
             BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyUndergoingTorque.norm( ), 1.0E-18 );
-            std::cout << "Fourth-degree velocity partial test, body exerting torque, numerical reference, rotation case "
-                      << useArbitraryRotationStates << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << numericalPartialWrtVelocityOfBodyExertingTorque << std::endl;
             BOOST_CHECK_SMALL( numericalPartialWrtVelocityOfBodyExertingTorque.norm( ), 1.0E-18 );
 
             const double analyticalCoefficientPartialNorm = analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque.norm( ) +
@@ -571,39 +533,15 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
             BOOST_CHECK_GT( analyticalCoefficientPartialNorm, 1.0E-20 );
             BOOST_CHECK_GT( numericalCoefficientPartialNorm, 1.0E-20 );
 
-            std::cout << "Fourth-degree coefficient partial test, cosine, body undergoing torque, rotation case "
-                      << useArbitraryRotationStates << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical coefficient partial:\n"
-                      << analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque << '\n'
-                      << "Numerical coefficient partial:\n"
-                      << numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
                                         numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
                                         1.0E-6 );
-            std::cout << "Fourth-degree coefficient partial test, sine, body undergoing torque, rotation case "
-                      << useArbitraryRotationStates << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical coefficient partial:\n"
-                      << analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque << '\n'
-                      << "Numerical coefficient partial:\n"
-                      << numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
                                         numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
                                         1.0E-6 );
-            std::cout << "Fourth-degree coefficient partial test, cosine, body exerting torque, rotation case "
-                      << useArbitraryRotationStates << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical coefficient partial:\n"
-                      << analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque << '\n'
-                      << "Numerical coefficient partial:\n"
-                      << numericalPartialWrtCosineCoefficientsOfBodyExertingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
                                         numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
                                         1.0E-6 );
-            std::cout << "Fourth-degree coefficient partial test, sine, body exerting torque, rotation case " << useArbitraryRotationStates
-                      << ", zero mean moment case " << useZeroScaledMeanMomentOfInertia << '\n'
-                      << "Analytical coefficient partial:\n"
-                      << analyticalPartialWrtSineCoefficientsOfBodyExertingTorque << '\n'
-                      << "Numerical coefficient partial:\n"
-                      << numericalPartialWrtSineCoefficientsOfBodyExertingTorque << std::endl;
             checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                         numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                         1.0E-6 );

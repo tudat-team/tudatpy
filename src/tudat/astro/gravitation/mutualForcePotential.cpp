@@ -2,39 +2,11 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/astro/gravitation/mutualForcePotential.h"
 
-#include <iostream>
-
 namespace tudat
 {
 
 namespace gravitation
 {
-
-namespace
-{
-
-bool isUnitC21ByC20DebugCase( const Eigen::MatrixXd& cosineCoefficientsOfBody1,
-                              const Eigen::MatrixXd& sineCoefficientsOfBody1,
-                              const Eigen::MatrixXd& cosineCoefficientsOfBody2,
-                              const Eigen::MatrixXd& sineCoefficientsOfBody2 )
-{
-    if( cosineCoefficientsOfBody1.rows( ) < 3 || cosineCoefficientsOfBody1.cols( ) < 3 || cosineCoefficientsOfBody2.rows( ) < 3 ||
-        cosineCoefficientsOfBody2.cols( ) < 3 )
-    {
-        return false;
-    }
-
-    const double tolerance = 1.0E-14;
-    const bool hasBody1OnlyC21 = std::fabs( cosineCoefficientsOfBody1( 2, 1 ) - 1.0 ) < tolerance &&
-            std::fabs( cosineCoefficientsOfBody1( 2, 0 ) ) < tolerance && std::fabs( cosineCoefficientsOfBody1( 2, 2 ) ) < tolerance &&
-            std::fabs( sineCoefficientsOfBody1( 2, 1 ) ) < tolerance && std::fabs( sineCoefficientsOfBody1( 2, 2 ) ) < tolerance;
-    const bool hasBody2OnlyC20 = std::fabs( cosineCoefficientsOfBody2( 2, 0 ) - 1.0 ) < tolerance &&
-            std::fabs( cosineCoefficientsOfBody2( 2, 1 ) ) < tolerance && std::fabs( cosineCoefficientsOfBody2( 2, 2 ) ) < tolerance &&
-            std::fabs( sineCoefficientsOfBody2( 2, 1 ) ) < tolerance && std::fabs( sineCoefficientsOfBody2( 2, 2 ) ) < tolerance;
-    return hasBody1OnlyC21 && hasBody2OnlyC20;
-}
-
-}  // namespace
 
 //! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
 std::pair< int, int > getMaximumDegrees(
@@ -114,13 +86,6 @@ double getMutualPotentialEffectiveCoefficientMultiplier( const int degree1,
                 getSigmaSignFunction( order1 ) * getSigmaSignFunction( order2 ) * getSigmaSignFunction( order1 + order2 ) *
                 ( ( order1 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) * ( ( order2 == 0 ) ? ( 1.0 ) : ( 0.5 ) ) *
                 ( ( degree1 % 2 == 0 ) ? ( 1.0 ) : ( -1.0 ) );
-    }
-
-    if( degree1 == 2 && std::abs( order1 ) == 1 && degree2 == 2 && order2 == 0 && areCoefficientsNormalized )
-    {
-        const double expectedFromDerivation = std::sqrt( 125.0 / 6.0 );
-        std::cout << "[DBG Eq47/48 multiplier C21xC20] computed=" << multiplier << " expected=" << expectedFromDerivation
-                  << " (sqrt(125/6))" << std::endl;
     }
 
     return multiplier;
@@ -371,7 +336,6 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector) and
     // return the resulting acceleration vector.
-
     return coordinate_conversions::convertSphericalToCartesianGradient( sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
@@ -606,17 +570,6 @@ void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients( co
     double currentMultiplier = multipliers_.at( effectiveIndex );
     cosineCoefficient *= currentMultiplier;
     sineCoefficient *= ( ( ( order1 + order2 ) < 0 ) ? ( -1.0 ) : ( 1.0 ) ) * currentMultiplier;
-
-    if( degree1 == 2 && std::abs( order1 ) == 1 && degree2 == 2 && order2 == 0 &&
-        isUnitC21ByC20DebugCase(
-                cosineCoefficientsOfBody1_, sineCoefficientsOfBody1_, cosineCoefficientsOfBody2_, sineCoefficientsOfBody2_ ) )
-    {
-        const double expectedCosine = currentMultiplier;
-        const double expectedSine = 0.0;
-        std::cout << "[DBG Eq47/48 Ceff/Seff C21xC20] m1=" << order1 << " m2=" << order2 << " Ceff_computed=" << cosineCoefficient
-                  << " Ceff_expected=" << expectedCosine << " Seff_computed=" << sineCoefficient << " Seff_expected=" << expectedSine
-                  << std::endl;
-    }
 }
 
 //! Update transformed body-2 coefficients and rebuild effective coefficients for current relative orientation.
@@ -639,19 +592,6 @@ void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients
                                                          transformedCosineCoefficientsOfBody2_,
                                                          transformedSineCoefficientsOfBody2_,
                                                          areCoefficientsNormalized_ );
-
-    if( isUnitC21ByC20DebugCase(
-                cosineCoefficientsOfBody1_, sineCoefficientsOfBody1_, cosineCoefficientsOfBody2_, sineCoefficientsOfBody2_ ) )
-    {
-        std::cout << "[DBG Eq40/41 transformed body2] q(F2->F1)=(" << coefficientRotationQuaterion.w( ) << ", "
-                  << coefficientRotationQuaterion.x( ) << ", " << coefficientRotationQuaterion.y( ) << ", "
-                  << coefficientRotationQuaterion.z( ) << ")" << std::endl;
-        std::cout << "  C20 computed=" << transformedCosineCoefficientsOfBody2_( 2, 0 ) << " expected=1" << std::endl;
-        std::cout << "  C21 computed=" << transformedCosineCoefficientsOfBody2_( 2, 1 ) << " expected=0" << std::endl;
-        std::cout << "  S21 computed=" << transformedSineCoefficientsOfBody2_( 2, 1 ) << " expected=0" << std::endl;
-        std::cout << "  C22 computed=" << transformedCosineCoefficientsOfBody2_( 2, 2 ) << " expected=0" << std::endl;
-        std::cout << "  S22 computed=" << transformedSineCoefficientsOfBody2_( 2, 2 ) << " expected=0" << std::endl;
-    }
 
     // Populate the effective coefficients entering the Eq. (49) potential/acceleration summation.
     updateEffectiveMutualPotential( );
