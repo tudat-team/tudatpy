@@ -45,11 +45,6 @@ if(WIN32 AND CMAKE_Fortran_COMPILER_ID STREQUAL "LLVMFlang")
     target_compile_definitions(tudat_mcd_interface PUBLIC TUDAT_MCD_USE_LLVM_FLANG_SYMBOLS=1)
 endif()
 
-if(APPLE)
-    # gfortran/MCD objects trigger one Darwin compact-unwind warning per linked symbol.
-    set_property(TARGET tudat_mcd_interface APPEND PROPERTY INTERFACE_LINK_OPTIONS "-Wl,-no_compact_unwind")
-endif()
-
 set(MCD_DATA_DIR "${CMAKE_SOURCE_DIR}/third_parties/mcd/data")
 # probably reduntant as its public under mcd_fortran
 target_compile_definitions(tudat_mcd_interface PUBLIC
