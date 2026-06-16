@@ -16,6 +16,7 @@
 #define BOOST_TEST_MAIN
 
 #include <cstdio>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -77,7 +78,8 @@ private:
 
 std::shared_ptr< tio::TrackingTxtFileContents > createSyntheticAveragedDopplerTrackingFile(
         const std::vector< double >& observationSeconds,
-        const bool addFileNameMetadata = true )
+        const bool addFileNameMetadata = true,
+        const double precomputedCadence = std::numeric_limits< double >::quiet_NaN( ) )
 {
     const std::string filePath = createTempPath( ".txt" );
     {
@@ -101,15 +103,20 @@ std::shared_ptr< tio::TrackingTxtFileContents > createSyntheticAveragedDopplerTr
     {
         trackingFile->addMetaData( tio::TrackingDataType::file_name, "synthetic_ifms_gap_file.tab" );
     }
+    if( std::isfinite( precomputedCadence ) )
+    {
+        trackingFile->addMetaData( tio::TrackingDataType::doppler_integration_time, precomputedCadence );
+    }
     return trackingFile;
 }
 
 std::shared_ptr< tom::SingleObservationSet< double, double > > createSyntheticAveragedDopplerObservationSet(
         const std::vector< double >& observationSeconds,
-        const bool addFileNameMetadata = true )
+        const bool addFileNameMetadata = true,
+        const double precomputedCadence = std::numeric_limits< double >::quiet_NaN( ) )
 {
     std::shared_ptr< tio::TrackingTxtFileContents > trackingFile =
-            createSyntheticAveragedDopplerTrackingFile( observationSeconds, addFileNameMetadata );
+            createSyntheticAveragedDopplerTrackingFile( observationSeconds, addFileNameMetadata, precomputedCadence );
 
     std::map< std::string, Eigen::Vector3d > stationPositions;
     stationPositions[ "TEST_STATION" ] = Eigen::Vector3d::Zero( );
@@ -502,6 +509,38 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
         unknownFileWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK( unknownFileWarning.find( "unknown tracking file" ) != std::string::npos );
+}
+
+BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
+{
+    const std::string filePath = createTempPath( ".TAB" );
+    {
+        std::ofstream file( filePath.c_str( ) );
+        file << "0 2000-01-01T12:00:00.000 1 0.0 1.0 2000-01-01T12:00:00.000 1000.0 0.0 2000.0 2000.0 0.0 1.0\n";
+        file << "1 2000-01-01T12:00:10.000 1 10.0 1.0 2000-01-01T12:00:10.000 1000.0 0.0 2001.0 2001.0 0.0 1.0\n";
+        file << "2 2000-01-01T12:00:20.000 1 20.0 1.0 2000-01-01T12:00:20.000 1000.0 0.0 -999.999 2002.0 0.0 1.0\n";
+        file << "3 2000-01-01T12:00:30.000 1 30.0 1.0 2000-01-01T12:00:30.000 1000.0 0.0 2003.0 2003.0 0.0 1.0\n";
+    }
+
+    std::shared_ptr< tio::TrackingTxtFileContents > filteredIfmsFile = tio::readIfmsFile( filePath, false, true );
+    std::remove( filePath.c_str( ) );
+
+    BOOST_CHECK_EQUAL( filteredIfmsFile->getNumRows( ), 3 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            filteredIfmsFile->getMetaDataDoubleMap( ).at( tio::TrackingDataType::doppler_integration_time ), 10.0, 1.0E-14 );
+
+    std::shared_ptr< tom::SingleObservationSet< double, double > > gapObservationSet;
+    std::string gapWarning;
+    {
+        CoutRedirect outputRedirect;
+        gapObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 20.0, 40.0 }, true, 10.0 );
+        gapWarning = outputRedirect.getOutput( );
+    }
+
+    BOOST_CHECK_CLOSE_FRACTION(
+            gapObservationSet->getAncillarySettings( )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
+    BOOST_CHECK( gapWarning.find( "found 2 cadence gap" ) != std::string::npos );
+    BOOST_CHECK( gapWarning.find( "nominal cadence 10" ) != std::string::npos );
 }
 
 //! Test reading of ground station locations

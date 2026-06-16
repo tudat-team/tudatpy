@@ -18,6 +18,7 @@
 #include <cstdarg>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <map>
 #include <utility>
@@ -82,6 +83,7 @@ enum class TrackingDataType {
     spectral_max,
     doppler_measured_frequency,
     doppler_averaged_frequency,
+    doppler_integration_time,
     doppler_base_frequency,
     doppler_noise,
     doppler_bandwidth,
@@ -456,6 +458,8 @@ static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileCo
             fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
 }
 
+double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationTimesUtc, const double cadenceTolerance = 0.01 );
+
 inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName,
                                                                 const bool applyTroposphereCorrection = true,
                                                                 const bool filterInvalidLines = true )
@@ -473,9 +477,23 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
                                               "doppler_troposphere_correction",
                                               "doppler_noise_hz" } );
 
+    std::shared_ptr< TrackingTxtFileContents > unfilteredFileContents;
+    double nominalDopplerIntegrationTime = std::numeric_limits< double >::quiet_NaN( );
+    if( filterInvalidLines )
+    {
+        unfilteredFileContents =
+                createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true, no_tracking_txt_file_filter );
+        nominalDopplerIntegrationTime = getNominalTimeStepFromUtcTimes(
+                unfilteredFileContents->getDoubleDataColumn( TrackingDataType::utc_reception_time_j2000 ) );
+    }
+
     auto rawFileContents = createTrackingTxtFileContents(
             fileName, columnTypes, '#', ", \t", true, filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    if( filterInvalidLines )
+    {
+        rawFileContents->addMetaData( TrackingDataType::doppler_integration_time, nominalDopplerIntegrationTime );
+    }
     if( applyTroposphereCorrection )
     {
         rawFileContents->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency,
