@@ -336,6 +336,10 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
+     if (WIN32 AND TUDAT_BUILD_WITH_MCD_INTERFACE)
+         # Avoid unresolved MSVC STL vectorized helper symbols on the Windows MCD CI toolchain.
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/D_USE_STD_VECTOR_ALGORITHMS=0>")
+     endif ()
      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
      message(STATUS "Using MSVC compiler.")
      # problem: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=95&view=logs&j=00f5923e-fdef-5026-5091-0d5a0b3d5a2c&t=3cc4a9ed-60e1-5810-6eb3-5f9cd4a26dba
