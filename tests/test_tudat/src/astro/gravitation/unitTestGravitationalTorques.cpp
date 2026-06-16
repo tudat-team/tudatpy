@@ -456,128 +456,12 @@ Eigen::Vector3d computeAnalyticalC21DegreeTwoFigureFigureTorque( const Eigen::Ve
     return analyticalTorque * commonPrefactor;
 }
 
-struct SchutzEq11TermDiagnostics {
-    double prefactor = TUDAT_NAN;
-    double A = TUDAT_NAN;
-    double B = TUDAT_NAN;
-    double C = TUDAT_NAN;
-    double Ixy = TUDAT_NAN;
-    double Ixz = TUDAT_NAN;
-    double Iyz = TUDAT_NAN;
-    double Aprime = TUDAT_NAN;
-    double Bprime = TUDAT_NAN;
-    double Cprime = TUDAT_NAN;
-    double IxyPrime = TUDAT_NAN;
-    double IxzPrime = TUDAT_NAN;
-    double IyzPrime = TUDAT_NAN;
-    double Qprime = TUDAT_NAN;
-    double IellPrime = TUDAT_NAN;
-    double Wprime = TUDAT_NAN;
-    double fyz = TUDAT_NAN;
-    double fxz = TUDAT_NAN;
-    double fxy = TUDAT_NAN;
-    double gyz = TUDAT_NAN;
-    double gxz = TUDAT_NAN;
-    double gxy = TUDAT_NAN;
-};
-
-SchutzEq11TermDiagnostics computeSchutzEq11TermDiagnostics( const Eigen::Vector3d& relativePositionInBody1Frame,
-                                                            const double massOfBody2,
-                                                            const Eigen::Matrix3d& inertiaTensorOfBody1,
-                                                            const Eigen::Matrix3d& inertiaTensorOfBody2InBody1Frame )
-{
-    SchutzEq11TermDiagnostics diagnostics;
-
-    const double x = relativePositionInBody1Frame( 0 );
-    const double y = relativePositionInBody1Frame( 1 );
-    const double z = relativePositionInBody1Frame( 2 );
-    const double x2 = x * x;
-    const double y2 = y * y;
-    const double z2 = z * z;
-    const double xy = x * y;
-    const double xz = x * z;
-    const double yz = y * z;
-    const double r2 = x2 + y2 + z2;
-    const double inverseR2 = 1.0 / r2;
-    const double r5 = r2 * r2 * std::sqrt( r2 );
-
-    diagnostics.A = inertiaTensorOfBody1( 0, 0 );
-    diagnostics.B = inertiaTensorOfBody1( 1, 1 );
-    diagnostics.C = inertiaTensorOfBody1( 2, 2 );
-    diagnostics.Ixy = -inertiaTensorOfBody1( 0, 1 );
-    diagnostics.Ixz = -inertiaTensorOfBody1( 0, 2 );
-    diagnostics.Iyz = -inertiaTensorOfBody1( 1, 2 );
-
-    diagnostics.Aprime = inertiaTensorOfBody2InBody1Frame( 0, 0 );
-    diagnostics.Bprime = inertiaTensorOfBody2InBody1Frame( 1, 1 );
-    diagnostics.Cprime = inertiaTensorOfBody2InBody1Frame( 2, 2 );
-    diagnostics.IxyPrime = -inertiaTensorOfBody2InBody1Frame( 0, 1 );
-    diagnostics.IxzPrime = -inertiaTensorOfBody2InBody1Frame( 0, 2 );
-    diagnostics.IyzPrime = -inertiaTensorOfBody2InBody1Frame( 1, 2 );
-
-    diagnostics.Qprime = diagnostics.Aprime + diagnostics.Bprime + diagnostics.Cprime;
-    diagnostics.IellPrime = ( diagnostics.Aprime * x2 + diagnostics.Bprime * y2 + diagnostics.Cprime * z2 -
-                              2.0 * diagnostics.IxyPrime * xy - 2.0 * diagnostics.IxzPrime * xz - 2.0 * diagnostics.IyzPrime * yz ) *
-            inverseR2;
-    diagnostics.Wprime = massOfBody2 + 7.5 * diagnostics.Qprime * inverseR2 - 17.5 * diagnostics.IellPrime * inverseR2;
-
-    diagnostics.fyz = yz * ( diagnostics.Wprime - 5.0 * diagnostics.Aprime * inverseR2 ) - 5.0 * diagnostics.IxzPrime * xy * inverseR2 -
-            5.0 * diagnostics.IxyPrime * xz * inverseR2 + diagnostics.IyzPrime * ( 1.0 - 5.0 * ( y2 + z2 ) * inverseR2 );
-    diagnostics.fxz = xz * ( diagnostics.Wprime - 5.0 * diagnostics.Bprime * inverseR2 ) +
-            diagnostics.IxzPrime * ( 1.0 - 5.0 * ( x2 + z2 ) * inverseR2 ) - 5.0 * diagnostics.IyzPrime * xy * inverseR2 -
-            5.0 * diagnostics.IxyPrime * yz * inverseR2;
-    diagnostics.fxy = xy * ( diagnostics.Wprime - 5.0 * diagnostics.Cprime * inverseR2 ) - 5.0 * diagnostics.IyzPrime * xz * inverseR2 +
-            diagnostics.IxyPrime * ( 1.0 - 5.0 * ( x2 + y2 ) * inverseR2 ) - 5.0 * diagnostics.IxzPrime * yz * inverseR2;
-
-    diagnostics.gyz = ( z2 - y2 ) * diagnostics.Wprime + diagnostics.Bprime - diagnostics.Cprime -
-            10.0 * diagnostics.IxzPrime * xz * inverseR2 - 10.0 * diagnostics.IxyPrime * xy * inverseR2 -
-            20.0 * diagnostics.IyzPrime * yz * inverseR2 -
-            5.0 * z2 * ( diagnostics.Aprime + diagnostics.Bprime - diagnostics.Cprime ) * inverseR2 -
-            5.0 * y2 * ( diagnostics.Aprime - diagnostics.Bprime + diagnostics.Cprime ) * inverseR2;
-    diagnostics.gxz = ( x2 - z2 ) * diagnostics.Wprime + diagnostics.Cprime - diagnostics.Aprime -
-            20.0 * diagnostics.IxzPrime * xz * inverseR2 - 10.0 * diagnostics.IxyPrime * xy * inverseR2 -
-            10.0 * diagnostics.IyzPrime * yz * inverseR2 -
-            5.0 * x2 * ( -diagnostics.Aprime + diagnostics.Bprime + diagnostics.Cprime ) * inverseR2 -
-            5.0 * z2 * ( diagnostics.Aprime + diagnostics.Bprime - diagnostics.Cprime ) * inverseR2;
-    diagnostics.gxy = ( y2 - x2 ) * diagnostics.Wprime + diagnostics.Aprime - diagnostics.Bprime -
-            10.0 * diagnostics.IxzPrime * xz * inverseR2 - 20.0 * diagnostics.IxyPrime * xy * inverseR2 -
-            10.0 * diagnostics.IyzPrime * yz * inverseR2 -
-            5.0 * y2 * ( diagnostics.Aprime - diagnostics.Bprime + diagnostics.Cprime ) * inverseR2 -
-            5.0 * x2 * ( -diagnostics.Aprime + diagnostics.Bprime + diagnostics.Cprime ) * inverseR2;
-
-    diagnostics.prefactor = 3.0 * physical_constants::GRAVITATIONAL_CONSTANT / r5;
-    return diagnostics;
-}
-
 struct FigureFigureCoefficientCase {
     std::string coefficientName;
     bool useCosineCoefficient;
     unsigned int order;
     double coefficientValue;
 };
-
-std::string formatVectorForDebug( const Eigen::Vector3d& vector )
-{
-    std::ostringstream stream;
-    stream << std::scientific << std::setprecision( 17 ) << vector( 0 ) << "," << vector( 1 ) << "," << vector( 2 );
-    return stream.str( );
-}
-
-std::string formatScalarForDebug( const double value )
-{
-    std::ostringstream stream;
-    stream << std::scientific << std::setprecision( 17 ) << value;
-    return stream.str( );
-}
-
-std::string formatMatrixForDebug( const Eigen::Matrix3d& matrix )
-{
-    std::ostringstream stream;
-    stream << std::scientific << std::setprecision( 17 ) << matrix( 0, 0 ) << "," << matrix( 0, 1 ) << "," << matrix( 0, 2 ) << ","
-           << matrix( 1, 0 ) << "," << matrix( 1, 1 ) << "," << matrix( 1, 2 ) << "," << matrix( 2, 0 ) << "," << matrix( 2, 1 ) << ","
-           << matrix( 2, 2 );
-    return stream.str( );
-}
 
 Eigen::Vector3d vexSkewSymmetricMatrix( const Eigen::Matrix3d& matrix )
 {
@@ -682,141 +566,6 @@ TensorOracleDiagnostics computeTensorOracleFigureFigureTorque( const Eigen::Vect
     diagnostics.torqueBody1 = commonTorqueFactor * vexSkewSymmetricMatrix( diagnostics.commutatorBody1 );
 
     return diagnostics;
-}
-
-std::string formatCoefficientPacketForDebug( const std::array< double, 5 >& coefficients, const double normalizationFlag )
-{
-    Eigen::Matrix3d coefficientPacket = Eigen::Matrix3d::Zero( );
-    coefficientPacket( 0, 0 ) = coefficients.at( 0 );
-    coefficientPacket( 0, 1 ) = coefficients.at( 1 );
-    coefficientPacket( 0, 2 ) = coefficients.at( 2 );
-    coefficientPacket( 1, 0 ) = coefficients.at( 3 );
-    coefficientPacket( 1, 1 ) = coefficients.at( 4 );
-    coefficientPacket( 1, 2 ) = normalizationFlag;
-    return formatMatrixForDebug( coefficientPacket );
-}
-
-std::string formatCoefficientEnvironmentValue( const std::array< double, 5 >& coefficients )
-{
-    std::ostringstream stream;
-    stream << std::scientific << std::setprecision( 17 ) << coefficients.at( 0 ) << "," << coefficients.at( 1 ) << ","
-           << coefficients.at( 2 ) << "," << coefficients.at( 3 ) << "," << coefficients.at( 4 );
-    return stream.str( );
-}
-
-void printCanonicalFigureFigureDebugLine( const std::string& caseName,
-                                          const std::string& model,
-                                          const std::string& step,
-                                          const std::string& name,
-                                          const std::string& shape,
-                                          const std::string& values )
-{
-    std::cout << "FFDBG|case=" << caseName << "|model=" << model << "|step=" << step << "|name=" << name << "|shape=" << shape
-              << "|values=" << values << std::endl;
-}
-
-void printOracleCanonicalTrace( const std::string& caseName,
-                                const std::array< double, 5 >& normalizedCoefficientsBody1,
-                                const std::array< double, 5 >& normalizedCoefficientsBody2,
-                                const double massBody1,
-                                const double massBody2,
-                                const double radiusBody1,
-                                const double radiusBody2,
-                                const Eigen::Vector3d& relativePositionInBody1Frame,
-                                const TensorOracleDiagnostics& diagnostics )
-{
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "000.input.coefficients.body1",
-                                         "C20_C21_S21_C22_S22_geodesyNormalized",
-                                         "matrix3",
-                                         formatCoefficientPacketForDebug( normalizedCoefficientsBody1, 1.0 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "001.input.coefficients.body2",
-                                         "C20_C21_S21_C22_S22_geodesyNormalized",
-                                         "matrix3",
-                                         formatCoefficientPacketForDebug( normalizedCoefficientsBody2, 1.0 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "002.input.massRadius.body1",
-                                         "mass_radius_unused",
-                                         "vector3",
-                                         formatVectorForDebug( Eigen::Vector3d( massBody1, radiusBody1, 0.0 ) ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "003.input.massRadius.body2",
-                                         "mass_radius_unused",
-                                         "vector3",
-                                         formatVectorForDebug( Eigen::Vector3d( massBody2, radiusBody2, 0.0 ) ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "004.input.relativePosition.F1",
-                                         "body2_minus_body1_in_F1",
-                                         "vector3",
-                                         formatVectorForDebug( relativePositionInBody1Frame ) );
-    printCanonicalFigureFigureDebugLine(
-            caseName, "oracle", "005.input.relativeVectorConvention", "body2_minus_body1_in_F1", "scalar", formatScalarForDebug( 1.0 ) );
-    printCanonicalFigureFigureDebugLine(
-            caseName, "oracle", "006.input.torqueBodyAndFrame", "torque_on_body1_in_F1", "scalar", formatScalarForDebug( 1.0 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "010.coefficients.unnormalized.body1",
-                                         "C20_C21_S21_C22_S22_unnormalized",
-                                         "matrix3",
-                                         formatCoefficientPacketForDebug( diagnostics.unnormalizedCoefficientsBody1, 0.0 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "011.coefficients.unnormalized.body2",
-                                         "C20_C21_S21_C22_S22_unnormalized",
-                                         "matrix3",
-                                         formatCoefficientPacketForDebug( diagnostics.unnormalizedCoefficientsBody2, 0.0 ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "020.K.body1", "K1", "matrix3", formatMatrixForDebug( diagnostics.k1 ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "021.K.body2", "K2", "matrix3", formatMatrixForDebug( diagnostics.k2 ) );
-    printCanonicalFigureFigureDebugLine(
-            caseName, "oracle", "030.n", "unit_relative_position", "vector3", formatVectorForDebug( diagnostics.n ) );
-    printCanonicalFigureFigureDebugLine(
-            caseName, "oracle", "031.r", "relative_distance", "scalar", formatScalarForDebug( diagnostics.r ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "040.K1n", "K1_times_n", "vector3", formatVectorForDebug( diagnostics.k1n ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "041.K2n", "K2_times_n", "vector3", formatVectorForDebug( diagnostics.k2n ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "042.a_nK1n", "a", "scalar", formatScalarForDebug( diagnostics.a ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "043.b_nK2n", "b", "scalar", formatScalarForDebug( diagnostics.b ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "044.c_nK1K2n", "c", "scalar", formatScalarForDebug( diagnostics.c ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "045.d_traceK1K2", "d", "scalar", formatScalarForDebug( diagnostics.d ) );
-    printCanonicalFigureFigureDebugLine(
-            caseName, "oracle", "046.F_105ab_minus60c_plus6d", "F", "scalar", formatScalarForDebug( diagnostics.f ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "050.H_for_body1", "H1", "matrix3", formatMatrixForDebug( diagnostics.h1 ) );
-    printCanonicalFigureFigureDebugLine( caseName, "oracle", "051.H_for_body2", "H2", "matrix3", formatMatrixForDebug( diagnostics.h2 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "060.commutator.body1.KHminusHK",
-                                         "K1H1_minus_H1K1",
-                                         "matrix3",
-                                         formatMatrixForDebug( diagnostics.commutatorBody1 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "061.commutator.body2.KHminusHK",
-                                         "K2H2_minus_H2K2",
-                                         "matrix3",
-                                         formatMatrixForDebug( diagnostics.commutatorBody2 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "070.torque.body1.F1",
-                                         "torque_on_body1_in_F1",
-                                         "vector3",
-                                         formatVectorForDebug( diagnostics.torqueBody1 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "071.torque.body2.F1",
-                                         "torque_on_body2_in_F1",
-                                         "vector3",
-                                         formatVectorForDebug( diagnostics.torqueBody2 ) );
-    printCanonicalFigureFigureDebugLine( caseName,
-                                         "oracle",
-                                         "072.torque.requestedOutput",
-                                         "torque_on_body1_in_F1",
-                                         "vector3",
-                                         formatVectorForDebug( diagnostics.torqueBody1 ) );
 }
 
 double getExpectedC20DegreeTwoInteractionMultiplier( const unsigned int order )
@@ -1772,12 +1521,6 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
     using namespace tudat::simulation_setup;
     using namespace tudat::gravitation;
 
-    const bool printDebugOutput = ( std::getenv( "TUDAT_FFDBG" ) != nullptr );
-    if( printDebugOutput )
-    {
-        std::cout << std::scientific << std::setprecision( 17 );
-    }
-
     const std::string bodyUndergoingTorqueName = "Body1";
     const std::string bodyExertingTorqueName = "Body2";
     const double gravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT;
@@ -1787,7 +1530,6 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
     const Eigen::Vector3d relativePositionInBody1Frame( 2.3, -1.7, 0.9 );
     const Eigen::Vector3d positionOfBody2 = positionOfBody1 + relativePositionInBody1Frame;
     const double evaluationTime = 86400.0;
-    const char* onlyCaseToRun = std::getenv( "TUDAT_FFDBG_ONLY_CASE" );
 
     const std::vector< FigureFigureCoefficientCase > coefficientCases = {
         { "C20", true, 0, 1.0 }, { "C21", true, 1, 1.0 }, { "S21", false, 1, 1.0 }, { "C22", true, 2, 1.0 }, { "S22", false, 2, 1.0 }
@@ -1808,91 +1550,30 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         for( const FigureFigureCoefficientCase& body2CoefficientCase : coefficientCases )
         {
             const std::string caseName = body1CoefficientCase.coefficientName + "x" + body2CoefficientCase.coefficientName;
-            if( onlyCaseToRun != nullptr && caseName != std::string( onlyCaseToRun ) )
-            {
-                continue;
-            }
-
-            setenv( "TUDAT_FFDBG_CASE", caseName.c_str( ), 1 );
 
             Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
             Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
             cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
-            std::array< double, 5 > normalizedCoefficientPacketBody1 = { 0.0, 0.0, 0.0, 0.0, 0.0 };
             if( body1CoefficientCase.useCosineCoefficient )
             {
                 cosineCoefficientsOfBody1( 2, body1CoefficientCase.order ) = 1.0E-3 * body1CoefficientCase.coefficientValue;
-                if( body1CoefficientCase.order == 0 )
-                {
-                    normalizedCoefficientPacketBody1.at( 0 ) = cosineCoefficientsOfBody1( 2, 0 );
-                }
-                else if( body1CoefficientCase.order == 1 )
-                {
-                    normalizedCoefficientPacketBody1.at( 1 ) = cosineCoefficientsOfBody1( 2, 1 );
-                }
-                else
-                {
-                    normalizedCoefficientPacketBody1.at( 3 ) = cosineCoefficientsOfBody1( 2, 2 );
-                }
             }
             else
             {
                 sineCoefficientsOfBody1( 2, body1CoefficientCase.order ) = 1.0E-3 * body1CoefficientCase.coefficientValue;
-                if( body1CoefficientCase.order == 1 )
-                {
-                    normalizedCoefficientPacketBody1.at( 2 ) = sineCoefficientsOfBody1( 2, 1 );
-                }
-                else
-                {
-                    normalizedCoefficientPacketBody1.at( 4 ) = sineCoefficientsOfBody1( 2, 2 );
-                }
             }
 
             Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
             Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
             cosineCoefficientsOfBody2( 0, 0 ) = 1.0;
-            std::array< double, 5 > normalizedCoefficientPacketBody2 = { 0.0, 0.0, 0.0, 0.0, 0.0 };
             if( body2CoefficientCase.useCosineCoefficient )
             {
                 cosineCoefficientsOfBody2( 2, body2CoefficientCase.order ) = 2.0E-3 * body2CoefficientCase.coefficientValue;
-                if( body2CoefficientCase.order == 0 )
-                {
-                    normalizedCoefficientPacketBody2.at( 0 ) = cosineCoefficientsOfBody2( 2, 0 );
-                }
-                else if( body2CoefficientCase.order == 1 )
-                {
-                    normalizedCoefficientPacketBody2.at( 1 ) = cosineCoefficientsOfBody2( 2, 1 );
-                }
-                else
-                {
-                    normalizedCoefficientPacketBody2.at( 3 ) = cosineCoefficientsOfBody2( 2, 2 );
-                }
             }
             else
             {
                 sineCoefficientsOfBody2( 2, body2CoefficientCase.order ) = 2.0E-3 * body2CoefficientCase.coefficientValue;
-                if( body2CoefficientCase.order == 1 )
-                {
-                    normalizedCoefficientPacketBody2.at( 2 ) = sineCoefficientsOfBody2( 2, 1 );
-                }
-                else
-                {
-                    normalizedCoefficientPacketBody2.at( 4 ) = sineCoefficientsOfBody2( 2, 2 );
-                }
             }
-
-            const std::string normalizedCoefficientsBody1EnvironmentValue =
-                    formatCoefficientEnvironmentValue( normalizedCoefficientPacketBody1 );
-            const std::string normalizedCoefficientsBody2EnvironmentValue =
-                    formatCoefficientEnvironmentValue( normalizedCoefficientPacketBody2 );
-            const std::string relativePositionEnvironmentValue = formatVectorForDebug( relativePositionInBody1Frame );
-            setenv( "TUDAT_FFDBG_BODY1_COEFFS", normalizedCoefficientsBody1EnvironmentValue.c_str( ), 1 );
-            setenv( "TUDAT_FFDBG_BODY2_COEFFS", normalizedCoefficientsBody2EnvironmentValue.c_str( ), 1 );
-            setenv( "TUDAT_FFDBG_BODY1_MASS", "1.00000000000000000e+00", 1 );
-            setenv( "TUDAT_FFDBG_BODY2_MASS", "1.00000000000000000e+00", 1 );
-            setenv( "TUDAT_FFDBG_BODY1_RADIUS", "1.00000000000000000e+00", 1 );
-            setenv( "TUDAT_FFDBG_BODY2_RADIUS", "1.00000000000000000e+00", 1 );
-            setenv( "TUDAT_FFDBG_RELATIVE_POSITION_F1", relativePositionEnvironmentValue.c_str( ), 1 );
 
             SystemOfBodies bodies = createSystemOfBodiesForFullTwoBodyTorqueTest( bodyUndergoingTorqueName,
                                                                                   bodyExertingTorqueName,
@@ -1942,19 +1623,6 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                                                            sineCoefficientsOfBody2 );
             const Eigen::Vector3d oracleTorque = oracleDiagnostics.torqueBody1;
 
-            if( printDebugOutput )
-            {
-                printOracleCanonicalTrace( caseName,
-                                           normalizedCoefficientPacketBody1,
-                                           normalizedCoefficientPacketBody2,
-                                           bodies.at( bodyUndergoingTorqueName )->getBodyMass( ),
-                                           bodies.at( bodyExertingTorqueName )->getBodyMass( ),
-                                           referenceRadiusBody1,
-                                           referenceRadiusBody2,
-                                           relativePositionInBody1Frame,
-                                           oracleDiagnostics );
-            }
-
             const double oracleScale = std::max( 1.0E-30, oracleTorque.norm( ) );
             const double absoluteSchutzOracleDifference = ( schutzTorque - oracleTorque ).cwiseAbs( ).maxCoeff( );
             const double relativeSchutzOracleDifference = absoluteSchutzOracleDifference / oracleScale;
@@ -1988,15 +1656,6 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
         }
     }
 
-    unsetenv( "TUDAT_FFDBG_CASE" );
-    unsetenv( "TUDAT_FFDBG_BODY1_COEFFS" );
-    unsetenv( "TUDAT_FFDBG_BODY2_COEFFS" );
-    unsetenv( "TUDAT_FFDBG_BODY1_MASS" );
-    unsetenv( "TUDAT_FFDBG_BODY2_MASS" );
-    unsetenv( "TUDAT_FFDBG_BODY1_RADIUS" );
-    unsetenv( "TUDAT_FFDBG_BODY2_RADIUS" );
-    unsetenv( "TUDAT_FFDBG_RELATIVE_POSITION_F1" );
-
     BOOST_TEST_MESSAGE( "identity_degree2_degree2_oracle_max_abs_schutz="
                         << maximumAbsoluteSchutzOracleDifference << " worst_schutz=" << worstSchutzOracleCase << " max_rel_schutz="
                         << maximumRelativeSchutzOracleDifference << " max_abs_dmr=" << maximumAbsoluteDmrOracleDifference
@@ -2004,196 +1663,6 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                         << " max_abs_schutz_dmr=" << maximumAbsoluteSchutzDmrDifference << " worst_schutz_dmr=" << worstSchutzDmrCase
                         << " max_rel_schutz_dmr=" << maximumRelativeSchutzDmrDifference );
 }
-
-#if 0
-BOOST_AUTO_TEST_CASE( testIdentityDegreeTwoDegreeTwoFigureFigureTorqueOracle )
-{
-    using namespace tudat::simulation_setup;
-    using namespace tudat::gravitation;
-
-    const bool printDebugOutput = ( std::getenv( "TUDAT_FFDBG" ) != nullptr );
-    if( printDebugOutput )
-    {
-        std::cout << std::scientific << std::setprecision( 17 );
-    }
-
-    const std::string bodyUndergoingTorqueName = "Body1";
-    const std::string bodyExertingTorqueName = "Body2";
-    const double gravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT;
-    const double referenceRadiusBody1 = 1.0;
-    const double referenceRadiusBody2 = 1.0;
-    const Eigen::Vector3d positionOfBody1 = Eigen::Vector3d::Zero( );
-    const Eigen::Vector3d relativePositionInBody1Frame( 2.3, -1.7, 0.9 );
-    const Eigen::Vector3d positionOfBody2 = positionOfBody1 + relativePositionInBody1Frame;
-    const double evaluationTime = 86400.0;
-
-    const std::vector< FigureFigureCoefficientCase > coefficientCases = {
-        { "C20", true, 0, 1.0 }, { "C21", true, 1, 1.0 }, { "S21", false, 1, 1.0 }, { "C22", true, 2, 1.0 },
-        { "S22", false, 2, 1.0 }
-    };
-
-    double maximumAbsoluteSchutzOracleDifference = 0.0;
-    double maximumRelativeSchutzOracleDifference = 0.0;
-    double maximumAbsoluteDmrOracleDifference = 0.0;
-    double maximumRelativeDmrOracleDifference = 0.0;
-
-    for( const FigureFigureCoefficientCase& body1CoefficientCase : coefficientCases )
-    {
-        for( const FigureFigureCoefficientCase& body2CoefficientCase : coefficientCases )
-        {
-            const std::string caseName = body1CoefficientCase.coefficientName + "x" + body2CoefficientCase.coefficientName;
-
-            Eigen::MatrixXd cosineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
-            Eigen::MatrixXd sineCoefficientsOfBody1 = Eigen::MatrixXd::Zero( 3, 3 );
-            cosineCoefficientsOfBody1( 0, 0 ) = 1.0;
-            if( body1CoefficientCase.useCosineCoefficient )
-            {
-                cosineCoefficientsOfBody1( 2, body1CoefficientCase.order ) = 1.0E-3 * body1CoefficientCase.coefficientValue;
-            }
-            else
-            {
-                sineCoefficientsOfBody1( 2, body1CoefficientCase.order ) = 1.0E-3 * body1CoefficientCase.coefficientValue;
-            }
-
-            Eigen::MatrixXd cosineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
-            Eigen::MatrixXd sineCoefficientsOfBody2 = Eigen::MatrixXd::Zero( 3, 3 );
-            cosineCoefficientsOfBody2( 0, 0 ) = 1.0;
-            if( body2CoefficientCase.useCosineCoefficient )
-            {
-                cosineCoefficientsOfBody2( 2, body2CoefficientCase.order ) = 2.0E-3 * body2CoefficientCase.coefficientValue;
-            }
-            else
-            {
-                sineCoefficientsOfBody2( 2, body2CoefficientCase.order ) = 2.0E-3 * body2CoefficientCase.coefficientValue;
-            }
-
-            SystemOfBodies bodies = createSystemOfBodiesForFullTwoBodyTorqueTest( bodyUndergoingTorqueName,
-                                                                                  bodyExertingTorqueName,
-                                                                                  gravitationalParameter,
-                                                                                  referenceRadiusBody1,
-                                                                                  referenceRadiusBody2,
-                                                                                  positionOfBody1,
-                                                                                  positionOfBody2,
-                                                                                  cosineCoefficientsOfBody1,
-                                                                                  sineCoefficientsOfBody1,
-                                                                                  cosineCoefficientsOfBody2,
-                                                                                  sineCoefficientsOfBody2,
-                                                                                  Eigen::Quaterniond::Identity( ),
-                                                                                  Eigen::Quaterniond::Identity( ),
-                                                                                  0.0,
-                                                                                  0.0 );
-            bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
-            bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
-
-            const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > singleInteractionTerm = {
-                std::make_tuple( 2, body1CoefficientCase.order, 2, body2CoefficientCase.order )
-            };
-
-            std::shared_ptr< FullTwoBodySphericalHarmonicTorque > fullTwoBodySingleInteractionTorqueModel =
-                    createFactoryFullTwoBodySphericalHarmonicTorqueModel(
-                            bodies, bodyUndergoingTorqueName, bodyExertingTorqueName, singleInteractionTerm );
-            std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueModel > fourthDegreeTorqueModel =
-                    createFactoryFourthDegreeFullTwoBodyGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
-            std::shared_ptr< SecondDegreeGravitationalTorqueModel > secondDegreeTorqueModel =
-                    createFactorySecondDegreeGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
-
-            BOOST_REQUIRE( fullTwoBodySingleInteractionTorqueModel != nullptr );
-            BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
-            BOOST_REQUIRE( secondDegreeTorqueModel != nullptr );
-
-            fullTwoBodySingleInteractionTorqueModel->updateMembers( evaluationTime );
-            fourthDegreeTorqueModel->updateMembers( evaluationTime );
-            secondDegreeTorqueModel->updateMembers( evaluationTime );
-
-            const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
-            const double inverseGravitationalScaling = 1.0 / physical_constants::GRAVITATIONAL_CONSTANT;
-            const Eigen::Vector3d dmrTorque = inverseGravitationalScaling * bodyExertingTorqueMass *
-                    fullTwoBodySingleInteractionTorqueModel->getTorque( );
-            const Eigen::Vector3d schutzTorque =
-                    inverseGravitationalScaling * ( fourthDegreeTorqueModel->getTorque( ) - secondDegreeTorqueModel->getTorque( ) );
-
-            const TensorOracleDiagnostics oracleDiagnostics =
-                    computeTensorOracleFigureFigureTorque( relativePositionInBody1Frame,
-                                                           bodies.at( bodyUndergoingTorqueName )->getBodyMass( ),
-                                                           bodies.at( bodyExertingTorqueName )->getBodyMass( ),
-                                                           referenceRadiusBody1,
-                                                           referenceRadiusBody2,
-                                                           cosineCoefficientsOfBody1,
-                                                           sineCoefficientsOfBody1,
-                                                           cosineCoefficientsOfBody2,
-                                                           sineCoefficientsOfBody2 );
-            const Eigen::Vector3d oracleTorque = oracleDiagnostics.torqueBody1;
-
-            if( printDebugOutput )
-            {
-                printFigureFigureDebugLine( caseName,
-                                            "oracle",
-                                            "input_scalars",
-                                            "G_scaled=1|M1=1|M2=1|R1=1|R2=1|body1_coeff=" +
-                                                    body1CoefficientCase.coefficientName + "|body2_coeff=" +
-                                                    body2CoefficientCase.coefficientName );
-                printFigureFigureDebugLine( caseName,
-                                            "oracle",
-                                            "relative_state",
-                                            "r=" + formatVectorForDebug( relativePositionInBody1Frame ) +
-                                                    "|r_norm=" + std::to_string( relativePositionInBody1Frame.norm( ) ) );
-                printFigureFigureDebugLine( caseName,
-                                            "oracle",
-                                            "K_body1",
-                                            "matrix=" + formatMatrixForDebug( oracleDiagnostics.k1 ) );
-                printFigureFigureDebugLine( caseName,
-                                            "oracle",
-                                            "K_body2",
-                                            "matrix=" + formatMatrixForDebug( oracleDiagnostics.k2 ) );
-                printFigureFigureDebugLine( caseName,
-                                            "oracle",
-                                            "oracle_pair",
-                                            "a=" + std::to_string( oracleDiagnostics.a ) + "|b=" + std::to_string( oracleDiagnostics.b ) +
-                                                    "|c=" + std::to_string( oracleDiagnostics.c ) +
-                                                    "|d=" + std::to_string( oracleDiagnostics.d ) +
-                                                    "|F=" + std::to_string( oracleDiagnostics.f ) +
-                                                    "|H1=" + formatMatrixForDebug( oracleDiagnostics.h1 ) +
-                                                    "|H2=" + formatMatrixForDebug( oracleDiagnostics.h2 ) +
-                                                    "|commutator1=" + formatMatrixForDebug( oracleDiagnostics.commutatorBody1 ) );
-                printFigureFigureDebugLine( caseName, "oracle", "final_torque", "torque=" + formatVectorForDebug( oracleTorque ) );
-
-                printSchutzFigureFigureDiagnostics( caseName,
-                                                    relativePositionInBody1Frame,
-                                                    inverseGravitationalScaling * bodies.at( bodyExertingTorqueName )->getBodyMass( ),
-                                                    inverseGravitationalScaling *
-                                                            bodies.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( ),
-                                                    inverseGravitationalScaling *
-                                                            fourthDegreeTorqueModel
-                                                                    ->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ),
-                                                    schutzTorque );
-                printDmrFigureFigureDiagnostics( caseName, fullTwoBodySingleInteractionTorqueModel, dmrTorque );
-            }
-
-            const double oracleScale = std::max( 1.0E-30, oracleTorque.norm( ) );
-            const double absoluteSchutzOracleDifference = ( schutzTorque - oracleTorque ).cwiseAbs( ).maxCoeff( );
-            const double relativeSchutzOracleDifference = absoluteSchutzOracleDifference / oracleScale;
-            const double absoluteDmrOracleDifference = ( dmrTorque - oracleTorque ).cwiseAbs( ).maxCoeff( );
-            const double relativeDmrOracleDifference = absoluteDmrOracleDifference / oracleScale;
-            maximumAbsoluteSchutzOracleDifference =
-                    std::max( maximumAbsoluteSchutzOracleDifference, absoluteSchutzOracleDifference );
-            maximumRelativeSchutzOracleDifference =
-                    std::max( maximumRelativeSchutzOracleDifference, relativeSchutzOracleDifference );
-            maximumAbsoluteDmrOracleDifference = std::max( maximumAbsoluteDmrOracleDifference, absoluteDmrOracleDifference );
-            maximumRelativeDmrOracleDifference = std::max( maximumRelativeDmrOracleDifference, relativeDmrOracleDifference );
-
-            BOOST_CHECK_SMALL( absoluteSchutzOracleDifference, 1.0E-16 );
-            BOOST_CHECK_SMALL( absoluteDmrOracleDifference, 1.0E-16 );
-            BOOST_CHECK_SMALL( ( schutzTorque - dmrTorque ).cwiseAbs( ).maxCoeff( ), 1.0E-16 );
-        }
-    }
-
-    BOOST_TEST_MESSAGE( "identity_degree2_degree2_oracle_max_abs_schutz=" << maximumAbsoluteSchutzOracleDifference
-                                                                          << " max_rel_schutz="
-                                                                          << maximumRelativeSchutzOracleDifference
-                                                                          << " max_abs_dmr=" << maximumAbsoluteDmrOracleDifference
-                                                                          << " max_rel_dmr=" << maximumRelativeDmrOracleDifference );
-}
-#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 
