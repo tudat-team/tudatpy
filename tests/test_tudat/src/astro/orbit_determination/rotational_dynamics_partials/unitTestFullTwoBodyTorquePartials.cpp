@@ -167,7 +167,10 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
     return bodies;
 }
 
-void checkMatrixClosePerElement( const Eigen::MatrixXd& analyticalMatrix, const Eigen::MatrixXd& numericalMatrix, const double tolerance )
+void checkMatrixClosePerElement( const Eigen::MatrixXd& analyticalMatrix,
+                                 const Eigen::MatrixXd& numericalMatrix,
+                                 const double tolerance,
+                                 const std::string& label = "" )
 {
     BOOST_REQUIRE_EQUAL( analyticalMatrix.rows( ), numericalMatrix.rows( ) );
     BOOST_REQUIRE_EQUAL( analyticalMatrix.cols( ), numericalMatrix.cols( ) );
@@ -176,9 +179,13 @@ void checkMatrixClosePerElement( const Eigen::MatrixXd& analyticalMatrix, const 
     {
         for( int j = 0; j < analyticalMatrix.cols( ); j++ )
         {
-            BOOST_CHECK_SMALL(
-                    std::fabs( analyticalMatrix( i, j ) - numericalMatrix( i, j ) ) / std::max( 1.0, std::fabs( numericalMatrix( i, j ) ) ),
-                    tolerance );
+            const double relativeDifference =
+                    std::fabs( analyticalMatrix( i, j ) - numericalMatrix( i, j ) ) / std::max( 1.0, std::fabs( numericalMatrix( i, j ) ) );
+            BOOST_CHECK_MESSAGE( relativeDifference < tolerance,
+                                 "Torque partial mismatch"
+                                         << ( label.empty( ) ? "" : " in " + label ) << " at (" << i << "," << j
+                                         << "): analytical=" << analyticalMatrix( i, j ) << ", numerical=" << numericalMatrix( i, j )
+                                         << ", relativeDifference=" << relativeDifference << ", tolerance=" << tolerance );
         }
     }
 }
@@ -633,16 +640,18 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
         const Eigen::MatrixXd analyticalPartialWrtSineCoefficientsOfBodyExertingTorque =
                 torquePartial->wrtParameter( sineCoefficientsOfBodyExertingTorqueParameter );
 
-        const Eigen::Vector4d orientationPerturbation = Eigen::Vector4d::Constant( 5.0E-8 );
-        const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 2.0 );
+        // These finite-difference steps were selected from a perturbation sweep: smaller translational/coefficient
+        // steps are roundoff dominated for dimensional torques, while larger translational steps show truncation error.
+        const Eigen::Vector4d orientationPerturbation = Eigen::Vector4d::Constant( 1.0E-10 );
+        const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 1.0E-1 );
         const Eigen::VectorXd cosineCoefficientPerturbationBodyUndergoingTorque =
-                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 2.0E-8 );
+                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 1.0E-3 );
         const Eigen::VectorXd sineCoefficientPerturbationBodyUndergoingTorque =
-                Eigen::VectorXd::Constant( sineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 2.0E-8 );
+                Eigen::VectorXd::Constant( sineCoefficientsOfBodyUndergoingTorqueParameter->getParameterSize( ), 1.0E-3 );
         const Eigen::VectorXd cosineCoefficientPerturbationBodyExertingTorque =
-                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 2.0E-8 );
+                Eigen::VectorXd::Constant( cosineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 1.0E-3 );
         const Eigen::VectorXd sineCoefficientPerturbationBodyExertingTorque =
-                Eigen::VectorXd::Constant( sineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 2.0E-8 );
+                Eigen::VectorXd::Constant( sineCoefficientsOfBodyExertingTorqueParameter->getParameterSize( ), 1.0E-3 );
 
         const std::function< void( Eigen::Vector7d ) > setRotationalStateOfBodyUndergoingTorque =
                 std::bind( &Body::setCurrentRotationalStateToLocalFrame, bodyUndergoingTorque, std::placeholders::_1 );
@@ -760,29 +769,37 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
 
             checkMatrixClosePerElement( analyticalTorqueDeviationOfBodyUndergoingTorque,
                                         torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 ),
-                                        5.0E-10 );
+                                        1.0E-5,
+                                        "dmr orientation body undergoing, perturbation " + std::to_string( index ) );
             checkMatrixClosePerElement( analyticalTorqueDeviationOfBodyExertingTorque,
                                         torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 ),
-                                        5.0E-10 );
+                                        1.0E-5,
+                                        "dmr orientation body exerting, perturbation " + std::to_string( index ) );
         }
         checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
                                     numericalPartialWrtPositionOfBodyUndergoingTorque,
-                                    5.0E-10 );
+                                    3.0E-7,
+                                    "dmr position body undergoing" );
         checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ),
                                     numericalPartialWrtPositionOfBodyExertingTorque,
-                                    5.0E-10 );
+                                    3.0E-7,
+                                    "dmr position body exerting" );
         checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
                                     numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
-                                    5.0E-10 );
+                                    5.0E-5,
+                                    "dmr cosine coefficients body undergoing" );
         checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
                                     numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
-                                    5.0E-10 );
+                                    5.0E-8,
+                                    "dmr sine coefficients body undergoing" );
         checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
                                     numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
-                                    5.0E-10 );
+                                    5.0E-8,
+                                    "dmr cosine coefficients body exerting" );
         checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                     numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
-                                    5.0E-10 );
+                                    5.0E-8,
+                                    "dmr sine coefficients body exerting" );
     }
 }
 

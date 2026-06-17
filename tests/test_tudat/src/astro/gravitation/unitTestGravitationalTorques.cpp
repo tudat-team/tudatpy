@@ -1362,18 +1362,6 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                             transformedBody2InertiaTensorFromFourthDegree, gravitationalParameter, referenceRadiusBody2, 2, true );
             const Eigen::MatrixXd transformedCosineCoefficientsOfBody2FromInertia = std::get< 0 >( transformedBody2Degree2FromInertia );
             const Eigen::MatrixXd transformedSineCoefficientsOfBody2FromInertia = std::get< 1 >( transformedBody2Degree2FromInertia );
-            BOOST_TEST_MESSAGE(
-                    "body2_transform_consistency orientation_case="
-                    << ( orientationCase.first.isApprox( Eigen::Quaterniond::Identity( ) ) ? 0 : 1 ) << " dC20="
-                    << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 0 ) - transformedCosineCoefficientsOfBody2FromInertia( 2, 0 )
-                    << " dC21="
-                    << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 1 ) - transformedCosineCoefficientsOfBody2FromInertia( 2, 1 )
-                    << " dS21="
-                    << transformedSineCoefficientsOfBody2FromFullTwoBody( 2, 1 ) - transformedSineCoefficientsOfBody2FromInertia( 2, 1 )
-                    << " dC22="
-                    << transformedCosineCoefficientsOfBody2FromFullTwoBody( 2, 2 ) - transformedCosineCoefficientsOfBody2FromInertia( 2, 2 )
-                    << " dS22="
-                    << transformedSineCoefficientsOfBody2FromFullTwoBody( 2, 2 ) - transformedSineCoefficientsOfBody2FromInertia( 2, 2 ) );
 
             // Model type: [Full two-body]. Body exerting: [l=0,2]. Body undergoing: [l=2].
             const Eigen::Vector3d fullTwoBodyFullDegree2Torque = fullTwoBodyTorqueModelWithFullDegree2Terms->getTorque( );
@@ -1426,17 +1414,6 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const double isolatedDegree22ModelDifferenceScale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
             const double isolatedDegree22ModelDifferenceRelativeNorm =
                     isolatedDegree22ModelDifference.norm( ) / std::max( 1.0, isolatedDegree22TorqueFromFullTwoBodyModel.norm( ) );
-            BOOST_TEST_MESSAGE( "orientation_case=" << ( orientationCase.first.isApprox( Eigen::Quaterniond::Identity( ) ) ? 0 : 1 )
-                                                    << " |full22|=" << isolatedDegree22TorqueFromFullTwoBodyModel.norm( )
-                                                    << " |fourth22|=" << isolatedDegree22TorqueFromFourthDegreeModel.norm( )
-                                                    << " |diff|=" << isolatedDegree22ModelDifference.norm( )
-                                                    << " rel(diff/full22)=" << isolatedDegree22ModelDifferenceRelativeNorm
-                                                    << " full22=" << isolatedDegree22TorqueFromFullTwoBodyModel.transpose( ) << " fourth22="
-                                                    << isolatedDegree22TorqueFromFourthDegreeModel.transpose( ) << " rel. diff="
-                                                    << ( isolatedDegree22TorqueFromFourthDegreeModel.cwiseQuotient(
-                                                                 isolatedDegree22TorqueFromFullTwoBodyModel ) )
-                                                               .transpose( )
-                                                    << " diff=" << isolatedDegree22ModelDifference.transpose( ) );
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( isolatedDegree22ModelDifference( i ) ) / isolatedDegree22ModelDifferenceScale, 5.0E-14 );

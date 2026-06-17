@@ -362,7 +362,7 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
     currentMutualPotentialGradientInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
     currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_( Eigen::Matrix3d::Zero( ) ), currentDistance_( TUDAT_NAN ),
-    currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN )
+    currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN ), currentBodyUndergoingTorqueMass_( TUDAT_NAN )
 {
     if( torqueModel_ == nullptr )
     {
@@ -815,6 +815,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
         partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
+    partialMatrix *= currentBodyUndergoingTorqueMass_;
 }
 
 //! Partial w.r.t. sine coefficient block of body undergoing torque.
@@ -893,6 +894,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
         partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
+    partialMatrix *= currentBodyUndergoingTorqueMass_;
 }
 
 //! Partial w.r.t. cosine coefficient block of body exerting torque.
@@ -989,6 +991,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtCosineSphericalH
         partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
+    partialMatrix *= currentBodyUndergoingTorqueMass_;
 }
 
 //! Partial w.r.t. sine coefficient block of body exerting torque.
@@ -1085,6 +1088,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
         partial -= bodyFixedCrossProductMatrix * partialOfMutualPotentialGradient;
         partialMatrix.col( i ) = partial;
     }
+    partialMatrix *= currentBodyUndergoingTorqueMass_;
 }
 
 //! Update all analytical partial blocks for the current epoch.
@@ -1130,6 +1134,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                                                       currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_( 1 ) ) /
                 currentDistance_;
         currentPreMultiplier_ = accelerationModel_->getCurrentGravitationalParameter( ) / currentDistance_;
+        currentBodyUndergoingTorqueMass_ = torqueModel_->getBodyUndergoingTorqueMass( );
         currentRadius1Powers_ = accelerationModel_->getRadius1Powers( );
         currentRadius2Powers_ = accelerationModel_->getRadius2Powers( );
 
@@ -1417,6 +1422,11 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                     coefficientContributionWrtQuaternionOfBodyUndergoingTorque;
             currentPartialWrtQuaternionOfBodyExertingTorque_.col( i ) = coefficientContributionWrtQuaternionOfBodyExertingTorque;
         }
+
+        currentPartialWrtPositionOfBodyUndergoingTorque_ *= currentBodyUndergoingTorqueMass_;
+        currentPartialWrtPositionOfBodyExertingTorque_ *= currentBodyUndergoingTorqueMass_;
+        currentPartialWrtQuaternionOfBodyUndergoingTorque_ *= currentBodyUndergoingTorqueMass_;
+        currentPartialWrtQuaternionOfBodyExertingTorque_ *= currentBodyUndergoingTorqueMass_;
 
         currentTime_ = currentTime;
     }

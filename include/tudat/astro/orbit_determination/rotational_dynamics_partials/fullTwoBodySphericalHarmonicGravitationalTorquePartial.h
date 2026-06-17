@@ -140,6 +140,7 @@ private:
     double currentDistance_;
     double currentCosineOfLatitude_;
     double currentPreMultiplier_;
+    double currentBodyUndergoingTorqueMass_;
     std::vector< double > currentRadius1Powers_;
     std::vector< double > currentRadius2Powers_;
 };

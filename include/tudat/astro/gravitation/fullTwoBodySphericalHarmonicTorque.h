@@ -101,6 +101,11 @@ public:
         return acceleratedBodyIsBody1_;
     }
 
+    double getBodyUndergoingTorqueMass( ) const
+    {
+        return bodyUndergoingTorqueMassFunction_( );
+    }
+
     //! Compute \hat{J}\bar{C}_{l,m}^{2,F1} and \hat{J}\bar{S}_{l,m}^{2,F1} from body-2 coefficients and supplied Wigner D-matrices.
     /*!
      * Helper used by this model and analytical partials to evaluate the \hat{J}-mapped coefficient fields

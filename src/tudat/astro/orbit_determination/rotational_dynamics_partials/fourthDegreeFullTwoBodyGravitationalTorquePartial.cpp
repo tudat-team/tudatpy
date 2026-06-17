@@ -164,15 +164,13 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
             auxiliaryQuantities.bComponentOfBodyExertingTorque - auxiliaryQuantities.cComponentOfBodyExertingTorque -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    auxiliaryQuantities.inverseRelativeDistanceSquared +
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
-            20.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.zCoordinateSquared *
                     ( auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque -
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.yCoordinateSquared *
                     ( auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
@@ -181,16 +179,14 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
     auxiliaryQuantities.gxzFunction =
             ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
             auxiliaryQuantities.cComponentOfBodyExertingTorque - auxiliaryQuantities.aComponentOfBodyExertingTorque -
-            20.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    auxiliaryQuantities.inverseRelativeDistanceSquared +
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.xCoordinateSquared *
                     ( -auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.zCoordinateSquared *
                     ( auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque -
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
@@ -198,17 +194,15 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
 
     auxiliaryQuantities.gxyFunction =
             ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
-            auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque -
+            auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
-            20.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xyTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.yCoordinateSquared *
                     ( auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
-                    auxiliaryQuantities.inverseRelativeDistanceSquared -
+                    auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.xCoordinateSquared *
                     ( -auxiliaryQuantities.aComponentOfBodyExertingTorque + auxiliaryQuantities.bComponentOfBodyExertingTorque +
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
@@ -457,54 +451,54 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
             ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
-                      auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
+                      auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque *
                     ( derivativeOfxyTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xyTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
-            20.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
-                    ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
-                      auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
-            5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC + auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC ) -
-            5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
-                    ( ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) * aPlusBMinusC +
-                      ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) * aMinusBPlusC );
+            5.0 * aPlusBMinusC *
+                    ( ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.zCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
+            5.0 * aMinusBPlusC *
+                    ( ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.yCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxzFunctionIndex ) =
             derivativeOfxSquaredMinuszSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
             ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
-            20.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
-                    ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
-                      auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             10.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque *
                     ( derivativeOfxyTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
-                      auxiliaryQuantities.xyTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
+                      auxiliaryQuantities.xyTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
-            5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC + auxiliaryQuantities.zCoordinateSquared * aPlusBMinusC ) -
-            5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
-                    ( ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) * minusAPlusBPlusC +
-                      ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) * aPlusBMinusC );
+            5.0 * minusAPlusBPlusC *
+                    ( ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.xCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
+            5.0 * aPlusBMinusC *
+                    ( ( coordinateIndex == 2 ? 2.0 * auxiliaryQuantities.zCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.zCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxyFunctionIndex ) =
             derivativeOfySquaredMinusxSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
-            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
+            ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate +
             10.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque *
                     ( derivativeOfxzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.xzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
-            20.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque *
-                    ( derivativeOfxyTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
-                      auxiliaryQuantities.xyTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
             10.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque *
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) -
-            5.0 * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate *
-                    ( auxiliaryQuantities.yCoordinateSquared * aMinusBPlusC + auxiliaryQuantities.xCoordinateSquared * minusAPlusBPlusC ) -
-            5.0 * auxiliaryQuantities.inverseRelativeDistanceSquared *
-                    ( ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) * aMinusBPlusC +
-                      ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) * minusAPlusBPlusC );
+            5.0 * aMinusBPlusC *
+                    ( ( coordinateIndex == 1 ? 2.0 * auxiliaryQuantities.yCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.yCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate ) +
+            5.0 * minusAPlusBPlusC *
+                    ( ( coordinateIndex == 0 ? 2.0 * auxiliaryQuantities.xCoordinate : 0.0 ) *
+                              auxiliaryQuantities.inverseRelativeDistanceSquared +
+                      auxiliaryQuantities.xCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
     return partialOfAuxiliaryFunctionsWrtPositionCoordinate;
 }
@@ -608,51 +602,45 @@ Eigen::Matrix< double, 6, 6 > computePartialOfAuxiliaryFunctionsWrtIndependentIn
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fxyFunctionIndex, iyzComponentIndex ) +=
             -5.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, aComponentIndex ) += -5.0 *
-            ( auxiliaryQuantities.zCoordinateSquared + auxiliaryQuantities.yCoordinateSquared ) *
-            auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, bComponentIndex ) += 1.0 -
-            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, aComponentIndex ) +=
+            -5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
             5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, cComponentIndex ) += -1.0 +
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, bComponentIndex ) += 1.0 -
             5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, cComponentIndex ) += -1.0 +
+            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+            5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, ixyComponentIndex ) +=
-            -10.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
+            10.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, ixzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gyzFunctionIndex, iyzComponentIndex ) +=
-            -20.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, aComponentIndex ) += -1.0 +
-            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
-            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, bComponentIndex ) += -5.0 *
-            ( auxiliaryQuantities.xCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
-            auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, cComponentIndex ) += 1.0 -
             5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, bComponentIndex ) +=
+            -5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+            5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, cComponentIndex ) += 1.0 -
+            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.zCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, ixyComponentIndex ) +=
             -10.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, ixzComponentIndex ) +=
-            -20.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxzFunctionIndex, iyzComponentIndex ) +=
-            -10.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
+            10.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, aComponentIndex ) += 1.0 -
-            5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
-            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, bComponentIndex ) += -1.0 +
             5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared -
             5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, cComponentIndex ) += -5.0 *
-            ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.xCoordinateSquared ) *
-            auxiliaryQuantities.inverseRelativeDistanceSquared;
-    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, ixyComponentIndex ) +=
-            -20.0 * auxiliaryQuantities.xyTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, bComponentIndex ) += -1.0 +
+            5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
+    partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, cComponentIndex ) +=
+            -5.0 * auxiliaryQuantities.yCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared +
+            5.0 * auxiliaryQuantities.xCoordinateSquared * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, ixzComponentIndex ) +=
-            -10.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
+            10.0 * auxiliaryQuantities.xzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
     partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( gxyFunctionIndex, iyzComponentIndex ) +=
             -10.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceSquared;
 
