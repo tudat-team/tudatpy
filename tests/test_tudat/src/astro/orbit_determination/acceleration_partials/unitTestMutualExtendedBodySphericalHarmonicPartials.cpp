@@ -29,6 +29,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -84,10 +85,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
     const double equatorialRadiusOfBody1 = 1300.0;
     const double equatorialRadiusOfBody2 = 1100.0;
 
-    Eigen::MatrixXd cosineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 3, 3 );
-    Eigen::MatrixXd sineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 3, 3 );
-    Eigen::MatrixXd cosineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 3, 3 );
-    Eigen::MatrixXd sineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd cosineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 5, 5 );
+    Eigen::MatrixXd sineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 5, 5 );
+    Eigen::MatrixXd cosineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 5, 5 );
+    Eigen::MatrixXd sineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 5, 5 );
 
     cosineCoefficientsOfBody1Base( 0, 0 ) = 1.0;
     cosineCoefficientsOfBody2Base( 0, 0 ) = 1.0;
@@ -97,12 +98,32 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
     sineCoefficientsOfBody1Base( 2, 1 ) = 0.14;
     cosineCoefficientsOfBody1Base( 2, 2 ) = 0.09;
     sineCoefficientsOfBody1Base( 2, 2 ) = -0.06;
+    cosineCoefficientsOfBody1Base( 3, 0 ) = -0.034;
+    cosineCoefficientsOfBody1Base( 3, 1 ) = 0.028;
+    sineCoefficientsOfBody1Base( 3, 1 ) = -0.021;
+    cosineCoefficientsOfBody1Base( 3, 3 ) = 0.017;
+    sineCoefficientsOfBody1Base( 3, 3 ) = 0.013;
+    cosineCoefficientsOfBody1Base( 4, 0 ) = 0.019;
+    cosineCoefficientsOfBody1Base( 4, 2 ) = -0.014;
+    sineCoefficientsOfBody1Base( 4, 2 ) = 0.011;
+    cosineCoefficientsOfBody1Base( 4, 4 ) = 0.008;
+    sineCoefficientsOfBody1Base( 4, 4 ) = -0.006;
 
     cosineCoefficientsOfBody2Base( 2, 0 ) = -0.19;
     cosineCoefficientsOfBody2Base( 2, 1 ) = 0.16;
     sineCoefficientsOfBody2Base( 2, 1 ) = -0.08;
     cosineCoefficientsOfBody2Base( 2, 2 ) = 0.13;
     sineCoefficientsOfBody2Base( 2, 2 ) = 0.12;
+    cosineCoefficientsOfBody2Base( 3, 0 ) = 0.027;
+    cosineCoefficientsOfBody2Base( 3, 1 ) = -0.023;
+    sineCoefficientsOfBody2Base( 3, 1 ) = 0.018;
+    cosineCoefficientsOfBody2Base( 3, 3 ) = -0.016;
+    sineCoefficientsOfBody2Base( 3, 3 ) = 0.012;
+    cosineCoefficientsOfBody2Base( 4, 0 ) = -0.017;
+    cosineCoefficientsOfBody2Base( 4, 2 ) = 0.015;
+    sineCoefficientsOfBody2Base( 4, 2 ) = -0.010;
+    cosineCoefficientsOfBody2Base( 4, 4 ) = -0.007;
+    sineCoefficientsOfBody2Base( 4, 4 ) = 0.005;
 
     std::shared_ptr< Body > body1 = std::make_shared< Body >( );
     std::shared_ptr< Body > body2 = std::make_shared< Body >( );
@@ -115,13 +136,14 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
     body1->setGravityFieldModel( body1GravityField );
     body2->setGravityFieldModel( body2GravityField );
 
-    const std::vector< std::pair< int, int > > cosineIndices = { { 2, 0 }, { 2, 1 }, { 2, 2 } };
-    const std::vector< std::pair< int, int > > sineIndices = { { 2, 1 }, { 2, 2 } };
+    const std::vector< std::pair< int, int > > cosineIndices = { { 2, 0 }, { 2, 1 }, { 2, 2 }, { 3, 0 }, { 3, 1 },
+                                                                 { 3, 3 }, { 4, 0 }, { 4, 2 }, { 4, 4 } };
+    const std::vector< std::pair< int, int > > sineIndices = { { 2, 1 }, { 2, 2 }, { 3, 1 }, { 3, 3 }, { 4, 2 }, { 4, 4 } };
 
     const std::vector< CaseDefinition > testCases = {
-        { "regular", FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_, false, false },
-        { "mutualSinglePoint", getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ), true, false },
-        { "mutual", FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_, true, true }
+        { "regular", FullTwoBodySphericalHarmonicAccelerationSettings( 4, 4, 0, 0 ).coefficientCombinationsToUse_, false, false },
+        { "mutualSinglePoint", getExtendedSinglePointMassInteractions( 4, 4, 4, 4 ), true, false },
+        { "mutual", FullTwoBodySphericalHarmonicAccelerationSettings( 4, 4, 4, 4 ).coefficientCombinationsToUse_, true, true }
     };
 
     const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 10.0 );
@@ -210,6 +232,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                             std::bind( &SphericalHarmonicsGravityField::setSineCoefficients, body2GravityField, std::placeholders::_1 ),
                             sineIndices,
                             "Body2" );
+            std::shared_ptr< GravitationalParameter > body1GravitationalParameter =
+                    std::make_shared< GravitationalParameter >( body1GravityField, "Body1" );
+            std::shared_ptr< GravitationalParameter > body2GravitationalParameter =
+                    std::make_shared< GravitationalParameter >( body2GravityField, "Body2" );
 
             body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
             body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
@@ -231,6 +257,68 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             analyticalPartials.wrtBody1Sine = accelerationPartial->wrtParameter( body1SineCoefficientsParameter );
             analyticalPartials.wrtBody2Cosine = accelerationPartial->wrtParameter( body2CosineCoefficientsParameter );
             analyticalPartials.wrtBody2Sine = accelerationPartial->wrtParameter( body2SineCoefficientsParameter );
+            const Eigen::Vector3d analyticalPartialWrtBody1GravitationalParameter =
+                    accelerationPartial->wrtParameter( body1GravitationalParameter );
+            const Eigen::Vector3d analyticalPartialWrtBody2GravitationalParameter =
+                    accelerationPartial->wrtParameter( body2GravitationalParameter );
+
+            if( testCase.hasFigureFigureTerms )
+            {
+                Eigen::MatrixXd analyticalPartialWrtRotationalStateOfBody1 = Eigen::MatrixXd::Zero( 3, 7 );
+                accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
+                        analyticalPartialWrtRotationalStateOfBody1.block( 0, 0, 3, 7 ),
+                        std::make_pair( "Body1", "" ),
+                        propagators::rotational_state );
+                Eigen::MatrixXd analyticalPartialWrtRotationalStateOfBody2 = Eigen::MatrixXd::Zero( 3, 7 );
+                accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
+                        analyticalPartialWrtRotationalStateOfBody2.block( 0, 0, 3, 7 ),
+                        std::make_pair( "Body2", "" ),
+                        propagators::rotational_state );
+
+                std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBody1;
+                const Eigen::MatrixXd accelerationDeviationDueToOrientationChangeOfBody1 =
+                        calculateAccelerationDeviationDueToOrientationChange(
+                                std::bind( &Body::setCurrentRotationalStateToLocalFrame, body1, std::placeholders::_1 ),
+                                accelerationModel,
+                                body1->getRotationalStateVector( ),
+                                Eigen::Vector4d::Constant( 1.0E-6 ),
+                                appliedQuaternionPerturbationOfBody1,
+                                emptyFunction,
+                                evaluationTime );
+                std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBody2;
+                const Eigen::MatrixXd accelerationDeviationDueToOrientationChangeOfBody2 =
+                        calculateAccelerationDeviationDueToOrientationChange(
+                                std::bind( &Body::setCurrentRotationalStateToLocalFrame, body2, std::placeholders::_1 ),
+                                accelerationModel,
+                                body2->getRotationalStateVector( ),
+                                Eigen::Vector4d::Constant( 1.0E-6 ),
+                                appliedQuaternionPerturbationOfBody2,
+                                emptyFunction,
+                                evaluationTime );
+
+                for( int index = 1; index < 4; index++ )
+                {
+                    const Eigen::Vector3d analyticalAccelerationDeviationOfBody1 =
+                            analyticalPartialWrtRotationalStateOfBody1.block( 0, 0, 3, 4 ) *
+                            appliedQuaternionPerturbationOfBody1.at( index );
+                    const Eigen::Vector3d analyticalAccelerationDeviationOfBody2 =
+                            analyticalPartialWrtRotationalStateOfBody2.block( 0, 0, 3, 4 ) *
+                            appliedQuaternionPerturbationOfBody2.at( index );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( accelerationDeviationDueToOrientationChangeOfBody1.block( 0, index - 1, 3, 1 ),
+                                                       analyticalAccelerationDeviationOfBody1,
+                                                       5.0E-4 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( accelerationDeviationDueToOrientationChangeOfBody2.block( 0, index - 1, 3, 1 ),
+                                                       analyticalAccelerationDeviationOfBody2,
+                                                       5.0E-4 );
+                }
+
+                body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+                body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+                accelerationModel->resetCurrentTime( );
+                accelerationPartial->resetCurrentTime( );
+                accelerationModel->updateMembers( evaluationTime );
+                accelerationPartial->update( evaluationTime );
+            }
 
             // Finite-difference reference:
             // each acceleration evaluation advances the time tag by 1 second so the bodies refresh their current
@@ -308,20 +396,28 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 
             const Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateVectorParameterPartial(
                     body1CosineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+                    Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
             const Eigen::MatrixXd numericalPartialWrtBody1Sine = calculateVectorParameterPartial(
                     body1SineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+                    Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
             const Eigen::MatrixXd numericalPartialWrtBody2Cosine = calculateVectorParameterPartial(
                     body2CosineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+                    Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
             const Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateVectorParameterPartial(
                     body2SineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+                    Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
+            const Eigen::Vector3d numericalPartialWrtBody1GravitationalParameter = calculateAccelerationWrtParameterPartials(
+                    body1GravitationalParameter, accelerationModel, 10.0, emptyFunction, evaluationTime );
+            const Eigen::Vector3d numericalPartialWrtBody2GravitationalParameter = calculateAccelerationWrtParameterPartials(
+                    body2GravitationalParameter, accelerationModel, 10.0, emptyFunction, evaluationTime );
 
             // State Jacobians: analytical partial blocks should match numerical references.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Position, analyticalPartials.wrtBody2Position, 5.0E-5 );
+            BOOST_CHECK_SMALL( analyticalPartialWrtBody1GravitationalParameter.norm( ), 1.0E-20 );
+            BOOST_CHECK_SMALL( numericalPartialWrtBody1GravitationalParameter.norm( ), 1.0E-20 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    numericalPartialWrtBody2GravitationalParameter, analyticalPartialWrtBody2GravitationalParameter, 1.0E-10 );
 
             // Gravitational acceleration has no explicit velocity dependence in this model.
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );

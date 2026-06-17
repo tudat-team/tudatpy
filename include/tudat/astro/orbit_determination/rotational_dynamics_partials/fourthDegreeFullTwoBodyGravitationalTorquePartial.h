@@ -151,6 +151,8 @@ private:
 
     void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix, const int s21Index, const int s22Index );
 
+    void wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix );
+
     std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque_;
@@ -161,6 +163,7 @@ private:
     Eigen::Matrix3d currentPartialWrtPositionOfBodyExertingTorque_;
     Eigen::Matrix< double, 3, 6 > currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_;
     Eigen::Matrix< double, 3, 6 > currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_;
+    Eigen::Vector3d currentPartialWrtMassOfBodyExertingTorque_;
     Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_;
     Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrameOfBodyExertingTorque_;
     Eigen::Matrix3d currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_;

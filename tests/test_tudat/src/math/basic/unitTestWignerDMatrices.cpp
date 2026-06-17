@@ -64,19 +64,19 @@ void getWignerDValueAtBoundary( const int degree,
 
     valueOrderEqualsDegree = factorialTerm * std::pow( std::cos( angleBeta / 2.0 ), degree + orderToEvaluate ) *
             std::pow( -std::sin( angleBeta / 2.0 ), degree - orderToEvaluate ) *
-            std::exp( -mathematical_constants::COMPLEX_I * ( degree * angleAlpha + orderToEvaluate * angleGamma ) );
+            std::exp( -mathematical_constants::COMPLEX_I * ( orderToEvaluate * angleAlpha + degree * angleGamma ) );
 
     valueOrderEqualsMinusDegree = factorialTerm * std::pow( std::cos( angleBeta / 2.0 ), degree - orderToEvaluate ) *
             std::pow( std::sin( angleBeta / 2.0 ), degree + orderToEvaluate ) *
-            std::exp( -mathematical_constants::COMPLEX_I * ( -degree * angleAlpha + orderToEvaluate * angleGamma ) );
+            std::exp( -mathematical_constants::COMPLEX_I * ( orderToEvaluate * angleAlpha - degree * angleGamma ) );
 
     valueOrderPrimeEqualsDegree = factorialTerm * std::pow( std::cos( angleBeta / 2.0 ), degree + orderToEvaluate ) *
             std::pow( std::sin( angleBeta / 2.0 ), degree - orderToEvaluate ) *
-            std::exp( -mathematical_constants::COMPLEX_I * ( orderToEvaluate * angleAlpha + degree * angleGamma ) );
+            std::exp( -mathematical_constants::COMPLEX_I * ( degree * angleAlpha + orderToEvaluate * angleGamma ) );
 
     valueOrderPrimeEqualsMinusDegree = factorialTerm * std::pow( std::cos( angleBeta / 2.0 ), degree - orderToEvaluate ) *
             std::pow( -std::sin( angleBeta / 2.0 ), degree + orderToEvaluate ) *
-            std::exp( -mathematical_constants::COMPLEX_I * ( orderToEvaluate * angleAlpha - degree * angleGamma ) );
+            std::exp( -mathematical_constants::COMPLEX_I * ( -degree * angleAlpha + orderToEvaluate * angleGamma ) );
 }
 
 // Varshalovich, p. 112, Eq. (1) and (2)

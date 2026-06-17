@@ -11,6 +11,7 @@
 #ifndef TUDAT_MUTUALEXTENDEDBODYSPHERICALHARMONICGRAVITYPARTIAL_H
 #define TUDAT_MUTUALEXTENDEDBODYSPHERICALHARMONICGRAVITYPARTIAL_H
 
+#include <array>
 #include <tuple>
 
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
@@ -113,6 +114,16 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter ) override;
 
+    //! Return whether the acceleration derivative depends on a given non-translational integrated state.
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType ) override;
+
+    //! Insert partial w.r.t. a non-translational integrated state.
+    void wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                   const std::pair< std::string, std::string >& stateReferencePoint,
+                                                   const propagators::IntegratedStateType integratedStateType,
+                                                   const bool addContribution = true ) override;
+
     const Eigen::Matrix3d& getCurrentBodyFixedPartialWrtPosition( ) const
     {
         return currentBodyFixedPartialWrtPosition_;
@@ -156,6 +167,9 @@ private:
     //! Update partials of acceleration w.r.t. effective coefficients.
     void updateCurrentPartialsWrtEffectiveCoefficients( );
 
+    //! Update partials of acceleration w.r.t. body orientation quaternions.
+    void updateCurrentOrientationPartials( );
+
     //! Update derivatives of transformed body-2 coefficients w.r.t. a single original body-2 coefficient.
     void updateCurrentTransformedBody2CoefficientPartials( const int degree,
                                                            const int order,
@@ -174,6 +188,9 @@ private:
 
     //! Partial w.r.t. sine coefficient block of body 2.
     void wrtSineCoefficientBlockOfBody2( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialMatrix );
+
+    //! Partial w.r.t. the effective gravitational parameter used by the acceleration model.
+    void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
 
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 
@@ -194,6 +211,10 @@ private:
     Eigen::Matrix3d currentBodyFixedPartialWrtPosition_;
 
     Eigen::Matrix3d currentPartialWrtVelocity_;
+
+    Eigen::Matrix< double, 3, 4 > currentPartialWrtQuaternionOfBody1_;
+
+    Eigen::Matrix< double, 3, 4 > currentPartialWrtQuaternionOfBody2_;
 
     Eigen::Matrix3d currentRotationToBodyFixedFrame_;
 
@@ -217,6 +238,9 @@ private:
     Eigen::MatrixXd body2BasisSineCoefficients_;
     Eigen::MatrixXd transformedCosineBody2CoefficientPartialsScratch_;
     Eigen::MatrixXd transformedSineBody2CoefficientPartialsScratch_;
+    Eigen::MatrixXd partialOfTransformedCosineCoefficientsBody2Scratch_;
+    Eigen::MatrixXd partialOfTransformedSineCoefficientsBody2Scratch_;
+    std::array< std::vector< Eigen::MatrixXcd >, 4 > derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_;
 };
 
 }  // namespace acceleration_partials

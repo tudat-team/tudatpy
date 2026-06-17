@@ -16,12 +16,40 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
 
 namespace tudat
 {
 
 namespace acceleration_partials
 {
+
+namespace detail
+{
+
+std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
+        const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame );
+
+Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+
+Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+
+void computeDerivativeOfWignerDMatricesWrtRelativeQuaternion( const Eigen::Quaterniond& relativeRotationFromBody2ToBody1,
+                                                              const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
+                                                              std::array< std::vector< Eigen::MatrixXcd >, 4 >& derivatives );
+
+Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
+        const Eigen::Vector3d& bodyFixedRelativePosition,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
+        const double cosineOfLatitude,
+        const double preMultiplier,
+        const double equatorialRadiusRatioPower,
+        const int totalDegree,
+        const int totalOrder );
+
+}  // namespace detail
 
 //! Constructor.
 /*!
@@ -57,6 +85,11 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     transformedCosineBody2CoefficientPartialsScratch_.setZero( transformedCosineCoefficients.rows( ),
                                                                transformedCosineCoefficients.cols( ) );
     transformedSineBody2CoefficientPartialsScratch_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
+    partialOfTransformedCosineCoefficientsBody2Scratch_.setZero( transformedCosineCoefficients.rows( ),
+                                                                 transformedCosineCoefficients.cols( ) );
+    partialOfTransformedSineCoefficientsBody2Scratch_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
+    currentPartialWrtQuaternionOfBody1_.setZero( );
+    currentPartialWrtQuaternionOfBody2_.setZero( );
 }
 
 void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTime )
@@ -90,6 +123,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTi
         // Step 4: update Jacobian of effective coefficients (Eqs. (47)-(48)) w.r.t transformed body-2 coefficients.
         effectiveMutualPotentialField_->computePartialsOfFullCoefficientsWrtTransformedCoefficients(
                 currentEffectiveCoefficientsWrtTransformedBody2Coefficients_ );
+        updateCurrentOrientationPartials( );
 
         currentPartialWrtVelocity_.setZero( );
         currentTime_ = currentTime;
@@ -264,6 +298,135 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
         {
             currentBodyFixedPartialsWrtEffectiveCoefficients_.at( i ).setZero( );
         }
+    }
+}
+
+//! Update \partial a / \partial q for both body orientation quaternions.
+/*!
+ * Implements the quaternion chain rule in Dirkx et al. (2019), Eqs. (70)-(79): body-1 orientation affects
+ * the output-frame rotation, the body-fixed relative position, and the relative coefficient rotation, while
+ * body-2 orientation affects only the relative coefficient rotation.
+ */
+void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartials( )
+{
+    const std::array< Eigen::Matrix3d, 4 > derivativeOfBody1RotationFromBodyFixedToInertialWrtQuaternion =
+            detail::getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
+                    accelerationModel_->getCurrentRotationFromInertialToBody1( ) );
+
+    const Eigen::MatrixXd& cosineCoefficientsOfBody2 = effectiveMutualPotentialField_->getCosineCoefficientsOfBody2( );
+    const Eigen::MatrixXd& sineCoefficientsOfBody2 = effectiveMutualPotentialField_->getSineCoefficientsOfBody2( );
+    const Eigen::Vector4d quaternionVectorOfBody1 =
+            linear_algebra::convertQuaternionToVectorFormat( accelerationModel_->getCurrentRotationFromInertialToBody1( ) );
+    const Eigen::Matrix3d currentRotationFromInertialToBody2 =
+            accelerationModel_->getCurrentRotationFromBody2ToBody1( ).toRotationMatrix( ).transpose( ) * currentRotationToBodyFixedFrame_;
+    const Eigen::Vector4d quaternionVectorOfBody2 =
+            linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationFromInertialToBody2 ) );
+    const Eigen::Vector4d conjugatedQuaternionVectorOfBody2 = ( Eigen::Vector4d( ) << quaternionVectorOfBody2( 0 ),
+                                                                -quaternionVectorOfBody2( 1 ),
+                                                                -quaternionVectorOfBody2( 2 ),
+                                                                -quaternionVectorOfBody2( 3 ) )
+                                                                      .finished( );
+
+    const Eigen::Matrix4d partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion =
+            Eigen::Vector4d( 1.0, -1.0, -1.0, -1.0 ).asDiagonal( );
+    const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBody1 =
+            detail::getRightQuaternionMultiplicationMatrix( conjugatedQuaternionVectorOfBody2 ) *
+            partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion;
+    const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBody2 =
+            detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBody1 );
+
+    detail::computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
+            accelerationModel_->getCurrentRotationFromBody2ToBody1( ),
+            effectiveMutualPotentialField_->getTransformationCache( )->getWignerDMatricesCache( ),
+            derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_ );
+
+    const double cosineOfLatitude = std::cos( currentSphericalPosition_( 1 ) );
+    const double preMultiplier = currentGravitationalParameter_ / currentDistance_;
+    std::array< Eigen::Vector3d, 4 > partialOfMutualPotentialGradientWrtRelativeQuaternion;
+
+    for( int quaternionIndex = 0; quaternionIndex < 4; quaternionIndex++ )
+    {
+        partialOfMutualPotentialGradientWrtRelativeQuaternion.at( quaternionIndex ).setZero( );
+
+        basic_mathematics::transformSphericalHarmonicCoefficientsWithWignerD(
+                cosineCoefficientsOfBody2,
+                sineCoefficientsOfBody2,
+                derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_.at( quaternionIndex ),
+                partialOfTransformedCosineCoefficientsBody2Scratch_,
+                partialOfTransformedSineCoefficientsBody2Scratch_,
+                accelerationModel_->getAreCoefficientsNormalized( ) );
+
+        for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
+        {
+            const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
+            const int orderOfBody1 = std::get< 1 >( coefficientCombinationsToUse_.at( i ) );
+            const int degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse_.at( i ) );
+            const int orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse_.at( i ) );
+            const int totalDegree = degreeOfBody1 + degreeOfBody2;
+            const double equatorialRadiusRatioPower = currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
+
+            for( int variant = 0; variant < 4; variant++ )
+            {
+                int signedOrderOfBody1 = 0;
+                int signedOrderOfBody2 = 0;
+                if( !gravitation::getSignedOrdersForCombinationCase(
+                            variant, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                {
+                    continue;
+                }
+
+                const int transformedOrderOfBody2 = std::abs( signedOrderOfBody2 );
+                const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                const int effectiveIndex = effectiveMutualPotentialField_->getEffectiveIndex(
+                        degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 );
+
+                const Eigen::Vector2d partialOfTransformedCoefficients =
+                        ( Eigen::Vector2d( ) << partialOfTransformedCosineCoefficientsBody2Scratch_( degreeOfBody2,
+                                                                                                     transformedOrderOfBody2 ),
+                          partialOfTransformedSineCoefficientsBody2Scratch_( degreeOfBody2, transformedOrderOfBody2 ) )
+                                .finished( );
+                partialOfMutualPotentialGradientWrtRelativeQuaternion.at( quaternionIndex ) +=
+                        detail::computeCurrentBodyFixedBasisFunctionGradients( currentBodyFixedRelativePosition_,
+                                                                               sphericalHarmonicsCache_,
+                                                                               cosineOfLatitude,
+                                                                               preMultiplier,
+                                                                               equatorialRadiusRatioPower,
+                                                                               totalDegree,
+                                                                               totalOrder ) *
+                        ( currentEffectiveCoefficientsWrtTransformedBody2Coefficients_.at( effectiveIndex ) *
+                          partialOfTransformedCoefficients );
+            }
+        }
+    }
+
+    currentPartialWrtQuaternionOfBody1_.setZero( );
+    currentPartialWrtQuaternionOfBody2_.setZero( );
+    for( int quaternionIndex = 0; quaternionIndex < 4; quaternionIndex++ )
+    {
+        const Eigen::Vector3d partialOfBodyFixedPositionWrtQuaternionOfBody1 =
+                derivativeOfBody1RotationFromBodyFixedToInertialWrtQuaternion.at( quaternionIndex ).transpose( ) *
+                accelerationModel_->getCurrentRelativePosition( );
+
+        Eigen::Vector3d coefficientContributionWrtQuaternionOfBody1 = Eigen::Vector3d::Zero( );
+        Eigen::Vector3d coefficientContributionWrtQuaternionOfBody2 = Eigen::Vector3d::Zero( );
+        for( int relativeQuaternionIndex = 0; relativeQuaternionIndex < 4; relativeQuaternionIndex++ )
+        {
+            coefficientContributionWrtQuaternionOfBody1 +=
+                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
+                    partialOfRelativeQuaternionWrtQuaternionOfBody1( relativeQuaternionIndex, quaternionIndex );
+            coefficientContributionWrtQuaternionOfBody2 +=
+                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
+                    partialOfRelativeQuaternionWrtQuaternionOfBody2( relativeQuaternionIndex, quaternionIndex );
+        }
+
+        currentPartialWrtQuaternionOfBody1_.col( quaternionIndex ) =
+                derivativeOfBody1RotationFromBodyFixedToInertialWrtQuaternion.at( quaternionIndex ) *
+                        accelerationModel_->getMutualPotentialGradient( ) +
+                currentRotationToInertialFrame_ *
+                        ( currentBodyFixedPartialWrtPosition_ * partialOfBodyFixedPositionWrtQuaternionOfBody1 +
+                          coefficientContributionWrtQuaternionOfBody1 );
+        currentPartialWrtQuaternionOfBody2_.col( quaternionIndex ) =
+                currentRotationToInertialFrame_ * coefficientContributionWrtQuaternionOfBody2;
     }
 }
 
@@ -553,13 +716,28 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtSineCoefficientBlockOfBody2
     }
 }
 
-//! No scalar-parameter partials are implemented for this model.
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = accelerationModel_->getAcceleration( ) / currentGravitationalParameter_;
+}
+
+//! Return scalar-parameter partials for gravitational parameters used by the acceleration model.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
-    return std::make_pair( partialFunction, 0 );
+    int numberOfRows = 0;
+
+    if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+        ( parameter->getParameterName( ).second.first == acceleratingBody_ ||
+          ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationModel_->getIsMutualAttractionUsed( ) ) ) )
+    {
+        partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 );
+        numberOfRows = 1;
+    }
+
+    return std::make_pair( partialFunction, numberOfRows );
 }
 
 //! Return vector-parameter partials for spherical-harmonic coefficient blocks.
@@ -624,6 +802,38 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
     }
 
     return std::make_pair( partialFunction, numberOfRows );
+}
+
+bool FullTwoBodySphericalHarmonicsGravityPartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+        const std::pair< std::string, std::string >& stateReferencePoint,
+        const propagators::IntegratedStateType integratedStateType )
+{
+    return integratedStateType == propagators::rotational_state &&
+            ( stateReferencePoint.first == acceleratedBody_ || stateReferencePoint.first == acceleratingBody_ ) &&
+            stateReferencePoint.second.empty( );
+}
+
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtNonTranslationalStateOfAdditionalBody(
+        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const std::pair< std::string, std::string >& stateReferencePoint,
+        const propagators::IntegratedStateType integratedStateType,
+        const bool addContribution )
+{
+    if( integratedStateType != propagators::rotational_state )
+    {
+        return;
+    }
+
+    const Eigen::Matrix< double, 3, 4 >& quaternionPartial =
+            stateReferencePoint.first == acceleratedBody_ ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_;
+    if( addContribution )
+    {
+        partialMatrix.block( 0, 0, 3, 4 ) += quaternionPartial;
+    }
+    else
+    {
+        partialMatrix.block( 0, 0, 3, 4 ) -= quaternionPartial;
+    }
 }
 
 }  // namespace acceleration_partials

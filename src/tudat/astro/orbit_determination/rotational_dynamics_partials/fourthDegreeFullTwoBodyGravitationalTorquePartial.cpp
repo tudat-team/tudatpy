@@ -674,6 +674,7 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
     currentPartialWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque_( Eigen::Matrix< double, 3, 6 >::Zero( ) ),
     currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_(
             Eigen::Matrix< double, 3, 6 >::Zero( ) ),
+    currentPartialWrtMassOfBodyExertingTorque_( Eigen::Vector3d::Zero( ) ),
     currentRotationFromInertialToBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Matrix3d::Identity( ) ),
     currentRotationFromInertialToBodyFixedFrameOfBodyExertingTorque_( Eigen::Matrix3d::Identity( ) ),
     currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Matrix3d::Identity( ) ),
@@ -748,6 +749,14 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
     {
         switch( parameter->getParameterName( ).first )
         {
+            case initial_mass_state: {
+                partialFunction =
+                        std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtMassOfBodyExertingTorque,
+                                                   this,
+                                                   std::placeholders::_1 ),
+                                        parameter->getParameterSize( ) );
+                break;
+            }
             case spherical_harmonics_cosine_coefficient_block: {
                 std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
                         std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
@@ -826,7 +835,8 @@ bool FourthDegreeFullTwoBodyGravitationalTorquePartial::isStateDerivativeDepende
         const propagators::IntegratedStateType integratedStateType )
 {
     return ( integratedStateType == propagators::translational_state &&
-             ( stateReferencePoint.first == bodyUndergoingTorque_ || stateReferencePoint.first == bodyExertingTorque_ ) );
+             ( stateReferencePoint.first == bodyUndergoingTorque_ || stateReferencePoint.first == bodyExertingTorque_ ) ) ||
+            ( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == bodyExertingTorque_ );
 }
 
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBody(
@@ -844,6 +854,10 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtNonRotationalStateOfA
         {
             partialMatrix.block( 0, 0, 3, 3 ) += currentPartialWrtPositionOfBodyExertingTorque_;
         }
+    }
+    else if( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == bodyExertingTorque_ )
+    {
+        partialMatrix.block( 0, 0, 3, 1 ) += currentPartialWrtMassOfBodyExertingTorque_;
     }
 }
 
@@ -1046,6 +1060,11 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
     }
 }
 
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = currentPartialWrtMassOfBodyExertingTorque_;
+}
+
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
@@ -1080,6 +1099,18 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double cur
         currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ =
                 detail::computePartialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque(
                         auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );
+        const Eigen::Matrix< double, 6, 1 > partialOfAuxiliaryFunctionsWrtBodyExertingMass =
+                ( Eigen::Matrix< double, 6, 1 >( ) << auxiliaryQuantities.yzTerm,
+                  auxiliaryQuantities.xzTerm,
+                  auxiliaryQuantities.xyTerm,
+                  auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared,
+                  auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared,
+                  auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared )
+                        .finished( );
+        currentPartialWrtMassOfBodyExertingTorque_ = auxiliaryQuantities.torquePrefactor *
+                detail::computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions(
+                                                             independentInertiaTensorComponentsOfBodyUndergoingTorque ) *
+                partialOfAuxiliaryFunctionsWrtBodyExertingMass;
 
         const Eigen::Matrix3d partialOfTorqueWrtBodyFixedRelativePosition = detail::computePartialOfTorqueWrtBodyFixedRelativePosition(
                 auxiliaryQuantities, independentInertiaTensorComponentsOfBodyUndergoingTorque );

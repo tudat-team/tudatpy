@@ -100,6 +100,12 @@ private:
                                                        const int order,
                                                        const bool wrtCosineCoefficient );
 
+    //! Partial w.r.t. an effective gravitational parameter used by the associated acceleration model.
+    void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
+
+    //! Partial w.r.t. the mass of the body undergoing torque.
+    void wrtBodyUndergoingTorqueMass( Eigen::MatrixXd& partialMatrix );
+
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel_;
     std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial_;
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;

@@ -399,12 +399,34 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     partialOfTransformedSineCoefficientsBody2Scratch_.setZero( transformedSineCoefficients.rows( ), transformedSineCoefficients.cols( ) );
 }
 
-//! No scalar parameter partials are implemented for this model.
+void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = torqueModel_->getTorque( ) / accelerationModel_->getCurrentGravitationalParameter( );
+}
+
+void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtBodyUndergoingTorqueMass( Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = torqueModel_->getTorque( ) / currentBodyUndergoingTorqueMass_;
+}
+
+//! Return scalar parameter partials for the GM and explicit body mass dependencies.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
-        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    return std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
+    int numberOfRows = 0;
+
+    if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+        ( parameter->getParameterName( ).second.first == bodyExertingTorque_ ||
+          ( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ && accelerationModel_->getIsMutualAttractionUsed( ) ) ) )
+    {
+        partialFunction = std::bind(
+                &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameter, this, std::placeholders::_1 );
+        numberOfRows = 1;
+    }
+
+    return std::make_pair( partialFunction, numberOfRows );
 }
 
 //! Return vector-parameter partial functions for SH coefficient blocks of either body.
@@ -421,6 +443,14 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
     {
         switch( parameter->getParameterName( ).first )
         {
+            case initial_mass_state: {
+                partialFunction =
+                        std::make_pair( std::bind( &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtBodyUndergoingTorqueMass,
+                                                   this,
+                                                   std::placeholders::_1 ),
+                                        parameter->getParameterSize( ) );
+                break;
+            }
             case spherical_harmonics_cosine_coefficient_block: {
                 std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
                         std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
@@ -520,7 +550,8 @@ bool FullTwoBodySphericalHarmonicGravitationalTorquePartial::isStateDerivativeDe
         const propagators::IntegratedStateType integratedStateType )
 {
     return ( integratedStateType == propagators::translational_state &&
-             ( stateReferencePoint.first == bodyUndergoingTorque_ || stateReferencePoint.first == bodyExertingTorque_ ) );
+             ( stateReferencePoint.first == bodyUndergoingTorque_ || stateReferencePoint.first == bodyExertingTorque_ ) ) ||
+            ( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == bodyUndergoingTorque_ );
 }
 
 //! Insert cached partial w.r.t. additional translational state.
@@ -539,6 +570,10 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtNonRotationalSta
         {
             partialMatrix.block( 0, 0, 3, 3 ) += currentPartialWrtPositionOfBodyExertingTorque_;
         }
+    }
+    else if( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == bodyUndergoingTorque_ )
+    {
+        partialMatrix.block( 0, 0, 3, 1 ) += torqueModel_->getTorque( ) / currentBodyUndergoingTorqueMass_;
     }
 }
 
@@ -1246,11 +1281,13 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                   -quaternionVectorOfBodyExertingTorque( 3 ) )
                         .finished( );
 
+        const Eigen::Matrix4d partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion =
+                Eigen::Vector4d( 1.0, -1.0, -1.0, -1.0 ).asDiagonal( );
         const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBodyUndergoingTorque =
-                detail::getRightQuaternionMultiplicationMatrix( conjugatedQuaternionVectorOfBodyExertingTorque );
+                detail::getRightQuaternionMultiplicationMatrix( conjugatedQuaternionVectorOfBodyExertingTorque ) *
+                partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion;
         const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBodyExertingTorque =
-                detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBodyUndergoingTorque ) *
-                ( Eigen::Vector4d( 1.0, -1.0, -1.0, -1.0 ).asDiagonal( ) );
+                detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBodyUndergoingTorque );
 
         detail::computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
                 accelerationModel_->getCurrentRotationFromBody2ToBody1( ),
