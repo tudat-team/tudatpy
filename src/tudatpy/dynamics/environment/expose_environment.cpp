@@ -2707,6 +2707,16 @@ bool
             .def( "set_transmitting_frequency_calculator",
                   &tgs::GroundStation::setTransmittingFrequencyCalculator,
                   py::arg( "transmitting_frequency_calculator" ) )
+            .def( "has_frequency_calculator", &tgs::GroundStation::hasFrequencyCalculator, R"doc(
+
+         Check if the ground station has a frequency calculator.
+
+         Returns
+         -------
+         bool
+            True if the ground station has a frequency calculator, False otherwise.
+
+     )doc" )
             //            .def( "set_water_vapor_partial_pressure_function",
             //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
             //                  py::arg( "water_vapor_partial_pressure_function" ) )
@@ -2808,7 +2818,20 @@ bool
             .def_property_readonly( "start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies )
             .def( "compute_current_frequency",
                   &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
-                  py::arg( "lookup_time_original" ) );
+                  py::arg( "lookup_time_original" ) )
+            .def( "add_frequency_interpolator",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
+                  py::arg( "frequency_interpolator_to_add" ),
+                  R"doc(
+                  
+                Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
+
+                Parameters
+                ----------
+                frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
+                    The frequency interpolator to add to the current interpolator.
+                  
+                  )doc" );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
