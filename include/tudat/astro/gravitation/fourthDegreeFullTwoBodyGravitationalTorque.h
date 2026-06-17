@@ -81,13 +81,13 @@ public:
     ~FourthDegreeFullTwoBodyGravitationalTorqueModel( ) {}
 
     //! Get currently computed torque.
-    Eigen::Vector3d getTorque( )
+    Eigen::Vector3d getTorque( ) override
     {
         return currentTorque_;
     }
 
     //! Update member variables used by the torque model.
-    void updateMembers( const double currentTime = TUDAT_NAN )
+    void updateMembers( const double currentTime = TUDAT_NAN ) override
     {
         if( !( currentTime_ == currentTime ) )
         {

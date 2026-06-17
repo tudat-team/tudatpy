@@ -95,12 +95,12 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
     wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
 
     // Check that Wigner D-matrices are real unit matrices: Varschalovich et al., p. 112, Section 4.16, Eq. (1)
-    for( unsigned int i = 0; i <= maximumDegree; i++ )
+    for( int i = 0; i <= maximumDegree; i++ )
     {
         Eigen::MatrixXcd dMatrixError = wignerDMatrixCache.getWignerDMatrix( i ) - Eigen::MatrixXcd::Identity( 2 * i + 1, 2 * i + 1 );
-        for( unsigned int j = 0; j < 2 * i + 1; j++ )
+        for( int j = 0; j < 2 * i + 1; j++ )
         {
-            for( unsigned int k = 0; k < 2 * i + 1; k++ )
+            for( int k = 0; k < 2 * i + 1; k++ )
             {
                 BOOST_CHECK_SMALL( dMatrixError( j, k ).real( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL( dMatrixError( j, k ).imag( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
@@ -117,13 +117,13 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
     wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
 
     // Check values accorging to Varschalovich et al., p. 112, Section 4.16, Eq. (2)
-    for( unsigned int i = 0; i <= maximumDegree; i++ )
+    for( int i = 0; i <= maximumDegree; i++ )
     {
         Eigen::MatrixXcd currentDMatrix = wignerDMatrixCache.getWignerDMatrix( i );
-        for( unsigned int j = 0; j < 2 * i + 1; j++ )
+        for( int j = 0; j < 2 * i + 1; j++ )
         {
             int m = j - i;
-            for( unsigned int k = 0; k < 2 * i + 1; k++ )
+            for( int k = 0; k < 2 * i + 1; k++ )
             {
                 // Off-diagonal values are zero
                 if( j != k )
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
         convert323EulerAnglesToCayleyKleinParameters( -angleAlpha, -angleBeta, -angleGamma, cayleyKleinA, cayleyKleinB );
         wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
 
-        for( unsigned int i = 0; i <= maximumDegree; i++ )
+        for( int i = 0; i <= maximumDegree; i++ )
         {
             Eigen::MatrixXcd currentDMatrix = wignerDMatrixCache.getWignerDMatrix( i );
 
@@ -202,11 +202,11 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                 }
             }
 
-            for( unsigned int j = 0; j < 2 * i + 1; j++ )
+            for( int j = 0; j < 2 * i + 1; j++ )
             {
                 int m = j - i;
 
-                for( unsigned int k = 0; k < 2 * i + 1; k++ )
+                for( int k = 0; k < 2 * i + 1; k++ )
                 {
                     // Check if diagonal values from Varschalovich et al., p. 114, Section 4.17, Eq (2)
                     if( j == i && k == i )

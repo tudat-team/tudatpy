@@ -512,7 +512,6 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         // Calculate central gravity acceleration.
         centralGravity->updateMembers( );
-        Eigen::Vector3d centralGravityAcceleration = centralGravity->getAcceleration( );
 
         // Create spherical harmonic gravity of Jupiter on Io, Jupiter-fixed (mu = Io + Jupiter)
         std::shared_ptr< AccelerationSettings > sphericalHarmonicGravityOnIoFromJupiterSettings =

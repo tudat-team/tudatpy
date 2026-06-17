@@ -50,9 +50,9 @@ public:
      * \param maxiumDegree Maximum degree of spherical harmonic expansion that will be handled by object
      * \param maximumOrder Maximum order of spherical harmonic expansion that will be handled by object
      */
-    SphericalHarmonicTransformationCache( const int maxiumDegree, const int maximumOrder ):
-        maximumDegree_( maxiumDegree ), maximumOrder_( maximumOrder ), updatePartials_( false )
+    SphericalHarmonicTransformationCache( const int maxiumDegree, const int maximumOrder ): updatePartials_( false )
     {
+        static_cast< void >( maximumOrder );
         wignerDMatricesCache_ = std::make_shared< WignerDMatricesCache >( maxiumDegree );
     }
 
@@ -118,12 +118,6 @@ public:
 private:
     //! Object used to compute Wigner D-matrices
     std::shared_ptr< WignerDMatricesCache > wignerDMatricesCache_;
-
-    //! Maximum degree of spherical harmonic expansion that will be handled by object
-    int maximumDegree_;
-
-    //! Maximum degree of spherical harmonic expansion that will be handled by object
-    int maximumOrder_;
 
     //! Boolean denoting whether partial derivatives of coefficients are to be computed
     bool updatePartials_;

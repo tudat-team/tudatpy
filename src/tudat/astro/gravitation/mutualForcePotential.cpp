@@ -15,11 +15,11 @@ std::pair< int, int > getMaximumDegrees(
     int maximumDegree1 = 0;
     int maximumDegree2 = 0;
 
-    unsigned int degreeOfBody1, degreeOfBody2;
+    int degreeOfBody1, degreeOfBody2;
     for( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
     {
-        degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse.at( i ) );
-        degreeOfBody2 = std::get< 2 >( coefficientCombinationsToUse.at( i ) );
+        degreeOfBody1 = static_cast< int >( std::get< 0 >( coefficientCombinationsToUse.at( i ) ) );
+        degreeOfBody2 = static_cast< int >( std::get< 2 >( coefficientCombinationsToUse.at( i ) ) );
 
         if( degreeOfBody1 > maximumDegree1 )
         {
@@ -252,9 +252,9 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     // Cache P_lm and dP_lm/dphi up to the requested evaluation degree for efficient Eq. (55) accumulation.
     std::vector< std::pair< double, double > > legendreTerms;
     legendreTerms.resize( ( maximumEvaluationDegree + 1 ) * ( maximumEvaluationDegree + 1 ) );
-    for( unsigned int i = 0; i <= maximumEvaluationDegree; i++ )
+    for( int i = 0; i <= maximumEvaluationDegree; i++ )
     {
-        for( unsigned int j = 0; j <= i; j++ )
+        for( int j = 0; j <= i; j++ )
         {
             // Compute geodesy-normalized Legendre polynomials.
             const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( i, j );

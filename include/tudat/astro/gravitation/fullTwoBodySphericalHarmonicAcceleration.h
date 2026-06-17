@@ -52,7 +52,7 @@ public:
     ~FullTwoBodySphericalHarmonicAcceleration( ) {}
 
     //! Update current acceleration and intermediate states for the provided epoch.
-    void updateMembers( const double currentTime = TUDAT_NAN )
+    void updateMembers( const double currentTime = TUDAT_NAN ) override
     {
         if( !( currentTime == currentTime_ ) )
         {

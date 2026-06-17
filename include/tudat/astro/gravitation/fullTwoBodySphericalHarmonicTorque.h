@@ -69,7 +69,7 @@ public:
     }
 
     //! Update torque to current epoch.
-    void updateMembers( const double currentTime = TUDAT_NAN )
+    void updateMembers( const double currentTime = TUDAT_NAN ) override
     {
         if( !( currentTime_ == currentTime ) )
         {
@@ -187,7 +187,7 @@ public:
     }
 
     //! Return the current torque (body-fixed frame of body undergoing torque).
-    Eigen::Vector3d getTorque( )
+    Eigen::Vector3d getTorque( ) override
     {
         return currentTorque_;
     }
