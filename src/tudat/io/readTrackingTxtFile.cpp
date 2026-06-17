@@ -45,7 +45,8 @@ double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationT
 
     if( !std::isfinite( minimumObservationTimeStep ) )
     {
-        throw std::runtime_error( "Error when getting nominal time step from tracking file contents, no positive cadence could be inferred" );
+        throw std::runtime_error(
+                "Error when getting nominal time step from tracking file contents, no positive cadence could be inferred" );
     }
 
     if( firstObservationTimeStep > minimumObservationTimeStep + cadenceTolerance )

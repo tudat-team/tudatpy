@@ -481,10 +481,9 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
     double nominalDopplerIntegrationTime = std::numeric_limits< double >::quiet_NaN( );
     if( filterInvalidLines )
     {
-        unfilteredFileContents =
-                createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true, no_tracking_txt_file_filter );
-        nominalDopplerIntegrationTime = getNominalTimeStepFromUtcTimes(
-                unfilteredFileContents->getDoubleDataColumn( TrackingDataType::utc_reception_time_j2000 ) );
+        unfilteredFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true, no_tracking_txt_file_filter );
+        nominalDopplerIntegrationTime =
+                getNominalTimeStepFromUtcTimes( unfilteredFileContents->getDoubleDataColumn( TrackingDataType::utc_reception_time_j2000 ) );
     }
 
     auto rawFileContents = createTrackingTxtFileContents(

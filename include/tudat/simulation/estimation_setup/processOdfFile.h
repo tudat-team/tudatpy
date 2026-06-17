@@ -1359,8 +1359,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesReference( );
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
-    std::string stationName =
-            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( );
+    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( );
     auto approximateGroundStationPositions = simulation_setup::getCombinedApproximateGroundStationPositions( );
     auto stationPositionIterator = approximateGroundStationPositions.find( stationName );
     if( stationPositionIterator == approximateGroundStationPositions.end( ) )

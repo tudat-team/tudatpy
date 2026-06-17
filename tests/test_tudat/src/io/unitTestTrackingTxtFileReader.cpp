@@ -59,7 +59,7 @@ std::string createTempPath( const std::string& suffix )
 class CoutRedirect
 {
 public:
-    CoutRedirect( ): originalBuffer_( std::cout.rdbuf( buffer_.rdbuf( ) ) ) { }
+    CoutRedirect( ): originalBuffer_( std::cout.rdbuf( buffer_.rdbuf( ) ) ) {}
 
     ~CoutRedirect( )
     {
@@ -91,10 +91,7 @@ std::shared_ptr< tio::TrackingTxtFileContents > createSyntheticAveragedDopplerTr
     }
 
     std::shared_ptr< tio::TrackingTxtFileContents > trackingFile = tio::createTrackingTxtFileContents(
-            filePath,
-            { "year", "month", "day", "hour", "minute", "second", "doppler_averaged_frequency_hz" },
-            '#',
-            " \t" );
+            filePath, { "year", "month", "day", "hour", "minute", "second", "doppler_averaged_frequency_hz" }, '#', " \t" );
     std::remove( filePath.c_str( ) );
 
     trackingFile->addMetaData( tio::TrackingDataType::receiving_station_name, "TEST_STATION" );
@@ -125,8 +122,7 @@ std::shared_ptr< tom::SingleObservationSet< double, double > > createSyntheticAv
                     trackingFile, "SyntheticSpacecraft", stationPositions );
 
     std::shared_ptr< tom::ObservationCollection< double, double > > observationCollection =
-            tom::createTrackingTxtFileObservationCollection< double, double >(
-                    processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
+            tom::createTrackingTxtFileObservationCollection< double, double >( processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
     auto observationSets = observationCollection->getObservationsSets( );
     return observationSets.at( tom::dsn_n_way_averaged_doppler ).begin( )->second.at( 0 );
 }

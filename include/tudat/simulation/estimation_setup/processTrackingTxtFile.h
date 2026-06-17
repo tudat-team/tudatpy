@@ -545,14 +545,13 @@ private:
 
             const unsigned int maximumNumberOfGapsToPrint = 5;
             std::ostringstream warningMessage;
-            warningMessage << std::setprecision( 19 )
-                           << "Warning when getting integration time for processed tracking file '" << fileName << "': found "
-                           << cadenceGaps.size( ) << " cadence gap(s), nominal cadence " << observationTimeStep << " s.";
+            warningMessage << std::setprecision( 19 ) << "Warning when getting integration time for processed tracking file '" << fileName
+                           << "': found " << cadenceGaps.size( ) << " cadence gap(s), nominal cadence " << observationTimeStep << " s.";
             for( unsigned int i = 0; i < std::min( maximumNumberOfGapsToPrint, static_cast< unsigned int >( cadenceGaps.size( ) ) ); i++ )
             {
-                warningMessage << "\n  gap " << i + 1 << ": index " << cadenceGaps.at( i ).index
-                               << ", previous UTC " << cadenceGaps.at( i ).previousTime << ", next UTC " << cadenceGaps.at( i ).nextTime
-                               << ", observed delta " << cadenceGaps.at( i ).observedDelta << " s";
+                warningMessage << "\n  gap " << i + 1 << ": index " << cadenceGaps.at( i ).index << ", previous UTC "
+                               << cadenceGaps.at( i ).previousTime << ", next UTC " << cadenceGaps.at( i ).nextTime << ", observed delta "
+                               << cadenceGaps.at( i ).observedDelta << " s";
             }
             if( cadenceGaps.size( ) > maximumNumberOfGapsToPrint )
             {

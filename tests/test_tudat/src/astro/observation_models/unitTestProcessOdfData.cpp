@@ -44,7 +44,7 @@ std::vector< double > convertUtcOffsetsToTdbTimes( const std::vector< double >& 
 
     std::vector< double > utcTimes;
     std::vector< Eigen::Vector3d > stationPositions;
-    for( double utcOffset: utcOffsets )
+    for( double utcOffset : utcOffsets )
     {
         utcTimes.push_back( getSyntheticDopplerStartUtc( ) + utcOffset );
         stationPositions.push_back( stationPosition );
@@ -57,7 +57,7 @@ std::vector< double > convertTdbTimesToUtcOffsets( const std::vector< double >& 
 {
     if( tdbTimes.empty( ) )
     {
-        return { };
+        return {};
     }
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter;
@@ -66,19 +66,18 @@ std::vector< double > convertTdbTimesToUtcOffsets( const std::vector< double >& 
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, tdbTimes, stationPosition );
 
     std::vector< double > utcOffsets;
-    for( double utcTime: utcTimes )
+    for( double utcTime : utcTimes )
     {
         utcOffsets.push_back( utcTime - getSyntheticDopplerStartUtc( ) );
     }
     return utcOffsets;
 }
 
-std::shared_ptr< SingleObservationSet< double, double > > createSyntheticDopplerObservationSet(
-        const std::vector< double >& utcOffsets,
-        const double integrationTime )
+std::shared_ptr< SingleObservationSet< double, double > > createSyntheticDopplerObservationSet( const std::vector< double >& utcOffsets,
+                                                                                                const double integrationTime )
 {
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations;
-    for( double utcOffset: utcOffsets )
+    for( double utcOffset : utcOffsets )
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > observation( 1 );
         observation( 0 ) = utcOffset;
@@ -94,15 +93,14 @@ std::shared_ptr< SingleObservationSet< double, double > > createSyntheticDoppler
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
-    return std::make_shared< SingleObservationSet< double, double > >(
-            dsn_n_way_averaged_doppler,
-            linkEnds,
-            observations,
-            convertUtcOffsetsToTdbTimes( utcOffsets ),
-            receiver,
-            std::vector< Eigen::VectorXd >( ),
-            nullptr,
-            ancillarySettings );
+    return std::make_shared< SingleObservationSet< double, double > >( dsn_n_way_averaged_doppler,
+                                                                       linkEnds,
+                                                                       observations,
+                                                                       convertUtcOffsetsToTdbTimes( utcOffsets ),
+                                                                       receiver,
+                                                                       std::vector< Eigen::VectorXd >( ),
+                                                                       nullptr,
+                                                                       ancillarySettings );
 }
 
 void checkScalarObservations( const std::shared_ptr< SingleObservationSet< double, double > >& observationSet,
@@ -235,14 +233,12 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
             break;
         }
     }
-
 }
 
 BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
 {
     std::shared_ptr< SingleObservationSet< double, double > > compressedObservationSet = compressDopplerData(
-            createSyntheticDopplerObservationSet( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ),
-            3 );
+            createSyntheticDopplerObservationSet( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ), 3 );
 
     checkScalarObservations( compressedObservationSet, { 10.0, 70.0, 100.0 } );
     checkUtcOffsets( compressedObservationSet, { 10.0, 70.0, 100.0 } );
