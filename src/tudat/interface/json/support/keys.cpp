@@ -481,7 +481,7 @@ int indexFromKey( const std::string& key )
             return std::stoi( groups[ 1 ] );
         }
         catch( ... )
-        { }
+        {}
     }
     return -1;
 }
@@ -490,7 +490,7 @@ int indexFromKey( const std::string& key )
 KeyPath::KeyPath( const std::string& keyPathStringRepresentation ): std::vector< std::string >( )
 {
     const std::vector< std::string > keys = split( keyPathStringRepresentation, SpecialKeys::dot );
-    for( const std::string key: keys )
+    for( const std::string key : keys )
     {
         boost::cmatch groups;
         boost::regex_match( key.c_str( ), groups, boost::regex( R"((.+?)\[(\d+?)\])" ) );
@@ -553,8 +553,8 @@ KeyPath KeyPath::canonical( const KeyPath& basePath ) const
     }
 
     // Remove ..
-    KeyPath canonicalKeyPath = { };
-    for( std::string key: compoundKeyPath )
+    KeyPath canonicalKeyPath = {};
+    for( std::string key : compoundKeyPath )
     {
         if( key == SpecialKeys::up )
         {

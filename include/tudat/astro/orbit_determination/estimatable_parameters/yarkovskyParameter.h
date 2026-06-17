@@ -43,7 +43,7 @@ public:
     }
 
     //! Destructor
-    ~YarkovskyParameter( ) { }
+    ~YarkovskyParameter( ) {}
 
     //! Function to get the current value of the constant drag coefficient that is to be estimated.
     /*!

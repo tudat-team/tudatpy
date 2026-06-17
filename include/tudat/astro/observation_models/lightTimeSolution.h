@@ -253,7 +253,7 @@ private:
 class LightTimeCalculatorBase
 {
 public:
-    virtual ~LightTimeCalculatorBase( ) { }
+    virtual ~LightTimeCalculatorBase( ) {}
 
     //! Returns the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
     //! Order matches `getLightTimeCorrectionList()`.

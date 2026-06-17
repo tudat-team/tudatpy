@@ -139,8 +139,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setAtmosphereModel( createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
-                                                                 orderedBodySettings.at( i ).first, bodyList ) );
+                    ->setAtmosphereModel( createAtmosphereModel(
+                            orderedBodySettings.at( i ).second->atmosphereSettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
@@ -307,6 +307,11 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         {
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
                                  orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+        }
+
+        for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->cameraSettings.size( ); j++ )
+        {
+            createCamera( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).second->cameraSettings.at( j ) );
         }
     }
 

@@ -23,8 +23,7 @@ namespace simulation_setup
 namespace
 {
 
-struct LightTimeCorrectionSourceIndex
-{
+struct LightTimeCorrectionSourceIndex {
     unsigned int calculatorIndex_;
 
     int componentIndex_;
@@ -89,9 +88,9 @@ std::vector< LightTimeCorrectionSourceIndex > resolveLightTimeCorrectionSourceIn
         auto matchedIndices = indicesByType.find( requestedType );
         if( matchedIndices == indicesByType.end( ) || matchedIndices->second.empty( ) )
         {
-            throw std::runtime_error(
-                    "Error when adding light_time_correction_components dependent variable: requested correction type '" +
-                    observation_models::getLightTimeCorrectionName( requestedType ) + "' is not registered on this leg." );
+            throw std::runtime_error( "Error when adding light_time_correction_components dependent variable: requested correction type '" +
+                                      observation_models::getLightTimeCorrectionName( requestedType ) +
+                                      "' is not registered on this leg." );
         }
 
         sourceIndices.insert( sourceIndices.end( ), matchedIndices->second.begin( ), matchedIndices->second.end( ) );
@@ -103,13 +102,13 @@ std::vector< LightTimeCorrectionSourceIndex > resolveLightTimeCorrectionSourceIn
 }  // namespace
 
 void checkObservationDependentVariableEnvironment(
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
 {
     if( isObservationDependentVariableGroundStationProperty( variableSettings->variableType_ ) && variableSettings->isLinkEndDefined_ )
     {
         std::string bodyName = variableSettings->linkEndId_.bodyName_;
-        std::string stationName = variableSettings->linkEndId_.stationName_;
+        std::string stationName = variableSettings->linkEndId_.getReferencePointName( );
 
         if( bodies.count( bodyName ) == 0 )
         {
@@ -141,7 +140,7 @@ std::pair< int, int > getLinkEndStateTimeIndices( const observation_models::Obse
     if( currentStateTimeIndex.size( ) == 0 )
     {
         throw std::runtime_error( "Error in getting link and state ID for " + observation_models::getObservableName( observableType ) +
-                                  " Could not find link end: (" + linkEndId.bodyName_ + ", " + linkEndId.stationName_ + ")" );
+                                  " Could not find link end: (" + linkEndId.bodyName_ + ", " + linkEndId.getReferencePointName( ) + ")" );
     }
 
     // Filter list of indices by link end role
@@ -226,7 +225,7 @@ std::pair< int, int > getLinkEndStateTimeIndices( const observation_models::Obse
 }
 
 ObservationDependentVariableFunction getStationObservationAngleFunction(
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds )
@@ -247,7 +246,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     }
 
     std::string bodyName = linkEndIdToUse.bodyName_;
-    std::string stationName = linkEndIdToUse.stationName_;
+    std::string stationName = linkEndIdToUse.getReferencePointName( );
 
     if( bodies.count( bodyName ) == 0 )
     {
@@ -275,9 +274,9 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     if( variableSettings->variableType_ == station_elevation_angle )
     {
         outputFunction =
-                [ = ]( const std::vector< double > &linkEndTimes,
-                       const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                       const Eigen::VectorXd &observationValue,
+                [ = ]( const std::vector< double >& linkEndTimes,
+                       const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                       const Eigen::VectorXd& observationValue,
                        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                     return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationElevationAngle(
                                      pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) )
@@ -287,9 +286,9 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     else if( variableSettings->variableType_ == station_azimuth_angle )
     {
         outputFunction =
-                [ = ]( const std::vector< double > &linkEndTimes,
-                       const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                       const Eigen::VectorXd &observationValue,
+                [ = ]( const std::vector< double >& linkEndTimes,
+                       const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                       const Eigen::VectorXd& observationValue,
                        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                     return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationAzimuthAngle(
                                      pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) )
@@ -300,7 +299,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
 }
 
 ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds )
@@ -322,9 +321,9 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                 throw std::runtime_error(
                         "Error when parsing target range observation dependent variable, relative body must not be defined" );
             }
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 return ( Eigen::VectorXd( 1 ) << ( linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ) -
@@ -347,9 +346,9 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 double cosineOfAvoidanceAngle = observation_models::computeCosineBodyAvoidanceAngle(
@@ -385,9 +384,9 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
@@ -421,9 +420,9 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no shape model" );
             }
             auto shapeModel = bodies.at( variableSettings->relativeBody_ )->getShapeModel( );
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
@@ -451,9 +450,9 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 Eigen::Vector3d vectorToTarget = linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ) -
@@ -477,7 +476,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
 }
 
 ObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds )
@@ -570,9 +569,9 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 return ( Eigen::VectorXd( 1 ) << ancillarySimulationSettings->getAncillaryDoubleData(
@@ -588,9 +587,9 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 int numberOfLinkEnds = linkEnds.size( );
@@ -625,9 +624,9 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                                           ". This setting is currently only available for n-way range observables." );
             }
 
-            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
-                                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                                    const Eigen::VectorXd &observationValue,
+            outputFunction = [ = ]( const std::vector< double >& linkEndTimes,
+                                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                    const Eigen::VectorXd& observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
                                             ancillarySimulationSettings ) {
                 const int expectedNumberOfLinkEndTimes = 2 * ( static_cast< int >( linkEnds.size( ) ) - 1 );
@@ -635,9 +634,8 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                 {
                     throw std::runtime_error( "Error in observation dependent variables, link-end epochs size for observable " +
                                               observation_models::getObservableName( observableType, linkEnds.size( ) ) +
-                                              " is of inconsistent size. Should be " +
-                                              std::to_string( expectedNumberOfLinkEndTimes ) + " but is " +
-                                              std::to_string( linkEndTimes.size( ) ) + "." );
+                                              " is of inconsistent size. Should be " + std::to_string( expectedNumberOfLinkEndTimes ) +
+                                              " but is " + std::to_string( linkEndTimes.size( ) ) + "." );
                 }
                 return utilities::convertStlVectorToEigenVector( linkEndTimes );
             };
@@ -668,7 +666,8 @@ ObservationDependentVariableBookkeeping::getSettingsIndicesAndSizes( ) const
 }
 
 std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVariable(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings, const int sizeOverride )
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const int sizeOverride )
 {
     // Check if the requested dependent variable can be used for given link
     if( !doesObservationDependentVariableExistForGivenLink( observableType_, linkEnds_.linkEnds_, variableSettings ) )
@@ -697,9 +696,7 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
 
     // Retrieve the current index in list of dependent variables and size of new parameter
     int currentIndex = totalDependentVariableSize_;
-    int parameterSize = ( sizeOverride >= 0 )
-                                ? sizeOverride
-                                : getObservationDependentVariableSize( variableSettings, linkEnds_.linkEnds_ );
+    int parameterSize = ( sizeOverride >= 0 ) ? sizeOverride : getObservationDependentVariableSize( variableSettings, linkEnds_.linkEnds_ );
 
     dependentVariableStartIndices_.push_back( totalDependentVariableSize_ );
     dependentVariableSizes_.push_back( parameterSize );
@@ -773,10 +770,10 @@ ObservationDependentVariableAddFunction makeLightTimeCorrectionComponentsAddFunc
     }
 
     return [ currentIndex, parameterSize, lightTimeCalculators, sourceIndices ](
-                   Eigen::VectorXd &dependentVariables,
-                   const std::vector< double > & /*linkEndTimes*/,
-                   const std::vector< Eigen::Matrix< double, 6, 1 > > & /*linkEndStates*/,
-                   const Eigen::VectorXd & /*observable*/,
+                   Eigen::VectorXd& dependentVariables,
+                   const std::vector< double >& /*linkEndTimes*/,
+                   const std::vector< Eigen::Matrix< double, 6, 1 > >& /*linkEndStates*/,
+                   const Eigen::VectorXd& /*observable*/,
                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > /*ancillary*/ ) {
         for( int i = 0; i < parameterSize; i++ )
         {
@@ -788,11 +785,9 @@ ObservationDependentVariableAddFunction makeLightTimeCorrectionComponentsAddFunc
         for( int i = 0; i < parameterSize; i++ )
         {
             const LightTimeCorrectionSourceIndex srcIdx = sourceIndices[ static_cast< size_t >( i ) ];
-            if( srcIdx.calculatorIndex_ >= lightTimeCalculators.size( ) ||
-                lightTimeCalculators.at( srcIdx.calculatorIndex_ ) == nullptr )
+            if( srcIdx.calculatorIndex_ >= lightTimeCalculators.size( ) || lightTimeCalculators.at( srcIdx.calculatorIndex_ ) == nullptr )
             {
-                throw std::runtime_error(
-                        "Error when saving light_time_correction_components: cached calculator index out of range." );
+                throw std::runtime_error( "Error when saving light_time_correction_components: cached calculator index out of range." );
             }
             const std::vector< double >& components =
                     lightTimeCalculators.at( srcIdx.calculatorIndex_ )->getCurrentLightTimeCorrectionComponents( );
@@ -844,22 +839,21 @@ void ObservationDependentVariableCalculator::registerLightTimeCorrectionComponen
         return;
     }
 
-    dependentVariableAddFunctions_.push_back( makeLightTimeCorrectionComponentsAddFunction(
-            indices.first, indices.second, lightTimeCalculators, sourceIndices ) );
+    dependentVariableAddFunctions_.push_back(
+            makeLightTimeCorrectionComponentsAddFunction( indices.first, indices.second, lightTimeCalculators, sourceIndices ) );
 }
 
 void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
-        const SystemOfBodies &bodies )
+        const SystemOfBodies& bodies )
 {
     // `light_time_correction_components` needs the per-leg LightTimeCalculator map to compute its
     // size and lambda.
     if( variableSettings->variableType_ == light_time_correction_components )
     {
-        if( !doesObservationDependentVariableExistForGivenLink(
-                    dependentVariableBookkeeping_->getObservableType( ),
-                    dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_,
-                    variableSettings ) )
+        if( !doesObservationDependentVariableExistForGivenLink( dependentVariableBookkeeping_->getObservableType( ),
+                                                                dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_,
+                                                                variableSettings ) )
         {
             return;
         }
@@ -884,7 +878,7 @@ void ObservationDependentVariableCalculator::addDependentVariable(
 
 void ObservationDependentVariableCalculator::addDependentVariables(
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
-        const SystemOfBodies &bodies )
+        const SystemOfBodies& bodies )
 {
     // Parse all settings to be added and check if they are already included
     for( auto settingsToAdd : settingsList )
@@ -908,9 +902,9 @@ void ObservationDependentVariableCalculator::addDependentVariables(
 }
 
 Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariables(
-        const std::vector< double > &linkEndTimes,
-        const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-        const Eigen::VectorXd &observation,
+        const std::vector< double >& linkEndTimes,
+        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+        const Eigen::VectorXd& observation,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > observationAncillarySimulationSettings )
 {
     Eigen::VectorXd dependentVariables =
@@ -926,7 +920,7 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
 
 void ObservationDependentVariableCalculator::addDependentVariableFunction(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
-        const SystemOfBodies &bodies,
+        const SystemOfBodies& bodies,
         const int currentIndex,
         const int parameterSize )
 {
@@ -935,8 +929,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
     // bookkeeping already holds the slot — we only need to build the add-function lambda.
     if( variableSettings->variableType_ == light_time_correction_components )
     {
-        auto lightTimeSettings =
-                std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
+        auto lightTimeSettings = std::dynamic_pointer_cast< LightTimeCorrectionComponentsDependentVariableSettings >( variableSettings );
         if( lightTimeSettings == nullptr )
         {
             throw std::runtime_error(
@@ -957,8 +950,8 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
         const std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > lightTimeCalculators = calculatorIt->second;
         const std::vector< LightTimeCorrectionSourceIndex > sourceIndices =
                 resolveLightTimeCorrectionSourceIndices( lightTimeSettings, lightTimeCalculators );
-        dependentVariableAddFunctions_.push_back( makeLightTimeCorrectionComponentsAddFunction(
-                currentIndex, parameterSize, lightTimeCalculators, sourceIndices ) );
+        dependentVariableAddFunctions_.push_back(
+                makeLightTimeCorrectionComponentsAddFunction( currentIndex, parameterSize, lightTimeCalculators, sourceIndices ) );
         return;
     }
 
@@ -971,10 +964,10 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
 
     // Create function to compute dependent variable and add to existing list
     ObservationDependentVariableAddFunction dependentVariableAddFunction =
-            [ = ]( Eigen::VectorXd &dependentVariables,
-                   const std::vector< double > &linkEndTimes,
-                   const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                   const Eigen::VectorXd &observable,
+            [ = ]( Eigen::VectorXd& dependentVariables,
+                   const std::vector< double >& linkEndTimes,
+                   const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                   const Eigen::VectorXd& observable,
                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                 // Check if computation is not overriding existing values
                 for( int i = 0; i < parameterSize; i++ )

@@ -50,17 +50,17 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     auto observationSets = observedObservationCollection->getObservationsSets( );
 
     // Check the observations for NWayRange and DsnNWayAveragedDoppler
-    for( const auto &observableTypeEntry : observationSets )
+    for( const auto& observableTypeEntry : observationSets )
     {
         observation_models::ObservableType observableType = observableTypeEntry.first;
-        const auto &linkEndsMap = observableTypeEntry.second;
+        const auto& linkEndsMap = observableTypeEntry.second;
 
-        for( const auto &linkEndsEntry : linkEndsMap )
+        for( const auto& linkEndsEntry : linkEndsMap )
         {
-            const observation_models::LinkEnds &linkEnds = linkEndsEntry.first;
-            const auto &observationSetVector = linkEndsEntry.second;
+            const observation_models::LinkEnds& linkEnds = linkEndsEntry.first;
+            const auto& observationSetVector = linkEndsEntry.second;
 
-            for( const auto &observationSet : observationSetVector )
+            for( const auto& observationSet : observationSetVector )
             {
                 // Get the observations and times
                 auto observations = observationSet->getObservations( );
@@ -73,9 +73,9 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
                     if( observableType == observation_models::n_way_range )
                     {
                         BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "NWayRange" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).stationName_, "DSS-14" );
+                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).getReferencePointName( ), "DSS-14" );
                         BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).stationName_, "DSS-14" );
+                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).getReferencePointName( ), "DSS-14" );
                         BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262616.184812933, 1e-9 );
                         BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 333589.366953747, 1e-9 );
 
@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
                     if( observableType == observation_models::dsn_n_way_averaged_doppler )
                     {
                         BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "DsnNWayAveragedDoppler" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).stationName_, "DSS-14" );
+                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).getReferencePointName( ), "DSS-14" );
                         BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).stationName_, "DSS-14" );
+                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).getReferencePointName( ), "DSS-14" );
                         BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262457.184812993, 1e-9 );
                         BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 1.563486099, 1e-9 );
 

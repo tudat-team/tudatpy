@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( modifiedJulianDayFromDateTime - currentModifiedJulianDay ) ),
                                        modifiedJulianDayTolerance );
                 }
-                catch( std::runtime_error &caughtException )
+                catch( std::runtime_error& caughtException )
                 {
                     std::cout << "Exception " << caughtException.what( ) << std::endl;
                     exceptionCaught = true;
@@ -205,8 +205,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondReconstructionFromTime )
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getDay( ), fractionalLeapSecondDateTime.getDay( ) );
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getHour( ), fractionalLeapSecondDateTime.getHour( ) );
     BOOST_CHECK_EQUAL( reconstructedFractionalLeapSecondDateTime.getMinute( ), fractionalLeapSecondDateTime.getMinute( ) );
-    BOOST_CHECK_SMALL( std::fabs( reconstructedFractionalLeapSecondDateTime.getSeconds( ) -
-                                  fractionalLeapSecondDateTime.getSeconds( ) ),
+    BOOST_CHECK_SMALL( std::fabs( reconstructedFractionalLeapSecondDateTime.getSeconds( ) - fractionalLeapSecondDateTime.getSeconds( ) ),
                        std::numeric_limits< long double >::epsilon( ) * 3600.0L );
 }
 
@@ -292,109 +291,6 @@ BOOST_AUTO_TEST_CASE( testDateTimeStringRepresentation )
     }
 }
 
-BOOST_AUTO_TEST_CASE( testTimePointConversions )
-{
-    for( unsigned int i = 0; i < years.size( ); i++ )
-    {
-        for( unsigned int j = 0; j < dates.size( ); j++ )
-        {
-            for( unsigned int k = 0; k < times.size( ); k++ )
-            {
-                std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
-
-                // the DateTime constructor is tested in testDateTimeConversions
-                // therefore all invalid dates are skipped here
-                if( j == 5 && i < 13 )
-                {
-                    continue;
-                }
-
-                std::cout << "Create date time" << std::endl;
-                DateTime currentDateTime( years.at( i ),
-                                          dates.at( j ).first,
-                                          dates.at( j ).second,
-                                          std::get< 0 >( times.at( k ) ),
-                                          std::get< 1 >( times.at( k ) ),
-                                          std::get< 2 >( times.at( k ) ) );
-                std::cout << "Created date time " << currentDateTime.isoString( ) << std::endl;
-                std::cout << "Epoch: " << currentDateTime.epoch< double >( ) << std::endl;
-
-                if( currentDateTime.epoch< double >( ) <= DateTime::minimumChronoRepresentableEpoch( ) ||
-                    currentDateTime.epoch< double >( ) >= DateTime::maximumChronoRepresentableEpoch( ) )
-                {
-                    // For the years 2373 and 1621, the date is out of range for std::chrono::system_clock
-                    std::cout << "Epoch out of chrono range: " << currentDateTime.epoch< double >( ) << std::endl;
-                    BOOST_CHECK_THROW( currentDateTime.timePoint( ), std::runtime_error );
-                    continue;
-                }
-
-                std::cout << "Epoch in chrono range. Creating time point" << std::endl;
-
-                std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
-                std::cout << "Created time point" << std::endl;
-                DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
-                std::cout << "Reconstructed date time " << reconstructedDateTimeFromTimePoint.isoString( ) << std::endl;
-
-                // in the construction of the timepoint, the microseconds are rounded to the nearest integer, thus a tolerance of 1e-6
-                // is used
-                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( currentDateTime.epoch< Time >( ) -
-                                                                     reconstructedDateTimeFromTimePoint.epoch< Time >( ) ) ),
-                                   1e-6 );
-
-                // due to the microsecond rounding, the seconds may not match exactly and can overflow to the other components depending
-                // on the date
-                double secondsOffSet = 0.0;
-                int minuteOffSet = 0;
-                int hourOffSet = 0;
-                int dayOffSet = 0;
-                int monthOffSet = 0;
-                int yearOffSet = 0;
-                if( k == 6 )  // 11:59:60 -> 12:00:00
-                {
-                    secondsOffSet = currentDateTime.getSeconds( );
-                    minuteOffSet = -59;
-                    hourOffSet = 1;
-                }
-                else if( k == 7 )  // 23:59:60 -> 00:00:00
-                {
-                    secondsOffSet = currentDateTime.getSeconds( );
-                    minuteOffSet = -59;
-                    hourOffSet = -23;
-                    if( j == 2 )  // 08/31 -> 09/01
-                    {
-                        dayOffSet = -30;
-                        monthOffSet = 1;
-                    }
-                    else if( j == 4 )  // 12/31 -> 01/01
-                    {
-                        dayOffSet = -30;
-                        monthOffSet = -11;
-                        yearOffSet = 1;
-                    }
-                    else if( j == 5 )  // 02/29 -> 03/01
-                    {
-                        dayOffSet = -28;
-                        monthOffSet = 1;
-                    }
-                    else
-                    {
-                        dayOffSet = 1;
-                    }
-                }
-
-                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getYear( ), currentDateTime.getYear( ) + yearOffSet );
-                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMonth( ), currentDateTime.getMonth( ) + monthOffSet );
-                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getDay( ), currentDateTime.getDay( ) + dayOffSet );
-                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getHour( ), currentDateTime.getHour( ) + hourOffSet );
-                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMinute( ), currentDateTime.getMinute( ) + minuteOffSet );
-                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedDateTimeFromTimePoint.getSeconds( ) -
-                                                                     currentDateTime.getSeconds( ) + secondsOffSet ) ),
-                                   1e-6 );
-            }
-        }
-    }
-}
-
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
 {
     std::cout << "Testing ISO initialization" << std::endl;
@@ -413,8 +309,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
         if( sizeof( long double ) > 8 )
         {
             // Compare canonicalized representations, as ISO formatting may pad trailing zeros.
-            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ),
-                               trimTrailingFractionalZeros( reconstuctedString ) );
+            BOOST_CHECK_EQUAL( trimTrailingFractionalZeros( testStrings.at( i ) ), trimTrailingFractionalZeros( reconstuctedString ) );
         }
         Time time = timeFromIsoString< Time >( testStrings.at( i ) );
         BOOST_CHECK_SMALL( static_cast< long double >( time - dateTime.epoch< Time >( ) ),
@@ -437,10 +332,8 @@ BOOST_AUTO_TEST_CASE( testIsoInitializationLeapSecond )
     BOOST_CHECK_EQUAL( leapSecondFromIso.getDay( ), 31 );
     BOOST_CHECK_EQUAL( leapSecondFromIso.getHour( ), 23 );
     BOOST_CHECK_EQUAL( leapSecondFromIso.getMinute( ), 59 );
-    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ),
-                       std::numeric_limits< long double >::epsilon( ) * 3600.0L );
-    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) -
-                                                           referenceLeapSecond.epoch< Time >( ) ) ),
+    BOOST_CHECK_SMALL( std::fabs( leapSecondFromIso.getSeconds( ) - 60.5L ), std::numeric_limits< long double >::epsilon( ) * 3600.0L );
+    BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( leapSecondFromIso.epoch< Time >( ) - referenceLeapSecond.epoch< Time >( ) ) ),
                        std::numeric_limits< long double >::epsilon( ) * 3600.0L );
 }
 

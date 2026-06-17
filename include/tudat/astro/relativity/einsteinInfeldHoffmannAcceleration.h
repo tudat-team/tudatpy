@@ -19,7 +19,7 @@ public:
                                         const std::vector< std::string > bodiesExertingAcceleration ):
         eihEquations_( eihEquations ), bodyUndergoingAcceleration_( bodyUndergoingAcceleration ),
         bodiesExertingAcceleration_( bodiesExertingAcceleration )
-    { }
+    {}
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
     {

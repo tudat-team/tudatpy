@@ -195,48 +195,49 @@ BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
     Eigen::Vector5d rotationAngles = rotationAnglesAndUt1.first;
 
     Eigen::Matrix3d expectedItrsToTirs =
-            calculateRotationFromItrsToTirs(
-                    rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( testTime ) )
+            calculateRotationFromItrsToTirs( rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( testTime ) )
                     .toRotationMatrix( );
     Eigen::Matrix3d expectedTirsToCirs =
-            calculateRotationFromTirsToCirs(
-                    sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) )
+            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) )
                     .toRotationMatrix( );
     Eigen::Matrix3d expectedCirsToIcrs =
             calculateRotationFromCirsToGcrs( rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ] ).toRotationMatrix( );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel->getRotationBetweenIntermediateFrames(
-                    EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
                     .toRotationMatrix( ),
             expectedItrsToTirs,
             ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel->getRotationBetweenIntermediateFrames(
-                    EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
                     .toRotationMatrix( ),
             expectedTirsToCirs,
             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel->getRotationBetweenIntermediateFrames(
-                    EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
                     .toRotationMatrix( ),
             expectedCirsToIcrs,
             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            earthRotationModel->getRotationBetweenIntermediateFrames(
-                    EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
                     .toRotationMatrix( ),
             earthRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
             ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
     Eigen::Matrix3d expectedTirsToItrs = expectedItrsToTirs.transpose( );
-    Eigen::Matrix3d tirsToItrs = earthRotationModel
-                                         ->getRotationBetweenIntermediateFrames(
-                                                 EarthOrientationIntermediateFrame::tirs,
-                                                 EarthOrientationIntermediateFrame::itrs,
-                                                 testTime )
-                                         .toRotationMatrix( );
+    Eigen::Matrix3d tirsToItrs =
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::itrs, testTime )
+                    .toRotationMatrix( );
     for( unsigned int i = 0; i < 3; i++ )
     {
         for( unsigned int j = 0; j < 3; j++ )

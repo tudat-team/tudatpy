@@ -135,7 +135,7 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
 
-    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction: vectorFunctionList )
+    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction : vectorFunctionList )
     {
         variableList.segment( currentIndex, vectorFunction.second ) = vectorFunction.first( );
         currentIndex += vectorFunction.second;

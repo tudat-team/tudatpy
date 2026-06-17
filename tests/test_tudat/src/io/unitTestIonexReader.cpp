@@ -25,10 +25,9 @@ namespace unit_tests
 {
 
 // Path to directory containing IONEX test files
-const std::string ionexTestDir = tudat::paths::getTudatTestDataPath(  ) + "ionex_test_files/";
+const std::string ionexTestDir = tudat::paths::getTudatTestDataPath( ) + "ionex_test_files/";
 
-struct IonexTestCase
-{
+struct IonexTestCase {
     std::string filename;
     std::size_t expectedNumMaps;
     double expectedHgtKm;
@@ -43,19 +42,19 @@ struct IonexTestCase
 std::vector< IonexTestCase > getTestCases( )
 {
     return {
-        { "COD0OPSFIN_20260840000_01D_01H_GIM.INX",  25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "COD0OPSRAP_20260840000_01D_01H_GIM.INX",  25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "EMR0OPSFIN_20260840000_01D_01H_GIM.INX",  25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "ESA0OPSFIN_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "ESA0OPSRAP_20260840000_01D_01H_GIM.INX",  25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "IGS0OPSFIN_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "IGS0OPSRAP_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "JPL0OPSFIN_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "JPL0OPSRAP_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "UPC0OPSFIN_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "UPC0OPSRAP_20260840000_01D_01H_GIM.INX",  25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "UPC0OPSRAP_20260840000_01D_02H_GIM.INX",  13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
-        { "UPC0OPSRAP_20260840000_01D_15M_GIM.INX",  97, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "COD0OPSFIN_20260840000_01D_01H_GIM.INX", 25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "COD0OPSRAP_20260840000_01D_01H_GIM.INX", 25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "EMR0OPSFIN_20260840000_01D_01H_GIM.INX", 25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "ESA0OPSFIN_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "ESA0OPSRAP_20260840000_01D_01H_GIM.INX", 25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "IGS0OPSFIN_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "IGS0OPSRAP_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "JPL0OPSFIN_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "JPL0OPSRAP_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "UPC0OPSFIN_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "UPC0OPSRAP_20260840000_01D_01H_GIM.INX", 25, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "UPC0OPSRAP_20260840000_01D_02H_GIM.INX", 13, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
+        { "UPC0OPSRAP_20260840000_01D_15M_GIM.INX", 97, 450.0, -87.5, 87.5, -2.5, -180.0, 180.0, 5.0 },
     };
 }
 
@@ -65,13 +64,12 @@ BOOST_AUTO_TEST_CASE( testReadAllIonexFiles )
 {
     const auto testCases = getTestCases( );
 
-    for( const auto& tc: testCases )
+    for( const auto& tc : testCases )
     {
         const std::string filePath = ionexTestDir + tc.filename;
         BOOST_TEST_MESSAGE( "Testing: " << tc.filename );
 
-        BOOST_REQUIRE_MESSAGE( boost::filesystem::exists( filePath ),
-                               "Test file not found: " << filePath );
+        BOOST_REQUIRE_MESSAGE( boost::filesystem::exists( filePath ), "Test file not found: " << filePath );
 
         input_output::IonexTecMap data;
         BOOST_REQUIRE_NO_THROW( input_output::readIonexFile( filePath, data ) );
@@ -92,10 +90,10 @@ BOOST_AUTO_TEST_CASE( testReadAllIonexFiles )
         BOOST_CHECK_CLOSE( data.referenceIonosphereHeight_, tc.expectedHgtKm * 1.0e3, 1e-6 );
 
         // Check grid sizes
-        const std::size_t expectedLatPoints = static_cast< std::size_t >(
-            std::round( ( tc.expectedLatMax - tc.expectedLatMin ) / std::fabs( tc.expectedDLat ) ) + 1 );
-        const std::size_t expectedLonPoints = static_cast< std::size_t >(
-            std::round( ( tc.expectedLonMax - tc.expectedLonMin ) / tc.expectedDLon ) + 1 );
+        const std::size_t expectedLatPoints =
+                static_cast< std::size_t >( std::round( ( tc.expectedLatMax - tc.expectedLatMin ) / std::fabs( tc.expectedDLat ) ) + 1 );
+        const std::size_t expectedLonPoints =
+                static_cast< std::size_t >( std::round( ( tc.expectedLonMax - tc.expectedLonMin ) / tc.expectedDLon ) + 1 );
         BOOST_CHECK_EQUAL( data.latitudes.size( ), expectedLatPoints );
         BOOST_CHECK_EQUAL( data.longitudes.size( ), expectedLonPoints );
 
@@ -106,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testReadAllIonexFiles )
         }
 
         // Check TEC map dimensions match grid
-        for( const auto& entry: data.tecMaps )
+        for( const auto& entry : data.tecMaps )
         {
             BOOST_CHECK_EQUAL( static_cast< std::size_t >( entry.second.rows( ) ), data.latitudes.size( ) );
             BOOST_CHECK_EQUAL( static_cast< std::size_t >( entry.second.cols( ) ), data.longitudes.size( ) );
@@ -124,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testReadWithRmsMaps )
 {
     const auto testCases = getTestCases( );
 
-    for( const auto& tc: testCases )
+    for( const auto& tc : testCases )
     {
         const std::string filePath = ionexTestDir + tc.filename;
         BOOST_TEST_MESSAGE( "Testing RMS loading: " << tc.filename );
@@ -136,20 +134,20 @@ BOOST_AUTO_TEST_CASE( testReadWithRmsMaps )
         BOOST_CHECK_EQUAL( data.rmsMaps.size( ), tc.expectedNumMaps );
 
         // RMS map dimensions should match TEC maps
-        for( const auto& entry: data.rmsMaps )
+        for( const auto& entry : data.rmsMaps )
         {
             BOOST_CHECK_EQUAL( static_cast< std::size_t >( entry.second.rows( ) ), data.latitudes.size( ) );
             BOOST_CHECK_EQUAL( static_cast< std::size_t >( entry.second.cols( ) ), data.longitudes.size( ) );
         }
 
         // RMS values should be non-negative
-        for( const auto& entry: data.rmsMaps )
+        for( const auto& entry : data.rmsMaps )
         {
             BOOST_CHECK_GE( entry.second.minCoeff( ), 0.0 );
         }
 
         // RMS and TEC maps should have the same epoch keys
-        for( const auto& tecEntry: data.tecMaps )
+        for( const auto& tecEntry : data.tecMaps )
         {
             BOOST_CHECK( data.rmsMaps.count( tecEntry.first ) > 0 );
         }
@@ -165,14 +163,14 @@ BOOST_AUTO_TEST_CASE( testTecValuesArePlausible )
     input_output::IonexTecMap data;
     input_output::readIonexFile( filePath, data );
 
-    for( const auto& entry: data.tecMaps )
+    for( const auto& entry : data.tecMaps )
     {
         // VTEC values should be between 0 and ~300 TECU (with exponent=-1, stored as 0.1*TECU)
         // After scaling, values are in TECU
         double maxTec = entry.second.maxCoeff( );
         double minTec = entry.second.minCoeff( );
         BOOST_CHECK_GE( minTec, -1.0 );   // allow small negatives from interpolation artifacts
-        BOOST_CHECK_LE( maxTec, 500.0 );   // generous upper bound
+        BOOST_CHECK_LE( maxTec, 500.0 );  // generous upper bound
     }
 }
 

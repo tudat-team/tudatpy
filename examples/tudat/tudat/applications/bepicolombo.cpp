@@ -87,7 +87,7 @@ void loadMPOSpiceKernels( )
     loadSpiceKernelInTudat( path + "/fk/bc_sci_v12.tf" );
 
     // MPO ephemeris
-    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), { } ) )
+    for( auto& entry : boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), {} ) )
     {
         if( entry.path( ).extension( ) == ".bsp" )
         {

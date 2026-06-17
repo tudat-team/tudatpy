@@ -49,7 +49,7 @@ public:
     BurdenAndFairesNumericalIntegratorTest( ):
         relativeError_( Eigen::VectorXd::Zero( 1 ) ), lowerOrderEstimate_( Eigen::VectorXd::Zero( 1 ) ),
         higherOrderEstimate_( Eigen::VectorXd::Zero( 1 ) )
-    { }
+    {}
 
     //! Compute new step size using method taken from (Burden and Faires, 2001).
     /*!

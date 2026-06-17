@@ -44,7 +44,7 @@ void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovaria
                           const Eigen::MatrixXd& initialCovariance,
                           const std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory )
 {
-    for( auto resultIterator: fullVariationalEquationsSolutionHistory )
+    for( auto resultIterator : fullVariationalEquationsSolutionHistory )
     {
         propagatedCovariance[ resultIterator.first ] = resultIterator.second * initialCovariance * resultIterator.second.transpose( );
     }
@@ -161,7 +161,7 @@ void convertCovarianceHistoryToFormalErrorHistory( std::map< double, Eigen::Vect
                                                    std::map< double, Eigen::MatrixXd >& propagatedCovariance )
 {
     propagatedFormalErrors.clear( );
-    for( auto covarianceIterator: propagatedCovariance )
+    for( auto covarianceIterator : propagatedCovariance )
     {
         propagatedFormalErrors[ covarianceIterator.first ] = Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
     }
@@ -200,7 +200,7 @@ void propagateFormalErrors( std::map< double, Eigen::VectorXd >& propagatedForma
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
     propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, timeStep, initialTime, finalTime );
 
-    for( auto covarianceIterator: propagatedCovariance )
+    for( auto covarianceIterator : propagatedCovariance )
     {
         propagatedFormalErrors[ covarianceIterator.first ] = Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
     }

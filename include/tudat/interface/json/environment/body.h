@@ -87,7 +87,7 @@ void updateBodiesFromJSON( const nlohmann::json& jsonObject,
             getValue< std::map< std::string, nlohmann::json > >( jsonObject, Keys::bodies );
 
     std::vector< std::string > defaultBodyNames;
-    for( auto entry: jsonBodySettingsMap )
+    for( auto entry : jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
         if( getValue( jsonObject, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
@@ -137,7 +137,7 @@ void updateBodiesFromJSON( const nlohmann::json& jsonObject,
     }
 
     // Get body settings from JSON.
-    for( auto entry: jsonBodySettingsMap )
+    for( auto entry : jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
         const nlohmann::json jsonBodySettings = jsonBodySettingsMap.at( bodyName );

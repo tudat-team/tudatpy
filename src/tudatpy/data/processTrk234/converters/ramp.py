@@ -7,7 +7,7 @@ from trk234 import bands, SFDU
 from pandas import DataFrame, concat
 
 
-class RampConverter():
+class RampConverter:
     def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent ramp data.
         # - Ramp format_code == 9
@@ -81,12 +81,9 @@ class RampConverter():
                         current_interval = row.to_dict()
                         current_interval["end_time"] = None
                     else:
-                        delta_t = (
-                            event_time - current_interval["epoch"]
-                        ).total_seconds()
+                        delta_t = (event_time - current_interval["epoch"]).total_seconds()
                         expected_freq = (
-                            current_interval["freq"]
-                            + current_interval["rate"] * delta_t
+                            current_interval["freq"] + current_interval["rate"] * delta_t
                         )
                         if (
                             abs(event_freq - expected_freq) <= tolerance
@@ -111,10 +108,7 @@ class RampConverter():
             for interval in merged_intervals:
                 if final_intervals:
                     last = final_intervals[-1]
-                    if (
-                        last.get("end_time") is not None
-                        and interval["epoch"] < last["end_time"]
-                    ):
+                    if last.get("end_time") is not None and interval["epoch"] < last["end_time"]:
                         last["end_time"] = interval["epoch"]
                 final_intervals.append(interval)
             merged_dfs.append(DataFrame(final_intervals))

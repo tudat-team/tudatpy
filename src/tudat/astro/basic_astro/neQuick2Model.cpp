@@ -43,14 +43,14 @@ namespace environment
 
 namespace
 {
-    const double DR = 1.74532925199433e-2;   // degrees to radians
-    const double RD = 57.29577951308232;     // radians to degrees
-    const double PI12 = 0.261799387788149;   // pi/12
+const double DR = 1.74532925199433e-2;  // degrees to radians
+const double RD = 57.29577951308232;    // radians to degrees
+const double PI12 = 0.261799387788149;  // pi/12
 
-    // foF2 harmonic order table (QF) and M(3000)F2 harmonic order table (QM)
-    const int QF[ 9 ] = { 11, 11, 8, 4, 1, 0, 0, 0, 0 };
-    const int QM[ 7 ] = { 6, 7, 5, 2, 1, 0, 0 };
-}
+// foF2 harmonic order table (QF) and M(3000)F2 harmonic order table (QM)
+const int QF[ 9 ] = { 11, 11, 8, 4, 1, 0, 0, 0, 0 };
+const int QM[ 7 ] = { 6, 7, 5, 2, 1, 0, 0 };
+}  // namespace
 
 // ============================================================================
 // Static utility functions
@@ -130,8 +130,7 @@ double NeQuick2Model::computeHmF2( double foE, double foF2, double M3000 )
 void NeQuick2Model::timeToMonthAndUT( double time, int& month, double& ut )
 {
     // Convert seconds since J2000 to Julian Day
-    double julianDay = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
-        time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    double julianDay = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     // Extract calendar date (day, month, year)
     int day, year;
@@ -148,16 +147,12 @@ void NeQuick2Model::timeToMonthAndUT( double time, int& month, double& ut )
 // Constructor
 // ============================================================================
 
-NeQuick2Model::NeQuick2Model(
-    const input_output::CcirData& ccirData,
-    const Eigen::MatrixXd& modipGrid,
-    std::function< double( double ) > solarFluxFunction,
-    bool inputIsEffectiveIonizationLevel )
-    : ccirData_( ccirData ),
-      modipGrid_( modipGrid ),
-      solarFluxFunction_( solarFluxFunction )
-{
-}
+NeQuick2Model::NeQuick2Model( const input_output::CcirData& ccirData,
+                              const Eigen::MatrixXd& modipGrid,
+                              std::function< double( double ) > solarFluxFunction,
+                              bool inputIsEffectiveIonizationLevel ):
+    ccirData_( ccirData ), modipGrid_( modipGrid ), solarFluxFunction_( solarFluxFunction )
+{}
 
 // ============================================================================
 // MODIP computation
@@ -199,8 +194,16 @@ double NeQuick2Model::computeModip( double latitudeDeg, double longitudeDeg ) co
 // CCIR coefficient evaluation (gamma1 and cciri)
 // ============================================================================
 
-double NeQuick2Model::gamma1( double modip, double latDeg, double lonDeg, double hour,
-                              int iharm, const int* nq, int k1, int m, int mm, int m3,
+double NeQuick2Model::gamma1( double modip,
+                              double latDeg,
+                              double lonDeg,
+                              double hour,
+                              int iharm,
+                              const int* nq,
+                              int k1,
+                              int m,
+                              int mm,
+                              int m3,
                               const double* sfe ) const
 {
     double c[ 12 ], s[ 12 ];
@@ -270,9 +273,14 @@ double NeQuick2Model::gamma1( double modip, double latDeg, double lonDeg, double
     return sum;
 }
 
-void NeQuick2Model::computeFoF2AndM3000( double modip, int month, double ut, double R12,
-                                          double latDeg, double lonDeg,
-                                          double& foF2, double& M3000 ) const
+void NeQuick2Model::computeFoF2AndM3000( double modip,
+                                         int month,
+                                         double ut,
+                                         double R12,
+                                         double latDeg,
+                                         double lonDeg,
+                                         double& foF2,
+                                         double& M3000 ) const
 {
     // Interpolate CCIR coefficients between low and high solar activity
     int monthIdx = month - 1;  // 0-based
@@ -286,8 +294,8 @@ void NeQuick2Model::computeFoF2AndM3000( double modip, int month, double ut, dou
         for( int j = 0; j < 13; ++j )
         {
             int k = j + 13 * i;
-            FF0[ k ] = ccirData_.foF2Coefficients[ monthIdx ][ 0 ]( i, j ) * RR1 +
-                       ccirData_.foF2Coefficients[ monthIdx ][ 1 ]( i, j ) * RR2;
+            FF0[ k ] =
+                    ccirData_.foF2Coefficients[ monthIdx ][ 0 ]( i, j ) * RR1 + ccirData_.foF2Coefficients[ monthIdx ][ 1 ]( i, j ) * RR2;
         }
     }
 
@@ -299,7 +307,7 @@ void NeQuick2Model::computeFoF2AndM3000( double modip, int month, double ut, dou
         {
             int k = j + 9 * i;
             xm0[ k ] = ccirData_.m3000F2Coefficients[ monthIdx ][ 0 ]( i, j ) * RR1 +
-                        ccirData_.m3000F2Coefficients[ monthIdx ][ 1 ]( i, j ) * RR2;
+                    ccirData_.m3000F2Coefficients[ monthIdx ][ 1 ]( i, j ) * RR2;
         }
     }
 
@@ -311,8 +319,7 @@ void NeQuick2Model::computeFoF2AndM3000( double modip, int month, double ut, dou
 // E-layer and F1-layer critical frequencies
 // ============================================================================
 
-void NeQuick2Model::computeELayerAndF1( double latDeg, int month, double flx, double chi,
-                                         double foF2, double& foE, double& foF1 )
+void NeQuick2Model::computeELayerAndF1( double latDeg, int month, double flx, double chi, double foF2, double& foE, double& foF1 )
 {
     const double chi0 = 86.23292796211615;
 
@@ -347,8 +354,13 @@ void NeQuick2Model::computeELayerAndF1( double latDeg, int month, double flx, do
 // Layer parameter preparation (prepmdgr)
 // ============================================================================
 
-void NeQuick2Model::prepareLayerParameters( int month, double R12, double foF2, double foF1, double foE,
-                                             double M3000, NeQuick2LayerParameters& params )
+void NeQuick2Model::prepareLayerParameters( int month,
+                                            double R12,
+                                            double foF2,
+                                            double foF1,
+                                            double foE,
+                                            double M3000,
+                                            NeQuick2LayerParameters& params )
 {
     auto FNe = []( double x ) { return 0.124 * x * x; };
     auto FEpst = []( double amp, double hm, double B, double h ) {
@@ -391,14 +403,13 @@ void NeQuick2Model::prepareLayerParameters( int month, double R12, double foF2, 
     {
         for( int iter = 0; iter < 5; ++iter )
         {
-            params.aep[ 1 ] = 4.0 * ( params.NmF1
-                - FEpst( params.aep[ 0 ], params.hmF2, B2bot, params.hmF1 )
-                - FEpst( params.aep[ 2 ], params.hmE, Betop, params.hmF1 ) );
-            params.aep[ 1 ] = djoin( params.aep[ 1 ], 0.8 * params.NmF1, 1.0,
-                                     params.aep[ 1 ] - 0.8 * params.NmF1 );
-            params.aep[ 2 ] = 4.0 * ( params.NmE
-                - FEpst( params.aep[ 1 ], params.hmF1, B1bot, params.hmE )
-                - FEpst( params.aep[ 0 ], params.hmF2, B2bot, params.hmE ) );
+            params.aep[ 1 ] = 4.0 *
+                    ( params.NmF1 - FEpst( params.aep[ 0 ], params.hmF2, B2bot, params.hmF1 ) -
+                      FEpst( params.aep[ 2 ], params.hmE, Betop, params.hmF1 ) );
+            params.aep[ 1 ] = djoin( params.aep[ 1 ], 0.8 * params.NmF1, 1.0, params.aep[ 1 ] - 0.8 * params.NmF1 );
+            params.aep[ 2 ] = 4.0 *
+                    ( params.NmE - FEpst( params.aep[ 1 ], params.hmF1, B1bot, params.hmE ) -
+                      FEpst( params.aep[ 0 ], params.hmF2, B2bot, params.hmE ) );
         }
         if( params.aep[ 1 ] < 0.0 )
         {
@@ -436,7 +447,7 @@ double NeQuick2Model::bottomsideElectronDensity( const NeQuick2LayerParameters& 
     B[ 1 ] = params.bb[ 2 ];  // B1bot
     B[ 2 ] = params.bb[ 0 ];  // Bebot
 
-    if( heightKm > params.hmE ) B[ 2 ] = params.bb[ 1 ];  // Betop
+    if( heightKm > params.hmE ) B[ 2 ] = params.bb[ 1 ];   // Betop
     if( heightKm > params.hmF1 ) B[ 1 ] = params.bb[ 3 ];  // B1top
 
     double sum = 0.0;
@@ -502,8 +513,11 @@ double NeQuick2Model::computeElectronDensityFromParams( double heightKm, const N
 // Public API
 // ============================================================================
 
-NeQuick2LayerParameters NeQuick2Model::computeLayerParameters( double latitudeDeg, double longitudeDeg,
-                                                                int month, double flx, double ut ) const
+NeQuick2LayerParameters NeQuick2Model::computeLayerParameters( double latitudeDeg,
+                                                               double longitudeDeg,
+                                                               int month,
+                                                               double flx,
+                                                               double ut ) const
 {
     // Clamp flux
     double flx1 = std::max( 63.0, std::min( flx, 193.0 ) );
@@ -517,8 +531,7 @@ NeQuick2LayerParameters NeQuick2Model::computeLayerParameters( double latitudeDe
     // Local time and solar zenith angle
     double xlt = std::fmod( ut1 + longitudeDeg / 15.0 + 24.0, 24.0 );
     double modip = computeModip( latitudeDeg, longitudeDeg );
-    double cchi = std::sin( latitudeDeg * DR ) * sinDelta -
-                  std::cos( latitudeDeg * DR ) * cosDelta * std::cos( PI12 * xlt );
+    double cchi = std::sin( latitudeDeg * DR ) * sinDelta - std::cos( latitudeDeg * DR ) * cosDelta * std::cos( PI12 * xlt );
     double chi = std::atan2( std::sqrt( 1.0 - cchi * cchi ), cchi ) * RD;
 
     // CCIR lookup
@@ -536,15 +549,14 @@ NeQuick2LayerParameters NeQuick2Model::computeLayerParameters( double latitudeDe
     return params;
 }
 
-double NeQuick2Model::computeElectronDensity( double heightKm, double latitudeDeg, double longitudeDeg,
-                                               int month, double flx, double ut ) const
+double NeQuick2Model::computeElectronDensity( double heightKm, double latitudeDeg, double longitudeDeg, int month, double flx, double ut )
+        const
 {
     NeQuick2LayerParameters params = computeLayerParameters( latitudeDeg, longitudeDeg, month, flx, ut );
     return computeElectronDensityFromParams( heightKm, params );
 }
 
-double NeQuick2Model::computeElectronDensityAtTime( double heightKm, double latitudeDeg, double longitudeDeg,
-                                                     double time ) const
+double NeQuick2Model::computeElectronDensityAtTime( double heightKm, double latitudeDeg, double longitudeDeg, double time ) const
 {
     int month;
     double ut;
@@ -553,9 +565,13 @@ double NeQuick2Model::computeElectronDensityAtTime( double heightKm, double lati
     return computeElectronDensity( heightKm, latitudeDeg, longitudeDeg, month, flx, ut );
 }
 
-double NeQuick2Model::computeElectronDensityRescaled( double heightKm, double latitudeDeg, double longitudeDeg,
-                                                       int month, double flx, double ut,
-                                                       double nmF2ScaleFactor ) const
+double NeQuick2Model::computeElectronDensityRescaled( double heightKm,
+                                                      double latitudeDeg,
+                                                      double longitudeDeg,
+                                                      int month,
+                                                      double flx,
+                                                      double ut,
+                                                      double nmF2ScaleFactor ) const
 {
     NeQuick2LayerParameters params = computeLayerParameters( latitudeDeg, longitudeDeg, month, flx, ut );
 
@@ -563,8 +579,8 @@ double NeQuick2Model::computeElectronDensityRescaled( double heightKm, double la
     double scaledFoF2 = params.foF2 * std::sqrt( nmF2ScaleFactor );
 
     // Recompute layer parameters with rescaled foF2
-    prepareLayerParameters( month, fluxToR12( std::max( 63.0, std::min( flx, 193.0 ) ) ),
-                            scaledFoF2, params.foF1, params.foE, params.M3000, params );
+    prepareLayerParameters(
+            month, fluxToR12( std::max( 63.0, std::min( flx, 193.0 ) ) ), scaledFoF2, params.foF1, params.foE, params.M3000, params );
 
     return computeElectronDensityFromParams( heightKm, params );
 }
@@ -584,32 +600,27 @@ double NeQuick2Model::getVerticalTotalElectronContent( double latitudeDeg, doubl
         return computeElectronDensityFromParams( h, params );
     };
 
-    numerical_quadrature::GaussianQuadrature< double, double > quadrature(
-        electronDensityProfile, 0.0, 20000.0, 50 );
+    numerical_quadrature::GaussianQuadrature< double, double > quadrature( electronDensityProfile, 0.0, 20000.0, 50 );
 
     // Result in el/m^2, multiply by 1e3 to convert km integration to meters, then to TECU (1e16 el/m^2 = 1 TECU)
     double vtecElPerM2 = quadrature.getQuadrature( ) * 1.0e3;  // km -> m conversion
-    return vtecElPerM2 / 1.0e16;  // Convert to TECU
+    return vtecElPerM2 / 1.0e16;                               // Convert to TECU
 }
 
 // ============================================================================
 // IonexConstrainedNeQuick2Model
 // ============================================================================
 
-IonexConstrainedNeQuick2Model::IonexConstrainedNeQuick2Model(
-    std::shared_ptr< NeQuick2Model > neQuick2Model,
-    std::shared_ptr< IonosphereModel > ionexModel )
-    : neQuick2Model_( neQuick2Model ),
-      ionexModel_( ionexModel )
-{
-}
+IonexConstrainedNeQuick2Model::IonexConstrainedNeQuick2Model( std::shared_ptr< NeQuick2Model > neQuick2Model,
+                                                              std::shared_ptr< IonosphereModel > ionexModel ):
+    neQuick2Model_( neQuick2Model ), ionexModel_( ionexModel )
+{}
 
-double IonexConstrainedNeQuick2Model::computeRescaledSlantTec(
-    const Eigen::Vector3d& txPositionEarthFixed,
-    const Eigen::Vector3d& rxPositionEarthFixed,
-    double time,
-    double earthRadius,
-    int quadratureOrder ) const
+double IonexConstrainedNeQuick2Model::computeRescaledSlantTec( const Eigen::Vector3d& txPositionEarthFixed,
+                                                               const Eigen::Vector3d& rxPositionEarthFixed,
+                                                               double time,
+                                                               double earthRadius,
+                                                               int quadratureOrder ) const
 {
     int month;
     double ut;
@@ -644,24 +655,22 @@ double IonexConstrainedNeQuick2Model::computeRescaledSlantTec(
     double pathLength = rayDir.norm( );
 
     std::function< double( double ) > electronDensityAlongRay =
-        [ this, &txPositionEarthFixed, &rayDir, earthRadius, month, flx, ut, k ]( double t ) {
-            Eigen::Vector3d pos = txPositionEarthFixed + t * rayDir;
-            double radius = pos.norm( );
-            double heightKm = ( radius - earthRadius ) / 1.0e3;
+            [ this, &txPositionEarthFixed, &rayDir, earthRadius, month, flx, ut, k ]( double t ) {
+                Eigen::Vector3d pos = txPositionEarthFixed + t * rayDir;
+                double radius = pos.norm( );
+                double heightKm = ( radius - earthRadius ) / 1.0e3;
 
-            if( heightKm < 0.0 ) return 0.0;
+                if( heightKm < 0.0 ) return 0.0;
 
-            double latRad = std::asin( pos.z( ) / radius );
-            double lonRad = std::atan2( pos.y( ), pos.x( ) );
-            double latDeg = latRad * RD;
-            double lonDeg = lonRad * RD;
+                double latRad = std::asin( pos.z( ) / radius );
+                double lonRad = std::atan2( pos.y( ), pos.x( ) );
+                double latDeg = latRad * RD;
+                double lonDeg = lonRad * RD;
 
-            return neQuick2Model_->computeElectronDensityRescaled(
-                heightKm, latDeg, lonDeg, month, flx, ut, k );
-        };
+                return neQuick2Model_->computeElectronDensityRescaled( heightKm, latDeg, lonDeg, month, flx, ut, k );
+            };
 
-    numerical_quadrature::GaussianQuadrature< double, double > quadrature(
-        electronDensityAlongRay, 0.0, 1.0, quadratureOrder );
+    numerical_quadrature::GaussianQuadrature< double, double > quadrature( electronDensityAlongRay, 0.0, 1.0, quadratureOrder );
 
     // STEC = integral * path_length (path_length converts fractional to meters)
     return quadrature.getQuadrature( ) * pathLength;

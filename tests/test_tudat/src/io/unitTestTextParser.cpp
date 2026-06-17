@@ -30,10 +30,10 @@ class dummyTextParser : public TextParser
 {
 public:
     // Default constructor with parseAsStream == false.
-    dummyTextParser( bool parseAsStream = false ): TextParser( parseAsStream ) { }
+    dummyTextParser( bool parseAsStream = false ): TextParser( parseAsStream ) {}
 
     // Default destructor.
-    ~dummyTextParser( ) { }
+    ~dummyTextParser( ) {}
 
 protected:
     // Parse line functionality.

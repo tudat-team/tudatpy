@@ -61,10 +61,10 @@ public:
      *  additional information should be defined in a derived class.
      *  \param gravityFieldType Type of gravity field model that is to be created.
      */
-    GravityFieldSettings( const GravityFieldType gravityFieldType ): gravityFieldType_( gravityFieldType ) { }
+    GravityFieldSettings( const GravityFieldType gravityFieldType ): gravityFieldType_( gravityFieldType ) {}
 
     // Destructor
-    virtual ~GravityFieldSettings( ) { }
+    virtual ~GravityFieldSettings( ) {}
 
     // Function to return type of gravity field model that is to be created.
     /*
@@ -93,9 +93,9 @@ public:
      */
     CentralGravityFieldSettings( double gravitationalParameter ):
         GravityFieldSettings( central ), gravitationalParameter_( gravitationalParameter )
-    { }
+    {}
 
-    virtual ~CentralGravityFieldSettings( ) { }
+    virtual ~CentralGravityFieldSettings( ) {}
 
     // Function to return gravitational parameter for gravity field.
     /*
@@ -127,9 +127,9 @@ public:
      */
     SpiceCentralGravityFieldSettings( const std::string& bodyOverrideName = "" ):
         GravityFieldSettings( central_spice ), bodyOverrideName_( bodyOverrideName )
-    { }
+    {}
 
-    virtual ~SpiceCentralGravityFieldSettings( ) { }
+    virtual ~SpiceCentralGravityFieldSettings( ) {}
 
     std::string getBodyOverrideName( )
     {
@@ -166,7 +166,7 @@ public:
         inertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), associatedReferenceFrame_( associatedReferenceFrame ), createTimeDependentField_( 0 ),
         scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
-    { }
+    {}
 
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
                                             const double referenceRadius,
@@ -186,7 +186,7 @@ public:
         scaledMeanMomentOfInertia_ = std::get< 2 >( degreeTwoField );
     }
 
-    virtual ~SphericalHarmonicsGravityFieldSettings( ) { }
+    virtual ~SphericalHarmonicsGravityFieldSettings( ) {}
 
     // Function to return gravitational parameter for gravity field.
     /*
@@ -380,7 +380,7 @@ public:
     }
 
     //! Destructor
-    virtual ~PolyhedronGravityFieldSettings( ) { }
+    virtual ~PolyhedronGravityFieldSettings( ) {}
 
     // Function to return the gravitational parameter.
     double getGravitationalParameter( )
@@ -487,10 +487,10 @@ public:
                               const bool ellipticIntegralSFromDAndB = true ):
         GravityFieldSettings( one_dimensional_ring ), gravitationalParameter_( gravitationalParameter ), ringRadius_( ringRadius ),
         associatedReferenceFrame_( associatedReferenceFrame ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
-    { }
+    {}
 
     //! Destructor
-    virtual ~RingGravityFieldSettings( ) { }
+    virtual ~RingGravityFieldSettings( ) {}
 
     // Function to return the gravitational parameter.
     double getGravitationalParameter( )
@@ -610,7 +610,7 @@ public:
      */
     FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel, const int maximumDegree = -1 );
 
-    virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ) { }
+    virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ) {}
     // Get the sphericals harmonics model.
     /*
      * @copybrief getSphericalHarmonicsModel
@@ -878,9 +878,9 @@ class RigidBodyPropertiesSettings
 public:
     RigidBodyPropertiesSettings( const RigidBodyPropertiesType rigidBodyPropertiesType ):
         rigidBodyPropertiesType_( rigidBodyPropertiesType )
-    { }
+    {}
 
-    virtual ~RigidBodyPropertiesSettings( ) { }
+    virtual ~RigidBodyPropertiesSettings( ) {}
 
     RigidBodyPropertiesType getRigidBodyPropertiesType( )
     {
@@ -899,9 +899,9 @@ public:
                                          const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
         RigidBodyPropertiesSettings( constant_rigid_body_properties ), mass_( mass ), centerOfMass_( centerOfMass ),
         inertiaTensor_( inertiaTensor )
-    { }
+    {}
 
-    virtual ~ConstantRigidBodyPropertiesSettings( ) { }
+    virtual ~ConstantRigidBodyPropertiesSettings( ) {}
 
     double getMass( )
     {
@@ -934,9 +934,9 @@ public:
                                              const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
         RigidBodyPropertiesSettings( from_function_rigid_body_properties ), massFunction_( massFunction ),
         centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    { }
+    {}
 
-    virtual ~FromFunctionRigidBodyPropertiesSettings( ) { }
+    virtual ~FromFunctionRigidBodyPropertiesSettings( ) {}
 
     std::function< double( const double ) > getMassFunction( )
     {
@@ -969,9 +969,9 @@ public:
                                            const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
         RigidBodyPropertiesSettings( mass_dependent_rigid_body_properties ), currentMass_( currentMass ),
         centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    { }
+    {}
 
-    virtual ~MassDependentMassDistributionSettings( ) { }
+    virtual ~MassDependentMassDistributionSettings( ) {}
 
     double getCurrentMass( )
     {

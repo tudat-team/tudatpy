@@ -226,7 +226,7 @@ public:
         currentTimeArcLookup_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( synchronizationTimes_ );
     }
 
-    ~TimingSystem( ) { }
+    ~TimingSystem( ) {}
 
     //! Function to generate a time tag of an event.
     /*!

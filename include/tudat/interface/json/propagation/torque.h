@@ -27,7 +27,7 @@ static std::map< AvailableTorque, std::string > torqueTypes = { { underfined_tor
                                                                 { aerodynamic_torque, "aerodynamic" } };
 
 //! `AvailableTorque`s not supported by `json_interface`.
-static std::vector< AvailableTorque > unsupportedTorqueTypes = { };
+static std::vector< AvailableTorque > unsupportedTorqueTypes = {};
 
 //! Convert `AvailableTorque` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableTorque& torqueType )

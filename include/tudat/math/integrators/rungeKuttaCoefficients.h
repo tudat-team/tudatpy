@@ -92,7 +92,7 @@ struct RungeKuttaCoefficients {
     RungeKuttaCoefficients( ):
         aCoefficients( ), bCoefficients( ), cCoefficients( ), higherOrder( 0 ), lowerOrder( 0 ), orderEstimateToIntegrate( lower ),
         isFixedStepSize( false ), name( "Undefined" )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -117,7 +117,7 @@ struct RungeKuttaCoefficients {
                             std::string name_ = "Undefined" ):
         aCoefficients( aCoefficients_ ), bCoefficients( bCoefficients_ ), cCoefficients( cCoefficients_ ), higherOrder( higherOrder_ ),
         lowerOrder( lowerOrder_ ), orderEstimateToIntegrate( order ), isFixedStepSize( isFixedStepSize_ ), name( name_ )
-    { }
+    {}
 
     // Get coefficients for a specified coefficient set.
     /*

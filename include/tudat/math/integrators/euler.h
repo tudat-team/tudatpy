@@ -71,7 +71,7 @@ public:
                      const StateType& initialState,
                      const TimeStepType& stepSize ):
         RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, forwardEuler )
-    { }
+    {}
 
 protected:
 };

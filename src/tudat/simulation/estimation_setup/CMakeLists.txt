@@ -60,6 +60,7 @@ set(estimation_HEADERS
         createPositionPartialScaling.h
         createClockPartials.h
         processOdfFile.h
+        processPsfFile.h
         processTrackingTxtFile.h
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h

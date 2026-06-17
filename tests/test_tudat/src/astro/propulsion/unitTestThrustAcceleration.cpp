@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
 
         std::map< double, Eigen::Matrix3d > currentRotationMatrixHistory;
-        for( auto it: dynamicsSimulator.getDependentVariableHistory( ) )
+        for( auto it : dynamicsSimulator.getDependentVariableHistory( ) )
         {
             double currentTime = it.first;
             Eigen::Matrix3d currentRotationMatrixToBodyFixedFrame =
@@ -1351,7 +1351,7 @@ public:
                                       useThrustMultiplier,
                                       ( useThrustMultiplier == true ) ? static_cast< int >( useDummyMachNumber ) : -1 ),
         startTime_( startTime ), endTime_( endTime ), useDummyMachNumber_( useDummyMachNumber ), useThrustMultiplier_( useThrustMultiplier )
-    { }
+    {}
 
     void updateGuidanceParameters( )
     {
@@ -2185,7 +2185,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     std::shared_ptr< tudat::interpolators::LookUpScheme< double > > timeLookup =
             std::make_shared< tudat::interpolators::HuntingAlgorithmLookupScheme< double > >( thrustStartTimes );
 
-    for( auto variableIterator: dependentVariableResult )
+    for( auto variableIterator : dependentVariableResult )
     {
         // Identify maneuver start time closest to current time.
         double currentTime = variableIterator.first;

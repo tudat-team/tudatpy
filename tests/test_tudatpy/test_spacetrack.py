@@ -6,11 +6,13 @@ from tudatpy.data.spacetrack import SpaceTrackQuery, OMMUtils
 from datetime import datetime, timedelta
 import numpy as np
 
+
 # --- Unit Tests (Offline) ---
 @pytest.fixture
 def temp_tle_folder(tmp_path):
     # Creates a temporary foler path called tle_data
     return str(tmp_path / "tle_data")
+
 
 # Global patch for login to avoid API authentication
 # This will run on all offline tests (autouse = True) and will prevent real API authentication
@@ -23,8 +25,9 @@ def mock_login(request):
     if request.node.get_closest_marker("remote_data"):
         yield
     else:
-        with patch('tudatpy.data.spacetrack.SpaceTrackQuery._login', return_value=None):
+        with patch("tudatpy.data.spacetrack.SpaceTrackQuery._login", return_value=None):
             yield
+
 
 # --- 1. Testing URL/Query Construction ---
 def test_descending_epoch_url_construction(temp_tle_folder):
@@ -32,7 +35,7 @@ def test_descending_epoch_url_construction(temp_tle_folder):
     query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
 
     # _get_json_and_save is patched, because it hits the API. This replaces internal function with a mock.
-    with patch.object(query, '_get_json_and_save') as mock_get_json_and_save:
+    with patch.object(query, "_get_json_and_save") as mock_get_json_and_save:
         # Calls the function being tested
         query.descending_epoch(N=10, update_existing=True)
 
@@ -45,18 +48,16 @@ def test_descending_epoch_url_construction(temp_tle_folder):
         assert "limit/10" in url
         assert "orderby/epoch%20desc" in url or "orderby/epoch desc" in url
         assert filename == "gp_descending_limit_10.json"
-        assert kwargs['merge'] is True
+        assert kwargs["merge"] is True
+
 
 def test_filtered_by_oe_dict_url(temp_tle_folder):
     """Verifies that orbital element filters are correctly appended to the query."""
     query = SpaceTrackQuery(username="u", password="p", tle_data_folder=temp_tle_folder)
 
     # _get_json_and_save is patched, because it hits the API. This replaces internal function with a mock.
-    with patch.object(query, '_get_json_and_save') as mock_get_json_and_save:
-        filters = {
-            'INCLINATION': (97.0, 99.0),
-            'SEMIMAJOR_AXIS': (None, 7000.0)
-        }
+    with patch.object(query, "_get_json_and_save") as mock_get_json_and_save:
+        filters = {"INCLINATION": (97.0, 99.0), "SEMIMAJOR_AXIS": (None, 7000.0)}
         query.filtered_by_oe_dict(filters, limit=50)
 
         url = mock_get_json_and_save.call_args[0][0]
@@ -65,6 +66,7 @@ def test_filtered_by_oe_dict_url(temp_tle_folder):
         # Check for "less than" logic
         assert "SEMIMAJOR_AXIS/<7000.0" in url
         assert "limit/50" in url
+
 
 # --- 2. Testing Caching & Cooldown Logic ---
 def test_get_tles_date_range_cooldown_logic(temp_tle_folder, capsys):
@@ -77,10 +79,10 @@ def test_get_tles_date_range_cooldown_logic(temp_tle_folder, capsys):
     recent_hit = (datetime.now() - timedelta(minutes=10)).isoformat()
     mock_content = {
         "last_api_hit": recent_hit,
-        "data": [] # Empty data to trigger a "needs_fetch" if not for cooldown
+        "data": [],  # Empty data to trigger a "needs_fetch" if not for cooldown
     }
 
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         json.dump(mock_content, f)
 
     # Attempt to fetch
@@ -97,9 +99,12 @@ def test_get_tles_date_range_cooldown_logic(temp_tle_folder, capsys):
     # Now we force API hit, even if the last hit was recent, by setting override_last_api_hit = True
     # In a real scenario, override_last_api_hit will trigger _fetch_json, which requires network connection.
     # we patch _fetch_json to avoid that, but we assert whether mock_fetch_json gets triggered or not (must be).
-    with patch.object(query, '_fetch_json', return_value=[]) as mock_fetch_json:
-        query.get_tles_for_date_range(norad_id, "2025-01-01", "2025-01-02", override_last_api_hit=True)
-        assert mock_fetch_json.called # Fetch should be triggered
+    with patch.object(query, "_fetch_json", return_value=[]) as mock_fetch_json:
+        query.get_tles_for_date_range(
+            norad_id, "2025-01-01", "2025-01-02", override_last_api_hit=True
+        )
+        assert mock_fetch_json.called  # Fetch should be triggered
+
 
 # --- 3. Testing Batch Processing ---
 def test_save_batch_to_individual_files(temp_tle_folder):
@@ -111,7 +116,7 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     batch_data = [
         {"NORAD_CAT_ID": "111", "EPOCH": "2025-01-01T00:00:00"},
         {"NORAD_CAT_ID": "111", "EPOCH": "2025-01-01T01:00:00"},
-        {"NORAD_CAT_ID": "222", "EPOCH": "2025-01-01T00:00:00"}
+        {"NORAD_CAT_ID": "222", "EPOCH": "2025-01-01T00:00:00"},
     ]
 
     # Call the function to test
@@ -122,13 +127,17 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     assert os.path.exists(os.path.join(temp_tle_folder, "111_from_batch.json"))
 
     # Open Files
-    with open(os.path.join(temp_tle_folder, "111_from_batch.json"), 'r') as first:
+    with open(os.path.join(temp_tle_folder, "111_from_batch.json"), "r") as first:
         first_dict = json.load(first)
-    with open(os.path.join(temp_tle_folder, "222_from_batch.json"), 'r') as second:
+    with open(os.path.join(temp_tle_folder, "222_from_batch.json"), "r") as second:
         second_dict = json.load(second)
     # Verify that the two files contain the dictionaries in batch data
-    assert first_dict == [batch_data[0], batch_data[1]] # this also checks that both 111 entries are in the same json
+    assert first_dict == [
+        batch_data[0],
+        batch_data[1],
+    ]  # this also checks that both 111 entries are in the same json
     assert second_dict == [batch_data[2]]
+
 
 # --- 4. Cleaning Logic ---
 def test_clean_file_dict_format(temp_tle_folder):
@@ -140,20 +149,21 @@ def test_clean_file_dict_format(temp_tle_folder):
         "last_api_hit": "some_time",
         "data": [
             {"NORAD_CAT_ID": "1", "EPOCH": "E1", "CREATION_DATE": "2020"},
-            {"NORAD_CAT_ID": "1", "EPOCH": "E1", "CREATION_DATE": "2021"} # Newer duplicate
-        ]
+            {"NORAD_CAT_ID": "1", "EPOCH": "E1", "CREATION_DATE": "2021"},  # Newer duplicate
+        ],
     }
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         json.dump(dirty_data, f)
 
     OMMUtils.clean_file(filepath)
 
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         cleaned = json.load(f)
 
     assert len(cleaned["data"]) == 1
     assert cleaned["data"][0]["CREATION_DATE"] == "2021"
-    assert "last_api_hit" in cleaned # Metadata preserved
+    assert "last_api_hit" in cleaned  # Metadata preserved
+
 
 def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     """Verifies deduplication logic without any network calls."""
@@ -161,27 +171,32 @@ def test_save_unique_sorted_logic(mock_login, temp_tle_folder):
     filepath = os.path.join(temp_tle_folder, "test_logic.json")
 
     # Simulate an existing file with one object and some entries
-    existing_data = [{
-        "NORAD_CAT_ID": "25544",
-        "EPOCH": "2025-01-01T12:00:00",
-        "CREATION_DATE": "2025-01-01T00:00:00"
-    }]
+    existing_data = [
+        {
+            "NORAD_CAT_ID": "25544",
+            "EPOCH": "2025-01-01T12:00:00",
+            "CREATION_DATE": "2025-01-01T00:00:00",
+        }
+    ]
     query._save_unique_sorted(filepath, existing_data)
 
     # New data with same ID and Epoch but NEWER creation date
-    new_data = [{
-        "NORAD_CAT_ID": "25544",
-        "EPOCH": "2025-01-01T12:00:00",
-        "CREATION_DATE": "2025-01-01T10:00:00"
-    }]
+    new_data = [
+        {
+            "NORAD_CAT_ID": "25544",
+            "EPOCH": "2025-01-01T12:00:00",
+            "CREATION_DATE": "2025-01-01T10:00:00",
+        }
+    ]
     query._save_unique_sorted(filepath, new_data)
 
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         content = json.load(f)
 
     # Should still only have 1 entry, but with the newer creation date
     assert len(content["data"]) == 1
     assert content["data"][0]["CREATION_DATE"] == "2025-01-01T10:00:00"
+
 
 def test_latest_on_orbit_custom_filename(temp_tle_folder):
     """Verifies that latest_on_orbit respects the custom filename parameter."""
@@ -192,7 +207,7 @@ def test_latest_on_orbit_custom_filename(temp_tle_folder):
     mock_data = [{"NORAD_CAT_ID": "1", "EPOCH": "2025-01-01T00:00:00"}]
 
     # We mock the session.get to return a mock response
-    with patch.object(query.session, 'get') as mock_get:
+    with patch.object(query.session, "get") as mock_get:
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = mock_data
@@ -201,6 +216,7 @@ def test_latest_on_orbit_custom_filename(temp_tle_folder):
         query.latest_on_orbit(filename=custom_name)
 
     assert os.path.exists(os.path.join(temp_tle_folder, custom_name))
+
 
 def test_descending_epoch_update_existing_logic(temp_tle_folder):
     """Verifies that update_existing=True merges data rather than overwriting."""
@@ -216,21 +232,22 @@ def test_descending_epoch_update_existing_logic(temp_tle_folder):
 
     # 1. First Download
     data_1 = [{"NORAD_CAT_ID": "111", "EPOCH": "2025-01-01T00:00:00"}]
-    with patch.object(query.session, 'get', return_value=mock_api_call(data_1)):
+    with patch.object(query.session, "get", return_value=mock_api_call(data_1)):
         query.descending_epoch(N=1, filename=master_file, update_existing=False)
 
     # 2. Second Download (Merge)
     data_2 = [{"NORAD_CAT_ID": "222", "EPOCH": "2025-01-02T00:00:00"}]
-    with patch.object(query.session, 'get', return_value=mock_api_call(data_2)):
+    with patch.object(query.session, "get", return_value=mock_api_call(data_2)):
         query.descending_epoch(N=1, filename=master_file, update_existing=True)
 
-    with open(os.path.join(temp_tle_folder, master_file), 'r') as f:
+    with open(os.path.join(temp_tle_folder, master_file), "r") as f:
         content = json.load(f)
-        data_in_file = content['data']
+        data_in_file = content["data"]
 
-    ids = [item['NORAD_CAT_ID'] for item in data_in_file]
+    ids = [item["NORAD_CAT_ID"] for item in data_in_file]
     assert "111" in ids and "222" in ids
     assert len(data_in_file) == 2
+
 
 def test_descending_epoch_overwrite_logic(temp_tle_folder):
     """Verifies that update_existing=False (default) overwrites existing files."""
@@ -244,17 +261,22 @@ def test_descending_epoch_overwrite_logic(temp_tle_folder):
         return m_get
 
     # 1. Initial save
-    with patch.object(query.session, 'get', return_value=mock_api_call([{"NORAD_CAT_ID": "1", "EPOCH": "A"}])):
+    with patch.object(
+        query.session, "get", return_value=mock_api_call([{"NORAD_CAT_ID": "1", "EPOCH": "A"}])
+    ):
         query.descending_epoch(filename=target_file)
 
     # 2. Overwrite save
-    with patch.object(query.session, 'get', return_value=mock_api_call([{"NORAD_CAT_ID": "2", "EPOCH": "B"}])):
+    with patch.object(
+        query.session, "get", return_value=mock_api_call([{"NORAD_CAT_ID": "2", "EPOCH": "B"}])
+    ):
         query.descending_epoch(filename=target_file, update_existing=False)
 
-    with open(os.path.join(temp_tle_folder, target_file), 'r') as f:
+    with open(os.path.join(temp_tle_folder, target_file), "r") as f:
         content = json.load(f)
-        assert content['data'][0]['NORAD_CAT_ID'] == "2"
-        assert len(content['data']) == 1
+        assert content["data"][0]["NORAD_CAT_ID"] == "2"
+        assert len(content["data"]) == 1
+
 
 def test_get_tudat_keplerian_element_set_full_conversion(mock_login, temp_tle_folder):
     """
@@ -273,15 +295,17 @@ def test_get_tudat_keplerian_element_set_full_conversion(mock_login, temp_tle_fo
     argp_deg = 45.0
     mean_anom_deg = 90.0
 
-    mock_omm_list = [{
-        "SEMIMAJOR_AXIS": str(sma_km),
-        "ECCENTRICITY": str(ecc),
-        "INCLINATION": str(inc_deg),
-        "RA_OF_ASC_NODE": str(raan_deg),
-        "ARG_OF_PERICENTER": str(argp_deg),
-        "MEAN_ANOMALY": str(mean_anom_deg),
-        "NORAD_CAT_ID": "25544"
-    }]
+    mock_omm_list = [
+        {
+            "SEMIMAJOR_AXIS": str(sma_km),
+            "ECCENTRICITY": str(ecc),
+            "INCLINATION": str(inc_deg),
+            "RA_OF_ASC_NODE": str(raan_deg),
+            "ARG_OF_PERICENTER": str(argp_deg),
+            "MEAN_ANOMALY": str(mean_anom_deg),
+            "NORAD_CAT_ID": "25544",
+        }
+    ]
 
     # get_tudat_keplerian_element_set wants a single dictionary, not a list
     with pytest.raises(TypeError):
@@ -308,6 +332,7 @@ def test_get_tudat_keplerian_element_set_full_conversion(mock_login, temp_tle_fo
     # 4. We do not check mean-true anomaly conversion,
     # since that is a tudapty function and we know it works well already.
 
+
 # --- Integration Tests (Online) ---
 @pytest.mark.remote_data
 def test_live_api_query(temp_tle_folder):
@@ -319,21 +344,20 @@ def test_live_api_query(temp_tle_folder):
 
     # 2. Skip if credentials aren't set (even if --remote-data is passed)
     if not username or not password:
-        pytest.skip("Skipping custom live api query test:\n"
-                    "Space-Track credentials not found in environment variables.")
+        pytest.skip(
+            "Skipping custom live api query test:\n"
+            "Space-Track credentials not found in environment variables."
+        )
 
-    query = SpaceTrackQuery(
-        username=username,
-        password=password,
-        tle_data_folder=temp_tle_folder
-    )
+    query = SpaceTrackQuery(username=username, password=password, tle_data_folder=temp_tle_folder)
 
     # ISS ID: check if we get a valid list back
     res = query.get_tles_for_date_range("25544", "2025-01-01", "2026-01-02")
 
     assert isinstance(res, list)
     if len(res) > 0:
-        assert res[0]['NORAD_CAT_ID'] == "25544"
+        assert res[0]["NORAD_CAT_ID"] == "25544"
+
 
 @pytest.mark.remote_data
 def test_custom_query_from_url_live(temp_tle_folder):
@@ -348,15 +372,13 @@ def test_custom_query_from_url_live(temp_tle_folder):
 
     # 2. Skip if credentials aren't set (even if --remote-data is passed)
     if not username or not password:
-        pytest.skip("Skipping custom query url test:\n "
-                    "Space-Track credentials not found in environment variables.")
+        pytest.skip(
+            "Skipping custom query url test:\n "
+            "Space-Track credentials not found in environment variables."
+        )
 
     # Instantiate query (credentials must be set in env for CI)
-    query = SpaceTrackQuery(
-        username=username,
-        password=password,
-        tle_data_folder=temp_tle_folder
-    )
+    query = SpaceTrackQuery(username=username, password=password, tle_data_folder=temp_tle_folder)
 
     full_url = (
         "https://www.space-track.org/"
@@ -369,15 +391,11 @@ def test_custom_query_from_url_live(temp_tle_folder):
     half_url = "basicspacedata/query/class/gp/NORAD_CAT_ID/25544/limit/1/format/json"
 
     data_full_url = query.query_from_query_builder_url(
-        full_url,
-        output_file="custom_test.json",
-        update_existing=False
+        full_url, output_file="custom_test.json", update_existing=False
     )
 
     data_half_url = query.query_from_query_builder_url(
-        half_url,
-        output_file="custom_test_half_url.json",
-        update_existing=False
+        half_url, output_file="custom_test_half_url.json", update_existing=False
     )
 
     # --- Assertions ---

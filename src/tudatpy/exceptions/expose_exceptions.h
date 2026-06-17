@@ -20,7 +20,7 @@ namespace tudatpy
 namespace exceptions
 {
 
-void expose_exceptions( py::module &m );
+void expose_exceptions( py::module& m );
 
 }  // namespace exceptions
 }  // namespace tudatpy

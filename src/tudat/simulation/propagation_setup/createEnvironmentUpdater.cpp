@@ -24,7 +24,6 @@
 #include "tudat/simulation/environment_setup/createMetric.h"
 #include <stdexcept>
 
-
 namespace tudat
 {
 
@@ -340,119 +339,135 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 
     switch( stateDerivativeModel->getRelativisticStateDerivativeType( ) )
     {
-    case first_order_barycentric_to_bodycentric:
-    {
-        std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
-                std::dynamic_pointer_cast< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >( stateDerivativeModel );
-        for( unsigned int i = 0; i < firstOrderSettings->getExternalBodyList( ).size( ); i++ )
-        {
-            environmentModelsToUpdate[ body_translational_state_update ].push_back( firstOrderSettings->getExternalBodyList( ).at( i ) );
-        }
-
-        std::map< std::string, std::pair< int, int > > shOrders = firstOrderSettings->getSphericalHarmonicGravityExpansions( );
-        for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( );
-             shIterator != shOrders.end( ); shIterator++ )
-        {
-            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
-        }
-
-        break;
-    }
-    case second_order_barycentric_to_bodycentric:
-    {
-        std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > > secondOrderSettings =
-                std::dynamic_pointer_cast< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >( stateDerivativeModel );
-        for( unsigned int i = 0; i < secondOrderSettings->getExternalBodyList( ).size( ); i++ )
-        {
-            environmentModelsToUpdate[ body_translational_state_update ].push_back( secondOrderSettings->getExternalBodyList( ).at( i ) );
-        }
-
-        std::map< std::string, std::pair< int, int > > shOrders = secondOrderSettings->getSphericalHarmonicGravityExpansions( );
-        for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( ); shIterator != shOrders.end( );
-             shIterator++ )
-        {
-            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
-        }
-
-        break;
-    }
-    case first_order_bodycentric_to_topocentric:
-    {
-        std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
-                std::dynamic_pointer_cast< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >( stateDerivativeModel );
-        for( unsigned int i = 0; i < firstOrderSettings->getTopocentricExternalBodies( ).size( ); i++ )
-        {
-            environmentModelsToUpdate[ body_translational_state_update ].push_back( firstOrderSettings->getTopocentricExternalBodies( ).at( i ) );
-        }
-
-        if( firstOrderSettings->getMaximumSphericalHarmonicDegree( ) > 0 )
-        {
-            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( firstOrderSettings->getReferencePointId( ).first );
-        }
-
-        break;
-    }
-    case direct_from_metric:
-    {
-        if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
-        {
-            std::shared_ptr< Metric > baseMetric = bodyMap.getSpaceTimeProperties( )->getBaseMetric( );
-            if( baseMetric == nullptr )
+        case first_order_barycentric_to_bodycentric: {
+            std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
+                    std::dynamic_pointer_cast< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
+                            stateDerivativeModel );
+            for( unsigned int i = 0; i < firstOrderSettings->getExternalBodyList( ).size( ); i++ )
             {
-                throw std::runtime_error(
-                            "Error when making proper-time updater direct from metric: baseMetric is nullptr." );
+                environmentModelsToUpdate[ body_translational_state_update ].push_back(
+                        firstOrderSettings->getExternalBodyList( ).at( i ) );
             }
-            evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ] = baseMetric->Clone( );
-        }
-        std::shared_ptr< Metric > metricToUse = evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ];
 
-        std::vector< std::string > bodyList;
-        std::vector< std::string > shList;
-
-        if( std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse ) != nullptr )
-        {
-            std::shared_ptr< SolarSystemMetric > solarSystemMetric =
-                    std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse );
-            bodyList = solarSystemMetric->getBodyList( );
-            std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > shFunctionList =
-                    solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
-            for( std::map< int, std::shared_ptr< SphericalHarmonicWrapper > >::const_iterator shIterator = shFunctionList.begin( );
-                 shIterator != shFunctionList.end( ); shIterator++ )
+            std::map< std::string, std::pair< int, int > > shOrders = firstOrderSettings->getSphericalHarmonicGravityExpansions( );
+            for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( );
+                 shIterator != shOrders.end( );
+                 shIterator++ )
             {
-                if( shIterator->first < static_cast< int >( bodyList.size( ) ) )
+                environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
+            }
+
+            break;
+        }
+        case second_order_barycentric_to_bodycentric: {
+            std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > > secondOrderSettings =
+                    std::dynamic_pointer_cast< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >(
+                            stateDerivativeModel );
+            for( unsigned int i = 0; i < secondOrderSettings->getExternalBodyList( ).size( ); i++ )
+            {
+                environmentModelsToUpdate[ body_translational_state_update ].push_back(
+                        secondOrderSettings->getExternalBodyList( ).at( i ) );
+            }
+
+            std::map< std::string, std::pair< int, int > > shOrders = secondOrderSettings->getSphericalHarmonicGravityExpansions( );
+            for( std::map< std::string, std::pair< int, int > >::const_iterator shIterator = shOrders.begin( );
+                 shIterator != shOrders.end( );
+                 shIterator++ )
+            {
+                environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shIterator->first );
+            }
+
+            break;
+        }
+        case first_order_bodycentric_to_topocentric: {
+            std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > > firstOrderSettings =
+                    std::dynamic_pointer_cast< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >(
+                            stateDerivativeModel );
+            for( unsigned int i = 0; i < firstOrderSettings->getTopocentricExternalBodies( ).size( ); i++ )
+            {
+                environmentModelsToUpdate[ body_translational_state_update ].push_back(
+                        firstOrderSettings->getTopocentricExternalBodies( ).at( i ) );
+            }
+
+            if( firstOrderSettings->getMaximumSphericalHarmonicDegree( ) > 0 )
+            {
+                environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back(
+                        firstOrderSettings->getReferencePointId( ).first );
+            }
+
+            break;
+        }
+        case direct_from_metric: {
+            if( evaluatedMetricObjects.count( stateDerivativeModel->getReferencePointId( ) ) == 0 )
+            {
+                std::shared_ptr< Metric > baseMetric = bodyMap.getSpaceTimeProperties( )->getBaseMetric( );
+                if( baseMetric == nullptr )
                 {
-                    shList.push_back( bodyList.at( shIterator->first ) );
+                    throw std::runtime_error( "Error when making proper-time updater direct from metric: baseMetric is nullptr." );
                 }
-                else
+                evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ] = baseMetric->Clone( );
+            }
+            std::shared_ptr< Metric > metricToUse = evaluatedMetricObjects[ stateDerivativeModel->getReferencePointId( ) ];
+
+            std::vector< std::string > bodyList;
+            std::vector< std::string > shList;
+
+            if( std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse ) != nullptr )
+            {
+                std::shared_ptr< SolarSystemMetric > solarSystemMetric = std::dynamic_pointer_cast< SolarSystemMetric >( metricToUse );
+                bodyList = solarSystemMetric->getBodyList( );
+                std::map< int, std::shared_ptr< SphericalHarmonicWrapper > > shFunctionList =
+                        solarSystemMetric->getBodySphericalHarmonicGravityWrappers( );
+                for( std::map< int, std::shared_ptr< SphericalHarmonicWrapper > >::const_iterator shIterator = shFunctionList.begin( );
+                     shIterator != shFunctionList.end( );
+                     shIterator++ )
                 {
-                    throw std::runtime_error( "Error when making proper time updater direct from metric, sh index is too high" );
+                    if( shIterator->first < static_cast< int >( bodyList.size( ) ) )
+                    {
+                        shList.push_back( bodyList.at( shIterator->first ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error when making proper time updater direct from metric, sh index is too high" );
+                    }
                 }
             }
-        }
-        else if( std::dynamic_pointer_cast< HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
-        {
+            else if( std::dynamic_pointer_cast< HarmonicSchwarzschildMetric >( metricToUse ) != nullptr )
+            {
+            }
+            else
+            {
+                throw std::runtime_error( "Error when making proper time updater direct from metric, did not recognize metric type" );
+            }
 
-        }
-        else
-        {
-            throw std::runtime_error( "Error when making proper time updater direct from metric, did not recognize metric type" );
-        }
+            for( unsigned int i = 0; i < bodyList.size( ); i++ )
+            {
+                environmentModelsToUpdate[ body_translational_state_update ].push_back( bodyList.at( i ) );
+            }
 
-        for( unsigned int i = 0; i < bodyList.size( ); i++ )
-        {
-            environmentModelsToUpdate[ body_translational_state_update ].push_back( bodyList.at( i ) );
-        }
+            for( unsigned int i = 0; i < shList.size( ); i++ )
+            {
+                environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shList.at( i ) );
+            }
 
-        for( unsigned int i = 0; i < shList.size( ); i++ )
-        {
-            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ].push_back( shList.at( i ) );
-        }
+            // When the reference point is a ground station, the direct-from-metric path evaluates the
+            // metric at the station's inertial BCRS state, which is built from the central body's
+            // *stored* rotation (Body::getCurrentRotationToGlobalFrame, see
+            // createReferencePointStateFunctionDuringPropagation). That stored rotation is only
+            // refreshed by a body_rotational_state_update; without it the station's body-fixed->inertial
+            // rotation is frozen at the initial epoch and the integrated proper time picks up a ~us
+            // diurnal error. (A spherical-harmonic central body masks this because the SH-field update
+            // already pulls in the rotation; a point-mass central body does not.)
+            if( stateDerivativeModel->getReferencePointId( ).second != "" )
+            {
+                environmentModelsToUpdate[ body_rotational_state_update ].push_back( stateDerivativeModel->getReferencePointId( ).first );
+            }
 
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error when making proper time updater, did not recognize equation type: " +
-                                  std::to_string( static_cast< int >( stateDerivativeModel->getRelativisticStateDerivativeType( ) ) ) );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when making proper time updater, did not recognize equation type: " +
+                                      std::to_string( static_cast< int >( stateDerivativeModel->getRelativisticStateDerivativeType( ) ) ) );
     }
     checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
 
@@ -532,11 +547,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         }
 
                         // Check if atmosphere model is a ComaModel (requires Sun state for solar longitude calculation)
-                        auto atmosphericFlightConditions = aerodynamicAcceleration->getFlightConditions();
+                        auto atmosphericFlightConditions = aerodynamicAcceleration->getFlightConditions( );
                         if( atmosphericFlightConditions != nullptr )
                         {
                             auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >(
-                                    atmosphericFlightConditions->getAtmosphereModel() );
+                                    atmosphericFlightConditions->getAtmosphereModel( ) );
                             if( comaModel != nullptr )
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
@@ -562,7 +577,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             // Only paneled source, not point source needs rotational state and has original source
                             singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( sourceName );
 
-                            for( const auto& originalSourceName:
+                            for( const auto& originalSourceName :
                                  paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )->getOriginalSourceBodyNames( ) )
                             {
                                 singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( originalSourceName );
@@ -571,8 +586,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 // are supported, which are rotation-invariant
                             }
 
-                            for( const auto& bodyName: paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )
-                                                               ->getOriginalSourceToSourceOccultingBodyNames( ) )
+                            for( const auto& bodyName : paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater( )
+                                                                ->getOriginalSourceToSourceOccultingBodyNames( ) )
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
                             }
@@ -604,7 +619,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( targetName );
                             }
-                            for( auto it: paneledRadiationPressureTargetModel->getSegmentFixedPanels( ) )
+                            for( auto it : paneledRadiationPressureTargetModel->getSegmentFixedPanels( ) )
                             {
                                 for( unsigned int j = 0; j < it.second.size( ); j++ )
                                 {
@@ -624,7 +639,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         // Update occulting body positions
                         auto sourceToTargetOccultingBodyNames =
                                 radiationPressureAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( );
-                        for( auto bodyName: sourceToTargetOccultingBodyNames )
+                        for( auto bodyName : sourceToTargetOccultingBodyNames )
                         {
                             singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
                         }
@@ -800,7 +815,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             std::shared_ptr< relativity::SolarSystemMetric > solarSystemMetric =
                                     std::dynamic_pointer_cast< relativity::SolarSystemMetric >( metricToUse );
                             std::vector< std::string > bodyList = solarSystemMetric->getBodyList( );
-                            for( const auto& bodyName: bodyList )
+                            for( const auto& bodyName : bodyList )
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyName );
                             }
@@ -1435,7 +1450,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
     // Iterate over all bodies.
-    for( auto bodyIterator: bodies.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         singleAccelerationUpdateNeeds.clear( );
 
@@ -1499,21 +1514,21 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 // Explicit instantiation
 template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< double, double >(
-    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, double > >,
-    const simulation_setup::SystemOfBodies& );
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, double > >,
+        const simulation_setup::SystemOfBodies& );
 template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< double, tudat::Time >(
-    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, tudat::Time > >,
-    const simulation_setup::SystemOfBodies& );
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, tudat::Time > >,
+        const simulation_setup::SystemOfBodies& );
 template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< long double, double >(
-    const std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, double > >,
-    const simulation_setup::SystemOfBodies& );
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, double > >,
+        const simulation_setup::SystemOfBodies& );
 template std::map< tudat::propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< long double, tudat::Time >(
-    const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< long double, tudat::Time > >,
-    const tudat::simulation_setup::SystemOfBodies& );
-    
+        const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< long double, tudat::Time > >,
+        const tudat::simulation_setup::SystemOfBodies& );
+
 }  // namespace propagators
 
 }  // namespace tudat

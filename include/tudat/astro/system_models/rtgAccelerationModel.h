@@ -46,24 +46,22 @@ public:
      *  \param rotationFromBodyFixedToIntegrationFrameFunction Function returning (undergoing) body current mass.
      *  \return RTG acceleration model.
      */
-    RTGAccelerationModel(
-            const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
-            const double decayScaleFactor,
-            const double referenceEpoch,
-            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction,
-            const std::function< double( ) > bodyMassFunction):
+    RTGAccelerationModel( const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
+                          const double decayScaleFactor,
+                          const double referenceEpoch,
+                          const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction,
+                          const std::function< double( ) > bodyMassFunction ):
 
         bodyFixedForceVectorAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch ),
-        forceVectorMagnitudeAtReferenceEpoch_(bodyFixedForceVectorAtReferenceEpoch.norm( )),
-        bodyFixedForceUnitVectorAtReferenceEpoch_(bodyFixedForceVectorAtReferenceEpoch/bodyFixedForceVectorAtReferenceEpoch.norm( )),
-        decayScaleFactor_( decayScaleFactor ),
-        referenceEpoch_( referenceEpoch ),
+        forceVectorMagnitudeAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch.norm( ) ),
+        bodyFixedForceUnitVectorAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch / bodyFixedForceVectorAtReferenceEpoch.norm( ) ),
+        decayScaleFactor_( decayScaleFactor ), referenceEpoch_( referenceEpoch ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         bodyMassFunction_( bodyMassFunction )
 
-    { }
+    {}
 
-    ~RTGAccelerationModel( ) { }
+    ~RTGAccelerationModel( ) {}
 
     //! Update class members.
     /*!
@@ -73,13 +71,13 @@ public:
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        if( !( this->currentTime_ == currentTime ) && ( currentTime == currentTime) )
+        if( !( this->currentTime_ == currentTime ) && ( currentTime == currentTime ) )
         {
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             currentTimeDelta_ = currentTime - referenceEpoch_;
-            currentDecayTerm_ = std::exp(-decayScaleFactor_ * currentTimeDelta_);
+            currentDecayTerm_ = std::exp( -decayScaleFactor_ * currentTimeDelta_ );
             currentBodyFixedForceVector_ = bodyFixedForceVectorAtReferenceEpoch_ * currentDecayTerm_;
-            currentAccelerationInBodyFixedFrame_ = currentBodyFixedForceVector_ / bodyMassFunction_();
+            currentAccelerationInBodyFixedFrame_ = currentBodyFixedForceVector_ / bodyMassFunction_( );
             currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
         }
     }
@@ -106,12 +104,12 @@ public:
         return currentBodyFixedForceVector_;
     }
 
-    void resetForceVectorAtReferenceEpoch(const Eigen::Vector3d& newForceVectorAtReferenceEpoch)
+    void resetForceVectorAtReferenceEpoch( const Eigen::Vector3d& newForceVectorAtReferenceEpoch )
     {
         bodyFixedForceVectorAtReferenceEpoch_ = newForceVectorAtReferenceEpoch;
     }
 
-    void resetForceMagnitudeAtReferenceEpoch(const double newForceVectorMagnitudeAtReferenceEpoch)
+    void resetForceMagnitudeAtReferenceEpoch( const double newForceVectorMagnitudeAtReferenceEpoch )
     {
         forceVectorMagnitudeAtReferenceEpoch_ = newForceVectorMagnitudeAtReferenceEpoch;
         updateBodyFixedForceVectorAtReferenceEpoch( );
@@ -124,7 +122,8 @@ public:
 
     void updateBodyFixedForceUnitVectorAtReferenceEpoch( )
     {
-        bodyFixedForceUnitVectorAtReferenceEpoch_ = bodyFixedForceUnitVectorAtReferenceEpoch_ / bodyFixedForceUnitVectorAtReferenceEpoch_.norm();
+        bodyFixedForceUnitVectorAtReferenceEpoch_ =
+                bodyFixedForceUnitVectorAtReferenceEpoch_ / bodyFixedForceUnitVectorAtReferenceEpoch_.norm( );
     }
 
     Eigen::Vector3d getbodyFixedForceVectorAtReferenceEpoch( ) const
@@ -152,9 +151,7 @@ public:
         return bodyMassFunction_( );
     }
 
-
 private:
-
     //! Force vector in body-fixed frame at reference epoch
     Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
 
@@ -174,7 +171,7 @@ private:
     std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
 
     //! Body mass function
-    const std::function< double() > bodyMassFunction_;
+    const std::function< double( ) > bodyMassFunction_;
 
     //! Current rotation from body-fixed frame to integration frame.
     Eigen::Quaterniond rotationToIntegrationFrame_;
@@ -190,10 +187,9 @@ private:
 
     //! Body fixed force vector at current epoch incl effect of decay law
     Eigen::Vector3d currentBodyFixedForceVector_;
-
 };
 
-}  // namespace gravitation
+}  // namespace system_models
 
 }  // namespace tudat
 

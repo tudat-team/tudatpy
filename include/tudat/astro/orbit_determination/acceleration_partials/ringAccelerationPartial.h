@@ -44,7 +44,7 @@ public:
                                 observation_partials::RotationMatrixPartialNamedList( ) );
 
     //! Destructor
-    ~RingGravityPartial( ) { }
+    ~RingGravityPartial( ) {}
 
     //! Function for updating the partial object to current state and time.
     /*!

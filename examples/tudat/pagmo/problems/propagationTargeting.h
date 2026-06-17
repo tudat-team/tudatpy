@@ -20,7 +20,7 @@ using namespace tudat;
 // Define the problem PaGMO-style
 struct PropagationTargetingProblem {
     // Empty constructor
-    PropagationTargetingProblem( ) { }
+    PropagationTargetingProblem( ) {}
 
     PropagationTargetingProblem( const double altitudeOfPerigee,
                                  const double altitudeOfApogee,
@@ -30,7 +30,7 @@ struct PropagationTargetingProblem {
                                  const bool useExtendedDynamics = false );
 
     // Fitness: takes the value of the RAAN and returns the value of the closest distance from target
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
     // Boundaries of the problem set between 0 and (360) degrees
     std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;

@@ -267,7 +267,8 @@ public:
         if( propagationStartTimes_.size( ) == 0 )
         {
             throw std::runtime_error(
-                    "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, propagation start time list is empty" );
+                    "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, propagation start time list is "
+                    "empty" );
         }
 
         estimatable_parameters::getParametersToEstimatePerArcTest(
@@ -750,7 +751,8 @@ public:
         if( lookUpscheme_ == nullptr )
         {
             throw std::runtime_error(
-                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been initialized. "
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
                     "Call updateMatrixInterpolators first." );
         }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
@@ -776,7 +778,8 @@ public:
         if( lookUpscheme_ == nullptr )
         {
             throw std::runtime_error(
-                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been initialized. "
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
                     "Call updateMatrixInterpolators first." );
         }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );

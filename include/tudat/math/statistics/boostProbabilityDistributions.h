@@ -43,10 +43,10 @@ public:
      *  Constructor, sets distribution type
      *  \param distribution Distribution type implemented in boost
      */
-    BoostContinuousProbabilityDistribution( const BoostDistributionType distribution ): distribution_( distribution ) { }
+    BoostContinuousProbabilityDistribution( const BoostDistributionType distribution ): distribution_( distribution ) {}
 
     //! Destructor
-    ~BoostContinuousProbabilityDistribution( ) { }
+    ~BoostContinuousProbabilityDistribution( ) {}
 
     //! Function to evaluate pdf of distribution
     /*!

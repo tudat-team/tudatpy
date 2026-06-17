@@ -35,9 +35,9 @@ public:
                            const double vehicle_mass = 5.0E3,
                            const double vehicle_isp = 5000.0,
                            const double vehicle_thrust = 25.0,
-                           const std::string &vehicle_name = "Vehicle",
-                           const std::string &mission_body = "Earth",
-                           const std::vector< std::string > &spice_bodies = { "Sun", "Earth", "Moon" } )
+                           const std::string& vehicle_name = "Vehicle",
+                           const std::string& mission_body = "Earth",
+                           const std::vector< std::string >& spice_bodies = { "Sun", "Earth", "Moon" } )
     {
         this->_global_initial_epoch = initial_epoch;
         this->_global_final_epoch = termination_epoch;
@@ -82,7 +82,7 @@ public:
         setGlobalFrameBodyEphemerides( this->_body_system, "SSB", "ECLIPJ2000" );
 
         // Define point mass gravity accelerations of system bodies.
-        for( auto body: spice_bodies )
+        for( auto body : spice_bodies )
         {
             this->_base_accelerations_vehicle[ body ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         }
@@ -102,7 +102,7 @@ public:
         this->_current_vehicle_mass = this->_vehicle_mass;
     }
 
-    void step( std::vector< double > &action, double time_step )
+    void step( std::vector< double >& action, double time_step )
     {
         bool done = this->_current_initial_epoch + time_step > this->_global_final_epoch;
         this->_current_final_epoch = done ? this->_global_final_epoch : this->_current_initial_epoch + time_step;
