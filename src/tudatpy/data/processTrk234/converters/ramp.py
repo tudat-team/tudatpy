@@ -2,6 +2,8 @@
 Ramp converter
 """
 
+import datetime
+
 from trk234 import bands, SFDU
 
 from pandas import DataFrame, concat
@@ -120,3 +122,29 @@ class RampConverter:
         merged_df = merged_df.rename(columns={"epoch": "start_time"})
 
         return merged_df
+
+    @staticmethod
+    def close_open_ramps(ramp_df: DataFrame) -> DataFrame:
+        """
+        Close open-ended ramp intervals.
+
+        In case the ramp DataFrame has any open-ended intervals (e.g. if the station doesn't provide a terminating ramp record), this method will set the ``end_time`` of these intervals to an arbitrary epoch (``start_time`` + 1 s) and rely on the frequency extrapolation from the ramp start to compute the frequency at any time after the start.
+
+        Parameters
+        ----------
+        ramp_df : pandas.DataFrame
+            Processed ramp DataFrame with "start_time" and "end_time" columns.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Copy of ``ramp_df`` with ``end_time`` values of ``NaT`` populated.
+        """
+        ramp_df = ramp_df.copy()
+
+        open_ramp_intervals = ramp_df["end_time"].isna()
+        if open_ramp_intervals.any():
+            ramp_df.loc[open_ramp_intervals, "end_time"] = ramp_df.loc[
+                open_ramp_intervals, "start_time"
+            ] + datetime.timedelta(seconds=1)
+        return ramp_df

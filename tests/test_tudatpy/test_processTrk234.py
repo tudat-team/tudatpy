@@ -245,6 +245,59 @@ def test_multiple_stations():
     pd.testing.assert_frame_equal(result, expected)
 
 
+def test_open_final_ramp_left_unbounded():
+    """A final ramp with no end event (no following start, no type 4/5) is returned by process() with end_time NaT."""
+    data = [
+        {
+            "station": "A",
+            "epoch": pd.Timestamp("2021-01-01 10:00:00"),
+            "type": 1,
+            "freq": 50.0,
+            "rate": 0.0,
+        },
+    ]
+    result = cnv.RampConverter().process(pd.DataFrame(data))
+    assert len(result) == 1
+    assert pd.isna(result["end_time"].iloc[0])
+
+
+def test_close_open_ramp_uses_offset():
+    """An open final ramp is closed with a nominal 1 s offset past its start."""
+    start = pd.Timestamp("2021-01-01 10:00:00")
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": start,
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+        ]
+    )
+    result = cnv.RampConverter().close_open_ramps(ramp_df)
+    assert result["end_time"].iloc[0] == pytest.approx(start + pd.Timedelta(seconds=1))
+
+
+def test_close_open_ramp_leaves_closed_intervals_untouched():
+    """Ramps that already have an end time are not modified."""
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": pd.Timestamp("2021-01-01 10:05:00"),
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+        ]
+    )
+    result = cnv.RampConverter().close_open_ramps(ramp_df)
+    assert result["end_time"].iloc[0] == pd.Timestamp("2021-01-01 10:05:00")
+
+
 def test_reader():
     # Use the current directory as temporary path.
     tmp_dir = os.getcwd()

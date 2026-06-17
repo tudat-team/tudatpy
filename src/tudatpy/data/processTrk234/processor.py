@@ -3,7 +3,11 @@ from . import converters as cnv
 from pandas import concat as pd_concat
 from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.astro import time_representation
-from tudatpy.dynamics.environment import PiecewiseLinearFrequencyInterpolator, SystemOfBodies
+from tudatpy.dynamics.environment import (
+    PiecewiseLinearFrequencyInterpolator,
+    SystemOfBodies,
+    FrequencyGapHandling,
+)
 
 
 class Trk234Processor:
@@ -133,6 +137,7 @@ class Trk234Processor:
         all_ramps.reset_index(drop=True, inplace=True)
 
         ramp_df = self.ramp_converter.process(all_ramps)
+        ramp_df = self.ramp_converter.close_open_ramps(ramp_df)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
             lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
@@ -143,14 +148,21 @@ class Trk234Processor:
         earth = bodies.get("Earth")
         for station in ramp_df["station"].unique():
             station_df = ramp_df[ramp_df["station"] == station]
-            frequencyInterpolator = PiecewiseLinearFrequencyInterpolator(
+            frequency_interpolator = PiecewiseLinearFrequencyInterpolator(
                 station_df["start_time_seconds"].tolist(),
                 station_df["end_time_seconds"].tolist(),
                 station_df["rate"].tolist(),
                 station_df["freq"].tolist(),
+                gap_handling=FrequencyGapHandling.extrapolate_at_gaps,
             )
-            groundStation = earth.get_ground_station(station)
-            groundStation.set_transmitting_frequency_calculator(frequencyInterpolator)
+            ground_station = earth.get_ground_station(station)
+
+            if not ground_station.has_frequency_calculator():
+                ground_station.set_transmitting_frequency_calculator(frequency_interpolator)
+            else:
+                ground_station.transmitting_frequency_calculator.add_frequency_interpolator(
+                    frequency_interpolator
+                )
 
         if self.spacecraft_name:
             spacecraft = bodies.get(self.spacecraft_name)
