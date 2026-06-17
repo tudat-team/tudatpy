@@ -494,8 +494,7 @@ public:
     //! Each settings entry attaches one or more constrained boundaries (k, k+1) for a single multi-arc body.
     //! Multiple entries (e.g. one per body) accumulate into a single normal-equation contribution at each
     //! iteration. Passing an empty vector disables the feature.
-    void setInterArcContinuityConstraints(
-            const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
+    void setInterArcContinuityConstraints( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
     {
         interArcContinuityConstraints_ = constraints;
     }
@@ -1218,8 +1217,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return interArcContinuityCostHistory_;
     }
 
-    void setInterArcContinuityDiscrepancyHistory(
-            const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& history )
+    void setInterArcContinuityDiscrepancyHistory( const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& history )
     {
         interArcContinuityDiscrepancyHistory_ = history;
     }

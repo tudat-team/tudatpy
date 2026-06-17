@@ -33,16 +33,31 @@ class InterArcStateContinuityConstraintSettings
 {
 public:
     InterArcStateContinuityConstraintSettings( std::string body,
-                                                std::vector< double > connectionEpochs,
-                                                std::vector< Eigen::Matrix< double, 6, 6 > > weightMatrices,
-                                                std::vector< double > muValues,
-                                                std::vector< std::pair< int, int > > arcPairs = {} );
+                                               std::vector< double > connectionEpochs,
+                                               std::vector< Eigen::Matrix< double, 6, 6 > > weightMatrices,
+                                               std::vector< double > muValues,
+                                               std::vector< std::pair< int, int > > arcPairs = {} );
 
-    const std::string& body( ) const { return body_; }
-    const std::vector< double >& connectionEpochs( ) const { return connectionEpochs_; }
-    const std::vector< Eigen::Matrix< double, 6, 6 > >& weightMatrices( ) const { return weightMatrices_; }
-    const std::vector< double >& muValues( ) const { return muValues_; }
-    const std::vector< std::pair< int, int > >& arcPairs( ) const { return arcPairs_; }
+    const std::string& body( ) const
+    {
+        return body_;
+    }
+    const std::vector< double >& connectionEpochs( ) const
+    {
+        return connectionEpochs_;
+    }
+    const std::vector< Eigen::Matrix< double, 6, 6 > >& weightMatrices( ) const
+    {
+        return weightMatrices_;
+    }
+    const std::vector< double >& muValues( ) const
+    {
+        return muValues_;
+    }
+    const std::vector< std::pair< int, int > >& arcPairs( ) const
+    {
+        return arcPairs_;
+    }
 
     //! Resolve the weight matrix for the i-th pair (handles 1-or-n broadcasting).
     const Eigen::Matrix< double, 6, 6 >& weightMatrixForPair( std::size_t pairIndex ) const
@@ -57,7 +72,10 @@ public:
     }
 
     //! Number of constrained boundaries (either the explicit arcPairs count or the connection-epoch count).
-    std::size_t numberOfPairs( ) const { return connectionEpochs_.size( ); }
+    std::size_t numberOfPairs( ) const
+    {
+        return connectionEpochs_.size( );
+    }
 
 private:
     void validate( ) const;

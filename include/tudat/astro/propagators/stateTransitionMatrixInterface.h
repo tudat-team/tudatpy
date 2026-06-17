@@ -635,15 +635,15 @@ public:
         if( arcIndex < 0 || arcIndex >= numberOfStateArcs_ )
         {
             throw std::runtime_error( "Error when getting combined state transition and sensitivity matrix for arc " +
-                                      std::to_string( arcIndex ) + ", arc index out of range [0, " +
-                                      std::to_string( numberOfStateArcs_ ) + ")." );
+                                      std::to_string( arcIndex ) + ", arc index out of range [0, " + std::to_string( numberOfStateArcs_ ) +
+                                      ")." );
         }
         if( evaluationTime < arcStartTimes_.at( arcIndex ) || evaluationTime > arcEndTimes_.at( arcIndex ) )
         {
             throw std::runtime_error( "Error when getting combined state transition and sensitivity matrix for arc " +
                                       std::to_string( arcIndex ) + " at time " + std::to_string( evaluationTime ) +
-                                      ", time is outside arc interval [" + std::to_string( arcStartTimes_.at( arcIndex ) ) +
-                                      ", " + std::to_string( arcEndTimes_.at( arcIndex ) ) + "]." );
+                                      ", time is outside arc interval [" + std::to_string( arcStartTimes_.at( arcIndex ) ) + ", " +
+                                      std::to_string( arcEndTimes_.at( arcIndex ) ) + "]." );
         }
 
         const int stateTransitionMatrixSize = arcWiseStateTransitionMatrixSize_[ arcIndex ];
@@ -661,9 +661,8 @@ public:
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error in variational equation solution interpolation for arc " +
-                                      std::to_string( arcIndex ) + ".\nOriginal error: " +
-                                      std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error in variational equation solution interpolation for arc " + std::to_string( arcIndex ) +
+                                      ".\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
 
         if( addCentralBodyDependency )
@@ -671,8 +670,7 @@ public:
             for( unsigned int i = 0; i < statePartialAdditionIndices_.at( arcIndex ).size( ); i++ )
             {
                 int indicesToAdd = stateTransitionMatrixSize + sensitivityMatrixSize;
-                combinedStateTransitionMatrix.block(
-                        statePartialAdditionIndices_.at( arcIndex ).at( i ).first, 0, 6, indicesToAdd ) +=
+                combinedStateTransitionMatrix.block( statePartialAdditionIndices_.at( arcIndex ).at( i ).first, 0, 6, indicesToAdd ) +=
                         combinedStateTransitionMatrix.block(
                                 statePartialAdditionIndices_.at( arcIndex ).at( i ).second, 0, 6, indicesToAdd );
             }
@@ -696,8 +694,8 @@ public:
         Eigen::MatrixXd fullCombinedStateTransitionMatrix =
                 Eigen::MatrixXd::Zero( fullStateSize_, fullStateTransitionMatrixSize_ + fullSensitivityMatrixSize_ );
 
-        std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > >
-                arcWiseAndFullSolutionIndices = arcWiseAndFullSolutionInitialStateIndices_.at( arcIndex );
+        std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > arcWiseAndFullSolutionIndices =
+                arcWiseAndFullSolutionInitialStateIndices_.at( arcIndex );
         for( auto itr : arcWiseAndFullSolutionIndices )
         {
             std::pair< int, int > indicesInArcWiseSolution = itr.second.first;

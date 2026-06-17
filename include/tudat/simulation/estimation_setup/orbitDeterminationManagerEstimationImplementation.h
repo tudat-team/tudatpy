@@ -89,7 +89,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // are resolved once and reused inside the iteration loop. Empty constraint list (the default) skips the
     // feature entirely with no runtime cost.
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
-    std::shared_ptr< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > > multiArcStmInterface;
+    std::shared_ptr< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >
+            multiArcStmInterface;
     std::shared_ptr< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > > multiArcSimulator;
     if( !interArcConstraints.empty( ) )
     {
@@ -98,23 +99,25 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 stateTransitionAndSensitivityMatrixInterface_ );
         if( multiArcStmInterface == nullptr )
         {
-            throw std::runtime_error( "Error when applying inter-arc continuity constraints: state-transition matrix "
-                                      "interface is not a MultiArcCombinedStateTransitionAndSensitivityMatrixInterface. "
-                                      "Inter-arc continuity is only supported for pure multi-arc estimators "
-                                      "(spec section 9: hybrid-arc out of scope for v1)." );
+            throw std::runtime_error(
+                    "Error when applying inter-arc continuity constraints: state-transition matrix "
+                    "interface is not a MultiArcCombinedStateTransitionAndSensitivityMatrixInterface. "
+                    "Inter-arc continuity is only supported for pure multi-arc estimators "
+                    "(spec section 9: hybrid-arc out of scope for v1)." );
         }
         if( variationalEquationsSolver_ == nullptr )
         {
-            throw std::runtime_error( "Error when applying inter-arc continuity constraints: variational equations "
-                                      "solver is null." );
+            throw std::runtime_error(
+                    "Error when applying inter-arc continuity constraints: variational equations "
+                    "solver is null." );
         }
-        multiArcSimulator = std::dynamic_pointer_cast<
-                propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
+        multiArcSimulator = std::dynamic_pointer_cast< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
                 variationalEquationsSolver_->getDynamicsSimulatorBase( ) );
         if( multiArcSimulator == nullptr )
         {
-            throw std::runtime_error( "Error when applying inter-arc continuity constraints: dynamics simulator is not "
-                                      "a MultiArcDynamicsSimulator." );
+            throw std::runtime_error(
+                    "Error when applying inter-arc continuity constraints: dynamics simulator is not "
+                    "a MultiArcDynamicsSimulator." );
         }
     }
     std::vector< double > interArcContinuityCostHistory;
@@ -221,18 +224,18 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 conditionNumberCheck = TUDAT_NAN;
             }
             // Perform LSQ inversion
-            leastSquaresOutput =
-                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                              residuals.template cast< double >( ),
-                                                                                              weightsMatrixDiagonals,
-                                                                                              normalizedInverseAprioriCovarianceMatrix,
-                                                                                              conditionNumberCheck,
-                                                                                              constraintStateMultiplier,
-                                                                                              constraintRightHandSide,
-                                                                                              designMatrixConsiderParameters,
-                                                                                              normalizedConsiderParametersDeviation,
-                                                                                              interArcContribution.additionalNormalMatrix,
-                                                                                              interArcContribution.additionalRightHandSide ) );
+            leastSquaresOutput = std::move(
+                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                   residuals.template cast< double >( ),
+                                                                                   weightsMatrixDiagonals,
+                                                                                   normalizedInverseAprioriCovarianceMatrix,
+                                                                                   conditionNumberCheck,
+                                                                                   constraintStateMultiplier,
+                                                                                   constraintRightHandSide,
+                                                                                   designMatrixConsiderParameters,
+                                                                                   normalizedConsiderParametersDeviation,
+                                                                                   interArcContribution.additionalNormalMatrix,
+                                                                                   interArcContribution.additionalRightHandSide ) );
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -270,8 +273,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
-        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals,
-                                                                        residuals.template cast< double >( ) );
+        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
         // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity
         // cost (zero when no constraints are attached). Residual RMS is unchanged so observation-only diagnostics
         // remain meaningful.

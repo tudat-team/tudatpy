@@ -168,8 +168,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         {
             throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalNormalMatrix has shape " +
                                       std::to_string( additionalNormalMatrix.rows( ) ) + "x" +
-                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " +
-                                      std::to_string( nParams ) + "x" + std::to_string( nParams ) + "." );
+                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
+                                      std::to_string( nParams ) + "." );
         }
         inverseOfCovarianceMatrix.topLeftCorner( nParams, nParams ) += additionalNormalMatrix;
     }
@@ -178,8 +178,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         if( additionalRightHandSide.size( ) != nParams )
         {
             throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalRightHandSide has size " +
-                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " +
-                                      std::to_string( nParams ) + "." );
+                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " + std::to_string( nParams ) + "." );
         }
         rightHandSide.head( nParams ) += additionalRightHandSide;
     }

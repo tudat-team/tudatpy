@@ -94,19 +94,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     if( !interArcConstraints.empty( ) )
     {
         auto multiArcStmInterface = std::dynamic_pointer_cast<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >( stateTransitionAndSensitivityMatrixInterface_ );
+                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >(
+                stateTransitionAndSensitivityMatrixInterface_ );
         if( multiArcStmInterface == nullptr )
         {
-            throw std::runtime_error( "Error when applying inter-arc continuity constraints in covariance analysis: STM "
-                                      "interface is not multi-arc." );
+            throw std::runtime_error(
+                    "Error when applying inter-arc continuity constraints in covariance analysis: STM "
+                    "interface is not multi-arc." );
         }
-        auto multiArcSimulator = std::dynamic_pointer_cast<
-                propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
+        auto multiArcSimulator = std::dynamic_pointer_cast< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
                 variationalEquationsSolver_->getDynamicsSimulatorBase( ) );
         if( multiArcSimulator == nullptr )
         {
-            throw std::runtime_error( "Error when applying inter-arc continuity constraints in covariance analysis: "
-                                      "dynamics simulator is not multi-arc." );
+            throw std::runtime_error(
+                    "Error when applying inter-arc continuity constraints in covariance analysis: "
+                    "dynamics simulator is not multi-arc." );
         }
         auto interArcContribution = assembleInterArcContinuityContribution< ObservationScalarType, TimeType >(
                 interArcConstraints,

@@ -80,10 +80,10 @@ namespace estimation_analysis
 
 void expose_inter_arc_constraints( py::module& m )
 {
-    py::class_< tss::InterArcStateContinuityConstraintSettings,
-                std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > >( m,
-                                                                                    "InterArcStateContinuityConstraintSettings",
-                                                                                    R"doc(
+    py::class_< tss::InterArcStateContinuityConstraintSettings, std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > >(
+            m,
+            "InterArcStateContinuityConstraintSettings",
+            R"doc(
 
          Soft inter-arc translational state continuity constraint settings for a single multi-arc body.
 
@@ -104,7 +104,11 @@ void expose_inter_arc_constraints( py::module& m )
 
     m.def(
             "full_state_continuity",
-            []( std::string body, std::vector< double > epochs, py::object positionWeight, py::object velocityWeight, py::object mu,
+            []( std::string body,
+                std::vector< double > epochs,
+                py::object positionWeight,
+                py::object velocityWeight,
+                py::object mu,
                 std::vector< std::pair< int, int > > arcPairs ) {
                 auto C = buildDiagonalWeight( positionWeight, velocityWeight );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
@@ -130,7 +134,10 @@ void expose_inter_arc_constraints( py::module& m )
 
     m.def(
             "position_only_continuity",
-            []( std::string body, std::vector< double > epochs, py::object positionWeight, py::object mu,
+            []( std::string body,
+                std::vector< double > epochs,
+                py::object positionWeight,
+                py::object mu,
                 std::vector< std::pair< int, int > > arcPairs ) {
                 auto C = buildDiagonalWeight( positionWeight, py::float_( 0.0 ) );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
@@ -154,7 +161,10 @@ void expose_inter_arc_constraints( py::module& m )
 
     m.def(
             "velocity_only_continuity",
-            []( std::string body, std::vector< double > epochs, py::object velocityWeight, py::object mu,
+            []( std::string body,
+                std::vector< double > epochs,
+                py::object velocityWeight,
+                py::object mu,
                 std::vector< std::pair< int, int > > arcPairs ) {
                 auto C = buildDiagonalWeight( py::float_( 0.0 ), velocityWeight );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
@@ -183,11 +193,7 @@ void expose_inter_arc_constraints( py::module& m )
                 py::object mu,
                 std::vector< std::pair< int, int > > arcPairs ) {
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
-                        std::move( body ),
-                        std::move( epochs ),
-                        std::move( weightMatrices ),
-                        buildMuValues( mu ),
-                        std::move( arcPairs ) );
+                        std::move( body ), std::move( epochs ), std::move( weightMatrices ), buildMuValues( mu ), std::move( arcPairs ) );
             },
             py::arg( "body" ),
             py::arg( "epochs" ),

@@ -56,8 +56,7 @@ using namespace tudat::basic_astrodynamics;
 namespace
 {
 
-struct TwoArcFixture
-{
+struct TwoArcFixture {
     std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > > stmInterface;
     std::shared_ptr< MultiArcDynamicsSimulator< double, double > > simulator;
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate;
@@ -70,9 +69,9 @@ struct TwoArcFixture
 //! Build a minimal two-arc Earth/Sun setup with adjacent arcs (no overlap) and return the full fixture
 //! (variational solver, dynamics simulator, parameter set, STM interface). The variational equations are
 //! integrated on construction so the interpolators are populated.
-TwoArcFixture buildTwoArcFixture( const std::vector< Eigen::Matrix< double, 6, 1 > >& arcInitialStatePerturbations =
-                                          std::vector< Eigen::Matrix< double, 6, 1 > >( ),
-                                  const bool useOverlappingArcs = false )
+TwoArcFixture buildTwoArcFixture(
+        const std::vector< Eigen::Matrix< double, 6, 1 > >& arcInitialStatePerturbations = std::vector< Eigen::Matrix< double, 6, 1 > >( ),
+        const bool useOverlappingArcs = false )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -139,11 +138,10 @@ TwoArcFixture buildTwoArcFixture( const std::vector< Eigen::Matrix< double, 6, 1
     auto variationalSolver = simulation_setup::createVariationalEquationsSolver< double, double >(
             bodies, propagatorSettings, fixture.parametersToEstimate, true );
 
-    fixture.stmInterface = std::dynamic_pointer_cast<
-            MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > >(
+    fixture.stmInterface = std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > >(
             variationalSolver->getStateTransitionMatrixInterface( ) );
-    fixture.simulator = std::dynamic_pointer_cast< MultiArcDynamicsSimulator< double, double > >(
-            variationalSolver->getDynamicsSimulatorBase( ) );
+    fixture.simulator =
+            std::dynamic_pointer_cast< MultiArcDynamicsSimulator< double, double > >( variationalSolver->getDynamicsSimulatorBase( ) );
 
     BOOST_REQUIRE( fixture.stmInterface != nullptr );
     BOOST_REQUIRE( fixture.simulator != nullptr );
@@ -219,11 +217,10 @@ TwoArcFixture buildTwoBodyTwoArcFixture( )
     auto variationalSolver = simulation_setup::createVariationalEquationsSolver< double, double >(
             bodies, propagatorSettings, fixture.parametersToEstimate, true );
 
-    fixture.stmInterface = std::dynamic_pointer_cast<
-            MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > >(
+    fixture.stmInterface = std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > >(
             variationalSolver->getStateTransitionMatrixInterface( ) );
-    fixture.simulator = std::dynamic_pointer_cast< MultiArcDynamicsSimulator< double, double > >(
-            variationalSolver->getDynamicsSimulatorBase( ) );
+    fixture.simulator =
+            std::dynamic_pointer_cast< MultiArcDynamicsSimulator< double, double > >( variationalSolver->getDynamicsSimulatorBase( ) );
 
     BOOST_REQUIRE( fixture.stmInterface != nullptr );
     BOOST_REQUIRE( fixture.simulator != nullptr );
@@ -306,8 +303,9 @@ BOOST_AUTO_TEST_CASE( test_StmForArc_RangeValidation )
                        std::runtime_error );
     BOOST_CHECK_THROW( fixture.stmInterface->getCombinedStateTransitionAndSensitivityMatrixForArc( 0, fixture.arcEndTimes[ 1 ] + 1.0 ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, fixture.arcStartTimes[ 0 ] - 1.0 ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW(
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, fixture.arcStartTimes[ 0 ] - 1.0 ),
+            std::runtime_error );
 }
 
 //! Test 9 / structural check of the assembly module: build a position-only continuity contribution at the
@@ -387,12 +385,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquatio
     const Eigen::VectorXd expectedG = -D.transpose( ) * ( W * d );
     const double expectedCost = d.transpose( ) * W * d;
 
-    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) /
-                            std::max( expectedH.norm( ), 1.0E-30 ),
-                    1.0E-12 );
-    BOOST_CHECK_LT( ( contribution.additionalRightHandSide - expectedG ).norm( ) /
-                            std::max( expectedG.norm( ), 1.0E-30 ),
-                    1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) / std::max( expectedH.norm( ), 1.0E-30 ), 1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalRightHandSide - expectedG ).norm( ) / std::max( expectedG.norm( ), 1.0E-30 ), 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( contribution.totalConstraintCost, expectedCost, 1.0E-12 );
 }
 
@@ -443,10 +437,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_FiniteDifferenceInitialSta
     for( int column = 0; column < N; ++column )
     {
         const double perturbation = ( column % 6 < 3 ) ? 10.0 : 1.0E-3;
-        std::vector< Eigen::Matrix< double, 6, 1 > > positivePerturbations(
-                2, Eigen::Matrix< double, 6, 1 >::Zero( ) );
-        std::vector< Eigen::Matrix< double, 6, 1 > > negativePerturbations(
-                2, Eigen::Matrix< double, 6, 1 >::Zero( ) );
+        std::vector< Eigen::Matrix< double, 6, 1 > > positivePerturbations( 2, Eigen::Matrix< double, 6, 1 >::Zero( ) );
+        std::vector< Eigen::Matrix< double, 6, 1 > > negativePerturbations( 2, Eigen::Matrix< double, 6, 1 >::Zero( ) );
         positivePerturbations.at( static_cast< unsigned int >( column / 6 ) )( column % 6 ) = perturbation;
         negativePerturbations.at( static_cast< unsigned int >( column / 6 ) )( column % 6 ) = -perturbation;
 
@@ -486,8 +478,7 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeR
     const Eigen::Matrix< double, 6, 1 >& d = fullContribution.perPairDiscrepancies.at( 0 );
     const double expectedPositionCost = ( 2.0 / ( 5.0 * 3.0 ) ) * d.head( 3 ).squaredNorm( );
     const double expectedVelocityCost = ( 4.0 / ( 5.0 * 3.0 ) ) * d.tail( 3 ).squaredNorm( );
-    const double expectedFullCost =
-            ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * d.head( 3 ).squaredNorm( ) + 4.0 * d.tail( 3 ).squaredNorm( ) );
+    const double expectedFullCost = ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * d.head( 3 ).squaredNorm( ) + 4.0 * d.tail( 3 ).squaredNorm( ) );
 
     BOOST_CHECK_CLOSE_FRACTION( positionContribution.totalConstraintCost, expectedPositionCost, 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( velocityContribution.totalConstraintCost, expectedVelocityCost, 1.0E-12 );
@@ -532,9 +523,7 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_UsesRequestedBodyRows )
     W.block< 3, 3 >( 0, 0 ) = ( 3.0 / ( 2.0 * 3.0 ) ) * Eigen::Matrix3d::Identity( );
     const Eigen::MatrixXd expectedH = expectedD.transpose( ) * W * expectedD;
 
-    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) /
-                            std::max( expectedH.norm( ), 1.0E-30 ),
-                    1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) / std::max( expectedH.norm( ), 1.0E-30 ), 1.0E-12 );
 }
 
 //! Test 10: normalisation invariance. Compare assembly with two different column-normalisation conventions;
@@ -566,8 +555,7 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_NormalisationInvariance )
     Eigen::MatrixXd Hprior = tinyPriorScale * Eigen::MatrixXd::Identity( N, N );
 
     Eigen::VectorXd dxUnit = ( unit.additionalNormalMatrix + Hprior ).ldlt( ).solve( unit.additionalRightHandSide );
-    Eigen::VectorXd dxScaled =
-            ( scaled.additionalNormalMatrix + Hprior / ( 3.5 * 3.5 ) ).ldlt( ).solve( scaled.additionalRightHandSide );
+    Eigen::VectorXd dxScaled = ( scaled.additionalNormalMatrix + Hprior / ( 3.5 * 3.5 ) ).ldlt( ).solve( scaled.additionalRightHandSide );
     Eigen::VectorXd dxScaledPhysical = dxScaled / 3.5;
     BOOST_CHECK_LT( ( dxUnit - dxScaledPhysical ).norm( ) / std::max( dxUnit.norm( ), 1.0E-30 ), 1.0E-5 );
 }
@@ -590,7 +578,8 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     SystemOfBodies bodies = createSystemOfBodies< double, double >( bodySettings );
 
     std::pair< std::string, std::string > marsStation( "Mars", "MarsStation" );
-    createGroundStation( bodies.at( "Mars" ), "MarsStation",
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
                          ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
@@ -610,8 +599,7 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double, double > > > propagatorSettingsList;
     for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
     {
-        Eigen::VectorXd initialState =
-                getInitialStateOfBody< double, double >( "Earth", "SSB", bodies, arcStartTimes[ i ] );
+        Eigen::VectorXd initialState = getInitialStateOfBody< double, double >( "Earth", "SSB", bodies, arcStartTimes[ i ] );
         propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
                 centralBodies,
                 accelerationModelMap,
@@ -630,9 +618,8 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
     linkEnds[ receiver ] = marsStation;
 
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList = {
-            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds )
-    };
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList = { std::make_shared< ObservationModelSettings >(
+            one_way_range, linkEnds ) };
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
@@ -644,8 +631,7 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     std::vector< double > observationTimes;
     for( unsigned int arc = 0; arc < arcStartTimes.size( ); ++arc )
     {
-        const double dt = ( arcEndTimes[ arc ] - arcStartTimes[ arc ] - 2.0 * 12000.0 ) /
-                static_cast< double >( observationsPerArc - 1 );
+        const double dt = ( arcEndTimes[ arc ] - arcStartTimes[ arc ] - 2.0 * 12000.0 ) / static_cast< double >( observationsPerArc - 1 );
         double t = arcStartTimes[ arc ] + 12000.0;
         for( int i = 0; i < observationsPerArc; ++i )
         {
@@ -654,10 +640,10 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
         }
     }
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementInput = {
-            std::make_shared< TabulatedObservationSimulationSettings< double > >( one_way_range, linkEnds, observationTimes, receiver )
+        std::make_shared< TabulatedObservationSimulationSettings< double > >( one_way_range, linkEnds, observationTimes, receiver )
     };
-    auto observations = simulateObservations< double, double >(
-            measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    auto observations =
+            simulateObservations< double, double >( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb the truth slightly so the estimator has work to do.
     Eigen::VectorXd initialEstimate = truthParameters;
@@ -759,7 +745,8 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     SystemOfBodies bodies = createSystemOfBodies< double, double >( bodySettings );
 
     std::pair< std::string, std::string > marsStation( "Mars", "MarsStation" );
-    createGroundStation( bodies.at( "Mars" ), "MarsStation",
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
                          ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
@@ -778,8 +765,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double, double > > > propagatorSettingsList;
     for( unsigned int i = 0; i < arcStartTimes.size( ); ++i )
     {
-        Eigen::VectorXd initialState =
-                getInitialStateOfBody< double, double >( "Earth", "SSB", bodies, arcStartTimes[ i ] );
+        Eigen::VectorXd initialState = getInitialStateOfBody< double, double >( "Earth", "SSB", bodies, arcStartTimes[ i ] );
         propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
                 centralBodies,
                 accelerationModelMap,
@@ -797,9 +783,8 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     LinkDefinition linkEnds;
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
     linkEnds[ receiver ] = marsStation;
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList = {
-            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds )
-    };
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList = { std::make_shared< ObservationModelSettings >(
+            one_way_range, linkEnds ) };
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
@@ -808,8 +793,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     std::vector< double > observationTimes;
     for( unsigned int arc = 0; arc < arcStartTimes.size( ); ++arc )
     {
-        const double dt = ( arcEndTimes[ arc ] - arcStartTimes[ arc ] - 2.0 * 12000.0 ) /
-                static_cast< double >( observationsPerArc - 1 );
+        const double dt = ( arcEndTimes[ arc ] - arcStartTimes[ arc ] - 2.0 * 12000.0 ) / static_cast< double >( observationsPerArc - 1 );
         double t = arcStartTimes[ arc ] + 12000.0;
         for( int i = 0; i < observationsPerArc; ++i )
         {
@@ -818,10 +802,10 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
         }
     }
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementInput = {
-            std::make_shared< TabulatedObservationSimulationSettings< double > >( one_way_range, linkEnds, observationTimes, receiver )
+        std::make_shared< TabulatedObservationSimulationSettings< double > >( one_way_range, linkEnds, observationTimes, receiver )
     };
-    auto observations = simulateObservations< double, double >(
-            measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    auto observations =
+            simulateObservations< double, double >( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     auto unconstrainedInput = std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
     auto unconstrainedOutput = orbitDeterminationManager.computeCovariance( unconstrainedInput );
@@ -836,8 +820,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
 
     // Compare normalized inverse covariance (= normal matrix). Constrained must >= unconstrained in the PSD
     // sense: the difference (constrained - unconstrained) is PSD with smallest eigenvalue >= 0.
-    Eigen::MatrixXd diff =
-            constrainedOutput->inverseNormalizedCovarianceMatrix_ - unconstrainedOutput->inverseNormalizedCovarianceMatrix_;
+    Eigen::MatrixXd diff = constrainedOutput->inverseNormalizedCovarianceMatrix_ - unconstrainedOutput->inverseNormalizedCovarianceMatrix_;
     Eigen::MatrixXd diffSym = 0.5 * ( diff + diff.transpose( ) );
     Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > solver( diffSym );
     const double maxEig = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
@@ -863,13 +846,12 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_GlobalMdAccounting )
     // accumulated H from the duplicated pair is 2 * (1/2) = 1x the single-pair H. The g_constraint behaves
     // the same way. The total cost scales like the per-pair weight (factor 1/2 for each pair).
     auto duplicateSettings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
-    auto duplicatedContribution = assembleInterArcContinuityContribution< double, double >(
-            { singleSettings, duplicateSettings },
-            fixture.parametersToEstimate,
-            fixture.simulator,
-            fixture.stmInterface,
-            normalisation,
-            N );
+    auto duplicatedContribution = assembleInterArcContinuityContribution< double, double >( { singleSettings, duplicateSettings },
+                                                                                            fixture.parametersToEstimate,
+                                                                                            fixture.simulator,
+                                                                                            fixture.stmInterface,
+                                                                                            normalisation,
+                                                                                            N );
 
     // H from {single, duplicate} == 2 * (1/2) * H_single = H_single.
     BOOST_CHECK_LT( ( duplicatedContribution.additionalNormalMatrix - singleContribution.additionalNormalMatrix ).norm( ),
@@ -891,20 +873,19 @@ BOOST_AUTO_TEST_CASE( test_LeastSquaresEmptyAdditionsNoOp )
     Eigen::VectorXd weights = Eigen::VectorXd::Constant( 5, 1.0 );
     Eigen::MatrixXd inverseApriori = 0.01 * Eigen::MatrixXd::Identity( 3, 3 );
 
-    auto baseline = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-            designMatrix, residuals, weights, inverseApriori );
-    auto withEmptyAdditions = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-            designMatrix,
-            residuals,
-            weights,
-            inverseApriori,
-            1.0E8,
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ),
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ),
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ) );
+    auto baseline =
+            tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix, residuals, weights, inverseApriori );
+    auto withEmptyAdditions = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                                    residuals,
+                                                                                                    weights,
+                                                                                                    inverseApriori,
+                                                                                                    1.0E8,
+                                                                                                    Eigen::MatrixXd( 0, 0 ),
+                                                                                                    Eigen::VectorXd( 0 ),
+                                                                                                    Eigen::MatrixXd( 0, 0 ),
+                                                                                                    Eigen::VectorXd( 0 ),
+                                                                                                    Eigen::MatrixXd( 0, 0 ),
+                                                                                                    Eigen::VectorXd( 0 ) );
 
     BOOST_REQUIRE_EQUAL( baseline.first.size( ), withEmptyAdditions.first.size( ) );
     BOOST_REQUIRE_EQUAL( baseline.second.rows( ), withEmptyAdditions.second.rows( ) );
@@ -925,18 +906,17 @@ BOOST_AUTO_TEST_CASE( test_LeastSquaresEmptyAdditionsNoOp )
     // Adding alpha*I to the normal matrix is equivalent to scaling the a-priori covariance inverse.
     const double alpha = 0.5;
     Eigen::MatrixXd alphaIdentity = alpha * Eigen::MatrixXd::Identity( 3, 3 );
-    auto withAddition = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-            designMatrix,
-            residuals,
-            weights,
-            inverseApriori,
-            1.0E8,
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ),
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ),
-            alphaIdentity,
-            Eigen::VectorXd::Zero( 3 ) );
+    auto withAddition = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                              residuals,
+                                                                                              weights,
+                                                                                              inverseApriori,
+                                                                                              1.0E8,
+                                                                                              Eigen::MatrixXd( 0, 0 ),
+                                                                                              Eigen::VectorXd( 0 ),
+                                                                                              Eigen::MatrixXd( 0, 0 ),
+                                                                                              Eigen::VectorXd( 0 ),
+                                                                                              alphaIdentity,
+                                                                                              Eigen::VectorXd::Zero( 3 ) );
     auto withScaledPrior = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
             designMatrix, residuals, weights, inverseApriori + alphaIdentity );
     for( int row = 0; row < withAddition.second.rows( ); ++row )
@@ -948,31 +928,29 @@ BOOST_AUTO_TEST_CASE( test_LeastSquaresEmptyAdditionsNoOp )
     }
 
     // Shape-validation throws.
-    BOOST_CHECK_THROW( tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                               designMatrix,
-                               residuals,
-                               weights,
-                               inverseApriori,
-                               1.0E8,
-                               Eigen::MatrixXd( 0, 0 ),
-                               Eigen::VectorXd( 0 ),
-                               Eigen::MatrixXd( 0, 0 ),
-                               Eigen::VectorXd( 0 ),
-                               Eigen::MatrixXd::Identity( 4, 4 ),
-                               Eigen::VectorXd( 0 ) ),
+    BOOST_CHECK_THROW( tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                             residuals,
+                                                                                             weights,
+                                                                                             inverseApriori,
+                                                                                             1.0E8,
+                                                                                             Eigen::MatrixXd( 0, 0 ),
+                                                                                             Eigen::VectorXd( 0 ),
+                                                                                             Eigen::MatrixXd( 0, 0 ),
+                                                                                             Eigen::VectorXd( 0 ),
+                                                                                             Eigen::MatrixXd::Identity( 4, 4 ),
+                                                                                             Eigen::VectorXd( 0 ) ),
                        std::runtime_error );
-    BOOST_CHECK_THROW( tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                               designMatrix,
-                               residuals,
-                               weights,
-                               inverseApriori,
-                               1.0E8,
-                               Eigen::MatrixXd( 0, 0 ),
-                               Eigen::VectorXd( 0 ),
-                               Eigen::MatrixXd( 0, 0 ),
-                               Eigen::VectorXd( 0 ),
-                               Eigen::MatrixXd( 0, 0 ),
-                               Eigen::VectorXd::Ones( 4 ) ),
+    BOOST_CHECK_THROW( tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                             residuals,
+                                                                                             weights,
+                                                                                             inverseApriori,
+                                                                                             1.0E8,
+                                                                                             Eigen::MatrixXd( 0, 0 ),
+                                                                                             Eigen::VectorXd( 0 ),
+                                                                                             Eigen::MatrixXd( 0, 0 ),
+                                                                                             Eigen::VectorXd( 0 ),
+                                                                                             Eigen::MatrixXd( 0, 0 ),
+                                                                                             Eigen::VectorXd::Ones( 4 ) ),
                        std::runtime_error );
 }
 
@@ -1000,18 +978,17 @@ BOOST_AUTO_TEST_CASE( test_LeastSquares_HardAndSoftConstraintsCompose )
     Eigen::VectorXd softRhs( 3 );
     softRhs << 0.1, -0.05, 0.07;
 
-    auto withBoth = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-            designMatrix,
-            residuals,
-            weights,
-            inverseApriori,
-            1.0E8,
-            constraintMultiplier,
-            constraintRhs,
-            Eigen::MatrixXd( 0, 0 ),
-            Eigen::VectorXd( 0 ),
-            soft,
-            softRhs );
+    auto withBoth = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                          residuals,
+                                                                                          weights,
+                                                                                          inverseApriori,
+                                                                                          1.0E8,
+                                                                                          constraintMultiplier,
+                                                                                          constraintRhs,
+                                                                                          Eigen::MatrixXd( 0, 0 ),
+                                                                                          Eigen::VectorXd( 0 ),
+                                                                                          soft,
+                                                                                          softRhs );
 
     // The solution vector has size (n + n_constraints) = 3 + 1 = 4.
     BOOST_REQUIRE_EQUAL( withBoth.first.size( ), 4 );
@@ -1084,36 +1061,26 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
 
     // Mismatched arcPairs / connectionEpochs sizes throw.
     BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
-                               "Sat",
-                               epochs,
-                               { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) },
-                               { 1.0 },
-                               { { 0, 1 } } ),
+                               "Sat", epochs, { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) }, { 1.0 }, { { 0, 1 } } ),
                        std::runtime_error );
 
     // Non-consecutive arc pair throws.
-    BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
-                               "Sat",
-                               epochs,
-                               { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) },
-                               { 1.0 },
-                               { { 0, 2 }, { 1, 3 } } ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW(
+            InterArcStateContinuityConstraintSettings(
+                    "Sat", epochs, { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) }, { 1.0 }, { { 0, 2 }, { 1, 3 } } ),
+            std::runtime_error );
 
     // weightMatrices size not in {1, n_pairs} throws.
-    BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
-                               "Sat",
-                               epochs,
-                               std::vector< Eigen::Matrix< double, 6, 6 > >( 3, tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) ),
-                               { 1.0 } ),
+    BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings( "Sat",
+                                                                  epochs,
+                                                                  std::vector< Eigen::Matrix< double, 6, 6 > >(
+                                                                          3, tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) ),
+                                                                  { 1.0 } ),
                        std::runtime_error );
 
     // muValues size not in {1, n_pairs} throws.
     BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
-                               "Sat",
-                               epochs,
-                               { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) },
-                               { 1.0, 2.0, 3.0 } ),
+                               "Sat", epochs, { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) }, { 1.0, 2.0, 3.0 } ),
                        std::runtime_error );
 }
 
