@@ -417,6 +417,7 @@ void FullTwoBodySphericalHarmonicTorque::updateMembers( const double currentTime
             currentTorque_ =
                     -( accelerationBetweenBodies_->getCurrentRotationFromBody2ToBody1( ).inverse( ) * body2TorqueInBodyFixedFrameOfBody1 );
         }
+        currentTorque_ *= bodyUndergoingTorqueMassFunction_( );
 
         currentTime_ = currentTime;
     }

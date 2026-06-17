@@ -1212,25 +1212,25 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             sphericalHarmonicTorqueModel->updateMembers( evaluationTime );
             referenceAcceleration->updateMembers( evaluationTime );
 
-            const Eigen::Vector3d referenceTorqueFromAcceleration = referenceAcceleration->getCurrentBodyFixedRelativePosition( ).cross(
-                    referenceAcceleration->getMutualPotentialGradient( ) );
+            const double bodyUndergoingTorqueMass = bodies.at( bodyUndergoingTorqueName )->getBodyMass( );
+            const Eigen::Vector3d referenceTorqueFromAcceleration = bodyUndergoingTorqueMass *
+                    referenceAcceleration->getCurrentBodyFixedRelativePosition( ).cross(
+                            referenceAcceleration->getMutualPotentialGradient( ) );
             const Eigen::Vector3d computedFullTwoBodyTorque = torqueModel->getTorque( );
             const Eigen::Vector3d computedSphericalHarmonicTorque = sphericalHarmonicTorqueModel->getTorque( );
-            const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
-            const Eigen::Vector3d specificSphericalHarmonicTorque = computedSphericalHarmonicTorque / bodyExertingTorqueMass;
             computedTorques.push_back( computedFullTwoBodyTorque );
 
             // Consistency with tau = r_B x (dU/dr_B):
-            // the full-two-body torque is specific torque on body 2 in body-1 frame, while the gradient-based
-            // reference is assembled from the potential-gradient path. The sign here follows Tudat's convention.
+            // the gradient-based reference is assembled from the potential-gradient path and multiplied by
+            // the body-undergoing-torque mass to obtain physical torque. The sign here follows Tudat's convention.
             const Eigen::Vector3d accelerationConsistencyDifference = computedFullTwoBodyTorque + referenceTorqueFromAcceleration;
 
-            // Direct subtraction between full two-body torque and spherical-harmonic torque (specific form):
+            // Direct subtraction between full two-body torque and spherical-harmonic torque:
             // this should be near zero because both models are expected to use the same sign convention.
-            const Eigen::Vector3d modelToModelDifference = computedFullTwoBodyTorque - specificSphericalHarmonicTorque;
+            const Eigen::Vector3d modelToModelDifference = computedFullTwoBodyTorque - computedSphericalHarmonicTorque;
 
             // Signed consistency check: this should stay large because the two models should not match after adding.
-            const Eigen::Vector3d modelToModelSignedDifference = computedFullTwoBodyTorque + specificSphericalHarmonicTorque;
+            const Eigen::Vector3d modelToModelSignedDifference = computedFullTwoBodyTorque + computedSphericalHarmonicTorque;
             const double referenceScale = std::max( 1.0, referenceTorqueFromAcceleration.norm( ) );
 
             for( int i = 0; i < 3; i++ )
@@ -1375,20 +1375,14 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                     << " dS22="
                     << transformedSineCoefficientsOfBody2FromFullTwoBody( 2, 2 ) - transformedSineCoefficientsOfBody2FromInertia( 2, 2 ) );
 
-            // Convert full two-body model output from specific torque to torque by multiplying with body-2 mass.
-            const double bodyExertingTorqueMass = bodiesWithAllDegree2Terms.at( bodyExertingTorqueName )->getBodyMass( );
-
             // Model type: [Full two-body]. Body exerting: [l=0,2]. Body undergoing: [l=2].
-            const Eigen::Vector3d fullTwoBodyFullDegree2Torque =
-                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithFullDegree2Terms->getTorque( );
+            const Eigen::Vector3d fullTwoBodyFullDegree2Torque = fullTwoBodyTorqueModelWithFullDegree2Terms->getTorque( );
 
             // Model type: [Full two-body]. Body exerting: [l=0]. Body undergoing: [l=2].
-            const Eigen::Vector3d fullTwoBodyPointMassDegree2Torque =
-                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithPointMassDegree2Terms->getTorque( );
+            const Eigen::Vector3d fullTwoBodyPointMassDegree2Torque = fullTwoBodyTorqueModelWithPointMassDegree2Terms->getTorque( );
 
             // Model type: [Full two-body]. Body exerting: [l=2]. Body undergoing: [l=2].
-            const Eigen::Vector3d fullTwoBodyDegree2Degree2Torque =
-                    bodyExertingTorqueMass * fullTwoBodyTorqueModelWithDegree2Degree2Terms->getTorque( );
+            const Eigen::Vector3d fullTwoBodyDegree2Degree2Torque = fullTwoBodyTorqueModelWithDegree2Degree2Terms->getTorque( );
 
             // Model type: [Fourth degree model]. Body exerting: [l=0,2]. Body undergoing: [l=2].
             const Eigen::Vector3d fourthDegreeFullDegree2Torque = fourthDegreeTorqueModelWithFullDegree2Terms->getTorque( );
@@ -1607,17 +1601,15 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                 fourthDegreeTorqueModel->updateMembers( evaluationTime );
                 secondDegreeTorqueModel->updateMembers( evaluationTime );
 
-                // Convert from specific torque to physical torque (multiply by body-2 mass) before comparing against
-                // fourth-degree and second-degree torque models, which natively output torque.
-                const double bodyExertingTorqueMass = bodies.at( bodyExertingTorqueName )->getBodyMass( );
+                // Remove the common gravitational-constant scaling before comparing against the analytical references,
+                // which are written with G = 1.
                 const double inverseGravitationalScaling = 1.0 / physical_constants::GRAVITATIONAL_CONSTANT;
                 const Eigen::Vector3d singleInteractionTorqueFromFullTwoBody =
-                        inverseGravitationalScaling * bodyExertingTorqueMass * fullTwoBodySingleInteractionTorqueModel->getTorque( );
+                        inverseGravitationalScaling * fullTwoBodySingleInteractionTorqueModel->getTorque( );
                 const Eigen::Vector3d allDegreeTwoDegreeTwoTorqueFromFullTwoBody =
-                        inverseGravitationalScaling * bodyExertingTorqueMass * fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel->getTorque( );
+                        inverseGravitationalScaling * fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel->getTorque( );
                 (void)allDegreeTwoDegreeTwoTorqueFromFullTwoBody;
                 const Eigen::Vector3d isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction = inverseGravitationalScaling *
-                        bodyExertingTorqueMass *
                         ( fullTwoBodyFullDegreeTwoTorqueModel->getTorque( ) - fullTwoBodyPointMassDegreeTwoTorqueModel->getTorque( ) );
                 (void)isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction;
                 const Eigen::Vector3d isolatedFigureFigureTorqueFromFourthMinusSecond =

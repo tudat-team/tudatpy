@@ -59,8 +59,10 @@ class FullTwoBodySphericalHarmonicTorque : public basic_astrodynamics::TorqueMod
 public:
     //! Constructor.
     FullTwoBodySphericalHarmonicTorque( const std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies,
-                                        const bool acceleratedBodyIsBody1 ):
-        accelerationBetweenBodies_( accelerationBetweenBodies ), acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
+                                        const bool acceleratedBodyIsBody1,
+                                        const std::function< double( ) > bodyUndergoingTorqueMassFunction ):
+        accelerationBetweenBodies_( accelerationBetweenBodies ), bodyUndergoingTorqueMassFunction_( bodyUndergoingTorqueMassFunction ),
+        acceleratedBodyIsBody1_( acceleratedBodyIsBody1 )
     {
         coefficientCombinationsToUse_ = accelerationBetweenBodies_->getEffectiveMutualPotentialField( )->getCoefficientCombinationsToUse( );
         body2TorqueCombinationsToUse_ = gravitation::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
@@ -115,6 +117,8 @@ private:
     Eigen::Vector3d currentTorque_;
 
     std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationBetweenBodies_;
+
+    std::function< double( ) > bodyUndergoingTorqueMassFunction_;
 
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
     std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationsToUse_;

@@ -212,7 +212,8 @@ std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwo
                             false,
                             false ) );
 
-    return std::make_shared< gravitation::FullTwoBodySphericalHarmonicTorque >( fullTwoBodyAcceleration, true );
+    return std::make_shared< gravitation::FullTwoBodySphericalHarmonicTorque >(
+            fullTwoBodyAcceleration, true, std::bind( &simulation_setup::Body::getBodyMass, bodyUndergoingTorque ) );
 }
 
 std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > createFourthDegreeFullTwoBodyGravitationalTorqueModel(
