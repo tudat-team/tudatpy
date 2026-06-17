@@ -26,7 +26,7 @@ TUDAT_ADD_TEST_CASE(RotationAboutArbitraryAxis PRIVATE_LINKS tudat_basic_mathema
 
 TUDAT_ADD_TEST_CASE(RotationPartials PRIVATE_LINKS tudat_basic_mathematics tudat_reference_frames)
 
-TUDAT_ADD_TEST_CASE(CayleyKeinParameters PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(CayleyKleinParameters PRIVATE_LINKS tudat_basic_mathematics)
 
 TUDAT_ADD_TEST_CASE(SphericalHarmonicTransformation
         PRIVATE_LINKS

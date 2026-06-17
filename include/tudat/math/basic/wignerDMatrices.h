@@ -47,9 +47,10 @@ public:
 
     //! Function to update contents of this object to new orientation
     /*!
-     * Function to update contents of this object to new orientation, defined by Cayley-Klein parameters a and b. The
-     * parameters a and b are related to teh quaternion q by a = q0 - i q3, b = q1 - i q2.
-     * Calling this function updates the wignerDMatrices_ member variable
+     * Function to update contents of this object to new orientation, defined by Cayley-Klein parameters a and b. For a
+     * quaternion q = (q0, q1, q2, q3), the convention used by Tudat is a = q0 - i q3, b = q2 - i q1. For a valid
+     * rotation, the Cayley-Klein parameters must satisfy |a|^2 + |b|^2 = 1. Calling this function updates the
+     * wignerDMatrices_ member variable
      * \param cayleyKleinA Cayley-Klein parameters a
      * \param cayleyKleinB Cayley-Klein parameters b
      */

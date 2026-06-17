@@ -78,6 +78,8 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameOfBodyUndergoingTorqueFunction,
             const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameOfBodyExertingTorqueFunction );
 
+    ~FourthDegreeFullTwoBodyGravitationalTorqueModel( ) {}
+
     //! Get currently computed torque.
     Eigen::Vector3d getTorque( )
     {
@@ -85,7 +87,34 @@ public:
     }
 
     //! Update member variables used by the torque model.
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( currentTime_ == currentTime ) )
+        {
+            currentRotationToBodyFixedFrameOfBodyUndergoingTorque_ = rotationToBodyFixedFrameOfBodyUndergoingTorqueFunction_( );
+            currentRotationToBodyFixedFrameOfBodyExertingTorque_ = rotationToBodyFixedFrameOfBodyExertingTorqueFunction_( );
+            currentRelativePositionInInertialFrame_ = positionOfBodyExertingTorqueFunction_( ) - positionOfBodyUndergoingTorqueFunction_( );
+            currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ =
+                    currentRotationToBodyFixedFrameOfBodyUndergoingTorque_ * currentRelativePositionInInertialFrame_;
+
+            currentMassOfBodyExertingTorque_ = massOfBodyExertingTorqueFunction_( );
+            currentInertiaTensorOfBodyUndergoingTorque_ = inertiaTensorOfBodyUndergoingTorqueFunction_( );
+            currentInertiaTensorOfBodyExertingTorque_ = inertiaTensorOfBodyExertingTorqueFunction_( );
+
+            const Eigen::Matrix3d rotationFromBody2ToBody1 = currentRotationToBodyFixedFrameOfBodyUndergoingTorque_.toRotationMatrix( ) *
+                    currentRotationToBodyFixedFrameOfBodyExertingTorque_.toRotationMatrix( ).transpose( );
+            currentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ =
+                    rotationFromBody2ToBody1 * currentInertiaTensorOfBodyExertingTorque_ * rotationFromBody2ToBody1.transpose( );
+
+            currentTorque_ = calculateFourthDegreeFullTwoBodyGravitationalTorque(
+                    currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
+                    currentMassOfBodyExertingTorque_,
+                    currentInertiaTensorOfBodyUndergoingTorque_,
+                    currentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ );
+
+            currentTime_ = currentTime;
+        }
+    }
 
     //! Get current body-2 inertia tensor expressed in body-1-fixed frame.
     Eigen::Matrix3d getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( ) const

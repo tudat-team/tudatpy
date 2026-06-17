@@ -74,7 +74,7 @@ std::array< Eigen::MatrixXcd, 4 > computeDerivativeOfDegreeOneWignerDMatrixWrtRe
 {
     const std::complex< double > imaginaryUnit( 0.0, 1.0 );
     const std::complex< double > cayleyKleinA = std::complex< double >( relativeQuaternionVector( 0 ), -relativeQuaternionVector( 3 ) );
-    const std::complex< double > cayleyKleinB = std::complex< double >( relativeQuaternionVector( 1 ), -relativeQuaternionVector( 2 ) );
+    const std::complex< double > cayleyKleinB = std::complex< double >( relativeQuaternionVector( 2 ), -relativeQuaternionVector( 1 ) );
     const std::complex< double > cayleyKleinAConjugate = std::conj( cayleyKleinA );
     const std::complex< double > cayleyKleinBConjugate = std::conj( cayleyKleinB );
 
@@ -89,8 +89,8 @@ std::array< Eigen::MatrixXcd, 4 > computeDerivativeOfDegreeOneWignerDMatrixWrtRe
     partialOfCayleyKleinA.at( 3 ) = -imaginaryUnit;
 
     partialOfCayleyKleinB.at( 0 ) = 0.0;
-    partialOfCayleyKleinB.at( 1 ) = 1.0;
-    partialOfCayleyKleinB.at( 2 ) = -imaginaryUnit;
+    partialOfCayleyKleinB.at( 1 ) = -imaginaryUnit;
+    partialOfCayleyKleinB.at( 2 ) = 1.0;
     partialOfCayleyKleinB.at( 3 ) = 0.0;
 
     for( int i = 0; i < 4; i++ )

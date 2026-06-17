@@ -2,7 +2,6 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <algorithm>
-#include <limits>
 #include <memory>
 #include <string>
 #include <thread>
@@ -833,6 +832,65 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
                                          equatorialRadiusOfBody1,
                                          equatorialRadiusOfBody2 );
 }
+
+BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAsMutualPotentialGradient )
+{
+    const auto coefficientCombinations = FullTwoBodySphericalHarmonicAccelerationSettings( 4, 2, 3, 2 ).coefficientCombinationsToUse_;
+    const double gravitationalParameter = 5.0E5, radius1 = 1300.0, radius2 = 900.0, currentTime = 42.0;
+    const Eigen::Vector3d nominalPosition( 5100.0, -2300.0, 3700.0 );
+    Eigen::MatrixXd cosine1 = Eigen::MatrixXd::Zero( 5, 3 ), sine1 = Eigen::MatrixXd::Zero( 5, 3 );
+    Eigen::MatrixXd cosine2 = Eigen::MatrixXd::Zero( 4, 3 ), sine2 = Eigen::MatrixXd::Zero( 4, 3 );
+    auto fillCoefficients = []( Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients, const double scale ) {
+        cosineCoefficients( 0, 0 ) = 1.0;
+        for( int degree = 1; degree < cosineCoefficients.rows( ); degree++ )
+        {
+            for( int order = 0; order <= std::min( degree, static_cast< int >( cosineCoefficients.cols( ) ) - 1 ); order++ )
+            {
+                cosineCoefficients( degree, order ) = scale * ( 0.3 + 0.7 * degree - 0.2 * order );
+                if( order > 0 )
+                {
+                    sineCoefficients( degree, order ) = scale * ( -0.4 * degree + 0.6 * order );
+                }
+            }
+        }
+    };
+    fillCoefficients( cosine1, sine1, 2.0E-2 );
+    fillCoefficients( cosine2, sine2, -1.5E-2 );
+
+    const Eigen::Quaterniond rotationToBody1( Eigen::AngleAxisd( 0.4, Eigen::Vector3d::UnitZ( ) ) *
+                                              Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) );
+    const Eigen::Quaterniond rotationToBody2( Eigen::AngleAxisd( -0.3, Eigen::Vector3d::UnitY( ) ) *
+                                              Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitZ( ) ) );
+    auto model = createMutualExtendedBodyAccelerationModel( coefficientCombinations,
+                                                            nominalPosition,
+                                                            Eigen::Vector3d::Zero( ),
+                                                            gravitationalParameter,
+                                                            radius1,
+                                                            radius2,
+                                                            cosine1,
+                                                            sine1,
+                                                            cosine2,
+                                                            sine2,
+                                                            rotationToBody1,
+                                                            rotationToBody2 );
+    model->updateMembers( currentTime );
+    const Eigen::Vector3d bodyFixedPosition = model->getCurrentBodyFixedRelativePosition( );
+    auto getPotential = [ & ]( const Eigen::Vector3d& position ) {
+        return model->getEffectiveMutualPotentialField( )->getGravitationalPotential( position, model->getSphericalHarmonicsCache( ) );
+    };
+    const double perturbation = 1.0E-1;
+    Eigen::Vector3d finiteDifferenceGradientInBody1Frame;
+    for( int i = 0; i < 3; i++ )
+    {
+        finiteDifferenceGradientInBody1Frame( i ) = ( getPotential( bodyFixedPosition + perturbation * Eigen::Vector3d::Unit( i ) ) -
+                                                      getPotential( bodyFixedPosition - perturbation * Eigen::Vector3d::Unit( i ) ) ) /
+                ( 2.0 * perturbation );
+    }
+    const Eigen::Vector3d finiteDifferenceGradient =
+            model->getCurrentRotationFromInertialToBody1( ).inverse( ) * finiteDifferenceGradientInBody1Frame;
+    BOOST_CHECK_SMALL( ( model->getAcceleration( ) - finiteDifferenceGradient ).norm( ) / model->getAcceleration( ).norm( ), 1.0E-8 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

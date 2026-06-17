@@ -128,13 +128,7 @@ TUDAT_ADD_TEST_CASE(IntegratorSteps PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES}
 
 TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-
-TUDAT_ADD_TEST_CASE(RelativisticTimePropagation
-        PRIVATE_LINKS
-        -Wl,--start-group
-        ${Tudat_PROPAGATION_LIBRARIES}
-        tudat_environment_setup
-        -Wl,--end-group)
+TUDAT_ADD_TEST_CASE(RelativisticTimePropagation PRIVATE_LINKS  ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_basic_mathematics tudat_statistics tudat_input_output)
 

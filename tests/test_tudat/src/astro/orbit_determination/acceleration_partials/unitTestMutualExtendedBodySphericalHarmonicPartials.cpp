@@ -775,7 +775,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     bodies.addBody( centralBody, "CentralBody" );
 
     std::shared_ptr< AccelerationSettings > mutualExtendedSettings =
-            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) );
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 2, 2, 2, 2, 2, 2 );
     std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
             std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel( body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );

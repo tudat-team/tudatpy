@@ -46,8 +46,7 @@ void WignerDMatricesCache::updateMatrices( const std::complex< double > cayleyKl
         wignerDMatrices_[ 1 ]( 2, 1 ) = -std::sqrt( 2.0 ) * currentCayleyKleinA_ * currentCayleyKleinBConjugate_;
         wignerDMatrices_[ 1 ]( 2, 0 ) = currentCayleyKleinBConjugate_ * currentCayleyKleinBConjugate_;
         wignerDMatrices_[ 1 ]( 1, 2 ) = std::sqrt( 2.0 ) * currentCayleyKleinA_ * currentCayleyKleinB_;
-        wignerDMatrices_[ 1 ]( 1, 1 ) = std::norm( currentCayleyKleinA_ ) * std::norm( currentCayleyKleinA_ ) -
-                std::norm( currentCayleyKleinB_ ) * std::norm( currentCayleyKleinB_ );
+        wignerDMatrices_[ 1 ]( 1, 1 ) = std::norm( currentCayleyKleinA_ ) - std::norm( currentCayleyKleinB_ );
         wignerDMatrices_[ 1 ]( 1, 0 ) = -std::sqrt( 2.0 ) * currentCayleyKleinAConjugate_ * currentCayleyKleinBConjugate_;
         wignerDMatrices_[ 1 ]( 0, 2 ) = currentCayleyKleinB_ * currentCayleyKleinB_;
         wignerDMatrices_[ 1 ]( 0, 1 ) = std::sqrt( 2.0 ) * currentCayleyKleinAConjugate_ * currentCayleyKleinB_;
@@ -175,12 +174,13 @@ void WignerDMatricesCache::computeCoefficients( )
             for( int j = 0; j <= 2 * l; j++ )
             {
                 k = j - l;
-                coefficientsIndexMinusOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l + k ) * ( l + k - 1 ) ) /
-                                                                     static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
-                coefficientsIndexZero_[ l ]( i, j ) = std::sqrt( static_cast< double >( 2 * ( l + k ) * ( l - k ) ) /
-                                                                 static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
-                coefficientsIndexOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l - k ) * ( l - k - 1 ) ) /
-                                                                static_cast< double >( ( l + m ) * ( l + m - 1 ) ) );
+                if( ( l + m ) >= 2 )
+                {
+                    const double denominator = static_cast< double >( ( l + m ) * ( l + m - 1 ) );
+                    coefficientsIndexMinusOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l + k ) * ( l + k - 1 ) ) / denominator );
+                    coefficientsIndexZero_[ l ]( i, j ) = std::sqrt( static_cast< double >( 2 * ( l + k ) * ( l - k ) ) / denominator );
+                    coefficientsIndexOne_[ l ]( i, j ) = std::sqrt( static_cast< double >( ( l - k ) * ( l - k - 1 ) ) / denominator );
+                }
             }
         }
     }

@@ -99,7 +99,7 @@ double computeSingleMutualForcePotentialTerm( const double effectiveCosineCoeffi
                                               const int degreeOfBody2,
                                               const int orderOfBody2 )
 {
-    return ( effectiveCosineCoefficient * sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) -
+    return ( effectiveCosineCoefficient * sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) +
              effectiveSineCoefficient * sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) ) *
             sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( degreeOfBody1 + degreeOfBody2,
                                                                                 std::abs( orderOfBody1 + orderOfBody2 ) );
@@ -155,38 +155,22 @@ double computeMutualForcePotential(
         orderOfBody2 = std::get< 3 >( coefficientCombinationsToUse.at( i ) );
 
         currentTerm = 0;
-        currentTerm += computeSingleMutualForcePotentialTerm(
-                effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                sphericalHarmonicsCache,
-                degreeOfBody1,
-                orderOfBody1,
-                degreeOfBody2,
-                orderOfBody2 );
-        currentTerm += computeSingleMutualForcePotentialTerm(
-                effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                sphericalHarmonicsCache,
-                degreeOfBody1,
-                -orderOfBody1,
-                degreeOfBody2,
-                orderOfBody2 );
-        currentTerm += computeSingleMutualForcePotentialTerm(
-                effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                sphericalHarmonicsCache,
-                degreeOfBody1,
-                orderOfBody1,
-                degreeOfBody2,
-                -orderOfBody2 );
-        currentTerm += computeSingleMutualForcePotentialTerm(
-                effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                sphericalHarmonicsCache,
-                degreeOfBody1,
-                -orderOfBody1,
-                degreeOfBody2,
-                -orderOfBody2 );
+        for( int j = 0; j < 4; j++ )
+        {
+            int signedOrderOfBody1 = 0;
+            int signedOrderOfBody2 = 0;
+            if( getSignedOrdersForCombinationCase( j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+            {
+                currentTerm += computeSingleMutualForcePotentialTerm(
+                        effectiveCosineCoefficientFunction( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
+                        effectiveSineCoefficientFunction( degreeOfBody1, signedOrderOfBody1, degreeOfBody2, signedOrderOfBody2 ),
+                        sphericalHarmonicsCache,
+                        degreeOfBody1,
+                        signedOrderOfBody1,
+                        degreeOfBody2,
+                        signedOrderOfBody2 );
+            }
+        }
         currentTerm *= radiusRatioOfBody1List.at( degreeOfBody1 );
         currentTerm *= radiusRatioOfBody2List.at( degreeOfBody2 );
         potential += currentTerm;
@@ -214,8 +198,8 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const int maximumDegree1,
         const int maximumDegree2,
         const int maximumEvaluationDegree,
-        const std::vector< double > radius1Powers,
-        const std::vector< double > radius2Powers,
+        const std::vector< double >& radius1Powers,
+        const std::vector< double >& radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
@@ -464,8 +448,8 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const double distance,
-        const std::vector< double > radius1Powers,
-        const std::vector< double > radius2Powers,
+        const std::vector< double >& radius1Powers,
+        const std::vector< double >& radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const std::function< int( const int, const int, const int, const int ) > effectiveIndexFunction )
 {

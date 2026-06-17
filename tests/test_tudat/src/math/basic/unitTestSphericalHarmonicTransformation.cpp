@@ -16,6 +16,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -333,6 +334,71 @@ BOOST_AUTO_TEST_CASE( testAnalyticalTransformations )
                     BOOST_CHECK_SMALL( std::fabs( transformedRenormalizedSineCoefficients( i, j ) ),
                                        std::numeric_limits< double >::epsilon( ) );
                 }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testNonSquareCoefficientBlockTransformation )
+{
+    const int maximumDegree = 4;
+    const int compactMaximumOrder = 2;
+    const double tolerance = 5.0E-15;
+
+    Eigen::MatrixXd compactCosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, compactMaximumOrder + 1 );
+    Eigen::MatrixXd compactSineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, compactMaximumOrder + 1 );
+
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int order = 0; order <= std::min( degree, compactMaximumOrder ); order++ )
+        {
+            compactCosineCoefficients( degree, order ) = 0.01 * static_cast< double >( 3 * degree + order + 1 );
+            if( order > 0 )
+            {
+                compactSineCoefficients( degree, order ) = -0.02 * static_cast< double >( degree + 2 * order + 1 );
+            }
+        }
+    }
+    compactCosineCoefficients( 0, 0 ) = 1.0;
+
+    Eigen::MatrixXd paddedCosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1 );
+    Eigen::MatrixXd paddedSineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1 );
+    paddedCosineCoefficients.block( 0, 0, maximumDegree + 1, compactMaximumOrder + 1 ) = compactCosineCoefficients;
+    paddedSineCoefficients.block( 0, 0, maximumDegree + 1, compactMaximumOrder + 1 ) = compactSineCoefficients;
+
+    SphericalHarmonicTransformationCache sphericalHarmonicTransformationCache( maximumDegree, maximumDegree );
+    sphericalHarmonicTransformationCache.updateFromQuaternion( Eigen::Quaterniond( Eigen::AngleAxisd( 0.31, Eigen::Vector3d::UnitZ( ) ) *
+                                                                                   Eigen::AngleAxisd( -0.42, Eigen::Vector3d::UnitX( ) ) *
+                                                                                   Eigen::AngleAxisd( 0.17, Eigen::Vector3d::UnitY( ) ) ) );
+
+    for( const bool areCoefficientsNormalized : { false, true } )
+    {
+        Eigen::MatrixXd transformedCompactCosineCoefficients;
+        Eigen::MatrixXd transformedCompactSineCoefficients;
+        Eigen::MatrixXd transformedPaddedCosineCoefficients;
+        Eigen::MatrixXd transformedPaddedSineCoefficients;
+
+        sphericalHarmonicTransformationCache.transformCoefficientsAtDegree( compactCosineCoefficients,
+                                                                            compactSineCoefficients,
+                                                                            transformedCompactCosineCoefficients,
+                                                                            transformedCompactSineCoefficients,
+                                                                            areCoefficientsNormalized );
+        sphericalHarmonicTransformationCache.transformCoefficientsAtDegree( paddedCosineCoefficients,
+                                                                            paddedSineCoefficients,
+                                                                            transformedPaddedCosineCoefficients,
+                                                                            transformedPaddedSineCoefficients,
+                                                                            areCoefficientsNormalized );
+
+        for( int degree = 0; degree <= maximumDegree; degree++ )
+        {
+            for( int order = 0; order <= std::min( degree, compactMaximumOrder ); order++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( transformedCompactCosineCoefficients( degree, order ) -
+                                              transformedPaddedCosineCoefficients( degree, order ) ),
+                                   tolerance );
+                BOOST_CHECK_SMALL( std::fabs( transformedCompactSineCoefficients( degree, order ) -
+                                              transformedPaddedSineCoefficients( degree, order ) ),
+                                   tolerance );
             }
         }
     }

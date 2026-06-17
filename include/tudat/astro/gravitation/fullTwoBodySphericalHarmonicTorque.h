@@ -69,7 +69,122 @@ public:
     }
 
     //! Update torque to current epoch.
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( currentTime_ == currentTime ) )
+        {
+            accelerationBetweenBodies_->updateMembers( currentTime );
+
+            const std::shared_ptr< EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField =
+                    accelerationBetweenBodies_->getEffectiveMutualPotentialField( );
+            const std::shared_ptr< basic_mathematics::WignerDMatricesCache > wignerCache =
+                    effectiveMutualPotentialField->getTransformationCache( )->getWignerDMatricesCache( );
+
+            const Eigen::MatrixXd& cosineCoefficientsOfBody1 = effectiveMutualPotentialField->getCosineCoefficientsOfBody1( );
+            const Eigen::MatrixXd& sineCoefficientsOfBody1 = effectiveMutualPotentialField->getSineCoefficientsOfBody1( );
+            const Eigen::MatrixXd& cosineCoefficientsOfBody2 = effectiveMutualPotentialField->getCosineCoefficientsOfBody2( );
+            const Eigen::MatrixXd& sineCoefficientsOfBody2 = effectiveMutualPotentialField->getSineCoefficientsOfBody2( );
+            computeTransformedAngularMomentumCoefficients( cosineCoefficientsOfBody2,
+                                                           sineCoefficientsOfBody2,
+                                                           wignerCache,
+                                                           accelerationBetweenBodies_->getAreCoefficientsNormalized( ),
+                                                           transformedCosineCoefficientsBody2AngularMomentum_,
+                                                           transformedSineCoefficientsBody2AngularMomentum_ );
+
+            const Eigen::Vector3d bodyFixedRelativePosition = accelerationBetweenBodies_->getCurrentBodyFixedRelativePosition( );
+            const double currentDistance = bodyFixedRelativePosition.norm( );
+            const double preMultiplier = accelerationBetweenBodies_->getCurrentGravitationalParameter( ) / currentDistance;
+
+            const std::vector< double >& radius1Powers = accelerationBetweenBodies_->getRadius1Powers( );
+            const std::vector< double >& radius2Powers = accelerationBetweenBodies_->getRadius2Powers( );
+            const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+                    accelerationBetweenBodies_->getSphericalHarmonicsCache( );
+
+            Eigen::Vector3d body2TorqueInBodyFixedFrameOfBody1 = Eigen::Vector3d::Zero( );
+            for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
+            {
+                const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int orderOfBody1 = std::get< 1 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int degreeOfBody2 = std::get< 2 >( body2TorqueCombinationsToUse_.at( i ) );
+                const int orderOfBody2 = std::get< 3 >( body2TorqueCombinationsToUse_.at( i ) );
+
+                const double equatorialRadiusRatioPower = radius1Powers.at( degreeOfBody1 ) * radius2Powers.at( degreeOfBody2 );
+                const int totalDegree = degreeOfBody1 + degreeOfBody2;
+
+                for( int j = 0; j < 4; j++ )
+                {
+                    int signedOrderOfBody1 = 0;
+                    int signedOrderOfBody2 = 0;
+                    if( !getSignedOrdersForCombinationCase( j, orderOfBody1, orderOfBody2, signedOrderOfBody1, signedOrderOfBody2 ) )
+                    {
+                        continue;
+                    }
+
+                    const int totalOrder = std::abs( signedOrderOfBody1 + signedOrderOfBody2 );
+                    const double legendrePolynomial =
+                            sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, totalOrder );
+                    const double cosineOfMultipleLongitude = sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder );
+                    const double sineOfMultipleLongitude = sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder );
+
+                    const double signOrderBody1 = ( signedOrderOfBody1 < 0 ) ? -1.0 : 1.0;
+                    const double signOrderBody2 = ( signedOrderOfBody2 < 0 ) ? -1.0 : 1.0;
+                    const double signTotalOrder = ( ( signedOrderOfBody1 + signedOrderOfBody2 ) < 0 ) ? -1.0 : 1.0;
+
+                    const double body1CosineCoefficient = cosineCoefficientsOfBody1( degreeOfBody1, std::abs( signedOrderOfBody1 ) );
+                    const double body1SineCoefficient = sineCoefficientsOfBody1( degreeOfBody1, std::abs( signedOrderOfBody1 ) );
+                    const double multiplier =
+                            getMutualPotentialEffectiveCoefficientMultiplier( degreeOfBody1,
+                                                                              signedOrderOfBody1,
+                                                                              degreeOfBody2,
+                                                                              signedOrderOfBody2,
+                                                                              accelerationBetweenBodies_->getAreCoefficientsNormalized( ) );
+
+                    Eigen::Vector3d angularMomentumTransformedCosineCoefficientsBody2;
+                    Eigen::Vector3d angularMomentumTransformedSineCoefficientsBody2;
+                    for( int k = 0; k < 3; k++ )
+                    {
+                        angularMomentumTransformedCosineCoefficientsBody2( k ) =
+                                transformedCosineCoefficientsBody2AngularMomentum_.at( k )( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                        angularMomentumTransformedSineCoefficientsBody2( k ) =
+                                transformedSineCoefficientsBody2AngularMomentum_.at( k )( degreeOfBody2, std::abs( signedOrderOfBody2 ) );
+                    }
+
+                    const Eigen::Vector3d effectiveAngularMomentumCosineCoefficients =
+                            ( body1CosineCoefficient * angularMomentumTransformedCosineCoefficientsBody2 -
+                              signOrderBody1 * signOrderBody2 * body1SineCoefficient * angularMomentumTransformedSineCoefficientsBody2 ) *
+                            multiplier;
+                    const Eigen::Vector3d effectiveAngularMomentumSineCoefficients =
+                            ( signOrderBody2 * body1CosineCoefficient * angularMomentumTransformedSineCoefficientsBody2 +
+                              signOrderBody1 * body1SineCoefficient * angularMomentumTransformedCosineCoefficientsBody2 ) *
+                            signTotalOrder * multiplier;
+
+                    const Eigen::Vector3d currentContribution = equatorialRadiusRatioPower * legendrePolynomial *
+                            ( effectiveAngularMomentumCosineCoefficients * cosineOfMultipleLongitude +
+                              effectiveAngularMomentumSineCoefficients * sineOfMultipleLongitude );
+                    body2TorqueInBodyFixedFrameOfBody1 += currentContribution;
+                }
+            }
+            body2TorqueInBodyFixedFrameOfBody1 *= -preMultiplier;
+
+            const Eigen::Vector3d totalTorqueInBodyFixedFrameOfBody1 =
+                    bodyFixedRelativePosition.cross( accelerationBetweenBodies_->getMutualPotentialGradient( ) );
+            const Eigen::Vector3d body1TorqueInBodyFixedFrameOfBody1 =
+                    totalTorqueInBodyFixedFrameOfBody1 - body2TorqueInBodyFixedFrameOfBody1;
+
+            if( acceleratedBodyIsBody1_ )
+            {
+                currentTorque_ = -body1TorqueInBodyFixedFrameOfBody1;
+            }
+            else
+            {
+                currentTorque_ = -( accelerationBetweenBodies_->getCurrentRotationFromBody2ToBody1( ).inverse( ) *
+                                    body2TorqueInBodyFixedFrameOfBody1 );
+            }
+            currentTorque_ *= bodyUndergoingTorqueMassFunction_( );
+
+            currentTime_ = currentTime;
+        }
+    }
 
     //! Return the current torque (body-fixed frame of body undergoing torque).
     Eigen::Vector3d getTorque( )

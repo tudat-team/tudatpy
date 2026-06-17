@@ -14,6 +14,7 @@
 
 #include "tudat/astro/gravitation/mutualForcePotential.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+#include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
 
 namespace tudat
@@ -48,8 +49,69 @@ public:
             const bool isMutualAttractionUsed,
             const bool areCoefficientsNormalized = 1 );
 
+    ~FullTwoBodySphericalHarmonicAcceleration( ) {}
+
     //! Update current acceleration and intermediate states for the provided epoch.
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( currentTime == currentTime_ ) )
+        {
+            currentRotationFromInertialToBody1_ = toLocalFrameOfBody1Transformation_( );
+            currentRotationFromBody2ToBody1_ = currentRotationFromInertialToBody1_ * toLocalFrameOfBody2Transformation_( ).inverse( );
+
+            const Eigen::Vector3d positionBody1 = positionOfBody1Function_( );
+            const Eigen::Vector3d positionBody2 = positionOfBody2Function_( );
+            currentRelativePosition_ = positionBody1 - positionBody2;
+            currentBodyFixedRelativePosition_ = currentRotationFromInertialToBody1_ * currentRelativePosition_;
+            const double currentGravitationalParameter = gravitationalParameterFunction_( );
+
+            effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
+
+            const double currentDistance = currentRelativePosition_.norm( );
+            for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
+            {
+                radius1Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1_ / currentDistance, i );
+            }
+
+            for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree2( ); i++ )
+            {
+                radius2Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
+            }
+
+            if( areCoefficientsNormalized_ )
+            {
+                mutualPotentialGradient_ =
+                        computeGeodesyNormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
+                                                                                    currentGravitationalParameter,
+                                                                                    equatorialRadiusOfBody1_,
+                                                                                    equatorialRadiusOfBody2_,
+                                                                                    effectiveCosineCoefficientFunction_,
+                                                                                    effectiveSineCoefficientFunction_,
+                                                                                    coefficientCombinationsToUse_,
+                                                                                    effectiveMutualPotentialField_->getMaximumDegree1( ),
+                                                                                    effectiveMutualPotentialField_->getMaximumDegree2( ),
+                                                                                    maximumDegree_,
+                                                                                    radius1Powers_,
+                                                                                    radius2Powers_,
+                                                                                    sphericalHarmonicsCache_ );
+            }
+            else
+            {
+                mutualPotentialGradient_ = computeUnnormalizedMutualGravitationalAccelerationSum( currentBodyFixedRelativePosition_,
+                                                                                                  currentGravitationalParameter,
+                                                                                                  equatorialRadiusOfBody1_,
+                                                                                                  equatorialRadiusOfBody2_,
+                                                                                                  effectiveCosineCoefficientFunction_,
+                                                                                                  effectiveSineCoefficientFunction_,
+                                                                                                  coefficientCombinationsToUse_,
+                                                                                                  sphericalHarmonicsCache_ );
+            }
+
+            currentAcceleration_ = currentRotationFromInertialToBody1_.inverse( ) * mutualPotentialGradient_;
+            basic_astrodynamics::AccelerationModel3d::currentAcceleration_ = currentAcceleration_;
+            currentTime_ = currentTime;
+        }
+    }
 
     //! Return the most recently computed acceleration.
     Eigen::Vector3d getAcceleration( )

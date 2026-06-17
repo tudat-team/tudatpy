@@ -121,8 +121,8 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const int maximumDegree1,
         const int maximumDegree2,
         const int maximumEvaluationDegree,
-        const std::vector< double > radius1Powers,
-        const std::vector< double > radius2Powers,
+        const std::vector< double >& radius1Powers,
+        const std::vector< double >& radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute full two-body mutual acceleration for unnormalized coefficients.
@@ -143,8 +143,8 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const double distance,
-        const std::vector< double > radius1Powers,
-        const std::vector< double > radius2Powers,
+        const std::vector< double >& radius1Powers,
+        const std::vector< double >& radius2Powers,
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const std::function< int( const int, const int, const int, const int ) > effectiveIndexFunction );
 

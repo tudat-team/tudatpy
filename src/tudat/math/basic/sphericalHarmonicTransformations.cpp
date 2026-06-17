@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <boost/math/special_functions/binomial.hpp>
 #include <iostream>
+#include <stdexcept>
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
@@ -36,6 +38,18 @@ void transformSphericalHarmonicCoefficientsWithWignerD( const Eigen::MatrixXd& o
                                                         Eigen::MatrixXd& transformedSineCoefficients,
                                                         const bool areCoefficientsNormalized )
 {
+    if( originalCosineCoefficients.rows( ) != originalSineCoefficients.rows( ) ||
+        originalCosineCoefficients.cols( ) != originalSineCoefficients.cols( ) )
+    {
+        throw std::runtime_error(
+                "Error when transforming spherical harmonic coefficients: cosine and sine coefficient matrices have inconsistent sizes." );
+    }
+    if( static_cast< int >( wignerMatrices.size( ) ) < originalCosineCoefficients.rows( ) )
+    {
+        throw std::runtime_error(
+                "Error when transforming spherical harmonic coefficients: Wigner-D matrices do not cover the requested maximum degree." );
+    }
+
     transformedCosineCoefficients.setZero( originalCosineCoefficients.rows( ), originalCosineCoefficients.cols( ) );
     transformedSineCoefficients.setZero( originalSineCoefficients.rows( ), originalSineCoefficients.cols( ) );
 
@@ -57,7 +71,9 @@ void transformSphericalHarmonicCoefficientsWithWignerD( const Eigen::MatrixXd& o
             transformedCosineCoefficients( l, m ) += orderMMultiplier * orderZeroDFunction.real( ) * originalCosineCoefficients( l, 0 );
             transformedSineCoefficients( l, m ) += orderMMultiplier * orderZeroDFunction.imag( ) * originalCosineCoefficients( l, 0 );
 
-            for( int k = 1; k <= static_cast< int >( l ); k++ )
+            const int maximumSourceOrderAtDegree =
+                    std::min( static_cast< int >( l ), static_cast< int >( originalCosineCoefficients.cols( ) ) - 1 );
+            for( int k = 1; k <= maximumSourceOrderAtDegree; k++ )
             {
                 double currentMultiplier;
                 if( !areCoefficientsNormalized )

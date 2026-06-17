@@ -161,36 +161,6 @@ FourthDegreeFullTwoBodyGravitationalTorqueModel::FourthDegreeFullTwoBodyGravitat
     rotationToBodyFixedFrameOfBodyExertingTorqueFunction_( rotationToBodyFixedFrameOfBodyExertingTorqueFunction )
 {}
 
-void FourthDegreeFullTwoBodyGravitationalTorqueModel::updateMembers( const double currentTime )
-{
-    if( !( currentTime_ == currentTime ) )
-    {
-        currentRotationToBodyFixedFrameOfBodyUndergoingTorque_ = rotationToBodyFixedFrameOfBodyUndergoingTorqueFunction_( );
-        currentRotationToBodyFixedFrameOfBodyExertingTorque_ = rotationToBodyFixedFrameOfBodyExertingTorqueFunction_( );
-        currentRelativePositionInInertialFrame_ = positionOfBodyExertingTorqueFunction_( ) - positionOfBodyUndergoingTorqueFunction_( );
-        currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ =
-                currentRotationToBodyFixedFrameOfBodyUndergoingTorque_ * currentRelativePositionInInertialFrame_;
-
-        currentMassOfBodyExertingTorque_ = massOfBodyExertingTorqueFunction_( );
-        currentInertiaTensorOfBodyUndergoingTorque_ = inertiaTensorOfBodyUndergoingTorqueFunction_( );
-        currentInertiaTensorOfBodyExertingTorque_ = inertiaTensorOfBodyExertingTorqueFunction_( );
-
-        const Eigen::Matrix3d rotationFromBody2ToBody1 = currentRotationToBodyFixedFrameOfBodyUndergoingTorque_.toRotationMatrix( ) *
-                currentRotationToBodyFixedFrameOfBodyExertingTorque_.toRotationMatrix( ).transpose( );
-        currentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ =
-                rotationFromBody2ToBody1 * currentInertiaTensorOfBodyExertingTorque_ * rotationFromBody2ToBody1.transpose( );
-
-        // Eq. (11): evaluate torque from relative position and inertia tensors in body-1-fixed coordinates.
-        currentTorque_ = calculateFourthDegreeFullTwoBodyGravitationalTorque(
-                currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_,
-                currentMassOfBodyExertingTorque_,
-                currentInertiaTensorOfBodyUndergoingTorque_,
-                currentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ );
-
-        currentTime_ = currentTime;
-    }
-}
-
 }  // namespace gravitation
 
 }  // namespace tudat
