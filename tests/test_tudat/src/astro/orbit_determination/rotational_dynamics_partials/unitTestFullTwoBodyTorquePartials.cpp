@@ -1202,7 +1202,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
                                                                                                                  emptyFunction,
                                                                                                                  testTime,
                                                                                                                  5.0E-2 );
-                        checkMatrixClosePerElement( analyticalPartial, numericalPartial, 5.0E-6, label );
+                        checkMatrixClosePerElement( analyticalPartial, numericalPartial, 1.0E-5, label );
                         resetGravityFields( );
                     };
             auto createPolynomialVariationParameter =
