@@ -237,7 +237,7 @@ public:
     /*!
      * Constructor.
      */
-    TabulatedMediaReferenceCorrectionManager( ): isLookupSchemeUpdated_( false ) {}
+    TabulatedMediaReferenceCorrectionManager( ) {}
 
     /*!
      * Constructor.
@@ -245,7 +245,7 @@ public:
      * @param correctionVector Vector of objects computing media corrections.
      */
     TabulatedMediaReferenceCorrectionManager( std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector ):
-        correctionVector_( correctionVector ), isLookupSchemeUpdated_( false )
+        correctionVector_( correctionVector )
     {
         for( unsigned int i = 0; i < correctionVector_.size( ); ++i )
         {
@@ -261,26 +261,28 @@ public:
      */
     void pushReferenceCorrectionCalculator( std::shared_ptr< TabulatedMediaReferenceCorrection > correctionCalculator )
     {
-        if( correctionVector_.empty( ) ||
-            ( !correctionVector_.empty( ) && correctionCalculator->getStartTime( ) > startTimes_.back( ) &&
-              correctionCalculator->getEndTime( ) > endTimes_.back( ) ) )
-        {
-            startTimes_.push_back( correctionCalculator->getStartTime( ) );
-            endTimes_.push_back( correctionCalculator->getEndTime( ) );
-            correctionVector_.push_back( correctionCalculator );
-        }
-        else
-        {
-            throw std::runtime_error( "Inconsistency in times when pushing tabulated media reference correction calculator. " );
-        }
+        startTimes_.push_back( correctionCalculator->getStartTime( ) );
+        endTimes_.push_back( correctionCalculator->getEndTime( ) );
+        correctionVector_.push_back( correctionCalculator );
+    }
 
-        isLookupSchemeUpdated_ = false;
+    /*!
+     * Adds the correction calculation objects from another manager to this manager.
+     *
+     * @param other Manager from which to add the correction calculation objects.
+     */
+    void addOther( const TabulatedMediaReferenceCorrectionManager& other )
+    {
+        for( auto const& correctionCalculator : other.correctionVector_ )
+        {
+            pushReferenceCorrectionCalculator( correctionCalculator );
+        }
     }
 
     /*!
      * Function to compute the atmospheric correction as a function of time.
-     * For the specified time, the function selects the appropriate correction calculation object and the uses it
-     * to compute the time.
+     * For the specified time, the function finds the appropriate correction calculation objects and
+     * sums their contributions.
      *
      * @param time Time at which to compute the correction.
      * @return Atmospheric correction value.
@@ -296,13 +298,6 @@ private:
 
     // Vector containing the objects that compute the media corrections
     std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector_;
-
-    // Boolean indicating whether the lookup scheme is updated (it gets out of date in case the start times vector
-    // is modified)
-    bool isLookupSchemeUpdated_;
-
-    //! Lookup scheme to find the nearest correction object start time for a given time
-    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 };
 
 // Enum listing the available tropospheric mapping models.
