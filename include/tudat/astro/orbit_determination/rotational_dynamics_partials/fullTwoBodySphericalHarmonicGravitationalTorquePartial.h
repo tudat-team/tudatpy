@@ -24,8 +24,9 @@ namespace acceleration_partials
 //! Class to calculate analytical partials of full two-body spherical-harmonic torque.
 /*!
  * Provides derivatives of the full two-body torque model based on Dirkx et al. (2019):
- * body-2 spin torque from Eq. (60) with coefficient summation Eq. (67), and total/body torque relation
- * from Eqs. (68)-(69), using effective coefficients from Eqs. (47)-(49).
+ * body-2 spin torque from Dirkx et al. (2019), Eq. (60), with coefficient summation from Dirkx et al. (2019), Eq. (67),
+ * and total/body torque relation from Dirkx et al. (2019), Eqs. (68)-(69), using effective coefficients from
+ * Dirkx et al. (2019), Eqs. (47)-(49).
  */
 class FullTwoBodySphericalHarmonicGravitationalTorquePartial : public TorquePartial
 {

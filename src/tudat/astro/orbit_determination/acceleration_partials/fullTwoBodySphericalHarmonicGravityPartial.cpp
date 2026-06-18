@@ -105,8 +105,8 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     coefficientCombinationsToUse_( effectiveMutualPotentialField_->getCoefficientCombinationsToUse( ) ),
     rotationMatrixPartialsOfBody1_( rotationMatrixPartialsOfBody1 ), rotationMatrixPartialsOfBody2_( rotationMatrixPartialsOfBody2 )
 {
-    // Cache setup supports derivatives of the Eq. (49) expansion used in translational Eq. (55),
-    // with effective coefficients defined through Eqs. (47)-(48).
+    // Cache setup supports derivatives of the Dirkx et al. (2019), Eq. (49), expansion used in
+    // Dirkx et al. (2019), Eq. (55), with effective coefficients defined through Eqs. (47)-(48).
     sphericalHarmonicsCache_->getLegendreCache( ).setComputeSecondDerivatives( 1 );
 
     const int numberOfEffectiveCoefficients = effectiveMutualPotentialField_->getTotalVectorSize( );
@@ -135,7 +135,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTi
         // Step 1: synchronize underlying acceleration model state (effective coefficients and geometry).
         accelerationModel_->updateMembers( currentTime );
 
-        // Step 2: cache current rotations/positions and scalar factors used in Eq. (55) derivatives.
+        // Step 2: cache current rotations/positions and scalar factors used in Dirkx et al. (2019), Eq. (55), derivatives.
         currentRotationToBodyFixedFrame_ = accelerationModel_->getCurrentRotationFromInertialToBody1( ).toRotationMatrix( );
         currentRotationToInertialFrame_ = currentRotationToBodyFixedFrame_.transpose( );
         currentBodyFixedRelativePosition_ = accelerationModel_->getCurrentBodyFixedRelativePosition( );
@@ -156,7 +156,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTi
         updateCurrentPositionPartial( );
         updateCurrentPartialsWrtEffectiveCoefficients( );
 
-        // Step 4: update Jacobian of effective coefficients (Eqs. (47)-(48)) w.r.t transformed body-2 coefficients.
+        // Step 4: update Jacobian of effective coefficients (Dirkx et al. (2019), Eqs. (47)-(48)) w.r.t transformed body-2 coefficients.
         effectiveMutualPotentialField_->computePartialsOfFullCoefficientsWrtTransformedCoefficients(
                 currentEffectiveCoefficientsWrtTransformedBody2Coefficients_ );
         updateCurrentOrientationPartials( );
@@ -168,8 +168,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTi
 
 //! Update \partial a / \partial r in body-fixed and inertial frames.
 /*!
- * Computes the Hessian of the effective potential summation (Eq. (49)) and maps it to Cartesian coordinates,
- * yielding the Jacobian entering derivatives of Eq. (55).
+ * Computes the Hessian of the effective potential summation (Dirkx et al. (2019), Eq. (49)) and maps it to Cartesian
+ * coordinates, yielding the Jacobian entering derivatives of Dirkx et al. (2019), Eq. (55).
  */
 void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( )
 {
@@ -181,7 +181,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
     Eigen::Matrix3d sphericalHessian = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d currentSphericalHessianContribution = Eigen::Matrix3d::Zero( );
 
-    // Accumulate spherical Hessian contribution for each selected (l1,m1,l2,m2) term from Eq. (49).
+    // Accumulate spherical Hessian contribution for each selected (l1,m1,l2,m2) term from Dirkx et al. (2019), Eq. (49).
     for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
     {
         const int degreeOfBody1 = std::get< 0 >( coefficientCombinationsToUse_.at( i ) );
@@ -192,7 +192,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
         const int totalDegree = degreeOfBody1 + degreeOfBody2;
         const double equatorialRadiusRatioPower = currentRadius1Powers_.at( degreeOfBody1 ) * currentRadius2Powers_.at( degreeOfBody2 );
 
-        // Expand to signed-order variants consistent with real effective coefficients (Eqs. (47)-(49)).
+        // Expand to signed-order variants consistent with real effective coefficients (Dirkx et al. (2019), Eqs. (47)-(49)).
         for( int j = 0; j < 4; j++ )
         {
             int signedOrderOfBody1 = 0;
@@ -223,7 +223,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
                         sphericalHarmonicsCache_->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder ),
                         sphericalHarmonicsCache_->getLegendreCache( ).getLegendrePolynomialSecondDerivative( totalDegree, totalOrder ),
                         currentSphericalHessianContribution );
-                // Eq. (49): per-term contribution to the spherical Hessian of the mutual potential.
+                // Dirkx et al. (2019), Eq. (49): per-term contribution to the spherical Hessian of the mutual potential.
                 sphericalHessian += currentSphericalHessianContribution;
             }
         }
@@ -235,13 +235,13 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPositionPartial( 
             sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.transpose( );
     currentBodyFixedPartialWrtPosition_ += coordinate_conversions::getDerivativeOfSphericalToCartesianGradient(
             currentBodyFixedSphericalGradient_, currentBodyFixedRelativePosition_ );
-    // Eq. (55): Cartesian Jacobian of acceleration from the gradient/Hessian of the mutual potential.
+    // Dirkx et al. (2019), Eq. (55): Cartesian Jacobian of acceleration from the gradient/Hessian of the mutual potential.
     currentPartialWrtPosition_ = currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
 }
 
 //! Update \partial a / \partial C_eff and \partial a / \partial S_eff for all effective indices.
 /*!
- * Evaluates basis-function gradients of Eq. (49) to obtain coefficient derivatives used in
+ * Evaluates basis-function gradients of Dirkx et al. (2019), Eq. (49), to obtain coefficient derivatives used in
  * chain-rule mappings to body-1/body-2 coefficient blocks.
  */
 void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffectiveCoefficients( )
@@ -283,7 +283,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentPartialsWrtEffect
                 const double legendrePolynomialDerivative =
                         sphericalHarmonicsCache_->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder );
 
-                // Eq. (49): basis-gradient contribution for one signed (l,m) term.
+                // Dirkx et al. (2019), Eq. (49): basis-gradient contribution for one signed (l,m) term.
                 currentPartialsWrtEffectiveCoefficients_.at( effectiveIndex ).block( 0, 0, 3, 1 ) +=
                         basic_mathematics::computePotentialGradient( currentDistance_,
                                                                      equatorialRadiusRatioPower,
@@ -469,7 +469,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartia
 //! Compute derivatives of transformed body-2 coefficients w.r.t. one original body-2 coefficient.
 /*!
  * Uses the same spherical-harmonic rotation machinery as the model to obtain linearized transformed
- * coefficient mappings required for chain-rule terms in Eq. (47)-(48).
+ * coefficient mappings required for chain-rule terms in Dirkx et al. (2019), Eqs. (47)-(48).
  */
 void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentTransformedBody2CoefficientPartials(
         const int degree,
@@ -502,7 +502,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentTransformedBody2C
             transformedCosinePartials,
             transformedSinePartials,
             accelerationModel_->getAreCoefficientsNormalized( ) );
-    // Eqs. (47)-(48): these transformed-coefficient partials are the chain-rule inputs for effective coefficients.
+    // Dirkx et al. (2019), Eqs. (47)-(48): these transformed-coefficient partials are the chain-rule inputs
+    // for effective coefficients.
 }
 
 //! Compute partial of acceleration w.r.t. a cosine coefficient block of body 1.

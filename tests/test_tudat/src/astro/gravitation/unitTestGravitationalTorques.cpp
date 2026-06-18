@@ -453,76 +453,6 @@ Eigen::Vector3d computeAnalyticalC21DegreeTwoFigureFigureTorque( const Eigen::Ve
     return analyticalTorque * commonPrefactor;
 }
 
-struct SchutzEq11TermDiagnostics {
-    double prefactor = TUDAT_NAN;
-    double Ixy = TUDAT_NAN;
-    double Ixz = TUDAT_NAN;
-    double Iyz = TUDAT_NAN;
-    double fyz = TUDAT_NAN;
-    double fxz = TUDAT_NAN;
-    double fxy = TUDAT_NAN;
-    double gyz = TUDAT_NAN;
-    double gxz = TUDAT_NAN;
-    double gxy = TUDAT_NAN;
-};
-
-SchutzEq11TermDiagnostics computeSchutzEq11TermDiagnostics( const Eigen::Vector3d& relativePositionInBody1Frame,
-                                                            const double massOfBody2,
-                                                            const Eigen::Matrix3d& inertiaTensorOfBody1,
-                                                            const Eigen::Matrix3d& inertiaTensorOfBody2InBody1Frame )
-{
-    SchutzEq11TermDiagnostics diagnostics;
-
-    const double x = relativePositionInBody1Frame( 0 );
-    const double y = relativePositionInBody1Frame( 1 );
-    const double z = relativePositionInBody1Frame( 2 );
-    const double x2 = x * x;
-    const double y2 = y * y;
-    const double z2 = z * z;
-    const double xy = x * y;
-    const double xz = x * z;
-    const double yz = y * z;
-    const double r2 = x2 + y2 + z2;
-    const double inverseR2 = 1.0 / r2;
-    const double r5 = r2 * r2 * std::sqrt( r2 );
-
-    const double Aprime = inertiaTensorOfBody2InBody1Frame( 0, 0 );
-    const double Bprime = inertiaTensorOfBody2InBody1Frame( 1, 1 );
-    const double Cprime = inertiaTensorOfBody2InBody1Frame( 2, 2 );
-    const double IxyPrime = -inertiaTensorOfBody2InBody1Frame( 0, 1 );
-    const double IxzPrime = -inertiaTensorOfBody2InBody1Frame( 0, 2 );
-    const double IyzPrime = -inertiaTensorOfBody2InBody1Frame( 1, 2 );
-
-    diagnostics.Ixy = -inertiaTensorOfBody1( 0, 1 );
-    diagnostics.Ixz = -inertiaTensorOfBody1( 0, 2 );
-    diagnostics.Iyz = -inertiaTensorOfBody1( 1, 2 );
-
-    const double Qprime = Aprime + Bprime + Cprime;
-    const double IellPrime =
-            ( Aprime * x2 + Bprime * y2 + Cprime * z2 - 2.0 * IxyPrime * xy - 2.0 * IxzPrime * xz - 2.0 * IyzPrime * yz ) * inverseR2;
-    const double Wprime = massOfBody2 + 7.5 * Qprime * inverseR2 - 17.5 * IellPrime * inverseR2;
-
-    diagnostics.fyz = yz * ( Wprime - 5.0 * Aprime * inverseR2 ) - 5.0 * IxzPrime * xy * inverseR2 - 5.0 * IxyPrime * xz * inverseR2 +
-            IyzPrime * ( 1.0 - 5.0 * ( y2 + z2 ) * inverseR2 );
-    diagnostics.fxz = xz * ( Wprime - 5.0 * Bprime * inverseR2 ) + IxzPrime * ( 1.0 - 5.0 * ( x2 + z2 ) * inverseR2 ) -
-            5.0 * IyzPrime * xy * inverseR2 - 5.0 * IxyPrime * yz * inverseR2;
-    diagnostics.fxy = xy * ( Wprime - 5.0 * Cprime * inverseR2 ) - 5.0 * IyzPrime * xz * inverseR2 +
-            IxyPrime * ( 1.0 - 5.0 * ( x2 + y2 ) * inverseR2 ) - 5.0 * IxzPrime * yz * inverseR2;
-
-    diagnostics.gyz = ( z2 - y2 ) * Wprime + Bprime - Cprime - 10.0 * IxzPrime * xz * inverseR2 - 10.0 * IxyPrime * xy * inverseR2 -
-            20.0 * IyzPrime * yz * inverseR2 - 5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2 -
-            5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2;
-    diagnostics.gxz = ( x2 - z2 ) * Wprime + Cprime - Aprime - 20.0 * IxzPrime * xz * inverseR2 - 10.0 * IxyPrime * xy * inverseR2 -
-            10.0 * IyzPrime * yz * inverseR2 - 5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2 -
-            5.0 * z2 * ( Aprime + Bprime - Cprime ) * inverseR2;
-    diagnostics.gxy = ( y2 - x2 ) * Wprime + Aprime - Bprime - 10.0 * IxzPrime * xz * inverseR2 - 20.0 * IxyPrime * xy * inverseR2 -
-            10.0 * IyzPrime * yz * inverseR2 - 5.0 * y2 * ( Aprime - Bprime + Cprime ) * inverseR2 -
-            5.0 * x2 * ( -Aprime + Bprime + Cprime ) * inverseR2;
-
-    diagnostics.prefactor = 3.0 * physical_constants::GRAVITATIONAL_CONSTANT / r5;
-    return diagnostics;
-}
-
 double getExpectedC20DegreeTwoInteractionMultiplier( const unsigned int order )
 {
     if( order == 0 )
@@ -715,10 +645,9 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         Eigen::Vector3d currentTorque = secondDegreeGravitationalTorque->getTorque( );
         Eigen::Vector3d torqueError = ( currentTorque - manualTorque );
 
-        // std::cout << "Current torques " << currentTorque.transpose( ) << std::endl << torqueError << std::endl;
-
         for( unsigned int i = 0; i < 3; i++ )
         {
+            // Verify the manually reconstructed second-degree torque matches the model component-wise.
             BOOST_CHECK_SMALL( std::fabs( torqueError( i ) ), 1.0E8 );
         }
     }
@@ -1336,10 +1265,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
 
             // This check ensures the full two-body spherical-harmonic torque model is created for comparison.
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithFullDegree2Terms != nullptr );
+            // This check ensures the point-mass subset model is created for figure-figure isolation by subtraction.
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithPointMassDegree2Terms != nullptr );
+            // This check ensures the directly selected degree-2/degree-2 model is created.
             BOOST_REQUIRE( fullTwoBodyTorqueModelWithDegree2Degree2Terms != nullptr );
             // This check ensures the fourth-degree mutual-potential torque model is created for comparison.
             BOOST_REQUIRE( fourthDegreeTorqueModelWithFullDegree2Terms != nullptr );
+            // This check ensures the fourth-degree point-mass-limit model is created for subtraction.
             BOOST_REQUIRE( fourthDegreeTorqueModelWithPointMassDegree2Terms != nullptr );
 
             fullTwoBodyTorqueModelWithFullDegree2Terms->updateMembers( evaluationTime );
@@ -1395,6 +1327,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const double isolatedVsDirectDegree22Scale = std::max( 1.0, fullTwoBodyFullDegree2Torque.norm( ) );
             for( int i = 0; i < 3; i++ )
             {
+                // Verify direct coefficient selection matches figure-figure isolation within the full-two-body model.
                 BOOST_CHECK_SMALL( std::fabs( isolatedVsDirectDegree22Difference( i ) ) / isolatedVsDirectDegree22Scale, 5.0E-14 );
             }
 
@@ -1404,6 +1337,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const double pointMassModelDifferenceScale = std::max( 1.0, fourthDegreePointMassDegree2Torque.norm( ) );
             for( int i = 0; i < 3; i++ )
             {
+                // Verify the full-two-body point-mass subset equals the fourth-degree point-mass limit.
                 BOOST_CHECK_SMALL( std::fabs( pointMassModelDifference( i ) ) / pointMassModelDifferenceScale, 5.0E-14 );
             }
 
@@ -1412,10 +1346,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const Eigen::Vector3d isolatedDegree22ModelDifference =
                     isolatedDegree22TorqueFromFullTwoBodyModel - isolatedDegree22TorqueFromFourthDegreeModel;
             const double isolatedDegree22ModelDifferenceScale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
-            const double isolatedDegree22ModelDifferenceRelativeNorm =
-                    isolatedDegree22ModelDifference.norm( ) / std::max( 1.0, isolatedDegree22TorqueFromFullTwoBodyModel.norm( ) );
             for( int i = 0; i < 3; i++ )
             {
+                // Verify isolated figure-figure torque agrees between full-two-body and Schutz fourth-degree formulations.
                 BOOST_CHECK_SMALL( std::fabs( isolatedDegree22ModelDifference( i ) ) / isolatedDegree22ModelDifferenceScale, 5.0E-14 );
             }
 
@@ -1426,6 +1359,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             const double directVsIsolatedDegree22Scale = std::max( 1.0, fourthDegreeFullDegree2Torque.norm( ) );
             for( int i = 0; i < 3; i++ )
             {
+                // Verify direct full-two-body degree-2/degree-2 torque equals Schutz fourth-minus-second isolation.
                 BOOST_CHECK_SMALL( std::fabs( directVsIsolatedDegree22ModelDifference( i ) ) / directVsIsolatedDegree22Scale, 5.0E-14 );
             }
 
@@ -1433,7 +1367,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
             isolatedDegree22TorquesFromFourthDegreeModel.push_back( isolatedDegree22TorqueFromFourthDegreeModel );
         }
 
+        // Verify the isolated full-two-body figure-figure torque is nonzero in the first orientation case.
         BOOST_CHECK_GT( isolatedDegree22TorquesFromFullTwoBodyModel.at( 0 ).norm( ), 1.0E-16 );
+        // Verify the isolated Schutz fourth-degree figure-figure torque is nonzero in the first orientation case.
         BOOST_CHECK_GT( isolatedDegree22TorquesFromFourthDegreeModel.at( 0 ).norm( ), 1.0E-16 );
     }
 }
@@ -1461,7 +1397,7 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
     const std::string bodyUndergoingTorqueName = "Body1";
     const std::string bodyExertingTorqueName = "Body2";
 
-    // Unit-normalized setup requested for debugging.
+    // Unit-normalized setup keeps the single-coefficient comparisons directly interpretable.
     const double gravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT;
     const double referenceRadiusBody1 = 1.0;
     const double referenceRadiusBody2 = 1.0;
@@ -1564,11 +1500,17 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                 std::shared_ptr< SecondDegreeGravitationalTorqueModel > secondDegreeTorqueModel =
                         createFactorySecondDegreeGravitationalTorqueModel( bodies, bodyUndergoingTorqueName, bodyExertingTorqueName );
 
+                // Require the single selected full-two-body interaction model for the main comparison.
                 BOOST_REQUIRE( fullTwoBodySingleInteractionTorqueModel != nullptr );
+                // Require the all degree-2/degree-2 model to exercise the complete selected interaction set.
                 BOOST_REQUIRE( fullTwoBodyAllDegreeTwoDegreeTwoTorqueModel != nullptr );
+                // Require the full degree-2 model used to isolate figure-figure terms by subtraction.
                 BOOST_REQUIRE( fullTwoBodyFullDegreeTwoTorqueModel != nullptr );
+                // Require the point-mass/degree-2 subset used as the subtraction baseline.
                 BOOST_REQUIRE( fullTwoBodyPointMassDegreeTwoTorqueModel != nullptr );
+                // Require the Schutz fourth-degree model for the independent figure-figure reference path.
                 BOOST_REQUIRE( fourthDegreeTorqueModel != nullptr );
+                // Require the second-degree torque model used to remove the point-mass contribution.
                 BOOST_REQUIRE( secondDegreeTorqueModel != nullptr );
 
                 fullTwoBodySingleInteractionTorqueModel->updateMembers( evaluationTime );
@@ -1659,121 +1601,24 @@ BOOST_AUTO_TEST_CASE( testSingleDegreeTwoDegreeTwoFigureFigureInteractionIsolati
                     {
                         if( body1CoefficientCase.order == 0 )
                         {
+                            // Verify the Schutz isolation path matches the closed-form C20 analytical reference.
                             BOOST_CHECK_SMALL( isolatedFigureFigureRelativeAnalyticalError, 1.0E-11 );
+                            // Verify the direct DMR single-term path matches the closed-form C20 analytical reference.
                             BOOST_CHECK_SMALL( fullTwoBodyRelativeAnalyticalError, 5.0E-14 );
-                        }
-                        else if( body1CoefficientCase.order == 1 && fullVsIsolatedRelativeDifference > 1.0E-11 )
-                        {
-                            BOOST_TEST_MESSAGE( "C21_theory_compare case="
-                                                << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName << " r="
-                                                << relativePositionCase.transpose( ) << " analytical=" << analyticalTorque.transpose( )
-                                                << " full=" << singleInteractionTorqueFromFullTwoBody.transpose( )
-                                                << " fourth_minus_second=" << isolatedFigureFigureTorqueFromFourthMinusSecond.transpose( )
-                                                << " full_minus_analytical=" << fullTwoBodyAnalyticalDifference.transpose( )
-                                                << " fourth_minus_analytical=" << isolatedFigureFigureAnalyticalDifference.transpose( )
-                                                << " full_rel_err=" << fullTwoBodyRelativeAnalyticalError
-                                                << " fourth_rel_err=" << isolatedFigureFigureRelativeAnalyticalError );
                         }
                     }
                     else
                     {
                         // These analytically zero cases leave roundoff-level residuals after
                         // spherical-harmonic normalization, term selection, and inverse-G scaling.
+                        // Verify the Schutz isolation path leaves only roundoff-level torque for analytically zero cases.
                         BOOST_CHECK_SMALL( isolatedFigureFigureTorqueFromFourthMinusSecond.norm( ), 1.0E-14 );
+                        // Verify the direct DMR single-term path leaves only roundoff-level torque for analytically zero cases.
                         BOOST_CHECK_SMALL( singleInteractionTorqueFromFullTwoBody.norm( ), 1.0E-14 );
                     }
                 }
                 // Always compare the two independent model paths.
-                if( fullVsIsolatedRelativeDifference > 1.0E-11 )
-                {
-                    const Eigen::Vector3d fourthDegreeOnlyTorque = inverseGravitationalScaling * fourthDegreeTorqueModel->getTorque( );
-                    const Eigen::Vector3d secondDegreeOnlyTorque = inverseGravitationalScaling * secondDegreeTorqueModel->getTorque( );
-                    const Eigen::Vector3d expectedFourthDegreeOnlyTorqueFromFullPath =
-                            isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction + secondDegreeOnlyTorque;
-                    const Eigen::Vector3d fourthOnlyMinusExpectedFourthOnly =
-                            fourthDegreeOnlyTorque - expectedFourthDegreeOnlyTorqueFromFullPath;
-                    const Eigen::Vector3d fullSingleMinusFullSubtraction =
-                            singleInteractionTorqueFromFullTwoBody - isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction;
-                    const Eigen::Vector3d fullSubtractionMinusFourthMinusSecond =
-                            isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction - isolatedFigureFigureTorqueFromFourthMinusSecond;
-
-                    const Eigen::Matrix3d body1Inertia = bodies.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( );
-                    const Eigen::Matrix3d body2InertiaInBody1Frame =
-                            fourthDegreeTorqueModel->getCurrentInertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( );
-                    const SchutzEq11TermDiagnostics eq11Diagnostics =
-                            computeSchutzEq11TermDiagnostics( relativePositionInBody1Frame,
-                                                              bodies.at( bodyExertingTorqueName )->getBodyMass( ),
-                                                              body1Inertia,
-                                                              body2InertiaInBody1Frame );
-                    const double scaledPrefactor = eq11Diagnostics.prefactor * inverseGravitationalScaling;
-                    BOOST_TEST_MESSAGE(
-                            "single_term_case="
-                            << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
-                            << " r=" << relativePositionCase.transpose( ) << " full=" << singleInteractionTorqueFromFullTwoBody.transpose( )
-                            << " full_subtraction=" << isolatedFigureFigureTorqueFromFullTwoBodyBySubtraction.transpose( )
-                            << " fourth_minus_second=" << isolatedFigureFigureTorqueFromFourthMinusSecond.transpose( )
-                            << " fourth_only=" << fourthDegreeOnlyTorque.transpose( )
-                            << " expected_fourth_only_from_full_path=" << expectedFourthDegreeOnlyTorqueFromFullPath.transpose( )
-                            << " fourth_only_minus_expected_fourth_only=" << fourthOnlyMinusExpectedFourthOnly.transpose( )
-                            << " second_only=" << secondDegreeOnlyTorque.transpose( )
-                            << " full_minus_full_subtraction=" << fullSingleMinusFullSubtraction.transpose( )
-                            << " full_subtraction_minus_fourth_minus_second=" << fullSubtractionMinusFourthMinusSecond.transpose( )
-                            << " body1_inertia=" << bodies.at( bodyUndergoingTorqueName )->getBodyInertiaTensor( )
-                            << " body2_inertia=" << bodies.at( bodyExertingTorqueName )->getBodyInertiaTensor( )
-                            << " diff=" << interactionDifference.transpose( ) << " rel=" << fullVsIsolatedRelativeDifference );
-
-                    if( body1CoefficientCase.coefficientName == "C21" && std::fabs( scaledPrefactor * eq11Diagnostics.Ixz ) > 1.0E-20 )
-                    {
-                        const double requiredFxyFromExpected =
-                                -expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) / ( scaledPrefactor * eq11Diagnostics.Ixz );
-                        const double requiredGxzFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) / ( scaledPrefactor * eq11Diagnostics.Ixz );
-                        const double requiredFyzFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) / ( scaledPrefactor * eq11Diagnostics.Ixz );
-                        BOOST_TEST_MESSAGE( "Eq11_C21_debug case="
-                                            << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
-                                            << " r=" << relativePositionCase.transpose( ) << " fxy(computed,required_from_expected)=("
-                                            << eq11Diagnostics.fxy << ", " << requiredFxyFromExpected << ")"
-                                            << " gxz(computed,required_from_expected)=(" << eq11Diagnostics.gxz << ", "
-                                            << requiredGxzFromExpected << ")"
-                                            << " fyz(computed,required_from_expected)=(" << eq11Diagnostics.fyz << ", "
-                                            << requiredFyzFromExpected << ")" );
-                    }
-                    else if( body1CoefficientCase.coefficientName == "S21" && std::fabs( scaledPrefactor * eq11Diagnostics.Iyz ) > 1.0E-20 )
-                    {
-                        const double requiredGyzFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) / ( scaledPrefactor * eq11Diagnostics.Iyz );
-                        const double requiredFxyFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) / ( scaledPrefactor * eq11Diagnostics.Iyz );
-                        const double requiredFxzFromExpected =
-                                -expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) / ( scaledPrefactor * eq11Diagnostics.Iyz );
-                        BOOST_TEST_MESSAGE( "Eq11_S21_debug case="
-                                            << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
-                                            << " r=" << relativePositionCase.transpose( ) << " gyz(computed,required_from_expected)=("
-                                            << eq11Diagnostics.gyz << ", " << requiredGyzFromExpected << ")"
-                                            << " fxy(computed,required_from_expected)=(" << eq11Diagnostics.fxy << ", "
-                                            << requiredFxyFromExpected << ")"
-                                            << " fxz(computed,required_from_expected)=(" << eq11Diagnostics.fxz << ", "
-                                            << requiredFxzFromExpected << ")" );
-                    }
-                    else if( body1CoefficientCase.coefficientName == "S22" && std::fabs( scaledPrefactor * eq11Diagnostics.Ixy ) > 1.0E-20 )
-                    {
-                        const double requiredFxzFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 0 ) / ( scaledPrefactor * eq11Diagnostics.Ixy );
-                        const double requiredFyzFromExpected =
-                                -expectedFourthDegreeOnlyTorqueFromFullPath( 1 ) / ( scaledPrefactor * eq11Diagnostics.Ixy );
-                        const double requiredGxyFromExpected =
-                                expectedFourthDegreeOnlyTorqueFromFullPath( 2 ) / ( scaledPrefactor * eq11Diagnostics.Ixy );
-                        BOOST_TEST_MESSAGE( "Eq11_S22_debug case="
-                                            << body1CoefficientCase.coefficientName << "x" << coefficientCase.coefficientName
-                                            << " r=" << relativePositionCase.transpose( ) << " fxz(computed,required_from_expected)=("
-                                            << eq11Diagnostics.fxz << ", " << requiredFxzFromExpected << ")"
-                                            << " fyz(computed,required_from_expected)=(" << eq11Diagnostics.fyz << ", "
-                                            << requiredFyzFromExpected << ")"
-                                            << " gxy(computed,required_from_expected)=(" << eq11Diagnostics.gxy << ", "
-                                            << requiredGxyFromExpected << ")" );
-                    }
-                }
+                // Verify the selected single full-two-body term matches the same isolated term from fourth-minus-second torque.
                 BOOST_CHECK_SMALL( fullVsIsolatedRelativeDifference, 1.0E-11 );
             }
         }

@@ -26,8 +26,9 @@ namespace gravitation
 //! Full two-body mutual spherical-harmonic acceleration model.
 /*!
  * Computes the translational acceleration from the mutual potential using the effective one-body formulation
- * of Dirkx et al. (2019), in particular the effective coefficient mapping (Eqs. (47)-(48)) and potential
- * summation (Eq. (49)), evaluated as a Cartesian gradient for the translational equations (Eq. (55)).
+ * of Dirkx et al. (2019), in particular the effective coefficient mapping from Dirkx et al. (2019), Eqs. (47)-(48),
+ * and potential summation from Dirkx et al. (2019), Eq. (49), evaluated as a Cartesian gradient for the translational
+ * equations in Dirkx et al. (2019), Eq. (55).
  */
 class FullTwoBodySphericalHarmonicAcceleration : public basic_astrodynamics::AccelerationModel3d
 {

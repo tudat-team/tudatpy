@@ -19,7 +19,7 @@ namespace
 //! Apply the angular momentum operator to one Wigner-D coefficient entry.
 /*!
  * Implements the Cartesian form of \hat{J}(D^l_{m,k}) used in the torque evaluation
- * of Dirkx et al. (2019), Eq. (67), with torque definition from Eq. (60).
+ * of Dirkx et al. (2019), Eq. (67), with torque definition from Dirkx et al. (2019), Eq. (60).
  */
 Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatrices( const std::vector< Eigen::MatrixXcd >& wignerMatrices,
                                                                                       const int degree,
@@ -44,7 +44,7 @@ Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatr
             std::sqrt( std::max( 0.0, static_cast< double >( degree * ( degree + 1 ) - originalOrder * ( originalOrder + 1 ) ) ) ) /
             std::sqrt( 2.0 );
 
-    // Eq. (67): Cartesian components of \hat{J}(D^l_{m,k}) assembled from ladder-operator contributions.
+    // Dirkx et al. (2019), Eq. (67): Cartesian components of \hat{J}(D^l_{m,k}) assembled from ladder-operator contributions.
     const std::complex< double > angularMomentumPlus = imaginaryUnit * plusScaling * getWignerCoefficient( originalOrder - 1, newOrder );
     const std::complex< double > angularMomentumMinus =
             imaginaryUnit * ( -minusScaling ) * getWignerCoefficient( originalOrder + 1, newOrder );
@@ -55,7 +55,7 @@ Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatr
     angularMomentumInCartesianBasis( 0 ) = ( angularMomentumMinus - angularMomentumPlus ) * inverseSquareRootTwo;
     angularMomentumInCartesianBasis( 1 ) = imaginaryUnit * ( angularMomentumMinus + angularMomentumPlus ) * inverseSquareRootTwo;
     angularMomentumInCartesianBasis( 2 ) = angularMomentumZero;
-    // Returned \hat{J}-mapped term is used directly in the Eq. (60) torque evaluation.
+    // Returned \hat{J}-mapped term is used directly in the Dirkx et al. (2019), Eq. (60) torque evaluation.
     return angularMomentumInCartesianBasis;
 }
 
@@ -64,7 +64,7 @@ Eigen::Vector3cd computeAngularMomentumOperatorOnWignerCoefficientFromWignerMatr
 std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > getBody2TorqueCombinationsToUse(
         const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
 {
-    // Build unique combinations required for body-2 spin torque accumulation (Eq. (67) term set).
+    // Build unique combinations required for body-2 spin torque accumulation (Dirkx et al. (2019), Eq. (67) term set).
     std::set< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2TorqueCombinationSet;
     for( const auto& combination : coefficientCombinationsToUse )
     {
@@ -91,7 +91,8 @@ void computeTransformedAngularMomentumCoefficientsFromWignerMatrices(
         std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
 {
     // Explicit-matrix path (used by quaternion-derivative partials).
-    // Eq. (67): computes \hat{J}-mapped coefficient fields; these feed the Eq. (60) torque relation.
+    // Dirkx et al. (2019), Eq. (67): computes \hat{J}-mapped coefficient fields; these feed
+    // the Dirkx et al. (2019), Eq. (60) torque relation.
     for( int i = 0; i < 3; i++ )
     {
         transformedCosineCoefficientsBody2AngularMomentum.at( i ).setZero( cosineCoefficientsBody2.rows( ),
@@ -188,7 +189,8 @@ void computeTransformedAngularMomentumCoefficientsFromWignerCache(
         std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
 {
     // Cached path (used during nominal model evaluation).
-    // Eq. (67): computes \hat{J}-mapped coefficient fields; these feed the Eq. (60) torque relation.
+    // Dirkx et al. (2019), Eq. (67): computes \hat{J}-mapped coefficient fields; these feed
+    // the Dirkx et al. (2019), Eq. (60) torque relation.
     for( int i = 0; i < 3; i++ )
     {
         transformedCosineCoefficientsBody2AngularMomentum.at( i ).setZero( cosineCoefficientsBody2.rows( ),
@@ -285,7 +287,7 @@ void FullTwoBodySphericalHarmonicTorque::computeTransformedAngularMomentumCoeffi
         std::array< Eigen::MatrixXd, 3 >& transformedSineCoefficientsBody2AngularMomentum )
 {
     // Forward to cache-based utility; kept as class entry point for reuse by analytical partials.
-    // Eq. (67): this function provides the \hat{J}-mapped coefficients used in Eq. (60).
+    // Dirkx et al. (2019), Eq. (67): this function provides the \hat{J}-mapped coefficients used in Eq. (60).
     computeTransformedAngularMomentumCoefficientsFromWignerCache( cosineCoefficientsBody2,
                                                                   sineCoefficientsBody2,
                                                                   wignerCache,

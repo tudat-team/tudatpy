@@ -224,7 +224,7 @@ public:
     //! Compute \hat{J}\bar{C}_{l,m}^{2,F1} and \hat{J}\bar{S}_{l,m}^{2,F1} from body-2 coefficients and supplied Wigner D-matrices.
     /*!
      * Helper used by this model and analytical partials to evaluate the \hat{J}-mapped coefficient fields
-     * entering Dirkx et al. (2019), Eq. (67) (through Eq. (60)).
+     * entering Dirkx et al. (2019), Eq. (67) (through Dirkx et al. (2019), Eq. (60)).
      */
     void computeTransformedAngularMomentumCoefficients( const Eigen::MatrixXd& cosineCoefficientsBody2,
                                                         const Eigen::MatrixXd& sineCoefficientsBody2,

@@ -117,6 +117,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
     auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque = auxiliaryQuantities.aComponentOfBodyExertingTorque +
             auxiliaryQuantities.bComponentOfBodyExertingTorque + auxiliaryQuantities.cComponentOfBodyExertingTorque;
 
+    // Schutz et al. (1981), Eq. (11): Q' and I'_ell auxiliary scalars of the body exerting torque.
     auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque =
             auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinateSquared +
             auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinateSquared +
@@ -125,11 +126,13 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xzTerm -
             2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm;
 
+    // Schutz et al. (1981), Eq. (11): W' auxiliary scalar in the body-1-fixed torque expression.
     auxiliaryQuantities.wPrimeQuantity = massOfBodyExertingTorque +
             7.5 * auxiliaryQuantities.traceOfInertiaTensorOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared -
             17.5 * auxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque *
                     auxiliaryQuantities.inverseRelativeDistanceToFourthPower;
 
+    // Schutz et al. (1981), Eq. (11a): f_yz auxiliary function.
     auxiliaryQuantities.fyzFunction = auxiliaryQuantities.yzTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) -
@@ -142,6 +145,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
                       5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
                               auxiliaryQuantities.inverseRelativeDistanceSquared );
 
+    // Schutz et al. (1981), Eq. (11b): f_xz auxiliary function.
     auxiliaryQuantities.fxzFunction = auxiliaryQuantities.xzTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
@@ -154,6 +158,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             5.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
+    // Schutz et al. (1981), Eq. (11c): f_xy auxiliary function.
     auxiliaryQuantities.fxyFunction = auxiliaryQuantities.xyTerm *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) -
@@ -166,6 +171,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
             5.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.yzTerm *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
+    // Schutz et al. (1981), Eq. (11d): g_yz auxiliary function, expanded from the printed integral definition.
     auxiliaryQuantities.gyzFunction =
             ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
             auxiliaryQuantities.bComponentOfBodyExertingTorque - auxiliaryQuantities.cComponentOfBodyExertingTorque -
@@ -182,6 +188,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
+    // Schutz et al. (1981), Eq. (11e): g_xz auxiliary function, expanded from the printed integral definition.
     auxiliaryQuantities.gxzFunction =
             ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
             auxiliaryQuantities.cComponentOfBodyExertingTorque - auxiliaryQuantities.aComponentOfBodyExertingTorque -
@@ -198,6 +205,7 @@ FourthDegreeTorqueAuxiliaryQuantities computeFourthDegreeTorqueAuxiliaryQuantiti
                       auxiliaryQuantities.cComponentOfBodyExertingTorque ) *
                     auxiliaryQuantities.inverseRelativeDistanceSquared;
 
+    // Schutz et al. (1981), Eq. (11f): g_xy auxiliary function, expanded from the printed integral definition.
     auxiliaryQuantities.gxyFunction =
             ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * auxiliaryQuantities.wPrimeQuantity +
             auxiliaryQuantities.aComponentOfBodyExertingTorque - auxiliaryQuantities.bComponentOfBodyExertingTorque +
@@ -229,6 +237,7 @@ Eigen::Vector3d computeFourthDegreeTorqueFunctionVector(
     const double iyzComponentOfBodyUndergoingTorque = independentInertiaTensorComponentsOfBodyUndergoingTorque( iyzComponentIndex );
 
     Eigen::Vector3d torqueFunctionVector;
+    // Schutz et al. (1981), Eq. (11): torque component vector before applying the common 3G/r^5 prefactor.
     torqueFunctionVector( 0 ) = ( cComponentOfBodyUndergoingTorque - bComponentOfBodyUndergoingTorque ) * auxiliaryQuantities.fyzFunction -
             ixzComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxyFunction +
             ixyComponentOfBodyUndergoingTorque * auxiliaryQuantities.fxzFunction +
@@ -256,6 +265,7 @@ Eigen::Matrix< double, 3, 6 > computePartialOfTorqueFunctionVectorWrtAuxiliaryFu
 
     Eigen::Matrix< double, 3, 6 > partialOfTorqueFunctionVectorWrtAuxiliaryFunctions = Eigen::Matrix< double, 3, 6 >::Zero( );
 
+    // Analytical derivative of the Schutz et al. (1981), Eq. (11), torque component vector w.r.t. Eq. (11a-f) auxiliaries.
     partialOfTorqueFunctionVectorWrtAuxiliaryFunctions( 0, fyzFunctionIndex ) =
             cComponentOfBodyUndergoingTorque - bComponentOfBodyUndergoingTorque;
     partialOfTorqueFunctionVectorWrtAuxiliaryFunctions( 0, fxzFunctionIndex ) = ixyComponentOfBodyUndergoingTorque;
@@ -283,6 +293,7 @@ Eigen::Matrix< double, 3, 6 > computePartialOfTorqueWrtIndependentInertiaTensorC
     Eigen::Matrix< double, 3, 6 > partialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque =
             Eigen::Matrix< double, 3, 6 >::Zero( );
 
+    // Analytical derivative of Schutz et al. (1981), Eq. (11), w.r.t. the body-1 inertia tensor components.
     partialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque( 0, bComponentIndex ) =
             -auxiliaryQuantities.torquePrefactor * auxiliaryQuantities.fyzFunction;
     partialOfTorqueWrtIndependentInertiaTensorComponentsOfBodyUndergoingTorque( 0, cComponentIndex ) =
@@ -326,14 +337,17 @@ double computePartialOfContractedInertiaTensorOfBodyExertingTorqueWrtCoordinate(
     switch( coordinateIndex )
     {
         case 0:
+            // Derivative of the Schutz et al. (1981), Eq. (11), contracted inertia scalar I'_ell w.r.t. x.
             return 2.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
                     2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
                     2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
         case 1:
+            // Derivative of the Schutz et al. (1981), Eq. (11), contracted inertia scalar I'_ell w.r.t. y.
             return 2.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate -
                     2.0 * auxiliaryQuantities.ixyComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
                     2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate;
         case 2:
+            // Derivative of the Schutz et al. (1981), Eq. (11), contracted inertia scalar I'_ell w.r.t. z.
             return 2.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.zCoordinate -
                     2.0 * auxiliaryQuantities.ixzComponentOfBodyExertingTorque * auxiliaryQuantities.xCoordinate -
                     2.0 * auxiliaryQuantities.iyzComponentOfBodyExertingTorque * auxiliaryQuantities.yCoordinate;
@@ -401,6 +415,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
 
     Eigen::Matrix< double, 6, 1 > partialOfAuxiliaryFunctionsWrtPositionCoordinate;
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11a): f_yz.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( fyzFunctionIndex ) = derivativeOfyzTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.aComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
@@ -418,6 +433,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                       5.0 * ( auxiliaryQuantities.yCoordinateSquared + auxiliaryQuantities.zCoordinateSquared ) *
                               derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11b): f_xz.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxzFunctionIndex ) = derivativeOfxzTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.bComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
@@ -435,6 +451,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11c): f_xy.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( fxyFunctionIndex ) = derivativeOfxyTermWrtCoordinate *
                     ( auxiliaryQuantities.wPrimeQuantity -
                       5.0 * auxiliaryQuantities.cComponentOfBodyExertingTorque * auxiliaryQuantities.inverseRelativeDistanceSquared ) +
@@ -452,6 +469,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                     ( derivativeOfyzTermWrtCoordinate * auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yzTerm * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11d): g_yz.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gyzFunctionIndex ) =
             derivativeOfzSquaredMinusySquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
             ( auxiliaryQuantities.zCoordinateSquared - auxiliaryQuantities.yCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
@@ -470,6 +488,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                               auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.yCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11e): g_xz.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxzFunctionIndex ) =
             derivativeOfxSquaredMinuszSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
             ( auxiliaryQuantities.xCoordinateSquared - auxiliaryQuantities.zCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate -
@@ -488,6 +507,7 @@ Eigen::Matrix< double, 6, 1 > computePartialOfAuxiliaryFunctionsWrtPositionCoord
                               auxiliaryQuantities.inverseRelativeDistanceSquared +
                       auxiliaryQuantities.zCoordinateSquared * derivativeOfInverseRelativeDistanceSquaredWrtCoordinate );
 
+    // Analytical position derivative of Schutz et al. (1981), Eq. (11f): g_xy.
     partialOfAuxiliaryFunctionsWrtPositionCoordinate( gxyFunctionIndex ) =
             derivativeOfySquaredMinusxSquaredWrtCoordinate * auxiliaryQuantities.wPrimeQuantity +
             ( auxiliaryQuantities.yCoordinateSquared - auxiliaryQuantities.xCoordinateSquared ) * derivativeOfWPrimeQuantityWrtCoordinate +
@@ -529,6 +549,7 @@ Eigen::Matrix3d computePartialOfTorqueWrtBodyFixedRelativePosition(
                 auxiliaryQuantities.inverseRelativeDistanceSquared * auxiliaryQuantities.torquePrefactor;
         const Eigen::Matrix< double, 6, 1 > partialOfAuxiliaryFunctionsWrtPositionCoordinate =
                 computePartialOfAuxiliaryFunctionsWrtPositionCoordinate( auxiliaryQuantities, coordinateIndex );
+        // Chain rule derivative of Schutz et al. (1981), Eq. (11), through 3G/r^5 and Eq. (11a-f) auxiliaries.
         partialOfTorqueWrtBodyFixedRelativePosition.col( coordinateIndex ) =
                 derivativeOfTorquePrefactorWrtCoordinate * torqueFunctionVector +
                 auxiliaryQuantities.torquePrefactor * partialOfTorqueFunctionVectorWrtAuxiliaryFunctions *
@@ -556,6 +577,7 @@ Eigen::Matrix< double, 6, 6 > computePartialOfAuxiliaryFunctionsWrtIndependentIn
         35.0 * auxiliaryQuantities.yzTerm * auxiliaryQuantities.inverseRelativeDistanceToFourthPower
     };
 
+    // Analytical derivative of Schutz et al. (1981), Eq. (11a-f), w.r.t. the body-2 inertia components in the body-1 frame.
     for( int inertiaComponentIndex = 0; inertiaComponentIndex < 6; inertiaComponentIndex++ )
     {
         partialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( fyzFunctionIndex, inertiaComponentIndex ) =
@@ -657,6 +679,7 @@ Eigen::Matrix< double, 3, 6 > computePartialOfTorqueWrtIndependentInertiaTensorC
         const FourthDegreeTorqueAuxiliaryQuantities& auxiliaryQuantities,
         const Eigen::Matrix< double, 6, 1 >& independentInertiaTensorComponentsOfBodyUndergoingTorque )
 {
+    // Chain rule derivative of Schutz et al. (1981), Eq. (11), through Eq. (11a-f) body-2 auxiliary functions.
     return auxiliaryQuantities.torquePrefactor *
             computePartialOfTorqueFunctionVectorWrtAuxiliaryFunctions( independentInertiaTensorComponentsOfBodyUndergoingTorque ) *
             computePartialOfAuxiliaryFunctionsWrtIndependentInertiaTensorComponentsOfBodyExertingTorque( auxiliaryQuantities );

@@ -74,8 +74,8 @@ Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
 
 //! Evaluate scalar basis values multiplying coefficient terms in torque summations.
 /*!
- * Returns the cosine/sine scalar factors corresponding to one Eq. (49)-style basis term,
- * used in Eq. (67) torque accumulation.
+ * Returns the cosine/sine scalar factors corresponding to one Dirkx et al. (2019), Eq. (49), basis term,
+ * used in Dirkx et al. (2019), Eq. (67), torque accumulation.
  */
 Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
@@ -86,18 +86,18 @@ Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
 {
     Eigen::Vector2d scalarBasisFunctionValues = Eigen::Vector2d::Zero( );
     const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, totalOrder );
-    // Eq. (49): cosine/sine scalar basis terms for one (l,m) contribution.
+    // Dirkx et al. (2019), Eq. (49): cosine/sine scalar basis terms for one (l,m) contribution.
     scalarBasisFunctionValues( 0 ) = preMultiplier * equatorialRadiusRatioPower * legendrePolynomial *
             sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder );
     scalarBasisFunctionValues( 1 ) = preMultiplier * equatorialRadiusRatioPower * legendrePolynomial *
             sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder );
-    // Eq. (67): these scalar terms multiply effective angular-momentum coefficients in torque accumulation.
+    // Dirkx et al. (2019), Eq. (67): these scalar terms multiply effective angular-momentum coefficients in torque accumulation.
     return scalarBasisFunctionValues;
 }
 
 //! Evaluate Cartesian gradients of cosine/sine basis functions for one (l,m) term.
 /*!
- * Computes \partial/\partial r of Eq. (49) basis terms, used in Eq. (68)-based torque partials.
+ * Computes \partial/\partial r of Dirkx et al. (2019), Eq. (49), basis terms, used in Dirkx et al. (2019), Eq. (68)-based torque partials.
  */
 Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
         const Eigen::Vector3d& bodyFixedRelativePosition,
@@ -113,7 +113,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
             sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder );
 
     Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients = Eigen::Matrix< double, 3, 2 >::Zero( );
-    // Eq. (49): gradient of cosine basis channel.
+    // Dirkx et al. (2019), Eq. (49): gradient of cosine basis channel.
     bodyFixedBasisFunctionGradients.col( 0 ) = coordinate_conversions::convertSphericalToCartesianGradient(
             basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
                                                          equatorialRadiusRatioPower,
@@ -128,7 +128,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
                                                          legendrePolynomial,
                                                          legendrePolynomialDerivative ),
             bodyFixedRelativePosition );
-    // Eq. (49): gradient of sine basis channel.
+    // Dirkx et al. (2019), Eq. (49): gradient of sine basis channel.
     bodyFixedBasisFunctionGradients.col( 1 ) = coordinate_conversions::convertSphericalToCartesianGradient(
             basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
                                                          equatorialRadiusRatioPower,
@@ -143,7 +143,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
                                                          legendrePolynomial,
                                                          legendrePolynomialDerivative ),
             bodyFixedRelativePosition );
-    // Eq. (68): these basis gradients provide \partial V/\partial r terms entering torque partials.
+    // Dirkx et al. (2019), Eq. (68): these basis gradients provide \partial V/\partial r terms entering torque partials.
     return bodyFixedBasisFunctionGradients;
 }
 
@@ -152,7 +152,7 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
 //! Constructor.
 /*!
  * Initializes analytical dependencies and scratch buffers for full two-body torque partials
- * consistent with the full model path (Eqs. (60), (67), (68)-(69)).
+ * consistent with the full model path (Dirkx et al. (2019), Eqs. (60), (67), (68)-(69)).
  */
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarmonicGravitationalTorquePartial(
         const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
@@ -200,8 +200,8 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     }
 
     body2TorqueCombinationsToUse_ = gravitation::getBody2TorqueCombinationsToUse( coefficientCombinationsToUse_ );
-    // Eq. (67): precompute the combination set used in body-2 spin torque summations.
-    // Eqs. (60), (68), and (69): this object stores the dependencies used later in update( )
+    // Dirkx et al. (2019), Eq. (67): precompute the combination set used in body-2 spin torque summations.
+    // Dirkx et al. (2019), Eqs. (60), (68), and (69): this object stores the dependencies used later in update( )
     // to evaluate body-2 spin torque, total torque coupling, and frame/body mapping derivatives.
 
     const Eigen::MatrixXd& transformedCosineCoefficients = effectiveMutualPotentialField_->getTransformedCosineCoefficientsOfBody2( );
@@ -633,7 +633,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtNonRotationalSta
 
 //! Accumulate partial of body-2 spin torque w.r.t. one body-1 coefficient.
 /*!
- * Differentiates the Eq. (67) coefficient factors while keeping transformed body-2 terms fixed.
+ * Differentiates the Dirkx et al. (2019), Eq. (67), coefficient factors while keeping transformed body-2 terms fixed.
  */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorquePartialWrtBody1Coefficient(
         Eigen::Vector3d& partial,
@@ -715,14 +715,14 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             partial += partialOfEffectiveAngularMomentumCosineCoefficients * scalarBasisFunctionValues( 0 ) +
                     partialOfEffectiveAngularMomentumSineCoefficients * scalarBasisFunctionValues( 1 );
-            // Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-1 coefficient.
+            // Dirkx et al. (2019), Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-1 coefficient.
         }
     }
 }
 
 //! Accumulate partial of body-2 spin torque w.r.t. one body-2 coefficient.
 /*!
- * Applies chain rule through coefficient transformation and \hat{J}-mapped coefficients in Eq. (67).
+ * Applies chain rule through coefficient transformation and \hat{J}-mapped coefficients in Dirkx et al. (2019), Eq. (67).
  */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorquePartialWrtBody2Coefficient( Eigen::Vector3d& partial,
                                                                                                            const int degree,
@@ -824,7 +824,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::addBody2SpinTorqueP
 
             partial += partialOfEffectiveAngularMomentumCosineCoefficients * scalarBasisFunctionValues( 0 ) +
                     partialOfEffectiveAngularMomentumSineCoefficients * scalarBasisFunctionValues( 1 );
-            // Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-2 coefficient.
+            // Dirkx et al. (2019), Eq. (67): derivative of one body-2 spin torque contribution w.r.t. a body-2 coefficient.
         }
     }
 }
@@ -1182,7 +1182,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtSineSphericalHar
 
 //! Update all analytical partial blocks for the current epoch.
 /*!
- * Computes derivatives of torque assembled from Eq. (67) and Eq. (68), including dependence on relative
+ * Computes derivatives of torque assembled from Dirkx et al. (2019), Eq. (67) and Eq. (68), including dependence on relative
  * position and relative orientation (through transformed coefficients and Wigner-D derivatives).
  */
 void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const double currentTime )
@@ -1237,7 +1237,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
 
         currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_.setZero( );
 
-        // Step 3: compute \partial M_{2,spin}/\partial r in body-1 frame from Eq. (67).
+        // Step 3: compute \partial M_{2,spin}/\partial r in body-1 frame from Dirkx et al. (2019), Eq. (67).
         for( unsigned int i = 0; i < body2TorqueCombinationsToUse_.size( ); i++ )
         {
             const int degreeOfBody1 = std::get< 0 >( body2TorqueCombinationsToUse_.at( i ) );
@@ -1311,7 +1311,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
                 linear_algebra::getCrossProductMatrix( currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_ ) *
                         accelerationPartial_->getCurrentBodyFixedPartialWrtPosition( ) -
                 linear_algebra::getCrossProductMatrix( currentMutualPotentialGradientInBodyFixedFrameOfBodyUndergoingTorque_ );
-        // Eq. (68): \partial (r x \nabla V) / \partial r contribution to the torque position Jacobian.
+        // Dirkx et al. (2019), Eq. (68): \partial (r x \nabla V) / \partial r contribution to the torque position Jacobian.
         const Eigen::Matrix3d totalTorquePartialWrtBodyFixedRelativePosition = currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_ -
                 bodyFixedMutualPotentialTorquePartialWrtBodyFixedRelativePosition;
 

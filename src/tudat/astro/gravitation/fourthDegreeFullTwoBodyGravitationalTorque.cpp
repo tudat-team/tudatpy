@@ -52,23 +52,28 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
     const double IxzPrime = -inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( 0, 2 );
     const double IyzPrime = -inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque( 1, 2 );
 
-    // Eq. (11) auxiliary invariants of body 2 in the body-1 frame.
+    // Schutz et al. (1981), Eq. (11): auxiliary invariants of body 2 in the body-1 frame.
     const double Qprime = Aprime + Bprime + Cprime;
     const double IellPrime =
             ( Aprime * x2 + Bprime * y2 + Cprime * z2 - 2.0 * IxyPrime * xy - 2.0 * IxzPrime * xz - 2.0 * IyzPrime * yz ) * inverseR2;
+    // Schutz et al. (1981), Eq. (11): W' auxiliary scalar.
     const double Wprime = massOfBodyExertingTorque + 7.5 * Qprime * inverseR2 - 17.5 * IellPrime * inverseR2;
 
-    // Eq. (11): f-functions. The g-functions are expanded from Schutz's printed
-    // integral definitions (11d-f), which is also consistent with differentiating
-    // the mutual potential in Eq. (8). The compact printed g expansions in Schutz
+    // Schutz et al. (1981), Eq. (11): f-functions. The g-functions are expanded from Schutz's printed
+    // integral definitions in Eq. (11d-f), which is also consistent with differentiating
+    // the mutual potential in Schutz et al. (1981), Eq. (8). The compact printed g expansions in Schutz
     // differ from these definitions for several product-of-inertia terms.
+    // Schutz et al. (1981), Eq. (11a): f_yz auxiliary function.
     const double fyz = yz * ( Wprime - 5.0 * Aprime * inverseR2 ) - 5.0 * IxzPrime * xy * inverseR2 - 5.0 * IxyPrime * xz * inverseR2 +
             IyzPrime * ( 1.0 - 5.0 * ( y2 + z2 ) * inverseR2 );
+    // Schutz et al. (1981), Eq. (11b): f_xz auxiliary function.
     const double fxz = xz * ( Wprime - 5.0 * Bprime * inverseR2 ) + IxzPrime * ( 1.0 - 5.0 * ( x2 + z2 ) * inverseR2 ) -
             5.0 * IyzPrime * xy * inverseR2 - 5.0 * IxyPrime * yz * inverseR2;
+    // Schutz et al. (1981), Eq. (11c): f_xy auxiliary function.
     const double fxy = xy * ( Wprime - 5.0 * Cprime * inverseR2 ) - 5.0 * IyzPrime * xz * inverseR2 +
             IxyPrime * ( 1.0 - 5.0 * ( x2 + y2 ) * inverseR2 ) - 5.0 * IxzPrime * yz * inverseR2;
 
+    // Schutz et al. (1981), Eq. (11d): g_yz auxiliary function, expanded from the printed integral definition.
     const double gyzWprimeTerm = ( z2 - y2 ) * Wprime;
     const double gyzDiagonalTerm = Bprime - Cprime;
     const double gyzIxzPrimeTerm = -10.0 * IxzPrime * xz * inverseR2;
@@ -79,6 +84,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
     const double gyz =
             gyzWprimeTerm + gyzDiagonalTerm + gyzIxzPrimeTerm + gyzIxyPrimeTerm + gyzIyzPrimeTerm + gyzQuadraticZTerm + gyzQuadraticYTerm;
 
+    // Schutz et al. (1981), Eq. (11e): g_xz auxiliary function, expanded from the printed integral definition.
     const double gxzWprimeTerm = ( x2 - z2 ) * Wprime;
     const double gxzDiagonalTerm = Cprime - Aprime;
     const double gxzIxzPrimeTerm = 0.0;
@@ -89,6 +95,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
     const double gxz =
             gxzWprimeTerm + gxzDiagonalTerm + gxzIxzPrimeTerm + gxzIxyPrimeTerm + gxzIyzPrimeTerm + gxzQuadraticXTerm + gxzQuadraticZTerm;
 
+    // Schutz et al. (1981), Eq. (11f): g_xy auxiliary function, expanded from the printed integral definition.
     const double gxyWprimeTerm = ( y2 - x2 ) * Wprime;
     const double gxyDiagonalTerm = Aprime - Bprime;
     const double gxyIxzPrimeTerm = 10.0 * IxzPrime * xz * inverseR2;
@@ -99,7 +106,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
     const double gxy =
             gxyWprimeTerm + gxyDiagonalTerm + gxyIxzPrimeTerm + gxyIxyPrimeTerm + gxyIyzPrimeTerm + gxyQuadraticYTerm + gxyQuadraticXTerm;
 
-    // Eq. (11): torque components in body-1-fixed frame.
+    // Schutz et al. (1981), Eq. (11): torque components in body-1-fixed frame.
     const double prefactor = ( 3.0 * physical_constants::GRAVITATIONAL_CONSTANT ) / r5;
     Eigen::Vector3d torque;
     const double torqueXFromDiagonalTerm = ( C - B ) * fyz;

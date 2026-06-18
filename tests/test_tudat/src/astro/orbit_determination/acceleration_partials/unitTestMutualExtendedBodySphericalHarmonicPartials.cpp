@@ -89,6 +89,9 @@ Eigen::Matrix< double, 4, 3 > getConstrainedQuaternionPartialWrtVectorPart( cons
 
 BOOST_AUTO_TEST_CASE( testRotationMatrixPartialToQuaternionPartialChain )
 {
+    // Test rationale:
+    // Verify the low-level chain rule that converts rotation-matrix parameter partials into quaternion
+    // partials before it is used by full two-body orientation partials.
     const double rotationRate = 1.9E-5;
     const double initialTime = 300.0;
     const double testTime = 2500.0;
@@ -120,6 +123,7 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixPartialToQuaternionPartialChain )
         rotationalEphemeris->resetRotationRate( rotationRate );
 
         const Eigen::MatrixXd numericalQuaternionPartial = ( upQuaternion - downQuaternion ) / ( 2.0 * perturbation );
+        // Verify the rotation-rate quaternion chain rule against a central finite-difference reference.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalQuaternionPartial, numericalQuaternionPartial, 1.0E-7 );
     }
 
@@ -147,6 +151,7 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixPartialToQuaternionPartialChain )
         }
         rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( rightAscension, declination );
 
+        // Verify the pole-orientation quaternion chain rule against central finite differences.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalQuaternionPartial, numericalQuaternionPartial, 1.0E-7 );
     }
 }
@@ -303,6 +308,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( body1, body2, accelerationSettings, "Body1", "Body2" ) );
 
+            // Require successful creation so the test exercises the intended full two-body acceleration path.
             BOOST_REQUIRE( accelerationModel != nullptr );
 
             std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial =
@@ -448,6 +454,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 
                     const Eigen::MatrixXd analyticalConstrainedPartial =
                             analyticalPartialWrtRotationalState.block( 0, 0, 3, 4 ) * constrainedQuaternionPartial;
+                    // Verify the constrained quaternion-state partial against central finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalConstrainedPartial, numericalPartial, 1.0E-5 );
                 };
                 checkCentralQuaternionStatePartial( body1, "Body1" );
@@ -465,6 +472,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     rotationRateParameter->setParameterValue( nominalValue );
                     evaluateAccelerationForRotationParameter( );
                     const Eigen::Vector3d numericalPartial = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
+                    // Verify the constant-rotation-rate partial against direct parameter finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
                 };
                 auto checkPolePositionPartial = [ & ]( const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter ) {
@@ -487,6 +495,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     }
                     polePositionParameter->setParameterValue( nominalValue );
                     evaluateAccelerationForRotationParameter( );
+                    // Verify the pole-position partial against direct parameter finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
                 };
 
@@ -606,34 +615,48 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             const Eigen::Vector3d numericalPartialWrtBody2GravitationalParameter = calculateAccelerationWrtParameterPartials(
                     body2GravitationalParameter, accelerationModel, 10.0, emptyFunction, evaluationTime );
 
-            // State Jacobians: analytical partial blocks should match numerical references.
+            // Verify body-1 position partial against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
+            // Verify body-2 position partial against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Position, analyticalPartials.wrtBody2Position, 5.0E-5 );
+            // Verify body-1 gravitational parameter has no direct response in this acceleration convention.
             BOOST_CHECK_SMALL( analyticalPartialWrtBody1GravitationalParameter.norm( ), 1.0E-20 );
+            // Verify finite differencing also gives zero body-1 gravitational-parameter response.
             BOOST_CHECK_SMALL( numericalPartialWrtBody1GravitationalParameter.norm( ), 1.0E-20 );
+            // Verify body-2 gravitational-parameter partial against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalPartialWrtBody2GravitationalParameter, analyticalPartialWrtBody2GravitationalParameter, 1.0E-10 );
 
-            // Gravitational acceleration has no explicit velocity dependence in this model.
+            // Verify there is no analytical dependence on body-1 velocity.
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
+            // Verify there is no analytical dependence on body-2 velocity.
             BOOST_CHECK_SMALL( analyticalPartials.wrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
+            // Verify finite differencing also sees no body-1 velocity dependence.
             BOOST_CHECK_SMALL( numericalPartialWrtBody1Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
+            // Verify finite differencing also sees no body-2 velocity dependence.
             BOOST_CHECK_SMALL( numericalPartialWrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
 
-            // Coefficient Jacobians: active coefficient sets must match finite-difference references.
+            // Verify body-1 cosine coefficient partials against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-3 );
+            // Verify body-1 sine coefficient partials against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, analyticalPartials.wrtBody1Sine, 1.0E-3 );
 
             if( testCase.hasBody2ShapeTerms )
             {
+                // Verify active body-2 cosine coefficient partials against central finite differences.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, analyticalPartials.wrtBody2Cosine, 1.0E-3 );
+                // Verify active body-2 sine coefficient partials against central finite differences.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, analyticalPartials.wrtBody2Sine, 1.0E-3 );
             }
             else
             {
+                // Verify inactive body-2 cosine coefficients produce no analytical partial.
                 BOOST_CHECK_SMALL( analyticalPartials.wrtBody2Cosine.norm( ), 1.0E-20 );
+                // Verify inactive body-2 sine coefficients produce no analytical partial.
                 BOOST_CHECK_SMALL( analyticalPartials.wrtBody2Sine.norm( ), 1.0E-20 );
+                // Verify finite differencing confirms zero response to inactive body-2 cosine coefficients.
                 BOOST_CHECK_SMALL( numericalPartialWrtBody2Cosine.norm( ), 1.0E-20 );
+                // Verify finite differencing confirms zero response to inactive body-2 sine coefficients.
                 BOOST_CHECK_SMALL( numericalPartialWrtBody2Sine.norm( ), 1.0E-20 );
             }
 
@@ -711,6 +734,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     applyVariation( );
                     evaluateAccelerationForVariationParameter( );
 
+                    // Verify the gravity-field variation chain rule against direct variation-amplitude finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 3.0E-3 );
                     resetGravityFields( );
                 };
@@ -776,19 +800,24 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             analyticalPartialsByCase[ testCase.name ] = analyticalPartials;
         }
 
+        // Verify that adding mutual figure-figure terms changes the position Jacobian relative to the regular model.
         BOOST_CHECK_GT(
                 ( analyticalPartialsByCase.at( "mutual" ).wrtBody1Position - analyticalPartialsByCase.at( "regular" ).wrtBody1Position )
                         .norm( ),
                 1.0E-7 );
+        // Verify that even the single-point mutual model is distinct from the one-way regular model.
         BOOST_CHECK_GT( ( analyticalPartialsByCase.at( "mutualSinglePoint" ).wrtBody1Position -
                           analyticalPartialsByCase.at( "regular" ).wrtBody1Position )
                                 .norm( ),
                         1.0E-7 );
+        // Verify figure-figure coupling changes body-1 coefficient partials beyond the single-point mutual subset.
         BOOST_CHECK_GT( ( analyticalPartialsByCase.at( "mutual" ).wrtBody1Cosine -
                           analyticalPartialsByCase.at( "mutualSinglePoint" ).wrtBody1Cosine )
                                 .norm( ),
                         1.0E-14 );
+        // Verify body-2 cosine coefficients are active only in the full mutual model.
         BOOST_CHECK_GT( analyticalPartialsByCase.at( "mutual" ).wrtBody2Cosine.norm( ), 1.0E-8 );
+        // Verify body-2 sine coefficients are active only in the full mutual model.
         BOOST_CHECK_GT( analyticalPartialsByCase.at( "mutual" ).wrtBody2Sine.norm( ), 1.0E-8 );
     }
 }
@@ -951,6 +980,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > mutualExtendedModel =
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
                             createAccelerationModel( body1, body2, testCase.mutualExtendedSettings, "Body1", "Body2" ) );
+            // Require successful creation of the full-two-body model for this equivalence case.
             BOOST_REQUIRE( mutualExtendedModel != nullptr );
 
             std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > mutualExtendedPartial =
@@ -977,6 +1007,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 std::shared_ptr< CentralGravitationalAccelerationModel3d > pointMassModel =
                         std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( createAccelerationModel(
                                 body1, body2, std::make_shared< AccelerationSettings >( point_mass_gravity ), "Body1", "Body2" ) );
+                // Require the equivalent point-mass model needed for the reduction check.
                 BOOST_REQUIRE( pointMassModel != nullptr );
                 equivalentModel = pointMassModel;
                 equivalentPartial = std::make_shared< CentralGravitationPartial >( pointMassModel, "Body1", "Body2" );
@@ -986,6 +1017,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicModel =
                         std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( createAccelerationModel(
                                 body2, body1, std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ), "Body2", "Body1" ) );
+                // Require the equivalent one-way spherical-harmonic model for body-1 shape terms.
                 BOOST_REQUIRE( sphericalHarmonicModel != nullptr );
                 equivalentModel = sphericalHarmonicModel;
                 equivalentPartial = std::make_shared< SphericalHarmonicsGravityPartial >( "Body2", "Body1", sphericalHarmonicModel );
@@ -998,6 +1030,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicModel =
                         std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( createAccelerationModel(
                                 body1, body2, std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ), "Body1", "Body2" ) );
+                // Require the equivalent one-way spherical-harmonic model for body-2 shape terms.
                 BOOST_REQUIRE( sphericalHarmonicModel != nullptr );
                 equivalentModel = sphericalHarmonicModel;
                 equivalentPartial = std::make_shared< SphericalHarmonicsGravityPartial >( "Body1", "Body2", sphericalHarmonicModel );
@@ -1011,6 +1044,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                                                          std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ),
                                                          "Body1",
                                                          "Body2" ) );
+                // Require the legacy mutual spherical-harmonic model for the single-point mutual reduction check.
                 BOOST_REQUIRE( mutualSphericalModel != nullptr );
                 equivalentModel = mutualSphericalModel;
 
@@ -1025,7 +1059,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 equivalentPartial = std::make_shared< MutualSphericalHarmonicsGravityPartial >(
                         body2OnBody1Partial, body1OnBody2Partial, "Body1", "Body2", mutualSphericalModel );
             }
+            // Require a fully constructed equivalent model before comparing model-reduction partials.
             BOOST_REQUIRE( equivalentModel != nullptr );
+            // Require the analytical partial object for the equivalent model.
             BOOST_REQUIRE( equivalentPartial != nullptr );
 
             equivalentModel->updateMembers( evaluationTime );
@@ -1048,9 +1084,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
             equivalentPartialWrtBody1Position *= scaleToMutual;
             equivalentPartialWrtBody2Position *= scaleToMutual;
 
+            // Verify full-two-body body-1 position partial is active in this equivalence case.
             BOOST_CHECK_GT( mutualPartialWrtBody1Position.norm( ), 1.0E-12 );
+            // Verify full-two-body body-2 position partial is active in this equivalence case.
             BOOST_CHECK_GT( mutualPartialWrtBody2Position.norm( ), 1.0E-12 );
+            // Verify equivalent-model body-1 position partial is active.
             BOOST_CHECK_GT( equivalentPartialWrtBody1Position.norm( ), 1.0E-12 );
+            // Verify equivalent-model body-2 position partial is active.
             BOOST_CHECK_GT( equivalentPartialWrtBody2Position.norm( ), 1.0E-12 );
 
             // Position Jacobians from the full-two-body model must collapse to the equivalent model Jacobians.
@@ -1064,17 +1104,25 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 Eigen::MatrixXd equivalentPartialWrtBody1Sine =
                         equivalentPartial->wrtParameter( body1SineCoefficientsParameter ) * scaleToMutual;
 
+                // Verify full-two-body body-1 cosine coefficient partial is active before comparing values.
                 BOOST_CHECK_GT( mutualPartialWrtBody1Cosine.norm( ), 1.0E-16 );
+                // Verify full-two-body body-1 sine coefficient partial is active before comparing values.
                 BOOST_CHECK_GT( mutualPartialWrtBody1Sine.norm( ), 1.0E-16 );
+                // Verify equivalent-model body-1 cosine coefficient partial is active.
                 BOOST_CHECK_GT( equivalentPartialWrtBody1Cosine.norm( ), 1.0E-16 );
+                // Verify equivalent-model body-1 sine coefficient partial is active.
                 BOOST_CHECK_GT( equivalentPartialWrtBody1Sine.norm( ), 1.0E-16 );
 
+                // Verify body-1 cosine coefficient partial reduction to the equivalent model.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody1Cosine, equivalentPartialWrtBody1Cosine, 2.0E-14 );
+                // Verify body-1 sine coefficient partial reduction to the equivalent model.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody1Sine, equivalentPartialWrtBody1Sine, 2.0E-14 );
             }
             else
             {
+                // Verify body-1 cosine coefficients are inactive when absent from the interaction subset.
                 BOOST_CHECK_SMALL( mutualPartialWrtBody1Cosine.norm( ), 1.0E-20 );
+                // Verify body-1 sine coefficients are inactive when absent from the interaction subset.
                 BOOST_CHECK_SMALL( mutualPartialWrtBody1Sine.norm( ), 1.0E-20 );
             }
 
@@ -1085,17 +1133,25 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicPartialsAgainstEquivalentS
                 Eigen::MatrixXd equivalentPartialWrtBody2Sine =
                         equivalentPartial->wrtParameter( body2SineCoefficientsParameter ) * scaleToMutual;
 
+                // Verify full-two-body body-2 cosine coefficient partial is active before comparing values.
                 BOOST_CHECK_GT( mutualPartialWrtBody2Cosine.norm( ), 1.0E-16 );
+                // Verify full-two-body body-2 sine coefficient partial is active before comparing values.
                 BOOST_CHECK_GT( mutualPartialWrtBody2Sine.norm( ), 1.0E-16 );
+                // Verify equivalent-model body-2 cosine coefficient partial is active.
                 BOOST_CHECK_GT( equivalentPartialWrtBody2Cosine.norm( ), 1.0E-16 );
+                // Verify equivalent-model body-2 sine coefficient partial is active.
                 BOOST_CHECK_GT( equivalentPartialWrtBody2Sine.norm( ), 1.0E-16 );
 
+                // Verify body-2 cosine coefficient partial reduction to the equivalent model.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody2Cosine, equivalentPartialWrtBody2Cosine, 2.0E-14 );
+                // Verify body-2 sine coefficient partial reduction to the equivalent model.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( mutualPartialWrtBody2Sine, equivalentPartialWrtBody2Sine, 2.0E-14 );
             }
             else
             {
+                // Verify body-2 cosine coefficients are inactive when absent from the interaction subset.
                 BOOST_CHECK_SMALL( mutualPartialWrtBody2Cosine.norm( ), 1.0E-20 );
+                // Verify body-2 sine coefficients are inactive when absent from the interaction subset.
                 BOOST_CHECK_SMALL( mutualPartialWrtBody2Sine.norm( ), 1.0E-20 );
             }
         }
@@ -1206,9 +1262,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     std::shared_ptr< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel > mutualExtendedModel =
             std::dynamic_pointer_cast< ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel( body1, body2, mutualExtendedSettings, "Body1", "Body2", centralBody, "CentralBody", bodies ) );
+    // Require the third-body full-two-body acceleration model before testing its partials.
     BOOST_REQUIRE( mutualExtendedModel != nullptr );
 
     mutualExtendedModel->updateMembers( evaluationTime );
+    // Verify the selected three-body geometry produces a nonzero acceleration response.
     BOOST_CHECK_GT( mutualExtendedModel->getAcceleration( ).norm( ), 1.0E-16 );
 
     std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters;
@@ -1219,6 +1277,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     std::shared_ptr< AccelerationPartial > mutualExtendedPartial = createAnalyticalAccelerationPartial(
             mutualExtendedModel, std::make_pair( "Body1", body1 ), std::make_pair( "Body2", body2 ), bodies, parameterSet );
 
+    // Require creation of the analytical third-body partial object.
     BOOST_REQUIRE( mutualExtendedPartial != nullptr );
 
     mutualExtendedPartial->update( evaluationTime );
@@ -1231,8 +1290,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     mutualExtendedPartial->wrtPositionOfAcceleratingBody( partialWrtBody2PositionExtended.block( 0, 0, 3, 3 ) );
     mutualExtendedPartial->wrtPositionOfAdditionalBody( "CentralBody", partialWrtCentralBodyPositionExtended.block( 0, 0, 3, 3 ) );
 
+    // Verify body-1 position partial is active in the third-body geometry.
     BOOST_CHECK_GT( partialWrtBody1PositionExtended.norm( ), 1.0E-16 );
+    // Verify body-2 position partial is active in the third-body geometry.
     BOOST_CHECK_GT( partialWrtBody2PositionExtended.norm( ), 1.0E-16 );
+    // Verify central-body position partial is active in the third-body geometry.
     BOOST_CHECK_GT( partialWrtCentralBodyPositionExtended.norm( ), 1.0E-16 );
 
     std::shared_ptr< SphericalHarmonicsCosineCoefficients > body1CosineCoefficientsParameter =
@@ -1299,11 +1361,17 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     const Eigen::MatrixXd partialWrtCentralCosineExtended = mutualExtendedPartial->wrtParameter( centralCosineCoefficientsParameter );
     const Eigen::MatrixXd partialWrtCentralSineExtended = mutualExtendedPartial->wrtParameter( centralSineCoefficientsParameter );
 
+    // Verify body-1 cosine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtBody1CosineExtended.norm( ), 1.0E-16 );
+    // Verify body-1 sine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtBody1SineExtended.norm( ), 1.0E-16 );
+    // Verify body-2 cosine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtBody2CosineExtended.norm( ), 1.0E-16 );
+    // Verify body-2 sine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtBody2SineExtended.norm( ), 1.0E-16 );
+    // Verify central-body cosine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtCentralCosineExtended.norm( ), 1.0E-16 );
+    // Verify central-body sine coefficient partial is active.
     BOOST_CHECK_GT( partialWrtCentralSineExtended.norm( ), 1.0E-16 );
 
     const Eigen::Vector3d positionPerturbation = Eigen::Vector3d::Constant( 10.0 );
@@ -1318,8 +1386,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     Eigen::Matrix3d numericalPartialWrtCentralPosition = calculateAccelerationWrtStatePartials(
             centralStateSetFunction, mutualExtendedModel, centralBody->getState( ), positionPerturbation, 0 );
 
+    // Verify body-1 third-body position partial against central finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, partialWrtBody1PositionExtended, 5.0E-5 );
+    // Verify body-2 third-body position partial against central finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Position, partialWrtBody2PositionExtended, 5.0E-5 );
+    // Verify central-body third-body position partial against central finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralPosition, partialWrtCentralBodyPositionExtended, 5.0E-5 );
 
     Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateAccelerationWrtParameterPartials(
@@ -1347,11 +1418,17 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
             mutualExtendedModel,
             Eigen::VectorXd::Constant( centralSineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
 
+    // Verify body-1 cosine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, partialWrtBody1CosineExtended, 1.0E-3 );
+    // Verify body-1 sine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, partialWrtBody1SineExtended, 1.0E-3 );
+    // Verify body-2 cosine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, partialWrtBody2CosineExtended, 1.0E-3 );
+    // Verify body-2 sine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, partialWrtBody2SineExtended, 1.0E-3 );
+    // Verify central-body cosine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralCosine, partialWrtCentralCosineExtended, 1.0E-3 );
+    // Verify central-body sine coefficient third-body partial against finite differences.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralSine, partialWrtCentralSineExtended, 1.0E-3 );
 }
 

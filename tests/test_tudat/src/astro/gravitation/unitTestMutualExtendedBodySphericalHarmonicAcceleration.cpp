@@ -206,6 +206,7 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
     const Eigen::Vector3d directCrossTermAcceleration = degreeTwoCrossAcceleration->getAcceleration( );
     const Eigen::Vector3d isolationDifference = isolatedCrossTermAcceleration - directCrossTermAcceleration;
     const double isolationScale = std::max( 1.0, isolatedCrossTermAcceleration.norm( ) );
+    // Verify direct degree-2/degree-2 acceleration equals the same term isolated by model subtraction.
     BOOST_CHECK_SMALL( isolationDifference.norm( ) / isolationScale, 5.0E-14 );
 
     // Check 2: cross-term acceleration scales linearly with degree-2 coefficients of body 2.
@@ -238,6 +239,7 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
 
     const Eigen::Vector3d scaledDifference = scaledCrossAcceleration->getAcceleration( ) - scalingFactor * directCrossTermAcceleration;
     const double scalingReference = std::max( 1.0, directCrossTermAcceleration.norm( ) );
+    // Verify figure-figure acceleration is linear in the body-2 degree-2 coefficients.
     BOOST_CHECK_SMALL( scaledDifference.norm( ) / scalingReference, 5.0E-14 );
 
     // Check 3: zero degree-2 coefficients of body 2 must null the degree-2 cross-term acceleration.
@@ -267,6 +269,7 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
                                                        rotationToBody2 );
     zeroedCrossAcceleration->updateMembers( currentTime );
 
+    // Verify the degree-2/degree-2 interaction vanishes when body-2 degree-2 coefficients are zero.
     BOOST_CHECK_SMALL( zeroedCrossAcceleration->getAcceleration( ).norm( ), 1.0E-22 );
 }
 
@@ -568,6 +571,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the l1<=N,l2=0 subset matches the scaled one-way spherical-harmonic acceleration component-wise.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -587,6 +591,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the l1=0,l2<=N subset matches the direct one-way spherical-harmonic acceleration component-wise.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -605,6 +610,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the swapped-body l1=0,l2<=N subset matches the direct one-way model component-wise.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -626,6 +632,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the swapped-body l1<=N,l2=0 subset matches the scaled one-way model component-wise.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -647,6 +654,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the extended-single-point subset reproduces the legacy mutual acceleration component-wise.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -669,6 +677,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify swapped-body extended-single-point equivalence after sign/scale conversion.
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
             }
         }
@@ -698,6 +707,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                                                      "Io",
                                                      bodyMap.at( "Jupiter" ),
                                                      "Jupiter" ) );
+            // Require the third-body full-two-body model before decomposition checks.
             BOOST_REQUIRE( thirdBodyMutualExtendedModel != nullptr );
             thirdBodyMutualExtendedModel->updateMembers( );
             const Eigen::Vector3d thirdBodyMutualExtendedAcceleration = thirdBodyMutualExtendedModel->getAcceleration( );
@@ -711,6 +721,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > directAccelerationOnUndergoingBody =
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >( createAccelerationModel(
                             bodyMap.at( "Europa" ), bodyMap.at( "Io" ), directUndergoingSettings, "Europa", "Io" ) );
+            // Require the direct acceleration model for the body undergoing acceleration.
             BOOST_REQUIRE( directAccelerationOnUndergoingBody != nullptr );
             directAccelerationOnUndergoingBody->updateMembers( );
             const Eigen::Vector3d directUndergoingAcceleration = directAccelerationOnUndergoingBody->getAcceleration( );
@@ -724,6 +735,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > directAccelerationOnCentralBody =
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >( createAccelerationModel(
                             bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), directCentralSettings, "Jupiter", "Io" ) );
+            // Require the direct acceleration model for the central body.
             BOOST_REQUIRE( directAccelerationOnCentralBody != nullptr );
             directAccelerationOnCentralBody->updateMembers( );
             const Eigen::Vector3d directCentralAcceleration = directAccelerationOnCentralBody->getAcceleration( );
@@ -733,20 +745,26 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             const Eigen::Vector3d centralAccelerationFromThirdBodyModel =
                     thirdBodyMutualExtendedModel->getAccelerationModelForCentralBody( )->getAcceleration( );
 
+            // Verify the body-undergoing direct term in the third-body model is nonzero.
             BOOST_CHECK_GT( directAccelerationFromThirdBodyModel.norm( ), 1.0E-16 );
+            // Verify the central-body direct term in the third-body model is nonzero.
             BOOST_CHECK_GT( centralAccelerationFromThirdBodyModel.norm( ), 1.0E-16 );
+            // Verify the resulting third-body acceleration is nonzero.
             BOOST_CHECK_GT( thirdBodyMutualExtendedAcceleration.norm( ), 1.0E-16 );
 
             for( unsigned int i = 0; i < 3; i++ )
             {
+                // Verify the internal direct term equals the separately constructed body-undergoing model.
                 BOOST_CHECK_SMALL(
                         directAccelerationFromThirdBodyModel( i ) - directUndergoingAcceleration( i ),
                         15.0 * std::numeric_limits< double >::epsilon( ) * std::max( directAccelerationFromThirdBodyModel.norm( ), 1.0 ) );
 
+                // Verify the internal central term equals the separately constructed central-body model.
                 BOOST_CHECK_SMALL(
                         centralAccelerationFromThirdBodyModel( i ) - directCentralAcceleration( i ),
                         15.0 * std::numeric_limits< double >::epsilon( ) * std::max( centralAccelerationFromThirdBodyModel.norm( ), 1.0 ) );
 
+                // Verify third-body acceleration equals direct-undergoing minus direct-central component-wise.
                 BOOST_CHECK_SMALL(
                         thirdBodyMutualExtendedAcceleration( i ) -
                                 ( directAccelerationFromThirdBodyModel( i ) - centralAccelerationFromThirdBodyModel( i ) ),
@@ -834,6 +852,9 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAsMutualPotentialGradient )
 {
+    // Test rationale:
+    // Verify that the implemented full-two-body acceleration equals the numerical gradient of the same mutual
+    // potential field, for a mixed degree/order interaction set with nontrivial rotations.
     const auto coefficientCombinations = FullTwoBodySphericalHarmonicAccelerationSettings( 4, 2, 3, 2 ).coefficientCombinationsToUse_;
     const double gravitationalParameter = 5.0E5, radius1 = 1300.0, radius2 = 900.0, currentTime = 42.0;
     const Eigen::Vector3d nominalPosition( 5100.0, -2300.0, 3700.0 );
@@ -887,6 +908,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAsMutualPotentialGradient )
     }
     const Eigen::Vector3d finiteDifferenceGradient =
             model->getCurrentRotationFromInertialToBody1( ).inverse( ) * finiteDifferenceGradientInBody1Frame;
+    // Verify acceleration consistency with the central finite-difference gradient of the mutual potential.
     BOOST_CHECK_SMALL( ( model->getAcceleration( ) - finiteDifferenceGradient ).norm( ) / model->getAcceleration( ).norm( ), 1.0E-8 );
 }
 

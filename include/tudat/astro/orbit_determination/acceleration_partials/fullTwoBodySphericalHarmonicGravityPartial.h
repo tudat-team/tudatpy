@@ -36,7 +36,8 @@ Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
 //! Class for analytical partial derivatives of the full two-body spherical-harmonic acceleration.
 /*!
  * Evaluates derivatives of the acceleration model based on Dirkx et al. (2019) effective-coefficient
- * formulation (Eqs. (47)-(49)) and translational dynamics expression (Eq. (55)).
+ * formulation (Dirkx et al. (2019), Eqs. (47)-(49)) and translational dynamics expression
+ * (Dirkx et al. (2019), Eq. (55)).
  */
 class FullTwoBodySphericalHarmonicsGravityPartial : public AccelerationPartial
 {

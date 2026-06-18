@@ -31,7 +31,7 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
     toLocalFrameOfBody2Transformation_( toLocalFrameOfBody2Transformation ), isMutualAttractionUsed_( isMutualAttractionUsed ),
     areCoefficientsNormalized_( areCoefficientsNormalized )
 {
-    // Determine the maximum effective degree/order l,m used in the Eq. (49) summation of Dirkx et al. (2019),
+    // Determine the maximum effective degree/order l,m used in Dirkx et al. (2019), Eq. (49),
     // with l=l1+l2 and m=|m1+m2| for each selected (l1,m1,l2,m2) interaction tuple.
     maximumDegree_ = 0;
     maximumOrder_ = 0;
@@ -55,7 +55,8 @@ FullTwoBodySphericalHarmonicAcceleration::FullTwoBodySphericalHarmonicAccelerati
         }
     }
 
-    // The geodesy-normalized acceleration evaluation precomputes P_lm and dP_lm/dphi terms used in Eq. (55),
+    // The geodesy-normalized acceleration evaluation precomputes P_lm and dP_lm/dphi terms used in
+    // Dirkx et al. (2019), Eq. (55),
     // and requires access up to m=l+1 for each l due to derivative evaluation.
     maximumOrder_ = std::max( maximumOrder_, maximumDegree_ );
 

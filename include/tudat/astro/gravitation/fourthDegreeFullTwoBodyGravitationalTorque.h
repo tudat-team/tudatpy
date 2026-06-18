@@ -25,7 +25,7 @@ namespace tudat
 namespace gravitation
 {
 
-//! Compute the fourth-degree full two-body gravitational torque from Schutz (1981), Eq. (11).
+//! Compute the fourth-degree full two-body gravitational torque from Schutz et al. (1981), Eq. (11).
 /*!
  * Computes the torque on body 1 (the body undergoing torque), in body-1-fixed coordinates.
  * The input inertia tensor of body 2 must be expressed in body-1-fixed coordinates.
@@ -42,7 +42,7 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorqueFromTensorCom
         const Eigen::Matrix3d& inertiaTensorOfBodyUndergoingTorque,
         const Eigen::Matrix3d& inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque );
 
-//! Compute the fourth-degree full two-body gravitational torque from Schutz (1981), Eq. (11).
+//! Compute the fourth-degree full two-body gravitational torque from Schutz et al. (1981), Eq. (11).
 /*!
  * Computes the torque on body 1 (the body undergoing torque), in body-1-fixed coordinates.
  * The input inertia tensor of body 2 must be expressed in body-1-fixed coordinates.
@@ -59,11 +59,11 @@ Eigen::Vector3d calculateFourthDegreeFullTwoBodyGravitationalTorque(
         const Eigen::Matrix3d& inertiaTensorOfBodyUndergoingTorque,
         const Eigen::Matrix3d& inertiaTensorOfBodyExertingTorqueInFrameOfBodyUndergoingTorque );
 
-//! Torque model implementing Schutz et al. (1981) fourth-degree two-body torque (Eq. 11).
+//! Torque model implementing Schutz et al. (1981), Eq. (11), fourth-degree two-body torque.
 /*!
  *  This model implements the closed-form tensor-component formulation from:
  *  Schutz, B. E., Tapley, B. D., Born, G. H. (1981), Celestial Mechanics, 24, 173-181.
- *  The implemented torque expression corresponds to Eq. (11), evaluated in body-1-fixed coordinates.
+ *  The implemented torque expression corresponds to Schutz et al. (1981), Eq. (11), evaluated in body-1-fixed coordinates.
  */
 class FourthDegreeFullTwoBodyGravitationalTorqueModel : public basic_astrodynamics::TorqueModel
 {

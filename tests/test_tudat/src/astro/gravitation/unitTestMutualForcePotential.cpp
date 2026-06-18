@@ -46,7 +46,9 @@ double computeSFunctionFromLiterature( const int order )
 
 double computeGammaFromLiterature( const int degree1, const int order1, const int degree2, const int order2 )
 {
+    // Require valid body-1 degree/order input before evaluating the literature factorial expression.
     BOOST_REQUIRE_LE( std::abs( order1 ), degree1 );
+    // Require valid body-2 degree/order input before evaluating the literature factorial expression.
     BOOST_REQUIRE_LE( std::abs( order2 ), degree2 );
 
     if( ( degree1 == 0 && order1 == 0 ) || ( degree2 == 0 && order2 == 0 ) )
@@ -66,7 +68,9 @@ double computeGammaFromLiterature( const int degree1, const int order1, const in
 
 double computeNormalizedEffectiveMultiplierFromLiterature( const int degree1, const int order1, const int degree2, const int order2 )
 {
+    // Require valid body-1 degree/order input before evaluating the normalized multiplier.
     BOOST_REQUIRE_LE( std::abs( order1 ), degree1 );
+    // Require valid body-2 degree/order input before evaluating the normalized multiplier.
     BOOST_REQUIRE_LE( std::abs( order2 ), degree2 );
 
     // Literature sources used for this factor:
@@ -98,7 +102,9 @@ std::pair< double, double > computeExpectedEffectiveCoefficientsFromLiterature( 
                                                                                 const int degree2,
                                                                                 const int order2 )
 {
+    // Require valid body-1 degree/order input before reading the coefficient arrays.
     BOOST_REQUIRE_LE( std::abs( order1 ), degree1 );
+    // Require valid body-2 degree/order input before reading the coefficient arrays.
     BOOST_REQUIRE_LE( std::abs( order2 ), degree2 );
 
     const double cosineBody1 = cosineBody1Coefficients( degree1, std::abs( order1 ) );
@@ -147,12 +153,14 @@ void validateSingleCombinationAgainstLiterature( gravitation::EffectiveMutualSph
                                                                 degree2,
                                                                 order2 );
 
+    // Verify the effective cosine coefficient against the independent literature expression.
     BOOST_CHECK_SMALL( std::fabs( computedCosine - expectedCoefficients.first ), tolerance );
     // The m=0 sine basis function is identically zero in the potential. The
     // physical coefficient check for signed pairs with m1 + m2 = 0 is therefore
     // carried by the cosine coefficient.
     if( order1 + order2 != 0 )
     {
+        // Verify the effective sine coefficient when the associated sine basis is not identically zero.
         BOOST_CHECK_SMALL( std::fabs( computedSine - expectedCoefficients.second ), tolerance );
     }
 }
