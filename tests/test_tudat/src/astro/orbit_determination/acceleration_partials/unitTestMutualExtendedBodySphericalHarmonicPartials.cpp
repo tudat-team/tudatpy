@@ -79,14 +79,6 @@ Eigen::Vector4d getSignConsistentQuaternionVector( const Eigen::Quaterniond& qua
     return quaternionVector;
 }
 
-Eigen::Matrix< double, 4, 3 > getConstrainedQuaternionPartialWrtVectorPart( const Eigen::Vector4d& quaternionVector )
-{
-    Eigen::Matrix< double, 4, 3 > partial = Eigen::Matrix< double, 4, 3 >::Zero( );
-    partial.block( 1, 0, 3, 3 ).setIdentity( );
-    partial.block( 0, 0, 1, 3 ) = -quaternionVector.segment( 1, 3 ).transpose( ) / quaternionVector( 0 );
-    return partial;
-}
-
 BOOST_AUTO_TEST_CASE( testRotationMatrixPartialToQuaternionPartialChain )
 {
     // Test rationale:
@@ -422,40 +414,26 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                             std::make_pair( bodyName, "" ),
                             propagators::rotational_state );
 
-                    const Eigen::Vector7d nominalState = body->getRotationalStateVector( );
-                    const Eigen::Matrix< double, 4, 3 > constrainedQuaternionPartial =
-                            getConstrainedQuaternionPartialWrtVectorPart( nominalState.segment( 0, 4 ) );
-                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, 3 );
-                    const double perturbation = 1.0E-7;
-                    for( int i = 0; i < 3; i++ )
-                    {
-                        Eigen::Vector7d perturbedState = nominalState;
-                        perturbedState( i + 1 ) += perturbation;
-                        perturbedState( 0 ) =
-                                ( nominalState( 0 ) > 0.0 ? 1.0 : -1.0 ) * std::sqrt( 1.0 - perturbedState.segment( 1, 3 ).squaredNorm( ) );
-                        body->setCurrentRotationalStateToLocalFrame( perturbedState );
-                        accelerationModel->resetCurrentTime( );
-                        const Eigen::Vector3d upAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
-                                accelerationModel, rotationParameterEvaluationTime );
-
-                        perturbedState = nominalState;
-                        perturbedState( i + 1 ) -= perturbation;
-                        perturbedState( 0 ) =
-                                ( nominalState( 0 ) > 0.0 ? 1.0 : -1.0 ) * std::sqrt( 1.0 - perturbedState.segment( 1, 3 ).squaredNorm( ) );
-                        body->setCurrentRotationalStateToLocalFrame( perturbedState );
-                        accelerationModel->resetCurrentTime( );
-                        const Eigen::Vector3d downAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
-                                accelerationModel, rotationParameterEvaluationTime );
-                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
-                    }
-                    body->setCurrentRotationalStateToLocalFrame( nominalState );
+                    std::vector< Eigen::Vector4d > appliedQuaternionPerturbations;
+                    const Eigen::MatrixXd accelerationDeviation = calculateAccelerationDeviationDueToOrientationChange(
+                            std::bind( &Body::setCurrentRotationalStateToLocalFrame, body, std::placeholders::_1 ),
+                            accelerationModel,
+                            body->getRotationalStateVector( ),
+                            Eigen::Vector4d::Constant( 1.0E-7 ),
+                            appliedQuaternionPerturbations,
+                            [ & ]( ) { accelerationModel->resetCurrentTime( ); },
+                            rotationParameterEvaluationTime );
                     accelerationModel->resetCurrentTime( );
                     evaluateAccelerationForRotationParameter( );
 
-                    const Eigen::MatrixXd analyticalConstrainedPartial =
-                            analyticalPartialWrtRotationalState.block( 0, 0, 3, 4 ) * constrainedQuaternionPartial;
-                    // Verify the constrained quaternion-state partial against central finite differences.
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalConstrainedPartial, numericalPartial, 1.0E-5 );
+                    for( int index = 1; index < 4; index++ )
+                    {
+                        const Eigen::Vector3d analyticalAccelerationDeviation =
+                                analyticalPartialWrtRotationalState.block( 0, 0, 3, 4 ) * appliedQuaternionPerturbations.at( index );
+                        // Verify the quaternion-state partial against the shared orientation-deviation finite-difference helper.
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                analyticalAccelerationDeviation, accelerationDeviation.col( index - 1 ), 1.0E-5 );
+                    }
                 };
                 checkCentralQuaternionStatePartial( body1, "Body1" );
                 checkCentralQuaternionStatePartial( body2, "Body2" );
@@ -463,37 +441,33 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                 auto checkRotationRatePartial = [ & ]( const std::shared_ptr< RotationRate >& rotationRateParameter ) {
                     evaluateAccelerationForRotationParameter( );
                     const Eigen::Vector3d analyticalPartial = rotationAccelerationPartial->wrtParameter( rotationRateParameter );
-                    const double nominalValue = rotationRateParameter->getParameterValue( );
-                    const double perturbation = 1.0E-8;
-                    rotationRateParameter->setParameterValue( nominalValue + perturbation );
-                    const Eigen::Vector3d upAcceleration = evaluateAccelerationForRotationParameter( );
-                    rotationRateParameter->setParameterValue( nominalValue - perturbation );
-                    const Eigen::Vector3d downAcceleration = evaluateAccelerationForRotationParameter( );
-                    rotationRateParameter->setParameterValue( nominalValue );
+                    const Eigen::Vector3d numericalPartial = calculateAccelerationWrtParameterPartials(
+                            rotationRateParameter,
+                            accelerationModel,
+                            1.0E-8,
+                            emptyFunction,
+                            rotationParameterEvaluationTime,
+                            [ & ]( const double currentTime ) {
+                                body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                            } );
                     evaluateAccelerationForRotationParameter( );
-                    const Eigen::Vector3d numericalPartial = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
                     // Verify the constant-rotation-rate partial against direct parameter finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
                 };
                 auto checkPolePositionPartial = [ & ]( const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter ) {
                     evaluateAccelerationForRotationParameter( );
                     const Eigen::MatrixXd analyticalPartial = rotationAccelerationPartial->wrtParameter( polePositionParameter );
-                    const Eigen::VectorXd nominalValue = polePositionParameter->getParameterValue( );
-                    const double perturbation = 1.0E-7;
-                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, 2 );
-                    for( int i = 0; i < 2; i++ )
-                    {
-                        Eigen::VectorXd perturbedValue = nominalValue;
-                        perturbedValue( i ) += perturbation;
-                        polePositionParameter->setParameterValue( perturbedValue );
-                        const Eigen::Vector3d upAcceleration = evaluateAccelerationForRotationParameter( );
-                        perturbedValue = nominalValue;
-                        perturbedValue( i ) -= perturbation;
-                        polePositionParameter->setParameterValue( perturbedValue );
-                        const Eigen::Vector3d downAcceleration = evaluateAccelerationForRotationParameter( );
-                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
-                    }
-                    polePositionParameter->setParameterValue( nominalValue );
+                    const Eigen::MatrixXd numericalPartial = calculateAccelerationWrtParameterPartials(
+                            polePositionParameter,
+                            accelerationModel,
+                            Eigen::VectorXd::Constant( polePositionParameter->getParameterSize( ), 1.0E-7 ),
+                            emptyFunction,
+                            rotationParameterEvaluationTime,
+                            [ & ]( const double currentTime ) {
+                                body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                            } );
                     evaluateAccelerationForRotationParameter( );
                     // Verify the pole-position partial against direct parameter finite differences.
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
@@ -524,96 +498,72 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                 accelerationPartial->update( evaluationTime );
             }
 
-            // Finite-difference reference:
-            // each acceleration evaluation advances the time tag by 1 second so the bodies refresh their current
-            // rotational states through the ephemeris interface before model evaluation.
-            double finiteDifferenceTimeTag = evaluationTime;
-            auto evaluateAcceleration = [ & ]( ) {
-                finiteDifferenceTimeTag += 1.0;
-                body1->setCurrentRotationToLocalFrameFromEphemeris( finiteDifferenceTimeTag );
-                body2->setCurrentRotationToLocalFrameFromEphemeris( finiteDifferenceTimeTag );
-                accelerationModel->updateMembers( finiteDifferenceTimeTag );
-                return accelerationModel->getAcceleration( );
-            };
-
-            auto calculateStatePartial = [ & ]( const std::function< void( Eigen::Vector6d ) >& setState,
-                                                Eigen::Vector6d nominalState,
-                                                const Eigen::Vector3d& perturbation,
-                                                const int startIndex ) {
-                Eigen::Matrix3d partial = Eigen::Matrix3d::Zero( );
-                Eigen::Vector6d perturbedState = nominalState;
-
-                for( int i = 0; i < 3; i++ )
-                {
-                    perturbedState = nominalState;
-                    perturbedState( startIndex + i ) += perturbation( i );
-                    setState( perturbedState );
-                    const Eigen::Vector3d upAcceleration = evaluateAcceleration( );
-
-                    perturbedState = nominalState;
-                    perturbedState( startIndex + i ) -= perturbation( i );
-                    setState( perturbedState );
-                    const Eigen::Vector3d downAcceleration = evaluateAcceleration( );
-
-                    partial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation( i ) );
-                }
-
-                setState( nominalState );
-                evaluateAcceleration( );
-                return partial;
-            };
-
-            auto calculateVectorParameterPartial = [ & ]( const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
-                                                          const Eigen::VectorXd& perturbation ) {
-                const Eigen::VectorXd nominalValue = parameter->getParameterValue( );
-                Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( 3, nominalValue.size( ) );
-                Eigen::VectorXd perturbedValue = nominalValue;
-
-                for( int i = 0; i < nominalValue.size( ); i++ )
-                {
-                    perturbedValue = nominalValue;
-                    perturbedValue( i ) += perturbation( i );
-                    parameter->setParameterValue( perturbedValue );
-                    const Eigen::Vector3d upAcceleration = evaluateAcceleration( );
-
-                    perturbedValue = nominalValue;
-                    perturbedValue( i ) -= perturbation( i );
-                    parameter->setParameterValue( perturbedValue );
-                    const Eigen::Vector3d downAcceleration = evaluateAcceleration( );
-
-                    partial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation( i ) );
-                }
-
-                parameter->setParameterValue( nominalValue );
-                evaluateAcceleration( );
-                return partial;
+            const std::function< void( ) > updateAccelerationFiniteDifferenceEnvironment = [ & ]( ) {
+                body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+                body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
             };
 
             const Eigen::Matrix3d numericalPartialWrtBody1Position =
-                    calculateStatePartial( body1StateSetFunction, body1->getState( ), positionPerturbation, 0 );
+                    calculateAccelerationWrtStatePartials( body1StateSetFunction,
+                                                           accelerationModel,
+                                                           body1->getState( ),
+                                                           positionPerturbation,
+                                                           0,
+                                                           updateAccelerationFiniteDifferenceEnvironment,
+                                                           evaluationTime );
             const Eigen::Matrix3d numericalPartialWrtBody1Velocity =
-                    calculateStatePartial( body1StateSetFunction, body1->getState( ), velocityPerturbation, 3 );
+                    calculateAccelerationWrtStatePartials( body1StateSetFunction,
+                                                           accelerationModel,
+                                                           body1->getState( ),
+                                                           velocityPerturbation,
+                                                           3,
+                                                           updateAccelerationFiniteDifferenceEnvironment,
+                                                           evaluationTime );
             const Eigen::Matrix3d numericalPartialWrtBody2Position =
-                    calculateStatePartial( body2StateSetFunction, body2->getState( ), positionPerturbation, 0 );
+                    calculateAccelerationWrtStatePartials( body2StateSetFunction,
+                                                           accelerationModel,
+                                                           body2->getState( ),
+                                                           positionPerturbation,
+                                                           0,
+                                                           updateAccelerationFiniteDifferenceEnvironment,
+                                                           evaluationTime );
             const Eigen::Matrix3d numericalPartialWrtBody2Velocity =
-                    calculateStatePartial( body2StateSetFunction, body2->getState( ), velocityPerturbation, 3 );
+                    calculateAccelerationWrtStatePartials( body2StateSetFunction,
+                                                           accelerationModel,
+                                                           body2->getState( ),
+                                                           velocityPerturbation,
+                                                           3,
+                                                           updateAccelerationFiniteDifferenceEnvironment,
+                                                           evaluationTime );
 
-            const Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateVectorParameterPartial(
+            const Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateAccelerationWrtParameterPartials(
                     body1CosineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
-            const Eigen::MatrixXd numericalPartialWrtBody1Sine = calculateVectorParameterPartial(
+                    accelerationModel,
+                    Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-2 ),
+                    updateAccelerationFiniteDifferenceEnvironment,
+                    evaluationTime );
+            const Eigen::MatrixXd numericalPartialWrtBody1Sine = calculateAccelerationWrtParameterPartials(
                     body1SineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
-            const Eigen::MatrixXd numericalPartialWrtBody2Cosine = calculateVectorParameterPartial(
+                    accelerationModel,
+                    Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-2 ),
+                    updateAccelerationFiniteDifferenceEnvironment,
+                    evaluationTime );
+            const Eigen::MatrixXd numericalPartialWrtBody2Cosine = calculateAccelerationWrtParameterPartials(
                     body2CosineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
-            const Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateVectorParameterPartial(
+                    accelerationModel,
+                    Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-2 ),
+                    updateAccelerationFiniteDifferenceEnvironment,
+                    evaluationTime );
+            const Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateAccelerationWrtParameterPartials(
                     body2SineCoefficientsParameter,
-                    Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-6 ) );
+                    accelerationModel,
+                    Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-2 ),
+                    updateAccelerationFiniteDifferenceEnvironment,
+                    evaluationTime );
             const Eigen::Vector3d numericalPartialWrtBody1GravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    body1GravitationalParameter, accelerationModel, 10.0, emptyFunction, evaluationTime );
+                    body1GravitationalParameter, accelerationModel, 10.0, updateAccelerationFiniteDifferenceEnvironment, evaluationTime );
             const Eigen::Vector3d numericalPartialWrtBody2GravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    body2GravitationalParameter, accelerationModel, 10.0, emptyFunction, evaluationTime );
+                    body2GravitationalParameter, accelerationModel, 10.0, updateAccelerationFiniteDifferenceEnvironment, evaluationTime );
 
             // Verify body-1 position partial against central finite differences.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Position, analyticalPartials.wrtBody1Position, 5.0E-5 );
@@ -637,16 +587,16 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             BOOST_CHECK_SMALL( numericalPartialWrtBody2Velocity.norm( ), std::numeric_limits< double >::epsilon( ) );
 
             // Verify body-1 cosine coefficient partials against central finite differences.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-3 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, analyticalPartials.wrtBody1Cosine, 1.0E-8 );
             // Verify body-1 sine coefficient partials against central finite differences.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, analyticalPartials.wrtBody1Sine, 1.0E-3 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, analyticalPartials.wrtBody1Sine, 1.0E-8 );
 
             if( testCase.hasBody2ShapeTerms )
             {
                 // Verify active body-2 cosine coefficient partials against central finite differences.
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, analyticalPartials.wrtBody2Cosine, 1.0E-3 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, analyticalPartials.wrtBody2Cosine, 1.0E-8 );
                 // Verify active body-2 sine coefficient partials against central finite differences.
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, analyticalPartials.wrtBody2Sine, 1.0E-3 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, analyticalPartials.wrtBody2Sine, 1.0E-8 );
             }
             else
             {
@@ -702,36 +652,27 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                         gravityField->setCosineCoefficients( cosineCoefficients );
                         gravityField->setSineCoefficients( sineCoefficients );
                     };
+                    const std::function< void( ) > updateVariationEnvironment = [ & ]( ) {
+                        resetGravityFields( );
+                        applyVariation( );
+                    };
 
-                    resetGravityFields( );
-                    applyVariation( );
+                    updateVariationEnvironment( );
                     evaluateAccelerationForVariationParameter( );
                     const Eigen::MatrixXd analyticalPartial = accelerationPartial->wrtParameter( parameter );
 
                     const Eigen::VectorXd nominalParameter = parameter->getParameterValue( );
-                    const Eigen::VectorXd perturbation = Eigen::VectorXd::Constant( nominalParameter.size( ), 1.0E-5 );
-                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, nominalParameter.size( ) );
-                    for( int i = 0; i < nominalParameter.size( ); i++ )
-                    {
-                        Eigen::VectorXd perturbedParameter = nominalParameter;
-                        perturbedParameter( i ) += perturbation( i );
-                        parameter->setParameterValue( perturbedParameter );
-                        resetGravityFields( );
-                        applyVariation( );
-                        const Eigen::Vector3d upAcceleration = evaluateAccelerationForVariationParameter( );
-
-                        perturbedParameter = nominalParameter;
-                        perturbedParameter( i ) -= perturbation( i );
-                        parameter->setParameterValue( perturbedParameter );
-                        resetGravityFields( );
-                        applyVariation( );
-                        const Eigen::Vector3d downAcceleration = evaluateAccelerationForVariationParameter( );
-
-                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation( i ) );
-                    }
-                    parameter->setParameterValue( nominalParameter );
-                    resetGravityFields( );
-                    applyVariation( );
+                    const Eigen::MatrixXd numericalPartial = calculateAccelerationWrtParameterPartials(
+                            parameter,
+                            accelerationModel,
+                            Eigen::VectorXd::Constant( nominalParameter.size( ), 1.0E-5 ),
+                            updateVariationEnvironment,
+                            variationEvaluationTime,
+                            [ & ]( const double currentTime ) {
+                                body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                            } );
+                    updateVariationEnvironment( );
                     evaluateAccelerationForVariationParameter( );
 
                     // Verify the gravity-field variation chain rule against direct variation-amplitude finite differences.
@@ -1396,40 +1337,40 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartialsThirdBody )
     Eigen::MatrixXd numericalPartialWrtBody1Cosine = calculateAccelerationWrtParameterPartials(
             body1CosineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( body1CosineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
     Eigen::MatrixXd numericalPartialWrtBody1Sine = calculateAccelerationWrtParameterPartials(
             body1SineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( body1SineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
     Eigen::MatrixXd numericalPartialWrtBody2Cosine = calculateAccelerationWrtParameterPartials(
             body2CosineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( body2CosineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
     Eigen::MatrixXd numericalPartialWrtBody2Sine = calculateAccelerationWrtParameterPartials(
             body2SineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( body2SineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
     Eigen::MatrixXd numericalPartialWrtCentralCosine = calculateAccelerationWrtParameterPartials(
             centralCosineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( centralCosineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( centralCosineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
     Eigen::MatrixXd numericalPartialWrtCentralSine = calculateAccelerationWrtParameterPartials(
             centralSineCoefficientsParameter,
             mutualExtendedModel,
-            Eigen::VectorXd::Constant( centralSineCoefficientsParameter->getParameterSize( ), 1.0E-8 ) );
+            Eigen::VectorXd::Constant( centralSineCoefficientsParameter->getParameterSize( ), 1.0E-2 ) );
 
     // Verify body-1 cosine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, partialWrtBody1CosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Cosine, partialWrtBody1CosineExtended, 1.0E-8 );
     // Verify body-1 sine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, partialWrtBody1SineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody1Sine, partialWrtBody1SineExtended, 1.0E-8 );
     // Verify body-2 cosine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, partialWrtBody2CosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Cosine, partialWrtBody2CosineExtended, 1.0E-8 );
     // Verify body-2 sine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, partialWrtBody2SineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtBody2Sine, partialWrtBody2SineExtended, 1.0E-8 );
     // Verify central-body cosine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralCosine, partialWrtCentralCosineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralCosine, partialWrtCentralCosineExtended, 1.0E-8 );
     // Verify central-body sine coefficient third-body partial against finite differences.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralSine, partialWrtCentralSineExtended, 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalPartialWrtCentralSine, partialWrtCentralSineExtended, 1.0E-8 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

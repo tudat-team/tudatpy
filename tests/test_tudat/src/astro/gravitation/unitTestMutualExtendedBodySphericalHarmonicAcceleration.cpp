@@ -108,19 +108,32 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
                                           const double equatorialRadiusOfBody1,
                                           const double equatorialRadiusOfBody2 )
 {
-    // Helper validation for a single geometry/orientation case:
-    // Isolate and verify l1=2,l2=2 figure-figure acceleration terms from the full interaction summation
-    // (Dirkx et al., 2019 mutual-potential interaction decomposition).
+    // Helper validation for one geometry/orientation/coefficient set. The degree-2 x degree-2 figure-figure
+    // acceleration is checked in three complementary ways:
+    // 1. Inclusion-exclusion isolation from four models:
+    //    a_22 = a_(body1 degree 0..2, body2 degree 0..2)
+    //         - a_(body1 degree 0..2, body2 degree 0)
+    //         - a_(body1 degree 0, body2 degree 0..2)
+    //         + a_(body1 degree 0, body2 degree 0).
+    // 2. Direct evaluation using a model configured with only (l1=2,l2=2) coefficient combinations.
+    // 3. Bilinear dependence checks: scaling or zeroing body-2 degree-2 coefficients must scale or null
+    //    the isolated cross-term acceleration. This tests the figure-figure terms themselves rather than
+    //    allowing point-mass or single-figure terms to dominate the signal.
     const Eigen::Vector3d positionOfBody2 = Eigen::Vector3d::Zero( );
 
+    // Full degree-2 model: contains central, body-1 single-figure, body-2 single-figure, and figure-figure terms.
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > fullDegreeTwoInteractions =
             FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 2, 2 ).coefficientCombinationsToUse_;
+    // Body-1-only model: keeps central and body-1 single-figure terms, but removes body-2 shape and cross terms.
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body1OnlyInteractions =
             FullTwoBodySphericalHarmonicAccelerationSettings( 2, 2, 0, 0 ).coefficientCombinationsToUse_;
+    // Body-2-only model: keeps central and body-2 single-figure terms, but removes body-1 shape and cross terms.
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > body2OnlyInteractions =
             FullTwoBodySphericalHarmonicAccelerationSettings( 0, 0, 2, 2 ).coefficientCombinationsToUse_;
+    // Central model: contains only the degree-0/degree-0 contribution added back in the inclusion-exclusion sum.
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > centralInteractions =
             FullTwoBodySphericalHarmonicAccelerationSettings( 0, 0, 0, 0 ).coefficientCombinationsToUse_;
+    // Direct cross-term model: contains only (l1=2,l2=2) terms and is the independent target of the subtraction check.
     const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > degreeTwoCrossInteractions =
             getDegreeTwoDegreeTwoInteractions( );
 
@@ -200,16 +213,18 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
     centralAcceleration->updateMembers( currentTime );
     degreeTwoCrossAcceleration->updateMembers( currentTime );
 
-    // Check 1: isolate l1=2,l2=2 terms from the full degree-2 model.
+    // Check 1: use inclusion-exclusion to isolate l1=2,l2=2 terms from the full degree-2 model, then compare
+    // that isolated acceleration to the acceleration from a model where only those cross terms were ever evaluated.
     const Eigen::Vector3d isolatedCrossTermAcceleration = fullDegreeTwoAcceleration->getAcceleration( ) -
             body1OnlyAcceleration->getAcceleration( ) - body2OnlyAcceleration->getAcceleration( ) + centralAcceleration->getAcceleration( );
     const Eigen::Vector3d directCrossTermAcceleration = degreeTwoCrossAcceleration->getAcceleration( );
     const Eigen::Vector3d isolationDifference = isolatedCrossTermAcceleration - directCrossTermAcceleration;
     const double isolationScale = std::max( 1.0, isolatedCrossTermAcceleration.norm( ) );
-    // Verify direct degree-2/degree-2 acceleration equals the same term isolated by model subtraction.
+    // Verify the two independent isolation paths recover the same degree-2 x degree-2 acceleration.
     BOOST_CHECK_SMALL( isolationDifference.norm( ) / isolationScale, 5.0E-14 );
 
-    // Check 2: cross-term acceleration scales linearly with degree-2 coefficients of body 2.
+    // Check 2: because each figure-figure term is bilinear in the two bodies' coefficients, scaling all
+    // degree-2 coefficients of body 2 by a constant must scale the direct (l1=2,l2=2) acceleration by the same constant.
     const double scalingFactor = -1.35;
     Eigen::MatrixXd scaledCosineCoefficientsOfBody2 = cosineCoefficientsOfBody2;
     Eigen::MatrixXd scaledSineCoefficientsOfBody2 = sineCoefficientsOfBody2;
@@ -239,10 +254,11 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
 
     const Eigen::Vector3d scaledDifference = scaledCrossAcceleration->getAcceleration( ) - scalingFactor * directCrossTermAcceleration;
     const double scalingReference = std::max( 1.0, directCrossTermAcceleration.norm( ) );
-    // Verify figure-figure acceleration is linear in the body-2 degree-2 coefficients.
+    // Verify the direct cross-term model is linear in body-2 degree-2 coefficients, as required by the coefficient product form.
     BOOST_CHECK_SMALL( scaledDifference.norm( ) / scalingReference, 5.0E-14 );
 
-    // Check 3: zero degree-2 coefficients of body 2 must null the degree-2 cross-term acceleration.
+    // Check 3: the same bilinear structure implies that setting every body-2 degree-2 coefficient to zero must
+    // remove all l1=2,l2=2 acceleration, even though body 1 still has nonzero degree-2 coefficients.
     Eigen::MatrixXd zeroedCosineCoefficientsOfBody2 = cosineCoefficientsOfBody2;
     Eigen::MatrixXd zeroedSineCoefficientsOfBody2 = sineCoefficientsOfBody2;
     for( int m = 0; m <= 2; m++ )
@@ -269,7 +285,7 @@ void runDegreeTwoCrossTermValidationCase( const Eigen::Vector3d& positionOfBody1
                                                        rotationToBody2 );
     zeroedCrossAcceleration->updateMembers( currentTime );
 
-    // Verify the degree-2/degree-2 interaction vanishes when body-2 degree-2 coefficients are zero.
+    // Verify the direct cross-term model has no residual point-mass/single-figure contribution when body-2 degree-2 terms are zero.
     BOOST_CHECK_SMALL( zeroedCrossAcceleration->getAcceleration( ).norm( ), 1.0E-22 );
 }
 
@@ -314,43 +330,6 @@ std::shared_ptr< tudat::simulation_setup::GravityFieldSettings > getDummyJovianS
 
     return gravityFieldSettings;
 }
-
-// void getBodyCoefficientEulerAnglePartials(
-//         const Eigen::Quaterniond nominalQuaternion,
-//         std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > mutualShField,
-//         std::vector< Eigen::MatrixXd >& numericalTransformedCosineCoefficientsOfBody2Partials,
-//         std::vector< Eigen::MatrixXd >& numericalTransformedSineCoefficientsOfBody2Partials,
-//         const double perturbation )
-//{
-//     numericalTransformedCosineCoefficientsOfBody2Partials.resize( 3 );
-//     numericalTransformedSineCoefficientsOfBody2Partials.resize( 3 );
-
-//    Eigen::Vector3d nominalEulerAngles = basic_mathematics::get313EulerAnglesFromQuaternion( nominalQuaternion );
-//    Eigen::Vector3d perturbedEulerAngles;
-//    Eigen::MatrixXd upPerturbedCosineCoefficients, upPerturbedSineCoefficients;
-//    Eigen::MatrixXd downPerturbedCosineCoefficients, downPerturbedSineCoefficients;
-
-//    for( unsigned int i = 0; i < 3; i ++ )
-//    {
-//        perturbedEulerAngles = nominalEulerAngles;
-//        perturbedEulerAngles( i ) += perturbation;
-//        mutualShField->computeCurrentEffectiveCoefficients( perturbedEulerAngles( 2 ), perturbedEulerAngles( 1 ), perturbedEulerAngles( 0
-//        ) ); upPerturbedCosineCoefficients = mutualShField->getTransformedCosineCoefficientsOfBody2( ); upPerturbedSineCoefficients =
-//        mutualShField->getTransformedSineCoefficientsOfBody2( );
-
-//        perturbedEulerAngles = nominalEulerAngles;
-//        perturbedEulerAngles( i ) -= perturbation;
-//        mutualShField->computeCurrentEffectiveCoefficients( perturbedEulerAngles( 2 ), perturbedEulerAngles( 1 ), perturbedEulerAngles( 0
-//        ) ); downPerturbedCosineCoefficients = mutualShField->getTransformedCosineCoefficientsOfBody2( ); downPerturbedSineCoefficients =
-//        mutualShField->getTransformedSineCoefficientsOfBody2( );
-
-//        numericalTransformedCosineCoefficientsOfBody2Partials[ i ] =
-//                ( upPerturbedCosineCoefficients - downPerturbedCosineCoefficients ) / ( 2.0 * perturbation );
-//        numericalTransformedSineCoefficientsOfBody2Partials[ i ] =
-//                ( upPerturbedSineCoefficients - downPerturbedSineCoefficients ) / ( 2.0 * perturbation );
-
-//    }
-//}
 
 Eigen::Matrix2d getEffectiveMutualPotentialCoefficientWrtBody2Coefficient(
         const int degreeOfBody1,
@@ -806,6 +785,8 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
     cosineCoefficientsOfBody2( 2, 2 ) = 0.13;
     sineCoefficientsOfBody2( 2, 2 ) = 0.12;
 
+    // Case A: non-degenerate relative position and two arbitrary, non-identity body-fixed frames. This case verifies
+    // that the subtraction/direct-selection comparison works when body-2 coefficients must be rotated into body 1's frame.
     runDegreeTwoCrossTermValidationCase(
             Eigen::Vector3d( 5100.0, -2200.0, 3600.0 ),
             Eigen::Quaterniond( Eigen::AngleAxisd( 0.7, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
@@ -833,6 +814,9 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoCrossTermMutualAccelerationIsolation )
     cosineCoefficientsOfBody2( 2, 2 ) = -0.11;
     sineCoefficientsOfBody2( 2, 2 ) = 0.05;
 
+    // Case B: repeat the same isolation procedure with a different coefficient pattern, relative position,
+    // and attitude geometry. This reduces the chance that the inclusion-exclusion check passes through
+    // accidental cancellation in one specific configuration.
     runDegreeTwoCrossTermValidationCase( Eigen::Vector3d( -4300.0, 3100.0, 2800.0 ),
                                          Eigen::Quaterniond( Eigen::AngleAxisd( -0.2, Eigen::Vector3d::UnitX( ) ) *
                                                              Eigen::AngleAxisd( 0.45, Eigen::Vector3d::UnitY( ) ) *
@@ -854,8 +838,21 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAsMutualPotentialGradient )
 {
     // Test rationale:
     // Verify that the implemented full-two-body acceleration equals the numerical gradient of the same mutual
-    // potential field, for a mixed degree/order interaction set with nontrivial rotations.
-    const auto coefficientCombinations = FullTwoBodySphericalHarmonicAccelerationSettings( 4, 2, 3, 2 ).coefficientCombinationsToUse_;
+    // potential field, using only figure-figure terms so point-mass and single-figure interactions cannot mask errors.
+    std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinations;
+    for( unsigned int degree1 = 2; degree1 <= 4; degree1++ )
+    {
+        for( unsigned int order1 = 0; order1 <= std::min( degree1, 2U ); order1++ )
+        {
+            for( unsigned int degree2 = 2; degree2 <= 3; degree2++ )
+            {
+                for( unsigned int order2 = 0; order2 <= std::min( degree2, 2U ); order2++ )
+                {
+                    coefficientCombinations.push_back( std::make_tuple( degree1, order1, degree2, order2 ) );
+                }
+            }
+        }
+    }
     const double gravitationalParameter = 5.0E5, radius1 = 1300.0, radius2 = 900.0, currentTime = 42.0;
     const Eigen::Vector3d nominalPosition( 5100.0, -2300.0, 3700.0 );
     Eigen::MatrixXd cosine1 = Eigen::MatrixXd::Zero( 5, 3 ), sine1 = Eigen::MatrixXd::Zero( 5, 3 );
@@ -908,6 +905,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAsMutualPotentialGradient )
     }
     const Eigen::Vector3d finiteDifferenceGradient =
             model->getCurrentRotationFromInertialToBody1( ).inverse( ) * finiteDifferenceGradientInBody1Frame;
+    // Verify the isolated figure-figure model produces a nonzero acceleration before comparing relative error.
+    BOOST_CHECK_GT( model->getAcceleration( ).norm( ), 1.0E-16 );
     // Verify acceleration consistency with the central finite-difference gradient of the mutual potential.
     BOOST_CHECK_SMALL( ( model->getAcceleration( ) - finiteDifferenceGradient ).norm( ) / model->getAcceleration( ).norm( ), 1.0E-8 );
 }
