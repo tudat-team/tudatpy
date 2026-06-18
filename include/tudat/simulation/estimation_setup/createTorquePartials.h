@@ -142,13 +142,16 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
                             acceleratedBody.first,
                             acceleratingBody.first,
-                            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel )
-                                    ->getAccelerationBetweenBodies( ) );
+                            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel )->getAccelerationBetweenBodies( ),
+                            observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
+                            observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
             torquePartial = std::make_shared< FullTwoBodySphericalHarmonicGravitationalTorquePartial >(
                     std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorque >( torqueModel ),
                     fullTwoBodyAccelerationPartial,
                     acceleratedBody.first,
-                    acceleratingBody.first );
+                    acceleratingBody.first,
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
             break;
         }
         case fourth_degree_full_two_body_gravitational_torque:
@@ -169,7 +172,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                             acceleratingBody.second->getGravityFieldModel( ) ),
                     acceleratedBody.first,
-                    acceleratingBody.first );
+                    acceleratingBody.first,
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
+                    observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
             break;
         case radiation_pressure_torque:
             throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );

@@ -44,6 +44,10 @@ enum FourthDegreeAuxiliaryFunctionIndices {
     gxyFunctionIndex = 5
 };
 
+Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
+        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
+        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
+
 Eigen::Matrix< double, 6, 1 > getIndependentInertiaTensorComponentsFromMatrix( const Eigen::Matrix3d& inertiaTensor )
 {
     Eigen::Matrix< double, 6, 1 > independentInertiaTensorComponents;
@@ -663,7 +667,9 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
         const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque,
         const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque,
         const std::string& acceleratedBody,
-        const std::string& acceleratingBody ):
+        const std::string& acceleratingBody,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque ),
     torqueModel_( torqueModel ), gravityFieldOfBodyUndergoingTorque_( gravityFieldOfBodyUndergoingTorque ),
     gravityFieldOfBodyExertingTorque_( gravityFieldOfBodyExertingTorque ),
@@ -680,7 +686,9 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
     currentRotationFromBodyFixedFrameOfBodyExertingTorqueToBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Matrix3d::Identity( ) ),
     currentRelativePositionOfBodyExertingTorqueInInertialFrame_( Eigen::Vector3d::Zero( ) ),
     currentRelativePositionOfBodyExertingTorqueInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
-    currentInertiaTensorOfBodyExertingTorque_( Eigen::Matrix3d::Zero( ) )
+    currentInertiaTensorOfBodyExertingTorque_( Eigen::Matrix3d::Zero( ) ),
+    rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
+    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque )
 {
     if( torqueModel_ == nullptr )
     {
@@ -689,9 +697,38 @@ FourthDegreeFullTwoBodyGravitationalTorquePartial::FourthDegreeFullTwoBodyGravit
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
-        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    return std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+            std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+
+    if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials = isBodyUndergoingTorqueParameter
+                    ? rotationMatrixPartialsOfBodyUndergoingTorque_
+                    : rotationMatrixPartialsOfBodyExertingTorque_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing fourth-degree full two-body torque rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtRotationModelParameter,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         isBodyUndergoingTorqueParameter,
+                                                         parameter->getParameterName( ).first,
+                                                         parameter->getSecondaryIdentifier( ) ),
+                                              parameter->getParameterSize( ) );
+        }
+    }
+
+    return partialFunction;
 }
 
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoBodyGravitationalTorquePartial::getParameterPartialFunction(
@@ -702,7 +739,32 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
             std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
-    if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
+    if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials = isBodyUndergoingTorqueParameter
+                    ? rotationMatrixPartialsOfBodyUndergoingTorque_
+                    : rotationMatrixPartialsOfBodyExertingTorque_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing fourth-degree full two-body torque rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtRotationModelParameter,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         isBodyUndergoingTorqueParameter,
+                                                         parameter->getParameterName( ).first,
+                                                         parameter->getSecondaryIdentifier( ) ),
+                                              parameter->getParameterSize( ) );
+        }
+    }
+    else if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
         switch( parameter->getParameterName( ).first )
         {
@@ -1063,6 +1125,28 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix )
 {
     partialMatrix = currentPartialWrtMassOfBodyExertingTorque_;
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtRotationModelParameter(
+        Eigen::MatrixXd& partialMatrix,
+        const bool wrtBodyUndergoingTorque,
+        const estimatable_parameters::EstimatebleParametersEnum parameterType,
+        const std::string& secondaryIdentifier )
+{
+    const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+            wrtBodyUndergoingTorque ? rotationMatrixPartialsOfBodyUndergoingTorque_ : rotationMatrixPartialsOfBodyExertingTorque_;
+    const std::shared_ptr< observation_partials::RotationMatrixPartial > rotationMatrixPartial =
+            rotationMatrixPartials.at( std::make_pair( parameterType, secondaryIdentifier ) );
+    const std::vector< Eigen::Matrix3d > currentRotationMatrixPartials =
+            rotationMatrixPartial->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+    const Eigen::Quaterniond currentRotationFromBodyFixedToInertial =
+            rotationMatrixPartial->getRotationModel( )->getRotationToBaseFrame( currentTime_ );
+
+    const Eigen::MatrixXd partialOfQuaternionWrtParameter = detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+            currentRotationFromBodyFixedToInertial, currentRotationMatrixPartials );
+    partialMatrix = ( wrtBodyUndergoingTorque ? currentPartialWrtQuaternionOfBodyUndergoingTorque_
+                                              : currentPartialWrtQuaternionOfBodyExertingTorque_ ) *
+            partialOfQuaternionWrtParameter;
 }
 
 void FourthDegreeFullTwoBodyGravitationalTorquePartial::update( const double currentTime )

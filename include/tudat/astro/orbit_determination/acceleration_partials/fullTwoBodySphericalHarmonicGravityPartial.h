@@ -16,12 +16,22 @@
 
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
 namespace tudat
 {
 
 namespace acceleration_partials
 {
+
+namespace detail
+{
+
+Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
+        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
+        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
+
+}  // namespace detail
 
 //! Class for analytical partial derivatives of the full two-body spherical-harmonic acceleration.
 /*!
@@ -35,7 +45,11 @@ public:
     FullTwoBodySphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
-            const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel );
+            const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel,
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody1 =
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody2 =
+                    observation_partials::RotationMatrixPartialNamedList( ) );
 
     ~FullTwoBodySphericalHarmonicsGravityPartial( ) {}
 
@@ -192,6 +206,12 @@ private:
     //! Partial w.r.t. the effective gravitational parameter used by the acceleration model.
     void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. a rotation-model parameter of one body.
+    void wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                    const bool wrtBody1,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
+
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 
     std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
@@ -241,6 +261,9 @@ private:
     Eigen::MatrixXd partialOfTransformedCosineCoefficientsBody2Scratch_;
     Eigen::MatrixXd partialOfTransformedSineCoefficientsBody2Scratch_;
     std::array< std::vector< Eigen::MatrixXcd >, 4 > derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_;
+
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBody1_;
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBody2_;
 };
 
 }  // namespace acceleration_partials

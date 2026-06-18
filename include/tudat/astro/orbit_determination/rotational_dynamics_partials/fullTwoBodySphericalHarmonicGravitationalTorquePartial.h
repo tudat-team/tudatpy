@@ -35,7 +35,11 @@ public:
             const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
             const std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string& acceleratedBody,
-            const std::string& acceleratingBody );
+            const std::string& acceleratingBody,
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque =
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
+                    observation_partials::RotationMatrixPartialNamedList( ) );
 
     ~FullTwoBodySphericalHarmonicGravitationalTorquePartial( ) {}
 
@@ -106,6 +110,12 @@ private:
     //! Partial w.r.t. the mass of the body undergoing torque.
     void wrtBodyUndergoingTorqueMass( Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. a rotation-model parameter of one body.
+    void wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                    const bool wrtBodyUndergoingTorque,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
+
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel_;
     std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial_;
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
@@ -149,6 +159,9 @@ private:
     double currentBodyUndergoingTorqueMass_;
     std::vector< double > currentRadius1Powers_;
     std::vector< double > currentRadius2Powers_;
+
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyUndergoingTorque_;
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyExertingTorque_;
 };
 
 }  // namespace acceleration_partials

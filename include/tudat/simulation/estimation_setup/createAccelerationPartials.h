@@ -549,7 +549,11 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             else
             {
                 accelerationPartial = std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
-                        acceleratedBody.first, acceleratingBody.first, fullTwoBodySphericalHarmonicAcceleration );
+                        acceleratedBody.first,
+                        acceleratingBody.first,
+                        fullTwoBodySphericalHarmonicAcceleration,
+                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
+                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
             }
             break;
         }

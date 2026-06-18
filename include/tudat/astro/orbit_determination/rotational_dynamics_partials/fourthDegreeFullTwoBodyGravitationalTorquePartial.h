@@ -13,6 +13,7 @@
 
 #include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
 
@@ -86,7 +87,11 @@ public:
             const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque,
             const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque,
             const std::string& acceleratedBody,
-            const std::string& acceleratingBody );
+            const std::string& acceleratingBody,
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque =
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque =
+                    observation_partials::RotationMatrixPartialNamedList( ) );
 
     ~FourthDegreeFullTwoBodyGravitationalTorquePartial( ) {}
 
@@ -153,6 +158,11 @@ private:
 
     void wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix );
 
+    void wrtRotationModelParameter( Eigen::MatrixXd& partialMatrix,
+                                    const bool wrtBodyUndergoingTorque,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
+
     std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque_;
@@ -170,6 +180,9 @@ private:
     Eigen::Vector3d currentRelativePositionOfBodyExertingTorqueInInertialFrame_;
     Eigen::Vector3d currentRelativePositionOfBodyExertingTorqueInBodyFixedFrameOfBodyUndergoingTorque_;
     Eigen::Matrix3d currentInertiaTensorOfBodyExertingTorque_;
+
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyUndergoingTorque_;
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBodyExertingTorque_;
 };
 
 }  // namespace acceleration_partials

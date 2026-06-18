@@ -22,8 +22,10 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <array>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -31,10 +33,13 @@
 #include <boost/math/special_functions/factorials.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/math/basic/cayleyKleinParameters.h"
+#include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/basic/sphericalHarmonicTransformations.h"
 #include "tudat/math/basic/wignerDMatrices.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -46,6 +51,13 @@ namespace unit_tests
 using namespace tudat::basic_mathematics;
 
 BOOST_AUTO_TEST_SUITE( test_WignerDMatrices )
+
+void updateWignerCacheFromQuaternionVector( WignerDMatricesCache& wignerDMatrixCache, const Eigen::Vector4d& quaternionVector )
+{
+    const std::complex< double > cayleyKleinA( quaternionVector( 0 ), -quaternionVector( 3 ) );
+    const std::complex< double > cayleyKleinB( quaternionVector( 2 ), -quaternionVector( 1 ) );
+    wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
+}
 
 //! Compute values of Wigner D-matrix components at edge of blocks, Varschalovich et al., p. 115, Section 4.17, Eq. (8)
 void getWignerDValueAtBoundary( const int degree,
@@ -273,6 +285,141 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
             }
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrix_Quaternion_Derivatives )
+{
+    const int maximumDegree = 8;
+    const double perturbation = 1.0E-7;
+
+    Eigen::Quaterniond rotation = Eigen::AngleAxisd( 0.37, Eigen::Vector3d( 1.0, 2.0, -0.5 ).normalized( ) ) *
+            Eigen::AngleAxisd( -0.28, Eigen::Vector3d( -0.2, 0.7, 1.0 ).normalized( ) );
+    rotation.normalize( );
+
+    const Eigen::Vector4d quaternionVector = linear_algebra::convertQuaternionToVectorFormat( rotation );
+    std::shared_ptr< WignerDMatricesCache > wignerDMatrixCache = std::make_shared< WignerDMatricesCache >( maximumDegree );
+    updateWignerCacheFromQuaternionVector( *wignerDMatrixCache, quaternionVector );
+
+    std::array< std::vector< Eigen::MatrixXcd >, 4 > analyticalDerivatives;
+    computeDerivativeOfWignerDMatricesWrtQuaternion( rotation, wignerDMatrixCache, analyticalDerivatives );
+
+    double maximumAbsoluteError = 0.0;
+    double maximumRelativeError = 0.0;
+    int maximumErrorQuaternionIndex = -1;
+    int maximumErrorDegree = -1;
+
+    for( int quaternionIndex = 0; quaternionIndex < 4; quaternionIndex++ )
+    {
+        Eigen::Vector4d perturbedQuaternionVector = quaternionVector;
+        perturbedQuaternionVector( quaternionIndex ) += perturbation;
+        WignerDMatricesCache upperWignerDMatrixCache( maximumDegree );
+        updateWignerCacheFromQuaternionVector( upperWignerDMatrixCache, perturbedQuaternionVector );
+
+        perturbedQuaternionVector = quaternionVector;
+        perturbedQuaternionVector( quaternionIndex ) -= perturbation;
+        WignerDMatricesCache lowerWignerDMatrixCache( maximumDegree );
+        updateWignerCacheFromQuaternionVector( lowerWignerDMatrixCache, perturbedQuaternionVector );
+
+        for( int degree = 0; degree <= maximumDegree; degree++ )
+        {
+            const Eigen::MatrixXcd numericalDerivative =
+                    ( upperWignerDMatrixCache.getWignerDMatrix( degree ) - lowerWignerDMatrixCache.getWignerDMatrix( degree ) ) /
+                    ( 2.0 * perturbation );
+            const double absoluteError = ( analyticalDerivatives.at( quaternionIndex ).at( degree ) - numericalDerivative ).norm( );
+            const double relativeError = absoluteError / std::max( 1.0, numericalDerivative.norm( ) );
+
+            if( absoluteError > maximumAbsoluteError )
+            {
+                maximumAbsoluteError = absoluteError;
+                maximumRelativeError = relativeError;
+                maximumErrorQuaternionIndex = quaternionIndex;
+                maximumErrorDegree = degree;
+            }
+        }
+    }
+
+    BOOST_CHECK_MESSAGE( maximumAbsoluteError < 1.0E-7,
+                         "Maximum absolute Wigner-D derivative error is " << maximumAbsoluteError << " for q" << maximumErrorQuaternionIndex
+                                                                          << " at degree " << maximumErrorDegree );
+    BOOST_CHECK_MESSAGE( maximumRelativeError < 1.0E-8,
+                         "Maximum relative Wigner-D derivative error is " << maximumRelativeError << " for q" << maximumErrorQuaternionIndex
+                                                                          << " at degree " << maximumErrorDegree );
+}
+
+BOOST_AUTO_TEST_CASE( test_Wigner_D_TransformedCoefficient_Quaternion_Derivatives )
+{
+    const int maximumDegree = 5;
+    const double perturbation = 1.0E-7;
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1 );
+    for( int degree = 0; degree <= maximumDegree; degree++ )
+    {
+        for( int order = 0; order <= degree; order++ )
+        {
+            cosineCoefficients( degree, order ) = 0.03 * ( degree + 1 ) - 0.02 * order;
+            if( order > 0 )
+            {
+                sineCoefficients( degree, order ) = -0.04 * degree + 0.015 * ( order + 1 );
+            }
+        }
+    }
+
+    Eigen::Quaterniond rotation = Eigen::AngleAxisd( -0.41, Eigen::Vector3d( 0.3, -1.0, 0.8 ).normalized( ) ) *
+            Eigen::AngleAxisd( 0.22, Eigen::Vector3d( 1.0, 0.4, -0.2 ).normalized( ) );
+    rotation.normalize( );
+    const Eigen::Vector4d quaternionVector = linear_algebra::convertQuaternionToVectorFormat( rotation );
+
+    std::shared_ptr< WignerDMatricesCache > wignerDMatrixCache = std::make_shared< WignerDMatricesCache >( maximumDegree );
+    updateWignerCacheFromQuaternionVector( *wignerDMatrixCache, quaternionVector );
+
+    std::array< std::vector< Eigen::MatrixXcd >, 4 > analyticalWignerDerivatives;
+    computeDerivativeOfWignerDMatricesWrtQuaternion( rotation, wignerDMatrixCache, analyticalWignerDerivatives );
+
+    double maximumCosineError = 0.0;
+    double maximumSineError = 0.0;
+    for( int quaternionIndex = 0; quaternionIndex < 4; quaternionIndex++ )
+    {
+        Eigen::MatrixXd analyticalCosinePartial;
+        Eigen::MatrixXd analyticalSinePartial;
+        transformSphericalHarmonicCoefficientsWithWignerD( cosineCoefficients,
+                                                           sineCoefficients,
+                                                           analyticalWignerDerivatives.at( quaternionIndex ),
+                                                           analyticalCosinePartial,
+                                                           analyticalSinePartial );
+
+        Eigen::Vector4d perturbedQuaternionVector = quaternionVector;
+        perturbedQuaternionVector( quaternionIndex ) += perturbation;
+        WignerDMatricesCache upperWignerDMatrixCache( maximumDegree );
+        updateWignerCacheFromQuaternionVector( upperWignerDMatrixCache, perturbedQuaternionVector );
+        Eigen::MatrixXd upperCosineCoefficients;
+        Eigen::MatrixXd upperSineCoefficients;
+        transformSphericalHarmonicCoefficientsWithWignerD( cosineCoefficients,
+                                                           sineCoefficients,
+                                                           upperWignerDMatrixCache.getWignerDMatrices( ),
+                                                           upperCosineCoefficients,
+                                                           upperSineCoefficients );
+
+        perturbedQuaternionVector = quaternionVector;
+        perturbedQuaternionVector( quaternionIndex ) -= perturbation;
+        WignerDMatricesCache lowerWignerDMatrixCache( maximumDegree );
+        updateWignerCacheFromQuaternionVector( lowerWignerDMatrixCache, perturbedQuaternionVector );
+        Eigen::MatrixXd lowerCosineCoefficients;
+        Eigen::MatrixXd lowerSineCoefficients;
+        transformSphericalHarmonicCoefficientsWithWignerD( cosineCoefficients,
+                                                           sineCoefficients,
+                                                           lowerWignerDMatrixCache.getWignerDMatrices( ),
+                                                           lowerCosineCoefficients,
+                                                           lowerSineCoefficients );
+
+        const Eigen::MatrixXd numericalCosinePartial = ( upperCosineCoefficients - lowerCosineCoefficients ) / ( 2.0 * perturbation );
+        const Eigen::MatrixXd numericalSinePartial = ( upperSineCoefficients - lowerSineCoefficients ) / ( 2.0 * perturbation );
+        maximumCosineError = std::max( maximumCosineError, ( analyticalCosinePartial - numericalCosinePartial ).cwiseAbs( ).maxCoeff( ) );
+        maximumSineError = std::max( maximumSineError, ( analyticalSinePartial - numericalSinePartial ).cwiseAbs( ).maxCoeff( ) );
+    }
+
+    BOOST_CHECK_MESSAGE( maximumCosineError < 2.0E-8, "Maximum transformed cosine coefficient derivative error is " << maximumCosineError );
+    BOOST_CHECK_MESSAGE( maximumSineError < 2.0E-8, "Maximum transformed sine coefficient derivative error is " << maximumSineError );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

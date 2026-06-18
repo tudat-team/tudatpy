@@ -18,10 +18,14 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
@@ -42,6 +46,18 @@ using namespace tudat::basic_astrodynamics;
 
 namespace
 {
+
+observation_partials::RotationMatrixPartialNamedList createSimpleRotationPartialMap( const std::shared_ptr< Body >& body )
+{
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel =
+            std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body->getRotationalEphemeris( ) );
+    observation_partials::RotationMatrixPartialNamedList partials;
+    partials[ std::make_pair( constant_rotation_rate, "" ) ] =
+            std::make_shared< observation_partials::RotationMatrixPartialWrtConstantRotationRate >( rotationModel );
+    partials[ std::make_pair( rotation_pole_position, "" ) ] =
+            std::make_shared< observation_partials::RotationMatrixPartialWrtPoleOrientation >( rotationModel );
+    return partials;
+}
 
 SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                                                      const std::string& bodyUndergoingTorqueName,
@@ -635,6 +651,147 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
             BOOST_CHECK_SMALL( numericalPartialWrtGravitationalParameterOfBodyExertingTorque.norm( ), 1.0E-20 );
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testFullTwoBodyTorqueRotationModelParameterPartials )
+{
+    const std::string bodyUndergoingTorqueName = "BodyA";
+    const std::string bodyExertingTorqueName = "BodyB";
+    const double testTime = 1250.0;
+
+    SystemOfBodies bodies =
+            createTwoBodyTorquePartialTestSystem( testTime, bodyUndergoingTorqueName, bodyExertingTorqueName, false, false );
+    std::shared_ptr< Body > bodyUndergoingTorque = bodies.at( bodyUndergoingTorqueName );
+    std::shared_ptr< Body > bodyExertingTorque = bodies.at( bodyExertingTorqueName );
+
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModelOfBodyUndergoingTorque =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                    0.42, 1.02, -0.25, 2.0E-5, 1000.0, "ECLIPJ2000", bodyUndergoingTorqueName + "_Fixed" );
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModelOfBodyExertingTorque =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                    -0.31, 0.91, 0.37, -1.5E-5, 1000.0, "ECLIPJ2000", bodyExertingTorqueName + "_Fixed" );
+    bodyUndergoingTorque->setRotationalEphemeris( rotationModelOfBodyUndergoingTorque );
+    bodyExertingTorque->setRotationalEphemeris( rotationModelOfBodyExertingTorque );
+    bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+    bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+
+    const observation_partials::RotationMatrixPartialNamedList rotationPartialsOfBodyUndergoingTorque =
+            createSimpleRotationPartialMap( bodyUndergoingTorque );
+    const observation_partials::RotationMatrixPartialNamedList rotationPartialsOfBodyExertingTorque =
+            createSimpleRotationPartialMap( bodyExertingTorque );
+
+    std::shared_ptr< TorqueModel > fourthDegreeTorqueModel =
+            createFourthDegreeFullTwoBodyGravitationalTorqueModel( bodyUndergoingTorque,
+                                                                   bodyExertingTorque,
+                                                                   fourthDegreeFullTwoBodyGravitationalTorque( ),
+                                                                   bodyUndergoingTorqueName,
+                                                                   bodyExertingTorqueName );
+    std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorquePartial > fourthDegreeTorquePartial =
+            std::make_shared< FourthDegreeFullTwoBodyGravitationalTorquePartial >(
+                    std::dynamic_pointer_cast< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >( fourthDegreeTorqueModel ),
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            bodyUndergoingTorque->getGravityFieldModel( ) ),
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( bodyExertingTorque->getGravityFieldModel( ) ),
+                    bodyUndergoingTorqueName,
+                    bodyExertingTorqueName,
+                    rotationPartialsOfBodyUndergoingTorque,
+                    rotationPartialsOfBodyExertingTorque );
+
+    std::shared_ptr< TorqueModel > dmrTorqueModel =
+            createFullTwoBodySphericalHarmonicGravitationalTorqueModel( bodyUndergoingTorque,
+                                                                        bodyExertingTorque,
+                                                                        fullTwoBodySphericalHarmonicGravitationalTorque( 4, 4, 4, 4 ),
+                                                                        bodyUndergoingTorqueName,
+                                                                        bodyExertingTorqueName );
+    std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > dmrTorqueModelTyped =
+            std::dynamic_pointer_cast< gravitation::FullTwoBodySphericalHarmonicTorque >( dmrTorqueModel );
+    std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > dmrAccelerationPartial =
+            std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( bodyUndergoingTorqueName,
+                                                                             bodyExertingTorqueName,
+                                                                             dmrTorqueModelTyped->getAccelerationBetweenBodies( ),
+                                                                             rotationPartialsOfBodyUndergoingTorque,
+                                                                             rotationPartialsOfBodyExertingTorque );
+    std::shared_ptr< FullTwoBodySphericalHarmonicGravitationalTorquePartial > dmrTorquePartial =
+            std::make_shared< FullTwoBodySphericalHarmonicGravitationalTorquePartial >( dmrTorqueModelTyped,
+                                                                                        dmrAccelerationPartial,
+                                                                                        bodyUndergoingTorqueName,
+                                                                                        bodyExertingTorqueName,
+                                                                                        rotationPartialsOfBodyUndergoingTorque,
+                                                                                        rotationPartialsOfBodyExertingTorque );
+
+    auto updateRotationsAndTorque = [ & ]( const std::shared_ptr< TorqueModel >& torqueModel,
+                                           const std::shared_ptr< TorquePartial >& torquePartial ) {
+        bodyUndergoingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+        bodyExertingTorque->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+        updateBodyMassDistributions( bodyUndergoingTorque, bodyExertingTorque, testTime );
+        torqueModel->resetCurrentTime( );
+        torquePartial->resetCurrentTime( );
+        torqueModel->updateMembers( testTime );
+        torquePartial->update( testTime );
+        return torqueModel->getTorque( );
+    };
+
+    auto checkRotationRatePartial = [ & ]( const std::shared_ptr< TorqueModel >& torqueModel,
+                                           const std::shared_ptr< TorquePartial >& torquePartial,
+                                           const std::shared_ptr< RotationRate >& rotationRateParameter,
+                                           const std::string& label ) {
+        updateRotationsAndTorque( torqueModel, torquePartial );
+        const Eigen::Vector3d analyticalPartial = torquePartial->wrtParameter( rotationRateParameter );
+        const double nominalValue = rotationRateParameter->getParameterValue( );
+        const double perturbation = 1.0E-6;
+        rotationRateParameter->setParameterValue( nominalValue + perturbation );
+        const Eigen::Vector3d upTorque = updateRotationsAndTorque( torqueModel, torquePartial );
+        rotationRateParameter->setParameterValue( nominalValue - perturbation );
+        const Eigen::Vector3d downTorque = updateRotationsAndTorque( torqueModel, torquePartial );
+        rotationRateParameter->setParameterValue( nominalValue );
+        updateRotationsAndTorque( torqueModel, torquePartial );
+        checkMatrixClosePerElement( analyticalPartial, ( upTorque - downTorque ) / ( 2.0 * perturbation ), 1.0E-5, label );
+    };
+
+    auto checkPolePositionPartial = [ & ]( const std::shared_ptr< TorqueModel >& torqueModel,
+                                           const std::shared_ptr< TorquePartial >& torquePartial,
+                                           const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter,
+                                           const std::string& label ) {
+        updateRotationsAndTorque( torqueModel, torquePartial );
+        const Eigen::MatrixXd analyticalPartial = torquePartial->wrtParameter( polePositionParameter );
+        const Eigen::VectorXd nominalValue = polePositionParameter->getParameterValue( );
+        const double perturbation = 3.0E-5;
+        Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, 2 );
+        for( int i = 0; i < 2; i++ )
+        {
+            Eigen::VectorXd perturbedValue = nominalValue;
+            perturbedValue( i ) += perturbation;
+            polePositionParameter->setParameterValue( perturbedValue );
+            const Eigen::Vector3d upTorque = updateRotationsAndTorque( torqueModel, torquePartial );
+            perturbedValue = nominalValue;
+            perturbedValue( i ) -= perturbation;
+            polePositionParameter->setParameterValue( perturbedValue );
+            const Eigen::Vector3d downTorque = updateRotationsAndTorque( torqueModel, torquePartial );
+            numericalPartial.col( i ) = ( upTorque - downTorque ) / ( 2.0 * perturbation );
+        }
+        polePositionParameter->setParameterValue( nominalValue );
+        updateRotationsAndTorque( torqueModel, torquePartial );
+        checkMatrixClosePerElement( analyticalPartial, numericalPartial, 1.0E-5, label );
+    };
+
+    std::shared_ptr< RotationRate > rotationRateBodyUndergoingTorque =
+            std::make_shared< RotationRate >( rotationModelOfBodyUndergoingTorque, bodyUndergoingTorqueName );
+    std::shared_ptr< RotationRate > rotationRateBodyExertingTorque =
+            std::make_shared< RotationRate >( rotationModelOfBodyExertingTorque, bodyExertingTorqueName );
+    std::shared_ptr< ConstantRotationalOrientation > polePositionBodyUndergoingTorque =
+            std::make_shared< ConstantRotationalOrientation >( rotationModelOfBodyUndergoingTorque, bodyUndergoingTorqueName );
+    std::shared_ptr< ConstantRotationalOrientation > polePositionBodyExertingTorque =
+            std::make_shared< ConstantRotationalOrientation >( rotationModelOfBodyExertingTorque, bodyExertingTorqueName );
+
+    checkRotationRatePartial( fourthDegreeTorqueModel, fourthDegreeTorquePartial, rotationRateBodyUndergoingTorque, "Schutz rate body 1" );
+    checkRotationRatePartial( fourthDegreeTorqueModel, fourthDegreeTorquePartial, rotationRateBodyExertingTorque, "Schutz rate body 2" );
+    checkPolePositionPartial( fourthDegreeTorqueModel, fourthDegreeTorquePartial, polePositionBodyUndergoingTorque, "Schutz pole body 1" );
+    checkPolePositionPartial( fourthDegreeTorqueModel, fourthDegreeTorquePartial, polePositionBodyExertingTorque, "Schutz pole body 2" );
+
+    checkRotationRatePartial( dmrTorqueModel, dmrTorquePartial, rotationRateBodyUndergoingTorque, "DMR rate body 1" );
+    checkRotationRatePartial( dmrTorqueModel, dmrTorquePartial, rotationRateBodyExertingTorque, "DMR rate body 2" );
+    checkPolePositionPartial( dmrTorqueModel, dmrTorquePartial, polePositionBodyUndergoingTorque, "DMR pole body 1" );
+    checkPolePositionPartial( dmrTorqueModel, dmrTorquePartial, polePositionBodyExertingTorque, "DMR pole body 2" );
 }
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartials )

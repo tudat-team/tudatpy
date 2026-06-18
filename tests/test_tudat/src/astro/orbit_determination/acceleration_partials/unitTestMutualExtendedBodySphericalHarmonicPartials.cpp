@@ -28,10 +28,13 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
@@ -50,6 +53,100 @@ using namespace tudat::gravitation;
 using namespace tudat::simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_mutual_extended_sh_acceleration_partials )
+
+observation_partials::RotationMatrixPartialNamedList createSimpleRotationPartialMap( const std::shared_ptr< Body >& body )
+{
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel =
+            std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body->getRotationalEphemeris( ) );
+    observation_partials::RotationMatrixPartialNamedList partials;
+    partials[ std::make_pair( constant_rotation_rate, "" ) ] =
+            std::make_shared< observation_partials::RotationMatrixPartialWrtConstantRotationRate >( rotationModel );
+    partials[ std::make_pair( rotation_pole_position, "" ) ] =
+            std::make_shared< observation_partials::RotationMatrixPartialWrtPoleOrientation >( rotationModel );
+    return partials;
+}
+
+Eigen::Vector4d getSignConsistentQuaternionVector( const Eigen::Quaterniond& quaternion, const Eigen::Vector4d& referenceQuaternion )
+{
+    Eigen::Vector4d quaternionVector = linear_algebra::convertQuaternionToVectorFormat( quaternion );
+    if( quaternionVector.dot( referenceQuaternion ) < 0.0 )
+    {
+        quaternionVector *= -1.0;
+    }
+    return quaternionVector;
+}
+
+Eigen::Matrix< double, 4, 3 > getConstrainedQuaternionPartialWrtVectorPart( const Eigen::Vector4d& quaternionVector )
+{
+    Eigen::Matrix< double, 4, 3 > partial = Eigen::Matrix< double, 4, 3 >::Zero( );
+    partial.block( 1, 0, 3, 3 ).setIdentity( );
+    partial.block( 0, 0, 1, 3 ) = -quaternionVector.segment( 1, 3 ).transpose( ) / quaternionVector( 0 );
+    return partial;
+}
+
+BOOST_AUTO_TEST_CASE( testRotationMatrixPartialToQuaternionPartialChain )
+{
+    const double rotationRate = 1.9E-5;
+    const double initialTime = 300.0;
+    const double testTime = 2500.0;
+    const double rightAscension = 0.42;
+    const double declination = 1.02;
+    const double primeMeridian = -0.25;
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationalEphemeris =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                    rightAscension, declination, primeMeridian, rotationRate, initialTime, "ECLIPJ2000", "Body_Fixed" );
+
+    const Eigen::Vector4d nominalQuaternion =
+            linear_algebra::convertQuaternionToVectorFormat( rotationalEphemeris->getRotationToBaseFrame( testTime ) );
+
+    {
+        std::shared_ptr< observation_partials::RotationMatrixPartialWrtConstantRotationRate > rotationMatrixPartialObject =
+                std::make_shared< observation_partials::RotationMatrixPartialWrtConstantRotationRate >( rotationalEphemeris );
+        const Eigen::MatrixXd analyticalQuaternionPartial =
+                acceleration_partials::detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+                        rotationalEphemeris->getRotationToBaseFrame( testTime ),
+                        rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime ) );
+
+        const double perturbation = 1.0E-8;
+        rotationalEphemeris->resetRotationRate( rotationRate + perturbation );
+        const Eigen::Vector4d upQuaternion =
+                getSignConsistentQuaternionVector( rotationalEphemeris->getRotationToBaseFrame( testTime ), nominalQuaternion );
+        rotationalEphemeris->resetRotationRate( rotationRate - perturbation );
+        const Eigen::Vector4d downQuaternion =
+                getSignConsistentQuaternionVector( rotationalEphemeris->getRotationToBaseFrame( testTime ), nominalQuaternion );
+        rotationalEphemeris->resetRotationRate( rotationRate );
+
+        const Eigen::MatrixXd numericalQuaternionPartial = ( upQuaternion - downQuaternion ) / ( 2.0 * perturbation );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalQuaternionPartial, numericalQuaternionPartial, 1.0E-7 );
+    }
+
+    {
+        std::shared_ptr< observation_partials::RotationMatrixPartialWrtPoleOrientation > rotationMatrixPartialObject =
+                std::make_shared< observation_partials::RotationMatrixPartialWrtPoleOrientation >( rotationalEphemeris );
+        const Eigen::MatrixXd analyticalQuaternionPartial =
+                acceleration_partials::detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+                        rotationalEphemeris->getRotationToBaseFrame( testTime ),
+                        rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime ) );
+
+        const double perturbation = 1.0E-7;
+        Eigen::MatrixXd numericalQuaternionPartial = Eigen::MatrixXd::Zero( 4, 2 );
+        for( int i = 0; i < 2; i++ )
+        {
+            rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( rightAscension + ( i == 0 ? perturbation : 0.0 ),
+                                                                               declination + ( i == 1 ? perturbation : 0.0 ) );
+            const Eigen::Vector4d upQuaternion =
+                    getSignConsistentQuaternionVector( rotationalEphemeris->getRotationToBaseFrame( testTime ), nominalQuaternion );
+            rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( rightAscension - ( i == 0 ? perturbation : 0.0 ),
+                                                                               declination - ( i == 1 ? perturbation : 0.0 ) );
+            const Eigen::Vector4d downQuaternion =
+                    getSignConsistentQuaternionVector( rotationalEphemeris->getRotationToBaseFrame( testTime ), nominalQuaternion );
+            numericalQuaternionPartial.col( i ) = ( upQuaternion - downQuaternion ) / ( 2.0 * perturbation );
+        }
+        rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( rightAscension, declination );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalQuaternionPartial, numericalQuaternionPartial, 1.0E-7 );
+    }
+}
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 {
@@ -206,7 +303,11 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
             BOOST_REQUIRE( accelerationModel != nullptr );
 
             std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial =
-                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( "Body1", "Body2", accelerationModel );
+                    std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( "Body1",
+                                                                                     "Body2",
+                                                                                     accelerationModel,
+                                                                                     createSimpleRotationPartialMap( body1 ),
+                                                                                     createSimpleRotationPartialMap( body2 ) );
 
             std::shared_ptr< SphericalHarmonicsCosineCoefficients > body1CosineCoefficientsParameter =
                     std::make_shared< SphericalHarmonicsCosineCoefficients >(
@@ -264,54 +365,145 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
 
             if( testCase.hasFigureFigureTerms )
             {
-                Eigen::MatrixXd analyticalPartialWrtRotationalStateOfBody1 = Eigen::MatrixXd::Zero( 3, 7 );
-                accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
-                        analyticalPartialWrtRotationalStateOfBody1.block( 0, 0, 3, 7 ),
-                        std::make_pair( "Body1", "" ),
-                        propagators::rotational_state );
-                Eigen::MatrixXd analyticalPartialWrtRotationalStateOfBody2 = Eigen::MatrixXd::Zero( 3, 7 );
-                accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
-                        analyticalPartialWrtRotationalStateOfBody2.block( 0, 0, 3, 7 ),
-                        std::make_pair( "Body2", "" ),
-                        propagators::rotational_state );
+                const double rotationParameterInitialTime = evaluationTime - 400.0;
+                const double rotationParameterEvaluationTime = evaluationTime + 250.0;
+                const double body1RotationRate = 2.0E-5;
+                const double body2RotationRate = -1.5E-5;
+                const double body1RightAscension = 0.35 + 0.08 * static_cast< double >( rotationCase );
+                const double body1Declination = 0.95 - 0.04 * static_cast< double >( rotationCase );
+                const double body1PrimeMeridian = -0.22 + 0.11 * static_cast< double >( rotationCase );
+                const double body2RightAscension = -0.18 + 0.06 * static_cast< double >( rotationCase );
+                const double body2Declination = 1.08 - 0.03 * static_cast< double >( rotationCase );
+                const double body2PrimeMeridian = 0.31 - 0.09 * static_cast< double >( rotationCase );
+                body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >( body1RightAscension,
+                                                                                                           body1Declination,
+                                                                                                           body1PrimeMeridian,
+                                                                                                           body1RotationRate,
+                                                                                                           rotationParameterInitialTime,
+                                                                                                           "ECLIPJ2000",
+                                                                                                           "IAU_Body1" ) );
+                body2->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >( body2RightAscension,
+                                                                                                           body2Declination,
+                                                                                                           body2PrimeMeridian,
+                                                                                                           body2RotationRate,
+                                                                                                           rotationParameterInitialTime,
+                                                                                                           "ECLIPJ2000",
+                                                                                                           "IAU_Body2" ) );
+                std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > rotationAccelerationPartial =
+                        std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >( "Body1",
+                                                                                         "Body2",
+                                                                                         accelerationModel,
+                                                                                         createSimpleRotationPartialMap( body1 ),
+                                                                                         createSimpleRotationPartialMap( body2 ) );
 
-                std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBody1;
-                const Eigen::MatrixXd accelerationDeviationDueToOrientationChangeOfBody1 =
-                        calculateAccelerationDeviationDueToOrientationChange(
-                                std::bind( &Body::setCurrentRotationalStateToLocalFrame, body1, std::placeholders::_1 ),
-                                accelerationModel,
-                                body1->getRotationalStateVector( ),
-                                Eigen::Vector4d::Constant( 1.0E-6 ),
-                                appliedQuaternionPerturbationOfBody1,
-                                emptyFunction,
-                                evaluationTime );
-                std::vector< Eigen::Vector4d > appliedQuaternionPerturbationOfBody2;
-                const Eigen::MatrixXd accelerationDeviationDueToOrientationChangeOfBody2 =
-                        calculateAccelerationDeviationDueToOrientationChange(
-                                std::bind( &Body::setCurrentRotationalStateToLocalFrame, body2, std::placeholders::_1 ),
-                                accelerationModel,
-                                body2->getRotationalStateVector( ),
-                                Eigen::Vector4d::Constant( 1.0E-6 ),
-                                appliedQuaternionPerturbationOfBody2,
-                                emptyFunction,
-                                evaluationTime );
+                auto evaluateAccelerationForRotationParameter = [ & ]( ) {
+                    body1->setCurrentRotationToLocalFrameFromEphemeris( rotationParameterEvaluationTime );
+                    body2->setCurrentRotationToLocalFrameFromEphemeris( rotationParameterEvaluationTime );
+                    accelerationModel->resetCurrentTime( );
+                    rotationAccelerationPartial->resetCurrentTime( );
+                    accelerationModel->updateMembers( rotationParameterEvaluationTime );
+                    rotationAccelerationPartial->update( rotationParameterEvaluationTime );
+                    return accelerationModel->getAcceleration( );
+                };
+                auto checkCentralQuaternionStatePartial = [ & ]( const std::shared_ptr< Body >& body, const std::string& bodyName ) {
+                    evaluateAccelerationForRotationParameter( );
+                    Eigen::MatrixXd analyticalPartialWrtRotationalState = Eigen::MatrixXd::Zero( 3, 7 );
+                    rotationAccelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
+                            analyticalPartialWrtRotationalState.block( 0, 0, 3, 7 ),
+                            std::make_pair( bodyName, "" ),
+                            propagators::rotational_state );
 
-                for( int index = 1; index < 4; index++ )
-                {
-                    const Eigen::Vector3d analyticalAccelerationDeviationOfBody1 =
-                            analyticalPartialWrtRotationalStateOfBody1.block( 0, 0, 3, 4 ) *
-                            appliedQuaternionPerturbationOfBody1.at( index );
-                    const Eigen::Vector3d analyticalAccelerationDeviationOfBody2 =
-                            analyticalPartialWrtRotationalStateOfBody2.block( 0, 0, 3, 4 ) *
-                            appliedQuaternionPerturbationOfBody2.at( index );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( accelerationDeviationDueToOrientationChangeOfBody1.block( 0, index - 1, 3, 1 ),
-                                                       analyticalAccelerationDeviationOfBody1,
-                                                       5.0E-4 );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( accelerationDeviationDueToOrientationChangeOfBody2.block( 0, index - 1, 3, 1 ),
-                                                       analyticalAccelerationDeviationOfBody2,
-                                                       5.0E-4 );
-                }
+                    const Eigen::Vector7d nominalState = body->getRotationalStateVector( );
+                    const Eigen::Matrix< double, 4, 3 > constrainedQuaternionPartial =
+                            getConstrainedQuaternionPartialWrtVectorPart( nominalState.segment( 0, 4 ) );
+                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, 3 );
+                    const double perturbation = 1.0E-7;
+                    for( int i = 0; i < 3; i++ )
+                    {
+                        Eigen::Vector7d perturbedState = nominalState;
+                        perturbedState( i + 1 ) += perturbation;
+                        perturbedState( 0 ) =
+                                ( nominalState( 0 ) > 0.0 ? 1.0 : -1.0 ) * std::sqrt( 1.0 - perturbedState.segment( 1, 3 ).squaredNorm( ) );
+                        body->setCurrentRotationalStateToLocalFrame( perturbedState );
+                        accelerationModel->resetCurrentTime( );
+                        const Eigen::Vector3d upAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                                accelerationModel, rotationParameterEvaluationTime );
 
+                        perturbedState = nominalState;
+                        perturbedState( i + 1 ) -= perturbation;
+                        perturbedState( 0 ) =
+                                ( nominalState( 0 ) > 0.0 ? 1.0 : -1.0 ) * std::sqrt( 1.0 - perturbedState.segment( 1, 3 ).squaredNorm( ) );
+                        body->setCurrentRotationalStateToLocalFrame( perturbedState );
+                        accelerationModel->resetCurrentTime( );
+                        const Eigen::Vector3d downAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                                accelerationModel, rotationParameterEvaluationTime );
+                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
+                    }
+                    body->setCurrentRotationalStateToLocalFrame( nominalState );
+                    accelerationModel->resetCurrentTime( );
+                    evaluateAccelerationForRotationParameter( );
+
+                    const Eigen::MatrixXd analyticalConstrainedPartial =
+                            analyticalPartialWrtRotationalState.block( 0, 0, 3, 4 ) * constrainedQuaternionPartial;
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalConstrainedPartial, numericalPartial, 1.0E-5 );
+                };
+                checkCentralQuaternionStatePartial( body1, "Body1" );
+                checkCentralQuaternionStatePartial( body2, "Body2" );
+
+                auto checkRotationRatePartial = [ & ]( const std::shared_ptr< RotationRate >& rotationRateParameter ) {
+                    evaluateAccelerationForRotationParameter( );
+                    const Eigen::Vector3d analyticalPartial = rotationAccelerationPartial->wrtParameter( rotationRateParameter );
+                    const double nominalValue = rotationRateParameter->getParameterValue( );
+                    const double perturbation = 1.0E-8;
+                    rotationRateParameter->setParameterValue( nominalValue + perturbation );
+                    const Eigen::Vector3d upAcceleration = evaluateAccelerationForRotationParameter( );
+                    rotationRateParameter->setParameterValue( nominalValue - perturbation );
+                    const Eigen::Vector3d downAcceleration = evaluateAccelerationForRotationParameter( );
+                    rotationRateParameter->setParameterValue( nominalValue );
+                    evaluateAccelerationForRotationParameter( );
+                    const Eigen::Vector3d numericalPartial = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                };
+                auto checkPolePositionPartial = [ & ]( const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter ) {
+                    evaluateAccelerationForRotationParameter( );
+                    const Eigen::MatrixXd analyticalPartial = rotationAccelerationPartial->wrtParameter( polePositionParameter );
+                    const Eigen::VectorXd nominalValue = polePositionParameter->getParameterValue( );
+                    const double perturbation = 1.0E-7;
+                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, 2 );
+                    for( int i = 0; i < 2; i++ )
+                    {
+                        Eigen::VectorXd perturbedValue = nominalValue;
+                        perturbedValue( i ) += perturbation;
+                        polePositionParameter->setParameterValue( perturbedValue );
+                        const Eigen::Vector3d upAcceleration = evaluateAccelerationForRotationParameter( );
+                        perturbedValue = nominalValue;
+                        perturbedValue( i ) -= perturbation;
+                        polePositionParameter->setParameterValue( perturbedValue );
+                        const Eigen::Vector3d downAcceleration = evaluateAccelerationForRotationParameter( );
+                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation );
+                    }
+                    polePositionParameter->setParameterValue( nominalValue );
+                    evaluateAccelerationForRotationParameter( );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                };
+
+                checkRotationRatePartial( std::make_shared< RotationRate >(
+                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
+                        "Body1" ) );
+                checkRotationRatePartial( std::make_shared< RotationRate >(
+                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
+                        "Body2" ) );
+                checkPolePositionPartial( std::make_shared< ConstantRotationalOrientation >(
+                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
+                        "Body1" ) );
+                checkPolePositionPartial( std::make_shared< ConstantRotationalOrientation >(
+                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
+                        "Body2" ) );
+
+                body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                        rotationToBody1, 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body1" ) );
+                body2->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                        rotationToBody2, 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body2" ) );
                 body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
                 body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
                 accelerationModel->resetCurrentTime( );

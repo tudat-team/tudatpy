@@ -19,6 +19,7 @@
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat
 {
@@ -36,9 +37,9 @@ Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& qu
 
 Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
 
-void computeDerivativeOfWignerDMatricesWrtRelativeQuaternion( const Eigen::Quaterniond& relativeRotationFromBody2ToBody1,
-                                                              const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
-                                                              std::array< std::vector< Eigen::MatrixXcd >, 4 >& derivatives );
+Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
+        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
+        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
 
 Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
         const Eigen::Vector3d& bodyFixedRelativePosition,
@@ -51,6 +52,36 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
 
 }  // namespace detail
 
+Eigen::MatrixXd detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
+        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial )
+{
+    const Eigen::Vector4d quaternionVector = linear_algebra::convertQuaternionToVectorFormat( rotationFromBodyFixedToInertial );
+    std::vector< Eigen::Matrix3d > partialsOfRotationWrtQuaternion( 4, Eigen::Matrix3d::Zero( ) );
+    linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion( quaternionVector, partialsOfRotationWrtQuaternion );
+
+    Eigen::Matrix< double, 9, 3 > rotationWrtQuaternionVector = Eigen::Matrix< double, 9, 3 >::Zero( );
+    for( int quaternionVectorIndex = 0; quaternionVectorIndex < 3; quaternionVectorIndex++ )
+    {
+        const Eigen::Matrix3d constrainedRotationPartial = partialsOfRotationWrtQuaternion.at( quaternionVectorIndex + 1 ) -
+                quaternionVector( quaternionVectorIndex + 1 ) / quaternionVector( 0 ) * partialsOfRotationWrtQuaternion.at( 0 );
+        rotationWrtQuaternionVector.col( quaternionVectorIndex ) =
+                Eigen::Map< const Eigen::Matrix< double, 9, 1 > >( constrainedRotationPartial.data( ) );
+    }
+
+    Eigen::MatrixXd quaternionWrtParameter = Eigen::MatrixXd::Zero( 4, partialsOfRotationFromBodyFixedToInertial.size( ) );
+    for( unsigned int parameterIndex = 0; parameterIndex < partialsOfRotationFromBodyFixedToInertial.size( ); parameterIndex++ )
+    {
+        const Eigen::Matrix< double, 9, 1 > rotationPartial =
+                Eigen::Map< const Eigen::Matrix< double, 9, 1 > >( partialsOfRotationFromBodyFixedToInertial.at( parameterIndex ).data( ) );
+        const Eigen::Vector3d quaternionVectorWrtParameter = rotationWrtQuaternionVector.colPivHouseholderQr( ).solve( rotationPartial );
+        quaternionWrtParameter.col( parameterIndex ).segment( 1, 3 ) = quaternionVectorWrtParameter;
+        quaternionWrtParameter( 0, parameterIndex ) =
+                -quaternionVector.segment( 1, 3 ).dot( quaternionVectorWrtParameter ) / quaternionVector( 0 );
+    }
+    return quaternionWrtParameter;
+}
+
 //! Constructor.
 /*!
  * Initializes caches required for analytical derivatives of the full two-body acceleration model
@@ -59,7 +90,9 @@ Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
 FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
-        const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel ):
+        const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody1,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody2 ):
     AccelerationPartial( acceleratedBody,
                          acceleratingBody,
                          accelerationModel,
@@ -67,7 +100,8 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     accelerationModel_( accelerationModel ), effectiveMutualPotentialField_( accelerationModel_->getEffectiveMutualPotentialField( ) ),
     sphericalHarmonicsCache_(
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( *accelerationModel_->getSphericalHarmonicsCache( ) ) ),
-    coefficientCombinationsToUse_( effectiveMutualPotentialField_->getCoefficientCombinationsToUse( ) )
+    coefficientCombinationsToUse_( effectiveMutualPotentialField_->getCoefficientCombinationsToUse( ) ),
+    rotationMatrixPartialsOfBody1_( rotationMatrixPartialsOfBody1 ), rotationMatrixPartialsOfBody2_( rotationMatrixPartialsOfBody2 )
 {
     // Cache setup supports derivatives of the Eq. (49) expansion used in translational Eq. (55),
     // with effective coefficients defined through Eqs. (47)-(48).
@@ -335,7 +369,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartia
     const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBody2 =
             detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBody1 );
 
-    detail::computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
+    basic_mathematics::computeDerivativeOfWignerDMatricesWrtQuaternion(
             accelerationModel_->getCurrentRotationFromBody2ToBody1( ),
             effectiveMutualPotentialField_->getTransformationCache( )->getWignerDMatricesCache( ),
             derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_ );
@@ -412,7 +446,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartia
         for( int relativeQuaternionIndex = 0; relativeQuaternionIndex < 4; relativeQuaternionIndex++ )
         {
             coefficientContributionWrtQuaternionOfBody1 +=
-                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
+                    -partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
                     partialOfRelativeQuaternionWrtQuaternionOfBody1( relativeQuaternionIndex, quaternionIndex );
             coefficientContributionWrtQuaternionOfBody2 +=
                     partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
@@ -721,6 +755,27 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtGravitationalParameter( Eig
     partialMatrix = accelerationModel_->getAcceleration( ) / currentGravitationalParameter_;
 }
 
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtRotationModelParameter(
+        Eigen::MatrixXd& partialMatrix,
+        const bool wrtBody1,
+        const estimatable_parameters::EstimatebleParametersEnum parameterType,
+        const std::string& secondaryIdentifier )
+{
+    const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+            wrtBody1 ? rotationMatrixPartialsOfBody1_ : rotationMatrixPartialsOfBody2_;
+    const std::shared_ptr< observation_partials::RotationMatrixPartial > rotationMatrixPartial =
+            rotationMatrixPartials.at( std::make_pair( parameterType, secondaryIdentifier ) );
+    const std::vector< Eigen::Matrix3d > currentRotationMatrixPartials =
+            rotationMatrixPartial->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+    const Eigen::Quaterniond currentRotationFromBodyFixedToInertial =
+            rotationMatrixPartial->getRotationModel( )->getRotationToBaseFrame( currentTime_ );
+
+    const Eigen::MatrixXd partialOfQuaternionWrtParameter = detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+            currentRotationFromBodyFixedToInertial, currentRotationMatrixPartials );
+    partialMatrix =
+            ( wrtBody1 ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_ ) * partialOfQuaternionWrtParameter;
+}
+
 //! Return scalar-parameter partials for gravitational parameters used by the acceleration model.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
@@ -736,6 +791,30 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
         partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 );
         numberOfRows = 1;
     }
+    else if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBody1Parameter = parameter->getParameterName( ).second.first == acceleratedBody_;
+        const bool isBody2Parameter = parameter->getParameterName( ).second.first == acceleratingBody_;
+        if( isBody1Parameter || isBody2Parameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+                    isBody1Parameter ? rotationMatrixPartialsOfBody1_ : rotationMatrixPartialsOfBody2_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing full two-body acceleration rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtRotationModelParameter,
+                                         this,
+                                         std::placeholders::_1,
+                                         isBody1Parameter,
+                                         parameter->getParameterName( ).first,
+                                         parameter->getSecondaryIdentifier( ) );
+            numberOfRows = parameter->getParameterSize( );
+        }
+    }
 
     return std::make_pair( partialFunction, numberOfRows );
 }
@@ -748,7 +827,31 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
-    if( parameter->getParameterName( ).first == estimatable_parameters::spherical_harmonics_cosine_coefficient_block )
+    if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBody1Parameter = parameter->getParameterName( ).second.first == acceleratedBody_;
+        const bool isBody2Parameter = parameter->getParameterName( ).second.first == acceleratingBody_;
+        if( isBody1Parameter || isBody2Parameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+                    isBody1Parameter ? rotationMatrixPartialsOfBody1_ : rotationMatrixPartialsOfBody2_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing full two-body acceleration rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtRotationModelParameter,
+                                         this,
+                                         std::placeholders::_1,
+                                         isBody1Parameter,
+                                         parameter->getParameterName( ).first,
+                                         parameter->getSecondaryIdentifier( ) );
+            numberOfRows = parameter->getParameterSize( );
+        }
+    }
+    else if( parameter->getParameterName( ).first == estimatable_parameters::spherical_harmonics_cosine_coefficient_block )
     {
         std::shared_ptr< estimatable_parameters::SphericalHarmonicsCosineCoefficients > coefficientsParameter =
                 std::dynamic_pointer_cast< estimatable_parameters::SphericalHarmonicsCosineCoefficients >( parameter );

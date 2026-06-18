@@ -19,6 +19,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat
 {
@@ -65,197 +66,9 @@ Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& q
     return multiplicationMatrix;
 }
 
-//! Derivatives of l=1 Wigner D-matrix entries w.r.t relative quaternion.
-/*!
- * Uses the Cayley-Klein representation from Dirkx et al. (2019), Sect. 2.3.
- */
-std::array< Eigen::MatrixXcd, 4 > computeDerivativeOfDegreeOneWignerDMatrixWrtRelativeQuaternion(
-        const Eigen::Vector4d& relativeQuaternionVector )
-{
-    const std::complex< double > imaginaryUnit( 0.0, 1.0 );
-    const std::complex< double > cayleyKleinA = std::complex< double >( relativeQuaternionVector( 0 ), -relativeQuaternionVector( 3 ) );
-    const std::complex< double > cayleyKleinB = std::complex< double >( relativeQuaternionVector( 2 ), -relativeQuaternionVector( 1 ) );
-    const std::complex< double > cayleyKleinAConjugate = std::conj( cayleyKleinA );
-    const std::complex< double > cayleyKleinBConjugate = std::conj( cayleyKleinB );
-
-    std::array< std::complex< double >, 4 > partialOfCayleyKleinA;
-    std::array< std::complex< double >, 4 > partialOfCayleyKleinB;
-    std::array< std::complex< double >, 4 > partialOfCayleyKleinAConjugate;
-    std::array< std::complex< double >, 4 > partialOfCayleyKleinBConjugate;
-
-    partialOfCayleyKleinA.at( 0 ) = 1.0;
-    partialOfCayleyKleinA.at( 1 ) = 0.0;
-    partialOfCayleyKleinA.at( 2 ) = 0.0;
-    partialOfCayleyKleinA.at( 3 ) = -imaginaryUnit;
-
-    partialOfCayleyKleinB.at( 0 ) = 0.0;
-    partialOfCayleyKleinB.at( 1 ) = -imaginaryUnit;
-    partialOfCayleyKleinB.at( 2 ) = 1.0;
-    partialOfCayleyKleinB.at( 3 ) = 0.0;
-
-    for( int i = 0; i < 4; i++ )
-    {
-        partialOfCayleyKleinAConjugate.at( i ) = std::conj( partialOfCayleyKleinA.at( i ) );
-        partialOfCayleyKleinBConjugate.at( i ) = std::conj( partialOfCayleyKleinB.at( i ) );
-    }
-
-    std::array< Eigen::MatrixXcd, 4 > derivatives;
-    for( int i = 0; i < 4; i++ )
-    {
-        derivatives.at( i ) = Eigen::MatrixXcd::Zero( 3, 3 );
-
-        derivatives.at( i )( 2, 2 ) = 2.0 * cayleyKleinA * partialOfCayleyKleinA.at( i );
-        derivatives.at( i )( 2, 1 ) = -std::sqrt( 2.0 ) *
-                ( partialOfCayleyKleinA.at( i ) * cayleyKleinBConjugate + cayleyKleinA * partialOfCayleyKleinBConjugate.at( i ) );
-        derivatives.at( i )( 2, 0 ) = 2.0 * cayleyKleinBConjugate * partialOfCayleyKleinBConjugate.at( i );
-
-        derivatives.at( i )( 1, 2 ) =
-                std::sqrt( 2.0 ) * ( partialOfCayleyKleinA.at( i ) * cayleyKleinB + cayleyKleinA * partialOfCayleyKleinB.at( i ) );
-        derivatives.at( i )( 1, 1 ) =
-                ( i == 0 ? 2.0 * relativeQuaternionVector( 0 )
-                         : ( i == 1 ? -2.0 * relativeQuaternionVector( 1 )
-                                    : ( i == 2 ? -2.0 * relativeQuaternionVector( 2 ) : 2.0 * relativeQuaternionVector( 3 ) ) ) );
-        derivatives.at( i )( 1, 0 ) = -std::sqrt( 2.0 ) *
-                ( partialOfCayleyKleinAConjugate.at( i ) * cayleyKleinBConjugate +
-                  cayleyKleinAConjugate * partialOfCayleyKleinBConjugate.at( i ) );
-
-        derivatives.at( i )( 0, 2 ) = 2.0 * cayleyKleinB * partialOfCayleyKleinB.at( i );
-        derivatives.at( i )( 0, 1 ) = std::sqrt( 2.0 ) *
-                ( partialOfCayleyKleinAConjugate.at( i ) * cayleyKleinB + cayleyKleinAConjugate * partialOfCayleyKleinB.at( i ) );
-        derivatives.at( i )( 0, 0 ) = 2.0 * cayleyKleinAConjugate * partialOfCayleyKleinAConjugate.at( i );
-    }
-    return derivatives;
-}
-
-//! Wigner-D recursion coefficient for k-1 term.
-double getWignerRecursionCoefficientMinusOne( const int degree, const int rowIndex, const int columnIndex )
-{
-    const int orderM = rowIndex - degree;
-    const int orderK = columnIndex - degree;
-    return std::sqrt( static_cast< double >( ( degree + orderK ) * ( degree + orderK - 1 ) ) /
-                      static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
-}
-
-//! Wigner-D recursion coefficient for k term.
-double getWignerRecursionCoefficientZero( const int degree, const int rowIndex, const int columnIndex )
-{
-    const int orderM = rowIndex - degree;
-    const int orderK = columnIndex - degree;
-    return std::sqrt( static_cast< double >( 2 * ( degree + orderK ) * ( degree - orderK ) ) /
-                      static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
-}
-
-//! Wigner-D recursion coefficient for k+1 term.
-double getWignerRecursionCoefficientOne( const int degree, const int rowIndex, const int columnIndex )
-{
-    const int orderM = rowIndex - degree;
-    const int orderK = columnIndex - degree;
-    return std::sqrt( static_cast< double >( ( degree - orderK ) * ( degree - orderK - 1 ) ) /
-                      static_cast< double >( ( degree + orderM ) * ( degree + orderM - 1 ) ) );
-}
-
-//! Compute derivatives of all required Wigner D matrices w.r.t relative quaternion components.
-/*!
- * Provides linearized rotation terms used to differentiate transformed coefficients in the torque model
- * (Dirkx et al. (2019), coefficient transformation path for Eqs. (47)-(49)).
- */
-void computeDerivativeOfWignerDMatricesWrtRelativeQuaternion( const Eigen::Quaterniond& relativeRotationFromBody2ToBody1,
-                                                              const std::shared_ptr< basic_mathematics::WignerDMatricesCache >& wignerCache,
-                                                              std::array< std::vector< Eigen::MatrixXcd >, 4 >& derivatives )
-{
-    const std::vector< Eigen::MatrixXcd >& wignerMatrices = wignerCache->getWignerDMatrices( );
-    const int maximumDegree = static_cast< int >( wignerMatrices.size( ) ) - 1;
-
-    for( int i = 0; i < 4; i++ )
-    {
-        derivatives.at( i ).resize( maximumDegree + 1 );
-        derivatives.at( i ).at( 0 ).setZero( 1, 1 );
-    }
-
-    if( maximumDegree == 0 )
-    {
-        return;
-    }
-
-    const Eigen::Vector4d relativeQuaternionVector = linear_algebra::convertQuaternionToVectorFormat( relativeRotationFromBody2ToBody1 );
-    const std::array< Eigen::MatrixXcd, 4 > degreeOneDerivatives =
-            computeDerivativeOfDegreeOneWignerDMatrixWrtRelativeQuaternion( relativeQuaternionVector );
-
-    for( int i = 0; i < 4; i++ )
-    {
-        derivatives.at( i ).at( 1 ) = degreeOneDerivatives.at( i );
-    }
-
-    if( maximumDegree == 1 )
-    {
-        return;
-    }
-
-    const Eigen::MatrixXcd& degreeOneWignerMatrix = wignerMatrices.at( 1 );
-
-    for( int degree = 2; degree <= maximumDegree; degree++ )
-    {
-        for( int i = 0; i < 4; i++ )
-        {
-            derivatives.at( i ).at( degree ).setZero( 2 * degree + 1, 2 * degree + 1 );
-        }
-
-        for( int rowIndex = degree; rowIndex <= 2 * degree; rowIndex++ )
-        {
-            for( int columnIndex = 0; columnIndex <= 2 * degree; columnIndex++ )
-            {
-                if( rowIndex - 2 < 0 )
-                {
-                    continue;
-                }
-
-                for( int i = 0; i < 4; i++ )
-                {
-                    std::complex< double > derivativeEntry = std::complex< double >( 0.0, 0.0 );
-
-                    if( columnIndex > 1 )
-                    {
-                        const double coefficient = getWignerRecursionCoefficientMinusOne( degree, rowIndex, columnIndex );
-                        derivativeEntry += coefficient *
-                                ( degreeOneDerivatives.at( i )( 2, 2 ) * wignerMatrices.at( degree - 1 )( rowIndex - 2, columnIndex - 2 ) +
-                                  degreeOneWignerMatrix( 2, 2 ) * derivatives.at( i ).at( degree - 1 )( rowIndex - 2, columnIndex - 2 ) );
-                    }
-                    if( columnIndex > 0 && columnIndex <= 2 * degree - 1 )
-                    {
-                        const double coefficient = getWignerRecursionCoefficientZero( degree, rowIndex, columnIndex );
-                        derivativeEntry += coefficient *
-                                ( degreeOneDerivatives.at( i )( 2, 1 ) * wignerMatrices.at( degree - 1 )( rowIndex - 2, columnIndex - 1 ) +
-                                  degreeOneWignerMatrix( 2, 1 ) * derivatives.at( i ).at( degree - 1 )( rowIndex - 2, columnIndex - 1 ) );
-                    }
-                    if( columnIndex < 2 * degree - 1 )
-                    {
-                        const double coefficient = getWignerRecursionCoefficientOne( degree, rowIndex, columnIndex );
-                        derivativeEntry += coefficient *
-                                ( degreeOneDerivatives.at( i )( 2, 0 ) * wignerMatrices.at( degree - 1 )( rowIndex - 2, columnIndex ) +
-                                  degreeOneWignerMatrix( 2, 0 ) * derivatives.at( i ).at( degree - 1 )( rowIndex - 2, columnIndex ) );
-                    }
-
-                    derivatives.at( i ).at( degree )( rowIndex, columnIndex ) = derivativeEntry;
-                }
-            }
-        }
-
-        for( int rowIndex = 0; rowIndex < degree; rowIndex++ )
-        {
-            const int orderM = rowIndex - degree;
-            for( int columnIndex = 0; columnIndex <= 2 * degree; columnIndex++ )
-            {
-                const int orderK = columnIndex - degree;
-                const double signMultiplier = ( ( ( orderM - orderK ) % 2 ) == 0 ) ? 1.0 : -1.0;
-                for( int i = 0; i < 4; i++ )
-                {
-                    derivatives.at( i ).at( degree )( rowIndex, columnIndex ) =
-                            signMultiplier * std::conj( derivatives.at( i ).at( degree )( -orderM + degree, -orderK + degree ) );
-                }
-            }
-        }
-    }
-}
+Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
+        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
+        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
 
 //! Evaluate scalar basis values multiplying coefficient terms in torque summations.
 /*!
@@ -343,7 +156,9 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
         const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > torqueModel,
         const std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > accelerationPartial,
         const std::string& acceleratedBody,
-        const std::string& acceleratingBody ):
+        const std::string& acceleratingBody,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyUndergoingTorque,
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBodyExertingTorque ):
     TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque ),
     torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
     accelerationModel_( torqueModel == nullptr ? nullptr : torqueModel->getAccelerationBetweenBodies( ) ),
@@ -362,7 +177,9 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::FullTwoBodySphericalHarm
     currentRelativePositionInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
     currentMutualPotentialGradientInBodyFixedFrameOfBodyUndergoingTorque_( Eigen::Vector3d::Zero( ) ),
     currentBody2SpinTorquePartialWrtBodyFixedRelativePosition_( Eigen::Matrix3d::Zero( ) ), currentDistance_( TUDAT_NAN ),
-    currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN ), currentBodyUndergoingTorqueMass_( TUDAT_NAN )
+    currentCosineOfLatitude_( TUDAT_NAN ), currentPreMultiplier_( TUDAT_NAN ), currentBodyUndergoingTorqueMass_( TUDAT_NAN ),
+    rotationMatrixPartialsOfBodyUndergoingTorque_( rotationMatrixPartialsOfBodyUndergoingTorque ),
+    rotationMatrixPartialsOfBodyExertingTorque_( rotationMatrixPartialsOfBodyExertingTorque )
 {
     if( torqueModel_ == nullptr )
     {
@@ -409,6 +226,28 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtBodyUndergoingTo
     partialMatrix = torqueModel_->getTorque( ) / currentBodyUndergoingTorqueMass_;
 }
 
+void FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtRotationModelParameter(
+        Eigen::MatrixXd& partialMatrix,
+        const bool wrtBodyUndergoingTorque,
+        const estimatable_parameters::EstimatebleParametersEnum parameterType,
+        const std::string& secondaryIdentifier )
+{
+    const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+            wrtBodyUndergoingTorque ? rotationMatrixPartialsOfBodyUndergoingTorque_ : rotationMatrixPartialsOfBodyExertingTorque_;
+    const std::shared_ptr< observation_partials::RotationMatrixPartial > rotationMatrixPartial =
+            rotationMatrixPartials.at( std::make_pair( parameterType, secondaryIdentifier ) );
+    const std::vector< Eigen::Matrix3d > currentRotationMatrixPartials =
+            rotationMatrixPartial->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+    const Eigen::Quaterniond currentRotationFromBodyFixedToInertial =
+            rotationMatrixPartial->getRotationModel( )->getRotationToBaseFrame( currentTime_ );
+
+    const Eigen::MatrixXd partialOfQuaternionWrtParameter = detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+            currentRotationFromBodyFixedToInertial, currentRotationMatrixPartials );
+    partialMatrix = ( wrtBodyUndergoingTorque ? currentPartialWrtQuaternionOfBodyUndergoingTorque_
+                                              : currentPartialWrtQuaternionOfBodyExertingTorque_ ) *
+            partialOfQuaternionWrtParameter;
+}
+
 //! Return scalar parameter partials for the GM and explicit body mass dependencies.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
@@ -425,6 +264,31 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
                 &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtGravitationalParameter, this, std::placeholders::_1 );
         numberOfRows = 1;
     }
+    else if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials = isBodyUndergoingTorqueParameter
+                    ? rotationMatrixPartialsOfBodyUndergoingTorque_
+                    : rotationMatrixPartialsOfBodyExertingTorque_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing full two-body torque rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::bind( &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtRotationModelParameter,
+                                         this,
+                                         std::placeholders::_1,
+                                         isBodyUndergoingTorqueParameter,
+                                         parameter->getParameterName( ).first,
+                                         parameter->getSecondaryIdentifier( ) );
+            numberOfRows = parameter->getParameterSize( );
+        }
+    }
 
     return std::make_pair( partialFunction, numberOfRows );
 }
@@ -439,7 +303,32 @@ FullTwoBodySphericalHarmonicGravitationalTorquePartial::getParameterPartialFunct
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
             std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
-    if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
+    if( estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        {
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials = isBodyUndergoingTorqueParameter
+                    ? rotationMatrixPartialsOfBodyUndergoingTorque_
+                    : rotationMatrixPartialsOfBodyExertingTorque_;
+            if( rotationMatrixPartials.count(
+                        std::make_pair( parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, missing full two-body torque rotation matrix partial for parameter " +
+                                          std::to_string( parameter->getParameterName( ).first ) + " of " +
+                                          parameter->getParameterName( ).second.first );
+            }
+            partialFunction = std::make_pair( std::bind( &FullTwoBodySphericalHarmonicGravitationalTorquePartial::wrtRotationModelParameter,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         isBodyUndergoingTorqueParameter,
+                                                         parameter->getParameterName( ).first,
+                                                         parameter->getSecondaryIdentifier( ) ),
+                                              parameter->getParameterSize( ) );
+        }
+    }
+    else if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
         switch( parameter->getParameterName( ).first )
         {
@@ -1289,7 +1178,7 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
         const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBodyExertingTorque =
                 detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBodyUndergoingTorque );
 
-        detail::computeDerivativeOfWignerDMatricesWrtRelativeQuaternion(
+        basic_mathematics::computeDerivativeOfWignerDMatricesWrtQuaternion(
                 accelerationModel_->getCurrentRotationFromBody2ToBody1( ),
                 effectiveMutualPotentialField_->getTransformationCache( )->getWignerDMatricesCache( ),
                 derivativeOfWignerDMatricesWrtRelativeQuaternionScratch_ );
@@ -1443,9 +1332,9 @@ void FullTwoBodySphericalHarmonicGravitationalTorquePartial::update( const doubl
             for( int relativeQuaternionIndex = 0; relativeQuaternionIndex < 4; relativeQuaternionIndex++ )
             {
                 coefficientContributionWrtQuaternionOfBodyUndergoingTorque +=
-                        ( partialOfBody2SpinTorqueWrtRelativeQuaternion.at( relativeQuaternionIndex ) -
-                          bodyFixedCrossProductMatrix *
-                                  partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) ) *
+                        -( partialOfBody2SpinTorqueWrtRelativeQuaternion.at( relativeQuaternionIndex ) -
+                           bodyFixedCrossProductMatrix *
+                                   partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) ) *
                         partialOfRelativeQuaternionWrtQuaternionOfBodyUndergoingTorque( relativeQuaternionIndex, i );
                 coefficientContributionWrtQuaternionOfBodyExertingTorque +=
                         ( partialOfBody2SpinTorqueWrtRelativeQuaternion.at( relativeQuaternionIndex ) -

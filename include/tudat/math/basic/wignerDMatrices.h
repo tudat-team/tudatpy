@@ -16,9 +16,12 @@
 #ifndef TUDAT_WIGNER_D_MATRIXRES_H
 #define TUDAT_WIGNER_D_MATRIXRES_H
 
+#include <array>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <cmath>
 #include <complex>
+#include <memory>
 #include <vector>
 
 namespace tudat
@@ -157,6 +160,20 @@ private:
 
     bool areAngularMomentumOperatorsUpdated_;
 };
+
+//! Compute partial derivatives of all Wigner D matrices in a cache w.r.t. quaternion components.
+/*!
+ * Computes derivatives of the Wigner D matrices in \p wignerCache with respect to the quaternion vector
+ * [q0, q1, q2, q3] defining \p rotation. The Cayley-Klein convention is the one used by WignerDMatricesCache:
+ * a = q0 - i q3, b = q2 - i q1. The cache must already be updated to the same rotation.
+ *
+ * \param rotation Quaternion defining the rotation for which derivatives are computed.
+ * \param wignerCache Cache containing Wigner D matrices for \p rotation.
+ * \param derivatives Output array. Entry i contains dD^l/dq_i for all degrees l in the cache.
+ */
+void computeDerivativeOfWignerDMatricesWrtQuaternion( const Eigen::Quaterniond& rotation,
+                                                      const std::shared_ptr< WignerDMatricesCache >& wignerCache,
+                                                      std::array< std::vector< Eigen::MatrixXcd >, 4 >& derivatives );
 
 }  // namespace basic_mathematics
 
