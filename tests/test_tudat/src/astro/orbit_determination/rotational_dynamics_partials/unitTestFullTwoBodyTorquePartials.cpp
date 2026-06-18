@@ -19,10 +19,13 @@
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
@@ -227,6 +230,67 @@ void updateBodyMassDistributions( const std::shared_ptr< Body >& bodyUndergoingT
     bodyExertingTorque->getMassProperties( )->resetCurrentTime( );
     bodyUndergoingTorque->updateMassDistribution( testTime );
     bodyExertingTorque->updateMassDistribution( testTime );
+}
+
+void applyGravityFieldVariation( const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
+                                 const Eigen::MatrixXd& baseCosineCoefficients,
+                                 const Eigen::MatrixXd& baseSineCoefficients,
+                                 const std::shared_ptr< gravitation::GravityFieldVariations >& variationModel,
+                                 const double testTime )
+{
+    Eigen::MatrixXd cosineCoefficients = baseCosineCoefficients;
+    Eigen::MatrixXd sineCoefficients = baseSineCoefficients;
+    variationModel->addSphericalHarmonicsCorrections( testTime, sineCoefficients, cosineCoefficients );
+    gravityField->setCosineCoefficients( cosineCoefficients );
+    gravityField->setSineCoefficients( sineCoefficients );
+}
+
+Eigen::MatrixXd calculateTorqueWrtGravityFieldVariationPartial(
+        const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
+        const std::shared_ptr< gravitation::GravityFieldVariations >& variationModel,
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
+        const Eigen::MatrixXd& baseCosineCoefficients,
+        const Eigen::MatrixXd& baseSineCoefficients,
+        const std::shared_ptr< TorqueModel >& torqueModel,
+        const std::function< void( ) >& resetGravityFields,
+        const std::function< void( ) >& updateFunction,
+        const double testTime,
+        const double perturbationValue )
+{
+    const Eigen::VectorXd nominalParameter = parameter->getParameterValue( );
+    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, nominalParameter.size( ) );
+    for( int i = 0; i < nominalParameter.size( ); i++ )
+    {
+        Eigen::VectorXd perturbedParameter = nominalParameter;
+        perturbedParameter( i ) += perturbationValue;
+        parameter->setParameterValue( perturbedParameter );
+        resetGravityFields( );
+        applyGravityFieldVariation( gravityField, baseCosineCoefficients, baseSineCoefficients, variationModel, testTime );
+        updateFunction( );
+        torqueModel->resetCurrentTime( );
+        torqueModel->updateMembers( testTime );
+        const Eigen::Vector3d upTorque = torqueModel->getTorque( );
+
+        perturbedParameter = nominalParameter;
+        perturbedParameter( i ) -= perturbationValue;
+        parameter->setParameterValue( perturbedParameter );
+        resetGravityFields( );
+        applyGravityFieldVariation( gravityField, baseCosineCoefficients, baseSineCoefficients, variationModel, testTime );
+        updateFunction( );
+        torqueModel->resetCurrentTime( );
+        torqueModel->updateMembers( testTime );
+        const Eigen::Vector3d downTorque = torqueModel->getTorque( );
+
+        numericalPartial.col( i ) = ( upTorque - downTorque ) / ( 2.0 * perturbationValue );
+    }
+
+    parameter->setParameterValue( nominalParameter );
+    resetGravityFields( );
+    applyGravityFieldVariation( gravityField, baseCosineCoefficients, baseSineCoefficients, variationModel, testTime );
+    updateFunction( );
+    torqueModel->resetCurrentTime( );
+    torqueModel->updateMembers( testTime );
+    return numericalPartial;
 }
 
 void makeBodyMassIndependentOfGravityField( const std::shared_ptr< Body >& body )
@@ -522,6 +586,87 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                                                          sineCoefficientPerturbationBodyExertingTorque,
                                                          updateFunction,
                                                          testTime );
+
+            if( useArbitraryRotationStates && !useZeroScaledMeanMomentOfInertia )
+            {
+                std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque =
+                        std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                bodyUndergoingTorque->getGravityFieldModel( ) );
+                std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque =
+                        std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                bodyExertingTorque->getGravityFieldModel( ) );
+                const Eigen::MatrixXd baseCosineCoefficientsOfBodyUndergoingTorque =
+                        gravityFieldOfBodyUndergoingTorque->getCosineCoefficients( );
+                const Eigen::MatrixXd baseSineCoefficientsOfBodyUndergoingTorque =
+                        gravityFieldOfBodyUndergoingTorque->getSineCoefficients( );
+                const Eigen::MatrixXd baseCosineCoefficientsOfBodyExertingTorque =
+                        gravityFieldOfBodyExertingTorque->getCosineCoefficients( );
+                const Eigen::MatrixXd baseSineCoefficientsOfBodyExertingTorque = gravityFieldOfBodyExertingTorque->getSineCoefficients( );
+                const Eigen::MatrixXd zeroVariationBlock = Eigen::MatrixXd::Zero( 3, 5 );
+                const std::map< int, std::vector< std::pair< int, int > > > variationCosineIndices = {
+                    { 1, { { 2, 0 }, { 3, 1 }, { 4, 2 } } }
+                };
+                const std::map< int, std::vector< std::pair< int, int > > > variationSineIndices = { { 1,
+                                                                                                       { { 2, 1 }, { 3, 2 }, { 4, 4 } } } };
+
+                auto resetGravityFields = [ & ]( ) {
+                    gravityFieldOfBodyUndergoingTorque->setCosineCoefficients( baseCosineCoefficientsOfBodyUndergoingTorque );
+                    gravityFieldOfBodyUndergoingTorque->setSineCoefficients( baseSineCoefficientsOfBodyUndergoingTorque );
+                    gravityFieldOfBodyExertingTorque->setCosineCoefficients( baseCosineCoefficientsOfBodyExertingTorque );
+                    gravityFieldOfBodyExertingTorque->setSineCoefficients( baseSineCoefficientsOfBodyExertingTorque );
+                };
+                auto checkPolynomialVariationPartial =
+                        [ & ]( const std::string& bodyName,
+                               const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
+                               const Eigen::MatrixXd& baseCosineCoefficients,
+                               const Eigen::MatrixXd& baseSineCoefficients,
+                               const std::string& label ) {
+                            std::shared_ptr< gravitation::PolynomialGravityFieldVariations > variationModel =
+                                    std::make_shared< gravitation::PolynomialGravityFieldVariations >(
+                                            std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock } },
+                                            std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock } },
+                                            testTime - 0.3,
+                                            2,
+                                            0 );
+                            std::shared_ptr< PolynomialGravityFieldVariationsParameters > parameter =
+                                    std::make_shared< PolynomialGravityFieldVariationsParameters >(
+                                            variationModel, variationCosineIndices, variationSineIndices, bodyName );
+
+                            resetGravityFields( );
+                            applyGravityFieldVariation(
+                                    gravityField, baseCosineCoefficients, baseSineCoefficients, variationModel, testTime );
+                            updateFunction( );
+                            torqueModel->resetCurrentTime( );
+                            torquePartial->resetCurrentTime( );
+                            torqueModel->updateMembers( testTime );
+                            torquePartial->update( testTime );
+                            const Eigen::MatrixXd analyticalPartial = torquePartial->wrtParameter( parameter );
+                            const Eigen::MatrixXd numericalPartial = calculateTorqueWrtGravityFieldVariationPartial( parameter,
+                                                                                                                     variationModel,
+                                                                                                                     gravityField,
+                                                                                                                     baseCosineCoefficients,
+                                                                                                                     baseSineCoefficients,
+                                                                                                                     torqueModel,
+                                                                                                                     resetGravityFields,
+                                                                                                                     updateFunction,
+                                                                                                                     testTime,
+                                                                                                                     2.0E-5 );
+                            checkMatrixClosePerElement( analyticalPartial, numericalPartial, 5.0E-5, label );
+                            resetGravityFields( );
+                            updateFunction( );
+                        };
+
+                checkPolynomialVariationPartial( bodyUndergoingTorqueName,
+                                                 gravityFieldOfBodyUndergoingTorque,
+                                                 baseCosineCoefficientsOfBodyUndergoingTorque,
+                                                 baseSineCoefficientsOfBodyUndergoingTorque,
+                                                 "schutz polynomial variations body undergoing" );
+                checkPolynomialVariationPartial( bodyExertingTorqueName,
+                                                 gravityFieldOfBodyExertingTorque,
+                                                 baseCosineCoefficientsOfBodyExertingTorque,
+                                                 baseSineCoefficientsOfBodyExertingTorque,
+                                                 "schutz polynomial variations body exerting" );
+            }
 
             for( int index = 1; index < 4; index++ )
             {
@@ -966,6 +1111,121 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravitationalTorquePartial
                                                      sineCoefficientPerturbationBodyExertingTorque,
                                                      emptyFunction,
                                                      testTime );
+
+        if( useArbitraryRotationStates )
+        {
+            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque =
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            bodyUndergoingTorque->getGravityFieldModel( ) );
+            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque =
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( bodyExertingTorque->getGravityFieldModel( ) );
+            const Eigen::MatrixXd baseCosineCoefficientsOfBodyUndergoingTorque =
+                    gravityFieldOfBodyUndergoingTorque->getCosineCoefficients( );
+            const Eigen::MatrixXd baseSineCoefficientsOfBodyUndergoingTorque = gravityFieldOfBodyUndergoingTorque->getSineCoefficients( );
+            const Eigen::MatrixXd baseCosineCoefficientsOfBodyExertingTorque = gravityFieldOfBodyExertingTorque->getCosineCoefficients( );
+            const Eigen::MatrixXd baseSineCoefficientsOfBodyExertingTorque = gravityFieldOfBodyExertingTorque->getSineCoefficients( );
+            const Eigen::MatrixXd zeroVariationBlock = Eigen::MatrixXd::Zero( 3, 5 );
+            const std::map< int, std::vector< std::pair< int, int > > > polynomialCosineIndices = { { 1, { { 3, 1 }, { 4, 2 } } },
+                                                                                                    { 2, { { 4, 4 } } } };
+            const std::map< int, std::vector< std::pair< int, int > > > polynomialSineIndices = { { 1, { { 3, 1 }, { 4, 4 } } } };
+            const std::map< int, std::vector< std::pair< int, int > > > periodicCosineIndices = { { 0, { { 3, 0 }, { 4, 4 } } },
+                                                                                                  { 1, { { 4, 2 } } } };
+            const std::map< int, std::vector< std::pair< int, int > > > periodicSineIndices = { { 0, { { 3, 1 } } }, { 1, { { 4, 4 } } } };
+            const std::vector< double > variationFrequencies = { 1.0E-3, 1.7E-3 };
+            auto resetGravityFields = [ & ]( ) {
+                gravityFieldOfBodyUndergoingTorque->setCosineCoefficients( baseCosineCoefficientsOfBodyUndergoingTorque );
+                gravityFieldOfBodyUndergoingTorque->setSineCoefficients( baseSineCoefficientsOfBodyUndergoingTorque );
+                gravityFieldOfBodyExertingTorque->setCosineCoefficients( baseCosineCoefficientsOfBodyExertingTorque );
+                gravityFieldOfBodyExertingTorque->setSineCoefficients( baseSineCoefficientsOfBodyExertingTorque );
+            };
+            auto checkGravityFieldVariationPartial =
+                    [ & ]( const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
+                           const std::shared_ptr< gravitation::GravityFieldVariations >& variationModel,
+                           const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
+                           const Eigen::MatrixXd& baseCosineCoefficients,
+                           const Eigen::MatrixXd& baseSineCoefficients,
+                           const std::string& label ) {
+                        resetGravityFields( );
+                        applyGravityFieldVariation( gravityField, baseCosineCoefficients, baseSineCoefficients, variationModel, testTime );
+                        torqueModel->resetCurrentTime( );
+                        torquePartial->resetCurrentTime( );
+                        torqueModel->updateMembers( testTime );
+                        torquePartial->update( testTime );
+                        const Eigen::MatrixXd analyticalPartial = torquePartial->wrtParameter( parameter );
+                        const Eigen::MatrixXd numericalPartial = calculateTorqueWrtGravityFieldVariationPartial( parameter,
+                                                                                                                 variationModel,
+                                                                                                                 gravityField,
+                                                                                                                 baseCosineCoefficients,
+                                                                                                                 baseSineCoefficients,
+                                                                                                                 torqueModel,
+                                                                                                                 resetGravityFields,
+                                                                                                                 emptyFunction,
+                                                                                                                 testTime,
+                                                                                                                 5.0E-2 );
+                        checkMatrixClosePerElement( analyticalPartial, numericalPartial, 5.0E-6, label );
+                        resetGravityFields( );
+                    };
+            auto createPolynomialVariationParameter =
+                    [ & ]( const std::string& bodyName ) -> std::shared_ptr< PolynomialGravityFieldVariationsParameters > {
+                std::shared_ptr< gravitation::PolynomialGravityFieldVariations > variationModel =
+                        std::make_shared< gravitation::PolynomialGravityFieldVariations >(
+                                std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock }, { 2, zeroVariationBlock } },
+                                std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock } },
+                                testTime - 0.25,
+                                2,
+                                0 );
+                return std::make_shared< PolynomialGravityFieldVariationsParameters >(
+                        variationModel, polynomialCosineIndices, polynomialSineIndices, bodyName );
+            };
+            auto createPeriodicVariationParameter =
+                    [ & ]( const std::string& bodyName ) -> std::shared_ptr< PeriodicGravityFieldVariationsParameters > {
+                const std::vector< Eigen::MatrixXd > zeroPeriodicBlocks( 2, zeroVariationBlock );
+                std::shared_ptr< gravitation::PeriodicGravityFieldVariations > variationModel =
+                        std::make_shared< gravitation::PeriodicGravityFieldVariations >( zeroPeriodicBlocks,
+                                                                                         zeroPeriodicBlocks,
+                                                                                         zeroPeriodicBlocks,
+                                                                                         zeroPeriodicBlocks,
+                                                                                         variationFrequencies,
+                                                                                         testTime - 0.4,
+                                                                                         2,
+                                                                                         0 );
+                return std::make_shared< PeriodicGravityFieldVariationsParameters >(
+                        variationModel, periodicCosineIndices, periodicSineIndices, bodyName );
+            };
+
+            std::shared_ptr< PolynomialGravityFieldVariationsParameters > bodyUndergoingPolynomialParameter =
+                    createPolynomialVariationParameter( bodyUndergoingTorqueName );
+            checkGravityFieldVariationPartial( bodyUndergoingPolynomialParameter,
+                                               bodyUndergoingPolynomialParameter->getPolynomialVariationModel( ),
+                                               gravityFieldOfBodyUndergoingTorque,
+                                               baseCosineCoefficientsOfBodyUndergoingTorque,
+                                               baseSineCoefficientsOfBodyUndergoingTorque,
+                                               "dmr polynomial variations body undergoing" );
+            std::shared_ptr< PeriodicGravityFieldVariationsParameters > bodyUndergoingPeriodicParameter =
+                    createPeriodicVariationParameter( bodyUndergoingTorqueName );
+            checkGravityFieldVariationPartial( bodyUndergoingPeriodicParameter,
+                                               bodyUndergoingPeriodicParameter->getPeriodicVariationModel( ),
+                                               gravityFieldOfBodyUndergoingTorque,
+                                               baseCosineCoefficientsOfBodyUndergoingTorque,
+                                               baseSineCoefficientsOfBodyUndergoingTorque,
+                                               "dmr periodic variations body undergoing" );
+            std::shared_ptr< PolynomialGravityFieldVariationsParameters > bodyExertingPolynomialParameter =
+                    createPolynomialVariationParameter( bodyExertingTorqueName );
+            checkGravityFieldVariationPartial( bodyExertingPolynomialParameter,
+                                               bodyExertingPolynomialParameter->getPolynomialVariationModel( ),
+                                               gravityFieldOfBodyExertingTorque,
+                                               baseCosineCoefficientsOfBodyExertingTorque,
+                                               baseSineCoefficientsOfBodyExertingTorque,
+                                               "dmr polynomial variations body exerting" );
+            std::shared_ptr< PeriodicGravityFieldVariationsParameters > bodyExertingPeriodicParameter =
+                    createPeriodicVariationParameter( bodyExertingTorqueName );
+            checkGravityFieldVariationPartial( bodyExertingPeriodicParameter,
+                                               bodyExertingPeriodicParameter->getPeriodicVariationModel( ),
+                                               gravityFieldOfBodyExertingTorque,
+                                               baseCosineCoefficientsOfBodyExertingTorque,
+                                               baseSineCoefficientsOfBodyExertingTorque,
+                                               "dmr periodic variations body exerting" );
+        }
 
         // This check verifies that the analytical quaternion partial of the body undergoing torque is not identically zero.
         BOOST_CHECK_GT( analyticalPartialWrtOrientationOfBodyUndergoingTorque.norm( ), 1.0E-20 );

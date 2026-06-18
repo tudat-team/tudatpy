@@ -14,8 +14,10 @@
 
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
@@ -776,6 +778,105 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtRotationModelParameter(
             ( wrtBody1 ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_ ) * partialOfQuaternionWrtParameter;
 }
 
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
+        const bool wrtBody1,
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialMatrix )
+{
+    Eigen::MatrixXd cosineCoefficientPartials;
+    Eigen::MatrixXd sineCoefficientPartials;
+    if( wrtBody1 )
+    {
+        wrtCosineCoefficientBlockOfBody1( cosineBlockIndices, cosineCoefficientPartials );
+        wrtSineCoefficientBlockOfBody1( sineBlockIndices, sineCoefficientPartials );
+    }
+    else
+    {
+        wrtCosineCoefficientBlockOfBody2( cosineBlockIndices, cosineCoefficientPartials );
+        wrtSineCoefficientBlockOfBody2( sineBlockIndices, sineCoefficientPartials );
+    }
+
+    partialMatrix.setZero( );
+
+    int numberOfCosineParameters = 0;
+    for( unsigned int i = 0; i < powersPerCosineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerCosineBlockIndex.at( i ).size( ); j++ )
+        {
+            partialMatrix.block( 0, powersPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) *
+                    std::pow( currentTime_ - referenceEpoch, powersPerCosineBlockIndex.at( i ).at( j ).second );
+            numberOfCosineParameters++;
+        }
+    }
+
+    for( unsigned int i = 0; i < powersPerSineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerSineBlockIndex.at( i ).size( ); j++ )
+        {
+            partialMatrix.block( 0, powersPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters, 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) *
+                    std::pow( currentTime_ - referenceEpoch, powersPerSineBlockIndex.at( i ).at( j ).second );
+        }
+    }
+}
+
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariations(
+        const bool wrtBody1,
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > periodsPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > periodsPerSineBlockIndex,
+        const std::vector< double >& frequencies,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialMatrix )
+{
+    Eigen::MatrixXd cosineCoefficientPartials;
+    Eigen::MatrixXd sineCoefficientPartials;
+    if( wrtBody1 )
+    {
+        wrtCosineCoefficientBlockOfBody1( cosineBlockIndices, cosineCoefficientPartials );
+        wrtSineCoefficientBlockOfBody1( sineBlockIndices, sineCoefficientPartials );
+    }
+    else
+    {
+        wrtCosineCoefficientBlockOfBody2( cosineBlockIndices, cosineCoefficientPartials );
+        wrtSineCoefficientBlockOfBody2( sineBlockIndices, sineCoefficientPartials );
+    }
+
+    partialMatrix.setZero( );
+
+    int numberOfCosineParameters = 0;
+    for( unsigned int i = 0; i < periodsPerCosineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < periodsPerCosineBlockIndex.at( i ).size( ); j++ )
+        {
+            const double frequency = frequencies.at( periodsPerCosineBlockIndex.at( i ).at( j ).second );
+            partialMatrix.block( 0, 2 * periodsPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialMatrix.block( 0, 2 * periodsPerCosineBlockIndex.at( i ).at( j ).first + 1, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+            numberOfCosineParameters++;
+        }
+    }
+
+    for( unsigned int i = 0; i < periodsPerSineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < periodsPerSineBlockIndex.at( i ).size( ); j++ )
+        {
+            const double frequency = frequencies.at( periodsPerSineBlockIndex.at( i ).at( j ).second );
+            partialMatrix.block( 0, 2 * ( periodsPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters ), 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialMatrix.block( 0, 2 * ( periodsPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters ) + 1, 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+        }
+    }
+}
+
 //! Return scalar-parameter partials for gravitational parameters used by the acceleration model.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
@@ -849,6 +950,69 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
                                          parameter->getParameterName( ).first,
                                          parameter->getSecondaryIdentifier( ) );
             numberOfRows = parameter->getParameterSize( );
+        }
+    }
+    else if( estimatable_parameters::isParameterNonTidalGravityFieldVariationProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBody1Parameter = parameter->getParameterName( ).second.first == acceleratedBody_;
+        const bool isBody2Parameter = parameter->getParameterName( ).second.first == acceleratingBody_;
+        if( isBody1Parameter || isBody2Parameter )
+        {
+            switch( parameter->getParameterName( ).first )
+            {
+                case estimatable_parameters::polynomial_gravity_field_variation_amplitudes: {
+                    std::shared_ptr< estimatable_parameters::PolynomialGravityFieldVariationsParameters > polynomialVariationParameter =
+                            std::dynamic_pointer_cast< estimatable_parameters::PolynomialGravityFieldVariationsParameters >( parameter );
+                    if( polynomialVariationParameter == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating full two-body acceleration partial w.r.t. polynomial gravity variations, cast "
+                                "failed." );
+                    }
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerCosineBlockIndex =
+                            polynomialVariationParameter->getIndexAndPowerPerCosineBlockIndex( );
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerSineBlockIndex =
+                            polynomialVariationParameter->getIndexAndPowerPerSineBlockIndex( );
+                    partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations,
+                                                 this,
+                                                 isBody1Parameter,
+                                                 utilities::createVectorFromMapKeys( indexAndPowerPerCosineBlockIndex ),
+                                                 utilities::createVectorFromMapKeys( indexAndPowerPerSineBlockIndex ),
+                                                 utilities::createVectorFromMapValues( indexAndPowerPerCosineBlockIndex ),
+                                                 utilities::createVectorFromMapValues( indexAndPowerPerSineBlockIndex ),
+                                                 polynomialVariationParameter->getPolynomialVariationModel( )->getReferenceEpoch( ),
+                                                 std::placeholders::_1 );
+                    numberOfRows = parameter->getParameterSize( );
+                    break;
+                }
+                case estimatable_parameters::periodic_gravity_field_variation_amplitudes: {
+                    std::shared_ptr< estimatable_parameters::PeriodicGravityFieldVariationsParameters > periodicVariationParameter =
+                            std::dynamic_pointer_cast< estimatable_parameters::PeriodicGravityFieldVariationsParameters >( parameter );
+                    if( periodicVariationParameter == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating full two-body acceleration partial w.r.t. periodic gravity variations, cast failed." );
+                    }
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPeriodPerCosineBlockIndex =
+                            periodicVariationParameter->getIndexAndPowerPerCosineBlockIndex( );
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPeriodPerSineBlockIndex =
+                            periodicVariationParameter->getIndexAndPowerPerSineBlockIndex( );
+                    partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariations,
+                                                 this,
+                                                 isBody1Parameter,
+                                                 utilities::createVectorFromMapKeys( indexAndPeriodPerCosineBlockIndex ),
+                                                 utilities::createVectorFromMapKeys( indexAndPeriodPerSineBlockIndex ),
+                                                 utilities::createVectorFromMapValues( indexAndPeriodPerCosineBlockIndex ),
+                                                 utilities::createVectorFromMapValues( indexAndPeriodPerSineBlockIndex ),
+                                                 periodicVariationParameter->getPeriodicVariationModel( )->getFrequencies( ),
+                                                 periodicVariationParameter->getPeriodicVariationModel( )->getReferenceEpoch( ),
+                                                 std::placeholders::_1 );
+                    numberOfRows = parameter->getParameterSize( );
+                    break;
+                }
+                default:
+                    break;
+            }
         }
     }
     else if( parameter->getParameterName( ).first == estimatable_parameters::spherical_harmonics_cosine_coefficient_block )

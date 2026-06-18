@@ -12,8 +12,10 @@
 
 #include <array>
 
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
@@ -764,6 +766,70 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                                               parameter->getParameterSize( ) );
         }
     }
+    else if( estimatable_parameters::isParameterNonTidalGravityFieldVariationProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBodyUndergoingTorqueParameter = parameter->getParameterName( ).second.first == bodyUndergoingTorque_;
+        const bool isBodyExertingTorqueParameter = parameter->getParameterName( ).second.first == bodyExertingTorque_;
+        if( isBodyUndergoingTorqueParameter || isBodyExertingTorqueParameter )
+        {
+            switch( parameter->getParameterName( ).first )
+            {
+                case polynomial_gravity_field_variation_amplitudes: {
+                    std::shared_ptr< PolynomialGravityFieldVariationsParameters > polynomialVariationParameter =
+                            std::dynamic_pointer_cast< PolynomialGravityFieldVariationsParameters >( parameter );
+                    if( polynomialVariationParameter == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating fourth-degree torque partial w.r.t. polynomial gravity variations, cast failed." );
+                    }
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerCosineBlockIndex =
+                            polynomialVariationParameter->getIndexAndPowerPerCosineBlockIndex( );
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerSineBlockIndex =
+                            polynomialVariationParameter->getIndexAndPowerPerSineBlockIndex( );
+                    partialFunction = std::make_pair(
+                            std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtPolynomialGravityFieldVariations,
+                                       this,
+                                       isBodyUndergoingTorqueParameter,
+                                       utilities::createVectorFromMapKeys( indexAndPowerPerCosineBlockIndex ),
+                                       utilities::createVectorFromMapKeys( indexAndPowerPerSineBlockIndex ),
+                                       utilities::createVectorFromMapValues( indexAndPowerPerCosineBlockIndex ),
+                                       utilities::createVectorFromMapValues( indexAndPowerPerSineBlockIndex ),
+                                       polynomialVariationParameter->getPolynomialVariationModel( )->getReferenceEpoch( ),
+                                       std::placeholders::_1 ),
+                            parameter->getParameterSize( ) );
+                    break;
+                }
+                case periodic_gravity_field_variation_amplitudes: {
+                    std::shared_ptr< PeriodicGravityFieldVariationsParameters > periodicVariationParameter =
+                            std::dynamic_pointer_cast< PeriodicGravityFieldVariationsParameters >( parameter );
+                    if( periodicVariationParameter == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating fourth-degree torque partial w.r.t. periodic gravity variations, cast failed." );
+                    }
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPeriodPerCosineBlockIndex =
+                            periodicVariationParameter->getIndexAndPowerPerCosineBlockIndex( );
+                    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPeriodPerSineBlockIndex =
+                            periodicVariationParameter->getIndexAndPowerPerSineBlockIndex( );
+                    partialFunction = std::make_pair(
+                            std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtPeriodicGravityFieldVariations,
+                                       this,
+                                       isBodyUndergoingTorqueParameter,
+                                       utilities::createVectorFromMapKeys( indexAndPeriodPerCosineBlockIndex ),
+                                       utilities::createVectorFromMapKeys( indexAndPeriodPerSineBlockIndex ),
+                                       utilities::createVectorFromMapValues( indexAndPeriodPerCosineBlockIndex ),
+                                       utilities::createVectorFromMapValues( indexAndPeriodPerSineBlockIndex ),
+                                       periodicVariationParameter->getPeriodicVariationModel( )->getFrequencies( ),
+                                       periodicVariationParameter->getPeriodicVariationModel( )->getReferenceEpoch( ),
+                                       std::placeholders::_1 ),
+                            parameter->getParameterSize( ) );
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
     else if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
         switch( parameter->getParameterName( ).first )
@@ -775,14 +841,17 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                 coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
                 if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
                 {
-                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                                                         wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
-                                                                 this,
-                                                                 std::placeholders::_1,
-                                                                 c20Index,
-                                                                 c21Index,
-                                                                 c22Index ),
-                                                      coefficientsParameter->getParameterSize( ) );
+                    partialFunction =
+                            std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
+                                                               Eigen::MatrixXd&, const int, const int, const int ) >(
+                                                               &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                       wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque ),
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       c20Index,
+                                                       c21Index,
+                                                       c22Index ),
+                                            coefficientsParameter->getParameterSize( ) );
                 }
                 break;
             }
@@ -793,13 +862,16 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                 coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
                 if( s21Index >= 0 || s22Index >= 0 )
                 {
-                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                                                         wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque,
-                                                                 this,
-                                                                 std::placeholders::_1,
-                                                                 s21Index,
-                                                                 s22Index ),
-                                                      coefficientsParameter->getParameterSize( ) );
+                    partialFunction =
+                            std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
+                                                               Eigen::MatrixXd&, const int, const int ) >(
+                                                               &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                       wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque ),
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       s21Index,
+                                                       s22Index ),
+                                            coefficientsParameter->getParameterSize( ) );
                 }
                 break;
             }
@@ -826,14 +898,17 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                 coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
                 if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
                 {
-                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                                                         wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque,
-                                                                 this,
-                                                                 std::placeholders::_1,
-                                                                 c20Index,
-                                                                 c21Index,
-                                                                 c22Index ),
-                                                      coefficientsParameter->getParameterSize( ) );
+                    partialFunction =
+                            std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
+                                                               Eigen::MatrixXd&, const int, const int, const int ) >(
+                                                               &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                       wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque ),
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       c20Index,
+                                                       c21Index,
+                                                       c22Index ),
+                                            coefficientsParameter->getParameterSize( ) );
                 }
                 break;
             }
@@ -844,8 +919,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > FourthDegreeFullTwoB
                 coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
                 if( s21Index >= 0 || s22Index >= 0 )
                 {
-                    partialFunction = std::make_pair( std::bind( &FourthDegreeFullTwoBodyGravitationalTorquePartial::
-                                                                         wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque,
+                    partialFunction = std::make_pair( std::bind( static_cast< void ( FourthDegreeFullTwoBodyGravitationalTorquePartial::* )(
+                                                                         Eigen::MatrixXd&, const int, const int ) >(
+                                                                         &FourthDegreeFullTwoBodyGravitationalTorquePartial::
+                                                                                 wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque ),
                                                                  this,
                                                                  std::placeholders::_1,
                                                                  s21Index,
@@ -1119,6 +1196,211 @@ void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonic
         partialMatrix.col( s22Index ) =
                 currentPartialWrtIndependentInertiaTensorComponentsOfBodyExertingTorqueInFrameOfBodyUndergoingTorque_ *
                 getIndependentInertiaTensorComponentsFromMatrixDerivative( inertiaTensorPartialInBodyFixedFrameOfBodyUndergoingTorque );
+    }
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
+        Eigen::MatrixXd& partialMatrix,
+        const std::vector< std::pair< int, int > >& blockIndices )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
+    int c20Index = -1;
+    int c21Index = -1;
+    int c22Index = -1;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+    {
+        if( blockIndices.at( i ).first == 2 )
+        {
+            if( blockIndices.at( i ).second == 0 )
+            {
+                c20Index = i;
+            }
+            else if( blockIndices.at( i ).second == 1 )
+            {
+                c21Index = i;
+            }
+            else if( blockIndices.at( i ).second == 2 )
+            {
+                c22Index = i;
+            }
+        }
+    }
+    wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( partialMatrix, c20Index, c21Index, c22Index );
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque(
+        Eigen::MatrixXd& partialMatrix,
+        const std::vector< std::pair< int, int > >& blockIndices )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
+    int s21Index = -1;
+    int s22Index = -1;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+    {
+        if( blockIndices.at( i ).first == 2 )
+        {
+            if( blockIndices.at( i ).second == 1 )
+            {
+                s21Index = i;
+            }
+            else if( blockIndices.at( i ).second == 2 )
+            {
+                s22Index = i;
+            }
+        }
+    }
+    wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( partialMatrix, s21Index, s22Index );
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque(
+        Eigen::MatrixXd& partialMatrix,
+        const std::vector< std::pair< int, int > >& blockIndices )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
+    int c20Index = -1;
+    int c21Index = -1;
+    int c22Index = -1;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+    {
+        if( blockIndices.at( i ).first == 2 )
+        {
+            if( blockIndices.at( i ).second == 0 )
+            {
+                c20Index = i;
+            }
+            else if( blockIndices.at( i ).second == 1 )
+            {
+                c21Index = i;
+            }
+            else if( blockIndices.at( i ).second == 2 )
+            {
+                c22Index = i;
+            }
+        }
+    }
+    wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( partialMatrix, c20Index, c21Index, c22Index );
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque(
+        Eigen::MatrixXd& partialMatrix,
+        const std::vector< std::pair< int, int > >& blockIndices )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, blockIndices.size( ) );
+    int s21Index = -1;
+    int s22Index = -1;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+    {
+        if( blockIndices.at( i ).first == 2 )
+        {
+            if( blockIndices.at( i ).second == 1 )
+            {
+                s21Index = i;
+            }
+            else if( blockIndices.at( i ).second == 2 )
+            {
+                s22Index = i;
+            }
+        }
+    }
+    wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( partialMatrix, s21Index, s22Index );
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtPolynomialGravityFieldVariations(
+        const bool wrtBodyUndergoingTorque,
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialMatrix )
+{
+    Eigen::MatrixXd cosineCoefficientPartials;
+    Eigen::MatrixXd sineCoefficientPartials;
+    if( wrtBodyUndergoingTorque )
+    {
+        wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( cosineCoefficientPartials, cosineBlockIndices );
+        wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( sineCoefficientPartials, sineBlockIndices );
+    }
+    else
+    {
+        wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( cosineCoefficientPartials, cosineBlockIndices );
+        wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( sineCoefficientPartials, sineBlockIndices );
+    }
+
+    partialMatrix.setZero( );
+
+    int numberOfCosineParameters = 0;
+    for( unsigned int i = 0; i < powersPerCosineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerCosineBlockIndex.at( i ).size( ); j++ )
+        {
+            partialMatrix.block( 0, powersPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) *
+                    std::pow( currentTime_ - referenceEpoch, powersPerCosineBlockIndex.at( i ).at( j ).second );
+            numberOfCosineParameters++;
+        }
+    }
+
+    for( unsigned int i = 0; i < powersPerSineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerSineBlockIndex.at( i ).size( ); j++ )
+        {
+            partialMatrix.block( 0, powersPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters, 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) *
+                    std::pow( currentTime_ - referenceEpoch, powersPerSineBlockIndex.at( i ).at( j ).second );
+        }
+    }
+}
+
+void FourthDegreeFullTwoBodyGravitationalTorquePartial::wrtPeriodicGravityFieldVariations(
+        const bool wrtBodyUndergoingTorque,
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > periodsPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > periodsPerSineBlockIndex,
+        const std::vector< double >& frequencies,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialMatrix )
+{
+    Eigen::MatrixXd cosineCoefficientPartials;
+    Eigen::MatrixXd sineCoefficientPartials;
+    if( wrtBodyUndergoingTorque )
+    {
+        wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( cosineCoefficientPartials, cosineBlockIndices );
+        wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( sineCoefficientPartials, sineBlockIndices );
+    }
+    else
+    {
+        wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( cosineCoefficientPartials, cosineBlockIndices );
+        wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( sineCoefficientPartials, sineBlockIndices );
+    }
+
+    partialMatrix.setZero( );
+
+    int numberOfCosineParameters = 0;
+    for( unsigned int i = 0; i < periodsPerCosineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < periodsPerCosineBlockIndex.at( i ).size( ); j++ )
+        {
+            const double frequency = frequencies.at( periodsPerCosineBlockIndex.at( i ).at( j ).second );
+            partialMatrix.block( 0, 2 * periodsPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialMatrix.block( 0, 2 * periodsPerCosineBlockIndex.at( i ).at( j ).first + 1, 3, 1 ) +=
+                    cosineCoefficientPartials.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+            numberOfCosineParameters++;
+        }
+    }
+
+    for( unsigned int i = 0; i < periodsPerSineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < periodsPerSineBlockIndex.at( i ).size( ); j++ )
+        {
+            const double frequency = frequencies.at( periodsPerSineBlockIndex.at( i ).at( j ).second );
+            partialMatrix.block( 0, 2 * ( periodsPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters ), 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialMatrix.block( 0, 2 * ( periodsPerSineBlockIndex.at( i ).at( j ).first + numberOfCosineParameters ) + 1, 3, 1 ) +=
+                    sineCoefficientPartials.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+        }
     }
 }
 

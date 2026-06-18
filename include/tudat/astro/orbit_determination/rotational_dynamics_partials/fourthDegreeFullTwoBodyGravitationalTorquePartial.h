@@ -145,16 +145,28 @@ private:
                                                                        const int c21Index,
                                                                        const int c22Index );
 
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                       const std::vector< std::pair< int, int > >& blockIndices );
+
     void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
                                                                      const int s21Index,
                                                                      const int s22Index );
+
+    void wrtSineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const std::vector< std::pair< int, int > >& blockIndices );
 
     void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
                                                                      const int c20Index,
                                                                      const int c21Index,
                                                                      const int c22Index );
 
+    void wrtCosineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                     const std::vector< std::pair< int, int > >& blockIndices );
+
     void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix, const int s21Index, const int s22Index );
+
+    void wrtSineSphericalHarmonicCoefficientsOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix,
+                                                                   const std::vector< std::pair< int, int > >& blockIndices );
 
     void wrtMassOfBodyExertingTorque( Eigen::MatrixXd& partialMatrix );
 
@@ -162,6 +174,23 @@ private:
                                     const bool wrtBodyUndergoingTorque,
                                     const estimatable_parameters::EstimatebleParametersEnum parameterType,
                                     const std::string& secondaryIdentifier );
+
+    void wrtPolynomialGravityFieldVariations( const bool wrtBodyUndergoingTorque,
+                                              const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                              const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+                                              const double referenceEpoch,
+                                              Eigen::MatrixXd& partialMatrix );
+
+    void wrtPeriodicGravityFieldVariations( const bool wrtBodyUndergoingTorque,
+                                            const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                            const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                            const std::vector< std::vector< std::pair< int, int > > > periodsPerCosineBlockIndex,
+                                            const std::vector< std::vector< std::pair< int, int > > > periodsPerSineBlockIndex,
+                                            const std::vector< double >& frequencies,
+                                            const double referenceEpoch,
+                                            Eigen::MatrixXd& partialMatrix );
 
     std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > torqueModel_;
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque_;

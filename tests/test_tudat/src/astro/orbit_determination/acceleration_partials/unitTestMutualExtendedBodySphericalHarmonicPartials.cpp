@@ -21,6 +21,8 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
@@ -31,6 +33,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
@@ -632,6 +635,142 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                 BOOST_CHECK_SMALL( analyticalPartials.wrtBody2Sine.norm( ), 1.0E-20 );
                 BOOST_CHECK_SMALL( numericalPartialWrtBody2Cosine.norm( ), 1.0E-20 );
                 BOOST_CHECK_SMALL( numericalPartialWrtBody2Sine.norm( ), 1.0E-20 );
+            }
+
+            if( testCase.hasFigureFigureTerms && rotationCase == 1 )
+            {
+                const double variationEvaluationTime = evaluationTime + 37.0;
+                const Eigen::MatrixXd zeroVariationBlock = Eigen::MatrixXd::Zero( 3, 5 );
+                const std::map< int, std::vector< std::pair< int, int > > > polynomialCosineIndices = { { 1, { { 3, 1 }, { 4, 2 } } },
+                                                                                                        { 2, { { 2, 0 } } } };
+                const std::map< int, std::vector< std::pair< int, int > > > polynomialSineIndices = { { 1, { { 3, 1 }, { 4, 4 } } } };
+                const std::map< int, std::vector< std::pair< int, int > > > periodicCosineIndices = { { 0, { { 3, 0 }, { 4, 4 } } },
+                                                                                                      { 1, { { 4, 2 } } } };
+                const std::map< int, std::vector< std::pair< int, int > > > periodicSineIndices = { { 0, { { 3, 1 } } },
+                                                                                                    { 1, { { 4, 4 } } } };
+                const std::vector< double > variationFrequencies = { 1.0E-3, 1.7E-3 };
+
+                auto resetGravityFields = [ & ]( ) {
+                    body1GravityField->setCosineCoefficients( cosineCoefficientsOfBody1Base );
+                    body1GravityField->setSineCoefficients( sineCoefficientsOfBody1Base );
+                    body2GravityField->setCosineCoefficients( cosineCoefficientsOfBody2Base );
+                    body2GravityField->setSineCoefficients( sineCoefficientsOfBody2Base );
+                };
+
+                auto evaluateAccelerationForVariationParameter = [ & ]( ) {
+                    body1->setCurrentRotationToLocalFrameFromEphemeris( variationEvaluationTime );
+                    body2->setCurrentRotationToLocalFrameFromEphemeris( variationEvaluationTime );
+                    accelerationModel->resetCurrentTime( );
+                    accelerationPartial->resetCurrentTime( );
+                    accelerationModel->updateMembers( variationEvaluationTime );
+                    accelerationPartial->update( variationEvaluationTime );
+                    return accelerationModel->getAcceleration( );
+                };
+
+                auto checkGravityFieldVariationPartial = [ & ]( const std::shared_ptr< EstimatableParameter< Eigen::VectorXd > >& parameter,
+                                                                const std::shared_ptr< GravityFieldVariations >& variationModel,
+                                                                const std::shared_ptr< SphericalHarmonicsGravityField >& gravityField,
+                                                                const Eigen::MatrixXd& baseCosineCoefficients,
+                                                                const Eigen::MatrixXd& baseSineCoefficients ) {
+                    auto applyVariation = [ & ]( ) {
+                        Eigen::MatrixXd cosineCoefficients = baseCosineCoefficients;
+                        Eigen::MatrixXd sineCoefficients = baseSineCoefficients;
+                        variationModel->addSphericalHarmonicsCorrections( variationEvaluationTime, sineCoefficients, cosineCoefficients );
+                        gravityField->setCosineCoefficients( cosineCoefficients );
+                        gravityField->setSineCoefficients( sineCoefficients );
+                    };
+
+                    resetGravityFields( );
+                    applyVariation( );
+                    evaluateAccelerationForVariationParameter( );
+                    const Eigen::MatrixXd analyticalPartial = accelerationPartial->wrtParameter( parameter );
+
+                    const Eigen::VectorXd nominalParameter = parameter->getParameterValue( );
+                    const Eigen::VectorXd perturbation = Eigen::VectorXd::Constant( nominalParameter.size( ), 1.0E-5 );
+                    Eigen::MatrixXd numericalPartial = Eigen::MatrixXd::Zero( 3, nominalParameter.size( ) );
+                    for( int i = 0; i < nominalParameter.size( ); i++ )
+                    {
+                        Eigen::VectorXd perturbedParameter = nominalParameter;
+                        perturbedParameter( i ) += perturbation( i );
+                        parameter->setParameterValue( perturbedParameter );
+                        resetGravityFields( );
+                        applyVariation( );
+                        const Eigen::Vector3d upAcceleration = evaluateAccelerationForVariationParameter( );
+
+                        perturbedParameter = nominalParameter;
+                        perturbedParameter( i ) -= perturbation( i );
+                        parameter->setParameterValue( perturbedParameter );
+                        resetGravityFields( );
+                        applyVariation( );
+                        const Eigen::Vector3d downAcceleration = evaluateAccelerationForVariationParameter( );
+
+                        numericalPartial.col( i ) = ( upAcceleration - downAcceleration ) / ( 2.0 * perturbation( i ) );
+                    }
+                    parameter->setParameterValue( nominalParameter );
+                    resetGravityFields( );
+                    applyVariation( );
+                    evaluateAccelerationForVariationParameter( );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 3.0E-3 );
+                    resetGravityFields( );
+                };
+
+                auto createPolynomialVariationParameter =
+                        [ & ]( const std::string& bodyName ) -> std::shared_ptr< PolynomialGravityFieldVariationsParameters > {
+                    std::shared_ptr< PolynomialGravityFieldVariations > variationModel =
+                            std::make_shared< PolynomialGravityFieldVariations >(
+                                    std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock }, { 2, zeroVariationBlock } },
+                                    std::map< int, Eigen::MatrixXd >{ { 1, zeroVariationBlock } },
+                                    variationEvaluationTime - 0.25,
+                                    2,
+                                    0 );
+                    return std::make_shared< PolynomialGravityFieldVariationsParameters >(
+                            variationModel, polynomialCosineIndices, polynomialSineIndices, bodyName );
+                };
+                auto createPeriodicVariationParameter =
+                        [ & ]( const std::string& bodyName ) -> std::shared_ptr< PeriodicGravityFieldVariationsParameters > {
+                    const std::vector< Eigen::MatrixXd > zeroPeriodicBlocks( 2, zeroVariationBlock );
+                    std::shared_ptr< PeriodicGravityFieldVariations > variationModel =
+                            std::make_shared< PeriodicGravityFieldVariations >( zeroPeriodicBlocks,
+                                                                                zeroPeriodicBlocks,
+                                                                                zeroPeriodicBlocks,
+                                                                                zeroPeriodicBlocks,
+                                                                                variationFrequencies,
+                                                                                variationEvaluationTime - 0.4,
+                                                                                2,
+                                                                                0 );
+                    return std::make_shared< PeriodicGravityFieldVariationsParameters >(
+                            variationModel, periodicCosineIndices, periodicSineIndices, bodyName );
+                };
+
+                std::shared_ptr< PolynomialGravityFieldVariationsParameters > body1PolynomialParameter =
+                        createPolynomialVariationParameter( "Body1" );
+                checkGravityFieldVariationPartial( body1PolynomialParameter,
+                                                   body1PolynomialParameter->getPolynomialVariationModel( ),
+                                                   body1GravityField,
+                                                   cosineCoefficientsOfBody1Base,
+                                                   sineCoefficientsOfBody1Base );
+                std::shared_ptr< PeriodicGravityFieldVariationsParameters > body1PeriodicParameter =
+                        createPeriodicVariationParameter( "Body1" );
+                checkGravityFieldVariationPartial( body1PeriodicParameter,
+                                                   body1PeriodicParameter->getPeriodicVariationModel( ),
+                                                   body1GravityField,
+                                                   cosineCoefficientsOfBody1Base,
+                                                   sineCoefficientsOfBody1Base );
+                std::shared_ptr< PolynomialGravityFieldVariationsParameters > body2PolynomialParameter =
+                        createPolynomialVariationParameter( "Body2" );
+                checkGravityFieldVariationPartial( body2PolynomialParameter,
+                                                   body2PolynomialParameter->getPolynomialVariationModel( ),
+                                                   body2GravityField,
+                                                   cosineCoefficientsOfBody2Base,
+                                                   sineCoefficientsOfBody2Base );
+                std::shared_ptr< PeriodicGravityFieldVariationsParameters > body2PeriodicParameter =
+                        createPeriodicVariationParameter( "Body2" );
+                checkGravityFieldVariationPartial( body2PeriodicParameter,
+                                                   body2PeriodicParameter->getPeriodicVariationModel( ),
+                                                   body2GravityField,
+                                                   cosineCoefficientsOfBody2Base,
+                                                   sineCoefficientsOfBody2Base );
             }
 
             analyticalPartialsByCase[ testCase.name ] = analyticalPartials;

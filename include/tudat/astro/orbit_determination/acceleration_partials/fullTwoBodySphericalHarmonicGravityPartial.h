@@ -212,6 +212,25 @@ private:
                                     const estimatable_parameters::EstimatebleParametersEnum parameterType,
                                     const std::string& secondaryIdentifier );
 
+    //! Partial w.r.t. polynomial gravity-field variation amplitudes of one body.
+    void wrtPolynomialGravityFieldVariations( const bool wrtBody1,
+                                              const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                              const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+                                              const double referenceEpoch,
+                                              Eigen::MatrixXd& partialMatrix );
+
+    //! Partial w.r.t. periodic gravity-field variation amplitudes of one body.
+    void wrtPeriodicGravityFieldVariations( const bool wrtBody1,
+                                            const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                            const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                            const std::vector< std::vector< std::pair< int, int > > > periodsPerCosineBlockIndex,
+                                            const std::vector< std::vector< std::pair< int, int > > > periodsPerSineBlockIndex,
+                                            const std::vector< double >& frequencies,
+                                            const double referenceEpoch,
+                                            Eigen::MatrixXd& partialMatrix );
+
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 
     std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
