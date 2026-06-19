@@ -16,6 +16,7 @@
 
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
 namespace tudat
@@ -50,7 +51,9 @@ public:
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody1 =
                     observation_partials::RotationMatrixPartialNamedList( ),
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody2 =
-                    observation_partials::RotationMatrixPartialNamedList( ) );
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces =
+                    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     ~FullTwoBodySphericalHarmonicsGravityPartial( ) {}
 
@@ -232,6 +235,16 @@ private:
                                             const double referenceEpoch,
                                             Eigen::MatrixXd& partialMatrix );
 
+    //! Partial w.r.t. a tidal Love-number parameter of one body's gravity-field variation model.
+    void wrtTidalLoveNumber(
+            const bool wrtBody1,
+            const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+            const int degree,
+            const std::vector< int >& orders,
+            const bool sumOrders,
+            const int parameterSize,
+            Eigen::MatrixXd& partialMatrix );
+
     std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel_;
 
     std::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
@@ -284,6 +297,8 @@ private:
 
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBody1_;
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartialsOfBody2_;
+
+    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
 };
 
 }  // namespace acceleration_partials

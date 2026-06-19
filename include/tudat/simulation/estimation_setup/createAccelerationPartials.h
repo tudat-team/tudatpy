@@ -548,12 +548,21 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             }
             else
             {
+                std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces =
+                        createTidalLoveNumberInterfaces( bodies, acceleratedBody.first );
+                std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+                        acceleratingBodyTidalLoveNumberPartialInterfaces =
+                                createTidalLoveNumberInterfaces( bodies, acceleratingBody.first );
+                tidalLoveNumberPartialInterfaces.insert( tidalLoveNumberPartialInterfaces.end( ),
+                                                         acceleratingBodyTidalLoveNumberPartialInterfaces.begin( ),
+                                                         acceleratingBodyTidalLoveNumberPartialInterfaces.end( ) );
                 accelerationPartial = std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
                         acceleratedBody.first,
                         acceleratingBody.first,
                         fullTwoBodySphericalHarmonicAcceleration,
                         observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratedBody.first, bodies ),
-                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ) );
+                        observation_partials::createRotationMatrixPartials( parametersToEstimate, acceleratingBody.first, bodies ),
+                        tidalLoveNumberPartialInterfaces );
             }
             break;
         }

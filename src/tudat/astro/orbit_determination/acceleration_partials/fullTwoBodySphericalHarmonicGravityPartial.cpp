@@ -17,6 +17,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
@@ -94,7 +95,8 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
         const std::string& acceleratingBody,
         const std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody1,
-        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody2 ):
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartialsOfBody2,
+        const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces ):
     AccelerationPartial( acceleratedBody,
                          acceleratingBody,
                          accelerationModel,
@@ -103,7 +105,8 @@ FullTwoBodySphericalHarmonicsGravityPartial::FullTwoBodySphericalHarmonicsGravit
     sphericalHarmonicsCache_(
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( *accelerationModel_->getSphericalHarmonicsCache( ) ) ),
     coefficientCombinationsToUse_( effectiveMutualPotentialField_->getCoefficientCombinationsToUse( ) ),
-    rotationMatrixPartialsOfBody1_( rotationMatrixPartialsOfBody1 ), rotationMatrixPartialsOfBody2_( rotationMatrixPartialsOfBody2 )
+    rotationMatrixPartialsOfBody1_( rotationMatrixPartialsOfBody1 ), rotationMatrixPartialsOfBody2_( rotationMatrixPartialsOfBody2 ),
+    tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces )
 {
     // Cache setup supports derivatives of the Dirkx et al. (2019), Eq. (49), expansion used in
     // Dirkx et al. (2019), Eq. (55), with effective coefficients defined through Eqs. (47)-(48).
@@ -160,6 +163,11 @@ void FullTwoBodySphericalHarmonicsGravityPartial::update( const double currentTi
         effectiveMutualPotentialField_->computePartialsOfFullCoefficientsWrtTransformedCoefficients(
                 currentEffectiveCoefficientsWrtTransformedBody2Coefficients_ );
         updateCurrentOrientationPartials( );
+        for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+        {
+            tidalLoveNumberPartialInterfaces_.at( i )->update( currentTime );
+            tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
+        }
 
         currentPartialWrtVelocity_.setZero( );
         currentTime_ = currentTime;
@@ -878,6 +886,49 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariati
     }
 }
 
+void FullTwoBodySphericalHarmonicsGravityPartial::wrtTidalLoveNumber(
+        const bool wrtBody1,
+        const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+        const int degree,
+        const std::vector< int >& orders,
+        const bool sumOrders,
+        const int parameterSize,
+        Eigen::MatrixXd& partialMatrix )
+{
+    partialMatrix = Eigen::MatrixXd::Zero( 3, parameterSize );
+
+    const std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > coefficientPartialsPerOrder = coefficientPartialFunctions( );
+    if( coefficientPartialsPerOrder.size( ) != orders.size( ) )
+    {
+        throw std::runtime_error( "Error when computing full two-body acceleration Love-number partial, inconsistent order count." );
+    }
+
+    std::vector< std::pair< int, int > > singleCoefficientIndex( 1 );
+    Eigen::MatrixXd partialWrtCosineCoefficient;
+    Eigen::MatrixXd partialWrtSineCoefficient;
+    for( unsigned int i = 0; i < orders.size( ); i++ )
+    {
+        singleCoefficientIndex[ 0 ] = std::make_pair( degree, orders.at( i ) );
+
+        if( wrtBody1 )
+        {
+            wrtCosineCoefficientBlockOfBody1( singleCoefficientIndex, partialWrtCosineCoefficient );
+            wrtSineCoefficientBlockOfBody1( singleCoefficientIndex, partialWrtSineCoefficient );
+        }
+        else
+        {
+            wrtCosineCoefficientBlockOfBody2( singleCoefficientIndex, partialWrtCosineCoefficient );
+            wrtSineCoefficientBlockOfBody2( singleCoefficientIndex, partialWrtSineCoefficient );
+        }
+
+        const int singleOrderPartialSize = coefficientPartialsPerOrder.at( i ).cols( );
+        const int startColumn = sumOrders ? 0 : static_cast< int >( i ) * singleOrderPartialSize;
+        partialMatrix.block( 0, startColumn, 3, singleOrderPartialSize ) +=
+                partialWrtCosineCoefficient * coefficientPartialsPerOrder.at( i ).block( 0, 0, 1, singleOrderPartialSize ) +
+                partialWrtSineCoefficient * coefficientPartialsPerOrder.at( i ).block( 1, 0, 1, singleOrderPartialSize );
+    }
+}
+
 //! Return scalar-parameter partials for gravitational parameters used by the acceleration model.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
@@ -1016,6 +1067,72 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
             }
         }
     }
+    else if( estimatable_parameters::isParameterTidalProperty( parameter->getParameterName( ).first ) )
+    {
+        const bool isBody1Parameter = parameter->getParameterName( ).second.first == acceleratedBody_;
+        const bool isBody2Parameter = parameter->getParameterName( ).second.first == acceleratingBody_;
+        if( isBody1Parameter || isBody2Parameter )
+        {
+            if( parameter->getParameterName( ).first == estimatable_parameters::mode_coupled_tidal_love_numbers )
+            {
+                throw std::runtime_error(
+                        "Error, full two-body acceleration partials w.r.t. mode-coupled tidal Love numbers are not "
+                        "implemented." );
+            }
+
+            std::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
+                    std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > >( parameter );
+            if( tidalLoveNumber == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when getting full two-body acceleration partial w.r.t. tidal Love number, parameter cast failed." );
+            }
+
+            int maximumDegree = 0;
+            int maximumOrder = 0;
+            for( unsigned int i = 0; i < coefficientCombinationsToUse_.size( ); i++ )
+            {
+                maximumDegree = std::max( maximumDegree,
+                                          static_cast< int >( isBody1Parameter ? std::get< 0 >( coefficientCombinationsToUse_.at( i ) )
+                                                                               : std::get< 2 >( coefficientCombinationsToUse_.at( i ) ) ) );
+                maximumOrder = std::max( maximumOrder,
+                                         static_cast< int >( isBody1Parameter ? std::get< 1 >( coefficientCombinationsToUse_.at( i ) )
+                                                                              : std::get< 3 >( coefficientCombinationsToUse_.at( i ) ) ) );
+            }
+
+            std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
+            for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+            {
+                currentTidalPartialOutput =
+                        tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction( parameter, maximumDegree, maximumOrder );
+                if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                {
+                    throw std::runtime_error(
+                            "Error when getting full two-body acceleration partial w.r.t. tidal Love number, multiple dependencies "
+                            "found." );
+                }
+                else if( currentTidalPartialOutput.first > 0 )
+                {
+                    tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
+                    std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                            std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
+                                       tidalLoveNumberPartialInterfaces_.at( i ),
+                                       parameter,
+                                       currentTidalPartialOutput.second );
+                    partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtTidalLoveNumber,
+                                                 this,
+                                                 isBody1Parameter,
+                                                 coefficientPartialFunction,
+                                                 tidalLoveNumber->getDegree( ),
+                                                 tidalLoveNumber->getOrders( ),
+                                                 tidalLoveNumber->getSumOrders( ),
+                                                 parameter->getParameterSize( ),
+                                                 std::placeholders::_1 );
+                    numberOfRows = currentTidalPartialOutput.first;
+                }
+            }
+        }
+    }
     else if( parameter->getParameterName( ).first == estimatable_parameters::spherical_harmonics_cosine_coefficient_block )
     {
         std::shared_ptr< estimatable_parameters::SphericalHarmonicsCosineCoefficients > coefficientsParameter =
@@ -1092,15 +1209,37 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtNonTranslationalStateOfAddi
         return;
     }
 
+    const bool wrtBody1 = stateReferencePoint.first == acceleratedBody_;
     const Eigen::Matrix< double, 3, 4 >& quaternionPartial =
-            stateReferencePoint.first == acceleratedBody_ ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_;
+            wrtBody1 ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_;
+    const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+            wrtBody1 ? rotationMatrixPartialsOfBody1_ : rotationMatrixPartialsOfBody2_;
+
+    Eigen::MatrixXd rotationalStatePartial = Eigen::MatrixXd::Zero( 3, 7 );
+    const auto rotationPartialIterator =
+            rotationMatrixPartials.find( std::make_pair( estimatable_parameters::initial_rotational_body_state, "" ) );
+    if( rotationPartialIterator != rotationMatrixPartials.end( ) )
+    {
+        const std::vector< Eigen::Matrix3d > currentRotationMatrixPartials =
+                rotationPartialIterator->second->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+        const Eigen::Quaterniond currentRotationFromBodyFixedToInertial = wrtBody1
+                ? accelerationModel_->getCurrentRotationFromInertialToBody1( ).inverse( )
+                : Eigen::Quaterniond( accelerationModel_->getCurrentRotationFromBody2ToBody1( ).toRotationMatrix( ).transpose( ) *
+                                      currentRotationToBodyFixedFrame_ )
+                          .inverse( );
+        const Eigen::MatrixXd partialOfQuaternionWrtRotationalState = detail::computePartialOfQuaternionWrtRotationMatrixParameter(
+                currentRotationFromBodyFixedToInertial, currentRotationMatrixPartials );
+        rotationalStatePartial.block( 0, 0, 3, partialOfQuaternionWrtRotationalState.cols( ) ) =
+                quaternionPartial * partialOfQuaternionWrtRotationalState;
+    }
+
     if( addContribution )
     {
-        partialMatrix.block( 0, 0, 3, 4 ) += quaternionPartial;
+        partialMatrix.block( 0, 0, 3, 7 ) += rotationalStatePartial;
     }
     else
     {
-        partialMatrix.block( 0, 0, 3, 4 ) -= quaternionPartial;
+        partialMatrix.block( 0, 0, 3, 7 ) -= rotationalStatePartial;
     }
 }
 
