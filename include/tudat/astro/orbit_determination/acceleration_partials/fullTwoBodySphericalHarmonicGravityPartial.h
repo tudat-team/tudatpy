@@ -198,6 +198,9 @@ private:
     //! Update partials of acceleration w.r.t. body orientation quaternions.
     void updateCurrentOrientationPartials( );
 
+    //! Compute body-1 quaternion partial by summing individual interaction terms.
+    Eigen::Matrix< double, 3, 4 > computeCurrentPartialWrtQuaternionOfBody1( );
+
     //! Update derivatives of transformed body-2 coefficients w.r.t. a single original body-2 coefficient.
     void updateCurrentTransformedBody2CoefficientPartials( const int degree,
                                                            const int order,

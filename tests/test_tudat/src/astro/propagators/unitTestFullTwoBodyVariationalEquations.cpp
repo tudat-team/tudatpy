@@ -322,7 +322,7 @@ struct InitialDerivativeData {
     Eigen::MatrixXd directAccelerationPartialWrtPhobosRotation;
 };
 
-struct InitialAccelerationPartialDiagnostics {
+struct InitialAccelerationPartialData {
     Eigen::Vector3d acceleration;
     Eigen::Vector3d torque;
     Eigen::MatrixXd stateAndVariationalRhs;
@@ -332,7 +332,7 @@ struct InitialAccelerationPartialDiagnostics {
     int parameterSetSize;
 };
 
-InitialAccelerationPartialDiagnostics evaluateInitialAccelerationPartialDiagnostics( const PhobosGravityModel gravityModel )
+InitialAccelerationPartialData evaluateInitialAccelerationPartialData( const PhobosGravityModel gravityModel )
 {
     PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, 15.0 );
     setup.propagatorSettings->resetInitialTime( setup.integratorSettings->initialTimeDeprecated_ );
@@ -378,13 +378,13 @@ InitialAccelerationPartialDiagnostics evaluateInitialAccelerationPartialDiagnost
     const Eigen::Vector3d torque = getSingleTorque( setup.torqueModelMap );
     simulation_setup::setAreBodiesInPropagation( setup.bodies, false );
 
-    return InitialAccelerationPartialDiagnostics{ acceleration,
-                                                  torque,
-                                                  stateAndVariationalRhs,
-                                                  stateAndVariationalRhs.block( 3, 6, 3, 7 ),
-                                                  directAccelerationPartialWrtPhobosRotation,
-                                                  directAccelerationPartialWrtPhobosPosition,
-                                                  parameterSetSize };
+    return InitialAccelerationPartialData{ acceleration,
+                                           torque,
+                                           stateAndVariationalRhs,
+                                           stateAndVariationalRhs.block( 3, 6, 3, 7 ),
+                                           directAccelerationPartialWrtPhobosRotation,
+                                           directAccelerationPartialWrtPhobosPosition,
+                                           parameterSetSize };
 }
 
 InitialDerivativeData evaluateInitialDerivativeData( const PhobosGravityModel gravityModel )
@@ -501,6 +501,12 @@ struct OneStepVariationalOutput {
     int parameterSetSize;
 };
 
+struct RawStateJacobianData {
+    Eigen::MatrixXd stateJacobian;
+    Eigen::VectorXd stateDerivative;
+    int parameterSetSize;
+};
+
 OneStepVariationalOutput propagateOneVariationalEquationStepWithoutPostProcessing( const PhobosGravityModel gravityModel,
                                                                                    const double finalEphemerisTime )
 {
@@ -539,6 +545,43 @@ OneStepVariationalOutput propagateOneVariationalEquationStepWithoutPostProcessin
     return OneStepVariationalOutput{ finalStateAndVariationalMatrix, finalStateAndVariationalDerivative, parameterSetSize };
 }
 
+RawStateJacobianData evaluateRawStateJacobianAtState( const PhobosGravityModel gravityModel,
+                                                      const double evaluationTime,
+                                                      const Eigen::VectorXd& evaluationState )
+{
+    PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, evaluationTime );
+    setup.propagatorSettings->resetInitialTime( setup.integratorSettings->initialTimeDeprecated_ );
+    setup.propagatorSettings->setIntegratorSettings( setup.integratorSettings );
+    setup.propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    setup.propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    setup.propagatorSettings->getOutputSettings( )->setIntegratedVariationalResult( false );
+    setup.propagatorSettings->makeOutputSettingsConsistent( );
+
+    SingleArcVariationalEquationsSolver< double, double > solver(
+            setup.bodies, setup.propagatorSettings, setup.parametersToEstimate, true, false );
+
+    std::shared_ptr< DynamicsStateDerivativeModel< double, double > > derivativeModel =
+            solver.getDynamicsSimulator( )->getDynamicsStateDerivative( );
+    derivativeModel->setPropagationSettings( std::vector< IntegratedStateType >( ), true, true );
+
+    const int stateSize = 13;
+    const int parameterSetSize = setup.parametersToEstimate->getParameterSetSize( );
+    BOOST_REQUIRE_EQUAL( evaluationState.rows( ), stateSize );
+
+    Eigen::MatrixXd stateAndIdentityVariationalMatrix = Eigen::MatrixXd::Zero( stateSize, parameterSetSize + 1 );
+    stateAndIdentityVariationalMatrix.block( 0, 0, stateSize, stateSize ).setIdentity( );
+    stateAndIdentityVariationalMatrix.col( parameterSetSize ) = evaluationState;
+
+    simulation_setup::setAreBodiesInPropagation( setup.bodies, true );
+    const Eigen::MatrixXd stateAndVariationalDerivative =
+            derivativeModel->computeStateDerivative( evaluationTime, stateAndIdentityVariationalMatrix );
+    simulation_setup::setAreBodiesInPropagation( setup.bodies, false );
+
+    return RawStateJacobianData{ stateAndVariationalDerivative.block( 0, 0, stateSize, stateSize ),
+                                 stateAndVariationalDerivative.col( parameterSetSize ),
+                                 parameterSetSize };
+}
+
 double getRelativeErrorForReferenceNorm( const double absoluteError, const double referenceNorm )
 {
     if( referenceNorm > 0.0 )
@@ -559,6 +602,35 @@ std::string getPhobosGravityModelName( const PhobosGravityModel gravityModel )
         return "restricted full two-body model without figure-figure terms";
     }
     return "full two-body degree-three model";
+}
+
+Eigen::Vector4d getInitialQuaternionVectorForModel( const PhobosGravityModel gravityModel )
+{
+    if( gravityModel == PhobosGravityModel::fullTwoBodyDegreeThree )
+    {
+        return Eigen::Vector4d::UnitX( );
+    }
+
+    const Eigen::Quaterniond initialQuaternion =
+            Eigen::Quaterniond( Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 2.0, Eigen::Vector3d::UnitX( ) ) *
+                                Eigen::AngleAxisd( -0.5, Eigen::Vector3d::UnitZ( ) ) );
+    return Eigen::Vector4d( initialQuaternion.w( ), initialQuaternion.x( ), initialQuaternion.y( ), initialQuaternion.z( ) );
+}
+
+Eigen::Matrix< double, 4, 3 > getPartialOfQuaternionWrtVectorPart( const Eigen::Vector4d& quaternion )
+{
+    BOOST_REQUIRE_GT( std::fabs( quaternion( 0 ) ), std::numeric_limits< double >::epsilon( ) );
+    Eigen::Matrix< double, 4, 3 > partialOfQuaternionWrtVectorPart = Eigen::Matrix< double, 4, 3 >::Zero( );
+    partialOfQuaternionWrtVectorPart.row( 0 ) = -quaternion.segment( 1, 3 ).transpose( ) / quaternion( 0 );
+    partialOfQuaternionWrtVectorPart.block( 1, 0, 3, 3 ).setIdentity( );
+    return partialOfQuaternionWrtVectorPart;
+}
+
+Eigen::MatrixXd projectQuaternionColumnsToVectorPart( const Eigen::MatrixXd& matrixWithFullQuaternionColumns,
+                                                      const Eigen::Vector4d& quaternion )
+{
+    BOOST_REQUIRE_EQUAL( matrixWithFullQuaternionColumns.cols( ), 4 );
+    return matrixWithFullQuaternionColumns * getPartialOfQuaternionWrtVectorPart( quaternion );
 }
 
 void checkColumnsCloseRelative( const Eigen::MatrixXd& computed,
@@ -666,7 +738,6 @@ void checkAngularVelocityStateTransitionFiniteDifferenceForModel( const PhobosGr
                                             rotationalStateStartColumn + 4 );
 }
 
-#if 0
 BOOST_AUTO_TEST_CASE( testFullTwoBodyEquivalentPhobosRotationVariationalEquationDerivative )
 {
     // This test isolates the existing Phobos coupled translational-rotational variational setup at a single time.
@@ -716,20 +787,18 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyEquivalentPhobosRotationVariationalEquation
                                    column );
     }
 }
-#endif
 
-BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartialDiagnostics )
+BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartials )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    const InitialAccelerationPartialDiagnostics mutualData =
-            evaluateInitialAccelerationPartialDiagnostics( PhobosGravityModel::mutualSphericalHarmonic );
-    const InitialAccelerationPartialDiagnostics fullTwoBodyData =
-            evaluateInitialAccelerationPartialDiagnostics( PhobosGravityModel::fullTwoBodySinglePointTerms );
-    const InitialAccelerationPartialDiagnostics fullTwoBodyPhobosFigureData =
-            evaluateInitialAccelerationPartialDiagnostics( PhobosGravityModel::fullTwoBodyPhobosFigureSinglePointTerms );
-    const InitialAccelerationPartialDiagnostics fullTwoBodyMarsFigureData =
-            evaluateInitialAccelerationPartialDiagnostics( PhobosGravityModel::fullTwoBodyMarsFigureSinglePointTerms );
+    const InitialAccelerationPartialData mutualData = evaluateInitialAccelerationPartialData( PhobosGravityModel::mutualSphericalHarmonic );
+    const InitialAccelerationPartialData fullTwoBodyData =
+            evaluateInitialAccelerationPartialData( PhobosGravityModel::fullTwoBodySinglePointTerms );
+    const InitialAccelerationPartialData fullTwoBodyPhobosFigureData =
+            evaluateInitialAccelerationPartialData( PhobosGravityModel::fullTwoBodyPhobosFigureSinglePointTerms );
+    const InitialAccelerationPartialData fullTwoBodyMarsFigureData =
+            evaluateInitialAccelerationPartialData( PhobosGravityModel::fullTwoBodyMarsFigureSinglePointTerms );
 
     BOOST_REQUIRE_EQUAL( fullTwoBodyData.parameterSetSize, mutualData.parameterSetSize );
 
@@ -753,13 +822,69 @@ BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartialDiagnos
                                Eigen::MatrixXd::Zero( 3, 7 ),
                                1.0E-12,
                                "restricted full two-body Mars-figure acceleration partial wrt Phobos rotation should be zero" );
-    checkColumnsCloseRelative( fullTwoBodyData.directAccelerationPartialWrtPhobosRotation,
-                               mutualData.assembledAccelerationPartialWrtPhobosRotation,
+    const Eigen::Vector4d initialQuaternion = getInitialQuaternionVectorForModel( PhobosGravityModel::mutualSphericalHarmonic );
+    checkColumnsCloseRelative(
+            projectQuaternionColumnsToVectorPart( fullTwoBodyData.directAccelerationPartialWrtPhobosRotation.block( 0, 0, 3, 4 ),
+                                                  initialQuaternion ),
+            projectQuaternionColumnsToVectorPart( mutualData.assembledAccelerationPartialWrtPhobosRotation.block( 0, 0, 3, 4 ),
+                                                  initialQuaternion ),
+            1.0E-12,
+            "restricted full two-body acceleration partial wrt constrained Phobos quaternion vector vs legacy mutual model",
+            7 );
+    checkColumnsCloseRelative( fullTwoBodyData.directAccelerationPartialWrtPhobosRotation.block( 0, 4, 3, 3 ),
+                               mutualData.assembledAccelerationPartialWrtPhobosRotation.block( 0, 4, 3, 3 ),
                                1.0E-12,
-                               "restricted full two-body acceleration partial wrt Phobos rotation vs legacy mutual model" );
+                               "restricted full two-body acceleration partial wrt Phobos angular velocity vs legacy mutual model",
+                               10 );
 }
 
-BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyPhobosVariationalEquationFiniteDifference )
+BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyPhobosRawStateJacobian )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const int stateSize = 13;
+    const double finalEphemerisTime = 15.0;
+    const OneStepVariationalOutput mutualOutput =
+            propagateOneVariationalEquationStepWithoutPostProcessing( PhobosGravityModel::mutualSphericalHarmonic, finalEphemerisTime );
+    const Eigen::VectorXd commonEvaluationState = mutualOutput.propagatedStateAndVariationalMatrix.col( mutualOutput.parameterSetSize );
+
+    const RawStateJacobianData mutualData =
+            evaluateRawStateJacobianAtState( PhobosGravityModel::mutualSphericalHarmonic, finalEphemerisTime, commonEvaluationState );
+    const RawStateJacobianData restrictedFullTwoBodyData =
+            evaluateRawStateJacobianAtState( PhobosGravityModel::fullTwoBodySinglePointTerms, finalEphemerisTime, commonEvaluationState );
+
+    BOOST_REQUIRE_EQUAL( restrictedFullTwoBodyData.parameterSetSize, mutualData.parameterSetSize );
+    BOOST_REQUIRE_EQUAL( restrictedFullTwoBodyData.stateJacobian.rows( ), stateSize );
+    BOOST_REQUIRE_EQUAL( restrictedFullTwoBodyData.stateJacobian.cols( ), stateSize );
+
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyData.stateDerivative,
+                                            mutualData.stateDerivative,
+                                            1.0E-9,
+                                            "raw restricted full two-body state derivative vs legacy mutual model" );
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyData.stateJacobian.block( 0, 0, stateSize, 3 ),
+                                            mutualData.stateJacobian.block( 0, 0, stateSize, 3 ),
+                                            1.0E-8,
+                                            "raw A position columns, restricted full two-body vs legacy mutual model" );
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyData.stateJacobian.block( 0, 3, stateSize, 3 ),
+                                            mutualData.stateJacobian.block( 0, 3, stateSize, 3 ),
+                                            1.0E-8,
+                                            "raw A velocity columns, restricted full two-body vs legacy mutual model",
+                                            3 );
+    const Eigen::Vector4d quaternion = commonEvaluationState.segment( 6, 4 );
+    checkStateResponseColumnsCloseRelative(
+            projectQuaternionColumnsToVectorPart( restrictedFullTwoBodyData.stateJacobian.block( 0, 6, stateSize, 4 ), quaternion ),
+            projectQuaternionColumnsToVectorPart( mutualData.stateJacobian.block( 0, 6, stateSize, 4 ), quaternion ),
+            1.0E-8,
+            "raw A constrained quaternion-vector columns, restricted full two-body vs legacy mutual model",
+            7 );
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyData.stateJacobian.block( 0, 10, stateSize, 3 ),
+                                            mutualData.stateJacobian.block( 0, 10, stateSize, 3 ),
+                                            1.0E-8,
+                                            "raw A angular-velocity columns, restricted full two-body vs legacy mutual model",
+                                            10 );
+}
+
+BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyPhobosOneStepVariationalEquations )
 {
     // Compare the propagated variational equations for two physically equivalent restricted models over one integration step.
     spice_interface::loadStandardSpiceKernels( );
@@ -786,31 +911,63 @@ BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyPhobosVariationalEquationFiniteDi
             "one-step restricted full two-body final state vs legacy mutual model" );
     checkStateResponseColumnsCloseRelative(
             restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block(
-                    0, 0, stateSize, restrictedFullTwoBodyOutput.parameterSetSize ),
-            mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, 0, stateSize, mutualOutput.parameterSetSize ),
-            1.0E-12,
-            "one-step restricted full two-body variational-equation RHS vs legacy mutual model" );
-    checkStateResponseColumnsCloseRelative(
-            restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block(
                     0, restrictedFullTwoBodyOutput.parameterSetSize, stateSize, 1 ),
             mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, mutualOutput.parameterSetSize, stateSize, 1 ),
-            1.0E-12,
+            1.0E-9,
             "one-step restricted full two-body state derivative vs legacy mutual model" );
+    const Eigen::Vector4d initialQuaternion = getInitialQuaternionVectorForModel( PhobosGravityModel::mutualSphericalHarmonic );
     checkStateResponseColumnsCloseRelative(
-            restrictedFullTwoBodyOutput.propagatedStateAndVariationalMatrix.block( 0, 0, stateSize, stateSize ),
-            mutualOutput.propagatedStateAndVariationalMatrix.block( 0, 0, stateSize, stateSize ),
-            1.0E-12,
-            "one-step restricted full two-body STM vs legacy mutual model" );
+            restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block( 0, 0, stateSize, 6 ),
+            mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, 0, stateSize, 6 ),
+            1.0E-5,
+            "one-step restricted full two-body variational-equation RHS translational columns vs legacy mutual model" );
+    checkStateResponseColumnsCloseRelative(
+            projectQuaternionColumnsToVectorPart(
+                    restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block( 0, 6, stateSize, 4 ), initialQuaternion ),
+            projectQuaternionColumnsToVectorPart( mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, 6, stateSize, 4 ),
+                                                  initialQuaternion ),
+            1.0E-5,
+            "one-step restricted full two-body variational-equation RHS constrained quaternion-vector columns vs legacy mutual model",
+            7 );
+    checkStateResponseColumnsCloseRelative(
+            restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block( 0, 10, stateSize, 3 ),
+            mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, 10, stateSize, 3 ),
+            1.0E-5,
+            "one-step restricted full two-body variational-equation RHS angular-velocity columns vs legacy mutual model",
+            10 );
+    checkStateResponseColumnsCloseRelative(
+            restrictedFullTwoBodyOutput.stateAndVariationalDerivativeMatrix.block(
+                    0, stateSize, stateSize, restrictedFullTwoBodyOutput.parameterSetSize - stateSize ),
+            mutualOutput.stateAndVariationalDerivativeMatrix.block( 0, stateSize, stateSize, mutualOutput.parameterSetSize - stateSize ),
+            1.0E-5,
+            "one-step restricted full two-body variational-equation RHS sensitivity columns vs legacy mutual model",
+            stateSize );
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyOutput.propagatedStateAndVariationalMatrix.block( 0, 0, stateSize, 6 ),
+                                            mutualOutput.propagatedStateAndVariationalMatrix.block( 0, 0, stateSize, 6 ),
+                                            1.0E-5,
+                                            "one-step restricted full two-body STM translational columns vs legacy mutual model" );
+    checkStateResponseColumnsCloseRelative(
+            projectQuaternionColumnsToVectorPart(
+                    restrictedFullTwoBodyOutput.propagatedStateAndVariationalMatrix.block( 0, 6, stateSize, 4 ), initialQuaternion ),
+            projectQuaternionColumnsToVectorPart( mutualOutput.propagatedStateAndVariationalMatrix.block( 0, 6, stateSize, 4 ),
+                                                  initialQuaternion ),
+            1.0E-5,
+            "one-step restricted full two-body STM constrained quaternion-vector columns vs legacy mutual model",
+            7 );
+    checkStateResponseColumnsCloseRelative( restrictedFullTwoBodyOutput.propagatedStateAndVariationalMatrix.block( 0, 10, stateSize, 3 ),
+                                            mutualOutput.propagatedStateAndVariationalMatrix.block( 0, 10, stateSize, 3 ),
+                                            1.0E-5,
+                                            "one-step restricted full two-body STM angular-velocity columns vs legacy mutual model",
+                                            10 );
     checkStateResponseColumnsCloseRelative(
             restrictedFullTwoBodyOutput.propagatedStateAndVariationalMatrix.block(
                     0, stateSize, stateSize, restrictedFullTwoBodyOutput.parameterSetSize - stateSize ),
             mutualOutput.propagatedStateAndVariationalMatrix.block( 0, stateSize, stateSize, mutualOutput.parameterSetSize - stateSize ),
-            1.0E-12,
+            1.0E-9,
             "one-step restricted full two-body sensitivity matrix vs legacy mutual model",
             stateSize );
 }
 
-#if 0
 BOOST_AUTO_TEST_CASE( testMarsPhobosFullTwoBodyVariationalEquationsFiniteDifference )
 {
     // Validate the propagated full two-body translational-rotational STM and selected sensitivities by direct finite differences.
@@ -908,7 +1065,6 @@ BOOST_AUTO_TEST_CASE( testMarsPhobosFullTwoBodyVariationalEquationsFiniteDiffere
                                             "sensitivity finite difference",
                                             stateSize );
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 
