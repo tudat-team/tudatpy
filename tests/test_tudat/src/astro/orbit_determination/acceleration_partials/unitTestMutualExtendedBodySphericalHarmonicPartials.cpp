@@ -433,13 +433,18 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                         const Eigen::Vector3d analyticalAccelerationDeviation =
                                 analyticalPartialWrtRotationalState.block( 0, 0, 3, 4 ) * appliedQuaternionPerturbations.at( index );
                         // Verify the quaternion-state partial against the shared orientation-deviation finite-difference helper.
-                        BOOST_CHECK_SMALL( ( analyticalAccelerationDeviation - accelerationDeviation.col( index - 1 ) ).norm( ), 1.0E-9 );
+                        BOOST_TEST_CONTEXT( bodyName << " constrained quaternion perturbation " << index )
+                        {
+                            BOOST_CHECK_SMALL( ( analyticalAccelerationDeviation - accelerationDeviation.col( index - 1 ) ).norm( ),
+                                               1.0E-9 );
+                        }
                     }
                 };
                 checkCentralQuaternionStatePartial( body1, "Body1" );
                 checkCentralQuaternionStatePartial( body2, "Body2" );
 
-                auto checkRotationRatePartial = [ & ]( const std::shared_ptr< RotationRate >& rotationRateParameter ) {
+                auto checkRotationRatePartial = [ & ]( const std::shared_ptr< RotationRate >& rotationRateParameter,
+                                                       const std::string& checkLabel ) {
                     evaluateAccelerationForRotationParameter( );
                     const Eigen::Vector3d analyticalPartial = rotationAccelerationPartial->wrtParameter( rotationRateParameter );
                     const Eigen::Vector3d numericalPartial = calculateAccelerationWrtParameterPartials(
@@ -454,9 +459,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                             } );
                     evaluateAccelerationForRotationParameter( );
                     // Verify the constant-rotation-rate partial against direct parameter finite differences.
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                    BOOST_TEST_CONTEXT( checkLabel )
+                    {
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                    }
                 };
-                auto checkPolePositionPartial = [ & ]( const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter ) {
+                auto checkPolePositionPartial = [ & ]( const std::shared_ptr< ConstantRotationalOrientation >& polePositionParameter,
+                                                       const std::string& checkLabel ) {
                     evaluateAccelerationForRotationParameter( );
                     const Eigen::MatrixXd analyticalPartial = rotationAccelerationPartial->wrtParameter( polePositionParameter );
                     const Eigen::MatrixXd numericalPartial = calculateAccelerationWrtParameterPartials(
@@ -471,21 +480,32 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                             } );
                     evaluateAccelerationForRotationParameter( );
                     // Verify the pole-position partial against direct parameter finite differences.
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                    BOOST_TEST_CONTEXT( checkLabel )
+                    {
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+                    }
                 };
 
-                checkRotationRatePartial( std::make_shared< RotationRate >(
-                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
-                        "Body1" ) );
-                checkRotationRatePartial( std::make_shared< RotationRate >(
-                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
-                        "Body2" ) );
-                checkPolePositionPartial( std::make_shared< ConstantRotationalOrientation >(
-                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
-                        "Body1" ) );
-                checkPolePositionPartial( std::make_shared< ConstantRotationalOrientation >(
-                        std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
-                        "Body2" ) );
+                checkRotationRatePartial(
+                        std::make_shared< RotationRate >(
+                                std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
+                                "Body1" ),
+                        "Body1 rotation-rate partial" );
+                checkRotationRatePartial(
+                        std::make_shared< RotationRate >(
+                                std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
+                                "Body2" ),
+                        "Body2 rotation-rate partial" );
+                checkPolePositionPartial(
+                        std::make_shared< ConstantRotationalOrientation >(
+                                std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body1->getRotationalEphemeris( ) ),
+                                "Body1" ),
+                        "Body1 pole-position partial" );
+                checkPolePositionPartial(
+                        std::make_shared< ConstantRotationalOrientation >(
+                                std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body2->getRotationalEphemeris( ) ),
+                                "Body2" ),
+                        "Body2 pole-position partial" );
 
                 body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
                         rotationToBody1, 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body1" ) );
@@ -645,7 +665,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                                                                 const std::shared_ptr< GravityFieldVariations >& variationModel,
                                                                 const std::shared_ptr< SphericalHarmonicsGravityField >& gravityField,
                                                                 const Eigen::MatrixXd& baseCosineCoefficients,
-                                                                const Eigen::MatrixXd& baseSineCoefficients ) {
+                                                                const Eigen::MatrixXd& baseSineCoefficients,
+                                                                const std::string& checkLabel ) {
                     auto applyVariation = [ & ]( ) {
                         Eigen::MatrixXd cosineCoefficients = baseCosineCoefficients;
                         Eigen::MatrixXd sineCoefficients = baseSineCoefficients;
@@ -677,7 +698,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                     evaluateAccelerationForVariationParameter( );
 
                     // Verify the gravity-field variation chain rule against direct variation-amplitude finite differences.
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 3.0E-3 );
+                    BOOST_TEST_CONTEXT( checkLabel )
+                    {
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 3.0E-3 );
+                    }
                     resetGravityFields( );
                 };
 
@@ -715,28 +739,32 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicGravityPartials )
                                                    body1PolynomialParameter->getPolynomialVariationModel( ),
                                                    body1GravityField,
                                                    cosineCoefficientsOfBody1Base,
-                                                   sineCoefficientsOfBody1Base );
+                                                   sineCoefficientsOfBody1Base,
+                                                   "Body1 polynomial gravity-field variation partial" );
                 std::shared_ptr< PeriodicGravityFieldVariationsParameters > body1PeriodicParameter =
                         createPeriodicVariationParameter( "Body1" );
                 checkGravityFieldVariationPartial( body1PeriodicParameter,
                                                    body1PeriodicParameter->getPeriodicVariationModel( ),
                                                    body1GravityField,
                                                    cosineCoefficientsOfBody1Base,
-                                                   sineCoefficientsOfBody1Base );
+                                                   sineCoefficientsOfBody1Base,
+                                                   "Body1 periodic gravity-field variation partial" );
                 std::shared_ptr< PolynomialGravityFieldVariationsParameters > body2PolynomialParameter =
                         createPolynomialVariationParameter( "Body2" );
                 checkGravityFieldVariationPartial( body2PolynomialParameter,
                                                    body2PolynomialParameter->getPolynomialVariationModel( ),
                                                    body2GravityField,
                                                    cosineCoefficientsOfBody2Base,
-                                                   sineCoefficientsOfBody2Base );
+                                                   sineCoefficientsOfBody2Base,
+                                                   "Body2 polynomial gravity-field variation partial" );
                 std::shared_ptr< PeriodicGravityFieldVariationsParameters > body2PeriodicParameter =
                         createPeriodicVariationParameter( "Body2" );
                 checkGravityFieldVariationPartial( body2PeriodicParameter,
                                                    body2PeriodicParameter->getPeriodicVariationModel( ),
                                                    body2GravityField,
                                                    cosineCoefficientsOfBody2Base,
-                                                   sineCoefficientsOfBody2Base );
+                                                   sineCoefficientsOfBody2Base,
+                                                   "Body2 periodic gravity-field variation partial" );
 
                 std::map< int, std::vector< std::complex< double > > > loveNumbers;
                 loveNumbers[ 2 ] = { std::complex< double >( 0.21, 0.0 ),

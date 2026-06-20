@@ -544,6 +544,10 @@ void checkStateResponseColumnsCloseRelative( const Eigen::MatrixXd& computed,
 
 BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartials )
 {
+    // Compare the restricted full two-body single-point interaction set against the equivalent legacy mutual
+    // spherical-harmonic acceleration/torque setup at the initial state only. This is not a propagation test:
+    // it directly checks the acceleration, torque, and the assembled acceleration partials that enter the
+    // variational-equation RHS.
     spice_interface::loadStandardSpiceKernels( );
 
     const InitialAccelerationPartialData mutualData = evaluateInitialAccelerationPartialData( PhobosGravityModel::mutualSphericalHarmonic );
@@ -554,25 +558,33 @@ BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartials )
     const InitialAccelerationPartialData fullTwoBodyMarsFigureData =
             evaluateInitialAccelerationPartialData( PhobosGravityModel::fullTwoBodyMarsFigureSinglePointTerms );
 
+    // Verify that both formulations expose the same estimatable-parameter vector to the variational equations.
     BOOST_REQUIRE_EQUAL( fullTwoBodyData.parameterSetSize, mutualData.parameterSetSize );
 
+    // Verify physical equivalence of the restricted acceleration and torque before inspecting their partials.
     BOOST_CHECK_SMALL( ( fullTwoBodyData.acceleration - mutualData.acceleration ).norm( ), 1.0E-14 );
     BOOST_CHECK_SMALL( ( fullTwoBodyData.torque - mutualData.torque ).norm( ) / mutualData.torque.norm( ), 1.0E-9 );
 
+    // Verify that the acceleration partial object contributes the same Phobos-rotation block as is assembled
+    // into the complete state/variational-equation RHS.
     checkColumnsCloseRelative( fullTwoBodyData.assembledAccelerationPartialWrtPhobosRotation,
                                fullTwoBodyData.directAccelerationPartialWrtPhobosRotation,
                                1.0E-12,
                                "restricted full two-body acceleration partial assembly wrt Phobos rotation" );
+    // Verify translational-state equivalence against the legacy mutual spherical-harmonic formulation.
     checkColumnsCloseRelative( fullTwoBodyData.directAccelerationPartialWrtPhobosPosition,
                                mutualData.stateAndVariationalRhs.block( 3, 0, 3, 3 ),
                                1.0E-12,
                                "restricted full two-body acceleration partial wrt Phobos position vs legacy mutual model" );
+    // Verify additivity of the two restricted single-point interaction groups in the rotation partial.
     checkColumnsCloseRelative( fullTwoBodyPhobosFigureData.directAccelerationPartialWrtPhobosRotation +
                                        fullTwoBodyMarsFigureData.directAccelerationPartialWrtPhobosRotation,
                                fullTwoBodyData.directAccelerationPartialWrtPhobosRotation,
                                1.0E-12,
                                "restricted full two-body split acceleration partials wrt Phobos rotation vs combined model" );
     const Eigen::Vector4d initialQuaternion = getInitialQuaternionVectorForModel( PhobosGravityModel::mutualSphericalHarmonic );
+    // Verify that the Mars-figure-only restricted contribution has no physical dependence on the constrained
+    // Phobos quaternion-vector perturbation. The projection removes the non-unique raw quaternion column.
     checkColumnsCloseRelative(
             projectQuaternionColumnsToVectorPart( fullTwoBodyMarsFigureData.directAccelerationPartialWrtPhobosRotation.block( 0, 0, 3, 4 ),
                                                   initialQuaternion ),
@@ -580,11 +592,13 @@ BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartials )
             1.0E-12,
             "restricted full two-body Mars-figure acceleration partial wrt constrained Phobos quaternion vector should be zero",
             7 );
+    // Verify that the same Mars-figure-only restricted contribution has no angular-velocity dependence.
     checkColumnsCloseRelative( fullTwoBodyMarsFigureData.directAccelerationPartialWrtPhobosRotation.block( 0, 4, 3, 3 ),
                                Eigen::MatrixXd::Zero( 3, 3 ),
                                1.0E-12,
                                "restricted full two-body Mars-figure acceleration partial wrt Phobos angular velocity should be zero",
                                10 );
+    // Verify the physically meaningful constrained quaternion-vector partial against the legacy formulation.
     checkColumnsCloseRelative(
             projectQuaternionColumnsToVectorPart( fullTwoBodyData.directAccelerationPartialWrtPhobosRotation.block( 0, 0, 3, 4 ),
                                                   initialQuaternion ),
@@ -593,6 +607,7 @@ BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyInitialAccelerationPartials )
             1.0E-12,
             "restricted full two-body acceleration partial wrt constrained Phobos quaternion vector vs legacy mutual model",
             7 );
+    // Verify angular-velocity partial equivalence against the legacy formulation.
     checkColumnsCloseRelative( fullTwoBodyData.directAccelerationPartialWrtPhobosRotation.block( 0, 4, 3, 3 ),
                                mutualData.assembledAccelerationPartialWrtPhobosRotation.block( 0, 4, 3, 3 ),
                                1.0E-12,
@@ -658,7 +673,8 @@ BOOST_AUTO_TEST_CASE( testMarsPhobosFullTwoBodyVariationalEquationsFiniteDiffere
         const FullTwoBodyPropagationOutput downOutput =
                 executeFullTwoBodyPhobosVariationalSimulation( -perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false );
         const Eigen::VectorXd appliedStateDifference = upOutput.appliedInitialStateDifference - downOutput.appliedInitialStateDifference;
-        // Check constrained quaternion-vector perturbations through the STM action.
+        // Raw quaternion columns are not unique. Check the physically applied constrained quaternion-vector
+        // perturbation through the complete STM action instead of comparing individual raw quaternion columns.
         checkStateResponseColumnsCloseRelative( ( analyticalMatrix.block( 0, 0, stateSize, stateSize ) * appliedStateDifference ),
                                                 ( upOutput.finalState - downOutput.finalState ),
                                                 1.0E-2,
@@ -681,16 +697,19 @@ BOOST_AUTO_TEST_CASE( testMarsPhobosFullTwoBodyVariationalEquationsFiniteDiffere
         numericalMatrix.block( 0, stateSize + column, stateSize, 1 ) = ( upState - downState ) / ( 2.0 * parameterPerturbation( column ) );
     }
 
+    // Verify the translational-state STM columns against central finite differences.
     checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, translationalStateStartColumn, stateSize, 6 ),
                                             analyticalMatrix.block( 0, translationalStateStartColumn, stateSize, 6 ),
                                             5.0E-4,
                                             "translational initial-state STM finite difference",
                                             translationalStateStartColumn );
+    // Verify the angular-velocity STM columns against central finite differences.
     checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
                                             analyticalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
                                             1.0E-2,
                                             "angular-velocity initial-state STM finite difference",
                                             rotationalStateStartColumn + 4 );
+    // Verify selected gravity and inertia sensitivity columns against central finite differences.
     checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, stateSize, stateSize, sensitivityParameterSize ),
                                             analyticalMatrix.block( 0, stateSize, stateSize, sensitivityParameterSize ),
                                             2.0E-2,

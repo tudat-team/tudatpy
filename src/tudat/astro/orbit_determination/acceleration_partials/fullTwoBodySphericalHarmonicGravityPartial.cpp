@@ -34,28 +34,39 @@ namespace detail
 {
 
 std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
-        const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame );
+        const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame )
+{
+    std::vector< Eigen::Matrix3d > derivativeList( 4, Eigen::Matrix3d::Zero( ) );
+    linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
+            linear_algebra::convertQuaternionToVectorFormat( rotationFromInertialToBodyFixedFrame.inverse( ) ), derivativeList );
 
-Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+    std::array< Eigen::Matrix3d, 4 > derivativeArray;
+    for( int i = 0; i < 4; i++ )
+    {
+        derivativeArray.at( i ) = derivativeList.at( i );
+    }
+    return derivativeArray;
+}
 
-Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
+{
+    Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
+    multiplicationMatrix << quaternion( 0 ), -quaternion( 1 ), -quaternion( 2 ), -quaternion( 3 ), quaternion( 1 ), quaternion( 0 ),
+            -quaternion( 3 ), quaternion( 2 ), quaternion( 2 ), quaternion( 3 ), quaternion( 0 ), -quaternion( 1 ), quaternion( 3 ),
+            -quaternion( 2 ), quaternion( 1 ), quaternion( 0 );
+    return multiplicationMatrix;
+}
+
+Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
+{
+    Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
+    multiplicationMatrix << quaternion( 0 ), -quaternion( 1 ), -quaternion( 2 ), -quaternion( 3 ), quaternion( 1 ), quaternion( 0 ),
+            quaternion( 3 ), -quaternion( 2 ), quaternion( 2 ), -quaternion( 3 ), quaternion( 0 ), quaternion( 1 ), quaternion( 3 ),
+            quaternion( 2 ), -quaternion( 1 ), quaternion( 0 );
+    return multiplicationMatrix;
+}
 
 Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
-        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
-        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
-
-Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
-        const Eigen::Vector3d& bodyFixedRelativePosition,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
-        const double cosineOfLatitude,
-        const double preMultiplier,
-        const double equatorialRadiusRatioPower,
-        const int totalDegree,
-        const int totalOrder );
-
-}  // namespace detail
-
-Eigen::MatrixXd detail::computePartialOfQuaternionWrtRotationMatrixParameter(
         const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
         const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial )
 {
@@ -84,6 +95,53 @@ Eigen::MatrixXd detail::computePartialOfQuaternionWrtRotationMatrixParameter(
     }
     return quaternionWrtParameter;
 }
+
+Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
+        const Eigen::Vector3d& bodyFixedRelativePosition,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
+        const double cosineOfLatitude,
+        const double preMultiplier,
+        const double equatorialRadiusRatioPower,
+        const int totalDegree,
+        const int totalOrder )
+{
+    const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, totalOrder );
+    const double legendrePolynomialDerivative =
+            sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder );
+
+    Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients = Eigen::Matrix< double, 3, 2 >::Zero( );
+    bodyFixedBasisFunctionGradients.col( 0 ) = coordinate_conversions::convertSphericalToCartesianGradient(
+            basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
+                                                         equatorialRadiusRatioPower,
+                                                         sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
+                                                         sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
+                                                         cosineOfLatitude,
+                                                         preMultiplier,
+                                                         totalDegree,
+                                                         totalOrder,
+                                                         1.0,
+                                                         0.0,
+                                                         legendrePolynomial,
+                                                         legendrePolynomialDerivative ),
+            bodyFixedRelativePosition );
+    bodyFixedBasisFunctionGradients.col( 1 ) = coordinate_conversions::convertSphericalToCartesianGradient(
+            basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
+                                                         equatorialRadiusRatioPower,
+                                                         sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
+                                                         sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
+                                                         cosineOfLatitude,
+                                                         preMultiplier,
+                                                         totalDegree,
+                                                         totalOrder,
+                                                         0.0,
+                                                         1.0,
+                                                         legendrePolynomial,
+                                                         legendrePolynomialDerivative ),
+            bodyFixedRelativePosition );
+    return bodyFixedBasisFunctionGradients;
+}
+
+}  // namespace detail
 
 //! Constructor.
 /*!

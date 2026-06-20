@@ -299,15 +299,15 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
     const double positionPerturbation = 1.0E-3;
     for( int coordinateIndex = 0; coordinateIndex < 3; coordinateIndex++ )
     {
-        Eigen::Vector3d upperturbedPosition = relativePositionInBodyFixedFrame;
-        upperturbedPosition( coordinateIndex ) += positionPerturbation;
+        Eigen::Vector3d upPerturbedPosition = relativePositionInBodyFixedFrame;
+        upPerturbedPosition( coordinateIndex ) += positionPerturbation;
         const auto upPerturbedAuxiliaryQuantities = acceleration_partials::detail::computeFourthDegreeTorqueAuxiliaryQuantities(
-                upperturbedPosition, massOfBodyExertingTorque, independentInertiaTensorComponentsOfBodyExertingTorque );
+                upPerturbedPosition, massOfBodyExertingTorque, independentInertiaTensorComponentsOfBodyExertingTorque );
 
-        Eigen::Vector3d downperturbedPosition = relativePositionInBodyFixedFrame;
-        downperturbedPosition( coordinateIndex ) -= positionPerturbation;
+        Eigen::Vector3d downPerturbedPosition = relativePositionInBodyFixedFrame;
+        downPerturbedPosition( coordinateIndex ) -= positionPerturbation;
         const auto downPerturbedAuxiliaryQuantities = acceleration_partials::detail::computeFourthDegreeTorqueAuxiliaryQuantities(
-                downperturbedPosition, massOfBodyExertingTorque, independentInertiaTensorComponentsOfBodyExertingTorque );
+                downPerturbedPosition, massOfBodyExertingTorque, independentInertiaTensorComponentsOfBodyExertingTorque );
 
         const double numericalPartialOfContractedInertiaTensorWrtCoordinate =
                 ( upPerturbedAuxiliaryQuantities.contractedInertiaTensorOfBodyExertingTorque -
@@ -332,8 +332,10 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
                                                                                                         coordinateIndex );
 
         // Verify the analytical position derivative of the Schutz auxiliary f/g vector.
-        checkMatrixClosePerElement(
-                analyticalPartialOfAuxiliaryFunctionsWrtCoordinate, numericalPartialOfAuxiliaryFunctionsWrtCoordinate, 5.0E-7 );
+        checkMatrixClosePerElement( analyticalPartialOfAuxiliaryFunctionsWrtCoordinate,
+                                    numericalPartialOfAuxiliaryFunctionsWrtCoordinate,
+                                    5.0E-7,
+                                    "Schutz auxiliary functions wrt position coordinate " + std::to_string( coordinateIndex ) );
     }
 
     const double inertiaTensorComponentPerturbation = 1.0E7;
@@ -365,7 +367,8 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeTorqueAuxiliaryFunctionPartials )
     // Verify the analytical inertia-component derivative of the Schutz auxiliary f/g vector.
     checkMatrixClosePerElement( analyticalPartialOfAuxiliaryFunctionsWrtInertiaTensorComponents,
                                 numericalPartialOfAuxiliaryFunctionsWrtInertiaTensorComponents,
-                                5.0E-5 );
+                                5.0E-5,
+                                "Schutz auxiliary functions wrt body-2 inertia components" );
 }
 
 BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
@@ -636,16 +639,20 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
                 const Eigen::Vector3d numericalTorqueDeviationOfBodyUndergoingTorque =
                         torqueDeviationDueToOrientationChangeOfBodyUndergoingTorque.col( index - 1 );
                 // Verify the quaternion partial for the body undergoing torque through direct attitude perturbation.
-                checkMatrixClosePerElement(
-                        analyticalTorqueDeviationOfBodyUndergoingTorque, numericalTorqueDeviationOfBodyUndergoingTorque, 5.0E-9 );
+                checkMatrixClosePerElement( analyticalTorqueDeviationOfBodyUndergoingTorque,
+                                            numericalTorqueDeviationOfBodyUndergoingTorque,
+                                            5.0E-9,
+                                            "Schutz orientation body undergoing, perturbation " + std::to_string( index ) );
 
                 const Eigen::Vector3d analyticalTorqueDeviationOfBodyExertingTorque =
                         analyticalPartialWrtOrientationOfBodyExertingTorque * appliedQuaternionPerturbationOfBodyExertingTorque.at( index );
                 const Eigen::Vector3d numericalTorqueDeviationOfBodyExertingTorque =
                         torqueDeviationDueToOrientationChangeOfBodyExertingTorque.col( index - 1 );
                 // Verify the quaternion partial for the body exerting torque through direct attitude perturbation.
-                checkMatrixClosePerElement(
-                        analyticalTorqueDeviationOfBodyExertingTorque, numericalTorqueDeviationOfBodyExertingTorque, 5.0E-9 );
+                checkMatrixClosePerElement( analyticalTorqueDeviationOfBodyExertingTorque,
+                                            numericalTorqueDeviationOfBodyExertingTorque,
+                                            5.0E-9,
+                                            "Schutz orientation body exerting, perturbation " + std::to_string( index ) );
             }
 
             const double analyticalPositionPartialNorm =
@@ -662,11 +669,13 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
             // Verify the body-undergoing position Jacobian against central finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 0, 3, 3 ),
                                         numericalPartialWrtPositionOfBodyUndergoingTorque,
-                                        5.0E-9 );
+                                        5.0E-9,
+                                        "Schutz position body undergoing" );
             // Verify the body-exerting position Jacobian against central finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtTranslationalStateOfBodyExertingTorque.block( 0, 0, 3, 3 ),
                                         numericalPartialWrtPositionOfBodyExertingTorque,
-                                        5.0E-9 );
+                                        5.0E-9,
+                                        "Schutz position body exerting" );
             // Verify there is no explicit velocity dependence in the fourth-degree torque model.
             BOOST_CHECK_SMALL( analyticalPartialWrtTranslationalStateOfBodyUndergoingTorque.block( 0, 3, 3, 3 ).norm( ), 1.0E-30 );
             // Verify there is no explicit velocity dependence in the fourth-degree torque model.
@@ -710,19 +719,23 @@ BOOST_AUTO_TEST_CASE( testFourthDegreeFullTwoBodyGravitationalTorquePartials )
             // Verify cosine-coefficient partials of the body undergoing torque against finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
                                         numericalPartialWrtCosineCoefficientsOfBodyUndergoingTorque,
-                                        1.0E-10 );
+                                        1.0E-10,
+                                        "Schutz cosine coefficients body undergoing" );
             // Verify sine-coefficient partials of the body undergoing torque against finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
                                         numericalPartialWrtSineCoefficientsOfBodyUndergoingTorque,
-                                        1.0E-10 );
+                                        1.0E-10,
+                                        "Schutz sine coefficients body undergoing" );
             // Verify cosine-coefficient partials of the body exerting torque against finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtCosineCoefficientsOfBodyExertingTorque,
                                         numericalPartialWrtCosineCoefficientsOfBodyExertingTorque,
-                                        1.0E-10 );
+                                        1.0E-10,
+                                        "Schutz cosine coefficients body exerting" );
             // Verify sine-coefficient partials of the body exerting torque against finite differences.
             checkMatrixClosePerElement( analyticalPartialWrtSineCoefficientsOfBodyExertingTorque,
                                         numericalPartialWrtSineCoefficientsOfBodyExertingTorque,
-                                        1.0E-10 );
+                                        1.0E-10,
+                                        "Schutz sine coefficients body exerting" );
 
             makeBodyMassIndependentOfGravityField( bodyUndergoingTorque );
             makeBodyMassIndependentOfGravityField( bodyExertingTorque );

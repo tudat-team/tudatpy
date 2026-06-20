@@ -16,7 +16,6 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/sphericalHarmonicTransformations.h"
@@ -31,46 +30,6 @@ namespace acceleration_partials
 
 namespace detail
 {
-
-//! Derivative of body-fixed-to-inertial rotation matrix w.r.t quaternion components.
-std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
-        const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame )
-{
-    std::vector< Eigen::Matrix3d > derivativeList( 4, Eigen::Matrix3d::Zero( ) );
-    linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-            linear_algebra::convertQuaternionToVectorFormat( rotationFromInertialToBodyFixedFrame.inverse( ) ), derivativeList );
-
-    std::array< Eigen::Matrix3d, 4 > derivativeArray;
-    for( int i = 0; i < 4; i++ )
-    {
-        derivativeArray.at( i ) = derivativeList.at( i );
-    }
-    return derivativeArray;
-}
-
-//! Left quaternion multiplication matrix.
-Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
-{
-    Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
-    multiplicationMatrix << quaternion( 0 ), -quaternion( 1 ), -quaternion( 2 ), -quaternion( 3 ), quaternion( 1 ), quaternion( 0 ),
-            -quaternion( 3 ), quaternion( 2 ), quaternion( 2 ), quaternion( 3 ), quaternion( 0 ), -quaternion( 1 ), quaternion( 3 ),
-            -quaternion( 2 ), quaternion( 1 ), quaternion( 0 );
-    return multiplicationMatrix;
-}
-
-//! Right quaternion multiplication matrix.
-Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion )
-{
-    Eigen::Matrix4d multiplicationMatrix = Eigen::Matrix4d::Zero( );
-    multiplicationMatrix << quaternion( 0 ), -quaternion( 1 ), -quaternion( 2 ), -quaternion( 3 ), quaternion( 1 ), quaternion( 0 ),
-            quaternion( 3 ), -quaternion( 2 ), quaternion( 2 ), -quaternion( 3 ), quaternion( 0 ), quaternion( 1 ), quaternion( 3 ),
-            quaternion( 2 ), -quaternion( 1 ), quaternion( 0 );
-    return multiplicationMatrix;
-}
-
-Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
-        const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
-        const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
 
 //! Evaluate scalar basis values multiplying coefficient terms in torque summations.
 /*!
@@ -93,58 +52,6 @@ Eigen::Vector2d computeCurrentScalarBasisFunctionValues(
             sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder );
     // Dirkx et al. (2019), Eq. (67): these scalar terms multiply effective angular-momentum coefficients in torque accumulation.
     return scalarBasisFunctionValues;
-}
-
-//! Evaluate Cartesian gradients of cosine/sine basis functions for one (l,m) term.
-/*!
- * Computes \partial/\partial r of Dirkx et al. (2019), Eq. (49), basis terms, used in Dirkx et al. (2019), Eq. (68)-based torque partials.
- */
-Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
-        const Eigen::Vector3d& bodyFixedRelativePosition,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
-        const double cosineOfLatitude,
-        const double preMultiplier,
-        const double equatorialRadiusRatioPower,
-        const int totalDegree,
-        const int totalOrder )
-{
-    const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomial( totalDegree, totalOrder );
-    const double legendrePolynomialDerivative =
-            sphericalHarmonicsCache->getLegendreCache( ).getLegendrePolynomialDerivative( totalDegree, totalOrder );
-
-    Eigen::Matrix< double, 3, 2 > bodyFixedBasisFunctionGradients = Eigen::Matrix< double, 3, 2 >::Zero( );
-    // Dirkx et al. (2019), Eq. (49): gradient of cosine basis channel.
-    bodyFixedBasisFunctionGradients.col( 0 ) = coordinate_conversions::convertSphericalToCartesianGradient(
-            basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
-                                                         equatorialRadiusRatioPower,
-                                                         sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
-                                                         sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
-                                                         cosineOfLatitude,
-                                                         preMultiplier,
-                                                         totalDegree,
-                                                         totalOrder,
-                                                         1.0,
-                                                         0.0,
-                                                         legendrePolynomial,
-                                                         legendrePolynomialDerivative ),
-            bodyFixedRelativePosition );
-    // Dirkx et al. (2019), Eq. (49): gradient of sine basis channel.
-    bodyFixedBasisFunctionGradients.col( 1 ) = coordinate_conversions::convertSphericalToCartesianGradient(
-            basic_mathematics::computePotentialGradient( bodyFixedRelativePosition.norm( ),
-                                                         equatorialRadiusRatioPower,
-                                                         sphericalHarmonicsCache->getCosineOfMultipleLongitude( totalOrder ),
-                                                         sphericalHarmonicsCache->getSineOfMultipleLongitude( totalOrder ),
-                                                         cosineOfLatitude,
-                                                         preMultiplier,
-                                                         totalDegree,
-                                                         totalOrder,
-                                                         0.0,
-                                                         1.0,
-                                                         legendrePolynomial,
-                                                         legendrePolynomialDerivative ),
-            bodyFixedRelativePosition );
-    // Dirkx et al. (2019), Eq. (68): these basis gradients provide \partial V/\partial r terms entering torque partials.
-    return bodyFixedBasisFunctionGradients;
 }
 
 }  // namespace detail

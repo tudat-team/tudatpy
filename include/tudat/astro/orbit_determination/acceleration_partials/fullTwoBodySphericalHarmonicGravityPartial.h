@@ -12,6 +12,7 @@
 #define TUDAT_MUTUALEXTENDEDBODYSPHERICALHARMONICGRAVITYPARTIAL_H
 
 #include <array>
+#include <memory>
 #include <tuple>
 
 #include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicAcceleration.h"
@@ -22,15 +23,38 @@
 namespace tudat
 {
 
+namespace basic_mathematics
+{
+
+class SphericalHarmonicsCache;
+
+}  // namespace basic_mathematics
+
 namespace acceleration_partials
 {
 
 namespace detail
 {
 
+std::array< Eigen::Matrix3d, 4 > getDerivativeOfBodyFixedToInertialRotationMatrixWrtQuaternionForFullTwoBodyTorque(
+        const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame );
+
+Eigen::Matrix4d getLeftQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+
+Eigen::Matrix4d getRightQuaternionMultiplicationMatrix( const Eigen::Vector4d& quaternion );
+
 Eigen::MatrixXd computePartialOfQuaternionWrtRotationMatrixParameter(
         const Eigen::Quaterniond& rotationFromBodyFixedToInertial,
         const std::vector< Eigen::Matrix3d >& partialsOfRotationFromBodyFixedToInertial );
+
+Eigen::Matrix< double, 3, 2 > computeCurrentBodyFixedBasisFunctionGradients(
+        const Eigen::Vector3d& bodyFixedRelativePosition,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >& sphericalHarmonicsCache,
+        const double cosineOfLatitude,
+        const double preMultiplier,
+        const double equatorialRadiusRatioPower,
+        const int totalDegree,
+        const int totalOrder );
 
 }  // namespace detail
 

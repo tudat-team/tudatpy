@@ -122,6 +122,10 @@ BOOST_AUTO_TEST_SUITE( test_full_two_body_coupled_dynamics_propagation )
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotationPropagation )
 {
+    // Propagate Io's translational and rotational states together with the full two-body spherical-harmonic
+    // acceleration and torque. The test verifies that the acceleration/torque values saved during propagation
+    // are the same as values obtained by independently evaluating fresh model instances at each propagated state.
+    // This checks the coupled propagation environment update, dependent-variable saving, and model consistency.
     spice_interface::loadStandardSpiceKernels( );
 
     const double initialEpoch = 1.0E8;
@@ -197,7 +201,9 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
     const std::map< double, Eigen::VectorXd >& stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     const std::map< double, Eigen::VectorXd >& dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
+    // Verify that propagation actually advanced beyond the initial state.
     BOOST_REQUIRE_GT( stateHistory.size( ), 1 );
+    // Verify that a dependent-variable vector was saved for every propagated state epoch.
     BOOST_REQUIRE_EQUAL( stateHistory.size( ), dependentVariableHistory.size( ) );
 
     AccelerationMap independentAccelerationModelMap =
@@ -216,6 +222,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
     for( const auto& stateEntry : stateHistory )
     {
         const double currentTime = stateEntry.first;
+        // Verify that the dependent-variable history contains the same epoch as the propagated state history.
         BOOST_REQUIRE( dependentVariableHistory.count( currentTime ) == 1 );
 
         setCoupledIoStateInEnvironment( bodies, stateEntry.second, currentTime );
@@ -245,9 +252,13 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
                 std::max( maximumRelativeTorqueDifference, ( savedTorque - independentlyEvaluatedTorque ).norm( ) / torqueScale );
     }
 
+    // Verify that the saved acceleration signal is nonzero, so a trivial zero-output match cannot pass the test.
     BOOST_CHECK_GT( maximumAccelerationNorm, 0.0 );
+    // Verify that the saved torque signal is nonzero, so a trivial zero-output match cannot pass the test.
     BOOST_CHECK_GT( maximumTorqueNorm, 0.0 );
+    // Verify that the saved full two-body acceleration matches an independent model evaluation at the propagated states.
     BOOST_CHECK_SMALL( maximumRelativeAccelerationDifference, 1.0E-12 );
+    // Verify that the saved full two-body torque matches an independent model evaluation at the propagated states.
     BOOST_CHECK_SMALL( maximumRelativeTorqueDifference, 1.0E-11 );
 }
 
