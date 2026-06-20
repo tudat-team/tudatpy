@@ -498,7 +498,8 @@ private:
         double observationTimeStep = std::numeric_limits< double >::quiet_NaN( );
         const auto& metaDataDoubleMap = rawTrackingTxtFileContents_->getMetaDataDoubleMap( );
         auto integrationTimeIterator = metaDataDoubleMap.find( input_output::TrackingDataType::doppler_integration_time );
-        if( integrationTimeIterator != metaDataDoubleMap.end( ) )
+        const bool hasPrecomputedCadence = integrationTimeIterator != metaDataDoubleMap.end( );
+        if( hasPrecomputedCadence )
         {
             observationTimeStep = integrationTimeIterator->second;
             if( !std::isfinite( observationTimeStep ) || observationTimeStep <= cadenceTolerance )
@@ -509,8 +510,12 @@ private:
         }
         else
         {
-            observationTimeStep = input_output::getNominalTimeStepFromUtcTimes(
-                    utilities::staticCastVector< double, TimeType >( observationTimesUtc_ ), cadenceTolerance );
+            observationTimeStep = observationTimeSteps.front( );
+            if( !std::isfinite( observationTimeStep ) || observationTimeStep <= cadenceTolerance )
+            {
+                throw std::runtime_error(
+                        "Error when getting integration time for processed file contents, non-positive or too-small time step found" );
+            }
         }
 
         std::vector< CadenceGap > cadenceGaps;
@@ -524,15 +529,19 @@ private:
             }
             else if( std::fabs( observationTimeStep - testObservationTimeStep ) > cadenceTolerance )
             {
-                if( testObservationTimeStep > observationTimeStep + cadenceTolerance )
+                if( hasPrecomputedCadence && testObservationTimeStep > observationTimeStep + cadenceTolerance )
                 {
                     cadenceGaps.push_back(
                             CadenceGap{ i, observationTimesUtc_.at( i - 1 ), observationTimesUtc_.at( i ), testObservationTimeStep } );
                 }
-                else
+                else if( hasPrecomputedCadence )
                 {
                     throw std::runtime_error(
                             "Error when getting integration time for processed file contents, step is smaller than inferred cadence" );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
                 }
             }
         }

@@ -83,7 +83,6 @@ enum class TrackingDataType {
     spectral_max,
     doppler_measured_frequency,
     doppler_averaged_frequency,
-    doppler_integration_time,
     doppler_base_frequency,
     doppler_noise,
     doppler_bandwidth,
@@ -97,7 +96,8 @@ enum class TrackingDataType {
     transmission_frequency_linear_term,
     doppler_predicted_frequency_hz,
     doppler_troposphere_correction,
-    scan_nr
+    scan_nr,
+    doppler_integration_time
 };
 /*!
  * Simple converter class that can convert a string data field to a double.

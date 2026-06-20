@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     std::string gapWarning;
     {
         CoutRedirect outputRedirect;
-        gapObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 } );
+        gapObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 }, true, 10.0 );
         gapWarning = outputRedirect.getOutput( );
     }
 
@@ -501,10 +501,12 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     std::string unknownFileWarning;
     {
         CoutRedirect outputRedirect;
-        createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 30.0 }, false );
+        createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 30.0 }, false, 10.0 );
         unknownFileWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK( unknownFileWarning.find( "unknown tracking file" ) != std::string::npos );
+
+    BOOST_CHECK_THROW( createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
