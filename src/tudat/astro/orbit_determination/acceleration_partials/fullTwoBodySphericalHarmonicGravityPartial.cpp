@@ -374,7 +374,9 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartia
     const Eigen::Matrix4d partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion =
             Eigen::Vector4d( 1.0, -1.0, -1.0, -1.0 ).asDiagonal( );
     const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBody1 =
-            detail::getRightQuaternionMultiplicationMatrix( conjugatedQuaternionVectorOfBody2 ) *
+            // The Body state uses the body-to-inertial quaternion; perturbing it changes the body-2-to-body-1
+            // relative coefficient rotation with the opposite sign to the inertial-to-body-1 quaternion factor.
+            -detail::getRightQuaternionMultiplicationMatrix( conjugatedQuaternionVectorOfBody2 ) *
             partialOfInertialToBodyQuaternionWrtBodyToInertialQuaternion;
     const Eigen::Matrix4d partialOfRelativeQuaternionWrtQuaternionOfBody2 =
             detail::getLeftQuaternionMultiplicationMatrix( quaternionVectorOfBody1 );
