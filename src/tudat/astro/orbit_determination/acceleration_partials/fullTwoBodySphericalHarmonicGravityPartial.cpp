@@ -456,7 +456,7 @@ void FullTwoBodySphericalHarmonicsGravityPartial::updateCurrentOrientationPartia
         for( int relativeQuaternionIndex = 0; relativeQuaternionIndex < 4; relativeQuaternionIndex++ )
         {
             coefficientContributionWrtQuaternionOfBody1 +=
-                    -partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
+                    partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
                     partialOfRelativeQuaternionWrtQuaternionOfBody1( relativeQuaternionIndex, quaternionIndex );
             coefficientContributionWrtQuaternionOfBody2 +=
                     partialOfMutualPotentialGradientWrtRelativeQuaternion.at( relativeQuaternionIndex ) *
@@ -1212,26 +1212,8 @@ void FullTwoBodySphericalHarmonicsGravityPartial::wrtNonTranslationalStateOfAddi
     const bool wrtBody1 = stateReferencePoint.first == acceleratedBody_;
     const Eigen::Matrix< double, 3, 4 >& quaternionPartial =
             wrtBody1 ? currentPartialWrtQuaternionOfBody1_ : currentPartialWrtQuaternionOfBody2_;
-    const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
-            wrtBody1 ? rotationMatrixPartialsOfBody1_ : rotationMatrixPartialsOfBody2_;
-
     Eigen::MatrixXd rotationalStatePartial = Eigen::MatrixXd::Zero( 3, 7 );
-    const auto rotationPartialIterator =
-            rotationMatrixPartials.find( std::make_pair( estimatable_parameters::initial_rotational_body_state, "" ) );
-    if( rotationPartialIterator != rotationMatrixPartials.end( ) )
-    {
-        const std::vector< Eigen::Matrix3d > currentRotationMatrixPartials =
-                rotationPartialIterator->second->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
-        const Eigen::Quaterniond currentRotationFromBodyFixedToInertial = wrtBody1
-                ? accelerationModel_->getCurrentRotationFromInertialToBody1( ).inverse( )
-                : Eigen::Quaterniond( accelerationModel_->getCurrentRotationFromBody2ToBody1( ).toRotationMatrix( ).transpose( ) *
-                                      currentRotationToBodyFixedFrame_ )
-                          .inverse( );
-        const Eigen::MatrixXd partialOfQuaternionWrtRotationalState = detail::computePartialOfQuaternionWrtRotationMatrixParameter(
-                currentRotationFromBodyFixedToInertial, currentRotationMatrixPartials );
-        rotationalStatePartial.block( 0, 0, 3, partialOfQuaternionWrtRotationalState.cols( ) ) =
-                quaternionPartial * partialOfQuaternionWrtRotationalState;
-    }
+    rotationalStatePartial.block( 0, 0, 3, 4 ) = quaternionPartial;
 
     if( addContribution )
     {

@@ -76,6 +76,13 @@ public:
     //! Update all cached torque partial terms to current model state.
     void update( const double currentTime = TUDAT_NAN ) override;
 
+    //! Reset cached member models when the variational equations request partials at a new integration stage.
+    void resetCurrentTimeOfMemberObjects( ) override
+    {
+        torqueModel_->resetCurrentTime( );
+        accelerationPartial_->resetCurrentTime( );
+    }
+
 private:
     //! Partial w.r.t. cosine SH coefficient block of body undergoing torque.
     void wrtCosineSphericalHarmonicCoefficientsOfBodyUndergoingTorque( Eigen::MatrixXd& partialMatrix,

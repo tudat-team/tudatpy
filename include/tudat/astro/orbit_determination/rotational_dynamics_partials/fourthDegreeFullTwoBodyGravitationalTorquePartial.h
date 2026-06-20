@@ -120,6 +120,11 @@ public:
 
     void update( const double currentTime = TUDAT_NAN ) override;
 
+    void resetCurrentTimeOfMemberObjects( ) override
+    {
+        torqueModel_->resetCurrentTime( );
+    }
+
 private:
     Eigen::Matrix< double, 6, 1 > getIndependentInertiaTensorComponentsFromMatrixDerivative(
             const Eigen::Matrix3d& inertiaTensorDerivative ) const;

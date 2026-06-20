@@ -142,6 +142,16 @@ public:
                                                    const propagators::IntegratedStateType integratedStateType,
                                                    const bool addContribution = true ) override;
 
+    //! Reset cached member models when the variational equations request partials at a new integration stage.
+    void resetCurrentTimeOfMemberObjects( ) override
+    {
+        accelerationModel_->resetCurrentTime( );
+        for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+        {
+            tidalLoveNumberPartialInterfaces_.at( i )->resetCurrentTime( );
+        }
+    }
+
     const Eigen::Matrix3d& getCurrentBodyFixedPartialWrtPosition( ) const
     {
         return currentBodyFixedPartialWrtPosition_;

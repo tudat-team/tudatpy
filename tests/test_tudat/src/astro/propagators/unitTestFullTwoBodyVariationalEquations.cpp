@@ -11,8 +11,12 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <cmath>
+#include <iomanip>
+#include <limits>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -50,7 +54,7 @@ using namespace simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_full_two_body_variational_equations )
 
-enum class PhobosGravityModel { mutualSphericalHarmonic, fullTwoBodySinglePointTerms };
+enum class PhobosGravityModel { mutualSphericalHarmonic, fullTwoBodySinglePointTerms, fullTwoBodyDegreeThree };
 
 struct PhobosRotationSetup {
     SystemOfBodies bodies;
@@ -59,11 +63,17 @@ struct PhobosRotationSetup {
     std::shared_ptr< IntegratorSettings< double > > integratorSettings;
     AccelerationMap accelerationModelMap;
     TorqueModelMap torqueModelMap;
+    Eigen::Matrix< double, 13, 1 > appliedInitialStateDifference;
 };
 
-PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityModel, const double finalEphemerisTime )
+PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityModel,
+                                               const double finalEphemerisTime,
+                                               const Eigen::Matrix< double, 13, 1 >& initialStateDifference,
+                                               const bool estimateMarsGravityCoefficients,
+                                               const double integratorStep )
 {
     const double initialEphemerisTime = 0.0;
+    Eigen::Matrix< double, 13, 1 > appliedInitialStateDifference = Eigen::Matrix< double, 13, 1 >::Zero( );
 
     SystemOfBodies bodies( "Mars", "ECLIPJ2000" );
     bodies.createEmptyBody( "Mars", false );
@@ -94,6 +104,16 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
                                                             phobosCosineGravityFieldCoefficients,
                                                             phobosSineGravityFieldCoefficients,
                                                             phobosScaledMeanMomentOfInertia );
+    if( gravityModel == PhobosGravityModel::fullTwoBodyDegreeThree )
+    {
+        phobosCosineGravityFieldCoefficients( 3, 0 ) = 2.0E-3;
+        phobosCosineGravityFieldCoefficients( 3, 1 ) = -1.5E-3;
+        phobosSineGravityFieldCoefficients( 3, 1 ) = 1.0E-3;
+        phobosCosineGravityFieldCoefficients( 3, 2 ) = 0.8E-3;
+        phobosSineGravityFieldCoefficients( 3, 2 ) = -0.7E-3;
+        phobosCosineGravityFieldCoefficients( 3, 3 ) = 0.5E-3;
+        phobosSineGravityFieldCoefficients( 3, 3 ) = 0.4E-3;
+    }
     bodies.at( "Phobos" )
             ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
                                                                                                      phobosReferenceRadius,
@@ -116,6 +136,10 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
     Eigen::Quaterniond noRotationQuaternion =
             Eigen::Quaterniond( Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( 2.0, Eigen::Vector3d::UnitX( ) ) *
                                 Eigen::AngleAxisd( -0.5, Eigen::Vector3d::UnitZ( ) ) );
+    if( gravityModel == PhobosGravityModel::fullTwoBodyDegreeThree )
+    {
+        noRotationQuaternion = Eigen::Quaterniond::Identity( );
+    }
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
     unitRotationState( 0 ) = noRotationQuaternion.w( );
     unitRotationState( 1 ) = noRotationQuaternion.x( );
@@ -124,6 +148,13 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
     unitRotationState( 4 ) = 1.0E-4;
     unitRotationState( 5 ) = -1.0E-4;
     unitRotationState( 6 ) = std::sqrt( marsGravitationalParameter / std::pow( phobosSemiMajorAxis, 3.0 ) ) + 1.0E-4;
+
+    const Eigen::Matrix< double, 7, 1 > originalRotationState = unitRotationState;
+    unitRotationState += initialStateDifference.segment( 6, 7 );
+    unitRotationState( 0 ) = originalRotationState( 0 ) / std::fabs( originalRotationState( 0 ) ) *
+            std::sqrt( 1.0 - std::pow( unitRotationState.segment( 1, 3 ).norm( ), 2.0 ) );
+    appliedInitialStateDifference.segment( 0, 6 ) = initialStateDifference.segment( 0, 6 );
+    appliedInitialStateDifference.segment( 6, 7 ) = unitRotationState - originalRotationState;
 
     std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
     dummyRotationMap[ -1.0E100 ] = unitRotationState;
@@ -141,11 +172,16 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
         accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
         torqueMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
     }
-    else
+    else if( gravityModel == PhobosGravityModel::fullTwoBodySinglePointTerms )
     {
         accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >(
                 getExtendedSinglePointMassInteractions( 2, 2, 2, 2 ) ) );
         torqueMap[ "Phobos" ][ "Mars" ].push_back( fullTwoBodySphericalHarmonicGravitationalTorque( 2, 2, 0, 0 ) );
+    }
+    else
+    {
+        accelerationMap[ "Phobos" ][ "Mars" ].push_back( fullTwoBodySphericalHarmonicAcceleration( 3, 3, 3, 3 ) );
+        torqueMap[ "Phobos" ][ "Mars" ].push_back( fullTwoBodySphericalHarmonicGravitationalTorque( 3, 3, 3, 3 ) );
     }
 
     const std::vector< std::string > translationalBodiesToIntegrate{ "Phobos" };
@@ -162,6 +198,7 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
 
     Eigen::VectorXd initialTranslationalState =
             getInitialStatesOfBodies( translationalBodiesToIntegrate, translationalCentralBodies, bodies, initialEphemerisTime );
+    initialTranslationalState += initialStateDifference.segment( 0, 6 );
     std::shared_ptr< TranslationalStatePropagatorSettings<> > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings<> >( translationalCentralBodies,
                                                                         accelerationModelMap,
@@ -180,17 +217,36 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             "Phobos", initialTranslationalState, "Mars" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", mean_moment_of_inertia ) );
+    const int maximumEstimatedGravityDegree = ( gravityModel == PhobosGravityModel::fullTwoBodyDegreeThree ) ? 3 : 2;
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-            1, 0, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+            2, 0, maximumEstimatedGravityDegree, maximumEstimatedGravityDegree, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-            2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+            2, 1, maximumEstimatedGravityDegree, maximumEstimatedGravityDegree, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+    if( estimateMarsGravityCoefficients )
+    {
+        parameterNames.push_back(
+                std::make_shared< SphericalHarmonicEstimatableParameterSettings >( 2,
+                                                                                   0,
+                                                                                   maximumEstimatedGravityDegree,
+                                                                                   maximumEstimatedGravityDegree,
+                                                                                   "Mars",
+                                                                                   spherical_harmonics_cosine_coefficient_block ) );
+        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                2, 1, maximumEstimatedGravityDegree, maximumEstimatedGravityDegree, "Mars", spherical_harmonics_sine_coefficient_block ) );
+    }
 
     return PhobosRotationSetup{ bodies,
                                 propagatorSettings,
                                 createParametersToEstimate( parameterNames, bodies ),
-                                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, 15.0 ),
+                                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, integratorStep ),
                                 accelerationModelMap,
-                                torqueModelMap };
+                                torqueModelMap,
+                                appliedInitialStateDifference };
+}
+
+PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityModel, const double finalEphemerisTime )
+{
+    return createPhobosRotationSetup( gravityModel, finalEphemerisTime, Eigen::Matrix< double, 13, 1 >::Zero( ), false, 15.0 );
 }
 
 Eigen::Vector3d getSingleAcceleration( const AccelerationMap& accelerationModelMap )
@@ -203,15 +259,31 @@ Eigen::Vector3d getSingleTorque( const TorqueModelMap& torqueModelMap )
     return torqueModelMap.at( "Phobos" ).at( "Mars" ).at( 0 )->getTorque( );
 }
 
-struct InitialDerivativeDiagnostics {
+Eigen::Vector3d evaluateInitialFullDegreeThreeAcceleration( const Eigen::Matrix< double, 13, 1 >& initialStateDifference )
+{
+    PhobosRotationSetup setup =
+            createPhobosRotationSetup( PhobosGravityModel::fullTwoBodyDegreeThree, 15.0, initialStateDifference, true, 15.0 );
+    SingleArcVariationalEquationsSolver< double, double > solver(
+            setup.bodies, setup.integratorSettings, setup.propagatorSettings, setup.parametersToEstimate, true, nullptr, false, false );
+    std::shared_ptr< DynamicsStateDerivativeModel< double, double > > derivativeModel =
+            solver.getDynamicsSimulator( )->getDynamicsStateDerivative( );
+    derivativeModel->setPropagationSettings( std::vector< IntegratedStateType >( ), true, true );
+
+    Eigen::MatrixXd initialState = Eigen::MatrixXd::Zero( 13, setup.parametersToEstimate->getParameterSetSize( ) + 1 );
+    initialState.col( setup.parametersToEstimate->getParameterSetSize( ) ) =
+            derivativeModel->convertFromOutputSolution( setup.propagatorSettings->getInitialStates( ), 0.0 );
+    derivativeModel->computeStateDerivative( 0.0, initialState );
+    return getSingleAcceleration( setup.accelerationModelMap );
+}
+
+struct InitialDerivativeData {
     Eigen::Vector3d acceleration;
     Eigen::Vector3d torque;
     Eigen::MatrixXd variationalRhs;
-    Eigen::MatrixXd stateAndVariationalRhs;
     Eigen::MatrixXd directAccelerationPartialWrtPhobosRotation;
 };
 
-InitialDerivativeDiagnostics evaluateInitialDerivativeDiagnostics( const PhobosGravityModel gravityModel )
+InitialDerivativeData evaluateInitialDerivativeData( const PhobosGravityModel gravityModel )
 {
     PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, 15.0 );
     SingleArcVariationalEquationsSolver< double, double > solver(
@@ -239,11 +311,211 @@ InitialDerivativeDiagnostics evaluateInitialDerivativeDiagnostics( const PhobosG
     accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
             directAccelerationPartialWrtPhobosRotation.block( 0, 0, 3, 7 ), std::make_pair( "Phobos", "" ), rotational_state, true );
 
-    return InitialDerivativeDiagnostics{ getSingleAcceleration( setup.accelerationModelMap ),
-                                         getSingleTorque( setup.torqueModelMap ),
-                                         stateAndVariationalRhs.block( 0, 0, 13, setup.parametersToEstimate->getParameterSetSize( ) ),
-                                         stateAndVariationalRhs,
-                                         directAccelerationPartialWrtPhobosRotation };
+    return InitialDerivativeData{ getSingleAcceleration( setup.accelerationModelMap ),
+                                  getSingleTorque( setup.torqueModelMap ),
+                                  stateAndVariationalRhs.block( 0, 0, 13, setup.parametersToEstimate->getParameterSetSize( ) ),
+                                  directAccelerationPartialWrtPhobosRotation };
+}
+
+struct FullTwoBodyPropagationOutput {
+    Eigen::VectorXd finalState;
+    Eigen::MatrixXd combinedStateTransitionAndSensitivityMatrix;
+    Eigen::Matrix< double, 13, 1 > appliedInitialStateDifference;
+};
+
+struct FullTwoBodyPropagationHistory {
+    std::map< double, Eigen::VectorXd > stateHistory;
+    std::map< double, Eigen::MatrixXd > combinedStateTransitionAndSensitivityMatrixHistory;
+    Eigen::Matrix< double, 13, 1 > appliedInitialStateDifference;
+};
+
+FullTwoBodyPropagationHistory executeFullTwoBodyPhobosVariationalHistory(
+        const Eigen::Matrix< double, 13, 1 >& initialStateDifference,
+        const Eigen::VectorXd& parameterPerturbation = Eigen::VectorXd( ),
+        const bool propagateVariationalEquations = true,
+        const std::vector< double >& evaluationTimes = std::vector< double >{ 3600.0 },
+        const PhobosGravityModel gravityModel = PhobosGravityModel::fullTwoBodyDegreeThree )
+{
+    const double finalEphemerisTime = evaluationTimes.back( );
+    PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, finalEphemerisTime, initialStateDifference, true, 15.0 );
+
+    Eigen::VectorXd parameterVector = setup.parametersToEstimate->getFullParameterValues< double >( );
+    if( parameterPerturbation.rows( ) > 0 )
+    {
+        parameterVector.segment( 13, parameterPerturbation.rows( ) ) += parameterPerturbation;
+        setup.parametersToEstimate->resetParameterValues( parameterVector );
+    }
+
+    SingleArcVariationalEquationsSolver< double, double > solver(
+            setup.bodies, setup.integratorSettings, setup.propagatorSettings, setup.parametersToEstimate, true, nullptr, false, false );
+    if( propagateVariationalEquations )
+    {
+        solver.integrateVariationalAndDynamicalEquations( setup.propagatorSettings->getInitialStates( ), true );
+    }
+    else
+    {
+        solver.integrateDynamicalEquationsOfMotionOnly( setup.propagatorSettings->getInitialStates( ) );
+    }
+
+    FullTwoBodyPropagationHistory history;
+    for( double evaluationTime : evaluationTimes )
+    {
+        Eigen::VectorXd state = Eigen::VectorXd::Zero( 13 );
+        state.segment( 0, 6 ) = setup.bodies.at( "Phobos" )->getEphemeris( )->getCartesianState( evaluationTime );
+        state.segment( 6, 7 ) = setup.bodies.at( "Phobos" )->getRotationalEphemeris( )->getRotationStateVector( evaluationTime );
+        history.stateHistory[ evaluationTime ] = state;
+
+        if( propagateVariationalEquations )
+        {
+            history.combinedStateTransitionAndSensitivityMatrixHistory[ evaluationTime ] =
+                    solver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+        }
+    }
+    history.appliedInitialStateDifference = setup.appliedInitialStateDifference;
+    return history;
+}
+
+FullTwoBodyPropagationOutput executeFullTwoBodyPhobosVariationalSimulation(
+        const Eigen::Matrix< double, 13, 1 >& initialStateDifference,
+        const Eigen::VectorXd& parameterPerturbation = Eigen::VectorXd( ),
+        const bool propagateVariationalEquations = true,
+        const PhobosGravityModel gravityModel = PhobosGravityModel::fullTwoBodyDegreeThree )
+{
+    const std::vector< double > evaluationTimes{ 3600.0 };
+    const FullTwoBodyPropagationHistory history = executeFullTwoBodyPhobosVariationalHistory(
+            initialStateDifference, parameterPerturbation, propagateVariationalEquations, evaluationTimes, gravityModel );
+    return FullTwoBodyPropagationOutput{ history.stateHistory.at( evaluationTimes.back( ) ),
+                                         propagateVariationalEquations
+                                                 ? history.combinedStateTransitionAndSensitivityMatrixHistory.at( evaluationTimes.back( ) )
+                                                 : Eigen::MatrixXd( ),
+                                         history.appliedInitialStateDifference };
+}
+
+double getRelativeErrorForReferenceNorm( const double absoluteError, const double referenceNorm )
+{
+    if( referenceNorm > 0.0 )
+    {
+        return absoluteError / referenceNorm;
+    }
+    return absoluteError == 0.0 ? 0.0 : std::numeric_limits< double >::infinity( );
+}
+
+std::string getPhobosGravityModelName( const PhobosGravityModel gravityModel )
+{
+    if( gravityModel == PhobosGravityModel::mutualSphericalHarmonic )
+    {
+        return "legacy mutual spherical-harmonic model";
+    }
+    if( gravityModel == PhobosGravityModel::fullTwoBodySinglePointTerms )
+    {
+        return "restricted full two-body model without figure-figure terms";
+    }
+    return "full two-body degree-three model";
+}
+
+void checkColumnsCloseRelative( const Eigen::MatrixXd& computed,
+                                const Eigen::MatrixXd& expected,
+                                const double relativeTolerance,
+                                const std::string& checkIdentifier,
+                                const int firstColumnIndex = 0 )
+{
+    BOOST_REQUIRE_EQUAL( computed.rows( ), expected.rows( ) );
+    BOOST_REQUIRE_EQUAL( computed.cols( ), expected.cols( ) );
+
+    for( int column = 0; column < computed.cols( ); ++column )
+    {
+        const Eigen::VectorXd computedColumn = computed.col( column );
+        const Eigen::VectorXd expectedColumn = expected.col( column );
+        const double errorNorm = ( computedColumn - expectedColumn ).norm( );
+        const double expectedColumnNorm = expectedColumn.norm( );
+        const double absoluteTolerance = relativeTolerance * expectedColumnNorm;
+        const double relativeError = getRelativeErrorForReferenceNorm( errorNorm, expectedColumnNorm );
+        std::ostringstream failureMessage;
+        failureMessage << std::setprecision( 17 ) << "Failed " << checkIdentifier << ", column " << firstColumnIndex + column
+                       << "\ncomputed value: " << computedColumn.transpose( ) << "\nexpected value: " << expectedColumn.transpose( )
+                       << "\nabsolute tolerance: " << absoluteTolerance << "\nrelative tolerance: " << relativeTolerance
+                       << "\nabsolute error: " << errorNorm << "\nrelative error: " << relativeError;
+        BOOST_TEST_CONTEXT( "column " << firstColumnIndex + column )
+        {
+            BOOST_CHECK_MESSAGE( errorNorm <= absoluteTolerance, failureMessage.str( ) );
+        }
+    }
+}
+
+struct StateVectorBlock {
+    std::string name;
+    int startRow;
+    int numberOfRows;
+};
+
+void checkStateResponseColumnsCloseRelative( const Eigen::MatrixXd& computed,
+                                             const Eigen::MatrixXd& expected,
+                                             const double relativeTolerance,
+                                             const std::string& checkIdentifier,
+                                             const int firstColumnIndex = 0 )
+{
+    const int stateSize = 13;
+    BOOST_REQUIRE_EQUAL( computed.rows( ), stateSize );
+    BOOST_REQUIRE_EQUAL( expected.rows( ), stateSize );
+    BOOST_REQUIRE_EQUAL( computed.cols( ), expected.cols( ) );
+
+    const std::vector< StateVectorBlock > stateVectorBlocks{
+        { "position", 0, 3 }, { "velocity", 3, 3 }, { "quaternion", 6, 4 }, { "angular velocity", 10, 3 }
+    };
+
+    for( int column = 0; column < computed.cols( ); ++column )
+    {
+        for( const StateVectorBlock& block : stateVectorBlocks )
+        {
+            const Eigen::VectorXd computedColumn = computed.block( block.startRow, column, block.numberOfRows, 1 );
+            const Eigen::VectorXd expectedColumn = expected.block( block.startRow, column, block.numberOfRows, 1 );
+            const double errorNorm = ( computedColumn - expectedColumn ).norm( );
+            const double expectedColumnNorm = expectedColumn.norm( );
+            const double absoluteTolerance = relativeTolerance * expectedColumnNorm;
+            const double relativeError = getRelativeErrorForReferenceNorm( errorNorm, expectedColumnNorm );
+            std::ostringstream failureMessage;
+            failureMessage << std::setprecision( 17 ) << "Failed " << checkIdentifier << ", " << block.name << ", column "
+                           << firstColumnIndex + column << "\ncomputed value: " << computedColumn.transpose( )
+                           << "\nexpected value: " << expectedColumn.transpose( ) << "\nabsolute tolerance: " << absoluteTolerance
+                           << "\nrelative tolerance: " << relativeTolerance << "\nabsolute error: " << errorNorm
+                           << "\nrelative error: " << relativeError;
+            BOOST_TEST_CONTEXT( block.name << ", column " << firstColumnIndex + column )
+            {
+                BOOST_CHECK_MESSAGE( errorNorm <= absoluteTolerance, failureMessage.str( ) );
+            }
+        }
+    }
+}
+
+void checkAngularVelocityStateTransitionFiniteDifferenceForModel( const PhobosGravityModel gravityModel, const double relativeTolerance )
+{
+    const int stateSize = 13;
+    const int rotationalStateStartColumn = 6;
+    const FullTwoBodyPropagationOutput nominalOutput = executeFullTwoBodyPhobosVariationalSimulation(
+            Eigen::Matrix< double, stateSize, 1 >::Zero( ), Eigen::VectorXd( ), true, gravityModel );
+    const Eigen::MatrixXd analyticalMatrix = nominalOutput.combinedStateTransitionAndSensitivityMatrix.block( 0, 0, stateSize, stateSize );
+
+    Eigen::Matrix< double, stateSize, 1 > statePerturbation;
+    statePerturbation << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2, 0.0, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
+    Eigen::MatrixXd numericalMatrix = Eigen::MatrixXd::Zero( stateSize, stateSize );
+
+    for( int column = 10; column < stateSize; ++column )
+    {
+        Eigen::Matrix< double, stateSize, 1 > perturbation = Eigen::Matrix< double, stateSize, 1 >::Zero( );
+        perturbation( column ) = statePerturbation( column );
+        const Eigen::VectorXd upState =
+                executeFullTwoBodyPhobosVariationalSimulation( perturbation, Eigen::VectorXd( ), false, gravityModel ).finalState;
+        const Eigen::VectorXd downState =
+                executeFullTwoBodyPhobosVariationalSimulation( -perturbation, Eigen::VectorXd( ), false, gravityModel ).finalState;
+        numericalMatrix.block( 0, rotationalStateStartColumn + column - 6, stateSize, 1 ) =
+                ( upState - downState ) / ( 2.0 * statePerturbation( column ) );
+    }
+
+    checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
+                                            analyticalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
+                                            relativeTolerance,
+                                            "angular-velocity STM finite difference for " + getPhobosGravityModelName( gravityModel ),
+                                            rotationalStateStartColumn + 4 );
 }
 
 BOOST_AUTO_TEST_CASE( testFullTwoBodyEquivalentPhobosRotationVariationalEquationDerivative )
@@ -252,22 +524,161 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyEquivalentPhobosRotationVariationalEquation
     // Both configurations use the same environment construction path; only the acceleration/torque settings are switched.
     spice_interface::loadStandardSpiceKernels( );
 
-    const InitialDerivativeDiagnostics mutualDiagnostics =
-            evaluateInitialDerivativeDiagnostics( PhobosGravityModel::mutualSphericalHarmonic );
-    const InitialDerivativeDiagnostics fullTwoBodyDiagnostics =
-            evaluateInitialDerivativeDiagnostics( PhobosGravityModel::fullTwoBodySinglePointTerms );
+    const InitialDerivativeData mutualData = evaluateInitialDerivativeData( PhobosGravityModel::mutualSphericalHarmonic );
+    const InitialDerivativeData fullTwoBodyData = evaluateInitialDerivativeData( PhobosGravityModel::fullTwoBodySinglePointTerms );
 
     // Verify that the restricted full two-body force model reproduces the legacy mutual spherical-harmonic acceleration value.
-    BOOST_CHECK_SMALL( ( fullTwoBodyDiagnostics.acceleration - mutualDiagnostics.acceleration ).norm( ), 1.0E-14 );
+    BOOST_CHECK_SMALL( ( fullTwoBodyData.acceleration - mutualData.acceleration ).norm( ), 1.0E-14 );
     // Verify that the restricted full two-body torque model reproduces the legacy second-degree gravitational torque value.
-    BOOST_CHECK_SMALL( ( fullTwoBodyDiagnostics.torque - mutualDiagnostics.torque ).norm( ) / mutualDiagnostics.torque.norm( ), 1.0E-9 );
+    BOOST_CHECK_SMALL( ( fullTwoBodyData.torque - mutualData.torque ).norm( ) / mutualData.torque.norm( ), 1.0E-9 );
 
-    const Eigen::MatrixXd assembledAccelerationPartialWrtPhobosRotation = fullTwoBodyDiagnostics.variationalRhs.block( 3, 6, 3, 7 );
+    const Eigen::MatrixXd assembledAccelerationPartialWrtPhobosRotation = fullTwoBodyData.variationalRhs.block( 3, 6, 3, 7 );
     // Verify that the full two-body acceleration partial is inserted into the translational variational-equation rows.
-    BOOST_CHECK_SMALL( ( assembledAccelerationPartialWrtPhobosRotation - fullTwoBodyDiagnostics.directAccelerationPartialWrtPhobosRotation )
+    BOOST_CHECK_SMALL( ( assembledAccelerationPartialWrtPhobosRotation - fullTwoBodyData.directAccelerationPartialWrtPhobosRotation )
                                .cwiseAbs( )
                                .maxCoeff( ),
                        1.0E-14 );
+
+    const InitialDerivativeData fullDegreeThreeData = evaluateInitialDerivativeData( PhobosGravityModel::fullTwoBodyDegreeThree );
+    const Eigen::MatrixXd assembledDegreeThreeAccelerationPartialWrtPhobosRotation = fullDegreeThreeData.variationalRhs.block( 3, 6, 3, 7 );
+    // Verify the same rotational-state assembly path for the full degree-3 figure-figure acceleration used below.
+    BOOST_CHECK_SMALL(
+            ( assembledDegreeThreeAccelerationPartialWrtPhobosRotation - fullDegreeThreeData.directAccelerationPartialWrtPhobosRotation )
+                    .cwiseAbs( )
+                    .maxCoeff( ),
+            1.0E-14 );
+
+    for( int column = 7; column < 10; ++column )
+    {
+        Eigen::Matrix< double, 13, 1 > perturbation = Eigen::Matrix< double, 13, 1 >::Zero( );
+        perturbation( column ) = 1.0E-6;
+        const PhobosRotationSetup upSetup =
+                createPhobosRotationSetup( PhobosGravityModel::fullTwoBodyDegreeThree, 15.0, perturbation, true, 15.0 );
+        const PhobosRotationSetup downSetup =
+                createPhobosRotationSetup( PhobosGravityModel::fullTwoBodyDegreeThree, 15.0, -perturbation, true, 15.0 );
+        const Eigen::Vector3d numericalAccelerationDifference =
+                evaluateInitialFullDegreeThreeAcceleration( perturbation ) - evaluateInitialFullDegreeThreeAcceleration( -perturbation );
+        const Eigen::Vector3d analyticalAccelerationDifference = assembledDegreeThreeAccelerationPartialWrtPhobosRotation *
+                ( upSetup.appliedInitialStateDifference.segment( 6, 7 ) - downSetup.appliedInitialStateDifference.segment( 6, 7 ) );
+        checkColumnsCloseRelative( analyticalAccelerationDifference,
+                                   numericalAccelerationDifference,
+                                   1.0E-5,
+                                   "initial full degree-three acceleration partial wrt quaternion vector",
+                                   column );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testRestrictedFullTwoBodyPhobosVariationalEquationFiniteDifference )
+{
+    // Verify that the same propagated STM finite-difference check works when figure-figure interactions are omitted.
+    spice_interface::loadStandardSpiceKernels( );
+
+    BOOST_TEST_CONTEXT( "legacy mutual spherical-harmonic model" )
+    {
+        checkAngularVelocityStateTransitionFiniteDifferenceForModel( PhobosGravityModel::mutualSphericalHarmonic, 1.0E-3 );
+    }
+    BOOST_TEST_CONTEXT( "restricted full two-body model without figure-figure terms" )
+    {
+        checkAngularVelocityStateTransitionFiniteDifferenceForModel( PhobosGravityModel::fullTwoBodySinglePointTerms, 1.0E-3 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testMarsPhobosFullTwoBodyVariationalEquationsFiniteDifference )
+{
+    // Validate the propagated full two-body translational-rotational STM and selected sensitivities by direct finite differences.
+    spice_interface::loadStandardSpiceKernels( );
+
+    const int stateSize = 13;
+    const int sensitivityParameterSize = 25;
+    const int translationalStateStartColumn = 0;
+    const int rotationalStateStartColumn = 6;
+    const FullTwoBodyPropagationOutput nominalOutput = executeFullTwoBodyPhobosVariationalSimulation(
+            Eigen::Matrix< double, stateSize, 1 >::Zero( ), Eigen::VectorXd::Zero( sensitivityParameterSize ), true );
+    const Eigen::MatrixXd& analyticalMatrix = nominalOutput.combinedStateTransitionAndSensitivityMatrix;
+    BOOST_CHECK_EQUAL( analyticalMatrix.rows( ), stateSize );
+    BOOST_CHECK_EQUAL( analyticalMatrix.cols( ), stateSize + sensitivityParameterSize );
+
+    Eigen::Matrix< double, stateSize, 1 > statePerturbation;
+    statePerturbation << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2, 0.0, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
+    Eigen::MatrixXd numericalMatrix = Eigen::MatrixXd::Zero( stateSize, stateSize + sensitivityParameterSize );
+
+    for( int column = 0; column < 6; ++column )
+    {
+        Eigen::Matrix< double, stateSize, 1 > perturbation = Eigen::Matrix< double, stateSize, 1 >::Zero( );
+        perturbation( column ) = statePerturbation( column );
+        const Eigen::VectorXd upState =
+                executeFullTwoBodyPhobosVariationalSimulation( perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false )
+                        .finalState;
+        const Eigen::VectorXd downState =
+                executeFullTwoBodyPhobosVariationalSimulation( -perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false )
+                        .finalState;
+        // Check how the full two-body variational equations map initial translational-state perturbations into the final coupled state.
+        numericalMatrix.block( 0, translationalStateStartColumn + column, stateSize, 1 ) =
+                ( upState - downState ) / ( 2.0 * statePerturbation( column ) );
+    }
+
+    for( int column = 10; column < stateSize; ++column )
+    {
+        Eigen::Matrix< double, stateSize, 1 > perturbation = Eigen::Matrix< double, stateSize, 1 >::Zero( );
+        perturbation( column ) = statePerturbation( column );
+        const Eigen::VectorXd upState =
+                executeFullTwoBodyPhobosVariationalSimulation( perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false )
+                        .finalState;
+        const Eigen::VectorXd downState =
+                executeFullTwoBodyPhobosVariationalSimulation( -perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false )
+                        .finalState;
+        // Check how the full two-body variational equations map initial angular-velocity perturbations into the final coupled state.
+        numericalMatrix.block( 0, rotationalStateStartColumn + column - 6, stateSize, 1 ) =
+                ( upState - downState ) / ( 2.0 * statePerturbation( column ) );
+    }
+
+    for( int column = 7; column < 10; ++column )
+    {
+        Eigen::Matrix< double, stateSize, 1 > perturbation = Eigen::Matrix< double, stateSize, 1 >::Zero( );
+        perturbation( column ) = statePerturbation( column );
+        const FullTwoBodyPropagationOutput upOutput =
+                executeFullTwoBodyPhobosVariationalSimulation( perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false );
+        const FullTwoBodyPropagationOutput downOutput =
+                executeFullTwoBodyPhobosVariationalSimulation( -perturbation, Eigen::VectorXd::Zero( sensitivityParameterSize ), false );
+        const Eigen::VectorXd appliedStateDifference = upOutput.appliedInitialStateDifference - downOutput.appliedInitialStateDifference;
+        // Check constrained quaternion-vector perturbations through the STM action.
+        checkStateResponseColumnsCloseRelative( ( analyticalMatrix.block( 0, 0, stateSize, stateSize ) * appliedStateDifference ),
+                                                ( upOutput.finalState - downOutput.finalState ),
+                                                5.0E-4,
+                                                "constrained quaternion-vector STM action",
+                                                column );
+    }
+
+    Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Constant( sensitivityParameterSize, 1.0E-4 );
+    for( int column = 0; column < sensitivityParameterSize; ++column )
+    {
+        Eigen::VectorXd perturbation = Eigen::VectorXd::Zero( sensitivityParameterSize );
+        perturbation( column ) = parameterPerturbation( column );
+        const Eigen::VectorXd upState =
+                executeFullTwoBodyPhobosVariationalSimulation( Eigen::Matrix< double, stateSize, 1 >::Zero( ), perturbation, false )
+                        .finalState;
+        const Eigen::VectorXd downState =
+                executeFullTwoBodyPhobosVariationalSimulation( Eigen::Matrix< double, stateSize, 1 >::Zero( ), -perturbation, false )
+                        .finalState;
+        // Check sensitivities to Phobos mean moment of inertia and degree-2/3 gravity-field coefficients of Phobos and Mars.
+        numericalMatrix.block( 0, stateSize + column, stateSize, 1 ) = ( upState - downState ) / ( 2.0 * parameterPerturbation( column ) );
+    }
+
+    checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, translationalStateStartColumn, stateSize, 6 ),
+                                            analyticalMatrix.block( 0, translationalStateStartColumn, stateSize, 6 ),
+                                            5.0E-4,
+                                            "translational initial-state STM finite difference",
+                                            translationalStateStartColumn );
+    checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
+                                            analyticalMatrix.block( 0, rotationalStateStartColumn + 4, stateSize, 3 ),
+                                            1.0E-3,
+                                            "angular-velocity initial-state STM finite difference",
+                                            rotationalStateStartColumn + 4 );
+    checkStateResponseColumnsCloseRelative( numericalMatrix.block( 0, stateSize, stateSize, sensitivityParameterSize ),
+                                            analyticalMatrix.block( 0, stateSize, stateSize, sensitivityParameterSize ),
+                                            2.0E-2,
+                                            "sensitivity finite difference",
+                                            stateSize );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
