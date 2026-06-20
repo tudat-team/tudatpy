@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/directObservationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/pixelCoordinatesPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionAngleAndSeparationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/azimuthElevationPartial.h"
 #include "tudat/astro/observation_models/azimuthElevationObservationModel.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
@@ -236,6 +237,12 @@ public:
 
                 break;
             }
+            case observation_models::position_angle:
+                positionPartialScaler = std::make_shared< PositionAngleScaling >( );
+                break;
+            case observation_models::separation:
+                positionPartialScaler = std::make_shared< SeparationScaling >( );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -421,6 +428,9 @@ public:
                                                                                      observation_models::receiver );
                 break;
             }
+            case observation_models::position_angle_and_separation:
+                positionPartialScaler = std::make_shared< PositionAngleAndSeparationScaling >( );
+                break;
             default:
                 throw std::runtime_error( "Error when creating partial scaler for " +
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) +
@@ -468,6 +478,36 @@ public:
                         firstPositionPartialScaling,
                         secondPositionPartialScaling,
                         observation_models::getUndifferencedTimeAndStateIndices( observation_models::relative_angular_position, 3 ),
+                        &getDefaultDifferencedReferenceLinkEndTypes,
+                        customCheckFunction );
+                break;
+            }
+            case observation_models::position_angle_and_separation: {
+                if( std::dynamic_pointer_cast< AngularPositionScaling >( firstPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating position angle and separation partial scaling object, first partial is of incompatible "
+                            "type" );
+                }
+                if( std::dynamic_pointer_cast< AngularPositionScaling >( secondPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating position angle and separation partial scaling object, second partial is of incompatible "
+                            "type" );
+                }
+                std::function< void( const observation_models::LinkEndType ) > customCheckFunction = []( const observation_models::
+                                                                                                                 LinkEndType
+                                                                                                                         fixedLinkEnd ) {
+                    if( fixedLinkEnd != observation_models::receiver )
+                    {
+                        throw std::runtime_error(
+                                "Error when updating position angle and separation scaling object, fixed link end must be receiver." );
+                    }
+                };
+                positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling,
+                        secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::position_angle_and_separation, 3 ),
                         &getDefaultDifferencedReferenceLinkEndTypes,
                         customCheckFunction );
                 break;

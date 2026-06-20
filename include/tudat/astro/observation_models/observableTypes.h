@@ -46,7 +46,10 @@ enum ObservableType {
     one_way_doppler_measured_frequency = 17,
     differenced_frequency_of_arrival = 18,
     azimuth_elevation_angle = 19,
-    pixel_coordinates = 20
+    pixel_coordinates = 20,
+    position_angle = 21,
+    separation = 22,
+    position_angle_and_separation = 23
 };
 
 // std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,

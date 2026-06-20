@@ -448,6 +448,11 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
                     }
 
+                    // No duplication needed for position_angle/separation: DifferencedObservablePartial<1>
+                    // produces 1 partial per parameter, matching the single time entry.
+                    // The undifferenced angular_position partials are size 2, but the differenced
+                    // combination is size 1, so only 1 time entry is expected.
+
                     if( linkEndIterator->first == transmitter && observableType == differenced_time_of_arrival )
                     {
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );

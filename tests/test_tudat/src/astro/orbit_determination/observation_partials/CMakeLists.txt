@@ -140,3 +140,9 @@ TUDAT_ADD_TEST_CASE(RelativePositionPartials
          tudat_test_support
          ${Tudat_ESTIMATION_LIBRARIES}
  )
+
+ TUDAT_ADD_TEST_CASE(PositionAngleAndSeparationPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
