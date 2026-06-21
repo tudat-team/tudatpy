@@ -1691,6 +1691,30 @@ inline std::shared_ptr< EstimatableParameterSettings > specularReflectivity( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, specular_reflectivity, panel_group_id );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > energyAccomodationCoefficient( const std::string bodyName,
+                                                                                      const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, energy_accomodation_coefficient, panel_group_id );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > normalAccomodationCoefficient( const std::string bodyName,
+                                                                                      const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_accomodation_coefficient, panel_group_id );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > tangentialAccomodationCoefficient( const std::string bodyName,
+                                                                                          const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, tangential_accomodation_coefficient, panel_group_id );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > normalVelocityAtWallRatio( const std::string bodyName,
+                                                                                  const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_velocity_at_wall_ratio, panel_group_id );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
         const std::string bodyName,
         const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,

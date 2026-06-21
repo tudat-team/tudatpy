@@ -56,6 +56,7 @@
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/panelMaterialProperty.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 #include <tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h>
@@ -1853,6 +1854,40 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                       currentBodyName,
                                                                                       doubleParameterName->parameterType_.second.second,
                                                                                       doubleParameterName->parameterType_.first );
+                }
+                break;
+            }
+            case energy_accomodation_coefficient:
+            case normal_accomodation_coefficient:
+            case tangential_accomodation_coefficient:
+            case normal_velocity_at_wall_ratio: {
+                if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+                {
+                    std::string errorMessage = "Error, no vehicle panelsl found in body " + currentBodyName +
+                            " when making panel material property parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+                    std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
+                            currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
+                    for( auto it : fullPanels )
+                    {
+                        for( unsigned int i = 0; i < it.second.size( ); i++ )
+                        {
+                            if( it.second.at( i )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
+                            {
+                                panelsFromId.push_back( it.second.at( i ) );
+                            }
+                        }
+                    }
+
+                    doubleParameterToEstimate =
+                            std::make_shared< PanelMaterialPropertyParameter >( panelsFromId,
+                                                                                currentBodyName,
+                                                                                doubleParameterName->parameterType_.second.second,
+                                                                                doubleParameterName->parameterType_.first );
                 }
                 break;
             }

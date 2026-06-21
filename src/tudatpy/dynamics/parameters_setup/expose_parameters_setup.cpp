@@ -110,6 +110,10 @@ void expose_parameters_setup( py::module& m )
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
             .value( "specular_reflectivity_type", tep::EstimatebleParametersEnum::specular_reflectivity )
             .value( "diffuse_reflectivity_type", tep::EstimatebleParametersEnum::diffuse_reflectivity )
+            .value( "energy_accomodation_coefficient_type", tep::EstimatebleParametersEnum::energy_accomodation_coefficient )
+            .value( "normal_accomodation_coefficient_type", tep::EstimatebleParametersEnum::normal_accomodation_coefficient )
+            .value( "tangential_accomodation_coefficient_type", tep::EstimatebleParametersEnum::tangential_accomodation_coefficient )
+            .value( "normal_velocity_at_wall_ratio_type", tep::EstimatebleParametersEnum::normal_velocity_at_wall_ratio )
 
             .export_values( );
 
@@ -649,6 +653,90 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for specular reflectivity estimation.
+
+     )doc" );
+
+    m.def( "energy_accomodation_coefficient",
+           &tep::energyAccomodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the energy accomodation coefficient of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel energy accomodation coefficient is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for energy accomodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_accomodation_coefficient",
+           &tep::normalAccomodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal accomodation coefficient of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal accomodation coefficient is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for normal accomodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "tangential_accomodation_coefficient",
+           &tep::tangentialAccomodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the tangential accomodation coefficient of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel tangential accomodation coefficient is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for tangential accomodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_velocity_at_wall_ratio",
+           &tep::normalVelocityAtWallRatio,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal velocity at wall ratio of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal velocity at wall ratio is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for normal velocity at wall ratio estimation.
 
      )doc" );
 

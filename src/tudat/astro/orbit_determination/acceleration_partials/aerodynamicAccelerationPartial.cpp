@@ -10,6 +10,9 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 
+#include <algorithm>
+#include <cmath>
+
 namespace tudat
 {
 
@@ -99,6 +102,36 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent(
     currentLiftComponentPartial( 2 ) = unscaledAcceleration( 2 );
     partial = rotationToInertialFrame * currentLiftComponentPartial;
 };
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialProperty(
+        Eigen::MatrixXd& accelerationPartial,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+{
+    const double nominalParameterValue = parameter->getParameterValue( );
+    const double parameterPerturbation = std::max( 1.0E-8, std::abs( nominalParameterValue ) * 1.0E-6 );
+
+    parameter->setParameterValue( nominalParameterValue + parameterPerturbation );
+    flightConditions_->resetCurrentTime( );
+    aerodynamicAcceleration_->resetCurrentTime( );
+    flightConditions_->updateConditions( currentTime_ );
+    aerodynamicAcceleration_->updateMembers( currentTime_ );
+    Eigen::Vector3d upperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
+
+    parameter->setParameterValue( nominalParameterValue - parameterPerturbation );
+    flightConditions_->resetCurrentTime( );
+    aerodynamicAcceleration_->resetCurrentTime( );
+    flightConditions_->updateConditions( currentTime_ );
+    aerodynamicAcceleration_->updateMembers( currentTime_ );
+    Eigen::Vector3d downperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
+
+    accelerationPartial = ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * parameterPerturbation );
+
+    parameter->setParameterValue( nominalParameterValue );
+    flightConditions_->resetCurrentTime( );
+    aerodynamicAcceleration_->resetCurrentTime( );
+    flightConditions_->updateConditions( currentTime_ );
+    aerodynamicAcceleration_->updateMembers( currentTime_ );
+}
 
 //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
 /*!
@@ -359,6 +392,18 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
             case estimatable_parameters::lift_component_scaling_factor: {
                 partialFunction = std::bind(
                         &AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent, this, std::placeholders::_1 );
+                numberOfColumns = 1;
+                break;
+            }
+            case estimatable_parameters::energy_accomodation_coefficient:
+            case estimatable_parameters::normal_accomodation_coefficient:
+            case estimatable_parameters::tangential_accomodation_coefficient:
+            case estimatable_parameters::normal_velocity_at_wall_ratio: {
+                partialFunction =
+                        std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialProperty,
+                                   this,
+                                   std::placeholders::_1,
+                                   parameter );
                 numberOfColumns = 1;
                 break;
             }
