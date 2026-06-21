@@ -530,6 +530,9 @@ Read a mapping from DOMES id to station name.
             .value( "doppler_averaged_frequency",
                     tudat::input_output::TrackingDataType::doppler_averaged_frequency,
                     R"doc(No documentation available.)doc" )
+            .value( "doppler_integration_time",
+                    tudat::input_output::TrackingDataType::doppler_integration_time,
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_base_frequency",
                     tudat::input_output::TrackingDataType::doppler_base_frequency,
                     R"doc(No documentation available.)doc" )
