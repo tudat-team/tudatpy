@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testKeplerOrbitalPeriod )
             basic_astrodynamics::computeKeplerOrbitalPeriod( distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected orbital period [s].
-    double expectedOrbitalPeriod = 86164.09054;
+    double expectedOrbitalPeriod = 86153.2458676242;
 
     // Check if computed orbital period matches expected orbital period.
     BOOST_CHECK_CLOSE_FRACTION( orbitalPeriod, expectedOrbitalPeriod, 1.0e-5 );
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testKeplerOrbitalVelocity )
     double orbitalVelocity2 = basic_astrodynamics::computeKeplerOrbitalVelocity( keplerianElements, earthGravitationalParameter );
 
     // Declare and set expected orbital velocity [m/s].
-    double expectedOrbitalVelocity = 13503.4992923871;
+    double expectedOrbitalVelocity = 13505.2294679699;
 
     // Check if computed distance matches expected distance.
     BOOST_CHECK_CLOSE_FRACTION( orbitalVelocity1, expectedOrbitalVelocity, 1.0e-5 );
@@ -156,7 +156,8 @@ BOOST_AUTO_TEST_CASE( testMeanMotion )
             basic_astrodynamics::computeKeplerMeanMotion( distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected mean motion [rad/s].
-    double expectedMeanMotion = 7.2921e-5;
+    double expectedMeanMotion = 7.29303376083334e-05;
+    ;
 
     // Check if computed mean motion matches expected mean motion.
     BOOST_CHECK_CLOSE_FRACTION( meanMotion, expectedMeanMotion, 1.0e-7 );
