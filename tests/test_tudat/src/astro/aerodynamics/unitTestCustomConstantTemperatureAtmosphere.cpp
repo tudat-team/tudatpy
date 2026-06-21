@@ -247,13 +247,7 @@ BOOST_AUTO_TEST_CASE( testCustomConstantTemperatureAtmosphereNumberDensity )
     const double massDensity = numberDensity * molarMass / physical_constants::AVOGADRO_CONSTANT;
 
     aerodynamics::CustomConstantTemperatureAtmosphere customAtmosphere(
-            [ = ]( const double, const double, const double, const double )
-            {
-                return massDensity;
-            },
-            200.0,
-            specificGasConstant,
-            1.33 );
+            [ = ]( const double, const double, const double, const double ) { return massDensity; }, 200.0, specificGasConstant, 1.33 );
 
     BOOST_CHECK_CLOSE_FRACTION( numberDensity, customAtmosphere.getNumberDensity( 0.0, 0.0, 0.0, 0.0 ), 1.0e-6 );
 }
@@ -267,8 +261,7 @@ BOOST_AUTO_TEST_CASE( testCustomNumberDensityAtmosphere )
     const double ratioOfSpecificHeats = 1.33;
 
     aerodynamics::CustomNumberDensityAtmosphere customAtmosphere(
-            [ = ]( const double altitude, const double longitude, const double latitude, const double time )
-            {
+            [ = ]( const double altitude, const double longitude, const double latitude, const double time ) {
                 return referenceNumberDensity + altitude + longitude + latitude + time;
             },
             molarMass,
@@ -282,13 +275,11 @@ BOOST_AUTO_TEST_CASE( testCustomNumberDensityAtmosphere )
     const double expectedNumberDensity = referenceNumberDensity + altitude + longitude + latitude + time;
     const double expectedMassDensity = expectedNumberDensity * molarMass / physical_constants::AVOGADRO_CONSTANT;
 
-    BOOST_CHECK_CLOSE_FRACTION(
-            expectedNumberDensity, customAtmosphere.getNumberDensity( altitude, longitude, latitude, time ), 1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedNumberDensity, customAtmosphere.getNumberDensity( altitude, longitude, latitude, time ), 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( expectedMassDensity, customAtmosphere.getDensity( altitude, longitude, latitude, time ), 1.0e-15 );
-    BOOST_CHECK_CLOSE_FRACTION(
-            expectedNumberDensity * physical_constants::BOLTZMANN_CONSTANT * constantTemperature,
-            customAtmosphere.getPressure( altitude, longitude, latitude, time ),
-            1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedNumberDensity * physical_constants::BOLTZMANN_CONSTANT * constantTemperature,
+                                customAtmosphere.getPressure( altitude, longitude, latitude, time ),
+                                1.0e-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

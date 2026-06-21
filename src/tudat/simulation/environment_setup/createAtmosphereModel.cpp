@@ -34,8 +34,8 @@ namespace simulation_setup
 //! Function to create a wind model.
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
                                                             const std::string& body,
-                                                            const std::shared_ptr< AtmosphereModel >& atmosphereModel ,
-                                                            const SystemOfBodies& bodies)
+                                                            const std::shared_ptr< AtmosphereModel >& atmosphereModel,
+                                                            const SystemOfBodies& bodies )
 {
     std::shared_ptr< aerodynamics::WindModel > windModel;
 
@@ -73,7 +73,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             std::shared_ptr< CustomWindModelSettings > customWindModelSettings =
                     std::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
 
-            if(customWindModelSettings == nullptr)
+            if( customWindModelSettings == nullptr )
             {
                 throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
             }
@@ -94,8 +94,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             }
 
             // Ensure we have a ComaModel as the atmosphere model
-            std::shared_ptr< aerodynamics::ComaModel > comaModel =
-                    std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
+            std::shared_ptr< aerodynamics::ComaModel > comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
             if( comaModel == nullptr )
             {
                 throw std::runtime_error( "Error when making coma wind model for body " + body + ", atmosphere model must be a ComaModel" );
@@ -104,17 +103,17 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             // Check that required bodies exist in the system
             if( bodies.count( "Sun" ) == 0 )
             {
-                throw std::runtime_error( "Error when making coma wind model for body " + body + ", Sun body not found in system of bodies" );
+                throw std::runtime_error( "Error when making coma wind model for body " + body +
+                                          ", Sun body not found in system of bodies" );
             }
             if( bodies.count( body ) == 0 )
             {
-                throw std::runtime_error( "Error when making coma wind model for body " + body + ", body " + body + " not found in system of bodies" );
+                throw std::runtime_error( "Error when making coma wind model for body " + body + ", body " + body +
+                                          " not found in system of bodies" );
             }
 
-            std::function< Eigen::Vector6d( ) > sunStateFunction =
-                        std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
-            std::function< Eigen::Vector6d( ) > bodyStateFunction =
-                    std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
+            std::function< Eigen::Vector6d( ) > sunStateFunction = std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
+            std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
             std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
                     std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
 
@@ -129,18 +128,17 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                 const auto& yPolyDataset = comaWindModelSettings->getYPolyDataset( );
                 const auto& zPolyDataset = comaWindModelSettings->getZPolyDataset( );
 
-                windModel = std::make_shared< aerodynamics::ComaWindModel >(
-                        xPolyDataset,
-                        yPolyDataset,
-                        zPolyDataset,
-                        comaModel,
-                        sunStateFunction,
-                        bodyStateFunction,
-                        bodyOrientationFunction,
-                        maximumDegree,
-                        maximumOrder,
-                        comaWindModelSettings->getAssociatedFrame( ),
-                        comaWindModelSettings->getIncludeCorotation( ) );
+                windModel = std::make_shared< aerodynamics::ComaWindModel >( xPolyDataset,
+                                                                             yPolyDataset,
+                                                                             zPolyDataset,
+                                                                             comaModel,
+                                                                             sunStateFunction,
+                                                                             bodyStateFunction,
+                                                                             bodyOrientationFunction,
+                                                                             maximumDegree,
+                                                                             maximumOrder,
+                                                                             comaWindModelSettings->getAssociatedFrame( ),
+                                                                             comaWindModelSettings->getIncludeCorotation( ) );
             }
             else if( comaWindModelSettings->hasStokesData( ) )
             {
@@ -148,18 +146,17 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                 const auto& yStokesDataset = comaWindModelSettings->getYStokesDataset( );
                 const auto& zStokesDataset = comaWindModelSettings->getZStokesDataset( );
 
-                windModel = std::make_shared< aerodynamics::ComaWindModel >(
-                        xStokesDataset,
-                        yStokesDataset,
-                        zStokesDataset,
-                        comaModel,
-                        sunStateFunction,
-                        bodyStateFunction,
-                        bodyOrientationFunction,
-                        maximumDegree,
-                        maximumOrder,
-                        comaWindModelSettings->getAssociatedFrame( ),
-                        comaWindModelSettings->getIncludeCorotation( ) );
+                windModel = std::make_shared< aerodynamics::ComaWindModel >( xStokesDataset,
+                                                                             yStokesDataset,
+                                                                             zStokesDataset,
+                                                                             comaModel,
+                                                                             sunStateFunction,
+                                                                             bodyStateFunction,
+                                                                             bodyOrientationFunction,
+                                                                             maximumDegree,
+                                                                             maximumOrder,
+                                                                             comaWindModelSettings->getAssociatedFrame( ),
+                                                                             comaWindModelSettings->getIncludeCorotation( ) );
             }
             else
             {
@@ -179,7 +176,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
-                                                                        const SystemOfBodies& bodies)
+                                                                        const SystemOfBodies& bodies )
 {
     using namespace tudat::aerodynamics;
 
@@ -399,7 +396,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             else
             {
                 std::shared_ptr< AtmosphereModel > baseAtmosphere =
-                        createAtmosphereModel( scaledAtmosphereSettings->getBaseSettings( ), body , bodies );
+                        createAtmosphereModel( scaledAtmosphereSettings->getBaseSettings( ), body, bodies );
                 atmosphereModel = std::make_shared< ScaledAtmosphereModel >(
                         baseAtmosphere, scaledAtmosphereSettings->getScaling( ), scaledAtmosphereSettings->getIsScalingAbsolute( ) );
             }
@@ -407,10 +404,9 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
         }
 
         case coma_model: {
-            const std::shared_ptr< ComaSettings > comaSettings =
-                    std::dynamic_pointer_cast< ComaSettings >( atmosphereSettings );
+            const std::shared_ptr< ComaSettings > comaSettings = std::dynamic_pointer_cast< ComaSettings >( atmosphereSettings );
 
-            if(comaSettings == nullptr)
+            if( comaSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected ComaSettings for body " + body );
             }
@@ -419,17 +415,17 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                 // Check that required bodies exist in the system
                 if( bodies.count( "Sun" ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making coma model for body " + body + ", Sun body not found in system of bodies" );
+                    throw std::runtime_error( "Error when making coma model for body " + body +
+                                              ", Sun body not found in system of bodies" );
                 }
                 if( bodies.count( body ) == 0 )
                 {
-                    throw std::runtime_error( "Error when making coma model for body " + body + ", body " + body + " not found in system of bodies" );
+                    throw std::runtime_error( "Error when making coma model for body " + body + ", body " + body +
+                                              " not found in system of bodies" );
                 }
 
-                std::function< Eigen::Vector6d( ) > sunStateFunction =
-                        std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
-                std::function< Eigen::Vector6d( ) > bodyStateFunction =
-                        std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
+                std::function< Eigen::Vector6d( ) > sunStateFunction = std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
+                std::function< Eigen::Vector6d( ) > bodyStateFunction = std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
                 std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
                         std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
 
@@ -452,38 +448,37 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                         {
                             // Create with temperature polynomial data
                             const auto& temperaturePolyDataset = comaSettings->getTemperaturePolyDataset( );
-                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                                    polyDataset,
-                                    molecularWeight,
-                                    sunStateFunction,
-                                    bodyStateFunction,
-                                    bodyOrientationFunction,
-                                    maximumDegree,
-                                    maximumOrder,
-                                    &temperaturePolyDataset,
-                                    heatCapacityRatio,
-                                    isLog2Data );
+                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >( polyDataset,
+                                                                                           molecularWeight,
+                                                                                           sunStateFunction,
+                                                                                           bodyStateFunction,
+                                                                                           bodyOrientationFunction,
+                                                                                           maximumDegree,
+                                                                                           maximumOrder,
+                                                                                           &temperaturePolyDataset,
+                                                                                           heatCapacityRatio,
+                                                                                           isLog2Data );
                         }
                         else if( comaSettings->hasTemperatureStokesData( ) )
                         {
-                            throw std::runtime_error( "Error, ComaSettings for body " + body +
-                                                    " has polynomial density data but Stokes temperature data. Both must be the same type." );
+                            throw std::runtime_error(
+                                    "Error, ComaSettings for body " + body +
+                                    " has polynomial density data but Stokes temperature data. Both must be the same type." );
                         }
                     }
                     else
                     {
                         // Create without temperature model
-                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                                polyDataset,
-                                molecularWeight,
-                                sunStateFunction,
-                                bodyStateFunction,
-                                bodyOrientationFunction,
-                                maximumDegree,
-                                maximumOrder,
-                                nullptr,
-                                1.33,
-                                isLog2Data );
+                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >( polyDataset,
+                                                                                       molecularWeight,
+                                                                                       sunStateFunction,
+                                                                                       bodyStateFunction,
+                                                                                       bodyOrientationFunction,
+                                                                                       maximumDegree,
+                                                                                       maximumOrder,
+                                                                                       nullptr,
+                                                                                       1.33,
+                                                                                       isLog2Data );
                     }
                 }
                 else if( comaSettings->hasStokesData( ) )
@@ -497,38 +492,37 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                         {
                             // Create with temperature Stokes data
                             const auto& temperatureStokesDataset = comaSettings->getTemperatureStokesDataset( );
-                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                                    stokesDataset,
-                                    molecularWeight,
-                                    sunStateFunction,
-                                    bodyStateFunction,
-                                    bodyOrientationFunction,
-                                    maximumDegree,
-                                    maximumOrder,
-                                    &temperatureStokesDataset,
-                                    heatCapacityRatio,
-                                    isLog2Data );
+                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >( stokesDataset,
+                                                                                           molecularWeight,
+                                                                                           sunStateFunction,
+                                                                                           bodyStateFunction,
+                                                                                           bodyOrientationFunction,
+                                                                                           maximumDegree,
+                                                                                           maximumOrder,
+                                                                                           &temperatureStokesDataset,
+                                                                                           heatCapacityRatio,
+                                                                                           isLog2Data );
                         }
                         else if( comaSettings->hasTemperaturePolyData( ) )
                         {
-                            throw std::runtime_error( "Error, ComaSettings for body " + body +
-                                                    " has Stokes density data but polynomial temperature data. Both must be the same type." );
+                            throw std::runtime_error(
+                                    "Error, ComaSettings for body " + body +
+                                    " has Stokes density data but polynomial temperature data. Both must be the same type." );
                         }
                     }
                     else
                     {
                         // Create without temperature model
-                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                                stokesDataset,
-                                molecularWeight,
-                                sunStateFunction,
-                                bodyStateFunction,
-                                bodyOrientationFunction,
-                                maximumDegree,
-                                maximumOrder,
-                                nullptr,
-                                1.33,
-                                isLog2Data );
+                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >( stokesDataset,
+                                                                                       molecularWeight,
+                                                                                       sunStateFunction,
+                                                                                       bodyStateFunction,
+                                                                                       bodyOrientationFunction,
+                                                                                       maximumDegree,
+                                                                                       maximumOrder,
+                                                                                       nullptr,
+                                                                                       1.33,
+                                                                                       isLog2Data );
                     }
                 }
                 else

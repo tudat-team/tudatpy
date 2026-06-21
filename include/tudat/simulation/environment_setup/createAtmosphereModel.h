@@ -33,7 +33,6 @@
 #include "tudat/io/comaModelInputOutput.h"
 #include <boost/variant.hpp>
 
-
 namespace tudat
 {
 
@@ -41,7 +40,6 @@ namespace simulation_setup
 {
 
 using namespace aerodynamics;
-
 
 //  List of wind models available in simulations
 /*
@@ -72,13 +70,10 @@ public:
                        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
                        const bool includeCorotation = true ):
         windModelType_( windModelType ), associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation )
-    {
-    }
+    {}
 
     //  Destructor
-    virtual ~WindModelSettings( )
-    {
-    }
+    virtual ~WindModelSettings( ) {}
 
     //  Function to retrieve type of wind model that is to be created
     /*
@@ -140,8 +135,7 @@ public:
      */
     EmptyWindModelSettings( const bool includeCorotation = true ):
         WindModelSettings( empty_wind_model, reference_frames::vertical_frame, includeCorotation )
-    {
-    }
+    {}
 };
 
 class ConstantWindModelSettings : public WindModelSettings
@@ -151,8 +145,7 @@ public:
                                const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
                                const bool includeCorotation = true ):
         WindModelSettings( constant_wind_model, associatedFrame, includeCorotation ), constantWindVelocity_( constantWindVelocity )
-    {
-    }
+    {}
 
     Eigen::Vector3d getConstantWindVelocity( )
     {
@@ -179,13 +172,10 @@ public:
                              const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
                              const bool includeCorotation = true ):
         WindModelSettings( custom_wind_model, associatedFrame, includeCorotation ), windFunction_( windFunction )
-    {
-    }
+    {}
 
     //  Destructor
-    ~CustomWindModelSettings( )
-    {
-    }
+    ~CustomWindModelSettings( ) {}
 
     //  Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
     /*
@@ -235,7 +225,8 @@ public:
 
     /**
      * \brief Constructor from ComaWindDatasetCollection
-     * \param datasetCollection Collection containing wind component datasets in modified vertical frame (X=meridional/North, Y=zonal/West, Z=radial outward)
+     * \param datasetCollection Collection containing wind component datasets in modified vertical frame (X=meridional/North, Y=zonal/West,
+     * Z=radial outward)
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      * \param associatedFrame Reference frame for the returned wind model vector.
@@ -244,29 +235,27 @@ public:
     explicit ComaWindModelSettings( const ComaWindDatasetCollection& datasetCollection,
                                     const int requestedDegree = -1,
                                     const int requestedOrder = -1,
-                                    const reference_frames::AerodynamicsReferenceFrames associatedFrame =
-                                            reference_frames::vertical_frame,
-                                    const bool includeCorotation = true ) :
-        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ),
-        requestedDegree_( requestedDegree ),
+                                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                                    const bool includeCorotation = true ):
+        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ), requestedDegree_( requestedDegree ),
         requestedOrder_( requestedOrder )
     {
         // Extract datasets from collection based on type
-        if (datasetCollection.isPoly())
+        if( datasetCollection.isPoly( ) )
         {
-            xData_ = datasetCollection.getXPolyDataset();
-            yData_ = datasetCollection.getYPolyDataset();
-            zData_ = datasetCollection.getZPolyDataset();
+            xData_ = datasetCollection.getXPolyDataset( );
+            yData_ = datasetCollection.getYPolyDataset( );
+            zData_ = datasetCollection.getZPolyDataset( );
         }
-        else if (datasetCollection.isStokes())
+        else if( datasetCollection.isStokes( ) )
         {
-            xData_ = datasetCollection.getXStokesDataset();
-            yData_ = datasetCollection.getYStokesDataset();
-            zData_ = datasetCollection.getZStokesDataset();
+            xData_ = datasetCollection.getXStokesDataset( );
+            yData_ = datasetCollection.getYStokesDataset( );
+            zData_ = datasetCollection.getZStokesDataset( );
         }
         else
         {
-            throw std::runtime_error("ComaWindModelSettings: Invalid dataset collection type");
+            throw std::runtime_error( "ComaWindModelSettings: Invalid dataset collection type" );
         }
 
         validateAndSetDefaults( );
@@ -358,7 +347,7 @@ public:
      */
     const ComaPolyDataset& getXPolyDataset( ) const
     {
-        if(auto* p = boost::get< ComaPolyDataset >( &xData_ )) return *p;
+        if( auto* p = boost::get< ComaPolyDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain polynomial data" );
     }
 
@@ -368,7 +357,7 @@ public:
      */
     const ComaPolyDataset& getYPolyDataset( ) const
     {
-        if(auto* p = boost::get< ComaPolyDataset >( &yData_ )) return *p;
+        if( auto* p = boost::get< ComaPolyDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain polynomial data" );
     }
 
@@ -378,7 +367,7 @@ public:
      */
     const ComaPolyDataset& getZPolyDataset( ) const
     {
-        if(auto* p = boost::get< ComaPolyDataset >( &zData_ )) return *p;
+        if( auto* p = boost::get< ComaPolyDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain polynomial data" );
     }
 
@@ -388,7 +377,7 @@ public:
      */
     const ComaStokesDataset& getXStokesDataset( ) const
     {
-        if(auto* p = boost::get< ComaStokesDataset >( &xData_ )) return *p;
+        if( auto* p = boost::get< ComaStokesDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain Stokes data" );
     }
 
@@ -398,7 +387,7 @@ public:
      */
     const ComaStokesDataset& getYStokesDataset( ) const
     {
-        if(auto* p = boost::get< ComaStokesDataset >( &yData_ )) return *p;
+        if( auto* p = boost::get< ComaStokesDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain Stokes data" );
     }
 
@@ -408,7 +397,7 @@ public:
      */
     const ComaStokesDataset& getZStokesDataset( ) const
     {
-        if(auto* p = boost::get< ComaStokesDataset >( &zData_ )) return *p;
+        if( auto* p = boost::get< ComaStokesDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain Stokes data" );
     }
 
@@ -435,40 +424,31 @@ private:
     void validateAndSetDefaults( )
     {
         // Determine available maxima from all three datasets
-        availableMaxDegree_ = std::min( {
-            getMaxDegreeFromData( xData_ ),
-            getMaxDegreeFromData( yData_ ),
-            getMaxDegreeFromData( zData_ )
-        } );
+        availableMaxDegree_ =
+                std::min( { getMaxDegreeFromData( xData_ ), getMaxDegreeFromData( yData_ ), getMaxDegreeFromData( zData_ ) } );
 
-        availableMaxOrder_ = std::min( {
-            getMaxOrderFromData( xData_ ),
-            getMaxOrderFromData( yData_ ),
-            getMaxOrderFromData( zData_ )
-        } );
+        availableMaxOrder_ = std::min( { getMaxOrderFromData( xData_ ), getMaxOrderFromData( yData_ ), getMaxOrderFromData( zData_ ) } );
 
         // Set defaults if -1
-        if(requestedDegree_ < 0)
+        if( requestedDegree_ < 0 )
         {
             requestedDegree_ = availableMaxDegree_;
         }
-        if(requestedOrder_ < 0)
+        if( requestedOrder_ < 0 )
         {
             requestedOrder_ = availableMaxOrder_;
         }
 
         // Validate requested values don't exceed available
-        if(requestedDegree_ > availableMaxDegree_)
+        if( requestedDegree_ > availableMaxDegree_ )
         {
-            throw std::invalid_argument(
-                    "Requested degree " + std::to_string( requestedDegree_ ) +
-                    " exceeds available maximum " + std::to_string( availableMaxDegree_ ) );
+            throw std::invalid_argument( "Requested degree " + std::to_string( requestedDegree_ ) + " exceeds available maximum " +
+                                         std::to_string( availableMaxDegree_ ) );
         }
-        if(requestedOrder_ > availableMaxOrder_)
+        if( requestedOrder_ > availableMaxOrder_ )
         {
-            throw std::invalid_argument(
-                    "Requested order " + std::to_string( requestedOrder_ ) +
-                    " exceeds available maximum " + std::to_string( availableMaxOrder_ ) );
+            throw std::invalid_argument( "Requested order " + std::to_string( requestedOrder_ ) + " exceeds available maximum " +
+                                         std::to_string( availableMaxOrder_ ) );
         }
     }
 
@@ -477,17 +457,17 @@ private:
      */
     static int getMaxDegreeFromData( const DataVariant& data )
     {
-        if(data.type( ) == typeid( ComaPolyDataset ))
+        if( data.type( ) == typeid( ComaPolyDataset ) )
         {
             const auto& poly = boost::get< ComaPolyDataset >( data );
             int maxDeg = 0;
-            for(std::size_t f = 0; f < poly.getNumFiles( ); ++f)
+            for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
                 maxDeg = std::max( maxDeg, poly.getMaxDegreeSH( f ) );
             }
             return maxDeg;
         }
-        else if(data.type( ) == typeid( ComaStokesDataset ))
+        else if( data.type( ) == typeid( ComaStokesDataset ) )
         {
             const auto& stokes = boost::get< ComaStokesDataset >( data );
             return stokes.nmax( );
@@ -500,11 +480,11 @@ private:
      */
     static int getMaxOrderFromData( const DataVariant& data )
     {
-        if(data.type( ) == typeid( ComaPolyDataset ))
+        if( data.type( ) == typeid( ComaPolyDataset ) )
         {
             const auto& poly = boost::get< ComaPolyDataset >( data );
             int maxOrd = 0;
-            for(std::size_t f = 0; f < poly.getNumFiles( ); ++f)
+            for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
             {
                 const auto& indices = poly.getSHDegreeAndOrderIndices( f );
                 int fileMaxOrd = indices.row( 1 ).abs( ).maxCoeff( );
@@ -512,7 +492,7 @@ private:
             }
             return maxOrd;
         }
-        else if(data.type( ) == typeid( ComaStokesDataset ))
+        else if( data.type( ) == typeid( ComaStokesDataset ) )
         {
             const auto& stokes = boost::get< ComaStokesDataset >( data );
             // For Stokes data, order equals degree in the triangular storage
@@ -522,13 +502,13 @@ private:
     }
 
     // Data members
-    DataVariant xData_; // Dataset for x-component wind
-    DataVariant yData_; // Dataset for y-component wind
-    DataVariant zData_; // Dataset for z-component wind
-    int requestedDegree_; // User-requested max degree
-    int requestedOrder_; // User-requested max order
-    int availableMaxDegree_{ 0 }; // Maximum available in data
-    int availableMaxOrder_{ 0 }; // Maximum available in data
+    DataVariant xData_;            // Dataset for x-component wind
+    DataVariant yData_;            // Dataset for y-component wind
+    DataVariant zData_;            // Dataset for z-component wind
+    int requestedDegree_;          // User-requested max degree
+    int requestedOrder_;           // User-requested max order
+    int availableMaxDegree_{ 0 };  // Maximum available in data
+    int availableMaxOrder_{ 0 };   // Maximum available in data
 };
 
 //  List of atmosphere models available in simulations
@@ -536,8 +516,7 @@ private:
  *  List of atmosphere models available in simulations. Atmosphere models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
-enum AtmosphereTypes
-{
+enum AtmosphereTypes {
     exponential_atmosphere,
     custom_constant_temperature_atmosphere,
     custom_number_density_atmosphere,
@@ -567,15 +546,11 @@ public:
      *  \param atmosphereType Type of atmosphere model that is to be created.
      */
     AtmosphereSettings( const AtmosphereTypes atmosphereType ):
-        atmosphereType_( atmosphereType ),
-        windSettings_( std::make_shared< EmptyWindModelSettings >( true ) )
-    {
-    }
+        atmosphereType_( atmosphereType ), windSettings_( std::make_shared< EmptyWindModelSettings >( true ) )
+    {}
 
     //  Destructor
-    virtual ~AtmosphereSettings( )
-    {
-    }
+    virtual ~AtmosphereSettings( ) {}
 
     //  Function to return type of atmosphere model that is to be created.
     /*
@@ -640,8 +615,7 @@ public:
         constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         bodyWithPredefinedExponentialAtmosphere_( undefined_body )
-    {
-    }
+    {}
 
     //  Default constructor.
     /*
@@ -654,7 +628,7 @@ public:
         AtmosphereSettings( exponential_atmosphere ), bodyWithPredefinedExponentialAtmosphere_( bodyWithPredefinedExponentialAtmosphere )
     {
         // Check that the body name inserted is available
-        switch(bodyWithPredefinedExponentialAtmosphere)
+        switch( bodyWithPredefinedExponentialAtmosphere )
         {
             case earth:
             case mars:
@@ -769,8 +743,7 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunction_( densityFunction ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    {
-    }
+    {}
 
     //  Constructor.
     /*
@@ -790,8 +763,7 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunctionType_( densityFunctionType ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), modelSpecificParameters_( modelSpecificParameters )
-    {
-    }
+    {}
 
     //  Get the function to compute the density at the current conditions.
     /*
@@ -907,10 +879,9 @@ public:
                                            const double molarMass,
                                            const double constantTemperature = TUDAT_NAN,
                                            const double ratioOfSpecificHeats = 1.4 ):
-        AtmosphereSettings( custom_number_density_atmosphere ), numberDensityFunction_( numberDensityFunction ),
-        molarMass_( molarMass ), constantTemperature_( constantTemperature ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    {
-    }
+        AtmosphereSettings( custom_number_density_atmosphere ), numberDensityFunction_( numberDensityFunction ), molarMass_( molarMass ),
+        constantTemperature_( constantTemperature ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    {}
 
     NumberDensityFunction getNumberDensityFunction( )
     {
@@ -957,8 +928,7 @@ public:
                                   const bool useAnomalousOxygen = true ):
         AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
         useAnomalousOxygen_( useAnomalousOxygen )
-    {
-    }
+    {}
 
     //  Function to return file containing space weather data.
     /*
@@ -1008,8 +978,7 @@ class MarsDtmAtmosphereSettings : public AtmosphereSettings
 public:
     MarsDtmAtmosphereSettings( const std::string& spaceWeatherFile = "" ):
         AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile )
-    {
-    }
+    {}
 
     std::string getSpaceWeatherFile( )
     {
@@ -1215,8 +1184,7 @@ public:
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
         defaultExtrapolationValue_( defaultExtrapolationValue )
-    {
-    }
+    {}
 
     //  Constructor with single boundary handling parameters.
     /*
@@ -1253,8 +1221,7 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    {
-    }
+    {}
 
     //  Constructor compatible with old version.
     /*
@@ -1289,8 +1256,7 @@ public:
                                              std::vector< std::pair< double, double > >(
                                                      1,
                                                      std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    {
-    }
+    {}
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -1314,8 +1280,7 @@ public:
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    {
-    }
+    {}
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -1344,12 +1309,12 @@ public:
     {
         // Assign default values
         defaultExtrapolationValue_.resize( dependentVariablesNames.size( ) );
-        for(unsigned int i = 0; i < dependentVariablesNames.size( ); i++)
+        for( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
         {
-            for(unsigned int j = 0; j < independentVariablesNames.size( ); j++)
+            for( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
             {
-                if(boundaryHandling_.at( j ) == interpolators::use_default_value ||
-                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning)
+                if( boundaryHandling_.at( j ) == interpolators::use_default_value ||
+                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
                 {
                     defaultExtrapolationValue_.at( i ).push_back(
                             std::make_pair( defaultExtrapolationValue.at( i ), defaultExtrapolationValue.at( i ) ) );
@@ -1397,8 +1362,7 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    {
-    }
+    {}
 
     //  Function to return file containing atmospheric properties.
     /*
@@ -1535,19 +1499,15 @@ public:
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const double scaling,
                               const bool isScalingAbsolute ):
-        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) {
-            return scaling;
-        } ),
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ),
         isScalingAbsolute_( isScalingAbsolute )
-    {
-    }
+    {}
 
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings >& baseSettings,
                               const std::function< double( const double ) > scaling,
                               const bool isScalingAbsolute ):
         AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
-    {
-    }
+    {}
 
     std::shared_ptr< AtmosphereSettings > getBaseSettings( )
     {
@@ -1571,7 +1531,6 @@ protected:
 
     bool isScalingAbsolute_;
 };
-
 
 /**
  * \class ComaSettings
@@ -1599,13 +1558,9 @@ public:
                            const double molecularWeight,
                            const int requestedDegree = -1,
                            const int requestedOrder = -1,
-                           const bool isLog2Data = true ) :
-        AtmosphereSettings( coma_model ),
-        data_( polyData ),
-        molecularWeight_( molecularWeight ),
-        requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder ),
-        isLog2Data_( isLog2Data )
+                           const bool isLog2Data = true ):
+        AtmosphereSettings( coma_model ), data_( polyData ), molecularWeight_( molecularWeight ), requestedDegree_( requestedDegree ),
+        requestedOrder_( requestedOrder ), isLog2Data_( isLog2Data )
     {
         validateAndSetDefaults( );
     }
@@ -1622,13 +1577,9 @@ public:
                            const double molecularWeight,
                            const int requestedDegree = -1,
                            const int requestedOrder = -1,
-                           const bool isLog2Data = true ) :
-        AtmosphereSettings( coma_model),
-        data_( stokesData ),
-        molecularWeight_( molecularWeight ),
-        requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder ),
-        isLog2Data_( isLog2Data )
+                           const bool isLog2Data = true ):
+        AtmosphereSettings( coma_model ), data_( stokesData ), molecularWeight_( molecularWeight ), requestedDegree_( requestedDegree ),
+        requestedOrder_( requestedOrder ), isLog2Data_( isLog2Data )
     {
         validateAndSetDefaults( );
     }
@@ -1664,7 +1615,7 @@ public:
      */
     const ComaPolyDataset& getPolyDataset( ) const
     {
-        if(auto* p = boost::get< ComaPolyDataset >( &data_ )) return *p;
+        if( auto* p = boost::get< ComaPolyDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain polynomial data" );
     }
 
@@ -1674,7 +1625,7 @@ public:
      */
     const ComaStokesDataset& getStokesDataset( ) const
     {
-        if(auto* p = boost::get< ComaStokesDataset >( &data_ )) return *p;
+        if( auto* p = boost::get< ComaStokesDataset >( &data_ ) ) return *p;
         throw std::runtime_error( "ComaSettings does not contain Stokes data" );
     }
 
@@ -1847,13 +1798,13 @@ private:
     void validateAndSetDefaults( )
     {
         // Determine available maxima from data
-        if(hasPolyData( ))
+        if( hasPolyData( ) )
         {
             const auto& poly = getPolyDataset( );
             availableMaxDegree_ = determineMaxDegreeFromPoly( poly );
             availableMaxOrder_ = determineMaxOrderFromPoly( poly );
         }
-        else if(hasStokesData( ))
+        else if( hasStokesData( ) )
         {
             const auto& stokes = getStokesDataset( );
             availableMaxDegree_ = stokes.nmax( );
@@ -1862,27 +1813,25 @@ private:
         }
 
         // Set defaults if -1
-        if(requestedDegree_ < 0)
+        if( requestedDegree_ < 0 )
         {
             requestedDegree_ = availableMaxDegree_;
         }
-        if(requestedOrder_ < 0)
+        if( requestedOrder_ < 0 )
         {
             requestedOrder_ = availableMaxOrder_;
         }
 
         // Validate requested values don't exceed available
-        if(requestedDegree_ > availableMaxDegree_)
+        if( requestedDegree_ > availableMaxDegree_ )
         {
-            throw std::invalid_argument(
-                    "Requested degree " + std::to_string( requestedDegree_ ) +
-                    " exceeds available maximum " + std::to_string( availableMaxDegree_ ) );
+            throw std::invalid_argument( "Requested degree " + std::to_string( requestedDegree_ ) + " exceeds available maximum " +
+                                         std::to_string( availableMaxDegree_ ) );
         }
-        if(requestedOrder_ > availableMaxOrder_)
+        if( requestedOrder_ > availableMaxOrder_ )
         {
-            throw std::invalid_argument(
-                    "Requested order " + std::to_string( requestedOrder_ ) +
-                    " exceeds available maximum " + std::to_string( availableMaxOrder_ ) );
+            throw std::invalid_argument( "Requested order " + std::to_string( requestedOrder_ ) + " exceeds available maximum " +
+                                         std::to_string( availableMaxOrder_ ) );
         }
     }
 
@@ -1892,7 +1841,7 @@ private:
     static int determineMaxDegreeFromPoly( const ComaPolyDataset& poly )
     {
         int maxDeg = 0;
-        for(std::size_t f = 0; f < poly.getNumFiles( ); ++f)
+        for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
         {
             maxDeg = std::max( maxDeg, poly.getMaxDegreeSH( f ) );
         }
@@ -1905,7 +1854,7 @@ private:
     static int determineMaxOrderFromPoly( const ComaPolyDataset& poly )
     {
         int maxOrd = 0;
-        for(std::size_t f = 0; f < poly.getNumFiles( ); ++f)
+        for( std::size_t f = 0; f < poly.getNumFiles( ); ++f )
         {
             const auto& indices = poly.getSHDegreeAndOrderIndices( f );
             int fileMaxOrd = indices.row( 1 ).abs( ).maxCoeff( );
@@ -1915,22 +1864,21 @@ private:
     }
 
     // Data members
-    DataVariant data_; // Holds either poly or Stokes data
-    double molecularWeight_; // Molecular weight of gas species
-    int requestedDegree_; // User-requested max degree
-    int requestedOrder_; // User-requested max order
-    int availableMaxDegree_{ 0 }; // Maximum available in data
-    int availableMaxOrder_{ 0 }; // Maximum available in data
+    DataVariant data_;             // Holds either poly or Stokes data
+    double molecularWeight_;       // Molecular weight of gas species
+    int requestedDegree_;          // User-requested max degree
+    int requestedOrder_;           // User-requested max order
+    int availableMaxDegree_{ 0 };  // Maximum available in data
+    int availableMaxOrder_{ 0 };   // Maximum available in data
 
     // Temperature model data members
-    bool hasTemperatureModel_{ false }; // Flag indicating if temperature model is added
-    DataVariant temperatureData_; // Holds either poly or Stokes data for temperature
-    int temperatureMaxDegree_{ -1 }; // Maximum degree for temperature model
-    int temperatureMaxOrder_{ -1 }; // Maximum order for temperature model
-    double heatCapacityRatio_{ 1.33 }; // Heat capacity ratio (gamma)
-    bool isLog2Data_{ true }; // Whether coefficients represent log2-transformed number density
+    bool hasTemperatureModel_{ false };  // Flag indicating if temperature model is added
+    DataVariant temperatureData_;        // Holds either poly or Stokes data for temperature
+    int temperatureMaxDegree_{ -1 };     // Maximum degree for temperature model
+    int temperatureMaxOrder_{ -1 };      // Maximum order for temperature model
+    double heatCapacityRatio_{ 1.33 };   // Heat capacity ratio (gamma)
+    bool isLog2Data_{ true };            // Whether coefficients represent log2-transformed number density
 };
-
 
 //! @get_docstring(exponentialAtmosphereSettings,2)
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
@@ -1938,14 +1886,10 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double densityAtZeroAltitude,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4)
+        const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< ExponentialAtmosphereSettings >(
-            densityScaleHeight,
-            constantTemperature,
-            densityAtZeroAltitude,
-            specificGasConstant,
-            ratioOfSpecificHeats);
+            densityScaleHeight, constantTemperature, densityAtZeroAltitude, specificGasConstant, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(exponentialAtmosphereSettings,1)
@@ -1959,11 +1903,11 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( cons
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( const std::string& bodyName )
 {
     BodiesWithPredefinedExponentialAtmospheres bodyId;
-    if(bodyName == "Earth")
+    if( bodyName == "Earth" )
     {
         bodyId = BodiesWithPredefinedExponentialAtmospheres::earth;
     }
-    else if(bodyName == "Mars")
+    else if( bodyName == "Mars" )
     {
         bodyId = BodiesWithPredefinedExponentialAtmospheres::mars;
     }
@@ -2003,10 +1947,7 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         return densityFunction( altitude );
     };
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-            fullDensityFunction,
-            constantTemperature,
-            specificGasConstant,
-            ratioOfSpecificHeats );
+            fullDensityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,1)
@@ -2017,10 +1958,7 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-            densityFunction,
-            constantTemperature,
-            specificGasConstant,
-            ratioOfSpecificHeats );
+            densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(customNumberDensityAtmosphereSettings,0)
@@ -2034,24 +1972,17 @@ inline std::shared_ptr< AtmosphereSettings > customNumberDensityAtmosphereSettin
         return numberDensityFunction( altitude );
     };
     return std::make_shared< CustomNumberDensityAtmosphereSettings >(
-            fullNumberDensityFunction,
-            molarMass,
-            constantTemperature,
-            ratioOfSpecificHeats );
+            fullNumberDensityFunction, molarMass, constantTemperature, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(customNumberDensityAtmosphereSettings,1)
-inline std::shared_ptr< AtmosphereSettings > customNumberDensityAtmosphereSettings(
-        const DensityFunction numberDensityFunction,
-        const double molarMass,
-        const double constantTemperature = TUDAT_NAN,
-        const double ratioOfSpecificHeats = 1.4 )
+inline std::shared_ptr< AtmosphereSettings > customNumberDensityAtmosphereSettings( const DensityFunction numberDensityFunction,
+                                                                                    const double molarMass,
+                                                                                    const double constantTemperature = TUDAT_NAN,
+                                                                                    const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< CustomNumberDensityAtmosphereSettings >(
-            numberDensityFunction,
-            molarMass,
-            constantTemperature,
-            ratioOfSpecificHeats );
+            numberDensityFunction, molarMass, constantTemperature, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(scaledAtmosphereSettings,0)
@@ -2086,7 +2017,6 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
                                                             IdentityElement::getAdditionIdentity< double >( ) );
 }
 
-
 //@get_docstring(ComaSettings,0)
 /*!
  * \brief Create coma atmosphere settings from polynomial coefficient data
@@ -2096,12 +2026,11 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
  * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
  * \return Shared pointer to AtmosphereSettings configured for coma model
  */
-inline std::shared_ptr< AtmosphereSettings > comaSettings(
-        const ComaPolyDataset& polyData,
-        const double molecularWeight,
-        const int requestedDegree = -1,
-        const int requestedOrder = -1,
-        const bool isLog2Data = true )
+inline std::shared_ptr< AtmosphereSettings > comaSettings( const ComaPolyDataset& polyData,
+                                                           const double molecularWeight,
+                                                           const int requestedDegree = -1,
+                                                           const int requestedOrder = -1,
+                                                           const bool isLog2Data = true )
 {
     return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder, isLog2Data );
 }
@@ -2115,20 +2044,17 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
  * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
  * \return Shared pointer to AtmosphereSettings configured for coma model
  */
-inline std::shared_ptr< AtmosphereSettings > comaSettings(
-        const ComaStokesDataset& stokesData,
-        const double molecularWeight,
-        const int requestedDegree = -1,
-        const int requestedOrder = -1,
-        const bool isLog2Data = true )
+inline std::shared_ptr< AtmosphereSettings > comaSettings( const ComaStokesDataset& stokesData,
+                                                           const double molecularWeight,
+                                                           const int requestedDegree = -1,
+                                                           const int requestedOrder = -1,
+                                                           const bool isLog2Data = true )
 {
     return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder, isLog2Data );
 }
 
-
 //! @get_docstring(emptyWindModelSettings)
-inline std::shared_ptr< WindModelSettings > emptyWindModelSettings(
-        const bool includeCorotation = true )
+inline std::shared_ptr< WindModelSettings > emptyWindModelSettings( const bool includeCorotation = true )
 {
     return std::make_shared< EmptyWindModelSettings >( includeCorotation );
 }
@@ -2159,7 +2085,8 @@ inline std::shared_ptr< WindModelSettings > comaWindModelSettings(
         const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
         const bool includeCorotation = true )
 {
-    return std::make_shared< ComaWindModelSettings >( datasetCollection, requestedDegree, requestedOrder, associatedFrame, includeCorotation );
+    return std::make_shared< ComaWindModelSettings >(
+            datasetCollection, requestedDegree, requestedOrder, associatedFrame, includeCorotation );
 }
 
 //  Function to create a wind model.
@@ -2183,8 +2110,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
-                                                                        const SystemOfBodies& bodies = SystemOfBodies() );
-} // namespace simulation_setup
-} // namespace tudat
+                                                                        const SystemOfBodies& bodies = SystemOfBodies( ) );
+}  // namespace simulation_setup
+}  // namespace tudat
 
 #endif  // TUDAT_CREATEATMOSPHEREMODEL_H

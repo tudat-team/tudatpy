@@ -1,9 +1,7 @@
 #ifndef COMAMODEL_H
 #define COMAMODEL_H
 
-
 #include <memory>
-
 
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
@@ -15,7 +13,6 @@
 #include <functional>
 #include <map>
 
-
 namespace tudat
 {
 namespace aerodynamics
@@ -25,10 +22,9 @@ class SurfaceSphericalHarmonicsCalculator;
 /*!
  * \brief Enumeration for the type of coefficient data used in coma models.
  */
-enum class ComaDataType
-{
+enum class ComaDataType {
     POLYNOMIAL_COEFFICIENTS,  //!< Use polynomial coefficients for density computation
-    STOKES_COEFFICIENTS      //!< Use Stokes coefficients for density computation
+    STOKES_COEFFICIENTS       //!< Use Stokes coefficients for density computation
 };
 
 /*!
@@ -56,9 +52,9 @@ public:
      */
     ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                const double molecularWeight,
-               std::function<Eigen::Vector6d()> sunStateFunction,
-               std::function<Eigen::Vector6d()> cometStateFunction,
-               std::function<Eigen::Matrix3d()> cometRotationFunction,
+               std::function< Eigen::Vector6d( ) > sunStateFunction,
+               std::function< Eigen::Vector6d( ) > cometStateFunction,
+               std::function< Eigen::Matrix3d( ) > cometRotationFunction,
                const int& maximumDegree = -1,
                const int& maximumOrder = -1,
                const simulation_setup::ComaPolyDataset* temperaturePolyDataset = nullptr,
@@ -79,15 +75,14 @@ public:
      */
     ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                const double molecularWeight,
-               std::function<Eigen::Vector6d()> sunStateFunction,
-               std::function<Eigen::Vector6d()> cometStateFunction,
-               std::function<Eigen::Matrix3d()> cometRotationFunction,
+               std::function< Eigen::Vector6d( ) > sunStateFunction,
+               std::function< Eigen::Vector6d( ) > cometStateFunction,
+               std::function< Eigen::Matrix3d( ) > cometRotationFunction,
                const int& maximumDegree = -1,
                const int& maximumOrder = -1,
                const simulation_setup::ComaStokesDataset* temperatureStokesDataset = nullptr,
                const double heatCapacityRatio = 1.33,
                const bool isLog2Data = true );
-
 
     /*!
      * \brief Returns the local density of the coma in kg per meter^3.
@@ -97,10 +92,7 @@ public:
      * \param time Time at which density is to be computed [s]
      * \return Coma density at specified location and time [kg/m³]
      */
-    double getDensity( double radius,
-                       double longitude,
-                       double latitude,
-                       double time ) override;
+    double getDensity( double radius, double longitude, double latitude, double time ) override;
 
     /*!
      * \brief Returns the local number density of the coma in particles per meter^3.
@@ -111,10 +103,7 @@ public:
      * \return Coma number density at specified location and time [m^-3]
      */
     using AtmosphereModel::getNumberDensity;
-    double getNumberDensity( double radius,
-                             double longitude,
-                             double latitude,
-                             double time ) override;
+    double getNumberDensity( double radius, double longitude, double latitude, double time ) override;
 
     /*!
      * \brief Returns the local pressure of the coma in Newton per meter^2.
@@ -124,10 +113,7 @@ public:
      * \param time Time at which pressure is to be computed [s]
      * \return Coma pressure at specified location and time [N/m²]
      */
-    double getPressure( double radius,
-                         double longitude,
-                        double latitude,
-                        double time ) override;
+    double getPressure( double radius, double longitude, double latitude, double time ) override;
 
     /*!
      * \brief Returns the local temperature of the coma in Kelvin.
@@ -137,10 +123,7 @@ public:
      * \param time Time at which temperature is to be computed [s]
      * \return Coma temperature at specified location and time [K]
      */
-    double getTemperature( double radius,
-                               double longitude,
-                           double latitude,
-                           double time ) override;
+    double getTemperature( double radius, double longitude, double latitude, double time ) override;
 
     /*!
      * \brief Returns the speed of sound in the coma in m/s.
@@ -150,22 +133,22 @@ public:
      * \param time Time at which speed of sound is to be computed [s]
      * \return Coma speed of sound at specified location and time [m/s]
      */
-    double getSpeedOfSound( double radius,
-                                 double longitude,
-                            double latitude,
-                            double time ) override;
+    double getSpeedOfSound( double radius, double longitude, double latitude, double time ) override;
 
     /*!
      * \brief Get the data type used by this ComaModel instance.
      * \return ComaDataType indicating whether polynomial or Stokes coefficients are used
      */
-    inline ComaDataType getDataType() const { return dataType_; }
+    inline ComaDataType getDataType( ) const
+    {
+        return dataType_;
+    }
 
     /*!
      * \brief Get the spherical harmonics calculator for sharing.
      * \return Shared pointer to the spherical harmonics calculator
      */
-    inline std::shared_ptr<SurfaceSphericalHarmonicsCalculator> getSurfaceSphericalHarmonicsCalculator() const
+    inline std::shared_ptr< SurfaceSphericalHarmonicsCalculator > getSurfaceSphericalHarmonicsCalculator( ) const
     {
         return sphericalHarmonicsCalculator_;
     }
@@ -175,11 +158,14 @@ public:
      * \return Solar longitude in comet body-fixed frame [rad]
      * \note Returns the cached value from the most recent density computation. If no density has been computed yet, returns 0.0.
      */
-    inline double getSolarLongitude() const { return cachedSolarLongitude_; }
+    inline double getSolarLongitude( ) const
+    {
+        return cachedSolarLongitude_;
+    }
 
     //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
-    ComaModel(const ComaModel&) = delete;
-    ComaModel& operator=(const ComaModel&) = delete;
+    ComaModel( const ComaModel& ) = delete;
+    ComaModel& operator=( const ComaModel& ) = delete;
 
 private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
@@ -224,8 +210,8 @@ private:
     Eigen::Matrix3d cachedRotationMatrix_;
 
     //! Pre-allocated interpolation point vectors to avoid repeated allocations
-    std::vector<double> interpolationPoint2D_;
-    std::vector<double> interpolationPoint1D_;
+    std::vector< double > interpolationPoint2D_;
+    std::vector< double > interpolationPoint1D_;
 
     //! Cache validity flags packed into a bitfield for memory efficiency
     struct CacheFlags {
@@ -236,9 +222,10 @@ private:
         bool stateValid : 1;
         bool temperatureValid : 1;
 
-        CacheFlags() : solarLongitudeValid(false), interpolationValid(false),
-                       trigValid(false), densityValid(false), stateValid(false),
-                       temperatureValid(false) {}
+        CacheFlags( ):
+            solarLongitudeValid( false ), interpolationValid( false ), trigValid( false ), densityValid( false ), stateValid( false ),
+            temperatureValid( false )
+        {}
     };
     CacheFlags cacheFlags_;
 
@@ -271,66 +258,82 @@ private:
     // ========== Data and computation infrastructure (large objects, less frequently accessed) ==========
 
     //! Polynomial coefficient dataset containing coma density data (used when dataType_ == POLYNOMIAL_COEFFICIENTS)
-    std::shared_ptr<simulation_setup::ComaPolyDataset> polyDataset_;
+    std::shared_ptr< simulation_setup::ComaPolyDataset > polyDataset_;
 
     //! Stokes coefficient dataset containing coma density data (used when dataType_ == STOKES_COEFFICIENTS)
-    std::shared_ptr<simulation_setup::ComaStokesDataset> stokesDataset_;
+    std::shared_ptr< simulation_setup::ComaStokesDataset > stokesDataset_;
 
     //! Polynomial coefficient dataset containing coma temperature data (nullptr if not provided)
-    std::shared_ptr<simulation_setup::ComaPolyDataset> temperaturePolyDataset_;
+    std::shared_ptr< simulation_setup::ComaPolyDataset > temperaturePolyDataset_;
 
     //! Stokes coefficient dataset containing coma temperature data (nullptr if not provided)
-    std::shared_ptr<simulation_setup::ComaStokesDataset> temperatureStokesDataset_;
+    std::shared_ptr< simulation_setup::ComaStokesDataset > temperatureStokesDataset_;
 
     //! Function returning Sun state vector (position [m], velocity [m/s]) in inertial frame
-    std::function<Eigen::Vector6d()> sunStateFunction_;
+    std::function< Eigen::Vector6d( ) > sunStateFunction_;
 
     //! Function returning Comet state vector (position [m], velocity [m/s]) in inertial frame
-    std::function<Eigen::Vector6d()> cometStateFunction_;
+    std::function< Eigen::Vector6d( ) > cometStateFunction_;
 
     //! Function returning comet body-fixed to inertial frame rotation matrix
-    std::function<Eigen::Matrix3d()> cometRotationFunction_;
+    std::function< Eigen::Matrix3d( ) > cometRotationFunction_;
 
     //! Spherical harmonics calculator with cached computations for efficient evaluation
-    std::shared_ptr<SurfaceSphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
+    std::shared_ptr< SurfaceSphericalHarmonicsCalculator > sphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> stokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            stokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced Stokes coefficients (for radius > reference radius)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            reducedStokesInterpolators_;
 
     //! Cache for fallback interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            fallbackStokesInterpolators_;
 
     //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            fallbackReducedStokesInterpolators_;
 
     //! Pre-initialized interpolators for temperature Stokes coefficients (only used if temperature dataset provided)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> temperatureStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            temperatureStokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced temperature Stokes coefficients (for radius > reference radius)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedTemperatureStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            reducedTemperatureStokesInterpolators_;
 
     //! Cache for fallback temperature interpolators (created on-demand, then cached for reuse)
     //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackTemperatureStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 2 > > > > >
+            fallbackTemperatureStokesInterpolators_;
 
     //! Cache for fallback reduced temperature interpolators (created on-demand, then cached for reuse)
-    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedTemperatureStokesInterpolators_;
+    std::deque< std::map< std::pair< int, int >,
+                          std::pair< std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > >,
+                                     std::unique_ptr< interpolators::MultiLinearInterpolator< double, double, 1 > > > > >
+            fallbackReducedTemperatureStokesInterpolators_;
 
     /*!
      * @brief Find the index of the time interval that contains a given time.
@@ -398,12 +401,12 @@ private:
     /*!
      * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
      */
-    void initializeStokesInterpolators();
+    void initializeStokesInterpolators( );
 
     /*!
      * @brief Initialize interpolators for temperature Stokes coefficients (called only if temperature dataset provided)
      */
-    void initializeTemperatureStokesInterpolators();
+    void initializeTemperatureStokesInterpolators( );
 
     /*!
      * @brief Helper to create 2D interpolator for Stokes coefficients on-the-fly (fallback)
@@ -415,9 +418,13 @@ private:
      * @param radius Radius for interpolation [m]
      * @param solarLongitude Solar longitude for interpolation [rad]
      */
-    void createFallback2DInterpolator( int fileIndex, int n, int m,
-                                       double& cosineCoeff, double& sineCoeff,
-                                       double radius, double solarLongitude );
+    void createFallback2DInterpolator( int fileIndex,
+                                       int n,
+                                       int m,
+                                       double& cosineCoeff,
+                                       double& sineCoeff,
+                                       double radius,
+                                       double solarLongitude );
 
     /*!
      * @brief Helper to create 1D reduced interpolator for Stokes coefficients on-the-fly (fallback)
@@ -428,12 +435,8 @@ private:
      * @param sineCoeff Output: interpolated sine coefficient
      * @param solarLongitude Solar longitude for interpolation [rad]
      */
-    void createFallback1DInterpolator( int fileIndex, int n, int m,
-                                       double& cosineCoeff, double& sineCoeff,
-                                       double solarLongitude );
-
+    void createFallback1DInterpolator( int fileIndex, int n, int m, double& cosineCoeff, double& sineCoeff, double solarLongitude );
 };
-
 
 /*!
  * \brief Calculator for efficient spherical harmonics evaluation.
@@ -454,7 +457,6 @@ public:
 
     //! Destructor
     ~SurfaceSphericalHarmonicsCalculator( ) = default;
-
 
     /*!
      * \brief Evaluate the surface spherical harmonics field at a given latitude and longitude.
@@ -491,12 +493,11 @@ private:
     int lastMaxOrder_ = -1;
 
     //! Cached latitude/longitude and sine of latitude (for trigonometric optimization)
-    double lastLatitude_ = std::numeric_limits<double>::quiet_NaN();
-    double lastLongitude_ = std::numeric_limits<double>::quiet_NaN();
+    double lastLatitude_ = std::numeric_limits< double >::quiet_NaN( );
+    double lastLongitude_ = std::numeric_limits< double >::quiet_NaN( );
     double lastSineLatitude_ = 0.0;
 };
-} // end namespace aerodynamics
-} // end namespace tudat
+}  // end namespace aerodynamics
+}  // end namespace tudat
 
-
-#endif //COMAMODEL_H
+#endif  // COMAMODEL_H

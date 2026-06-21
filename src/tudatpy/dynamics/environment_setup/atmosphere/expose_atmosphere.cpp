@@ -150,14 +150,10 @@ The values in this class may be recomputed every time step to reflect changing a
          :type: bool
       )doc" );
 
-    py::class_< tss::EmptyWindModelSettings,
-                std::shared_ptr< tss::EmptyWindModelSettings >,
-                tss::WindModelSettings >(
+    py::class_< tss::EmptyWindModelSettings, std::shared_ptr< tss::EmptyWindModelSettings >, tss::WindModelSettings >(
             m, "EmptyWindModelSettings", R"doc(Settings for empty wind model (no physical wind, only co-rotation control).)doc" );
 
-    py::class_< tss::ConstantWindModelSettings,
-                std::shared_ptr< tss::ConstantWindModelSettings >,
-                tss::WindModelSettings >(
+    py::class_< tss::ConstantWindModelSettings, std::shared_ptr< tss::ConstantWindModelSettings >, tss::WindModelSettings >(
             m, "ConstantWindModelSettings", R"doc(No documentation found.)doc" );
 
     py::class_< tss::CustomWindModelSettings, std::shared_ptr< tss::CustomWindModelSettings >, tss::WindModelSettings >(
@@ -953,16 +949,14 @@ using the NRLMSISE-00 global reference model:
 
     // --- Coma Model ---
 
-    m.def(
-            "coma_model_from_poly_data",
-            py::overload_cast<
-                const tss::ComaPolyDataset&, double, int, int, bool >( &tss::comaSettings ),
-            py::arg( "poly_data" ),
-            py::arg( "molecular_weight" ),
-            py::arg( "max_degree" ) = -1,
-            py::arg( "max_order" ) = -1,
-            py::arg( "is_log2" ) = true,
-            R"doc(
+    m.def( "coma_model_from_poly_data",
+           py::overload_cast< const tss::ComaPolyDataset&, double, int, int, bool >( &tss::comaSettings ),
+           py::arg( "poly_data" ),
+           py::arg( "molecular_weight" ),
+           py::arg( "max_degree" ) = -1,
+           py::arg( "max_order" ) = -1,
+           py::arg( "is_log2" ) = true,
+           R"doc(
 
  Function for creating coma atmosphere model settings from polynomial coefficients.
 
@@ -1045,19 +1039,16 @@ using the NRLMSISE-00 global reference model:
    body_settings.get("67P").atmosphere_settings = coma_settings
 
 
-    )doc"
-                );
+    )doc" );
 
-    m.def(
-            "coma_model_from_stokes_data",
-            py::overload_cast<
-                const tss::ComaStokesDataset&, double, int, int, bool >( &tss::comaSettings ),
-            py::arg( "stokes_data" ),
-            py::arg( "molecular_weight" ),
-            py::arg( "max_degree" ) = -1,
-            py::arg( "max_order" ) = -1,
-            py::arg( "is_log2" ) = true,
-            R"doc(
+    m.def( "coma_model_from_stokes_data",
+           py::overload_cast< const tss::ComaStokesDataset&, double, int, int, bool >( &tss::comaSettings ),
+           py::arg( "stokes_data" ),
+           py::arg( "molecular_weight" ),
+           py::arg( "max_degree" ) = -1,
+           py::arg( "max_order" ) = -1,
+           py::arg( "is_log2" ) = true,
+           R"doc(
 
  Function for creating coma atmosphere model settings from Stokes coefficients.
 
@@ -1165,16 +1156,12 @@ using the NRLMSISE-00 global reference model:
    body_settings.get("67P").atmosphere_settings = coma_settings
 
 
-    )doc"
-            );
+    )doc" );
 
     // === ComaSettings class exposure ===
-    py::class_< tss::ComaSettings,
-                std::shared_ptr< tss::ComaSettings >,
-                tss::AtmosphereSettings >(
-            m,
-            "ComaSettings",
-            R"doc(
+    py::class_< tss::ComaSettings, std::shared_ptr< tss::ComaSettings >, tss::AtmosphereSettings >( m,
+                                                                                                    "ComaSettings",
+                                                                                                    R"doc(
 Settings class for coma atmosphere models.
 
 This class extends :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings`
@@ -1310,8 +1297,8 @@ Examples
 )doc" );
 
     m.def( "mars_dtm",
-       &tss::marsDtmAtmosphereSettings,
-       R"doc(
+           &tss::marsDtmAtmosphereSettings,
+           R"doc(
 
 Function for creating Mars DTM atmospheric settings.
 

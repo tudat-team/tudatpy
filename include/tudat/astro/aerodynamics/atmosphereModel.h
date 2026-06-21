@@ -64,13 +64,13 @@ class AtmosphereModel
 public:
     AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
         useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~AtmosphereModel( ) { }
+    virtual ~AtmosphereModel( ) {}
 
     //! Get local density.
     /*!
@@ -125,10 +125,7 @@ public:
      * \param time Time.
      * \return Total number density.
      */
-    virtual double getNumberDensity( const double altitude,
-                                     const double longitude,
-                                     const double latitude,
-                                     const double time )
+    virtual double getNumberDensity( const double altitude, const double longitude, const double latitude, const double time )
     {
         static_cast< void >( altitude );
         static_cast< void >( longitude );
@@ -250,7 +247,7 @@ public:
                            const bool isScalingAbsolute = true ):
         AtmosphereModel( ), baseAtmosphere_( baseAtmosphere ), densityScalingFunction_( densityScalingFunction ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     double getDensity( const double altitude, const double longitude, const double latitude, const double time ) override
     {

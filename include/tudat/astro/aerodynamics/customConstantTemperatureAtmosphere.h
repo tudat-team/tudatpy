@@ -229,7 +229,10 @@ public:
      *  Returns the local total number density of the atmosphere in m^-3, using the
      *  mass density and specific gas constant.
      */
-    double getNumberDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getNumberDensity( const double altitude,
+                             const double longitude = 0.0,
+                             const double latitude = 0.0,
+                             const double time = 0.0 ) override
     {
         return getDensity( altitude, longitude, latitude, time ) * specificGasConstant_ / physical_constants::BOLTZMANN_CONSTANT;
     }
@@ -261,7 +264,10 @@ public:
      *      consistency with base class interface).
      *  \return constantTemperature Atmospheric temperature at specified altitude.
      */
-    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getTemperature( const double altitude,
+                           const double longitude = 0.0,
+                           const double latitude = 0.0,
+                           const double time = 0.0 ) override
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -282,7 +288,10 @@ public:
      *      consistency with base class interface).
      *  \return Atmospheric speed of sounds at specified altitude.
      */
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getSpeedOfSound( const double altitude,
+                            const double longitude = 0.0,
+                            const double latitude = 0.0,
+                            const double time = 0.0 ) override
     {
         return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_, specificGasConstant_ );
     }
@@ -336,7 +345,7 @@ public:
                                    const double ratioOfSpecificHeats = 1.4 ):
         numberDensityFunction_( numberDensityFunction ), molarMass_( molarMass ), constantTemperature_( constantTemperature ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {}
 
     NumberDensityFunction getNumberDensityFunction( )
     {
@@ -348,7 +357,10 @@ public:
         return molarMass_;
     }
 
-    double getNumberDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getNumberDensity( const double altitude,
+                             const double longitude = 0.0,
+                             const double latitude = 0.0,
+                             const double time = 0.0 ) override
     {
         return numberDensityFunction_( altitude, longitude, latitude, time );
     }
@@ -367,7 +379,10 @@ public:
         return getNumberDensity( altitude, longitude, latitude, time ) * physical_constants::BOLTZMANN_CONSTANT * constantTemperature_;
     }
 
-    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getTemperature( const double altitude,
+                           const double longitude = 0.0,
+                           const double latitude = 0.0,
+                           const double time = 0.0 ) override
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -380,7 +395,10 @@ public:
         return constantTemperature_;
     }
 
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
+    double getSpeedOfSound( const double altitude,
+                            const double longitude = 0.0,
+                            const double latitude = 0.0,
+                            const double time = 0.0 ) override
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -390,10 +408,7 @@ public:
         {
             throw std::runtime_error( "Error, speed of sound is not available for custom number density atmosphere without temperature." );
         }
-        return computeSpeedOfSound(
-                constantTemperature_,
-                ratioOfSpecificHeats_,
-                physical_constants::MOLAR_GAS_CONSTANT / molarMass_ );
+        return computeSpeedOfSound( constantTemperature_, ratioOfSpecificHeats_, physical_constants::MOLAR_GAS_CONSTANT / molarMass_ );
     }
 
 private:
