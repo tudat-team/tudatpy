@@ -320,8 +320,8 @@ The values in this class may be recomputed every time step to reflect changing a
  Function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
  The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -353,9 +353,9 @@ The values in this class may be recomputed every time step to reflect changing a
 
    # Define the wind in 3 directions in the vertical reference frame
    def wind_function(h, lon, lat, time):
-       # Meridional wind (pointing North) depends on latitude [deg] and time [sec since J2000]
+       # Meridional wind (pointing North) depends on latitude [rad] and time [sec since J2000]
        wind_Xv = lat*10/time
-       # Zonal wind (pointing West) only depends on the longitude [deg]
+       # Zonal wind (pointing West) only depends on the longitude [rad]
        wind_Yv = 5/lon
        # Vertical wind (pointing out of the centre of the Earth) only depends on the altitude [m]
        wind_Zv = 1000/h
@@ -748,8 +748,8 @@ using the NRLMSISE-00 global reference model:
  Function for settings object, defining constant temperature atmosphere model from custom density profile.
  The user is specifying the density profile as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -779,7 +779,7 @@ using the NRLMSISE-00 global reference model:
 
  .. code-block:: python
 
-   # Define the density as a function of altitude [m], longitude [deg], latitude [deg], and time [sec since J2000]
+   # Define the density as a function of altitude [m], longitude [rad], latitude [rad], and time [sec since J2000]
    def density_function(h, lon, lat, time):
        # Return the density according to an exponential model that varies with time to add noise with a sine (ignore lon/lat)
        return (1 + 0.15 * np.sin(time/10)) * np.exp(-h/7300)
@@ -813,6 +813,9 @@ using the NRLMSISE-00 global reference model:
  The supplied function returns total number density in m^-3 as a function of altitude,
  longitude, latitude and time. Mass density is computed internally from the molar mass
  using Avogadro's constant.
+
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
  Parameters
  ----------

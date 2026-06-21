@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testCustomConstantTemperatureAtmosphereNumberDensity )
     aerodynamics::CustomConstantTemperatureAtmosphere customAtmosphere(
             [ = ]( const double, const double, const double, const double ) { return massDensity; }, 200.0, specificGasConstant, 1.33 );
 
-    BOOST_CHECK_CLOSE_FRACTION( numberDensity, customAtmosphere.getNumberDensity( 0.0, 0.0, 0.0, 0.0 ), 1.0e-6 );
+    BOOST_CHECK_CLOSE_FRACTION( numberDensity, customAtmosphere.getTotalNumberDensity( 0.0, 0.0, 0.0, 0.0 ), 1.0e-6 );
 }
 
 //! Test custom number density atmosphere conversion to mass density.
@@ -275,7 +275,8 @@ BOOST_AUTO_TEST_CASE( testCustomNumberDensityAtmosphere )
     const double expectedNumberDensity = referenceNumberDensity + altitude + longitude + latitude + time;
     const double expectedMassDensity = expectedNumberDensity * molarMass / physical_constants::AVOGADRO_CONSTANT;
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedNumberDensity, customAtmosphere.getNumberDensity( altitude, longitude, latitude, time ), 1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedNumberDensity, customAtmosphere.getTotalNumberDensity( altitude, longitude, latitude, time ), 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( expectedMassDensity, customAtmosphere.getDensity( altitude, longitude, latitude, time ), 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( expectedNumberDensity * physical_constants::BOLTZMANN_CONSTANT * constantTemperature,
                                 customAtmosphere.getPressure( altitude, longitude, latitude, time ),

@@ -2089,13 +2089,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) );
 
-                variableFunction = [ flightConditions ]( ) -> double {
-                    auto atmosphereModel = flightConditions->getAtmosphereModel( );
-                    return atmosphereModel->getNumberDensity( flightConditions->getCurrentRadius( ),
-                                                              flightConditions->getCurrentLongitude( ),
-                                                              flightConditions->getCurrentLatitude( ),
-                                                              flightConditions->getCurrentTime( ) );
-                };
+                variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentTotalNumberDensity, flightConditions );
                 break;
             }
             case radiation_pressure_dependent_variable: {

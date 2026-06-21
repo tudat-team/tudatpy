@@ -125,7 +125,7 @@ public:
      * \param time Time.
      * \return Total number density.
      */
-    virtual double getNumberDensity( const double altitude, const double longitude, const double latitude, const double time )
+    virtual double getTotalNumberDensity( const double altitude, const double longitude, const double latitude, const double time )
     {
         static_cast< void >( altitude );
         static_cast< void >( longitude );
@@ -136,7 +136,7 @@ public:
 
     //! Get number density.
     /*!
-     * Returns the number density of a requested species in cm^-1. (if chosen atmospher model has this implemented)
+     * Returns the number density of a requested species in m^-3, if the selected atmosphere model supports it.
      * \param species species (has to be described in the AtmosphericCompositionSpecies enum).
      * \param altitude Altitude.
      * \param longitude Longitude.
@@ -276,13 +276,13 @@ public:
         return baseAtmosphere_->getSpeedOfSound( altitude, longitude, latitude, time );
     }
 
-    double getNumberDensity( const double altitude, const double longitude, const double latitude, const double time ) override
+    double getTotalNumberDensity( const double altitude, const double longitude, const double latitude, const double time ) override
     {
         if( isScalingAbsolute_ )
         {
             throw std::runtime_error( "Error, total number density is not available for an absolute-scaled atmosphere." );
         }
-        return baseAtmosphere_->getNumberDensity( altitude, longitude, latitude, time ) * densityScalingFunction_( time );
+        return baseAtmosphere_->getTotalNumberDensity( altitude, longitude, latitude, time ) * densityScalingFunction_( time );
     }
 
 private:

@@ -229,10 +229,10 @@ public:
      *  Returns the local total number density of the atmosphere in m^-3, using the
      *  mass density and specific gas constant.
      */
-    double getNumberDensity( const double altitude,
-                             const double longitude = 0.0,
-                             const double latitude = 0.0,
-                             const double time = 0.0 ) override
+    double getTotalNumberDensity( const double altitude,
+                                  const double longitude = 0.0,
+                                  const double latitude = 0.0,
+                                  const double time = 0.0 ) override
     {
         return getDensity( altitude, longitude, latitude, time ) * specificGasConstant_ / physical_constants::BOLTZMANN_CONSTANT;
     }
@@ -357,17 +357,17 @@ public:
         return molarMass_;
     }
 
-    double getNumberDensity( const double altitude,
-                             const double longitude = 0.0,
-                             const double latitude = 0.0,
-                             const double time = 0.0 ) override
+    double getTotalNumberDensity( const double altitude,
+                                  const double longitude = 0.0,
+                                  const double latitude = 0.0,
+                                  const double time = 0.0 ) override
     {
         return numberDensityFunction_( altitude, longitude, latitude, time );
     }
 
     double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
     {
-        return getNumberDensity( altitude, longitude, latitude, time ) * molarMass_ / physical_constants::AVOGADRO_CONSTANT;
+        return getTotalNumberDensity( altitude, longitude, latitude, time ) * molarMass_ / physical_constants::AVOGADRO_CONSTANT;
     }
 
     double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 ) override
@@ -376,7 +376,7 @@ public:
         {
             throw std::runtime_error( "Error, pressure is not available for custom number density atmosphere without temperature." );
         }
-        return getNumberDensity( altitude, longitude, latitude, time ) * physical_constants::BOLTZMANN_CONSTANT * constantTemperature_;
+        return getTotalNumberDensity( altitude, longitude, latitude, time ) * physical_constants::BOLTZMANN_CONSTANT * constantTemperature_;
     }
 
     double getTemperature( const double altitude,

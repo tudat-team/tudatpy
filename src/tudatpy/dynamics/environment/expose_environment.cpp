@@ -877,7 +877,7 @@ bool
 
      )doc" )
             .def( "get_total_number_density",
-                  py::overload_cast< const double, const double, const double, const double >( &ta::AtmosphereModel::getNumberDensity ),
+                  &ta::AtmosphereModel::getTotalNumberDensity,
                   py::arg( "altitude" ),
                   py::arg( "longitude" ),
                   py::arg( "latitude" ),
