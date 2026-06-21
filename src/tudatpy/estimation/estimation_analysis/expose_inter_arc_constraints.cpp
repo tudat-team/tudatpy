@@ -89,11 +89,9 @@ void expose_inter_arc_constraints( py::module& m )
 
          Created via the factory functions :func:`full_state_continuity`, :func:`position_only_continuity`,
          :func:`velocity_only_continuity`, or :func:`general_continuity`. Pass a list of these objects to
-         :meth:`CovarianceAnalysisInput.set_inter_arc_continuity_constraints` (also inherited by
-         :class:`EstimationInput`) to attach the feature.
+         :meth:`EstimationInput.set_inter_arc_continuity_constraints` to attach the feature.
 
-         See Cicalo et al. (2021), "Orbit determination methods for interplanetary missions: development and
-         use of the Orbit14 software," section 3.3 Eq. (27)-(28) for the underlying mathematics. The cost
+         See Lari et al. (2021), Eq. (28) for the underlying mathematics. The cost
          contribution per boundary is ``q = (1 / (mu * m_d)) * d^T C d`` where ``d = x_right(t_c) - x_left(t_c)``
          and ``m_d`` is the global rank sum across every settings entry. Larger ``mu`` weakens the penalty.
       )doc" )

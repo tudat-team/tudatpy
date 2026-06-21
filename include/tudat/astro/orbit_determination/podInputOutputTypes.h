@@ -490,20 +490,6 @@ public:
         return considerParametersIncluded_;
     }
 
-    //! Configure soft inter-arc translational state continuity constraints (Cicalo et al. 2021 Eq. 28).
-    //! Each settings entry attaches one or more constrained boundaries (k, k+1) for a single multi-arc body.
-    //! Multiple entries (e.g. one per body) accumulate into a single normal-equation contribution at each
-    //! iteration. Passing an empty vector disables the feature.
-    void setInterArcContinuityConstraints( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
-    {
-        interArcContinuityConstraints_ = constraints;
-    }
-
-    const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& getInterArcContinuityConstraints( ) const
-    {
-        return interArcContinuityConstraints_;
-    }
-
 protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
@@ -533,9 +519,6 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
-
-    //! Soft inter-arc translational state continuity constraints. Empty by default (feature off).
-    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
@@ -723,6 +706,20 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    //! Configure soft inter-arc translational state continuity constraints (Lari et al. 2021 Eq. 28).
+    //! Each settings entry attaches one or more constrained boundaries (k, k+1) for a single multi-arc body.
+    //! Multiple entries (e.g. one per body) accumulate into a single normal-equation contribution at each
+    //! iteration. Passing an empty vector disables the feature.
+    void setInterArcContinuityConstraints( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
+    {
+        interArcContinuityConstraints_ = constraints;
+    }
+
+    const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& getInterArcContinuityConstraints( ) const
+    {
+        return interArcContinuityConstraints_;
+    }
+
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
@@ -737,6 +734,10 @@ public:
     bool conditionNumberWarningEachIteration_;
 
     bool applyFinalParameterCorrection_;
+
+protected:
+    //! Soft inter-arc translational state continuity constraints. Empty by default (feature off).
+    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
 };
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker( const unsigned int maximumNumberOfIterations = 5,

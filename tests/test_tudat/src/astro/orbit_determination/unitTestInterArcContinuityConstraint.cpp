@@ -810,7 +810,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     auto unconstrainedInput = std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
     auto unconstrainedOutput = orbitDeterminationManager.computeCovariance( unconstrainedInput );
 
-    auto constrainedInput = std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
+    auto constrainedInput = std::make_shared< EstimationInput< double, double > >( observations );
     auto constraint = positionOnlyContinuity( "Earth", { arcStartTimes[ 1 ] }, 1.0, 1.0E-15 );
     constrainedInput->setInterArcContinuityConstraints( { constraint } );
     auto constrainedOutput = orbitDeterminationManager.computeCovariance( constrainedInput );

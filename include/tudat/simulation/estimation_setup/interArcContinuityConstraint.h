@@ -215,7 +215,7 @@ BodyArcRows getBodyRowsInMultiArcLayout(
 
 //! Assemble the normal-equation contribution of all inter-arc continuity constraints for the current iteration.
 //!
-//! Per Cicalò et al. (2021) Eq. 27-28: for each constrained boundary (k_left, k_right) at epoch t_c,
+//! Per Lari et al. (2021) Eq. 28: for each constrained boundary (k_left, k_right) at epoch t_c,
 //!   d = x_right(t_c) - x_left(t_c)                              (6-vector, physical units)
 //!   D = M_right(t_c) - M_left(t_c)                              (6 x N_params, full multi-arc layout)
 //!   W_d = (1 / (mu_pair * m_d_total)) * C_pair

@@ -50,6 +50,9 @@ def test_inter_arc_constraint_factories_validate_inputs():
 
 def test_inter_arc_constraints_attach_to_input():
     covariance_input = estimation_analysis.CovarianceAnalysisInput(None)
+    assert not hasattr(covariance_input, "set_inter_arc_continuity_constraints")
+
+    estimation_input = estimation_analysis.EstimationInput(None)
     constraints = [
         estimation_analysis.full_state_continuity("Vehicle", [100.0], mu=2.0),
         estimation_analysis.position_only_continuity("Vehicle", [200.0], mu=[3.0]),
@@ -57,8 +60,8 @@ def test_inter_arc_constraints_attach_to_input():
         estimation_analysis.general_continuity("Vehicle", [400.0], [np.eye(6)], mu=[5.0]),
     ]
 
-    covariance_input.set_inter_arc_continuity_constraints(constraints)
+    estimation_input.set_inter_arc_continuity_constraints(constraints)
 
-    readback = covariance_input.inter_arc_continuity_constraints
+    readback = estimation_input.inter_arc_continuity_constraints
     assert len(readback) == 4
     assert [entry.mu_values for entry in readback] == [[2.0], [3.0], [4.0], [5.0]]

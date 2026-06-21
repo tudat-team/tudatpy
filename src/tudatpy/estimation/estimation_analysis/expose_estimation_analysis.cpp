@@ -546,23 +546,6 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
-      )doc" )
-            .def( "set_inter_arc_continuity_constraints",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
-                  py::arg( "constraints" ),
-                  R"doc(
-
-         Attach a list of soft inter-arc translational state continuity constraints, one per multi-arc body.
-         Pass an empty list to disable the feature. See ``inter_arc_constraints`` factory functions in
-         ``tudatpy.estimation.estimation_analysis`` for constructing the entries.
-      )doc" )
-            .def_property_readonly( "inter_arc_continuity_constraints",
-                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
-                                    R"doc(
-
-         **read-only**
-
-         List of currently attached inter-arc continuity constraint settings.
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -664,7 +647,24 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
-     )doc" );
+     )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach a list of soft inter-arc translational state continuity constraints, one per multi-arc body.
+         Pass an empty list to disable the feature. See ``inter_arc_constraints`` factory functions in
+         ``tudatpy.estimation.estimation_analysis`` for constructing the entries.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached inter-arc continuity constraint settings.
+      )doc" );
 
     m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 

@@ -88,9 +88,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
             constraintRightHandSide,
             estimationInput->getLimitConditionNumberForWarning( ) );
 
-    // Add the inter-arc continuity normal-matrix contribution (if any) to the parameter block. RHS is not used
-    // for covariance; pass an empty normalisation result to keep the assembly module signature happy.
-    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    // Add the inter-arc continuity normal-matrix contribution when the covariance input is an EstimationInput.
+    // Plain CovarianceAnalysisInput intentionally has no inter-arc continuity API.
+    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcConstraints;
+    auto estimationInputWithInterArcConstraints =
+            std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput );
+    if( estimationInputWithInterArcConstraints != nullptr )
+    {
+        interArcConstraints = estimationInputWithInterArcConstraints->getInterArcContinuityConstraints( );
+    }
     if( !interArcConstraints.empty( ) )
     {
         auto multiArcStmInterface = std::dynamic_pointer_cast<

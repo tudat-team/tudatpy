@@ -25,7 +25,7 @@ namespace simulation_setup
 {
 
 //! User-facing soft-continuity constraint between consecutive multi-arc translational arcs of a single body.
-//! The cost added to the LSQ target is, per pair (Cicalò et al. 2021 Eq. 28):
+//! The cost added to the LSQ target is, per pair (Lari et al. 2021 Eq. 28):
 //!   q_pair = (1 / (mu * m_d)) * d^T C d
 //! where d = x_right(t_c) - x_left(t_c). The weight matrix C selects which components are constrained
 //! (e.g. position-only, velocity-only, full state) and how tightly. Larger mu weakens the penalty.
