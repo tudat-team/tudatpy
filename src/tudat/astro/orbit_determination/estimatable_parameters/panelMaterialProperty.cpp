@@ -32,14 +32,14 @@ PanelMaterialPropertyParameter::PanelMaterialPropertyParameter(
     if( !( ( parameterType == energy_accomodation_coefficient ) || ( parameterType == normal_accomodation_coefficient ) ||
            ( parameterType == tangential_accomodation_coefficient ) || ( parameterType == normal_velocity_at_wall_ratio ) ) )
     {
-        throw std::runtime_error( "Error when creating estimated panel material property for " + panelTypeId + " of " +
-                                  associatedBody + ", input type is inconsistent" );
+        throw std::runtime_error( "Error when creating estimated panel material property for " + panelTypeId + " of " + associatedBody +
+                                  ", input type is inconsistent" );
     }
 
     if( vehiclePanels_.size( ) < 1 )
     {
-        throw std::runtime_error( "Error when creating estimated panel material property for " + panelTypeId + " of " +
-                                  associatedBody + ", no corresponding panels defined" );
+        throw std::runtime_error( "Error when creating estimated panel material property for " + panelTypeId + " of " + associatedBody +
+                                  ", no corresponding panels defined" );
     }
 
     normalizeValue( );

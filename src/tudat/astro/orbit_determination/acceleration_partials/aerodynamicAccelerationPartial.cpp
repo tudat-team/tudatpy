@@ -399,11 +399,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
             case estimatable_parameters::normal_accomodation_coefficient:
             case estimatable_parameters::tangential_accomodation_coefficient:
             case estimatable_parameters::normal_velocity_at_wall_ratio: {
-                partialFunction =
-                        std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialProperty,
-                                   this,
-                                   std::placeholders::_1,
-                                   parameter );
+                partialFunction = std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialProperty,
+                                             this,
+                                             std::placeholders::_1,
+                                             parameter );
                 numberOfColumns = 1;
                 break;
             }
