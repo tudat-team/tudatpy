@@ -1347,7 +1347,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );
@@ -1565,7 +1565,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );

@@ -32,7 +32,6 @@
 
 #include "tudat/astro/relativity/metric.h"
 
-
 namespace tudat
 {
 
@@ -45,8 +44,7 @@ namespace relativity
  *  \param fourVelocity Four-velocity \f$u^\mu\f$.
  *  \return Four-acceleration \f$du^\mu/d\tau\f$.
  */
-Eigen::Vector4d evaluateFourAcceleration(
-        const std::vector< Eigen::Matrix4d >& christoffelSymbols, const Eigen::Vector4d& fourVelocity );
+Eigen::Vector4d evaluateFourAcceleration( const std::vector< Eigen::Matrix4d >& christoffelSymbols, const Eigen::Vector4d& fourVelocity );
 
 //! Evaluate four-acceleration using a metric object and current 8D state.
 /*!
@@ -54,9 +52,8 @@ Eigen::Vector4d evaluateFourAcceleration(
  *  \param currentState Current 8D state used in metric/four-velocity evaluation.
  *  \return Four-acceleration \f$du^\mu/d\tau\f$.
  */
-Eigen::Vector4d evaluateFourAcceleration(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric,
-        const Eigen::Matrix< double, 8, 1 >& currentState );
+Eigen::Vector4d evaluateFourAcceleration( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+                                          const Eigen::Matrix< double, 8, 1 >& currentState );
 
 //! Update metric and evaluate four-acceleration at a given state and epoch.
 /*!
@@ -65,9 +62,9 @@ Eigen::Vector4d evaluateFourAcceleration(
  *  \param currentTime Evaluation epoch.
  *  \return Four-acceleration \f$du^\mu/d\tau\f$.
  */
-Eigen::Vector4d evaluateFourAccelerationWithUpdate(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric, const Eigen::Matrix< double, 8, 1 >& currentState,
-        const double currentTime );
+Eigen::Vector4d evaluateFourAccelerationWithUpdate( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+                                                    const Eigen::Matrix< double, 8, 1 >& currentState,
+                                                    const double currentTime );
 
 //! Evaluate coordinate-time equations of motion from Christoffel symbols.
 /*!
@@ -75,8 +72,8 @@ Eigen::Vector4d evaluateFourAccelerationWithUpdate(
  *  \param coordinateVelocity Coordinate velocity \f$d\mathbf{x}/dt\f$.
  *  \return Coordinate acceleration \f$d^2\mathbf{x}/dt^2\f$.
  */
-Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime(
-        const std::vector< Eigen::Matrix4d >& christoffelSymbols, const Eigen::Vector3d& coordinateVelocity );
+Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime( const std::vector< Eigen::Matrix4d >& christoffelSymbols,
+                                                                       const Eigen::Vector3d& coordinateVelocity );
 
 //! Evaluate coordinate-time equations of motion using current values in a metric object.
 /*!
@@ -84,8 +81,8 @@ Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime(
  *  \param currentState Current translational state.
  *  \return Coordinate acceleration \f$d^2\mathbf{x}/dt^2\f$.
  */
-Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric, const Eigen::Matrix< double, 6, 1 >& currentState );
+Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+                                                                       const Eigen::Matrix< double, 6, 1 >& currentState );
 
 //! Update metric and evaluate coordinate-time equations of motion.
 /*!
@@ -95,7 +92,8 @@ Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTime(
  *  \return Coordinate acceleration \f$d^2\mathbf{x}/dt^2\f$.
  */
 Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTimeWithUpdate(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric, const Eigen::Matrix< double, 6, 1 >& currentState,
+        const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+        const Eigen::Matrix< double, 6, 1 >& currentState,
         const double currentTime );
 
 //! Evaluate proper-time rate equation from metric perturbation and coordinate velocity.
@@ -105,8 +103,9 @@ Eigen::Vector3d evaluateRelativisticEquationsOfMotionInCoordinateTimeWithUpdate(
  *  \param squareRootOrderExpansion Expansion order used in the square-root approximation.
  *  \return Proper-time rate \f$d\tau/dt - 1\f$ contribution used in propagation.
  */
-double evaluateProperTimeEquation(
-        const Eigen::Matrix4d& metricPerturbation, const Eigen::Vector3d& coordinateVelocity, const int squareRootOrderExpansion = 1 );
+double evaluateProperTimeEquation( const Eigen::Matrix4d& metricPerturbation,
+                                   const Eigen::Vector3d& coordinateVelocity,
+                                   const int squareRootOrderExpansion = 1 );
 
 //! Evaluate proper-time rate equation using current values in a metric object.
 /*!
@@ -115,9 +114,9 @@ double evaluateProperTimeEquation(
  *  \param squareRootOrderExpansion Expansion order used in the square-root approximation.
  *  \return Proper-time rate \f$d\tau/dt - 1\f$ contribution used in propagation.
  */
-double evaluateProperTimeEquation(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric, const Eigen::Matrix< double, 6, 1 >& currentState,
-        const int squareRootOrderExpansion = 1 );
+double evaluateProperTimeEquation( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+                                   const Eigen::Matrix< double, 6, 1 >& currentState,
+                                   const int squareRootOrderExpansion = 1 );
 
 //! Update metric and evaluate proper-time rate equation.
 /*!
@@ -127,12 +126,13 @@ double evaluateProperTimeEquation(
  *  \param squareRootOrderExpansion Expansion order used in the square-root approximation.
  *  \return Proper-time rate \f$d\tau/dt - 1\f$ contribution used in propagation.
  */
-double evaluateProperTimeEquationWithUpdate(
-        const std::shared_ptr< relativity::Metric > spaceTimeMetric, const Eigen::Matrix< double, 6, 1 >& currentState,
-        const double currentTime, const int squareRootOrderExpansion = 1 );
+double evaluateProperTimeEquationWithUpdate( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
+                                             const Eigen::Matrix< double, 6, 1 >& currentState,
+                                             const double currentTime,
+                                             const int squareRootOrderExpansion = 1 );
 
 //! Direct relativistic acceleration model evaluated from a metric.
-class DirectRelativisticAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class DirectRelativisticAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
     //! Constructor.
@@ -142,7 +142,8 @@ public:
      */
     DirectRelativisticAcceleration( const std::shared_ptr< relativity::Metric > spaceTimeMetric,
                                     const std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction ):
-        spaceTimeMetric_( spaceTimeMetric ), acceleratedBodyStateFunction_( acceleratedBodyStateFunction ){ }
+        spaceTimeMetric_( spaceTimeMetric ), acceleratedBodyStateFunction_( acceleratedBodyStateFunction )
+    {}
 
     std::shared_ptr< relativity::Metric > getSpaceTimeMetric( ) const
     {
@@ -159,11 +160,10 @@ public:
         {
             this->currentTime_ = currentTime;
 
-            currentAcceleratedBodyState_ =  acceleratedBodyStateFunction_( );
+            currentAcceleratedBodyState_ = acceleratedBodyStateFunction_( );
             spaceTimeMetric_->update( currentAcceleratedBodyState_, currentTime, 1, 1 );
             this->currentAcceleration_ =
                     evaluateRelativisticEquationsOfMotionInCoordinateTime( spaceTimeMetric_, currentAcceleratedBodyState_ );
-
         }
     }
 
@@ -173,11 +173,10 @@ private:
     std::function< Eigen::Vector6d( ) > acceleratedBodyStateFunction_;
 
     Eigen::Vector6d currentAcceleratedBodyState_;
-
 };
 
-}
+}  // namespace relativity
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_RELATIVISTICEQUATIONSOFMOTION_H
+#endif  // TUDAT_RELATIVISTICEQUATIONSOFMOTION_H

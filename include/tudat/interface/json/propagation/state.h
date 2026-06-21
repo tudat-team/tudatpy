@@ -35,7 +35,7 @@ static std::map< StateType, std::string > stateTypes = { { cartesianElements, "c
                                                          { sphericalElements, "spherical" } };
 
 //! `StateType` not supported by `json_interface`.
-static std::vector< StateType > unsupportedStateTypes = { };
+static std::vector< StateType > unsupportedStateTypes = {};
 
 //! Convert `StateType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const StateType& stateType )

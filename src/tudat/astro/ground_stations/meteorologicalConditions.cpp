@@ -66,10 +66,9 @@ void ContinuousInterpolatedMeteoData::updateData( const double currentUtc )
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error in continuous meteo data interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error in continuous meteo data interpolator.\nOriginal error: " +
+                                      std::string( caughtException.what( ) ) );
         }
-
-
     }
 }
 
@@ -85,10 +84,9 @@ void PiecewiseInterpolatedMeteoData::updateData( const double currentUtc )
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error in piecewise constant meteo data interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error in piecewise constant meteo data interpolator.\nOriginal error: " +
+                                      std::string( caughtException.what( ) ) );
         }
-
-
     }
 }
 }  // namespace ground_stations

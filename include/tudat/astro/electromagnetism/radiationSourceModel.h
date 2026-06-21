@@ -232,8 +232,8 @@ public:
 
 private:
     double area_;
-    double latitude_{ };
-    double longitude_{ };
+    double latitude_{};
+    double longitude_{};
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
     std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels_;

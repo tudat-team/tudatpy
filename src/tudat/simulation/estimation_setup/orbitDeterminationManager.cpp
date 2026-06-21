@@ -10,6 +10,6 @@ namespace simulation_setup
 template class OrbitDeterminationManager< double, double >;
 #endif
 
-}
+}  // namespace simulation_setup
 
 }  // namespace tudat

@@ -19,7 +19,7 @@ namespace tudatpy
 {
 namespace trajectory_design
 {
-void expose_trajectory_design( py::module &m );
+void expose_trajectory_design( py::module& m );
 }
 }  // namespace tudatpy
 

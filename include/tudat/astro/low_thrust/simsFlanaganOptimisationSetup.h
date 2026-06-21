@@ -33,7 +33,7 @@ struct SimsFlanaganProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    SimsFlanaganProblem( ) { }
+    SimsFlanaganProblem( ) {}
 
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,

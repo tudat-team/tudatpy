@@ -43,10 +43,10 @@ public:
         optimisationAlgorithm_( optimisationAlgorithm ), numberOfGenerations_( numberOfGenerations ),
         numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
         relativeToleranceConstraints_( relativeToleranceConstraints ), initialGuessThrustModel_( initialGuessThrustModel )
-    { }
+    {}
 
     //! Destructor.
-    virtual ~OptimisationSettings( ) { }
+    virtual ~OptimisationSettings( ) {}
 
     //! Optimisation algorithm.
     pagmo::algorithm optimisationAlgorithm_;

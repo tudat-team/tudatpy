@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,7 @@ namespace observable_models_setup
 namespace links
 {
 
-void expose_links( py::module &m );
+void expose_links( py::module& m );
 
 }  // namespace links
 }  // namespace observable_models_setup

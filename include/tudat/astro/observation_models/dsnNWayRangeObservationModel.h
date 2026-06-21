@@ -64,8 +64,7 @@ public:
                 dsn_n_way_range,
                 linkEnds,
                 observationBiasCalculator,
-                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                        lightTimeCalculator } ),
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ lightTimeCalculator } ),
         numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
@@ -109,7 +108,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -224,7 +223,8 @@ public:
         return this->getFullLinkLightTimeCalculatorFromBase( );
     }
 
-    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > getLegLightTimeCalculators( ) const override
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
     {
         std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
         const auto legCalculators = this->getLightTimeCalculatorsFromBase( );

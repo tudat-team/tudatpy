@@ -368,9 +368,7 @@ def _requests_download(
 
                 content_length = resp.headers.get("content-length")
                 expected = (
-                    int(content_length)
-                    if content_length and content_length.isdigit()
-                    else None
+                    int(content_length) if content_length and content_length.isdigit() else None
                 )
                 written = 0
                 with open(tmp, "wb") as fh:
@@ -380,9 +378,7 @@ def _requests_download(
                             written += len(chunk)
 
                 if expected is not None and written != expected:
-                    raise IOError(
-                        f"Incomplete download: expected {expected} bytes, got {written}."
-                    )
+                    raise IOError(f"Incomplete download: expected {expected} bytes, got {written}.")
                 tmp.replace(dest)
                 return True, 200, None
         except Exception as exc:
@@ -426,25 +422,32 @@ def _curl_download(
 
             cmd: list[str] = [
                 curl_bin,
-                "-sS", "-L",
-                "--connect-timeout", "10",
-                "--max-time", "180",
-                "--retry", "3",
-                "--retry-delay", "1",
+                "-sS",
+                "-L",
+                "--connect-timeout",
+                "10",
+                "--max-time",
+                "180",
+                "--retry",
+                "3",
+                "--retry-delay",
+                "1",
                 "--retry-all-errors",
-                "-b", str(cookie_path),
-                "-c", str(cookie_path),
-                "-o", str(tmp),
-                "-w", "\\n%{http_code}\\n",
+                "-b",
+                str(cookie_path),
+                "-c",
+                str(cookie_path),
+                "-o",
+                str(tmp),
+                "-w",
+                "\\n%{http_code}\\n",
             ]
             if netrc_path.exists():
                 cmd.extend(["--netrc-file", str(netrc_path)])
             cmd.append(url)
 
             result = subprocess.run(cmd, check=False, capture_output=True, text=True)
-            stdout_lines = [
-                ln.strip() for ln in (result.stdout or "").splitlines() if ln.strip()
-            ]
+            stdout_lines = [ln.strip() for ln in (result.stdout or "").splitlines() if ln.strip()]
             status: int | None = None
             if stdout_lines and stdout_lines[-1].isdigit():
                 status = int(stdout_lines[-1])
@@ -500,9 +503,7 @@ def _download_candidate(
     download_name = candidate.download_name or candidate.local_name
     download_path = target_dir / download_name
 
-    ok, status, err = _http_download(
-        candidate.url, download_path, netrc_path=netrc_path
-    )
+    ok, status, err = _http_download(candidate.url, download_path, netrc_path=netrc_path)
     if not ok:
         detail = (
             f"{candidate.url} (status: {status})"
@@ -569,16 +570,18 @@ def _sync_daily_files(
                 result.downloaded.append(downloaded_path)
                 log.info(
                     "\u2b07 %s %s%s downloaded: %s",
-                    product_label, year, doy_str, downloaded_path.name,
+                    product_label,
+                    year,
+                    doy_str,
+                    downloaded_path.name,
                 )
                 break
             if detail:
                 failures.append(detail)
         else:
             if failures:
-                msg = (
-                    f"{product_label} {year}{doy_str}: all candidates failed:\n"
-                    + "\n".join(f"  - {f}" for f in failures)
+                msg = f"{product_label} {year}{doy_str}: all candidates failed:\n" + "\n".join(
+                    f"  - {f}" for f in failures
                 )
                 log.warning(msg)
                 result.failed.append(msg)
@@ -749,20 +752,18 @@ def download_ionex(
         year_doys,
         product_label="IONEX",
         target_dir=target_dir,
-        list_local=lambda d, y, doy: sorted(
-            d.glob(_ionex_local_pattern(y, doy))
-        ),
+        list_local=lambda d, y, doy: sorted(d.glob(_ionex_local_pattern(y, doy))),
         select_preferred=lambda matches: min(
             matches, key=lambda p: _ionex_preference_key(p, products)
         ),
         should_download=lambda day, matches, ref: _should_refresh_ionex(
-            day, matches, ref,
+            day,
+            matches,
+            ref,
             products=products,
             refresh_within_days=refresh_within_days,
         ),
-        build_candidates=lambda y, doy: _build_ionex_candidates(
-            y, doy, products, resolution
-        ),
+        build_candidates=lambda y, doy: _build_ionex_candidates(y, doy, products, resolution),
         cleanup=_cleanup_ionex_partials,
         netrc_path=resolved_netrc,
     )
@@ -885,9 +886,7 @@ def download_vmf(
         list_local=lambda d, y, doy: _vmf_local_matches(d, y, doy, spec.suffix),
         select_preferred=lambda matches: matches[0],
         should_download=_should_download_missing_only,
-        build_candidates=lambda y, doy: _build_vmf_candidates(
-            y, doy, spec, processing
-        ),
+        build_candidates=lambda y, doy: _build_vmf_candidates(y, doy, spec, processing),
     )
 
     # Filter stations after download
@@ -976,7 +975,8 @@ def download_ancillary(
 
     if ionex:
         results["ionex"] = download_ionex(
-            start, end,
+            start,
+            end,
             directory=base / "ionex",
             products=ionex_products,
             resolution=ionex_resolution,
@@ -985,7 +985,8 @@ def download_ancillary(
 
     if vmf:
         results["vmf"] = download_vmf(
-            start, end,
+            start,
+            end,
             stations_to_keep=vmf_stations_to_keep,
             technique=vmf_technique,
             processing=vmf_processing,

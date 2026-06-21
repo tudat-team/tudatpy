@@ -31,22 +31,20 @@ class TimeEphemerisWithFirstOrderDirectConversion : public TimeEphemerisFromPost
 public:
     using TimeDifferenceInterpolator =
             typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceInterpolator;
-    using TimeDifferenceDataMap =
-            typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceDataMap;
+    using TimeDifferenceDataMap = typename TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::TimeDifferenceDataMap;
 
     TimeEphemerisWithFirstOrderDirectConversion(
             const std::string& centralBodyName,
             const std::function< Eigen::Vector6d( const TimeType ) > centralBodyStateFunction,
             const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences = TimeDifferenceDataMap( ),
             const std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >& groundStationPositionFunctions =
-            ( std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >( ) ),
+                    ( std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >( ) ),
             const std::map< std::string, TimeDifferenceDataMap > planetCoordinateToProperTimeDifferences =
-            ( std::map< std::string, TimeDifferenceDataMap >( ) ),
+                    ( std::map< std::string, TimeDifferenceDataMap >( ) ),
             const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings =
-            TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getDefaultTimeDifferenceInterpolatorSettings( ) );
+                    TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getDefaultTimeDifferenceInterpolatorSettings( ) );
 
-    double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint,
-                                              const TimeType currentTime ) override;
+    double calculateDirectTimeDifferenceTerm( const Eigen::Vector3d positionVectorFromReferencePoint, const TimeType currentTime ) override;
 
 private:
     std::function< Eigen::Vector6d( const TimeType ) > centralBodyStateFunction_;
@@ -59,15 +57,14 @@ TimeEphemerisWithFirstOrderDirectConversion< TimeType, StateScalarType >::TimeEp
         const TimeDifferenceDataMap& barycenterToPlanetCenterCoordinateTimeDifferences,
         const std::map< std::string, std::function< Eigen::Vector3d( const TimeType ) > >& groundStationPositionFunctions,
         const std::map< std::string, TimeDifferenceDataMap > planetCoordinateToProperTimeDifferences,
-        const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings ) :
-    TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >(
-        centralBodyName,
-        barycenterToPlanetCenterCoordinateTimeDifferences,
-        groundStationPositionFunctions,
-        planetCoordinateToProperTimeDifferences,
-        timeDifferenceInterpolatorSettings ),
+        const std::shared_ptr< interpolators::InterpolatorSettings >& timeDifferenceInterpolatorSettings ):
+    TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >( centralBodyName,
+                                                                          barycenterToPlanetCenterCoordinateTimeDifferences,
+                                                                          groundStationPositionFunctions,
+                                                                          planetCoordinateToProperTimeDifferences,
+                                                                          timeDifferenceInterpolatorSettings ),
     centralBodyStateFunction_( centralBodyStateFunction )
-{ }
+{}
 
 template< typename TimeType, typename StateScalarType >
 double TimeEphemerisWithFirstOrderDirectConversion< TimeType, StateScalarType >::calculateDirectTimeDifferenceTerm(

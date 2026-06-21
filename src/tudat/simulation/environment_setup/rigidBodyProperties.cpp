@@ -24,9 +24,9 @@ RigidBodyProperties::RigidBodyProperties( ):
     currentMass_( TUDAT_NAN ), currentCenterOfMass_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
     currentInertiaTensor_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ), isBodyInPropagation_( false ), isMassComputed_( false ),
     isComComputed_( false ), isInertiaTensorComputed_( false )
-{ }
+{}
 
-RigidBodyProperties::~RigidBodyProperties( ) { }
+RigidBodyProperties::~RigidBodyProperties( ) {}
 
 void RigidBodyProperties::update( const double currentTime )
 {
@@ -78,10 +78,11 @@ TimeDependentRigidBodyProperties::TimeDependentRigidBodyProperties(
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
         const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
     massFunction_( massFunction ), centerOfMassFunction_( centerOfMassFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-{ }
+{}
 
-TimeDependentRigidBodyProperties::TimeDependentRigidBodyProperties(
-        const double mass, const Eigen::Vector3d& centerOfMass, const Eigen::Matrix3d& inertiaTensor ):
+TimeDependentRigidBodyProperties::TimeDependentRigidBodyProperties( const double mass,
+                                                                    const Eigen::Vector3d& centerOfMass,
+                                                                    const Eigen::Matrix3d& inertiaTensor ):
     massFunction_( nullptr ), centerOfMassFunction_( nullptr ), inertiaTensorFunction_( nullptr )
 {
     currentMass_ = mass;
@@ -100,7 +101,7 @@ TimeDependentRigidBodyProperties::TimeDependentRigidBodyProperties(
     }
 }
 
-TimeDependentRigidBodyProperties::~TimeDependentRigidBodyProperties( ) { }
+TimeDependentRigidBodyProperties::~TimeDependentRigidBodyProperties( ) {}
 
 void TimeDependentRigidBodyProperties::resetCurrentTime( )
 {
@@ -176,9 +177,9 @@ MassDependentRigidBodyProperties::MassDependentRigidBodyProperties(
     updateMassDistribution( TUDAT_NAN );
 }
 
-MassDependentRigidBodyProperties::~MassDependentRigidBodyProperties( ) { }
+MassDependentRigidBodyProperties::~MassDependentRigidBodyProperties( ) {}
 
-void MassDependentRigidBodyProperties::updateMass( const double currentTime ) { }
+void MassDependentRigidBodyProperties::updateMass( const double currentTime ) {}
 
 void MassDependentRigidBodyProperties::updateMassDistribution( const double currentTime )
 {
@@ -202,8 +203,7 @@ void MassDependentRigidBodyProperties::setCurrentMass( const double currentMass 
 }
 
 FromGravityFieldRigidBodyProperties::FromGravityFieldRigidBodyProperties(
-        const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ):
-    gravityFieldModel_( gravityFieldModel )
+        const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ): gravityFieldModel_( gravityFieldModel )
 {
     currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
     currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
@@ -217,7 +217,7 @@ FromGravityFieldRigidBodyProperties::FromGravityFieldRigidBodyProperties(
             ( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel ) != nullptr );
 }
 
-FromGravityFieldRigidBodyProperties::~FromGravityFieldRigidBodyProperties( ) { }
+FromGravityFieldRigidBodyProperties::~FromGravityFieldRigidBodyProperties( ) {}
 
 void FromGravityFieldRigidBodyProperties::resetCurrentTime( )
 {

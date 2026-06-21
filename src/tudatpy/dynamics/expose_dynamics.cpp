@@ -36,7 +36,7 @@ namespace tudatpy
 namespace dynamics
 {
 
-void expose_dynamics( py::module &m )
+void expose_dynamics( py::module& m )
 {
     auto environment_submodule = m.def_submodule( "environment" );
     environment::expose_environment( environment_submodule );
@@ -58,7 +58,6 @@ void expose_dynamics( py::module &m )
 
     auto parameters_submodule = m.def_submodule( "parameters" );
     parameters::expose_parameters( parameters_submodule );
-
 };
 
 }  // namespace dynamics

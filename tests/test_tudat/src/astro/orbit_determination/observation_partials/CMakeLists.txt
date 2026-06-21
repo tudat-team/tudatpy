@@ -49,6 +49,18 @@ TUDAT_ADD_TEST_CASE(AngularPositionPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(AzimuthElevationPartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(PixelCoordinatesPartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(PositionPartials
         PRIVATE_LINKS
         tudat_test_support
@@ -112,6 +124,18 @@ TUDAT_ADD_TEST_CASE(RelativePositionPartials
  )
 
  TUDAT_ADD_TEST_CASE(DifferencedTimeOfArrivalPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(OneWayDopplerMeasuredFrequencyPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(DifferencedFrequencyOfArrivalPartials
          PRIVATE_LINKS
          tudat_test_support
          ${Tudat_ESTIMATION_LIBRARIES}

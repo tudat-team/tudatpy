@@ -94,8 +94,6 @@ AvailableAcceleration getAccelerationModelType(
 
 bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType );
 
-
-
 // Function to identify the type of a mass rate model.
 /*
  *  Function to identify the type of a mass rate model. The type must be defined

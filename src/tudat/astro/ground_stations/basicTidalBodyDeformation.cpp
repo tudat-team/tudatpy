@@ -101,7 +101,7 @@ Eigen::Vector3d BasicTidalBodyDeformation::calculateBasicTicalDisplacement(
 
     for( int i = 0; i < numberOfBodies_; i++ )
     {
-        for( auto it: loveNumbers )
+        for( auto it : loveNumbers )
         {
             switch( it.first )
             {

@@ -65,7 +65,7 @@ public:
     }
 
     //! Default destructor.
-    ~HybridMethodModel( ) { }
+    ~HybridMethodModel( ) {}
 
     //! Retrieve MEE costates-based thrust acceleration.
     std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );

@@ -67,6 +67,10 @@ long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const T
 
 void PiecewiseLinearFrequencyInterpolator::initialize( )
 {
+    invalidTimeBlocksStartTimes_.clear( );
+    invalidTimeBlocksEndTimes_.clear( );
+    invalidStartTimeLookupScheme_ = nullptr;
+
     // Check if dimensions of all vectors are consistent
     if( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
         startTimes_.size( ) != startFrequencies_.size( ) )
@@ -93,6 +97,29 @@ void PiecewiseLinearFrequencyInterpolator::initialize( )
     endTimes_ = utilities::createVectorFromMapValues( endTimesMap );
     rampRates_ = utilities::createVectorFromMapValues( rampRatesMap );
     startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
+
+    for( unsigned int i = 0; i < startTimes_.size( ); i++ )
+    {
+        if( endTimes_.at( i ) <= startTimes_.at( i ) )
+        {
+            throw std::runtime_error( "Error when creating piecewise linear frequency interpolator: ramp end time (" +
+                                      std::to_string( double( endTimes_.at( i ) ) ) + ") is not after ramp start time (" +
+                                      std::to_string( double( startTimes_.at( i ) ) ) + ")." );
+        }
+
+        if( i > 0 )
+        {
+            if( startTimes_.at( i ) < endTimes_.at( i - 1 ) )
+            {
+                endTimes_.at( i - 1 ) = startTimes_.at( i );
+            }
+            else if( gapHandling_ != extrapolate_at_gaps && startTimes_.at( i ) > endTimes_.at( i - 1 ) )
+            {
+                invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
+                invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
+            }
+        }
+    }
 
     startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( startTimes_ );
 

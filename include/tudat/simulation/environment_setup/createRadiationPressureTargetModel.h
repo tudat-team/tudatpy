@@ -50,10 +50,10 @@ class RadiationPressureTargetModelSettings
 public:
     explicit RadiationPressureTargetModelSettings(
             RadiationPressureTargetModelType radiationPressureTargetModelType,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         radiationPressureTargetModelType_( radiationPressureTargetModelType ),
         sourceToTargetOccultingBodies_( sourceToTargetOccultingBodies )
-    { }
+    {}
 
     virtual ~RadiationPressureTargetModelSettings( ) = default;
 
@@ -82,7 +82,7 @@ public:
             std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings ):
         RadiationPressureTargetModelSettings( multi_type_target ),
         radiationPressureTargetModelSettings_( radiationPressureTargetModelSettings )
-    { }
+    {}
 
     std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings_;
 };
@@ -105,10 +105,10 @@ public:
     explicit CannonballRadiationPressureTargetModelSettings(
             double area,
             double coefficient,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::cannonball_target, sourceToTargetOccultingBodies ),
         area_( area ), coefficient_( coefficient )
-    { }
+    {}
 
     double getArea( ) const
     {
@@ -129,21 +129,20 @@ private:
 class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
 {
 private:
-std::map< std::string, int > maximumNumberOfPixelsPerSource_;
+    std::map< std::string, int > maximumNumberOfPixelsPerSource_;
 
 public:
     explicit PaneledRadiationPressureTargetModelSettings(
-        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
-        const std::map< std::string, int > maximumNumberOfPixelsPerSource = { } ):
-    RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies ),
-    maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
-    { }
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {},
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = {} ):
+        RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies ),
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
+    {}
 
     std::map< std::string, int > getMaximumNumberOfPixelsPerSource( ) const
     {
         return maximumNumberOfPixelsPerSource_;
     }
-
 };
 //
 ///*!
@@ -186,9 +185,9 @@ class BodyPanelReflectionLawSettings
 public:
     BodyPanelReflectionLawSettings( const BodyPanelReflectionLawType bodyPanelReflectionLawType ):
         bodyPanelReflectionLawType_( bodyPanelReflectionLawType )
-    { }
+    {}
 
-    virtual ~BodyPanelReflectionLawSettings( ) { }
+    virtual ~BodyPanelReflectionLawSettings( ) {}
 
     BodyPanelReflectionLawType bodyPanelReflectionLawType_;
 };
@@ -205,7 +204,7 @@ public:
         absorptivity_ = 1.0 - ( specularReflectivity_ + diffuseReflectivity_ );
     }
 
-    ~SpecularDiffuseBodyPanelReflectionLawSettings( ) { }
+    ~SpecularDiffuseBodyPanelReflectionLawSettings( ) {}
 
     double specularReflectivity_;
 
@@ -382,7 +381,7 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiati
 inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiationPressureTargetModelSettings(
         double area,
         double coefficient,
-        const std::vector< std::string >& sourceToTargetOccultingBodies = { } )
+        const std::vector< std::string >& sourceToTargetOccultingBodies = {} )
 {
     const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", sourceToTargetOccultingBodies } };
     return cannonballRadiationPressureTargetModelSettingsWithOccultationMap( area, coefficient, occultingBodiesMap );
@@ -416,7 +415,7 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationP
  */
 inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationPressureTargetModelSettings(
         //            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
-        const std::vector< std::string >& sourceToTargetOccultingBodies = { } )
+        const std::vector< std::string >& sourceToTargetOccultingBodies = {} )
 {
     const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", sourceToTargetOccultingBodies } };
     return std::make_shared< RadiationPressureTargetModelSettings >( paneled_target, occultingBodiesMap );

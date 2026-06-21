@@ -42,10 +42,9 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
-    py::enum_< tom::LightTimeCorrectionType >(
-            m,
-            "LightTimeCorrectionType",
-            R"doc(Enum identifying each type of light-time correction registered on a link.
+    py::enum_< tom::LightTimeCorrectionType >( m,
+                                               "LightTimeCorrectionType",
+                                               R"doc(Enum identifying each type of light-time correction registered on a link.
 
 Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
 to select which correction contributions are saved individually.)doc" )
@@ -476,24 +475,29 @@ first_order_delay_coefficient : float, default = 40.3
            )doc" );
 
     // NeQuick-2 path-integrated ionospheric correction
-    m.def( "nequick2_ionospheric_light_time_correction",
-           []( bool useIonexRescaling,
-               double firstOrderDelayCoefficient,
-               int quadratureOrder,
-               const std::string& ccirDataPath,
-               const std::string& solarActivityDataPath,
-               double ionexRmsBiasTecu ) {
-               return tom::nequick2IonosphericCorrectionSettings(
-                   "Earth", useIonexRescaling, firstOrderDelayCoefficient,
-                   quadratureOrder, ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
-           },
-           py::arg( "use_ionex_rescaling" ) = true,
-           py::arg( "first_order_delay_coefficient" ) = 40.3,
-           py::arg( "quadrature_order" ) = 50,
-           py::arg( "ccir_data_path" ) = "",
-           py::arg( "solar_activity_data_path" ) = "",
-           py::arg( "ionex_rms_bias_tecu" ) = 0.0,
-           R"doc(
+    m.def(
+            "nequick2_ionospheric_light_time_correction",
+            []( bool useIonexRescaling,
+                double firstOrderDelayCoefficient,
+                int quadratureOrder,
+                const std::string& ccirDataPath,
+                const std::string& solarActivityDataPath,
+                double ionexRmsBiasTecu ) {
+                return tom::nequick2IonosphericCorrectionSettings( "Earth",
+                                                                   useIonexRescaling,
+                                                                   firstOrderDelayCoefficient,
+                                                                   quadratureOrder,
+                                                                   ccirDataPath,
+                                                                   solarActivityDataPath,
+                                                                   ionexRmsBiasTecu );
+            },
+            py::arg( "use_ionex_rescaling" ) = true,
+            py::arg( "first_order_delay_coefficient" ) = 40.3,
+            py::arg( "quadrature_order" ) = 50,
+            py::arg( "ccir_data_path" ) = "",
+            py::arg( "solar_activity_data_path" ) = "",
+            py::arg( "ionex_rms_bias_tecu" ) = 0.0,
+            R"doc(
 
 Function for creating settings for NeQuick-2 path-integrated ionospheric light-time corrections.
 
@@ -625,8 +629,9 @@ This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-d
 
     py::class_< tom::GlobalIonosphereModelVtecCalculator,
                 std::shared_ptr< tom::GlobalIonosphereModelVtecCalculator >,
-                tom::VtecCalculator >( m, "GlobalIonosphereModelVtecCalculator",
-                R"doc(
+                tom::VtecCalculator >( m,
+                                       "GlobalIonosphereModelVtecCalculator",
+                                       R"doc(
 
 VTEC calculator that wraps an IonosphereModel (e.g., from IONEX data).
 

@@ -132,8 +132,7 @@ public:
                 boundaryHandling,
                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
                 period )
-    { }
-
+    {}
 
     //! Constructor from vectors of independent and dependent data.
     /*!
@@ -215,7 +214,8 @@ public:
                 selectedLookupScheme,
                 boundaryHandling,
                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
-                period ){ }
+                period )
+    {}
 
     //! Default destructor
     /*!
@@ -290,8 +290,7 @@ public:
             // Standard non-periodic interpolation
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                     ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                            static_cast< ScalarType >( independentValues_[ upperIndex ] -
-                                                       independentValues_[ newNearestLowerIndex ] ) *
+                            static_cast< ScalarType >( independentValues_[ upperIndex ] - independentValues_[ newNearestLowerIndex ] ) *
                             ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
         }
 
@@ -333,8 +332,7 @@ private:
      *  \param val2 Second value.
      *  \return Shortest distance from val1 to val2, considering periodicity.
      */
-    IndependentVariableType getShortestDistance( const IndependentVariableType& val1,
-                                                 const IndependentVariableType& val2 ) const
+    IndependentVariableType getShortestDistance( const IndependentVariableType& val1, const IndependentVariableType& val2 ) const
     {
         if( !isPeriodic( ) )
         {
@@ -342,10 +340,9 @@ private:
         }
 
         IndependentVariableType diff = val2 - val1;
-        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >(
-                    static_cast< double >( period_ ) / 2.0 );
-        const IndependentVariableType negativeHalfPeriod = static_cast< IndependentVariableType >(
-                    static_cast< double >( period_ ) / -2.0 );
+        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >( static_cast< double >( period_ ) / 2.0 );
+        const IndependentVariableType negativeHalfPeriod =
+                static_cast< IndependentVariableType >( static_cast< double >( period_ ) / -2.0 );
 
         while( diff > halfPeriod )
         {

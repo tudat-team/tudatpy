@@ -21,9 +21,9 @@ void throwSpiceException( const std::string& shortMessage,
                           const std::string& longMessage,
                           const std::string& traceback )
 {
-#define TUDAT_SPICE_EXCEPTION( short_message, exception_type ) \
-    if( shortMessage == short_message )                         \
-    {                                                           \
+#define TUDAT_SPICE_EXCEPTION( short_message, exception_type )                     \
+    if( shortMessage == short_message )                                            \
+    {                                                                              \
         throw exception_type( shortMessage, explanation, longMessage, traceback ); \
     }
 

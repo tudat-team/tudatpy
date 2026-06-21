@@ -27,10 +27,16 @@ namespace propagators
 // Enum listing types of dynamics that can be numerically integrated
 // ! @get_docstring(IntegratedStateType.__docstring__)
 
-enum IntegratedStateType { hybrid = 0, translational_state = 1, rotational_state = 2, body_mass_state = 3, custom_state = 4, proper_time = 5 };
+enum IntegratedStateType {
+    hybrid = 0,
+    translational_state = 1,
+    rotational_state = 2,
+    body_mass_state = 3,
+    custom_state = 4,
+    proper_time = 5
+};
 
-enum RelativisticTimeStateDerivativeType
-{
+enum RelativisticTimeStateDerivativeType {
     first_order_barycentric_to_bodycentric = 0,
     second_order_barycentric_to_bodycentric = 1,
     first_order_bodycentric_to_topocentric = 2,
@@ -91,7 +97,7 @@ public:
     }
 
     // Virtual destructor.
-    virtual ~SingleStateTypeDerivative( ) { }
+    virtual ~SingleStateTypeDerivative( ) {}
 
     // Calculates the state derivative of the system of equations for the given type of dynamics
     /*

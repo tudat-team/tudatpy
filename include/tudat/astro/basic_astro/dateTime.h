@@ -11,10 +11,7 @@
 #ifndef TUDAT_DATETIME_H
 #define TUDAT_DATETIME_H
 
-#include <algorithm>
 #include <array>
-#include <chrono>
-#include <ctime>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -48,13 +45,13 @@ TimeType timeFromDecomposedDateTime( const int year,
 }
 
 //! Function to get Time from an ISO time string
-inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
-                                             int &year,
-                                             int &month,
-                                             int &days,
-                                             int &hours,
-                                             int &minutes,
-                                             long double &seconds )
+inline void decomposedDateTimeFromIsoString( const std::string& isoTime,
+                                             int& year,
+                                             int& month,
+                                             int& days,
+                                             int& hours,
+                                             int& minutes,
+                                             long double& seconds )
 {
     try
     {
@@ -79,7 +76,7 @@ inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
         minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
         seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
     }
-    catch( std::runtime_error &caughtException )
+    catch( std::runtime_error& caughtException )
     {
         throw std::runtime_error( "Error when parsing iso datetime string " + isoTime +
                                   ". Caught exception is: " + caughtException.what( ) );
@@ -88,7 +85,7 @@ inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
 
 //! Function to get Time from an ISO time string
 template< typename TimeType >
-TimeType timeFromIsoString( const std::string &isoTime )
+TimeType timeFromIsoString( const std::string& isoTime )
 {
     int year, month, days, hours, minutes;
     long double seconds;
@@ -97,15 +94,15 @@ TimeType timeFromIsoString( const std::string &isoTime )
     return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
 }
 
-inline constexpr std::array< std::array< int, 3 >, 27 > leapSecondIntroductionDays = {{
-        { 1972, 7, 1 }, { 1973, 1, 1 }, { 1974, 1, 1 }, { 1975, 1, 1 }, { 1976, 1, 1 }, { 1977, 1, 1 }, { 1978, 1, 1 },
-        { 1979, 1, 1 }, { 1980, 1, 1 }, { 1981, 7, 1 }, { 1982, 7, 1 }, { 1983, 7, 1 }, { 1985, 7, 1 }, { 1988, 1, 1 },
-        { 1990, 1, 1 }, { 1991, 1, 1 }, { 1992, 7, 1 }, { 1993, 7, 1 }, { 1994, 7, 1 }, { 1996, 1, 1 }, { 1997, 7, 1 },
-        { 1999, 1, 1 }, { 2006, 1, 1 }, { 2009, 1, 1 }, { 2012, 7, 1 }, { 2015, 7, 1 }, { 2017, 1, 1 } }};
+inline constexpr std::array< std::array< int, 3 >, 27 > leapSecondIntroductionDays = {
+    { { 1972, 7, 1 }, { 1973, 1, 1 }, { 1974, 1, 1 }, { 1975, 1, 1 }, { 1976, 1, 1 }, { 1977, 1, 1 }, { 1978, 1, 1 },
+      { 1979, 1, 1 }, { 1980, 1, 1 }, { 1981, 7, 1 }, { 1982, 7, 1 }, { 1983, 7, 1 }, { 1985, 7, 1 }, { 1988, 1, 1 },
+      { 1990, 1, 1 }, { 1991, 1, 1 }, { 1992, 7, 1 }, { 1993, 7, 1 }, { 1994, 7, 1 }, { 1996, 1, 1 }, { 1997, 7, 1 },
+      { 1999, 1, 1 }, { 2006, 1, 1 }, { 2009, 1, 1 }, { 2012, 7, 1 }, { 2015, 7, 1 }, { 2017, 1, 1 } }
+};
 
 template< std::size_t NumberOfIntroductionDates >
-constexpr bool areLeapSecondIntroductionDaysValid(
-        const std::array< std::array< int, 3 >, NumberOfIntroductionDates >& introductionDays )
+constexpr bool areLeapSecondIntroductionDaysValid( const std::array< std::array< int, 3 >, NumberOfIntroductionDates >& introductionDays )
 {
     for( const auto& introductionDay : introductionDays )
     {
@@ -338,104 +335,6 @@ public:
         return julianDay< TimeType >( ) - referenceJulianDay;
     }
 
-    static double minimumChronoRepresentableEpoch( )
-    {
-        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
-        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
-
-        constexpr std::chrono::system_clock::duration::rep minTickCount =
-                std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
-
-        std::chrono::system_clock::duration minDuration( minTickCount );
-
-        std::chrono::duration< double > secondsDuration = minDuration;
-
-        double lowerRepresentationCount = secondsDuration.count( );
-
-        double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
-
-#if defined( _WIN64 ) || defined( _WIN32 )
-        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
-
-#elif defined( __APPLE__ )
-        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
-#endif
-
-        return minimumRepresentableEpoch;
-    }
-
-    static double maximumChronoRepresentableEpoch( )
-    {
-        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
-        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
-
-        constexpr std::chrono::system_clock::duration::rep maxTickCount =
-                std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
-
-        std::chrono::system_clock::duration maxDuration( maxTickCount );
-
-        std::chrono::duration< double > secondsDuration = maxDuration;
-
-        double upperRepresentationCount = secondsDuration.count( );
-
-        double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
-
-#if defined( _WIN64 ) || defined( _WIN32 )
-        maximumRepresentableEpoch = std::min( maximumRepresentableEpoch, DateTime( 3000, 12, 31, 23, 59, 59.0L ).epoch< double >( ) );
-#endif
-        return maximumRepresentableEpoch;
-    }
-
-    std::chrono::system_clock::time_point timePoint( ) const
-    {
-        double minimumChronoEpoch = minimumChronoRepresentableEpoch( );
-        double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
-
-        if( this->epoch< double >( ) >= maximumChronoEpoch || this->epoch< double >( ) <= minimumChronoEpoch )
-        {
-            throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
-                                      " is out of range for conversion to time point. Lower limit (in seconds from J2000) is: " +
-                                      std::to_string( minimumChronoEpoch ) + ", upper limit: " + std::to_string( maximumChronoEpoch ) );
-        }
-
-        std::tm tm = { };
-        tm.tm_sec = static_cast< int >( this->getSeconds( ) );
-        tm.tm_min = this->getMinute( );
-        tm.tm_hour = this->getHour( );
-        tm.tm_mday = this->getDay( );
-        tm.tm_mon = this->getMonth( ) - 1;
-        tm.tm_year = this->getYear( ) - 1900;
-
-        tm.tm_isdst = -1;
-
-        std::time_t tt = std::mktime( &tm );
-
-        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
-        return timePoint +
-                std::chrono::microseconds(
-                        static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                                                        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
-    }
-
-    static DateTime fromTimePoint( const std::chrono::system_clock::time_point datetime )
-    {
-        std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
-
-        std::tm local_tm = *localtime( &tt );
-
-        using namespace std::chrono;
-        microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
-        long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
-
-        return DateTime( local_tm.tm_year + 1900,
-                         local_tm.tm_mon + 1,
-                         local_tm.tm_mday,
-                         local_tm.tm_hour,
-                         local_tm.tm_min,
-                         static_cast< long double >( local_tm.tm_sec ) +
-                                 static_cast< long double >( fractional_seconds ) /
-                                         tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
-    }
     static DateTime fromYearAndDaysInYear( const int year, const int daysInYear )
     {
         boost::gregorian::date boostDateTime = convertYearAndDaysInYearToDate( year, daysInYear );
@@ -443,7 +342,7 @@ public:
     }
 
     template< typename TimeType >
-    static DateTime fromTime( const TimeType &timeInput )
+    static DateTime fromTime( const TimeType& timeInput )
     {
         Time time = Time( timeInput );
 
@@ -496,7 +395,7 @@ public:
         return DateTime( year, month, day, hour, minute, seconds );
     }
 
-    static DateTime fromIsoString( const std::string &isoTime )
+    static DateTime fromIsoString( const std::string& isoTime )
     {
         int year, month, days, hours, minutes;
         long double seconds;
@@ -580,16 +479,17 @@ protected:
 
         if( seconds_ >= 60.0L && ( hour_ != 23 || minute_ != 59 || !basic_astrodynamics::isLeapSecondDay( year_, month_, day_ ) ) )
         {
-            throw std::runtime_error( "Error when creating Tudat DateTime, a value of 60 <= seconds < 61 is only valid for leap "
-                                      "second dates at 23:59:60 <= seconds < 61. Input was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) +
-                                      ", " + std::to_string( day_ ) + ", " + std::to_string( hour_ ) + ", " +
-                                      std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
+            throw std::runtime_error(
+                    "Error when creating Tudat DateTime, a value of 60 <= seconds < 61 is only valid for leap "
+                    "second dates at 23:59:60 <= seconds < 61. Input was " +
+                    std::to_string( year_ ) + ", " + std::to_string( month_ ) + ", " + std::to_string( day_ ) + ", " +
+                    std::to_string( hour_ ) + ", " + std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
         }
     }
 };
 
 template< typename TimeType >
-DateTime addSecondsToDateTime( const DateTime &dateTime, const TimeType timeToAdd )
+DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
 {
     utilities::printDeprecationWarning( "add_seconds_to_datetime", "DateTime.add_seconds" );
 
@@ -597,7 +497,7 @@ DateTime addSecondsToDateTime( const DateTime &dateTime, const TimeType timeToAd
 }
 
 template< typename TimeType >
-DateTime addDaysToDateTime( const DateTime &dateTime, const TimeType daysToAdd )
+DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
 {
     utilities::printDeprecationWarning( "add_days_to_datetime", "DateTime.add_days" );
     return DateTime::fromTime< Time >( dateTime.epoch< Time >( ) +
@@ -605,7 +505,7 @@ DateTime addDaysToDateTime( const DateTime &dateTime, const TimeType daysToAdd )
 }
 
 template< typename TimeType >
-TimeType getTimeDifferenceBetweenDateTimes( const DateTime &firstDateTime, const DateTime &secondDateTime )
+TimeType getTimeDifferenceBetweenDateTimes( const DateTime& firstDateTime, const DateTime& secondDateTime )
 {
     return firstDateTime.epoch< TimeType >( ) - secondDateTime.epoch< TimeType >( );
 }
