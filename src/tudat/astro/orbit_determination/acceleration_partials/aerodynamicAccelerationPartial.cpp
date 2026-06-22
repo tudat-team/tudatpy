@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+
 namespace tudat
 {
 
@@ -107,30 +109,81 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialP
         Eigen::MatrixXd& accelerationPartial,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    const double nominalParameterValue = parameter->getParameterValue( );
-    const double parameterPerturbation = std::max( 1.0E-8, std::abs( nominalParameterValue ) * 1.0E-6 );
+    // Analytical partial: the aerodynamic acceleration is a linear map of the body-frame force coefficient vector returned by
+    // the gas-surface interaction model, so the partial is the same linear map applied to the analytical derivative of that
+    // coefficient vector w.r.t. the material property (the reference area cancels between coefficient normalization and the
+    // acceleration). The frame/scale transform mirrors computeAccelerationPartialWrtCurrentDensity( ).
+    std::shared_ptr< aerodynamics::PanelledAerodynamicCoefficientInterface > panelledCoefficientInterface =
+            std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >(
+                    flightConditions_->getAerodynamicCoefficientInterface( ) );
+    if( panelledCoefficientInterface == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when computing partial of aerodynamic acceleration w.r.t. a panel material property: the aerodynamic "
+                "coefficient interface is not panelled, so material-property estimation is not defined." );
+    }
 
-    parameter->setParameterValue( nominalParameterValue + parameterPerturbation );
-    flightConditions_->resetCurrentTime( );
-    aerodynamicAcceleration_->resetCurrentTime( );
-    flightConditions_->updateConditions( currentTime_ );
-    aerodynamicAcceleration_->updateMembers( currentTime_ );
-    Eigen::Vector3d upperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
+    // Map the estimatable parameter type to the local gas-surface interaction material property identifier.
+    aerodynamics::PanelMaterialPropertyType propertyType;
+    switch( parameter->getParameterName( ).first )
+    {
+        case estimatable_parameters::energy_accomodation_coefficient:
+            propertyType = aerodynamics::energy_accommodation_property;
+            break;
+        case estimatable_parameters::normal_accomodation_coefficient:
+            propertyType = aerodynamics::normal_accommodation_property;
+            break;
+        case estimatable_parameters::tangential_accomodation_coefficient:
+            propertyType = aerodynamics::tangential_accommodation_property;
+            break;
+        case estimatable_parameters::normal_velocity_at_wall_ratio:
+            propertyType = aerodynamics::normal_velocity_ratio_property;
+            break;
+        default:
+            throw std::runtime_error(
+                    "Error when computing partial of aerodynamic acceleration w.r.t. a panel material property: parameter type "
+                    "is inconsistent." );
+    }
+    const std::string panelGroupId = parameter->getParameterName( ).second.second;
 
-    parameter->setParameterValue( nominalParameterValue - parameterPerturbation );
-    flightConditions_->resetCurrentTime( );
-    aerodynamicAcceleration_->resetCurrentTime( );
-    flightConditions_->updateConditions( currentTime_ );
-    aerodynamicAcceleration_->updateMembers( currentTime_ );
-    Eigen::Vector3d downperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
+    // Body-frame partial of the force coefficient vector (computed at the current, already-updated, conditions).
+    Eigen::Vector3d coefficientPartialBodyFrame =
+            panelledCoefficientInterface->getGasSurfaceInteractionModel( )->computeAerodynamicCoefficientsPartial( propertyType,
+                                                                                                                   panelGroupId );
 
-    accelerationPartial = ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * parameterPerturbation );
+    // Rotate the coefficient-vector partial to the inertial frame, applying the same coefficient-frame sign as the acceleration.
+    std::pair< reference_frames::AerodynamicsReferenceFrames, double > coefficientsFrameAndSign =
+            aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame(
+                    flightConditions_->getAerodynamicCoefficientInterface( )->getForceCoefficientsFrame( ) );
+    Eigen::Vector3d coefficientPartialInertial = coefficientsFrameAndSign.second *
+            ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames( coefficientsFrameAndSign.first,
+                                                                                                       reference_frames::inertial_frame ) *
+              coefficientPartialBodyFrame );
 
-    parameter->setParameterValue( nominalParameterValue );
-    flightConditions_->resetCurrentTime( );
-    aerodynamicAcceleration_->resetCurrentTime( );
-    flightConditions_->updateConditions( currentTime_ );
-    aerodynamicAcceleration_->updateMembers( currentTime_ );
+    // a = q_dyn . A_ref . C / m  ->  da/dp = q_dyn . A_ref / m . dC/dp
+    const double dynamicPressure = flightConditions_->getCurrentDynamicPressure( );
+    const double referenceArea = flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( );
+    const double currentMass = aerodynamicAcceleration_->getCurrentMass( );
+    Eigen::Vector3d unscaledAccelerationPartial = ( dynamicPressure * referenceArea / currentMass ) * coefficientPartialInertial;
+
+    Eigen::Vector3d componentScalings( aerodynamicAcceleration_->getComponentScaling( 0 ),
+                                       aerodynamicAcceleration_->getComponentScaling( 1 ),
+                                       aerodynamicAcceleration_->getComponentScaling( 2 ) );
+    if( ( componentScalings.array( ) != 1.0 ).any( ) )
+    {
+        Eigen::Vector3d accelerationPartialInAerodynamicFrame =
+                flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+                        reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) *
+                unscaledAccelerationPartial;
+        accelerationPartialInAerodynamicFrame.array( ) *= componentScalings.array( );
+        accelerationPartial = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+                                      reference_frames::aerodynamic_frame, reference_frames::inertial_frame ) *
+                accelerationPartialInAerodynamicFrame;
+    }
+    else
+    {
+        accelerationPartial = unscaledAccelerationPartial;
+    }
 }
 
 //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
