@@ -570,7 +570,24 @@ class LoadPDS:
 
         try:
             reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
-            reqs.raise_for_status()
+        except Exception as e:
+            # Genuine network failure (timeout / connection error): fall back to
+            # cache if we have one, otherwise surface the error.
+            if cached is not None:
+                print(f"Warning: could not reach {url} ({e}); using cached listing.")
+                return cached
+            raise ValueError(f"Error fetching data from {url}: {e}")
+
+        if reqs.status_code == 404:
+            # Folder does not exist for this archive (e.g. DSN/MET absent when only
+            # IFMS/MET is published). Cache an empty listing and skip — this matches
+            # the pre-cache behaviour where a non-200 response was simply skipped.
+            listings[url] = []
+            self._save_manifest(local_folder, manifest)
+            return []
+
+        try:
+            reqs.raise_for_status()  # other HTTP errors (5xx, 403, ...) still raise
         except Exception as e:
             if cached is not None:
                 print(f"Warning: could not reach {url} ({e}); using cached listing.")
