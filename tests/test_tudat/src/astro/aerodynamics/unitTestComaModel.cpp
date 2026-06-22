@@ -1031,7 +1031,7 @@ BOOST_AUTO_TEST_CASE( test_solar_longitude_dependent_variable_update_requirement
 }
 
 /**
- * @brief Verifies ComaModel::getNumberDensity returns correct log2(density) values.
+ * @brief Verifies ComaModel::getTotalNumberDensity returns correct log2(density) values.
  *
  * Input/Setup:
  * - Creates ComaModel from polynomial coefficients and pre-computed Stokes dataset
@@ -1162,8 +1162,8 @@ BOOST_FIXTURE_TEST_CASE( test_coma_model_number_density, TestDataPaths )
                 const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
                 const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
-                // Call getNumberDensity from ComaModel (returns actual number density)
-                const double computedNumberDensity = comaModel->getNumberDensity( testRadius, longitude_rad, latitude_rad, testTime );
+                // Call getTotalNumberDensity from ComaModel (returns actual number density)
+                const double computedNumberDensity = comaModel->getTotalNumberDensity( testRadius, longitude_rad, latitude_rad, testTime );
 
                 // Convert to log2 for comparison since test file contains log2(number_density)
                 const double computedNumberDensityLog2 = std::log2( computedNumberDensity );
@@ -1291,8 +1291,8 @@ BOOST_FIXTURE_TEST_CASE( test_coma_model_number_density, TestDataPaths )
                 const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
                 const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
-                // Call getNumberDensity from ComaModel (returns actual number density)
-                const double computedNumberDensity = comaModel->getNumberDensity( testRadius, longitude_rad, latitude_rad, testTime );
+                // Call getTotalNumberDensity from ComaModel (returns actual number density)
+                const double computedNumberDensity = comaModel->getTotalNumberDensity( testRadius, longitude_rad, latitude_rad, testTime );
 
                 // Convert to log2 for comparison since test file contains log2(number_density)
                 const double computedNumberDensityLog2 = std::log2( computedNumberDensity );

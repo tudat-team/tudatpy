@@ -876,8 +876,37 @@ bool
 
 
      )doc" )
+            .def( "get_total_number_density",
+                  &ta::AtmosphereModel::getTotalNumberDensity,
+                  py::arg( "altitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "latitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to compute the atmospheric freestream total number density at a given location.
+
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+
+         Returns
+         -------
+         float
+             Freestream total number density at the given time and location
+
+
+     )doc" )
             .def( "get_number_density",
-                  &ta::AtmosphereModel::getNumberDensity,
+                  py::overload_cast< const ta::AtmosphericCompositionSpecies, const double, const double, const double, const double >(
+                          &ta::AtmosphereModel::getNumberDensity ),
                   py::arg( "species" ),
                   py::arg( "altitude" ),
                   py::arg( "longitude" ),

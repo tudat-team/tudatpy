@@ -2089,25 +2089,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodies.at( bodyWithProperty )->getFlightConditions( ) );
 
-                // Use lambda to get number density
-                variableFunction = [ flightConditions ]( ) -> double {
-                    auto atmosphereModel = flightConditions->getAtmosphereModel( );
-
-                    // Check if it's a ComaModel and use its specific getNumberDensity method
-                    auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
-                    if( comaModel != nullptr )
-                    {
-                        return comaModel->getNumberDensity( flightConditions->getCurrentRadius( ),
-                                                            flightConditions->getCurrentLongitude( ),
-                                                            flightConditions->getCurrentLatitude( ),
-                                                            flightConditions->getCurrentTime( ) );
-                    }
-                    else
-                    {
-                        throw std::runtime_error(
-                                "Number density dependent variable is currently only supported for ComaModel atmospheres." );
-                    }
-                };
+                variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentTotalNumberDensity, flightConditions );
                 break;
             }
             case radiation_pressure_dependent_variable: {
