@@ -264,8 +264,6 @@ void validateSumImage( const SumImageData& image,
              "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing one or more CX/CY/CZ records." );
     require( hasKMatrix && isFinite( image.kMatrix_ ),
              "Error when reading SUM file " + file + " (" + image.imageId_ + "): missing K-MATRIX record." );
-    require( !image.landmarkObservations_.empty( ),
-             "Error when reading SUM file " + file + " (" + image.imageId_ + "): no LANDMARKS observations found." );
 }
 
 void validateLmkLandmark( const LmkLandmarkData& landmark, const std::string& file )
@@ -296,10 +294,10 @@ void addSumLandmarkObservation( SumImageData& image,
                                 const int lineNumber,
                                 const std::vector< std::string >& tokens )
 {
-    if( tokens.size( ) != 3 )
+    if( tokens.size( ) != 3 && !( tokens.size( ) == 4 && tokens.at( 3 ) == "-" ) )
     {
         throw std::runtime_error( "Error when parsing SUM LANDMARKS row in " + fileLineContext( file, lineNumber, image.imageId_ ) +
-                                  ": expected 3 fields." );
+                                  ": expected 3 fields plus optional '-' flag." );
     }
 
     SumLandmarkObservation observation;
@@ -508,6 +506,10 @@ std::vector< SumImageData > readSumFiles( const std::vector< std::string >& sumF
     for( const std::string& sumFile : sumFiles )
     {
         const SumImageData image = readSumFile( sumFile );
+        if( image.landmarkObservations_.empty( ) )
+        {
+            continue;
+        }
         if( imageIndexById.count( image.imageId_ ) == 0 )
         {
             imageIndexById[ image.imageId_ ] = images.size( );

@@ -256,11 +256,12 @@ BOOST_AUTO_TEST_CASE( testSumLmkRequiredFieldValidation )
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
         boost::filesystem::remove( path );
     }
-    // No landmark rows.
+    // No landmark rows: a single SUM image parses, but the batch reader discards it.
     {
         const boost::filesystem::path path = makeTemporaryPath( ".sum" );
         writeTextFile( path, header + kMatrix + "LANDMARKS\nEND FILE\n" );
-        BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
+        const input_output::sum_lmk::SumImageData image = input_output::sum_lmk::readSumFile( path.string( ) );
+        BOOST_CHECK_EQUAL( image.landmarkObservations_.size( ), 0 );
         boost::filesystem::remove( path );
     }
     // LMK missing VLM.
@@ -270,6 +271,76 @@ BOOST_AUTO_TEST_CASE( testSumLmkRequiredFieldValidation )
         BOOST_CHECK_THROW( input_output::sum_lmk::readLmkFile( path.string( ) ), std::runtime_error );
         boost::filesystem::remove( path );
     }
+}
+
+//! SUM images without landmark observations are valid parser inputs but are discarded in batches.
+BOOST_AUTO_TEST_CASE( testSumFilesDiscardEmptyImages )
+{
+    const std::string baseSum =
+            "IMGEMPTY\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+            "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n"
+            "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\n";
+
+    {
+        const boost::filesystem::path emptyPath = makeTemporaryPath( ".sum" );
+        const boost::filesystem::path observedPath = makeTemporaryPath( ".sum" );
+        writeTextFile( emptyPath, baseSum + "LANDMARKS\nEND FILE\n" );
+        writeTextFile( observedPath,
+                       "IMGOBS\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+                       "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n"
+                       "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\nLANDMARKS\nLMK0001 512.0 512.0\nEND FILE\n" );
+
+        const std::vector< input_output::sum_lmk::SumImageData > images =
+                input_output::sum_lmk::readSumFiles( { emptyPath.string( ), observedPath.string( ) } );
+        BOOST_REQUIRE_EQUAL( images.size( ), 1 );
+        BOOST_CHECK_EQUAL( images.at( 0 ).imageId_, "IMGOBS" );
+
+        boost::filesystem::remove( emptyPath );
+        boost::filesystem::remove( observedPath );
+    }
+
+    {
+        const boost::filesystem::path emptyPathA = makeTemporaryPath( ".sum" );
+        const boost::filesystem::path emptyPathB = makeTemporaryPath( ".sum" );
+        writeTextFile( emptyPathA, baseSum + "END FILE\n" );
+        writeTextFile( emptyPathB,
+                       "IMGEMPTY2\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
+                       "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n0.0 0.0 1.0 CZ\n"
+                       "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\nLANDMARKS\nEND FILE\n" );
+
+        const std::vector< input_output::sum_lmk::SumImageData > images =
+                input_output::sum_lmk::readSumFiles( { emptyPathA.string( ), emptyPathB.string( ) } );
+        BOOST_CHECK_EQUAL( images.size( ), 0 );
+
+        boost::filesystem::remove( emptyPathA );
+        boost::filesystem::remove( emptyPathB );
+    }
+}
+
+//! Production SUM landmark rows may carry an optional trailing '-' flag.
+BOOST_AUTO_TEST_CASE( testSumLandmarkRowsWithOptionalFlag )
+{
+    const boost::filesystem::path path = makeTemporaryPath( ".sum" );
+    writeTextFile( path,
+                   "IMGFLAG\n"
+                   "2015 JUN 05 07:24:42.053\n"
+                   "1024 1024 500 65535 NPX, NLN, THRSH\n"
+                   "100.0 512.0 512.0 MMFL, CTR\n"
+                   "0.0 0.0 -10.0 SCOBJ\n"
+                   "1.0 0.0 0.0 CX\n"
+                   "0.0 1.0 0.0 CY\n"
+                   "0.0 0.0 1.0 CZ\n"
+                   "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\n"
+                   "LANDMARKS\n"
+                   "LMK0001 512.0 512.0 -\n"
+                   "END FILE\n" );
+
+    const input_output::sum_lmk::SumImageData image = input_output::sum_lmk::readSumFile( path.string( ) );
+    BOOST_REQUIRE_EQUAL( image.landmarkObservations_.size( ), 1 );
+    BOOST_CHECK_EQUAL( image.landmarkObservations_.at( 0 ).landmarkId_, "LMK0001" );
+    checkClose( image.landmarkObservations_.at( 0 ).pixelCoordinates_( 0 ), 512.0 );
+    checkClose( image.landmarkObservations_.at( 0 ).pixelCoordinates_( 1 ), 512.0 );
+    boost::filesystem::remove( path );
 }
 
 //! Fortran D-exponent notation including negative mantissas must parse.

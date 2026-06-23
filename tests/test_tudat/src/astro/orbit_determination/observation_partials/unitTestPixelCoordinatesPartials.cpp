@@ -380,6 +380,57 @@ BOOST_AUTO_TEST_CASE( testSumPointingSigmaValidation )
     }
 }
 
+//! Missing LMK definitions must be reported in one aggregated diagnostic.
+BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkValidation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const Eigen::Vector3d pointingSigma = Eigen::Vector3d::Constant( 1.0E-4 );
+    input_output::sum_lmk::SumImageData firstImage = makeSyntheticSumImage( "IMGMISS1", pointingSigma );
+    input_output::sum_lmk::SumImageData secondImage = makeSyntheticSumImage( "IMGMISS2", pointingSigma );
+    firstImage.landmarkObservations_.at( 0 ).landmarkId_ = "LMK_MISSING_A";
+    secondImage.landmarkObservations_.at( 0 ).landmarkId_ = "LMK_MISSING_B";
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    try
+    {
+        createSumLmkObservationCollection< double, double >( { firstImage, secondImage },
+                                                             std::map< std::string, input_output::sum_lmk::LmkLandmarkData >( ),
+                                                             bodies,
+                                                             conversionSettings );
+        BOOST_FAIL( "Expected missing LMK validation to throw." );
+    }
+    catch( const std::runtime_error& exception )
+    {
+        const std::string message = exception.what( );
+        BOOST_CHECK( message.find( "LMK_MISSING_A" ) != std::string::npos );
+        BOOST_CHECK( message.find( "LMK_MISSING_B" ) != std::string::npos );
+        BOOST_CHECK( message.find( "IMGMISS1" ) != std::string::npos );
+        BOOST_CHECK( message.find( "IMGMISS2" ) != std::string::npos );
+    }
+}
+
+//! The optional missing-LMK skip mode drops only unavailable landmark observations and keeps valid ones.
+BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkSkipMode )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    input_output::sum_lmk::SumImageData image = makeSyntheticSumImage( "IMGMIXED", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    input_output::sum_lmk::SumLandmarkObservation missingObservation;
+    missingObservation.landmarkId_ = "LMK_MISSING";
+    missingObservation.pixelCoordinates_ = Eigen::Vector2d( 600.0, 600.0 );
+    image.landmarkObservations_.push_back( missingObservation );
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    conversionSettings.skipObservationsWithMissingLandmarks_ = true;
+    SumLmkObservationConversionResult< double, double > result =
+            createSumLmkObservationCollection< double, double >( { image }, makeSyntheticLandmarks( ), bodies, conversionSettings );
+
+    BOOST_REQUIRE_EQUAL( result.observationCollection_->getConcatenatedObservations( ).size( ), 2 );
+    BOOST_REQUIRE_EQUAL( result.observationModelSettings_.size( ), 1 );
+    BOOST_CHECK_EQUAL( result.observationModelSettings_.at( 0 )->linkEnds_.linkEnds_.at( transmitter ).stationName_, "LMK0001" );
+}
+
 //! The conversion helper must require a rotational ephemeris on the receiver body and must not
 //! attach one implicitly.
 BOOST_AUTO_TEST_CASE( testSumReceiverEphemerisGuard )
@@ -421,6 +472,42 @@ BOOST_AUTO_TEST_CASE( testSumReceiverEphemerisGuard )
         SystemOfBodies bodies = makeBodies( true );
         BOOST_CHECK_NO_THROW( ( createSumLmkObservationCollection< double, double >( images, landmarks, bodies, conversionSettings ) ) );
     }
+}
+
+//! Generic time-bounds filtering works on pixel observation collections and model settings can be
+//! regenerated from the filtered collection, matching the Doppler workflow.
+BOOST_AUTO_TEST_CASE( testSumLmkTimeBoundsFilteringWorkflow )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    input_output::sum_lmk::SumImageData inWindowImage = makeSyntheticSumImage( "IMGIN", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    input_output::sum_lmk::SumImageData outOfWindowImage = makeSyntheticSumImage( "IMGOUT", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    outOfWindowImage.utcEpochString_ = "2015 JUN 05 08:24:42.053";
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult = createSumLmkObservationCollection< double, double >(
+            { inWindowImage, outOfWindowImage }, makeSyntheticLandmarks( ), bodies, conversionSettings );
+
+    BOOST_REQUIRE_EQUAL( conversionResult.observationCollection_->getConcatenatedTimeVector( ).size( ), 4 );
+    BOOST_REQUIRE_EQUAL( conversionResult.observationModelSettings_.size( ), 2 );
+
+    const double inWindowTime = observation_models::detail::convertSumUtcStringToSecondsSinceJ2000< double >( inWindowImage );
+    const std::shared_ptr< ObservationFilterBase > timeBoundsFilter =
+            observationFilter( time_bounds_filtering, inWindowTime - 1.0, inWindowTime + 1.0, true, true );
+    conversionResult.observationCollection_->filterObservations( timeBoundsFilter );
+    conversionResult.observationCollection_->removeEmptySingleObservationSets( );
+
+    const std::vector< double > filteredTimes = conversionResult.observationCollection_->getConcatenatedTimeVector( );
+    BOOST_REQUIRE_EQUAL( filteredTimes.size( ), 2 );
+    for( const double filteredTime : filteredTimes )
+    {
+        BOOST_CHECK_SMALL( filteredTime - inWindowTime, 1.0E-9 );
+    }
+
+    const std::vector< std::shared_ptr< ObservationModelSettings > > filteredModelSettings =
+            createSumLmkObservationModelSettings< double, double >( conversionResult.observationCollection_ );
+    BOOST_REQUIRE_EQUAL( filteredModelSettings.size( ), 1 );
+    BOOST_CHECK_EQUAL( filteredModelSettings.at( 0 )->linkEnds_.linkEnds_.at( receiver ).stationName_, "Camera_IMGIN" );
 }
 
 //! End-to-end regression on real SPC SUM/LMK data: the observation model must reproduce the

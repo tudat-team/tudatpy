@@ -44,7 +44,9 @@ void expose_observations_wrapper_sum_lmk_bindings( py::module& m )
             .def_readwrite( "receiver_body_name", &tom::SumLmkObservationConversionSettings::receiverBodyName_ )
             .def_readwrite( "body_fixed_camera_position", &tom::SumLmkObservationConversionSettings::bodyFixedCameraPosition_ )
             .def_readwrite( "validate_spacecraft_object_geometry",
-                            &tom::SumLmkObservationConversionSettings::validateSpacecraftObjectGeometry_ );
+                            &tom::SumLmkObservationConversionSettings::validateSpacecraftObjectGeometry_ )
+            .def_readwrite( "skip_observations_with_missing_landmarks",
+                            &tom::SumLmkObservationConversionSettings::skipObservationsWithMissingLandmarks_ );
 
     py::class_< tom::SumLmkObservationConversionResult< STATE_SCALAR_TYPE, TIME_TYPE > >( m, "SumLmkObservationConversionResult", R"doc(
         Result of a SUM/LMK observation conversion: the observation collection, matching observation

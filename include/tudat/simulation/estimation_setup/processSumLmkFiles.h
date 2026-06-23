@@ -18,6 +18,7 @@
 #include <memory>
 #include <limits>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -55,6 +56,7 @@ public:
     std::string receiverBodyName_;
     Eigen::Vector3d bodyFixedCameraPosition_ = Eigen::Vector3d::Zero( );
     bool validateSpacecraftObjectGeometry_ = true;
+    bool skipObservationsWithMissingLandmarks_ = false;
 };
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -221,6 +223,80 @@ inline void addSumLmkLandmarksToBody( const std::map< std::string, input_output:
             }
         }
     }
+}
+
+inline void validateReferencedLandmarksHaveDefinitions( const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
+                                                        const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks )
+{
+    std::map< std::string, std::set< std::string > > missingLandmarkImages;
+    for( const input_output::sum_lmk::SumImageData& image : sumImages )
+    {
+        for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
+        {
+            if( landmarks.count( observation.landmarkId_ ) == 0 )
+            {
+                missingLandmarkImages[ observation.landmarkId_ ].insert( image.imageId_ );
+            }
+        }
+    }
+
+    if( missingLandmarkImages.empty( ) )
+    {
+        return;
+    }
+
+    std::ostringstream errorMessage;
+    errorMessage << "Error when converting SUM/LMK observations: missing LMK data for " << missingLandmarkImages.size( )
+                 << " landmark(s): ";
+    bool firstLandmark = true;
+    for( const auto& missingEntry : missingLandmarkImages )
+    {
+        if( !firstLandmark )
+        {
+            errorMessage << "; ";
+        }
+        firstLandmark = false;
+
+        errorMessage << missingEntry.first << " referenced by image(s) ";
+        bool firstImage = true;
+        for( const std::string& imageId : missingEntry.second )
+        {
+            if( !firstImage )
+            {
+                errorMessage << ", ";
+            }
+            firstImage = false;
+            errorMessage << imageId;
+        }
+    }
+    errorMessage << ".";
+    throw std::runtime_error( errorMessage.str( ) );
+}
+
+inline std::vector< input_output::sum_lmk::SumImageData > filterSumImagesForAvailableLandmarks(
+        const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
+        const std::map< std::string, input_output::sum_lmk::LmkLandmarkData >& landmarks )
+{
+    std::vector< input_output::sum_lmk::SumImageData > filteredImages;
+    for( const input_output::sum_lmk::SumImageData& image : sumImages )
+    {
+        input_output::sum_lmk::SumImageData filteredImage = image;
+        filteredImage.landmarkObservations_.clear( );
+
+        for( const input_output::sum_lmk::SumLandmarkObservation& observation : image.landmarkObservations_ )
+        {
+            if( landmarks.count( observation.landmarkId_ ) != 0 )
+            {
+                filteredImage.landmarkObservations_.push_back( observation );
+            }
+        }
+
+        if( !filteredImage.landmarkObservations_.empty( ) )
+        {
+            filteredImages.push_back( filteredImage );
+        }
+    }
+    return filteredImages;
 }
 
 inline void validateSumImageGeometryWithScoBj( const input_output::sum_lmk::SumImageData& image,
@@ -413,20 +489,31 @@ SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLm
 {
     detail::validateReceiverAndTargetBodies( bodies, conversionSettings );
 
+    std::vector< input_output::sum_lmk::SumImageData > sumImagesToConvert = sumImages;
+    if( conversionSettings.skipObservationsWithMissingLandmarks_ )
+    {
+        sumImagesToConvert = detail::filterSumImagesForAvailableLandmarks( sumImages, landmarks );
+    }
+    else
+    {
+        detail::validateReferencedLandmarksHaveDefinitions( sumImagesToConvert, landmarks );
+    }
+
     SumLmkObservationConversionResult< ObservationScalarType, TimeType > result;
-    detail::validateSanitizedCameraNames( sumImages, result.imageIdToCameraName_ );
+    detail::validateSanitizedCameraNames( sumImagesToConvert, result.imageIdToCameraName_ );
 
     std::shared_ptr< simulation_setup::Body > targetBody = bodies.at( conversionSettings.targetBodyName_ );
     std::shared_ptr< simulation_setup::Body > receiverBody = bodies.at( conversionSettings.receiverBodyName_ );
 
     detail::addSumLmkLandmarksToBody( landmarks, targetBody );
-    detail::addSumLmkCamerasToBody( sumImages, landmarks, receiverBody, targetBody, conversionSettings, result.imageIdToCameraName_ );
+    detail::addSumLmkCamerasToBody(
+            sumImagesToConvert, landmarks, receiverBody, targetBody, conversionSettings, result.imageIdToCameraName_ );
 
     result.observationCollection_ = std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >(
             createSumLmkObservationSets< ObservationScalarType, TimeType >(
-                    sumImages, landmarks, conversionSettings, result.imageIdToCameraName_ ) );
+                    sumImagesToConvert, landmarks, conversionSettings, result.imageIdToCameraName_ ) );
 
-    for( const input_output::sum_lmk::SumImageData& image : sumImages )
+    for( const input_output::sum_lmk::SumImageData& image : sumImagesToConvert )
     {
         detail::addPointingAprioriEntryIfAvailable( image,
                                                     conversionSettings.receiverBodyName_,
