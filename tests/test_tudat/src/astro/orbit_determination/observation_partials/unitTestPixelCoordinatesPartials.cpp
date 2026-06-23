@@ -545,6 +545,104 @@ BOOST_AUTO_TEST_CASE( testCameraPointingPartialRoutingGuard )
     }
 }
 
+//! The conversion result carries one pixel-coordinate observation model setting per (image, landmark).
+BOOST_AUTO_TEST_CASE( testSumLmkObservationModelSettings )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const std::vector< input_output::sum_lmk::SumImageData > sumImages =
+            input_output::sum_lmk::readSumFiles( { testDataPath + "/sample.sum" } );
+    const std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks =
+            input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( sumImages, landmarks, bodies, conversionSettings );
+
+    // Two (image, landmark) link ends -> two settings, all pixel_coordinates.
+    BOOST_REQUIRE_EQUAL( conversionResult.observationModelSettings_.size( ), 2 );
+    for( const auto& settings : conversionResult.observationModelSettings_ )
+    {
+        BOOST_CHECK_EQUAL( settings->observableType_, pixel_coordinates );
+    }
+    // The standalone helper reproduces the same count from the collection alone.
+    const std::vector< std::shared_ptr< ObservationModelSettings > > standaloneSettings =
+            createSumLmkObservationModelSettings< double, double >( conversionResult.observationCollection_ );
+    BOOST_CHECK_EQUAL( standaloneSettings.size( ), 2 );
+}
+
+//! Zero-residual round trip: the synthetic fixture's stored pixels equal the modelled pixels, so the
+//! O-C residuals are ~0. Exercises the full simulator/residual plumbing.
+BOOST_AUTO_TEST_CASE( testSumLmkResidualsZeroForSelfConsistentData )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const std::vector< input_output::sum_lmk::SumImageData > sumImages =
+            input_output::sum_lmk::readSumFiles( { testDataPath + "/sample.sum" } );
+    const std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks =
+            input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", testDataPath + "/LMK0002.lmk" } );
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( sumImages, landmarks, bodies, conversionSettings );
+
+    const Eigen::VectorXd residuals = computeSumLmkResiduals< double, double >( conversionResult.observationCollection_, bodies );
+    BOOST_REQUIRE_EQUAL( residuals.size( ), 4 );  // 2 landmarks x 2 components
+    BOOST_CHECK_SMALL( residuals.norm( ), 1.0E-6 );
+}
+
+//! Real-data O-C residuals against a reference trajectory (spacecraft at -SCOBJ): the SPICE-trajectory
+//! analogue. Residuals must be at the SPC solution level (~1 px), not the tens-of-px a convention
+//! regression would produce.
+BOOST_AUTO_TEST_CASE( testSumLmkResidualsRealData )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
+    const std::vector< input_output::sum_lmk::SumImageData > sumImages =
+            input_output::sum_lmk::readSumFiles( { testDataPath + "/W48230079013.SUM" } );
+    const std::map< std::string, input_output::sum_lmk::LmkLandmarkData > landmarks = input_output::sum_lmk::readLmkFiles(
+            { testDataPath + "/FA0115.LMK", testDataPath + "/FC0098.LMK", testDataPath + "/GD0036.LMK" } );
+    const input_output::sum_lmk::SumImageData& image = sumImages.at( 0 );
+
+    SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody< double, double >( "Target", false );
+    bodies.createEmptyBody< double, double >( "Spacecraft", false );
+    bodies.at( "Target" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
+    Eigen::Vector6d spacecraftState = Eigen::Vector6d::Zero( );
+    spacecraftState.segment( 0, 3 ) = -image.spacecraftObjectVector_;
+    bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< ConstantEphemeris >( spacecraftState, "SSB", "J2000" ) );
+    bodies.at( "Target" )
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
+                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Target_Fixed" ) );
+    bodies.at( "Spacecraft" )
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >(
+                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "Spacecraft_Fixed" ) );
+    bodies.processBodyFrameDefinitions< double, double >( );
+
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( sumImages, landmarks, bodies, conversionSettings );
+
+    const Eigen::VectorXd residuals = computeSumLmkResiduals< double, double >( conversionResult.observationCollection_, bodies );
+    BOOST_REQUIRE_EQUAL( residuals.size( ), 6 );  // 3 landmarks x 2 components
+    for( int i = 0; i < 3; ++i )
+    {
+        BOOST_CHECK_MESSAGE( residuals.segment( 2 * i, 2 ).norm( ) < 3.0,
+                             "Real-data pixel residual too large for observation index " + std::to_string( i ) );
+    }
+
+    // Per-set residual statistics are populated and finite.
+    Eigen::VectorXd startTimes, durations, meanValues, rmsValues;
+    getResidualStatistics( conversionResult.observationCollection_, startTimes, durations, meanValues, rmsValues );
+    BOOST_REQUIRE_EQUAL( rmsValues.size( ), 3 );
+    for( int i = 0; i < rmsValues.size( ); ++i )
+    {
+        BOOST_CHECK( std::isfinite( rmsValues( i ) ) && rmsValues( i ) < 3.0 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

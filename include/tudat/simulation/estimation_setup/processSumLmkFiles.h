@@ -31,8 +31,11 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
 namespace tudat
@@ -60,6 +63,9 @@ struct SumLmkObservationConversionResult {
     std::vector< std::pair< estimatable_parameters::EstimatebleParameterIdentifier, Eigen::VectorXd > >
             inverseAprioriCovarianceDiagonalEntries_;
     std::map< std::string, std::string > imageIdToCameraName_;
+    // Observation model settings matching observationCollection_ (one pixel_coordinates setting per
+    // (image, landmark) link end), ready for createObservationSimulators / residual computation.
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings_;
 };
 
 namespace detail
@@ -374,6 +380,30 @@ createSumLmkObservationSets( const std::vector< input_output::sum_lmk::SumImageD
     return observationSets;
 }
 
+//! Build the pixel-coordinate observation model settings matching every (image, landmark) link end
+//! in a SUM/LMK observation collection. Light-time is geometric and single-leg (an empty correction
+//! list still triggers the model's light-time iteration); stellar aberration is off, per the SUM/LMK
+//! conventions. No bodies are needed - the camera is resolved from VehicleSystems when simulators are
+//! created. The resulting settings plug directly into createObservationSimulators and the generic
+//! residual/estimation machinery, exactly like any other observable type.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< ObservationModelSettings > > createSumLmkObservationModelSettings(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) )
+{
+    if( observationCollection == nullptr )
+    {
+        throw std::runtime_error( "Error when creating SUM/LMK observation model settings: observation collection is null." );
+    }
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings;
+    for( const LinkDefinition& linkDefinition : observationCollection->getLinkDefinitionsForSingleObservable( pixel_coordinates ) )
+    {
+        observationModelSettings.push_back( pixelCoordinatesSettings( linkDefinition, lightTimeCorrections ) );
+    }
+    return observationModelSettings;
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLmkObservationCollection(
         const std::vector< input_output::sum_lmk::SumImageData >& sumImages,
@@ -404,6 +434,9 @@ SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLm
                                                     result.inverseAprioriCovarianceDiagonalEntries_ );
     }
 
+    result.observationModelSettings_ =
+            createSumLmkObservationModelSettings< ObservationScalarType, TimeType >( result.observationCollection_ );
+
     return result;
 }
 
@@ -416,6 +449,32 @@ SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLm
 {
     return createSumLmkObservationCollection< ObservationScalarType, TimeType >(
             input_output::sum_lmk::readSumFiles( sumFiles ), input_output::sum_lmk::readLmkFiles( lmkFiles ), bodies, conversionSettings );
+}
+
+//! Compute observed-minus-computed (O-C) pixel residuals for a SUM/LMK observation collection given a
+//! fixed environment (e.g. a spacecraft SPICE trajectory). Builds the matching pixel-coordinate
+//! observation simulators, evaluates the model at each observation's link end/time, and stores the
+//! residuals into the collection (readable via getResiduals / getResidualStatistics). Returns the
+//! concatenated residual vector for convenience. This is the pixel-landmark analogue of computing
+//! Doppler residuals against a reference trajectory.
+template< typename ObservationScalarType = double, typename TimeType = double >
+Eigen::VectorXd computeSumLmkResiduals(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) )
+{
+    if( observationCollection == nullptr )
+    {
+        throw std::runtime_error( "Error when computing SUM/LMK residuals: observation collection is null." );
+    }
+    const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings =
+            createSumLmkObservationModelSettings< ObservationScalarType, TimeType >( observationCollection, lightTimeCorrections );
+    const std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators =
+            createObservationSimulators< ObservationScalarType, TimeType >( observationModelSettings, bodies );
+    simulation_setup::computeResidualsAndDependentVariables< ObservationScalarType, TimeType >(
+            observationCollection, observationSimulators, bodies );
+    return observationCollection->getConcatenatedResiduals( ).template cast< double >( );
 }
 
 }  // namespace observation_models
