@@ -18,6 +18,7 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include <numeric>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <vector>
@@ -1114,6 +1115,10 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
     meanFreePath = std::pow( meanFreePath, ( -1.0 ) );
 
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath( altitude, longitude, latitude, time ), meanFreePath, 1.0E-15 );
+
+    const std::vector< double > numberDensities = model.getNumberDensities( altitude, longitude, latitude, time );
+    const double expectedTotalNumberDensity = std::accumulate( numberDensities.begin( ), numberDensities.end( ), 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( model.getTotalNumberDensity( altitude, longitude, latitude, time ), expectedTotalNumberDensity, 1.0E-15 );
 
     // Verify using data - Logarithmic plot: physics of the Earth's space environment, Gerd W. Prolls (page 29)
     // Test using approximate values obtained from figure
