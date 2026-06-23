@@ -149,7 +149,7 @@ TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
         )
 
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
-    TUDAT_ADD_TEST_CASE2(McdAtmosphere
+    TUDAT_ADD_TEST_CASE(McdAtmosphere
                 PRIVATE_LINKS
                 ${Tudat_PROPAGATION_LIBRARIES}
                 Tudat::tudat_aerodynamics
