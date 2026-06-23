@@ -105,7 +105,8 @@ enum EstimatebleParametersEnum {
     exponential_atmosphere_base_density,
     exponential_atmosphere_scale_height,
     arc_wise_exponential_atmosphere_base_density,
-    arc_wise_exponential_atmosphere_scale_height
+    arc_wise_exponential_atmosphere_scale_height,
+    camera_pointing_correction
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

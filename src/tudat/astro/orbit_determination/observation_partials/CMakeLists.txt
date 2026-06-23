@@ -11,6 +11,7 @@
 set(observation_partials_SOURCES
   "angularPositionPartial.cpp"
   "pixelCoordinatesPartial.cpp"
+  "pixelCoordinatesPointingPartial.cpp"
   "azimuthElevationPartial.cpp"
   "rotationMatrixPartial.cpp"
   "positionPartials.cpp"
@@ -30,6 +31,7 @@ set(observation_partials_SOURCES
 set(observation_partials_HEADERS
   "angularPositionPartial.h"
   "pixelCoordinatesPartial.h"
+  "pixelCoordinatesPointingPartial.h"
   "azimuthElevationPartial.h"
   "rotationMatrixPartial.h"
   "positionPartials.h"

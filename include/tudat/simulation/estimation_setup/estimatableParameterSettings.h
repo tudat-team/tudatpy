@@ -1540,6 +1540,11 @@ inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition( c
     return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > cameraPointingCorrection( const std::string& body, const std::string& cameraName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, camera_pointing_correction, cameraName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime( const std::string& body,
                                                                                       const std::vector< std::string >& deformingBodies )
 {

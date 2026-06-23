@@ -48,6 +48,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/cameraPointingCorrection.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/iauRotationModelParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
@@ -2253,6 +2254,23 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::make_shared< ReferencePointPosition >( currentBody->getVehicleSystems( ),
                                                                         vectorParameterName->parameterType_.second.first,
                                                                         vectorParameterName->parameterType_.second.second );
+                }
+                break;
+            }
+            case camera_pointing_correction: {
+                if( currentBody->getVehicleSystems( )->getCameraMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but camera was not found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< CameraPointingCorrection >( currentBody->getVehicleSystems( ),
+                                                                          vectorParameterName->parameterType_.second.first,
+                                                                          vectorParameterName->parameterType_.second.second );
                 }
                 break;
             }
