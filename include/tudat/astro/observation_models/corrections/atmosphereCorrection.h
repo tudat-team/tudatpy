@@ -279,6 +279,12 @@ public:
         }
     }
 
+    // Returns the correction objects held by this manager.
+    const std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >& getCorrectionVector( ) const
+    {
+        return correctionVector_;
+    }
+
     /*!
      * Function to compute the atmospheric correction as a function of time.
      * For the specified time, the function finds the appropriate correction calculation objects and
