@@ -735,7 +735,9 @@ class HorizonsQuery:
 
         raw = self.vectors(frame_orientation=frame_orientation, aberations=aberations)
 
-        df = self._add_time_columns(raw.to_pandas(), input_scale="TDB")
+        augmented_table = self._add_time_columns(raw, input_scale="TDB")
+
+        df = augmented_table.to_pandas()
 
         # 2. Standard state conversions
         tab = (
@@ -750,29 +752,35 @@ class HorizonsQuery:
 
         return tab.to_numpy()
 
-    def _add_time_columns(self, table: pd.DataFrame, input_scale: str = "UTC") -> pd.DataFrame:
+    def _add_time_columns(
+        self, table: astropy.table.Table, input_scale: str = "UTC"
+    ) -> astropy.table.Table:
         """
         Internal helper to add standardized time columns to an observation table.
 
-        This function takes a DataFrame (which must contain a 'datetime_jd' column
+        This function takes an astropy Table (which must contain a 'datetime_jd' column
         from Astroquery) and adds 'epoch_seconds_TDB' and 'epoch_seconds_UTC' columns.
 
         Parameters
         ----------
-        table : pd.DataFrame
-            The input DataFrame, which must contain a 'datetime_jd' column.
+        table : astropy.table.Table
+            The input DataFrame, which contains a 'datetime_str' column.
         input_scale : str
-            The time scale of the input Julian days. Must be 'UTC' or 'TDB'.
+            The time scale of the input datetime_str. Must be 'UTC' or 'TDB'.
 
         Returns
         -------
-        pd.DataFrame
+        augmented_table: astropy.table.Table
             The DataFrame with the new time columns added.
         """
         augmented_table = table.copy()
 
-        time_strings = augmented_table["datetime_str"].str.replace("A.D. ", "", regex=False)
-        # Create DateTime objects from Astroquery's Julian Day column
+        time_strings = np.char.replace(augmented_table["datetime_str"], "A.D. ", "")
+        augmented_table["datetime_str"] = np.char.replace(
+            augmented_table["datetime_str"], "A.D. ", ""
+        )
+
+        # Create DateTime objects from Astroquery's datetime_str column
         # and convert them to seconds since J2000
         naive_seconds = []
         for ts in time_strings:
@@ -971,27 +979,14 @@ class HorizonsQuery:
             iso_strings_utc = [t.iso for t in astropy_times]
             # Use Tudat's time representation for consistent conversion
             tudat_utc_times = [DateTime.from_iso_string(iso) for iso in iso_strings_utc]
-            utc_seconds = [time.epoch() for time in tudat_utc_times]
             tudat_julian_days = [DateTime.to_julian_day(utc_time) for utc_time in tudat_utc_times]
-
-            # Convert UTC seconds to TDB seconds
-            time_scale_converter = time_representation.default_time_scale_converter()
-            tdb_seconds = [
-                time_scale_converter.convert_time(
-                    time_representation.utc_scale, time_representation.tdb_scale, epoch
-                )
-                for epoch in utc_seconds
-            ]
             res["datetime_str_UTC"] = iso_strings_utc
             res["datetime_jd"] = tudat_julian_days
-            res["epoch_seconds_TDB"] = tdb_seconds
-            res["epoch_seconds_UTC"] = utc_seconds
-
             res_list.append(res)
 
         raw = vstack(res_list)
-        df_with_times = self._add_time_columns(raw.to_pandas(), input_scale="UTC")
-        return df_with_times
+        augmented_table = self._add_time_columns(raw, input_scale="UTC")
+        return augmented_table
 
     def interpolated_observations(
         self,
