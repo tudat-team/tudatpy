@@ -85,41 +85,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     std::vector< ParameterVectorType > parameterHistory;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
-    // Inter-arc continuity constraint setup. Required multi-arc casts of the STM interface and dynamics simulator
-    // are resolved once and reused inside the iteration loop. Empty constraint list (the default) skips the
-    // feature entirely with no runtime cost.
+    // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
-    std::shared_ptr< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >
-            multiArcStmInterface;
-    std::shared_ptr< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > > multiArcSimulator;
-    if( !interArcConstraints.empty( ) )
-    {
-        multiArcStmInterface = std::dynamic_pointer_cast<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >(
-                stateTransitionAndSensitivityMatrixInterface_ );
-        if( multiArcStmInterface == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when applying inter-arc continuity constraints: state-transition matrix "
-                    "interface is not a MultiArcCombinedStateTransitionAndSensitivityMatrixInterface. "
-                    "Inter-arc continuity is only supported for pure multi-arc estimators "
-                    "(spec section 9: hybrid-arc out of scope for v1)." );
-        }
-        if( variationalEquationsSolver_ == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when applying inter-arc continuity constraints: variational equations "
-                    "solver is null." );
-        }
-        multiArcSimulator = std::dynamic_pointer_cast< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
-                variationalEquationsSolver_->getDynamicsSimulatorBase( ) );
-        if( multiArcSimulator == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when applying inter-arc continuity constraints: dynamics simulator is not "
-                    "a MultiArcDynamicsSimulator." );
-        }
-    }
     std::vector< double > interArcContinuityCostHistory;
     std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > > interArcContinuityDiscrepancyHistory;
 
@@ -164,24 +131,17 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
                 estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
 
-        // Assemble inter-arc continuity contribution for this iteration. The normalisation factors are the same
+        // Assemble soft inter-arc continuity-prior contribution for this iteration. The normalisation factors are the same
         // ones just applied to the observation design matrix above.
-        InterArcConstraintContribution interArcContribution;
-        if( !interArcConstraints.empty( ) )
-        {
-            interArcContribution = assembleInterArcContinuityContribution< ObservationScalarType, TimeType >(
-                    interArcConstraints,
-                    parametersToEstimate_,
-                    multiArcSimulator,
-                    multiArcStmInterface,
-                    normalizationTerms,
-                    static_cast< int >( numberEstimatedParameters_ ) );
-        }
-        else
-        {
-            interArcContribution.additionalNormalMatrix = Eigen::MatrixXd( 0, 0 );
-            interArcContribution.additionalRightHandSide = Eigen::VectorXd( 0 );
-        }
+        InterArcConstraintContribution interArcContribution =
+                assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                        interArcConstraints,
+                        parametersToEstimate_,
+                        stateTransitionAndSensitivityMatrixInterface_,
+                        variationalEquationsSolver_,
+                        normalizationTerms,
+                        static_cast< int >( numberEstimatedParameters_ ),
+                        "parameter estimation" );
         interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
         interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
 
@@ -274,8 +234,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
         costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
-        // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity
-        // cost (zero when no constraints are attached). Residual RMS is unchanged so observation-only diagnostics
+        // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
+        // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
         // remain meaningful.
         costFunction += interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );

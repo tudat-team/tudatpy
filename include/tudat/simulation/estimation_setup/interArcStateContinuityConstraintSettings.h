@@ -24,11 +24,14 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! User-facing soft-continuity constraint between consecutive multi-arc translational arcs of a single body.
-//! The cost added to the LSQ target is, per pair (Lari et al. 2021 Eq. 28):
-//!   q_pair = (1 / (mu * m_d)) * d^T C d
-//! where d = x_right(t_c) - x_left(t_c). The weight matrix C selects which components are constrained
-//! (e.g. position-only, velocity-only, full state) and how tightly. Larger mu weakens the penalty.
+//! User-facing soft-continuity prior between consecutive multi-arc translational arcs of a single body.
+//! For each pair, the prior cost is
+//!   q_pair = d^T W_d d,  W_d = (1 / (mu * m_d_total)) * C
+//! where d = x_right(t_c) - x_left(t_c) and m_d_total is the global rank sum over all configured C matrices.
+//! After applying the estimator's column normalization to the right-minus-left STM row block D, the linearized
+//! contribution is H_prior += D_norm^T W_d D_norm and g_prior += -D_norm^T W_d d. The weight matrix C selects
+//! which components are regularized (e.g. position-only, velocity-only, full state) and how tightly. Larger mu
+//! weakens the prior. This feature is currently supported for pure multi-arc translational estimators only.
 class InterArcStateContinuityConstraintSettings
 {
 public:
@@ -71,7 +74,7 @@ public:
         return muValues_.size( ) == 1 ? muValues_.front( ) : muValues_.at( pairIndex );
     }
 
-    //! Number of constrained boundaries (either the explicit arcPairs count or the connection-epoch count).
+    //! Number of regularized boundaries (either the explicit arcPairs count or the connection-epoch count).
     std::size_t numberOfPairs( ) const
     {
         return connectionEpochs_.size( );
@@ -105,7 +108,7 @@ inline Eigen::Matrix< double, 6, 6 > diagonalWeight( double position, double vel
 
 }  // namespace detail
 
-//! Build a settings object with both position and velocity continuity (anisotropic weights via per-component values).
+//! Build a soft-prior settings object with both position and velocity continuity.
 inline std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
         std::string body,
         std::vector< double > connectionEpochs,
@@ -122,7 +125,7 @@ inline std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateCon
             std::move( arcPairs ) );
 }
 
-//! Build a settings object with position-only continuity (velocity rows/columns of C zeroed → rank-deficient C).
+//! Build a soft-prior settings object with position-only continuity.
 inline std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
         std::string body,
         std::vector< double > connectionEpochs,
@@ -138,7 +141,7 @@ inline std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnly
             std::move( arcPairs ) );
 }
 
-//! Build a settings object with velocity-only continuity (position rows/columns of C zeroed → rank-deficient C).
+//! Build a soft-prior settings object with velocity-only continuity.
 inline std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
         std::string body,
         std::vector< double > connectionEpochs,
@@ -154,7 +157,7 @@ inline std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnly
             std::move( arcPairs ) );
 }
 
-//! Build a settings object with arbitrary (possibly per-boundary, possibly dense) 6x6 PSD weight matrices.
+//! Build a soft-prior settings object with arbitrary (possibly per-boundary, possibly dense) 6x6 PSD weight matrices.
 inline std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
         std::string body,
         std::vector< double > connectionEpochs,

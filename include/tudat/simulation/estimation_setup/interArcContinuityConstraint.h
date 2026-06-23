@@ -25,6 +25,7 @@
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
 
 namespace tudat
@@ -32,7 +33,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Per-iteration aggregated contribution of all inter-arc continuity constraints to the normal equations.
+//! Aggregated normal-equation contribution of all soft inter-arc continuity priors.
 struct InterArcConstraintContribution {
     Eigen::MatrixXd additionalNormalMatrix;
     Eigen::VectorXd additionalRightHandSide;
@@ -213,15 +214,20 @@ BodyArcRows getBodyRowsInMultiArcLayout(
 
 }  // namespace detail
 
-//! Assemble the normal-equation contribution of all inter-arc continuity constraints for the current iteration.
+//! Assemble the normal-equation contribution of all inter-arc continuity priors at the current linearization point.
 //!
-//! Per Lari et al. (2021) Eq. 28: for each constrained boundary (k_left, k_right) at epoch t_c,
-//!   d = x_right(t_c) - x_left(t_c)                              (6-vector, physical units)
-//!   D = M_right(t_c) - M_left(t_c)                              (6 x N_params, full multi-arc layout)
+//! For each configured boundary (k_left, k_right) at epoch t_c, this function evaluates
+//!   d = x_right(t_c) - x_left(t_c)
+//!   D = M_right(t_c) - M_left(t_c)
+//! with d in physical state units and D in the full multi-arc parameter layout. The soft prior/regularization
+//! weight is
 //!   W_d = (1 / (mu_pair * m_d_total)) * C_pair
-//!   H_constraint += D_norm^T W_d D_norm,  g_constraint += - D_norm^T W_d d
-//! where m_d_total is a single global rank sum across every settings entry passed in. Column-normalisation of D
-//! uses the same factors that the OD loop applies to the observation design matrix (spec section 2.4).
+//! where m_d_total is the sum of rank(C_pair) over all configured pairs. After applying the same column
+//! normalization used for the observation design matrix, the contribution to the linearized normal equations is
+//!   H_prior += D_norm^T W_d D_norm
+//!   g_prior += -D_norm^T W_d d
+//! and the reported diagnostic cost is d^T W_d d. This feature currently requires a pure multi-arc translational
+//! estimation setup; hybrid-arc and single-arc estimations are intentionally rejected.
 template< typename ObservationScalarType, typename TimeType >
 InterArcConstraintContribution assembleInterArcContinuityContribution(
         const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings,
@@ -261,7 +267,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
         throw std::runtime_error( "Error in assembleInterArcContinuityContribution: full STM column count (" +
                                   std::to_string( fullStmCols ) + ") does not match LSQ parameter size (" +
                                   std::to_string( totalParameterSize ) +
-                                  "). Inter-arc continuity constraints currently require a pure multi-arc parameter set "
+                                  "). Inter-arc continuity priors currently require a pure multi-arc parameter set "
                                   "(spec section 9: hybrid-arc out of scope for v1)." );
     }
 
@@ -305,7 +311,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
         if( bodyParameter == nullptr )
         {
             throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + settings->body( ) +
-                                      "\" referenced by an inter-arc continuity constraint does not have an arc-wise "
+                                      "\" referenced by an inter-arc continuity prior does not have an arc-wise "
                                       "translational initial state parameter." );
         }
 
@@ -410,6 +416,64 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
     }
 
     return contribution;
+}
+
+//! Assemble soft inter-arc continuity-prior terms from generic OD manager interfaces.
+/*!
+ *  This helper centralizes the pure multi-arc casts and diagnostics used by both parameter estimation and covariance
+ *  analysis. It returns an empty no-op contribution when no continuity priors are configured.
+ */
+template< typename ObservationScalarType, typename TimeType >
+InterArcConstraintContribution assembleInterArcContinuityContributionFromManagerInterfaces(
+        const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >& parametersToEstimate,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >& stateTransitionInterface,
+        const std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >& variationalEquationsSolver,
+        const Eigen::VectorXd& columnNormalizationFactors,
+        const int totalParameterSize,
+        const std::string& context )
+{
+    InterArcConstraintContribution contribution;
+    contribution.additionalNormalMatrix = Eigen::MatrixXd( 0, 0 );
+    contribution.additionalRightHandSide = Eigen::VectorXd( 0 );
+    contribution.totalConstraintCost = 0.0;
+    contribution.perPairDiscrepancies.clear( );
+
+    if( constraintSettings.empty( ) )
+    {
+        return contribution;
+    }
+
+    auto multiArcStmInterface =
+            std::dynamic_pointer_cast< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >(
+                    stateTransitionInterface );
+    if( multiArcStmInterface == nullptr )
+    {
+        throw std::runtime_error( "Error when applying inter-arc continuity priors in " + context +
+                                  ": state-transition matrix interface is not a "
+                                  "MultiArcCombinedStateTransitionAndSensitivityMatrixInterface. Inter-arc continuity priors "
+                                  "are only supported for pure multi-arc estimators." );
+    }
+    if( variationalEquationsSolver == nullptr )
+    {
+        throw std::runtime_error( "Error when applying inter-arc continuity priors in " + context +
+                                  ": variational equations solver is null." );
+    }
+
+    auto multiArcSimulator = std::dynamic_pointer_cast< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
+            variationalEquationsSolver->getDynamicsSimulatorBase( ) );
+    if( multiArcSimulator == nullptr )
+    {
+        throw std::runtime_error( "Error when applying inter-arc continuity priors in " + context +
+                                  ": dynamics simulator is not a MultiArcDynamicsSimulator." );
+    }
+
+    return assembleInterArcContinuityContribution< ObservationScalarType, TimeType >( constraintSettings,
+                                                                                      parametersToEstimate,
+                                                                                      multiArcSimulator,
+                                                                                      multiArcStmInterface,
+                                                                                      columnNormalizationFactors,
+                                                                                      totalParameterSize );
 }
 
 }  // namespace simulation_setup

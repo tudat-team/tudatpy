@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( test_StmForArc_RangeValidation )
 
 //! Test 9 / structural check of the assembly module: build a position-only continuity contribution at the
 //! shared boundary and verify symmetry, dimensionality, that d is small but non-zero (RK4 truncation), and
-//! that the additionalRightHandSide is aligned with -D^T W_d d as the analytical formula dictates.
+//! that the additionalRightHandSide is aligned with -D_norm^T W_d d as the analytical formula dictates.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_StructureAndSymmetry )
 {
     auto fixture = buildTwoArcFixture( );
@@ -664,7 +664,7 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     BOOST_CHECK( outputNoConstraint->getInterArcContinuityCostHistory( ).empty( ) );
     BOOST_CHECK( outputNoConstraint->getInterArcContinuityDiscrepancyHistory( ).empty( ) );
 
-    // Re-estimate with a position-only continuity constraint at the shared OCM boundary.
+    // Re-estimate with a position-only continuity prior at the shared OCM boundary.
     parametersToEstimate->resetParameterValues( initialEstimate );
     auto estimationInputWithConstraint = std::make_shared< EstimationInput< double, double > >( observations );
     auto constraint = positionOnlyContinuity( "Earth", { arcStartTimes[ 1 ] }, 1.0, 1.0E-12 );
@@ -727,10 +727,10 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_EpochOutsideArcThrows )
     }
 }
 
-//! Test 12: covariance analysis with inter-arc continuity constraints. The constrained-problem inverse
-//! normalized covariance matrix must dominate the unconstrained one elementwise on the parameter block (PSD
-//! inequality), confirming that the position-only constraint genuinely tightens the covariance in the
-//! constrained directions.
+//! Test 12: covariance analysis with inter-arc continuity priors attached directly to CovarianceAnalysisInput. The regularized inverse
+//! normalized covariance matrix must dominate the unregularized one elementwise on the parameter block (PSD
+//! inequality), confirming that the position-only prior genuinely tightens the covariance in the regularized
+//! directions.
 BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -810,7 +810,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     auto unconstrainedInput = std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
     auto unconstrainedOutput = orbitDeterminationManager.computeCovariance( unconstrainedInput );
 
-    auto constrainedInput = std::make_shared< EstimationInput< double, double > >( observations );
+    auto constrainedInput = std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
     auto constraint = positionOnlyContinuity( "Earth", { arcStartTimes[ 1 ] }, 1.0, 1.0E-15 );
     constrainedInput->setInterArcContinuityConstraints( { constraint } );
     auto constrainedOutput = orbitDeterminationManager.computeCovariance( constrainedInput );
@@ -818,15 +818,18 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     BOOST_REQUIRE( unconstrainedOutput != nullptr );
     BOOST_REQUIRE( constrainedOutput != nullptr );
 
-    // Compare normalized inverse covariance (= normal matrix). Constrained must >= unconstrained in the PSD
-    // sense: the difference (constrained - unconstrained) is PSD with smallest eigenvalue >= 0.
+    // Compare normalized inverse covariance (= normal matrix). Regularized must >= unregularized in the PSD
+    // sense: the difference (regularized - unregularized) is PSD with smallest eigenvalue >= 0.
     Eigen::MatrixXd diff = constrainedOutput->inverseNormalizedCovarianceMatrix_ - unconstrainedOutput->inverseNormalizedCovarianceMatrix_;
     Eigen::MatrixXd diffSym = 0.5 * ( diff + diff.transpose( ) );
     Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > solver( diffSym );
     const double maxEig = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
     BOOST_CHECK_GE( solver.eigenvalues( ).minCoeff( ), -1.0E-9 * maxEig );
-    // The largest eigenvalue must be strictly positive — the constraint must have a non-trivial effect.
+    // The largest eigenvalue must be strictly positive: the prior must have a non-trivial effect.
     BOOST_CHECK_GT( solver.eigenvalues( ).maxCoeff( ), 0.0 );
+    BOOST_CHECK_GT( constrainedOutput->getInterArcContinuityCost( ), 0.0 );
+    BOOST_REQUIRE_EQUAL( constrainedOutput->getInterArcContinuityDiscrepancies( ).size( ), 1u );
+    BOOST_CHECK( std::isfinite( constrainedOutput->getInterArcContinuityDiscrepancies( ).at( 0 ).norm( ) ) );
 }
 
 //! Test the global m_d accounting: passing two settings entries with two pairs each, both rank 3 (position-only),

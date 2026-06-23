@@ -88,41 +88,18 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
             constraintRightHandSide,
             estimationInput->getLimitConditionNumberForWarning( ) );
 
-    // Add the inter-arc continuity normal-matrix contribution when the covariance input is an EstimationInput.
-    // Plain CovarianceAnalysisInput intentionally has no inter-arc continuity API.
-    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcConstraints;
-    auto estimationInputWithInterArcConstraints =
-            std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput );
-    if( estimationInputWithInterArcConstraints != nullptr )
+    // Add the soft inter-arc continuity-prior normal-matrix contribution, when configured.
+    InterArcConstraintContribution interArcContribution =
+            assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                    estimationInput->getInterArcContinuityConstraints( ),
+                    parametersToEstimate_,
+                    stateTransitionAndSensitivityMatrixInterface_,
+                    variationalEquationsSolver_,
+                    normalizationTerms,
+                    static_cast< int >( numberEstimatedParameters_ ),
+                    "covariance analysis" );
+    if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
     {
-        interArcConstraints = estimationInputWithInterArcConstraints->getInterArcContinuityConstraints( );
-    }
-    if( !interArcConstraints.empty( ) )
-    {
-        auto multiArcStmInterface = std::dynamic_pointer_cast<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >(
-                stateTransitionAndSensitivityMatrixInterface_ );
-        if( multiArcStmInterface == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when applying inter-arc continuity constraints in covariance analysis: STM "
-                    "interface is not multi-arc." );
-        }
-        auto multiArcSimulator = std::dynamic_pointer_cast< propagators::MultiArcDynamicsSimulator< ObservationScalarType, TimeType > >(
-                variationalEquationsSolver_->getDynamicsSimulatorBase( ) );
-        if( multiArcSimulator == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when applying inter-arc continuity constraints in covariance analysis: "
-                    "dynamics simulator is not multi-arc." );
-        }
-        auto interArcContribution = assembleInterArcContinuityContribution< ObservationScalarType, TimeType >(
-                interArcConstraints,
-                parametersToEstimate_,
-                multiArcSimulator,
-                multiArcStmInterface,
-                normalizationTerms,
-                static_cast< int >( numberEstimatedParameters_ ) );
         inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
                 interArcContribution.additionalNormalMatrix;
     }
@@ -154,6 +131,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     considerNormalizationTerms,
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
+                    interArcContribution.totalConstraintCost,
+                    interArcContribution.perPairDiscrepancies,
                     exceptionDuringPropagation );
 
     return estimationOutput;

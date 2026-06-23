@@ -546,6 +546,28 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity priors.
+
+         These priors add a regularizing normal-equation contribution
+         :math:`\mathbf{D}_\mathrm{norm}^{T}\mathbf{W}_{d}\mathbf{D}_\mathrm{norm}` in covariance analysis and,
+         during estimation, the matching right-hand-side contribution
+         :math:`-\mathbf{D}_\mathrm{norm}^{T}\mathbf{W}_{d}\mathbf{d}`. ``D_norm`` is the right-minus-left
+         state-transition/sensitivity block after applying the estimator's column normalization. They are currently
+         supported only for pure multi-arc translational estimators. Pass an empty list to disable the feature.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached soft inter-arc continuity-prior settings.
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -647,24 +669,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
-     )doc" )
-            .def( "set_inter_arc_continuity_constraints",
-                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
-                  py::arg( "constraints" ),
-                  R"doc(
-
-         Attach a list of soft inter-arc translational state continuity constraints, one per multi-arc body.
-         Pass an empty list to disable the feature. See ``inter_arc_constraints`` factory functions in
-         ``tudatpy.estimation.estimation_analysis`` for constructing the entries.
-      )doc" )
-            .def_property_readonly( "inter_arc_continuity_constraints",
-                                    &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
-                                    R"doc(
-
-         **read-only**
-
-         List of currently attached inter-arc continuity constraint settings.
-      )doc" );
+     )doc" );
 
     m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 
@@ -683,6 +688,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          * The inverse covariance matrix :math:`\mathbf{P}^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable
          * The consider partials matrix :math:`\mathbf{H}_{c}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}_{c}}` of the observations w.r.t. the consider parameters (if any)
          * The contribution :math:`\Delta \mathbf{P}_{c}` of the consider parameters to the estimated parameter covariance
+         * Optional soft inter-arc continuity-prior diagnostics, when such priors are attached to the input
 
          In the computation of the covariance  (see TODO), the columns of the :math:`H` matrices are normalized to reduce numerical instability
          that can result from the partials w.r.t. different parameters being of a very different order of magnitude. The normalization is achieved
@@ -896,6 +902,24 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          Vector of consider parameter normalization terms :math:`\mathbf{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_cost",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCost,
+                                    R"doc(
+
+         **read-only**
+
+         Soft inter-arc continuity-prior cost :math:`\sum d^T W_d d` at the covariance-analysis
+         linearization point. This value is zero when no inter-arc continuity priors were attached.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_discrepancies",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancies,
+                                    R"doc(
+
+         **read-only**
+
+         List of 6-component discrepancies :math:`d=x_\mathrm{right}(t_c)-x_\mathrm{left}(t_c)` used
+         to assemble the soft inter-arc continuity prior in covariance analysis.
       )doc" );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -969,8 +993,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          **read-only**
 
-         Per-iteration sum of all inter-arc continuity cost contributions. Empty if no inter-arc continuity
-         constraints were attached to the input.
+         Per-iteration sum of all soft inter-arc continuity-prior cost contributions. Empty if no inter-arc
+         continuity priors were attached to the input.
       )doc" )
             .def_property_readonly( "inter_arc_continuity_discrepancy_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancyHistory,
@@ -979,7 +1003,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          **read-only**
 
          Per-iteration list of 6-component discrepancies ``d = x_right(t_c) - x_left(t_c)`` at every
-         constrained boundary. Outer index is iteration, inner index is pair in the order produced by the
+         regularized boundary. Outer index is iteration, inner index is pair in the order produced by the
          attached settings.
       )doc" );
 

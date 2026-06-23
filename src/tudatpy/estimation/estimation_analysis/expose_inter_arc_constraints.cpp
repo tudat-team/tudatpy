@@ -85,15 +85,20 @@ void expose_inter_arc_constraints( py::module& m )
             "InterArcStateContinuityConstraintSettings",
             R"doc(
 
-         Soft inter-arc translational state continuity constraint settings for a single multi-arc body.
+         Soft inter-arc translational state continuity-prior settings for a single multi-arc body.
 
          Created via the factory functions :func:`full_state_continuity`, :func:`position_only_continuity`,
          :func:`velocity_only_continuity`, or :func:`general_continuity`. Pass a list of these objects to
-         :meth:`EstimationInput.set_inter_arc_continuity_constraints` to attach the feature.
+         :meth:`CovarianceAnalysisInput.set_inter_arc_continuity_constraints` or the inherited
+         :meth:`EstimationInput.set_inter_arc_continuity_constraints` to attach the feature. The feature is
+         currently supported for pure multi-arc translational estimators only.
 
-         See Lari et al. (2021), Eq. (28) for the underlying mathematics. The cost
-         contribution per boundary is ``q = (1 / (mu * m_d)) * d^T C d`` where ``d = x_right(t_c) - x_left(t_c)``
-         and ``m_d`` is the global rank sum across every settings entry. Larger ``mu`` weakens the penalty.
+         The cost contribution per boundary is ``q = d^T W_d d`` with
+         ``W_d = (1 / (mu * m_d_total)) * C`` and ``d = x_right(t_c) - x_left(t_c)``. The linearized
+         normal-equation terms are ``D_norm.T @ W_d @ D_norm`` and ``-D_norm.T @ W_d @ d``, where ``D_norm``
+         is the right-minus-left state-transition/sensitivity row block after applying the estimator's column
+         normalization. ``m_d_total`` is the global rank sum across every settings entry. Larger ``mu`` weakens
+         the prior.
       )doc" )
             .def_property_readonly( "body", &tss::InterArcStateContinuityConstraintSettings::body )
             .def_property_readonly( "connection_epochs", &tss::InterArcStateContinuityConstraintSettings::connectionEpochs )
@@ -124,9 +129,9 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a full-state (position + velocity) continuity settings object. ``position_weight`` and
+         Build a full-state (position + velocity) soft-prior settings object. ``position_weight`` and
          ``velocity_weight`` may each be a scalar (isotropic) or a length-3 sequence (anisotropic). When
-         ``arc_pairs`` is empty the constraint is applied to every consecutive arc pair as ``(0, 1)``,
+         ``arc_pairs`` is empty the prior is applied to every consecutive arc pair as ``(0, 1)``,
          ``(1, 2)``, ... in the order of ``epochs``.
       )doc" );
 
@@ -152,8 +157,8 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a position-only continuity settings object (rank-3 ``C``). Velocity-row entries of ``C`` are
-         zero so the constraint leaves the inter-arc Delta-v free. This is the Rosetta OCM-boundary
+         Build a position-only soft-prior settings object (rank-3 ``C``). Velocity-row entries of ``C`` are
+         zero so the prior leaves the inter-arc Delta-v free. This is the Rosetta OCM-boundary
          configuration.
       )doc" );
 
@@ -179,8 +184,8 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a velocity-only continuity settings object (rank-3 ``C``). Position-row entries of ``C`` are
-         zero so the constraint leaves inter-arc position jumps free.
+         Build a velocity-only soft-prior settings object (rank-3 ``C``). Position-row entries of ``C`` are
+         zero so the prior leaves inter-arc position jumps free.
       )doc" );
 
     m.def(
@@ -200,7 +205,7 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a generic continuity settings object from a list of 6x6 PSD weight matrices. The list must have
+         Build a generic soft-prior settings object from a list of 6x6 PSD weight matrices. The list must have
          either length 1 (applied to every pair) or length equal to ``len(epochs)``. Use this when you need a
          dense or per-boundary heterogeneous weight; otherwise prefer the preset factories.
       )doc" );
