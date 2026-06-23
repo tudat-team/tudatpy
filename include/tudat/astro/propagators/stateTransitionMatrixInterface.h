@@ -453,34 +453,15 @@ public:
      *  Function to get the concatenated single-arc state transition and sensitivity matrix at a given time, evaluates matrices
      *  at the arc in which evaluationTime is located.
      *  \param evaluationTime Time at which to evaluate matrix interpolators
-     *  \return Concatenated state transition and sensitivity matrices.
+     *  \return Concatenated state transition and sensitivity matrices. Returns an empty 0x0 matrix when evaluationTime
+     *      falls in no arc, since the single-arc matrix size is undefined without an active arc.
      */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
             const double evaluationTime,
             const bool addCentralBodyDependency = true,
             const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        int currentArc = getCurrentArc( evaluationTime ).first;
-
-        std::vector< int > currentArcsDefinedByEachBody;
-        for( unsigned int i = 0; i < arcDefiningBodies.size( ); i++ )
-        {
-            std::pair< int, double > currentArcDefinedByBody = getCurrentArc( evaluationTime, arcDefiningBodies.at( i ) );
-            currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody.first );
-        }
-        for( unsigned int i = 0; i < currentArcsDefinedByEachBody.size( ); i++ )
-        {
-            if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
-                ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
-            {
-                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                          " & " + arcDefiningBodies.at( 0 ) + "." );
-            }
-            if( currentArcsDefinedByEachBody[ i ] != -1 )
-            {
-                currentArc = currentArcsDefinedByEachBody[ i ];
-            }
-        }
+        int currentArc = resolveCurrentArc( evaluationTime, arcDefiningBodies );
 
         if( currentArc >= 0 )
         {
@@ -508,29 +489,7 @@ public:
         Eigen::MatrixXd fullCombinedStateTransitionMatrix =
                 Eigen::MatrixXd::Zero( fullStateSize_, fullStateTransitionMatrixSize_ + fullSensitivityMatrixSize_ );
 
-        int currentArc = getCurrentArc( evaluationTime ).first;
-
-        std::vector< int > currentArcsDefinedByEachBody;
-
-        for( unsigned int i = 0; i < arcDefiningBodies.size( ); i++ )
-        {
-            std::pair< int, double > currentArcDefinedByBody = getCurrentArc( evaluationTime, arcDefiningBodies.at( i ) );
-
-            currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody.first );
-        }
-        for( unsigned int i = 0; i < currentArcsDefinedByEachBody.size( ); i++ )
-        {
-            if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
-                ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
-            {
-                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                          " & " + arcDefiningBodies.at( 0 ) + "." );
-            }
-            if( currentArcsDefinedByEachBody[ i ] != -1 )
-            {
-                currentArc = currentArcsDefinedByEachBody[ i ];
-            }
-        }
+        int currentArc = resolveCurrentArc( evaluationTime, arcDefiningBodies );
 
         // Set Phi and S matrices of current arc.
         if( currentArc >= 0 )
@@ -707,6 +666,40 @@ public:
     }
 
 protected:
+    //! Resolve the active arc index for a given time and optional arc-defining bodies.
+    /*!
+     *  Returns the index of the arc containing evaluationTime, or -1 if the time falls in no arc. When
+     *  arcDefiningBodies is non-empty, the arc is taken from those bodies' per-body lookup schemes; throws if two
+     *  bodies disagree on the arc (and neither is -1).
+     *  \param evaluationTime Time at which the current arc is to be determined.
+     *  \param arcDefiningBodies Bodies whose per-body lookup schemes define the arc (may be empty).
+     *  \return Active arc index, or -1 if evaluationTime falls in no arc.
+     */
+    int resolveCurrentArc( const double evaluationTime, const std::vector< std::string >& arcDefiningBodies )
+    {
+        int currentArc = getCurrentArc( evaluationTime ).first;
+
+        std::vector< int > currentArcsDefinedByEachBody;
+        for( unsigned int i = 0; i < arcDefiningBodies.size( ); i++ )
+        {
+            currentArcsDefinedByEachBody.push_back( getCurrentArc( evaluationTime, arcDefiningBodies.at( i ) ).first );
+        }
+        for( unsigned int i = 0; i < currentArcsDefinedByEachBody.size( ); i++ )
+        {
+            if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
+                ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
+            {
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                                          " & " + arcDefiningBodies.at( 0 ) + "." );
+            }
+            if( currentArcsDefinedByEachBody[ i ] != -1 )
+            {
+                currentArc = currentArcsDefinedByEachBody[ i ];
+            }
+        }
+        return currentArc;
+    }
+
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrixForCurrentArc( const int currentArc,
                                                                                  const double evaluationTime,
                                                                                  const bool addCentralBodyDependency ) const
