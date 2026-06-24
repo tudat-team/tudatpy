@@ -21,7 +21,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to create an atmosphere model.
+//! Function to create a climate model.
 std::shared_ptr< environment::ClimateModel > createClimateModel( std::shared_ptr< ClimateModelSettings > climateModelSettings,
                                                                  std::shared_ptr< simulation_setup::Body > body )
 {
