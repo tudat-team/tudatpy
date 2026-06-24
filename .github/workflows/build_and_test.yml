@@ -126,6 +126,31 @@ jobs:
       # if: steps.cache.outputs.cache-hit != 'true'
       run: conda env update -n tudat -f environment.yaml
 
+    - name: Quiet Windows compiler activation scripts
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $activateDir = Join-Path "${{ matrix.platform.path_conda_env }}" "etc\conda\activate.d"
+        if (-not (Test-Path $activateDir)) {
+          return
+        }
+
+        Get-ChildItem -Path $activateDir -Filter "*.bat" | ForEach-Object {
+          $content = Get-Content -Raw -Path $_.FullName
+          if ($content -match "vcvars|VsDevCmd|VSINSTALLDIR|VCTools") {
+            if ($content -notmatch "(?im)^\s*@echo\s+off\s*$") {
+              $content = "@echo off`r`n" + $content
+            }
+
+            if ($content -notmatch "(?im)^\s*set\s+`"VSCMD_ARG_NO_LOGO=1`"\s*$") {
+              $content = $content -replace "(?im)^(\s*set\s+`"NEWER_VS_WITH_OLDER_VC=0`"\s*)$", "`$1`r`nset `"VSCMD_ARG_NO_LOGO=1`""
+            }
+
+            Set-Content -NoNewline -Path $_.FullName -Value $content
+            Write-Host "Quieted $($_.FullName)"
+          }
+        }
+
     - name: Show full conda package list
       shell: bash -l {0}
       run: |
@@ -185,7 +210,7 @@ jobs:
         set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
         if not exist "%VCVARS64%" exit /b 1
         echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
-        call "%VCVARS64%" >nul
+        call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
@@ -218,7 +243,7 @@ jobs:
       shell: cmd
       run: |
         @echo off
-        call "%VCVARS64%" >nul
+        call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
