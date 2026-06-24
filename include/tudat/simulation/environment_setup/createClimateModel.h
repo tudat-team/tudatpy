@@ -25,6 +25,7 @@ namespace simulation_setup
 {
 
 enum ClimateModelTypes {
+    undefined_climate_model = -1,
 
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
 
