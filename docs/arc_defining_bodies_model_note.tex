@@ -1,0 +1,157 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+
+\title{\vspace{-1.5em}Model Meaning of \texttt{arcDefiningBodies}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-2.5em}
+
+\section*{Purpose}
+
+In a multi-arc estimation model, each estimated body's trajectory may be split into
+local arcs. The argument \texttt{arcDefiningBodies} specifies which body's local
+arc should define the state transition and sensitivity matrix used at a given
+epoch.
+
+\section*{Multi-arc state model}
+
+Let body \(b\) have local arcs
+\[
+    I_{b,k} = [t^s_{b,k}, t^e_{b,k}],
+\]
+with a separate estimated initial state for each arc,
+\[
+    x_{b,k,0} = x_b(t^s_{b,k}).
+\]
+Inside that arc, the state is a function of the local initial state and global
+parameters \(p\):
+\[
+    x_b(t) = \varphi_{b,k}(t; x_{b,k,0}, p),
+    \qquad t \in I_{b,k}.
+\]
+
+The variational matrix for an active arc is, schematically,
+\[
+    M_k(t)
+    =
+    \begin{bmatrix}
+        \Phi_k(t) & S_k(t)
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \dfrac{\partial x_k(t)}{\partial x_{k,0}} &
+        \dfrac{\partial x_k(t)}{\partial p}
+    \end{bmatrix}.
+\]
+
+For an observation model
+\[
+    h(t) = h\big(x_{b_1}(t_1), x_{b_2}(t_2), \ldots, p\big),
+\]
+the partial derivative with respect to estimated arc parameters uses the
+variational matrix of the arc that is considered active for the body involved:
+\[
+    \frac{\partial h}{\partial q}
+    =
+    \frac{\partial h}{\partial x_b(t)}
+    \,
+    M_{\alpha(t)}(t),
+\]
+where \(\alpha(t)\) is the selected arc index. The role of
+\texttt{arcDefiningBodies} is to define \(\alpha(t)\).
+
+\section*{Arc selection rule}
+
+Let \(D\) be the set passed through \texttt{arcDefiningBodies}.
+
+\[
+\alpha_D(t) =
+\begin{cases}
+\text{default time-based arc}, & D = \emptyset, \\
+\text{arc containing } t \text{ for the body or bodies in } D, & D \neq \emptyset.
+\end{cases}
+\]
+
+If multiple bodies are provided, they must identify the same active arc. If one
+body says ``arc 0'' and another says ``arc 1'', the model request is ambiguous:
+there is no single local variational matrix that represents both choices.
+
+\section*{Example with distinct behavior}
+
+Consider two estimated bodies:
+
+\[
+\begin{array}{ccl}
+\text{Probe } P:  & I_{P,0} = [0,100], & \text{arc index } 0, \\
+\text{Relay } R:  & I_{R,1} = [20,30], & \text{arc index } 1.
+\end{array}
+\]
+
+The relay arc is completely inside the probe arc. At \(t=25\), both local models
+exist, but they correspond to different local initial states:
+
+\[
+    x_P(25) = \varphi_{P,0}(25; x_{P,0,0}, p),
+    \qquad
+    x_R(25) = \varphi_{R,1}(25; x_{R,1,0}, p).
+\]
+
+The selected variational matrix depends on \(D\):
+
+\begin{center}
+\begin{tabular}{>{\ttfamily}lcc}
+\toprule
+\normalfont Input \(D\) & selected arc & returned matrix \\
+\midrule
+\{\}        & 1 & \(M_1(25)\) \\
+\{P\}       & 0 & \(M_0(25)\) \\
+\{R\}       & 1 & \(M_1(25)\) \\
+\{P,R\}     & conflict & no unique matrix \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Thus the same epoch can produce different matrices:
+\[
+    \texttt{arcDefiningBodies}=\{P\}
+    \quad \Rightarrow \quad
+    \frac{\partial h}{\partial x_{P,0,0}}
+    =
+    \frac{\partial h}{\partial x_P(25)} M_0(25),
+\]
+while
+\[
+    \texttt{arcDefiningBodies}=\{R\}
+    \quad \Rightarrow \quad
+    \frac{\partial h}{\partial x_{R,1,0}}
+    =
+    \frac{\partial h}{\partial x_R(25)} M_1(25).
+\]
+
+At \(t=50\), only the probe arc is physically active:
+\[
+    50 \in I_{P,0},
+    \qquad
+    50 \notin I_{R,1}.
+\]
+Passing \(D=\{P\}\) selects \(M_0(50)\). Passing \(D=\{R\}\) identifies no active
+relay arc. This is exactly the model-level reason for the input: an observation
+partial should use the local arc associated with the body whose state appears in
+that partial.
+
+\section*{Interpretation}
+
+\texttt{arcDefiningBodies} is not a dynamical parameter. It is a rule for
+choosing the local variational solution in a multi-arc model. It matters when
+different estimated bodies have different arc intervals, overlapping arcs, or
+observations whose partials are associated with specific link-end bodies.
+
+\end{document}

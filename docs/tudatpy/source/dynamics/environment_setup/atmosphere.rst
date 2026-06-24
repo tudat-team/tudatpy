@@ -63,7 +63,8 @@ Functions
    exponential_predefined
    exponential
    nrlmsise00
-   mcd
+   mars_climate_database_climate_model
+   mars_climate_database
    tabulated
    us76
    mars_dtm
@@ -89,7 +90,10 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
 
-.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
+
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database
+
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
@@ -124,6 +128,7 @@ Classes
    ExponentialAtmosphereSettings
    CustomConstantTemperatureAtmosphereSettings
    ScaledAtmosphereSettings
+   ClimateModelSettings
    NRLMSISE00Input
    NRLMSISE00Atmosphere
 
@@ -145,6 +150,13 @@ Wind Model Settings
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.CustomWindModelSettings
    :members:
    :show-inheritance:
+
+
+Climate Model Settings
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
+   :members:
 
 
 Atmosphere Settings

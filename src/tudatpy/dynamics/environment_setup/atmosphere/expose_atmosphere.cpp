@@ -17,6 +17,7 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/astro/aerodynamics/mcdAtmosphereModel.h>
 #include <tudat/simulation/environment_setup/createAtmosphereModel.h>
+#include <tudat/simulation/environment_setup/createClimateModel.h>
 #include <tudat/paths.hpp>
 
 // #include <pybind11/chrono.h>
@@ -1307,7 +1308,188 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 )doc" );
 
+    py::class_< tss::ClimateModelSettings, std::shared_ptr< tss::ClimateModelSettings > >( m,
+                                                                                           "ClimateModelSettings",
+                                                                                           R"doc(
+
+         Base class for providing settings for climate models.
+
+         Climate models provide access to climate-database properties that may extend beyond the
+         subset used directly by an atmosphere model. For the Mars Climate Database, this is the
+         settings object used to access *all* requested MCD properties.
+
+      )doc" );
+
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
+    m.def( "mars_climate_database_climate_model",
+           &tss::marsClimateDatabaseClimateModelSettings,
+           py::arg( "mcd_data_path" ) = "",
+           py::arg( "dust_scenario" ) = 1,
+           py::arg( "perturbation_key" ) = 0,
+           py::arg( "perturbation_seed" ) = 0.0,
+           py::arg( "gravity_wave_length" ) = 0.0,
+           py::arg( "high_resolution_mode" ) = 0,
+           R"doc(
+
+ Function for creating Mars Climate Database climate model settings.
+
+ Function for settings object, defining a Mars climate model using the Mars Climate Database (MCD).
+ The MCD provides realistic atmospheric conditions for Mars based on GCM simulations. The climate model
+ is used to access *all* MCD properties requested by Tudat components, including properties beyond the
+ subset used directly by Tudat's atmosphere model. These settings define the MCD data source, dust/solar
+ EUV scenario, perturbation model and topography mode. To use the MCD as an atmosphere model, assign
+ these settings to
+ :attr:`~tudatpy.dynamics.environment_setup.BodySettings.climate_model_settings` and assign
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database` to the same body's
+ atmosphere settings.
+
+ .. note:: **Altitude Convention**: the MCD atmosphere interface uses MCD's height-above-surface mode
+           (``zkey=3``). The altitude passed by Tudat is therefore interpreted as height above the local
+           surface. When ``high_resolution_mode=1``, MCD uses high-resolution MOLA topography to provide
+           more accurate atmospheric properties at locations with significant terrain variations.
+
+
+ Parameters
+ ----------
+ mcd_data_path : str, default = ""
+     Path to the MCD data files directory. If an empty string is provided, Tudat uses the compile-time
+     default path set during CMake configuration. The directory should contain the MCD data subdirectories
+     such as ``clim_aveEUV`` and ``dust_high_resol``.
+
+ dust_scenario : int, default = 1
+     Dust and solar EUV scenario controlling atmospheric opacity and solar forcing.
+
+     **Climatology scenarios:**
+
+     - 1: Climatology, average solar EUV
+     - 2: Climatology, minimum solar EUV
+     - 3: Climatology, maximum solar EUV
+
+     **Dust storm scenarios, with constant opacity 4:**
+
+     - 4: Dust storm, minimum solar EUV
+     - 5: Dust storm, average solar EUV
+     - 6: Dust storm, maximum solar EUV
+
+     **Extreme scenarios:**
+
+     - 7: Warm scenario, dustier than MY24 with maximum solar EUV
+     - 8: Cold scenario, clearer than MY24 with minimum solar EUV
+
+     **Mars-year-specific scenarios:**
+
+     - 24-35: Mars Years 24 through 35, with their associated solar EUV conditions
+
+ perturbation_key : int, default = 0
+     Type of atmospheric perturbations to apply:
+
+     - 0: None; use the mean atmospheric state only
+     - 1: Large-scale perturbations only, using ``perturbation_seed``
+     - 2: Small-scale gravity-wave perturbations only, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 3: Large- and small-scale perturbations, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 4: Large- and small-scale perturbations, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 5: Add n-sigma perturbations, where ``perturbation_seed`` is the standard-deviation multiplier
+
+     .. warning:: Perturbations introduce stochastic variability. For reproducible results, use the same
+                  ``perturbation_seed`` value.
+
+ perturbation_seed : float, default = 0.0
+     Random seed or scaling factor for perturbations. For ``perturbation_key`` in {1, 2, 3, 4}, this is
+     the random seed for stochastic perturbations. For ``perturbation_key=5``, this is the multiplier for
+     standard deviations and must be in [-4, 4].
+
+ gravity_wave_length : float, default = 0.0
+     Vertical wavelength of gravity-wave perturbations in meters, used by perturbation modes {2, 3, 4}.
+     The horizontal wavelength is set by MCD. If set to 0.0, MCD uses its default value.
+
+ high_resolution_mode : int, default = 0
+     Flag to enable high-resolution topography from MOLA data:
+
+     - 0: Use GCM grid-resolution topography
+     - 1: Use high-resolution MOLA topography for improved accuracy near terrain features
+
+ Returns
+ -------
+ ClimateModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings` class
+
+
+ Examples
+ --------
+ **Example 1**: Basic MCD atmosphere with default climate settings:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model()
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database()
+    )
+
+ **Example 2**: Dust storm scenario with high-resolution topography:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            dust_scenario=5,
+            high_resolution_mode=1,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database()
+    )
+
+ **Example 3**: Mars Year 32 with stochastic perturbations:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            dust_scenario=32,
+            perturbation_key=3,
+            perturbation_seed=42.0,
+            gravity_wave_length=16000.0,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database()
+    )
+
+ **Example 4**: Custom data path and n-sigma perturbations:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            mcd_data_path="/path/to/mcd/data/",
+            dust_scenario=1,
+            perturbation_key=5,
+            perturbation_seed=2.0,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database()
+    )
+
+
+ See Also
+ --------
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database` : Atmosphere settings that use the MCD climate model
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
+
+
+ References
+ ----------
+ .. [1] Millour, E., et al. (2015). "The Mars Climate Database (MCD version 5.2)."
+        European Planetary Science Congress, Vol. 10, EPSC2015-438.
+ .. [2] Forget, F., et al. (1999). "Improved general circulation models of the Martian atmosphere
+        from the surface to above 80 km." Journal of Geophysical Research, 104(E10), 24155-24175.
+
+
+     )doc" );
+
     m.def( "mars_climate_database",
            &tss::mcdAtmosphereSettings,
            R"doc(
@@ -1318,8 +1500,21 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 	The MCD provides realistic atmospheric conditions for Mars based on GCM simulations. This setting
 	uses the Mars Climate Database climate model associated with the Mars body.
 
-	.. note:: Create the corresponding Mars climate model on the body before using these atmosphere settings.
+	.. note:: Before using these atmosphere settings, set the same body's
+	          :attr:`~tudatpy.dynamics.environment_setup.BodySettings.climate_model_settings`
+	          with :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
 	          Atmospheric properties are retrieved from that associated climate model.
+
+	Examples
+	--------
+	.. code-block:: python
+
+	   body_settings.get("Mars").climate_model_settings = (
+	       environment_setup.atmosphere.mars_climate_database_climate_model()
+	   )
+	   body_settings.get("Mars").atmosphere_settings = (
+	       environment_setup.atmosphere.mars_climate_database()
+	   )
 
 	Returns
 	-------
@@ -1328,9 +1523,11 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 	See Also
 	--------
+	:func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model` : MCD climate model settings
 	:func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
 
 	)doc" );
+
 #endif
 }
 

@@ -52,12 +52,14 @@ else:
 
 
 def has_mcd_support():
-    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+    """Return whether the imported tudatpy build exposes the MCD atmosphere API."""
     try:
         atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
     except Exception:
         return False
-    return hasattr(atmosphere, "mcd")
+    return hasattr(atmosphere, "mars_climate_database") and hasattr(
+        atmosphere, "mars_climate_database_climate_model"
+    )
 
 
 HAS_MCD_SUPPORT = has_mcd_support()
@@ -69,9 +71,23 @@ def filter_mcd_docs(app, docname, source):
         return
 
     text = source[0]
-    text = text.replace("\n   mcd\n", "\n")
+    text = text.replace("\n   mars_climate_database_climate_model\n", "\n")
+    text = text.replace("\n   mars_climate_database\n", "\n")
     text = text.replace(
-        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
+        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model\n",
+        "\n",
+    )
+    text = text.replace(
+        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database\n",
+        "\n",
+    )
+    text = text.replace("\n   ClimateModelSettings\n", "\n")
+    text = text.replace(
+        "\n\nClimate Model Settings\n~~~~~~~~~~~~~~~~~~~~~~\n",
+        "\n",
+    )
+    text = text.replace(
+        "\n.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings\n   :members:\n",
         "\n",
     )
     source[0] = text

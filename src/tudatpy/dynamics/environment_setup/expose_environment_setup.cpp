@@ -45,7 +45,6 @@
 #include "shape_deformation/expose_shape_deformation.h"
 #include "space_time/expose_space_time.h"
 #include "vehicle_systems/expose_vehicle_systems.h"
-#include "climate_model/expose_climate_model.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -121,9 +120,6 @@ void expose_environment_setup( py::module& m )
 
     auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
     vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
-
-    auto climate_model_setup = m.def_submodule( "climate_model" );
-    climate_model::expose_climate_model_setup( climate_model_setup );
 
     auto space_time_setup = m.def_submodule( "space_time" );
     space_time::expose_space_time_setup( space_time_setup );
@@ -291,7 +287,8 @@ void expose_environment_setup( py::module& m )
                             R"doc(
 
          Object that defines the settings of the climate model that is to be created. Currently it only supports 
-         the Mars Climate Database (MCD) from the :ref:`climate_models` module.
+         the Mars Climate Database (MCD), configured with
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
 
 
          :type: ClimateModelSettings
