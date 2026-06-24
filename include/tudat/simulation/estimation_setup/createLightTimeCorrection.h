@@ -523,7 +523,8 @@ inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLigh
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
         const std::vector< std::string >& troposphericCorrectionFileNames,
         const std::string& bodyWithAtmosphere = "Earth",
-        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell )
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+        const std::string& seasonalCorrectionFileName = "" )
 {
     std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
     for( const std::string& cspFile : troposphericCorrectionFileNames )
@@ -531,10 +532,26 @@ inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorre
         troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
     }
 
+    AtmosphericCorrectionPerStationAndSpacecraftType dryCorrection;
+    AtmosphericCorrectionPerStationAndSpacecraftType wetCorrection;
+    if( seasonalCorrectionFileName.empty( ) )
+    {
+        dryCorrection = extractDefaultTroposphericDryCorrection( );
+        wetCorrection = extractDefaultTroposphericWetCorrection( );
+    }
+    else
+    {
+        auto seasonalCspFile = std::make_shared< input_output::CspRawFile >( seasonalCorrectionFileName );
+        dryCorrection = extractTroposphericDryCorrectionAdjustment( { seasonalCspFile } );
+        wetCorrection = extractTroposphericWetCorrectionAdjustment( { seasonalCspFile } );
+    }
+
     return std::make_shared< TabulatedTroposphericCorrectionSettings >( extractTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
                                                                         extractTroposphericWetCorrectionAdjustment( troposphericCspFiles ),
                                                                         bodyWithAtmosphere,
-                                                                        troposphericMappingModel );
+                                                                        troposphericMappingModel,
+                                                                        dryCorrection,
+                                                                        wetCorrection );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCorrectionSettings(

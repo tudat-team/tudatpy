@@ -251,6 +251,23 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
+        case custom_number_density_atmosphere: {
+            std::shared_ptr< CustomNumberDensityAtmosphereSettings > customNumberDensityAtmosphereSettings =
+                    std::dynamic_pointer_cast< CustomNumberDensityAtmosphereSettings >( atmosphereSettings );
+            if( customNumberDensityAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected custom number density atmosphere settings for body " + body );
+            }
+            else
+            {
+                atmosphereModel = std::make_shared< CustomNumberDensityAtmosphere >(
+                        customNumberDensityAtmosphereSettings->getNumberDensityFunction( ),
+                        customNumberDensityAtmosphereSettings->getMolarMass( ),
+                        customNumberDensityAtmosphereSettings->getConstantTemperature( ),
+                        customNumberDensityAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            break;
+        }
         case tabulated_atmosphere: {
             // Check whether settings for atmosphere are consistent with its type
             std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =

@@ -44,6 +44,7 @@ set(propagation_SOURCES
         propagationOutputSettings.cpp
         createMassRateModels.cpp
         createAccelerationModels.cpp
+        accelerationSettings.cpp
         createEnvironmentUpdater.cpp
         propagationTermination.cpp
         propagationOutput.cpp
