@@ -10,10 +10,54 @@
 
 #include "tudat/io/readTrackingTxtFile.h"
 
+#include <cmath>
+#include <limits>
+
 namespace tudat
 {
 namespace input_output
 {
+
+double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationTimesUtc, const double cadenceTolerance )
+{
+    if( observationTimesUtc.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when getting nominal time step from tracking file contents, size is < 2" );
+    }
+
+    double firstObservationTimeStep = std::numeric_limits< double >::infinity( );
+    double minimumObservationTimeStep = std::numeric_limits< double >::infinity( );
+    for( unsigned int i = 1; i < observationTimesUtc.size( ); i++ )
+    {
+        double testObservationTimeStep = observationTimesUtc.at( i ) - observationTimesUtc.at( i - 1 );
+        if( std::isfinite( testObservationTimeStep ) && testObservationTimeStep > cadenceTolerance )
+        {
+            if( !std::isfinite( firstObservationTimeStep ) )
+            {
+                firstObservationTimeStep = testObservationTimeStep;
+            }
+            if( testObservationTimeStep < minimumObservationTimeStep )
+            {
+                minimumObservationTimeStep = testObservationTimeStep;
+            }
+        }
+    }
+
+    if( !std::isfinite( minimumObservationTimeStep ) )
+    {
+        throw std::runtime_error(
+                "Error when getting nominal time step from tracking file contents, no positive cadence could be inferred" );
+    }
+
+    if( firstObservationTimeStep > minimumObservationTimeStep + cadenceTolerance )
+    {
+        return minimumObservationTimeStep;
+    }
+    else
+    {
+        return firstObservationTimeStep;
+    }
+}
 
 void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dataFilterMethod )
 {

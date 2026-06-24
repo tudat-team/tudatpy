@@ -207,6 +207,21 @@ public:
         return numberDensities_;
     }
 
+    //! Get local total number density.
+    /*!
+     * Returns the summed number density of all NRLMSISE-00 gas components in m^-3.
+     * \param altitude Altitude at which number density is to be computed [m].
+     * \param longitude Longitude at which number density is to be computed [rad].
+     * \param geodeticLatitude Geodetic latitude at which number density is to be computed [rad].
+     * \param time Time at which number density is to be computed (seconds since J2000).
+     * \return Total number density of gas components.
+     */
+    double getTotalNumberDensity( const double altitude, const double longitude, const double geodeticLatitude, const double time ) override
+    {
+        computeProperties( altitude, longitude, geodeticLatitude, time );
+        return totalNumberDensity_;
+    }
+
     virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
                                      const double altitude,
                                      const double longitude,
@@ -357,6 +372,9 @@ private:
 
     //! Current average number density (M-3)
     double averageNumberDensity_;
+
+    //! Current total number density (M-3)
+    double totalNumberDensity_;
 
     //! Current weighted average of the collision diameter using the number density as weights in (M)
     double weightedAverageCollisionDiameter_;

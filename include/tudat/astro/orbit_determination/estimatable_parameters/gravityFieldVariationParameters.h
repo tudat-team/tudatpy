@@ -149,7 +149,7 @@ public:
             polynomialCorrections( i + cosineCorrectionIndices_.size( ) ) =
                     polynomialVariationModel_->getSineAmplitudesReference( ).at( std::get< 0 >( sineCorrectionIndices_.at( i ) ) )(
                             std::get< 1 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ),
-                            std::get< 2 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) );
+                            std::get< 2 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) );
         }
         return polynomialCorrections;
     }
@@ -245,7 +245,7 @@ public:
         int cosineIndexCounter = 0;
         for( auto it : cosineBlockIndicesPerPeriod )
         {
-            if( static_cast< int >( cosineVariations.size( ) ) < it.first )
+            if( static_cast< int >( cosineVariations.size( ) ) <= it.first )
             {
                 throw std::runtime_error( "Error when estimating gravity field periodic corrections of body " + bodyName +
                                           ", not periodic term of order " + std::to_string( it.first ) + " found for cosine coefficients" );
@@ -281,7 +281,7 @@ public:
         int sineIndexCounter = 0;
         for( auto it : sineBlockIndicesPerPeriod )
         {
-            if( static_cast< int >( sineVariations.size( ) ) < it.first )
+            if( static_cast< int >( sineVariations.size( ) ) <= it.first )
             {
                 throw std::runtime_error( "Error when estimating gravity field periodic corrections of body " + bodyName +
                                           ", not periodic term of order " + std::to_string( it.first ) + " found for sine coefficients" );
