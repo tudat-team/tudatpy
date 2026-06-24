@@ -1371,6 +1371,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
            py::arg( "perturbation_seed" ) = 0.0,
            py::arg( "gravity_wave_length" ) = 0.0,
            py::arg( "high_resolution_mode" ) = 0,
+           py::arg( "max_cache_size" ) = 1000,
            R"doc(
 
  Function for creating Mars Climate Database climate model settings.
@@ -1396,7 +1397,8 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
  mcd_data_path : str, default = ""
      Path to the MCD data files directory. If an empty string is provided, Tudat uses the compile-time
      default path set during CMake configuration. The directory should contain the MCD data subdirectories
-     such as ``clim_aveEUV`` and ``dust_high_resol``.
+     such as ``clim_aveEUV`` and ``dust_high_resol``. Provide a non-empty path to override the default at
+     runtime.
 
  dust_scenario : int, default = 1
      Dust and solar EUV scenario controlling atmospheric opacity and solar forcing.
@@ -1449,6 +1451,10 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
      - 0: Use GCM grid-resolution topography
      - 1: Use high-resolution MOLA topography for improved accuracy near terrain features
+
+ max_cache_size : int, default = 1000
+     Maximum number of distinct MCD query results retained by the climate model cache. The cache is keyed
+     by exact vertical coordinate, longitude, latitude and time values. A positive value is required.
 
  Returns
  -------
@@ -1509,6 +1515,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
             dust_scenario=1,
             perturbation_key=5,
             perturbation_seed=2.0,
+            max_cache_size=1000,
         )
     )
     body_settings.get("Mars").atmosphere_settings = (

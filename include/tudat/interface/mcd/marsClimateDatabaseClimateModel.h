@@ -11,6 +11,7 @@
 #define TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
 
 #include <cstddef>
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -197,13 +198,15 @@ public:
      * \param perturbationSeed Random seed or scaling factor (default: 0.0)
      * \param gravityWaveLength Gravity wave wavelength in meters (default: 0.0 = use MCD default)
      * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
+     * \param maximumCacheSize Maximum number of MCD query results retained in the cache (default: 1000)
      */
     MarsClimateDatabaseClimateModel( const std::string& mcdDataPath = "",
                                      const int dustScenario = 1,
                                      const int perturbationKey = 0,
                                      const double perturbationSeed = 0.0,
                                      const double gravityWaveLength = 0.0,
-                                     const int highResolutionMode = 0 );
+                                     const int highResolutionMode = 0,
+                                     const int maximumCacheSize = 1000 );
 
     //! Destructor
     ~MarsClimateDatabaseClimateModel( ) override = default;
@@ -216,6 +219,11 @@ public:
     }
 
     void setZkey( int zkey );
+
+    int getZkey( ) const
+    {
+        return zkey_;
+    }
 
     std::shared_ptr< McdCache > getCache( const double verticalCoordinate,
                                           const double longitude,
@@ -276,6 +284,9 @@ private:
     //! High resolution mode flag
     int highResolutionMode_;
 
+    //! Maximum number of MCD query results retained in the cache
+    int maximumCacheSize_;
+
     //! Atmospheric density (kg/m^3)
     float density_;
 
@@ -301,6 +312,8 @@ private:
     float extraVariables_[ 100 ] = { 0 };
 
     std::map< McdCacheKey, std::shared_ptr< McdCache > > mcdCache_;
+
+    std::deque< McdCacheKey > mcdCacheInsertionOrder_;
 };
 
 }  // namespace mcd_interface

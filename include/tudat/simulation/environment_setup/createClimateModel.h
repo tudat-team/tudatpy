@@ -53,10 +53,11 @@ public:
                                                       const int perturbationKey = 0,
                                                       const double perturbationSeed = 0.0,
                                                       const double gravityWaveLength = 0.0,
-                                                      const int highResolutionMode = 0 ):
+                                                      const int highResolutionMode = 0,
+                                                      const int maximumCacheSize = 1000 ):
         ClimateModelSettings( mars_climate_database ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
         perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
-        highResolutionMode_( highResolutionMode )
+        highResolutionMode_( highResolutionMode ), maximumCacheSize_( maximumCacheSize )
     {}
 
     //! Path to MCD data files
@@ -76,6 +77,9 @@ public:
 
     //! High resolution topography flag (0 or 1)
     int highResolutionMode_;
+
+    //! Maximum number of MCD query results retained in the cache
+    int maximumCacheSize_;
 };
 
 inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSettings( const std::string& mcdDataPath = "",
@@ -83,10 +87,11 @@ inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSe
                                                                                         const int perturbationKey = 0,
                                                                                         const double perturbationSeed = 0.0,
                                                                                         const double gravityWaveLength = 0.0,
-                                                                                        const int highResolutionMode = 0 )
+                                                                                        const int highResolutionMode = 0,
+                                                                                        const int maximumCacheSize = 1000 )
 {
     return std::make_shared< MarsClimateDatabaseClimateModelSettings >(
-            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
+            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode, maximumCacheSize );
 }
 
 #endif

@@ -50,19 +50,22 @@
  *
  * CURRENT IMPLEMENTATION:
  * -----------------------
- * The McdAtmosphereModel class uses zkey=2 (height above areoid):
+ * The McdAtmosphereModel class uses zkey=3 (height above local surface) by default:
  *   1. Input: altitude above local surface (from Tudat's shape model)
- *   2. MCD call: Uses zkey=2 with this altitude directly
- *   3. MCD internally handles the conversion using its areoid model
+ *   2. MCD call: Uses zkey=3 with this altitude directly
+ *   3. Atmosphere queries validate that the shared MCD climate model still uses zkey=3
  *
  * COORDINATE SYSTEM COMPATIBILITY:
  * ---------------------------------
- * Tudat's default Mars shape model is an Oblate Spheroid (approximation of areoid).
- * MCD's zkey=2 expects "height above areoid" (MOLA zero datum).
- * These are nearly identical for most purposes, so the conversion is appropriate.
+ * Tudat's flight conditions expose altitude above the configured shape model.
+ * MCD's zkey=3 expects height above the local surface, so this is the convention
+ * used by the atmosphere model.
  *
  * If high-resolution topography is enabled (highResolutionMode=1), MCD will
  * internally account for local MOLA topography when computing atmospheric properties.
+ *
+ * Direct MCD reference tests may disable the vertical-coordinate validation and
+ * set zkey manually to match the reference data.
  *
  * LIMITATIONS:
  * ------------
@@ -73,7 +76,7 @@
  * TEST TOLERANCES:
  * ----------------
  * The following tolerances account for:
- *   - Small areoid definition differences between Tudat and MCD
+ *   - Small shape/topography differences between Tudat and MCD
  *   - Temporal interpolation in MCD climatology
  *   - Numerical precision differences
  *
@@ -85,7 +88,7 @@
  * These tolerances validate that:
  *   1. The MCD Fortran interface works correctly
  *   2. The returned values are physically reasonable
- *   3. The coordinate system conversion (zkey=2) is appropriate
+ *   3. The selected atmosphere vertical-coordinate convention is appropriate
  *
  * EXPECTED BEHAVIOR:
  * ------------------
@@ -151,7 +154,9 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 
     std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel = std::make_shared< McdAtmosphereModel >( mcdClimateModel );
 
+    atmosphereModel->setValidateVerticalCoordinateKey( false );
     mcdClimateModel->setZkey( 2 );
+
     double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
     double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
     double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );

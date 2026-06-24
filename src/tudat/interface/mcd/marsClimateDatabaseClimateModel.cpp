@@ -13,10 +13,11 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel( const std::str
                                                                   const int perturbationKey,
                                                                   const double perturbationSeed,
                                                                   const double gravityWaveLength,
-                                                                  const int highResolutionMode ):
+                                                                  const int highResolutionMode,
+                                                                  const int maximumCacheSize ):
     ClimateModel( ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), perturbationKey_( perturbationKey ),
     perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ), highResolutionMode_( highResolutionMode ),
-    density_( 0.0 ), pressure_( 0.0 ), temperature_( 0.0 ), zonalWind_( 0.0 ), meridionalWind_( 0.0 )
+    maximumCacheSize_( maximumCacheSize ), density_( 0.0 ), pressure_( 0.0 ), temperature_( 0.0 ), zonalWind_( 0.0 ), meridionalWind_( 0.0 )
 {
     zkey_ = 3;
 
@@ -69,6 +70,12 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel( const std::str
                                   ". Must be 0 or 1." );
     }
 
+    if( maximumCacheSize_ < 1 )
+    {
+        throw std::runtime_error( "McdClimateModel: Invalid maximumCacheSize " + std::to_string( maximumCacheSize_ ) +
+                                  ". Must be at least 1." );
+    }
+
     // Validate gravity wave length if perturbations are used
     if( ( perturbationKey_ == 3 || perturbationKey_ == 4 ) && gravityWaveLength_ < 0.0 )
     {
@@ -89,6 +96,7 @@ void MarsClimateDatabaseClimateModel::setZkey( int zkey )
     {
         zkey_ = zkey;
         mcdCache_.clear( );
+        mcdCacheInsertionOrder_.clear( );
     }
 }
 
@@ -158,6 +166,12 @@ void MarsClimateDatabaseClimateModel::updateCache( const double verticalCoordina
     mcdCache_[ cacheKey ] = std::make_shared< McdCache >( density_, pressure_, temperature_, zonalWind_, meridionalWind_ );
     mcdCache_[ cacheKey ]->meanVariables_ = meanVariables;
     mcdCache_[ cacheKey ]->extraVariables_ = extraVariables;
+    mcdCacheInsertionOrder_.push_back( cacheKey );
+    while( static_cast< int >( mcdCache_.size( ) ) > maximumCacheSize_ )
+    {
+        mcdCache_.erase( mcdCacheInsertionOrder_.front( ) );
+        mcdCacheInsertionOrder_.pop_front( );
+    }
 }
 
 void MarsClimateDatabaseClimateModel::addExtraVariableKeys( std::vector< mcd_interface::ExtVar > requiredExtraVariables )
@@ -167,6 +181,7 @@ void MarsClimateDatabaseClimateModel::addExtraVariableKeys( std::vector< mcd_int
         extraVariableKeys_[ static_cast< int >( it ) ] = 1;
     }
     mcdCache_.clear( );
+    mcdCacheInsertionOrder_.clear( );
 }
 
 }  // namespace mcd_interface

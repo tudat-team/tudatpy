@@ -37,14 +37,15 @@ class McdAtmosphereModel : public AtmosphereModel
 {
 public:
     McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel ):
-        AtmosphereModel( false, false, false ), marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel )
+        AtmosphereModel( false, false, false ), marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel ),
+        validateVerticalCoordinateKey_( true )
     {
         requiredExtVar_ = { mcd_interface::ExtVar::ratio_of_specific_heats, mcd_interface::ExtVar::reduced_molecular_gas_constant };
 
         requiresClimateModel_ = true;
 
         marsClimateDatabaseClimateModel_->addExtraVariableKeys( requiredExtVar_ );
-        marsClimateDatabaseClimateModel_->setZkey( 3 );
+        marsClimateDatabaseClimateModel_->setZkey( getMcdAtmosphereVerticalCoordinateKey( ) );
     }
 
     //! Destructor
@@ -62,10 +63,29 @@ public:
 
     double getMeridionalWind( double, double, double, double ) const;
 
+    void setValidateVerticalCoordinateKey( const bool validateVerticalCoordinateKey )
+    {
+        validateVerticalCoordinateKey_ = validateVerticalCoordinateKey;
+    }
+
+    bool getValidateVerticalCoordinateKey( ) const
+    {
+        return validateVerticalCoordinateKey_;
+    }
+
 protected:
+    void validateMcdVerticalCoordinateKey( ) const;
+
+    static int getMcdAtmosphereVerticalCoordinateKey( )
+    {
+        return 3;
+    }
+
     std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel_;
 
     std::vector< mcd_interface::ExtVar > requiredExtVar_;
+
+    bool validateVerticalCoordinateKey_;
 };
 
 }  // namespace aerodynamics

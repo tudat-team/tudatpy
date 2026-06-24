@@ -43,13 +43,13 @@ std::shared_ptr< environment::ClimateModel > createClimateModel( std::shared_ptr
                 throw std::runtime_error( "Error, trying to create MCD for a body different than Mars" );
             }
 
-            climateModel =
-                    std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( mcdClimateModelSettings->mcdDataPath_,
-                                                                                        mcdClimateModelSettings->dustScenario_,
-                                                                                        mcdClimateModelSettings->perturbationKey_,
-                                                                                        mcdClimateModelSettings->perturbationSeed_,
-                                                                                        mcdClimateModelSettings->gravityWaveLength_,
-                                                                                        mcdClimateModelSettings->highResolutionMode_ );
+            climateModel = std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( mcdClimateModelSettings->mcdDataPath_,
+                                                                                               mcdClimateModelSettings->dustScenario_,
+                                                                                               mcdClimateModelSettings->perturbationKey_,
+                                                                                               mcdClimateModelSettings->perturbationSeed_,
+                                                                                               mcdClimateModelSettings->gravityWaveLength_,
+                                                                                               mcdClimateModelSettings->highResolutionMode_,
+                                                                                               mcdClimateModelSettings->maximumCacheSize_ );
             break;
         }
 #endif
