@@ -13,7 +13,6 @@ add_custom_command(
     TARGET unpack_test_data PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/tests/data/
     COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/data.zip
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/data/sum_lmk ${PROJECT_BINARY_DIR}/tests/data/sum_lmk
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests
     COMMENT "Unpacking data.zip"
     VERBATIM
