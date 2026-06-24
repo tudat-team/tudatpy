@@ -138,6 +138,7 @@ jobs:
         Get-ChildItem -Path $activateDir -Filter "*.bat" | ForEach-Object {
           $content = Get-Content -Raw -Path $_.FullName
           if ($content -match "vcvars|VsDevCmd|VSINSTALLDIR|VCTools") {
+            $content = $content -replace '(?im)^\s*@?echo\s+on\s*$', '@echo off'
             if ($content -notmatch "(?im)^\s*@echo\s+off\s*$") {
               $content = "@echo off`r`n" + $content
             }
@@ -145,6 +146,13 @@ jobs:
             if ($content -notmatch "(?im)^\s*set\s+`"VSCMD_ARG_NO_LOGO=1`"\s*$") {
               $content = $content -replace "(?im)^(\s*set\s+`"NEWER_VS_WITH_OLDER_VC=0`"\s*)$", "`$1`r`nset `"VSCMD_ARG_NO_LOGO=1`""
             }
+
+            $content = $content -replace '(?im)^\s*echo\s+"NEWER_VS_WITH_OLDER_VC=.*?"\s*$', 'rem suppressed noisy compiler activation diagnostic'
+            $content = $content -replace '(?im)^\s*echo\s+"%LATEST_VS%"\s*$', 'rem suppressed noisy compiler activation diagnostic'
+            $content = $content -replace '(?im)^\s*type\s+".*Microsoft\.VCToolsVersion\.default\.txt"\s*$', 'rem suppressed noisy compiler activation diagnostic'
+            $content = $content -replace '(?im)^\s*dir\s+".*\\VC\\Redist\\MSVC\\?"\s*$', 'rem suppressed noisy compiler activation diagnostic'
+            $content = $content -replace '(?i)(CALL\s+"VC\\Auxiliary\\Build\\vcvars(?:64|all)\.bat"[^)\r\n]*?)(\s*\))', '$1 >nul 2>nul$2'
+            $content = $content -replace '(?im)^(?!.*>nul)(\s*CALL\s+".*\\VC\\Auxiliary\\Build\\vcvars(?:64|all)\.bat".*)$', '$1 >nul 2>nul'
 
             Set-Content -NoNewline -Path $_.FullName -Value $content
             Write-Host "Quieted $($_.FullName)"
