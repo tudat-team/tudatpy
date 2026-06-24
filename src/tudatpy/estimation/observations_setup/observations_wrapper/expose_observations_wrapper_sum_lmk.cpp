@@ -20,10 +20,12 @@
 
 #include "scalarTypes.h"
 
+#include "tudat/io/readSumLmkFiles.h"
 #include "tudat/simulation/estimation_setup/processSumLmkFiles.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
+namespace tio = tudat::input_output::sum_lmk;
 
 namespace tudatpy
 {
@@ -36,6 +38,21 @@ namespace observations_wrapper
 
 void expose_observations_wrapper_sum_lmk_bindings( py::module& m )
 {
+    py::class_< tio::SumImageData >( m, "SumImageData", R"doc(
+        Parsed contents of a single SPC SUM file (image metadata + landmark/limb pixel rows). Opaque
+        handle passed back into ``create_sum_lmk_observation_collection`` to convert without re-reading.
+        )doc" )
+            .def_readonly( "image_id", &tio::SumImageData::imageId_ )
+            .def_readonly( "utc_epoch_string", &tio::SumImageData::utcEpochString_ )
+            .def_readonly( "source_file", &tio::SumImageData::sourceFile_ );
+
+    py::class_< tio::LmkLandmarkData >( m, "LmkLandmarkData", R"doc(
+        Parsed contents of a single SPC LMK landmark file. Opaque handle passed back into
+        ``create_sum_lmk_observation_collection`` to convert without re-reading.
+        )doc" )
+            .def_readonly( "landmark_id", &tio::LmkLandmarkData::landmarkId_ )
+            .def_readonly( "source_file", &tio::LmkLandmarkData::sourceFile_ );
+
     py::class_< tom::SumLmkObservationConversionSettings >( m, "SumLmkObservationConversionSettings", R"doc(
         Settings for converting SPC-style SUM/LMK optical-landmark files to Tudat pixel-coordinate observations.
         )doc" )
@@ -84,6 +101,41 @@ void expose_observations_wrapper_sum_lmk_bindings( py::module& m )
         in place), and returns the converted observations together with their matching observation model
         settings and the per-image SIGMA_PTG pointing a-priori. Each (image, landmark) pair becomes one
         observation; all landmarks of an image share the same camera (and thus the same pointing parameter).
+        )doc" );
+
+    m.def( "read_sum_files",
+           &tio::readSumFiles,
+           py::arg( "sum_files" ),
+           R"doc(
+        Parse SPC SUM files into opaque ``SumImageData`` handles without touching any environment.
+        The result can be passed to ``create_sum_lmk_observation_collection`` (parsed-data overload)
+        for repeated conversions against different body systems without re-reading the files.
+        )doc" );
+
+    m.def( "read_lmk_files",
+           &tio::readLmkFiles,
+           py::arg( "lmk_files" ),
+           R"doc(
+        Parse SPC LMK landmark files into a ``{landmark_id: LmkLandmarkData}`` map without touching any
+        environment, for reuse across repeated SUM/LMK conversions.
+        )doc" );
+
+    m.def( "create_sum_lmk_observation_collection",
+           py::overload_cast< const std::vector< tio::SumImageData >&,
+                              const std::map< std::string, tio::LmkLandmarkData >&,
+                              const tss::SystemOfBodies&,
+                              const tom::SumLmkObservationConversionSettings& >(
+                   &tom::createSumLmkObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "sum_images" ),
+           py::arg( "landmarks" ),
+           py::arg( "bodies" ),
+           py::arg( "conversion_settings" ),
+           R"doc(
+        Create a pixel-coordinate observation collection from already-parsed SUM/LMK data (as returned by
+        ``read_sum_files`` / ``read_lmk_files``). Identical to the file-path overload but skips disk I/O,
+        so the same parsed data can be converted against multiple body systems. Registers one
+        ``Camera_<imageId>`` per image on the receiver body and each landmark as a body-fixed ground
+        station on the target body (both added to ``bodies`` in place).
         )doc" );
 
     m.def( "create_sum_lmk_observation_model_settings",
