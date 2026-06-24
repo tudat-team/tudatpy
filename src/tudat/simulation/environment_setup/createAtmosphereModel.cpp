@@ -402,7 +402,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                         std::dynamic_pointer_cast< mcd_interface::MarsClimateDatabaseClimateModel >( bodyObject->getClimateModel( ) );
                 if( marsClimateDatabaseClimateModel == nullptr )
                 {
-                    throw std::runtime_error( "Error, Mars has not MCD climate model set" );
+                    throw std::runtime_error( "Error when creating MCD atmosphere model: Mars has no MCD climate model set." );
                 }
                 atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( marsClimateDatabaseClimateModel );
             }

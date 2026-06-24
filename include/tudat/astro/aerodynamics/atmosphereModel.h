@@ -226,7 +226,7 @@ public:
         requiresClimateModel_ = true;
     }
 
-    bool getRequiresClimateModel( )
+    bool getRequiresClimateModel( ) const
     {
         return requiresClimateModel_;
     }
