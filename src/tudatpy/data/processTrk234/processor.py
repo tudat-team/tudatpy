@@ -8,6 +8,7 @@ from tudatpy.dynamics.environment import (
     SystemOfBodies,
     FrequencyGapHandling,
 )
+from .converters.ramp import OpenRampHandling
 
 
 class Trk234Processor:
@@ -111,7 +112,12 @@ class Trk234Processor:
 
         return ObservationCollection(observation_sets)
 
-    def set_tnf_information_in_bodies(self, bodies: SystemOfBodies) -> None:
+    def set_tnf_information_in_bodies(
+        self,
+        bodies: SystemOfBodies,
+        gap_handling: FrequencyGapHandling = FrequencyGapHandling.extrapolate_at_gaps,
+        open_ramp_handling: OpenRampHandling = OpenRampHandling.print_warning_once,
+    ) -> None:
         """
         Update stations in bodies by setting the frequency interpolators from the ramp data.
         Set the transponder turnaround ratio for the spacecraft.
@@ -122,6 +128,10 @@ class Trk234Processor:
         ----------
         bodies : SystemOfBodies
             The simulation bodies container.
+        gap_handling : FrequencyGapHandling
+            The gap handling strategy for the frequency interpolators. Defaults to ``FrequencyGapHandling.extrapolate_at_gaps``.
+        open_ramp_handling : OpenRampHandling
+            Strategy for closing open-ended ramp intervals. Defaults to ``OpenRampHandling.print_warning_once``.
         """
 
         ramp_data_list = []
@@ -137,7 +147,7 @@ class Trk234Processor:
         all_ramps.reset_index(drop=True, inplace=True)
 
         ramp_df = self.ramp_converter.process(all_ramps)
-        ramp_df = self.ramp_converter.close_open_ramps(ramp_df)
+        ramp_df = self.ramp_converter.handle_open_ramps(ramp_df, open_ramp_handling)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
             lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
@@ -153,7 +163,7 @@ class Trk234Processor:
                 station_df["end_time_seconds"].tolist(),
                 station_df["rate"].tolist(),
                 station_df["freq"].tolist(),
-                gap_handling=FrequencyGapHandling.extrapolate_at_gaps,
+                gap_handling=gap_handling,
             )
             ground_station = earth.get_ground_station(station)
 
