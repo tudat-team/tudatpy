@@ -88,20 +88,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
             constraintRightHandSide,
             estimationInput->getLimitConditionNumberForWarning( ) );
 
-    // Add the soft inter-arc continuity-prior normal-matrix contribution, when configured.
-    InterArcConstraintContribution interArcContribution =
-            assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
-                    estimationInput->getInterArcContinuityConstraints( ),
-                    parametersToEstimate_,
-                    stateTransitionAndSensitivityMatrixInterface_,
-                    variationalEquationsSolver_,
-                    normalizationTerms,
-                    static_cast< int >( numberEstimatedParameters_ ),
-                    "covariance analysis" );
-    if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
+    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    InterArcConstraintContribution interArcContribution;
+    if( !interArcConstraints.empty( ) )
     {
-        inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
-                interArcContribution.additionalNormalMatrix;
+        // Add the soft inter-arc continuity-prior normal-matrix contribution.
+        interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                interArcConstraints,
+                parametersToEstimate_,
+                stateTransitionAndSensitivityMatrixInterface_,
+                variationalEquationsSolver_,
+                normalizationTerms,
+                static_cast< int >( numberEstimatedParameters_ ),
+                "covariance analysis" );
+        if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
+        {
+            inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
+                    interArcContribution.additionalNormalMatrix;
+        }
     }
 
     // Compute contribution consider parameters

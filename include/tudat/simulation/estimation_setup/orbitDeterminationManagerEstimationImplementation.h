@@ -131,19 +131,22 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
                 estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
 
-        // Assemble soft inter-arc continuity-prior contribution for this iteration. The normalisation factors are the same
-        // ones just applied to the observation design matrix above.
-        InterArcConstraintContribution interArcContribution =
-                assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
-                        interArcConstraints,
-                        parametersToEstimate_,
-                        stateTransitionAndSensitivityMatrixInterface_,
-                        variationalEquationsSolver_,
-                        normalizationTerms,
-                        static_cast< int >( numberEstimatedParameters_ ),
-                        "parameter estimation" );
-        interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
-        interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
+        InterArcConstraintContribution interArcContribution;
+        if( !interArcConstraints.empty( ) )
+        {
+            // Assemble soft inter-arc continuity-prior contribution for this iteration. The normalisation factors are the same
+            // ones just applied to the observation design matrix above.
+            interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                    interArcConstraints,
+                    parametersToEstimate_,
+                    stateTransitionAndSensitivityMatrixInterface_,
+                    variationalEquationsSolver_,
+                    normalizationTerms,
+                    static_cast< int >( numberEstimatedParameters_ ),
+                    "parameter estimation" );
+            interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
+            interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
+        }
 
         // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
         Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
