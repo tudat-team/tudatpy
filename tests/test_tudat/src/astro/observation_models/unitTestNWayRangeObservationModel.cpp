@@ -743,6 +743,127 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Moon", "Sun" };
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    createGroundStation( bodies.at( "Earth" ),
+                         "EarthStation",
+                         ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
+                         ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+    twoWayLinkEnds[ retransmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+    twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+
+    const double initialVehicleSystemDelay = 4.0E-6;
+    const double updatedVehicleSystemDelay = 7.0E-6;
+    const double ancillaryDelay = 2.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( initialVehicleSystemDelay );
+
+    std::shared_ptr< ObservationModelSettings > twoWayObservableSettings = twoWayRangeSimple( twoWayLinkEnds );
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettings, bodies );
+
+    const double observationTime = 1.0E5;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+
+    observationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - initialVehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( updatedVehicleSystemDelay );
+    observationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    LinkEnds nWayLinkEndsWithTwoRetransmitters;
+    nWayLinkEndsWithTwoRetransmitters[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    nWayLinkEndsWithTwoRetransmitters[ retransmitter ] = LinkEndId( "Mars", "MarsStation" );
+    nWayLinkEndsWithTwoRetransmitters[ retransmitter2 ] = LinkEndId( "Moon" );
+    nWayLinkEndsWithTwoRetransmitters[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    const double marsDelay = 5.0E-6;
+    const double moonDelay = 8.0E-6;
+    const double ancillaryMarsDelay = 1.0E-6;
+    const double ancillaryMoonDelay = 3.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( marsDelay );
+    bodies.at( "Moon" )->getVehicleSystems( )->setTransponderDelay( moonDelay );
+
+    std::shared_ptr< ObservationModelSettings > twoRetransmitterObservableSettings = nWayRangeSimple( nWayLinkEndsWithTwoRetransmitters );
+    std::shared_ptr< ObservationModel< 1, double, double > > twoRetransmitterObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( twoRetransmitterObservableSettings, bodies );
+
+    twoRetransmitterObservationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    twoRetransmitterObservationModel->computeIdealObservationsWithLinkEndData(
+            observationTime,
+            receiver,
+            linkEndTimes,
+            linkEndStates,
+            getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryMarsDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - ancillaryMoonDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    LinkEnds nWayLinkEndsWithThreeRetransmitters;
+    nWayLinkEndsWithThreeRetransmitters[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    nWayLinkEndsWithThreeRetransmitters[ retransmitter ] = LinkEndId( "Mars", "MarsStation" );
+    nWayLinkEndsWithThreeRetransmitters[ retransmitter2 ] = LinkEndId( "Moon" );
+    nWayLinkEndsWithThreeRetransmitters[ retransmitter3 ] = LinkEndId( "Sun" );
+    nWayLinkEndsWithThreeRetransmitters[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    const double sunDelay = 11.0E-6;
+    const double ancillarySunDelay = 6.0E-6;
+    bodies.at( "Sun" )->getVehicleSystems( )->setTransponderDelay( sunDelay );
+
+    std::shared_ptr< ObservationModelSettings > threeRetransmitterObservableSettings =
+            nWayRangeSimple( nWayLinkEndsWithThreeRetransmitters );
+    std::shared_ptr< ObservationModel< 1, double, double > > threeRetransmitterObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( threeRetransmitterObservableSettings, bodies );
+
+    threeRetransmitterObservationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - sunDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    threeRetransmitterObservationModel->computeIdealObservationsWithLinkEndData(
+            observationTime,
+            receiver,
+            linkEndTimes,
+            linkEndStates,
+            getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay, ancillarySunDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryMarsDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - ancillaryMoonDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - ancillarySunDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

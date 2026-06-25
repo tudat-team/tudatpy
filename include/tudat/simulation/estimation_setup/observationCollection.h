@@ -2005,35 +2005,6 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
-    void setTransponderDelay( const std::string& spacecraftName,
-                              const double transponderDelay,
-                              const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
-                                      std::make_shared< ObservationCollectionParser >( ) )
-    {
-        // Create observation parser with the spacecraft name
-        std::shared_ptr< ObservationCollectionParser > spacecraftParser = observationParser( spacecraftName );
-
-        // Create combined observation parser
-        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
-                std::vector< std::shared_ptr< ObservationCollectionParser > >( { spacecraftParser, inputObservationParser } ), true );
-
-        // Set transponder delay
-        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
-                getSingleObservationSets( jointParser );
-
-        for( auto set : singleSets )
-        {
-            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = set->getAncillarySettings( );
-
-            if( ancillarySettings != nullptr )
-            {
-                std::vector< double > linkEndsDelays_ = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
-                linkEndsDelays_[ 1 ] = transponderDelay;
-                ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays_ );
-            }
-        }
-    }
-
     // Function to add an observation dependent variable to (a subset of) the single observation
     // sets
     std::shared_ptr< ObservationCollectionParser > addDependentVariable(
