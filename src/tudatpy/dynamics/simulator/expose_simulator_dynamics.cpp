@@ -42,6 +42,84 @@ void expose_simulator_dynamics_bindings( py::module& m )
             "DynamicsSimulator",
             R"doc(Base class for propagation of dynamics (with derived classes implementing single-, multi- or hybrid-arc.)doc" );
 
+    py::class_< tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >,
+                std::shared_ptr< tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE > > >(
+            m, "DynamicsStateDerivativeModel", R"doc(Class that evaluates the full dynamics state derivative.)doc" )
+            .def_property( "state_derivative_modifier_function",
+                           &tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >::getStateDerivativeModifierFunction,
+                           &tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >::setStateDerivativeModifierFunction,
+                           R"doc(
+         Function used to modify the complete state derivative after the nominal derivative has been computed.
+
+         The function receives the current propagated state and the nominal state derivative, and must return a
+         replacement state derivative with the same dimensions.
+
+         :type: callable[[numpy.ndarray, numpy.ndarray], numpy.ndarray]
+      )doc" )
+            .def( "set_state_derivative_modifier_function",
+                  &tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >::setStateDerivativeModifierFunction,
+                  py::arg( "state_derivative_modifier_function" ),
+                  R"doc(
+         Set the function used to modify the complete state derivative after the nominal derivative has been computed.
+
+         .. warning::
+
+             This function directly replaces the derivative computed by the configured propagation models. It is intended
+             for expert use only; the user is responsible for ensuring that the returned derivative is physically and
+             numerically consistent with the propagated state and simulation setup.
+
+         Parameters
+         ----------
+         state_derivative_modifier_function : callable[[numpy.ndarray, numpy.ndarray], numpy.ndarray]
+             Function receiving the current propagated state and nominal state derivative, and returning the replacement
+             state derivative.
+
+         Examples
+         --------
+         .. code-block:: python
+
+             import numpy as np
+
+             dynamics_simulator = simulator.create_dynamics_simulator(
+                 bodies,
+                 propagator_settings,
+                 simulate_dynamics_on_creation=False)
+
+             dynamics_state_derivative = dynamics_simulator.dynamics_state_derivative
+
+             def modifier(state, state_derivative):
+                 modified_state_derivative = np.array(state_derivative, copy=True)
+                 modified_state_derivative[3:6] += np.array([1.0e-9, 0.0, 0.0])
+                 return modified_state_derivative
+
+             dynamics_state_derivative.set_state_derivative_modifier_function(modifier)
+             dynamics_simulator.integrate_equations_of_motion(initial_state)
+      )doc" )
+            .def( "reset_state_derivative_modifier_function",
+                  &tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >::resetStateDerivativeModifierFunction,
+                  R"doc(
+         Reset the state derivative modifier function.
+      )doc" )
+            .def( "compute_state_derivative",
+                  &tp::DynamicsStateDerivativeModel< TIME_TYPE, STATE_SCALAR_TYPE >::computeStateDoubleDerivative,
+                  py::arg( "time" ),
+                  py::arg( "state" ),
+                  R"doc(
+         Compute the full state derivative for a given time and state.
+
+         Parameters
+         ----------
+         time : float
+             Current time.
+         state : numpy.ndarray
+             Current propagated state.
+
+         Returns
+         -------
+         numpy.ndarray
+             Full state derivative, including the state derivative modifier function if one is set.
+      )doc" );
+
     py::class_< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >( m, "SingleArcSimulator", R"doc(
@@ -95,6 +173,17 @@ void expose_simulator_dynamics_bindings( py::module& m )
 
 
          :type: callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
+      )doc" )
+            .def_property_readonly( "dynamics_state_derivative",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getDynamicsStateDerivative,
+                                    R"doc(
+
+         **read-only**
+
+         Object that updates the environment and evaluates the full state derivative. This object can be used to set a
+         state derivative modifier before calling :func:`~SingleArcSimulator.integrate_equations_of_motion`.
+
+         :type: DynamicsStateDerivativeModel
       )doc" )
             .def_property_readonly( "environment_updater",
                                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEnvironmentUpdater,
