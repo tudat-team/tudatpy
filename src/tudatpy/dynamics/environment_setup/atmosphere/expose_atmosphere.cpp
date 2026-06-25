@@ -83,7 +83,10 @@ The values in this class may be recomputed every time step to reflect changing a
 
                          Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
 
-                         :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
+                         Parameters
+                         ----------
+                         solar_activity_data : Dict[float, SolarActivityData]
+                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
                          )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
@@ -108,11 +111,21 @@ The values in this class may be recomputed every time step to reflect changing a
                              Returns the local density at the given altitude,
                              longitude, latitude and time.
 
-                             :param altitude: Altitude at which to get the density. [m]
-                             :param longitude: Longitude at which to get the density [rad].
-                             :param latitude: Latitude at which to get the density [rad].
-                             :param time: Time at which density is to be computed [seconds since J2000].
-                             :return: Local density. [kg/m^3]
+                             Parameters
+                             ----------
+                             altitude : float
+                                 Altitude at which to get the density. [m]
+                             longitude : float
+                                 Longitude at which to get the density [rad].
+                             latitude : float
+                                 Latitude at which to get the density [rad].
+                             time : float
+                                 Time at which density is to be computed [seconds since J2000].
+
+                             Returns
+                             -------
+                             float
+                                 Local density. [kg/m^3]
                              )doc" );
 
     // END OF NRLMSISE00
