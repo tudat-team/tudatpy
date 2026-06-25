@@ -360,6 +360,12 @@ public:
         return startFrequencies_;
     }
 
+    //! Function to retrieve the gap handling option
+    FrequencyGapHandling getGapHandling( )
+    {
+        return gapHandling_;
+    }
+
     void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd );
 
 private:
