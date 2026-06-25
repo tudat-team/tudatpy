@@ -738,10 +738,11 @@ protected:
         {
             for( unsigned int i = 0; i < statePartialAdditionIndices_.at( currentArc ).size( ); i++ )
             {
-                const int indicesToAdd = stateTransitionMatrixSize + sensitivityMatrixSize;
-                combinedStateTransitionMatrix.block( statePartialAdditionIndices_.at( currentArc ).at( i ).first, 0, 6, indicesToAdd ) +=
+                const int numberOfColumnsToAdd = stateTransitionMatrixSize + sensitivityMatrixSize;
+                combinedStateTransitionMatrix.block(
+                        statePartialAdditionIndices_.at( currentArc ).at( i ).first, 0, 6, numberOfColumnsToAdd ) +=
                         combinedStateTransitionMatrix.block(
-                                statePartialAdditionIndices_.at( currentArc ).at( i ).second, 0, 6, indicesToAdd );
+                                statePartialAdditionIndices_.at( currentArc ).at( i ).second, 0, 6, numberOfColumnsToAdd );
             }
         }
 
@@ -757,10 +758,10 @@ protected:
 
         std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > arcWiseAndFullSolutionIndices =
                 arcWiseAndFullSolutionInitialStateIndices_.at( currentArc );
-        for( auto itr : arcWiseAndFullSolutionIndices )
+        for( auto bodyEntry : arcWiseAndFullSolutionIndices )
         {
-            std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
-            std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
+            std::pair< int, int > indicesInArcWiseSolution = bodyEntry.second.first;
+            std::pair< std::pair< int, int >, int > indicesInFullSolution = bodyEntry.second.second;
             int indexInFullState = indicesInFullSolution.first.first;
             int indexInFullMatrix = indicesInFullSolution.first.second;
             int sizeInFullSolution = indicesInFullSolution.second;
@@ -771,12 +772,12 @@ protected:
                                                          indicesInArcWiseSolution.second,
                                                          indicesInArcWiseSolution.second );
 
-            for( auto itr2 : arcWiseAndFullSolutionIndices )
+            for( auto otherBodyEntry : arcWiseAndFullSolutionIndices )
             {
-                if( itr2.first != itr.first )
+                if( otherBodyEntry.first != bodyEntry.first )
                 {
-                    std::pair< int, int > indicesInArcWiseSolutionOtherBody = itr2.second.first;
-                    std::pair< std::pair< int, int >, int > indicesInFullSolutionOtherBody = itr2.second.second;
+                    std::pair< int, int > indicesInArcWiseSolutionOtherBody = otherBodyEntry.second.first;
+                    std::pair< std::pair< int, int >, int > indicesInFullSolutionOtherBody = otherBodyEntry.second.second;
                     int indexInFullMatrixOtherBody = indicesInFullSolutionOtherBody.first.second;
                     int sizeInFullSolutionOtherBody = indicesInFullSolutionOtherBody.second;
 

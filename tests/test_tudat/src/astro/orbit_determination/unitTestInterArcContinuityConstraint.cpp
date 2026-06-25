@@ -154,11 +154,15 @@ TwoArcFixture buildTwoArcFixture(
 
 Eigen::VectorXd getSinglePairDiscrepancy( const TwoArcFixture& fixture )
 {
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
     auto settings = fullStateContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0, 1.0 );
-    Eigen::VectorXd normalization = Eigen::VectorXd::Ones( N );
-    auto contribution = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
+    auto contribution = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                                  fixture.parametersToEstimate,
+                                                                                  fixture.simulator,
+                                                                                  fixture.stmInterface,
+                                                                                  columnNormalizationFactors,
+                                                                                  totalParameterSize );
     return contribution.perPairDiscrepancies.at( 0 );
 }
 
@@ -233,18 +237,17 @@ TwoArcFixture buildTwoBodyTwoArcFixture( )
 
 }  // namespace
 
-//! Test 7: At a shared OCM boundary t_c == arc_right.start, the per-arc-index "full" STM accessor returns identity in
-//! the right arc's 6-block and zeros everywhere else (other arcs' state blocks and the sensitivity block).
+//! At a shared arc boundary, the per-arc-index "full" STM accessor returns identity in the right arc's 6-block
+//! and zeros everywhere else (other arcs' state blocks and the sensitivity block).
 BOOST_AUTO_TEST_CASE( test_StmForArc_SharedBoundaryIdentity )
 {
     auto fixture = buildTwoArcFixture( );
 
     BOOST_REQUIRE_EQUAL( fixture.arcStartTimes.size( ), 2u );
-    // Adjacent boundary t_c = arc 1's start time (== arc 0's end time within propagator step tolerance).
-    const double tC = fixture.arcStartTimes[ 1 ];
+    const double connectionEpoch = fixture.arcStartTimes[ 1 ];
 
     // Verify the structural property for arc 1: identity-Phi, zero-S at the arc start.
-    Eigen::MatrixXd fullArc1 = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, tC );
+    Eigen::MatrixXd fullArc1 = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, connectionEpoch );
 
     BOOST_CHECK_EQUAL( fullArc1.rows( ), 6 );
     BOOST_CHECK_EQUAL( fullArc1.cols( ), fixture.fullStateTransitionSize + fixture.fullSensitivitySize );
@@ -275,11 +278,11 @@ BOOST_AUTO_TEST_CASE( test_StmForArc_SharedBoundaryIdentity )
         }
     }
 
-    // Contrast: the per-arc-index accessor for arc 0 at the same t_c (which is arc 0's end time) returns the
+    // Contrast: the per-arc-index accessor for arc 0 at the same boundary epoch (which is arc 0's end time) returns the
     // propagated Phi in arc 0's 6-block (not identity, since arcDuration > 0) and zeros in arc 1's 6-block.
-    // This is the matrix needed for M_left in the inter-arc continuity assembly; the time-keyed lookup cannot
+    // This is the matrix needed for the left-arc variational block in the inter-arc continuity assembly; the time-keyed lookup cannot
     // retrieve it because at the shared boundary the hunt scheme picks arc 1 as the "current" arc.
-    Eigen::MatrixXd fullArc0 = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, tC );
+    Eigen::MatrixXd fullArc0 = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, connectionEpoch );
     const Eigen::Matrix< double, 6, 6 > arc0BlockFromLeft = fullArc0.block< 6, 6 >( 0, 0 );
     const Eigen::Matrix< double, 6, 6 > arc1BlockFromLeft = fullArc0.block< 6, 6 >( 0, 6 );
     BOOST_CHECK_GT( ( arc0BlockFromLeft - identity6 ).norm( ), 1.0E-3 );
@@ -308,135 +311,158 @@ BOOST_AUTO_TEST_CASE( test_StmForArc_RangeValidation )
             std::runtime_error );
 }
 
-//! Test 9 / structural check of the assembly module: build a position-only continuity contribution at the
-//! shared boundary and verify symmetry, dimensionality, that d is small but non-zero (RK4 truncation), and
-//! that the additionalRightHandSide is aligned with -D_norm^T W_d d as the analytical formula dictates.
+//! Structural check of the assembly module: build a position-only continuity contribution at the shared boundary
+//! and verify symmetry, dimensionality, finite discrepancy diagnostics, and a non-negative cost.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_StructureAndSymmetry )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
 
     auto settings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
-    Eigen::VectorXd normalization = Eigen::VectorXd::Ones( N );
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
 
-    auto contribution = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto contribution = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                                  fixture.parametersToEstimate,
+                                                                                  fixture.simulator,
+                                                                                  fixture.stmInterface,
+                                                                                  columnNormalizationFactors,
+                                                                                  totalParameterSize );
 
-    BOOST_REQUIRE_EQUAL( contribution.additionalNormalMatrix.rows( ), N );
-    BOOST_REQUIRE_EQUAL( contribution.additionalNormalMatrix.cols( ), N );
-    BOOST_REQUIRE_EQUAL( contribution.additionalRightHandSide.size( ), N );
+    BOOST_REQUIRE_EQUAL( contribution.additionalNormalMatrix.rows( ), totalParameterSize );
+    BOOST_REQUIRE_EQUAL( contribution.additionalNormalMatrix.cols( ), totalParameterSize );
+    BOOST_REQUIRE_EQUAL( contribution.additionalRightHandSide.size( ), totalParameterSize );
     BOOST_REQUIRE_EQUAL( contribution.perPairDiscrepancies.size( ), 1u );
 
-    // H must be symmetric.
-    Eigen::MatrixXd Hsym = contribution.additionalNormalMatrix - contribution.additionalNormalMatrix.transpose( );
-    BOOST_CHECK_SMALL( Hsym.norm( ), 1.0E-9 );
+    // The normal-matrix contribution must be symmetric.
+    Eigen::MatrixXd normalMatrixAsymmetry = contribution.additionalNormalMatrix - contribution.additionalNormalMatrix.transpose( );
+    BOOST_CHECK_SMALL( normalMatrixAsymmetry.norm( ), 1.0E-9 );
 
-    // H is PSD (no negative eigenvalues beyond floating-point tolerance — relative to the largest eigenvalue,
-    // since D's columns span position-vs-position (~1) through position-vs-velocity (~orbit period in seconds)
-    // and the resulting H has entries spanning many orders of magnitude).
+    // The normal-matrix contribution is PSD, allowing for floating-point tolerance relative to the largest eigenvalue.
     Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > solver( contribution.additionalNormalMatrix );
-    const double maxEig = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
-    BOOST_CHECK_GE( solver.eigenvalues( ).minCoeff( ), -1.0E-9 * maxEig );
+    const double largestEigenvalue = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
+    BOOST_CHECK_GE( solver.eigenvalues( ).minCoeff( ), -1.0E-9 * largestEigenvalue );
 
     // The discrepancy at the shared boundary is finite (no NaN/Inf). Magnitude depends on the propagation model:
     // this test uses point-mass Earth-Sun gravity only, so the arc-0 forward propagation drifts substantially from
     // SPICE Earth (used as arc-1's initial state). That's irrelevant to the structural assembly check.
-    const Eigen::VectorXd& d = contribution.perPairDiscrepancies[ 0 ];
-    BOOST_CHECK_EQUAL( d.rows( ), 6 );
-    BOOST_CHECK( std::isfinite( d.norm( ) ) );
+    const Eigen::VectorXd& stateDiscrepancy = contribution.perPairDiscrepancies[ 0 ];
+    BOOST_CHECK_EQUAL( stateDiscrepancy.rows( ), 6 );
+    BOOST_CHECK( std::isfinite( stateDiscrepancy.norm( ) ) );
 
     // Cost is non-negative.
     BOOST_CHECK_GE( contribution.totalConstraintCost, 0.0 );
 }
 
-//! Exact assembly check for the requested math: D = M_right - M_left, D columns are normalized before H/g,
-//! residual sign is -d, and dense rank-deficient PSD weights are handled without whitening/Cholesky assumptions.
+//! Exact assembly check: the design matrix is the right-arc variational block minus the left-arc variational block,
+//! its columns are normalized before the normal equations are formed, the residual sign is negative state discrepancy,
+//! and dense rank-deficient PSD weights are handled without whitening/Cholesky assumptions.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquations )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    const double tC = fixture.arcStartTimes[ 1 ];
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const double connectionEpoch = fixture.arcStartTimes[ 1 ];
 
-    Eigen::Matrix< double, 6, 1 > u;
-    u << 2.0, -1.0, 0.5, 0.25, -0.75, 1.5;
-    Eigen::Matrix< double, 6, 6 > denseRankOne = u * u.transpose( );
-    const double mu = 2.0;
-    auto settings = generalContinuity( "Earth", { tC }, { denseRankOne }, mu );
+    Eigen::Matrix< double, 6, 1 > rankOneWeightVector;
+    rankOneWeightVector << 2.0, -1.0, 0.5, 0.25, -0.75, 1.5;
+    Eigen::Matrix< double, 6, 6 > denseRankOneWeightMatrix = rankOneWeightVector * rankOneWeightVector.transpose( );
+    const double constraintScalingFactor = 2.0;
+    auto settings = generalContinuity( "Earth", { connectionEpoch }, { denseRankOneWeightMatrix }, constraintScalingFactor );
 
-    Eigen::VectorXd normalization( N );
-    for( int i = 0; i < N; ++i )
+    Eigen::VectorXd columnNormalizationFactors( totalParameterSize );
+    for( int i = 0; i < totalParameterSize; ++i )
     {
-        normalization( i ) = 0.7 + 0.13 * static_cast< double >( i + 1 );
+        columnNormalizationFactors( i ) = 0.7 + 0.13 * static_cast< double >( i + 1 );
     }
 
-    auto contribution = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto contribution = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                                  fixture.parametersToEstimate,
+                                                                                  fixture.simulator,
+                                                                                  fixture.stmInterface,
+                                                                                  columnNormalizationFactors,
+                                                                                  totalParameterSize );
 
-    Eigen::MatrixXd mLeft = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, tC );
-    Eigen::MatrixXd mRight = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, tC );
-    Eigen::MatrixXd D = mRight - mLeft;
-    for( int col = 0; col < N; ++col )
+    Eigen::MatrixXd leftArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, connectionEpoch );
+    Eigen::MatrixXd rightArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, connectionEpoch );
+    Eigen::MatrixXd continuityDesignMatrix = rightArcVariationalMatrix - leftArcVariationalMatrix;
+    for( int col = 0; col < totalParameterSize; ++col )
     {
-        D.col( col ) /= normalization( col );
+        continuityDesignMatrix.col( col ) /= columnNormalizationFactors( col );
     }
 
-    const Eigen::VectorXd& d = contribution.perPairDiscrepancies.at( 0 );
-    BOOST_CHECK_EQUAL( d.rows( ), 6 );
-    const Eigen::Matrix< double, 6, 6 > W = denseRankOne / mu;  // rank(C)=1 -> m_d=1
-    const Eigen::MatrixXd expectedH = D.transpose( ) * W * D;
-    const Eigen::VectorXd expectedG = -D.transpose( ) * ( W * d );
-    const double expectedCost = d.transpose( ) * W * d;
+    const Eigen::VectorXd& stateDiscrepancy = contribution.perPairDiscrepancies.at( 0 );
+    BOOST_CHECK_EQUAL( stateDiscrepancy.rows( ), 6 );
+    const Eigen::Matrix< double, 6, 6 > scaledConstraintWeight =
+            denseRankOneWeightMatrix / constraintScalingFactor;  // rank(weight matrix)=1 -> total constrained dimension=1
+    const Eigen::MatrixXd expectedNormalMatrixContribution =
+            continuityDesignMatrix.transpose( ) * scaledConstraintWeight * continuityDesignMatrix;
+    const Eigen::VectorXd expectedRightHandSideContribution =
+            -continuityDesignMatrix.transpose( ) * ( scaledConstraintWeight * stateDiscrepancy );
+    const double expectedCost = stateDiscrepancy.transpose( ) * scaledConstraintWeight * stateDiscrepancy;
 
-    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) / std::max( expectedH.norm( ), 1.0E-30 ), 1.0E-12 );
-    BOOST_CHECK_LT( ( contribution.additionalRightHandSide - expectedG ).norm( ) / std::max( expectedG.norm( ), 1.0E-30 ), 1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedNormalMatrixContribution ).norm( ) /
+                            std::max( expectedNormalMatrixContribution.norm( ), 1.0E-30 ),
+                    1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalRightHandSide - expectedRightHandSideContribution ).norm( ) /
+                            std::max( expectedRightHandSideContribution.norm( ), 1.0E-30 ),
+                    1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( contribution.totalConstraintCost, expectedCost, 1.0E-12 );
 }
 
-//! Test 8: Orbit14-style mid-gap connection epoch. The adjacent arcs overlap around t_c so both sides are
+//! Orbit14-style mid-gap connection epoch. The adjacent arcs overlap around the connection epoch so both sides are
 //! evaluated strictly inside their propagated intervals; neither STM block is the arc-start identity.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_MidGapConnectionEpoch )
 {
     auto fixture = buildTwoArcFixture( {}, true );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    const double tC = 0.5 * ( fixture.arcStartTimes[ 1 ] + fixture.arcEndTimes[ 0 ] );
-    BOOST_CHECK_GT( tC, fixture.arcStartTimes[ 1 ] );
-    BOOST_CHECK_LT( tC, fixture.arcEndTimes[ 0 ] );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const double connectionEpoch = 0.5 * ( fixture.arcStartTimes[ 1 ] + fixture.arcEndTimes[ 0 ] );
+    BOOST_CHECK_GT( connectionEpoch, fixture.arcStartTimes[ 1 ] );
+    BOOST_CHECK_LT( connectionEpoch, fixture.arcEndTimes[ 0 ] );
 
-    auto settings = fullStateContinuity( "Earth", { tC }, 1.0, 1.0, 1.0 );
-    Eigen::VectorXd normalization = Eigen::VectorXd::Ones( N );
-    auto contribution = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto settings = fullStateContinuity( "Earth", { connectionEpoch }, 1.0, 1.0, 1.0 );
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
+    auto contribution = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                                  fixture.parametersToEstimate,
+                                                                                  fixture.simulator,
+                                                                                  fixture.stmInterface,
+                                                                                  columnNormalizationFactors,
+                                                                                  totalParameterSize );
 
     BOOST_REQUIRE_EQUAL( contribution.perPairDiscrepancies.size( ), 1u );
     BOOST_CHECK( std::isfinite( contribution.perPairDiscrepancies.at( 0 ).norm( ) ) );
     BOOST_CHECK_GE( contribution.totalConstraintCost, 0.0 );
 
-    Eigen::MatrixXd mLeft = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, tC );
-    Eigen::MatrixXd mRight = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, tC );
+    Eigen::MatrixXd leftArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, connectionEpoch );
+    Eigen::MatrixXd rightArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, connectionEpoch );
     const Eigen::Matrix< double, 6, 6 > identity6 = Eigen::Matrix< double, 6, 6 >::Identity( );
 
-    BOOST_CHECK_GT( ( mLeft.block< 6, 6 >( 0, 0 ) - identity6 ).norm( ), 1.0E-3 );
-    BOOST_CHECK_GT( ( mRight.block< 6, 6 >( 0, 6 ) - identity6 ).norm( ), 1.0E-3 );
+    BOOST_CHECK_GT( ( leftArcVariationalMatrix.block< 6, 6 >( 0, 0 ) - identity6 ).norm( ), 1.0E-3 );
+    BOOST_CHECK_GT( ( rightArcVariationalMatrix.block< 6, 6 >( 0, 6 ) - identity6 ).norm( ), 1.0E-3 );
 }
 
-//! Test 9: finite-difference check of D = d(d)/d(parameter). This repropagates the two-arc problem with one
+//! Finite-difference check of the continuity design matrix. This repropagates the two-arc problem with one
 //! perturbed arc initial-state component at a time, so it is independent of the STM accessor used by assembly.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_FiniteDifferenceInitialStatePartials )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    const double tC = fixture.arcStartTimes[ 1 ];
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const double connectionEpoch = fixture.arcStartTimes[ 1 ];
 
-    BOOST_REQUIRE_EQUAL( N, 12 );
+    BOOST_REQUIRE_EQUAL( totalParameterSize, 12 );
 
-    Eigen::MatrixXd mLeft = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, tC );
-    Eigen::MatrixXd mRight = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, tC );
-    const Eigen::MatrixXd analyticalD = mRight - mLeft;
+    Eigen::MatrixXd leftArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, connectionEpoch );
+    Eigen::MatrixXd rightArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, connectionEpoch );
+    const Eigen::MatrixXd analyticalContinuityDesignMatrix = rightArcVariationalMatrix - leftArcVariationalMatrix;
 
-    Eigen::MatrixXd finiteDifferenceD( 6, N );
-    finiteDifferenceD.setZero( );
+    Eigen::MatrixXd finiteDifferenceContinuityDesignMatrix( 6, totalParameterSize );
+    finiteDifferenceContinuityDesignMatrix.setZero( );
 
-    for( int column = 0; column < N; ++column )
+    for( int column = 0; column < totalParameterSize; ++column )
     {
         const double perturbation = ( column % 6 < 3 ) ? 10.0 : 1.0E-3;
         std::vector< Eigen::Matrix< double, 6, 1 > > positivePerturbations( 2, Eigen::Matrix< double, 6, 1 >::Zero( ) );
@@ -450,40 +476,56 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_FiniteDifferenceInitialSta
         const Eigen::VectorXd negativeDiscrepancy = getSinglePairDiscrepancy( negativeFixture );
         BOOST_CHECK_EQUAL( positiveDiscrepancy.rows( ), 6 );
         BOOST_CHECK_EQUAL( negativeDiscrepancy.rows( ), 6 );
-        finiteDifferenceD.col( column ) = ( positiveDiscrepancy - negativeDiscrepancy ) / ( 2.0 * perturbation );
+        finiteDifferenceContinuityDesignMatrix.col( column ) = ( positiveDiscrepancy - negativeDiscrepancy ) / ( 2.0 * perturbation );
     }
 
-    for( int column = 0; column < N; ++column )
+    for( int column = 0; column < totalParameterSize; ++column )
     {
-        const double columnScale = std::max( analyticalD.col( column ).norm( ), 1.0 );
-        BOOST_CHECK_LT( ( finiteDifferenceD.col( column ) - analyticalD.col( column ) ).norm( ) / columnScale, 1.0E-4 );
+        const double columnScale = std::max( analyticalContinuityDesignMatrix.col( column ).norm( ), 1.0 );
+        BOOST_CHECK_LT( ( finiteDifferenceContinuityDesignMatrix.col( column ) - analyticalContinuityDesignMatrix.col( column ) ).norm( ) /
+                                columnScale,
+                        1.0E-4 );
     }
 }
 
-//! Component masks must affect only the requested discrepancy components, with m_d equal to the rank of C.
+//! Component masks must affect only the requested discrepancy components, with constrained dimension equal to the
+//! rank of the constraint weight matrix.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeRank )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    const double tC = fixture.arcStartTimes[ 1 ];
-    Eigen::VectorXd normalization = Eigen::VectorXd::Ones( N );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const double connectionEpoch = fixture.arcStartTimes[ 1 ];
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
 
-    auto positionSettings = positionOnlyContinuity( "Earth", { tC }, 2.0, 5.0 );
-    auto velocitySettings = velocityOnlyContinuity( "Earth", { tC }, 4.0, 5.0 );
-    auto fullSettings = fullStateContinuity( "Earth", { tC }, 2.0, 4.0, 5.0 );
+    auto positionSettings = positionOnlyContinuity( "Earth", { connectionEpoch }, 2.0, 5.0 );
+    auto velocitySettings = velocityOnlyContinuity( "Earth", { connectionEpoch }, 4.0, 5.0 );
+    auto fullSettings = fullStateContinuity( "Earth", { connectionEpoch }, 2.0, 4.0, 5.0 );
 
-    auto positionContribution = assembleInterArcContinuityContribution< double, double >(
-            { positionSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
-    auto velocityContribution = assembleInterArcContinuityContribution< double, double >(
-            { velocitySettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
-    auto fullContribution = assembleInterArcContinuityContribution< double, double >(
-            { fullSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto positionContribution = assembleInterArcContinuityContribution< double, double >( { positionSettings },
+                                                                                          fixture.parametersToEstimate,
+                                                                                          fixture.simulator,
+                                                                                          fixture.stmInterface,
+                                                                                          columnNormalizationFactors,
+                                                                                          totalParameterSize );
+    auto velocityContribution = assembleInterArcContinuityContribution< double, double >( { velocitySettings },
+                                                                                          fixture.parametersToEstimate,
+                                                                                          fixture.simulator,
+                                                                                          fixture.stmInterface,
+                                                                                          columnNormalizationFactors,
+                                                                                          totalParameterSize );
+    auto fullContribution = assembleInterArcContinuityContribution< double, double >( { fullSettings },
+                                                                                      fixture.parametersToEstimate,
+                                                                                      fixture.simulator,
+                                                                                      fixture.stmInterface,
+                                                                                      columnNormalizationFactors,
+                                                                                      totalParameterSize );
 
-    const Eigen::VectorXd& d = fullContribution.perPairDiscrepancies.at( 0 );
-    BOOST_CHECK_EQUAL( d.rows( ), 6 );
-    const double expectedPositionCost = ( 2.0 / ( 5.0 * 3.0 ) ) * d.head( 3 ).squaredNorm( );
-    const double expectedVelocityCost = ( 4.0 / ( 5.0 * 3.0 ) ) * d.tail( 3 ).squaredNorm( );
-    const double expectedFullCost = ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * d.head( 3 ).squaredNorm( ) + 4.0 * d.tail( 3 ).squaredNorm( ) );
+    const Eigen::VectorXd& stateDiscrepancy = fullContribution.perPairDiscrepancies.at( 0 );
+    BOOST_CHECK_EQUAL( stateDiscrepancy.rows( ), 6 );
+    const double expectedPositionCost = ( 2.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.head( 3 ).squaredNorm( );
+    const double expectedVelocityCost = ( 4.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.tail( 3 ).squaredNorm( );
+    const double expectedFullCost =
+            ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * stateDiscrepancy.head( 3 ).squaredNorm( ) + 4.0 * stateDiscrepancy.tail( 3 ).squaredNorm( ) );
 
     BOOST_CHECK_CLOSE_FRACTION( positionContribution.totalConstraintCost, expectedPositionCost, 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( velocityContribution.totalConstraintCost, expectedVelocityCost, 1.0E-12 );
@@ -491,9 +533,13 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeR
 
     // Very small positive weights must still be counted by relative rank; this used to fail with an absolute
     // 1e-12 floor in rankOf6x6PsdMatrix.
-    auto tinySettings = positionOnlyContinuity( "Earth", { tC }, 1.0E-30, 1.0 );
-    auto tinyContribution = assembleInterArcContinuityContribution< double, double >(
-            { tinySettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto tinySettings = positionOnlyContinuity( "Earth", { connectionEpoch }, 1.0E-30, 1.0 );
+    auto tinyContribution = assembleInterArcContinuityContribution< double, double >( { tinySettings },
+                                                                                      fixture.parametersToEstimate,
+                                                                                      fixture.simulator,
+                                                                                      fixture.stmInterface,
+                                                                                      columnNormalizationFactors,
+                                                                                      totalParameterSize );
     BOOST_CHECK_GT( tinyContribution.totalConstraintCost, 0.0 );
     BOOST_CHECK( std::isfinite( tinyContribution.totalConstraintCost ) );
 }
@@ -503,13 +549,17 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeR
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_UsesRequestedBodyRows )
 {
     auto fixture = buildTwoBodyTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    const double tC = fixture.arcStartTimes[ 1 ];
-    Eigen::VectorXd normalization = Eigen::VectorXd::Ones( N );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const double connectionEpoch = fixture.arcStartTimes[ 1 ];
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
 
-    auto marsSettings = positionOnlyContinuity( "Mars", { tC }, 3.0, 2.0 );
-    auto contribution = assembleInterArcContinuityContribution< double, double >(
-            { marsSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
+    auto marsSettings = positionOnlyContinuity( "Mars", { connectionEpoch }, 3.0, 2.0 );
+    auto contribution = assembleInterArcContinuityContribution< double, double >( { marsSettings },
+                                                                                  fixture.parametersToEstimate,
+                                                                                  fixture.simulator,
+                                                                                  fixture.stmInterface,
+                                                                                  columnNormalizationFactors,
+                                                                                  totalParameterSize );
 
     const auto layout = fixture.stmInterface->getArcWiseAndFullSolutionInitialStateIndices( );
     const int marsArcWiseRowsLeft = layout.at( 0 ).at( "Mars" ).first.first;
@@ -521,48 +571,63 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_UsesRequestedBodyRows )
 
     BOOST_CHECK( std::isfinite( contribution.perPairDiscrepancies.at( 0 ).norm( ) ) );
 
-    Eigen::MatrixXd mLeft = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, tC );
-    Eigen::MatrixXd mRight = fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, tC );
-    Eigen::MatrixXd expectedD = mRight.block( marsFullRowsRight, 0, 6, N ) - mLeft.block( marsFullRowsLeft, 0, 6, N );
-    Eigen::Matrix< double, 6, 6 > W = Eigen::Matrix< double, 6, 6 >::Zero( );
-    W.block< 3, 3 >( 0, 0 ) = ( 3.0 / ( 2.0 * 3.0 ) ) * Eigen::Matrix3d::Identity( );
-    const Eigen::MatrixXd expectedH = expectedD.transpose( ) * W * expectedD;
+    Eigen::MatrixXd leftArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 0, connectionEpoch );
+    Eigen::MatrixXd rightArcVariationalMatrix =
+            fixture.stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( 1, connectionEpoch );
+    Eigen::MatrixXd expectedContinuityDesignMatrix = rightArcVariationalMatrix.block( marsFullRowsRight, 0, 6, totalParameterSize ) -
+            leftArcVariationalMatrix.block( marsFullRowsLeft, 0, 6, totalParameterSize );
+    Eigen::Matrix< double, 6, 6 > scaledConstraintWeight = Eigen::Matrix< double, 6, 6 >::Zero( );
+    scaledConstraintWeight.block< 3, 3 >( 0, 0 ) = ( 3.0 / ( 2.0 * 3.0 ) ) * Eigen::Matrix3d::Identity( );
+    const Eigen::MatrixXd expectedNormalMatrixContribution =
+            expectedContinuityDesignMatrix.transpose( ) * scaledConstraintWeight * expectedContinuityDesignMatrix;
 
-    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedH ).norm( ) / std::max( expectedH.norm( ), 1.0E-30 ), 1.0E-12 );
+    BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedNormalMatrixContribution ).norm( ) /
+                            std::max( expectedNormalMatrixContribution.norm( ), 1.0E-30 ),
+                    1.0E-12 );
 }
 
-//! Test 10: normalisation invariance. Compare assembly with two different column-normalisation conventions;
-//! the parameter update that solves H dx = g (in unnormalised coordinates) must be invariant under uniform
-//! rescaling of the normalisation vector.
+//! Normalization invariance. Compare assembly with two different column-normalization conventions; the physical
+//! parameter update implied by the normal-equation contribution must be invariant under uniform rescaling of the
+//! normalization vector.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_NormalisationInvariance )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
 
     auto settings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
 
-    Eigen::VectorXd unitNormalisation = Eigen::VectorXd::Ones( N );
-    Eigen::VectorXd scaledNormalisation = Eigen::VectorXd::Constant( N, 3.5 );
+    Eigen::VectorXd unitColumnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
+    Eigen::VectorXd scaledColumnNormalizationFactors = Eigen::VectorXd::Constant( totalParameterSize, 3.5 );
 
-    auto unit = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, unitNormalisation, N );
-    auto scaled = assembleInterArcContinuityContribution< double, double >(
-            { settings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, scaledNormalisation, N );
+    auto unit = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                          fixture.parametersToEstimate,
+                                                                          fixture.simulator,
+                                                                          fixture.stmInterface,
+                                                                          unitColumnNormalizationFactors,
+                                                                          totalParameterSize );
+    auto scaled = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                            fixture.parametersToEstimate,
+                                                                            fixture.simulator,
+                                                                            fixture.stmInterface,
+                                                                            scaledColumnNormalizationFactors,
+                                                                            totalParameterSize );
 
-    // The cost is computed in physical units (independent of normalisation) and must match exactly.
+    // The cost is computed in physical units (independent of column normalization) and must match exactly.
     BOOST_CHECK_CLOSE_FRACTION( unit.totalConstraintCost, scaled.totalConstraintCost, 1.0E-12 );
 
-    // The unnormalised parameter update solves H_phys * dx_phys = g_phys.
-    // Column normalisation by k turns the system into H_norm * dx_norm = g_norm with
-    //   H_norm[i,j] = H_phys[i,j] / (k*k),  g_norm[i] = g_phys[i] / k,  dx_phys[i] = dx_norm[i] / k.
-    // So dxScaled (a normalised dx with k=3.5) must equal dxUnit (the physical dx) after division by k.
+    // Uniformly scaling every column-normalization factor by k scales the normal matrix contribution by 1/k^2
+    // and the right-hand-side contribution by 1/k. The normalized parameter update must therefore be divided
+    // by k to recover the same physical update as the unit-normalization case.
     const double tinyPriorScale = 1.0E-3;
-    Eigen::MatrixXd Hprior = tinyPriorScale * Eigen::MatrixXd::Identity( N, N );
+    Eigen::MatrixXd priorNormalMatrix = tinyPriorScale * Eigen::MatrixXd::Identity( totalParameterSize, totalParameterSize );
 
-    Eigen::VectorXd dxUnit = ( unit.additionalNormalMatrix + Hprior ).ldlt( ).solve( unit.additionalRightHandSide );
-    Eigen::VectorXd dxScaled = ( scaled.additionalNormalMatrix + Hprior / ( 3.5 * 3.5 ) ).ldlt( ).solve( scaled.additionalRightHandSide );
-    Eigen::VectorXd dxScaledPhysical = dxScaled / 3.5;
-    BOOST_CHECK_LT( ( dxUnit - dxScaledPhysical ).norm( ) / std::max( dxUnit.norm( ), 1.0E-30 ), 1.0E-5 );
+    Eigen::VectorXd unitParameterUpdate = ( unit.additionalNormalMatrix + priorNormalMatrix ).ldlt( ).solve( unit.additionalRightHandSide );
+    Eigen::VectorXd scaledParameterUpdate =
+            ( scaled.additionalNormalMatrix + priorNormalMatrix / ( 3.5 * 3.5 ) ).ldlt( ).solve( scaled.additionalRightHandSide );
+    Eigen::VectorXd scaledPhysicalParameterUpdate = scaledParameterUpdate / 3.5;
+    BOOST_CHECK_LT( ( unitParameterUpdate - scaledPhysicalParameterUpdate ).norm( ) / std::max( unitParameterUpdate.norm( ), 1.0E-30 ),
+                    1.0E-5 );
 }
 
 //! Integration test exercising the full OD loop with constraints attached. Covers tests 1 (smoke check that a
@@ -693,12 +758,13 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     // The boundary discrepancy at the best iteration should be smaller than at the first iteration for any
     // non-trivially-weak constraint.
     const auto& history = outputWithConstraint->getInterArcContinuityDiscrepancyHistory( );
-    const int bestIter = std::max( 0, std::min( outputWithConstraint->bestIteration_, static_cast< int >( history.size( ) ) - 1 ) );
-    const Eigen::VectorXd& dBest = history.at( bestIter ).at( 0 );
-    BOOST_CHECK_EQUAL( dBest.rows( ), 6 );
-    BOOST_TEST_MESSAGE( "Best-iter position discrepancy with constraint: " << dBest.head( 3 ).norm( ) );
-    BOOST_TEST_MESSAGE( "Best-iter velocity discrepancy with constraint: " << dBest.tail( 3 ).norm( ) );
-    BOOST_CHECK( std::isfinite( dBest.norm( ) ) );
+    const int bestIterationIndex =
+            std::max( 0, std::min( outputWithConstraint->bestIteration_, static_cast< int >( history.size( ) ) - 1 ) );
+    const Eigen::VectorXd& bestIterationStateDiscrepancy = history.at( bestIterationIndex ).at( 0 );
+    BOOST_CHECK_EQUAL( bestIterationStateDiscrepancy.rows( ), 6 );
+    BOOST_TEST_MESSAGE( "Best-iter position discrepancy with constraint: " << bestIterationStateDiscrepancy.head( 3 ).norm( ) );
+    BOOST_TEST_MESSAGE( "Best-iter velocity discrepancy with constraint: " << bestIterationStateDiscrepancy.tail( 3 ).norm( ) );
+    BOOST_CHECK( std::isfinite( bestIterationStateDiscrepancy.norm( ) ) );
 }
 
 //! Test 6: connection epoch outside the propagated interval of either side arc throws with the documented
@@ -706,21 +772,25 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_EpochOutsideArcThrows )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    Eigen::VectorXd normalisation = Eigen::VectorXd::Ones( N );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
 
     // Epoch that lies outside both arcs.
-    const double badEpoch = fixture.arcEndTimes[ 1 ] + 1.0E6;
+    const double outOfRangeConnectionEpoch = fixture.arcEndTimes[ 1 ] + 1.0E6;
     auto badSettings = std::make_shared< InterArcStateContinuityConstraintSettings >(
             "Earth",
-            std::vector< double >{ badEpoch },
+            std::vector< double >{ outOfRangeConnectionEpoch },
             std::vector< Eigen::Matrix< double, 6, 6 > >{ tudat::simulation_setup::detail::diagonalWeight( 1.0, 0.0 ) },
             std::vector< double >{ 1.0 } );
 
     try
     {
-        assembleInterArcContinuityContribution< double, double >(
-                { badSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalisation, N );
+        assembleInterArcContinuityContribution< double, double >( { badSettings },
+                                                                  fixture.parametersToEstimate,
+                                                                  fixture.simulator,
+                                                                  fixture.stmInterface,
+                                                                  columnNormalizationFactors,
+                                                                  totalParameterSize );
         BOOST_FAIL( "Expected runtime_error from out-of-range connection epoch was not thrown." );
     }
     catch( const std::runtime_error& error )
@@ -824,45 +894,51 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysis_WithInterArcContinuity_Tightens )
     BOOST_REQUIRE( unconstrainedOutput != nullptr );
     BOOST_REQUIRE( constrainedOutput != nullptr );
 
-    // Compare normalized inverse covariance (= normal matrix). Regularized must >= unregularized in the PSD
-    // sense: the difference (regularized - unregularized) is PSD with smallest eigenvalue >= 0.
-    Eigen::MatrixXd diff = constrainedOutput->inverseNormalizedCovarianceMatrix_ - unconstrainedOutput->inverseNormalizedCovarianceMatrix_;
-    Eigen::MatrixXd diffSym = 0.5 * ( diff + diff.transpose( ) );
-    Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > solver( diffSym );
-    const double maxEig = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
-    BOOST_CHECK_GE( solver.eigenvalues( ).minCoeff( ), -1.0E-9 * maxEig );
-    // The largest eigenvalue must be strictly positive: the prior must have a non-trivial effect.
+    // Compare normalized inverse covariance (= normal matrix). Constrained must >= unconstrained in the PSD
+    // sense: the difference (constrained - unconstrained) is PSD with smallest eigenvalue >= 0.
+    Eigen::MatrixXd normalMatrixDifference =
+            constrainedOutput->inverseNormalizedCovarianceMatrix_ - unconstrainedOutput->inverseNormalizedCovarianceMatrix_;
+    Eigen::MatrixXd symmetricNormalMatrixDifference = 0.5 * ( normalMatrixDifference + normalMatrixDifference.transpose( ) );
+    Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > solver( symmetricNormalMatrixDifference );
+    const double largestEigenvalue = std::max( solver.eigenvalues( ).maxCoeff( ), 1.0 );
+    BOOST_CHECK_GE( solver.eigenvalues( ).minCoeff( ), -1.0E-9 * largestEigenvalue );
+    // The largest eigenvalue must be strictly positive — the constraint must have a non-trivial effect.
     BOOST_CHECK_GT( solver.eigenvalues( ).maxCoeff( ), 0.0 );
     BOOST_CHECK_GT( constrainedOutput->getInterArcContinuityCost( ), 0.0 );
     BOOST_REQUIRE_EQUAL( constrainedOutput->getInterArcContinuityDiscrepancies( ).size( ), 1u );
     BOOST_CHECK( std::isfinite( constrainedOutput->getInterArcContinuityDiscrepancies( ).at( 0 ).norm( ) ) );
 }
 
-//! Test the global m_d accounting: passing two settings entries with two pairs each, both rank 3 (position-only),
-//! should result in m_d_total = 12 and the H/g of every individual pair should scale as 1/12 of the unit-rank case.
+//! Test global constrained-dimension accounting: passing two settings entries with one rank-3 position-only pair
+//! each should halve each pair's scaled weight while doubling the number of pairs, leaving the accumulated normal
+//! equations unchanged.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_GlobalMdAccounting )
 {
     auto fixture = buildTwoArcFixture( );
-    const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
-    Eigen::VectorXd normalisation = Eigen::VectorXd::Ones( N );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
 
-    // Single position-only constraint at the boundary: m_d = 3.
+    // Single position-only constraint at the boundary: constrained dimension equals 3.
     auto singleSettings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
-    auto singleContribution = assembleInterArcContinuityContribution< double, double >(
-            { singleSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalisation, N );
+    auto singleContribution = assembleInterArcContinuityContribution< double, double >( { singleSettings },
+                                                                                        fixture.parametersToEstimate,
+                                                                                        fixture.simulator,
+                                                                                        fixture.stmInterface,
+                                                                                        columnNormalizationFactors,
+                                                                                        totalParameterSize );
 
-    // Add a second identical settings entry: m_d_total goes from 3 to 6, so each pair's W_d halves and the
-    // accumulated H from the duplicated pair is 2 * (1/2) = 1x the single-pair H. The g_constraint behaves
+    // Add a second identical settings entry: the total constrained dimension goes from 3 to 6, so each pair's
+    // scaled weight halves and the accumulated normal matrix is 2 * (1/2) = 1x the single-pair normal matrix. The right-hand side behaves
     // the same way. The total cost scales like the per-pair weight (factor 1/2 for each pair).
     auto duplicateSettings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
     auto duplicatedContribution = assembleInterArcContinuityContribution< double, double >( { singleSettings, duplicateSettings },
                                                                                             fixture.parametersToEstimate,
                                                                                             fixture.simulator,
                                                                                             fixture.stmInterface,
-                                                                                            normalisation,
-                                                                                            N );
+                                                                                            columnNormalizationFactors,
+                                                                                            totalParameterSize );
 
-    // H from {single, duplicate} == 2 * (1/2) * H_single = H_single.
+    // Normal matrix from {single, duplicate} == 2 * (1/2) * single normal matrix.
     BOOST_CHECK_LT( ( duplicatedContribution.additionalNormalMatrix - singleContribution.additionalNormalMatrix ).norm( ),
                     1.0E-9 * std::max( singleContribution.additionalNormalMatrix.norm( ), 1.0 ) );
     // Cost from {single, duplicate} == 2 * (1/2) * cost_single = cost_single.
@@ -999,26 +1075,26 @@ BOOST_AUTO_TEST_CASE( test_LeastSquares_HardAndSoftConstraintsCompose )
                                                                                           soft,
                                                                                           softRhs );
 
-    // The solution vector has size (n + n_constraints) = 3 + 1 = 4.
+    // The solution vector has size: number of estimated parameters plus number of hard constraints.
     BOOST_REQUIRE_EQUAL( withBoth.first.size( ), 4 );
 
-    // The hard constraint is exactly satisfied: M * dx = c.
-    const Eigen::VectorXd dx = withBoth.first.head( 3 );
-    BOOST_CHECK_CLOSE_FRACTION( ( constraintMultiplier * dx )( 0 ), constraintRhs( 0 ), 1.0E-10 );
+    // The hard constraint is exactly satisfied.
+    const Eigen::VectorXd parameterCorrection = withBoth.first.head( 3 );
+    BOOST_CHECK_CLOSE_FRACTION( ( constraintMultiplier * parameterCorrection )( 0 ), constraintRhs( 0 ), 1.0E-10 );
 
     // The soft addition has a non-trivial effect: compare to the same run without it.
     auto withHardOnly = tudat::linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
             designMatrix, residuals, weights, inverseApriori, 1.0E8, constraintMultiplier, constraintRhs );
     BOOST_CHECK_GT( ( withBoth.first.head( 3 ) - withHardOnly.first.head( 3 ) ).norm( ), 1.0E-6 );
 
-    // The top-left n×n parameter block of the normal matrix is augmented by exactly the soft matrix; the
-    // Lagrange-multiplier rows/columns are untouched.
+    // The parameter block of the normal matrix is augmented by exactly the soft matrix; the Lagrange-multiplier
+    // rows/columns are untouched.
     const Eigen::MatrixXd normalDiff = withBoth.second.topLeftCorner( 3, 3 ) - withHardOnly.second.topLeftCorner( 3, 3 );
     BOOST_CHECK_LT( ( normalDiff - soft ).norm( ), 1.0E-10 );
 }
 
-//! Settings class: each preset builder produces the expected C matrix structure and the validation rules in
-//! the constructor reject obviously malformed inputs.
+//! Settings class: each preset builder produces the expected constraint weight matrix structure and the validation
+//! rules in the constructor reject obviously malformed inputs.
 BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndValidation )
 {
     using tudat::simulation_setup::fullStateContinuity;
@@ -1031,30 +1107,30 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
 
     // Position-only: position weights non-zero, velocity weights zero. Rank should be 3.
     auto positionOnly = positionOnlyContinuity( "Sat", epochs, 2.5, 1.0 );
-    const auto& positionC = positionOnly->weightMatrixForPair( 0 );
-    BOOST_CHECK_CLOSE_FRACTION( positionC( 0, 0 ), 2.5, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( positionC( 1, 1 ), 2.5, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( positionC( 2, 2 ), 2.5, 1.0E-15 );
-    BOOST_CHECK_EQUAL( positionC( 3, 3 ), 0.0 );
-    BOOST_CHECK_EQUAL( positionC( 4, 4 ), 0.0 );
-    BOOST_CHECK_EQUAL( positionC( 5, 5 ), 0.0 );
+    const auto& positionWeightMatrix = positionOnly->weightMatrixForPair( 0 );
+    BOOST_CHECK_CLOSE_FRACTION( positionWeightMatrix( 0, 0 ), 2.5, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( positionWeightMatrix( 1, 1 ), 2.5, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( positionWeightMatrix( 2, 2 ), 2.5, 1.0E-15 );
+    BOOST_CHECK_EQUAL( positionWeightMatrix( 3, 3 ), 0.0 );
+    BOOST_CHECK_EQUAL( positionWeightMatrix( 4, 4 ), 0.0 );
+    BOOST_CHECK_EQUAL( positionWeightMatrix( 5, 5 ), 0.0 );
 
     // Velocity-only: inverse pattern.
     auto velocityOnly = velocityOnlyContinuity( "Sat", epochs, 0.1 );
-    const auto& velocityC = velocityOnly->weightMatrixForPair( 0 );
-    BOOST_CHECK_EQUAL( velocityC( 0, 0 ), 0.0 );
-    BOOST_CHECK_CLOSE_FRACTION( velocityC( 3, 3 ), 0.1, 1.0E-15 );
+    const auto& velocityWeightMatrix = velocityOnly->weightMatrixForPair( 0 );
+    BOOST_CHECK_EQUAL( velocityWeightMatrix( 0, 0 ), 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( velocityWeightMatrix( 3, 3 ), 0.1, 1.0E-15 );
 
     // Full state with anisotropic weights.
     auto fullState = fullStateContinuity( "Sat", epochs, 1.5, 0.7 );
-    const auto& fullC = fullState->weightMatrixForPair( 0 );
-    BOOST_CHECK_CLOSE_FRACTION( fullC( 0, 0 ), 1.5, 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( fullC( 3, 3 ), 0.7, 1.0E-15 );
+    const auto& fullStateWeightMatrix = fullState->weightMatrixForPair( 0 );
+    BOOST_CHECK_CLOSE_FRACTION( fullStateWeightMatrix( 0, 0 ), 1.5, 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( fullStateWeightMatrix( 3, 3 ), 0.7, 1.0E-15 );
 
     // Broadcasting: a single-entry weight matrix list applied across multiple pairs is allowed.
     BOOST_CHECK_EQUAL( positionOnly->numberOfPairs( ), 2u );
 
-    // mu <= 0 throws.
+    // Non-positive constraint scaling factors throw.
     BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", epochs, 1.0, 0.0 ), std::runtime_error );
     BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", epochs, 1.0, -1.0 ), std::runtime_error );
 
@@ -1079,7 +1155,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
                     "Sat", epochs, { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) }, { 1.0 }, { { 0, 2 }, { 1, 3 } } ),
             std::runtime_error );
 
-    // weightMatrices size not in {1, n_pairs} throws.
+    // weightMatrices size must either broadcast from one matrix or match the number of arc pairs.
     BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings( "Sat",
                                                                   epochs,
                                                                   std::vector< Eigen::Matrix< double, 6, 6 > >(
@@ -1087,7 +1163,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
                                                                   { 1.0 } ),
                        std::runtime_error );
 
-    // muValues size not in {1, n_pairs} throws.
+    // constraintScalingFactors size must either broadcast from one scaling factor or match the number of arc pairs.
     BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
                                "Sat", epochs, { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) }, { 1.0, 2.0, 3.0 } ),
                        std::runtime_error );

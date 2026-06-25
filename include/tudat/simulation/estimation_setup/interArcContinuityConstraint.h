@@ -44,13 +44,14 @@ struct InterArcConstraintContribution {
 namespace detail
 {
 
-//! Numerical rank of a 6x6 PSD matrix using its eigenvalue spectrum.
-inline int rankOf6x6PsdMatrix( const Eigen::Matrix< double, 6, 6 >& C )
+//! Numerical rank of a 6x6 PSD constraint weight matrix using its eigenvalue spectrum.
+inline int computePsdMatrixRank( const Eigen::Matrix< double, 6, 6 >& constraintWeightMatrix )
 {
-    Eigen::SelfAdjointEigenSolver< Eigen::Matrix< double, 6, 6 > > solver( 0.5 * ( C + C.transpose( ) ) );
+    Eigen::SelfAdjointEigenSolver< Eigen::Matrix< double, 6, 6 > > solver(
+            0.5 * ( constraintWeightMatrix + constraintWeightMatrix.transpose( ) ) );
     if( solver.info( ) != Eigen::Success )
     {
-        throw std::runtime_error( "Error in rankOf6x6PsdMatrix: eigen-decomposition failed." );
+        throw std::runtime_error( "Error in computePsdMatrixRank: eigen-decomposition failed." );
     }
     const double largest = std::max( solver.eigenvalues( ).maxCoeff( ), 0.0 );
     if( largest <= 0.0 )
@@ -216,18 +217,16 @@ BodyArcRows getBodyRowsInMultiArcLayout(
 
 //! Assemble the normal-equation contribution of all inter-arc continuity priors at the current linearization point.
 //!
-//! For each configured boundary (k_left, k_right) at epoch t_c, this function evaluates
-//!   d = x_right(t_c) - x_left(t_c)
-//!   D = M_right(t_c) - M_left(t_c)
-//! with d in physical state units and D in the full multi-arc parameter layout. The soft prior/regularization
-//! weight is
-//!   W_d = (1 / (mu_pair * m_d_total)) * C_pair
-//! where m_d_total is the sum of rank(C_pair) over all configured pairs. After applying the same column
-//! normalization used for the observation design matrix, the contribution to the linearized normal equations is
-//!   H_prior += D_norm^T W_d D_norm
-//!   g_prior += -D_norm^T W_d d
-//! and the reported diagnostic cost is d^T W_d d. This feature currently requires a pure multi-arc translational
-//! estimation setup; hybrid-arc and single-arc estimations are intentionally rejected.
+//! For each constrained boundary, this evaluates the left- and right-arc propagated states at the connection
+//! epoch, forms their state discrepancy, extracts the corresponding rows of the full variational matrices, and
+//! adds the resulting soft prior to the normal equations. Per Lari et al. (2021) Eq. 28, this is:
+//!   stateDiscrepancy = rightArcState(connectionEpoch) - leftArcState(connectionEpoch)
+//!   continuityDesignMatrix = rightArcVariationalRows - leftArcVariationalRows
+//!   constraintWeight = constraintWeightMatrix / (constraintScalingFactor * totalConstraintDimension)
+//!   normal += continuityDesignMatrix^T * constraintWeight * continuityDesignMatrix
+//!   rhs    -= continuityDesignMatrix^T * constraintWeight * stateDiscrepancy
+//! where totalConstraintDimension is the rank sum across every settings entry passed in. Column-normalization of
+//! continuityDesignMatrix uses the same factors that the OD loop applies to the observation design matrix.
 template< typename ObservationScalarType, typename TimeType >
 InterArcConstraintContribution assembleInterArcContinuityContribution(
         const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings,
@@ -271,20 +270,20 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                   "(spec section 9: hybrid-arc out of scope for v1)." );
     }
 
-    // First pass: compute the global m_d_total = sum over every (settings, pair) of rank(C_pair).
-    int mDTotal = 0;
+    // First pass: compute the total constraint dimension from the rank of every active weight matrix.
+    int totalConstraintDimension = 0;
     for( const auto& settings : constraintSettings )
     {
         for( std::size_t pairIndex = 0; pairIndex < settings->numberOfPairs( ); ++pairIndex )
         {
-            mDTotal += detail::rankOf6x6PsdMatrix( settings->weightMatrixForPair( pairIndex ) );
+            totalConstraintDimension += detail::computePsdMatrixRank( settings->weightMatrixForPair( pairIndex ) );
         }
     }
-    if( mDTotal == 0 )
+    if( totalConstraintDimension == 0 )
     {
         throw std::runtime_error(
-                "Error in assembleInterArcContinuityContribution: total m_d is zero across all "
-                "settings (every weight matrix is zero). Specify a non-zero C." );
+                "Error in assembleInterArcContinuityContribution: total constraint dimension is zero across all "
+                "settings (every weight matrix is zero). Specify a non-zero constraint weight matrix." );
     }
 
     const std::vector< double > arcStartTimes = multiArcSimulator->getArcStartTimes( );
@@ -294,7 +293,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
 
     auto multiArcStateParameters = parametersToEstimate->getEstimatedMultiArcInitialStateParameters( );
 
-    // Second pass: build D and accumulate contributions per (settings, pair).
+    // Second pass: build each pair's continuity design matrix and accumulate its normal-equation contribution.
     for( const auto& settings : constraintSettings )
     {
         // Locate the body's arc-wise translational state parameter.
@@ -315,41 +314,46 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                       "translational initial state parameter." );
         }
 
-        const int nArcs = static_cast< int >( bodyParameter->getParameterSize( ) ) / 6;
+        const int numberOfArcs = static_cast< int >( bodyParameter->getParameterSize( ) ) / 6;
 
         const auto arcPairs = settings->arcPairs( );
         const auto& epochs = settings->connectionEpochs( );
 
         for( std::size_t pairIndex = 0; pairIndex < epochs.size( ); ++pairIndex )
         {
-            const std::pair< int, int > pair = arcPairs.empty( )
+            // If the user did not provide explicit arc pairs, connect consecutive arcs in epoch order.
+            const std::pair< int, int > arcPair = arcPairs.empty( )
                     ? std::make_pair( static_cast< int >( pairIndex ), static_cast< int >( pairIndex + 1 ) )
                     : arcPairs.at( pairIndex );
-            if( pair.first < 0 || pair.second >= nArcs )
+            if( arcPair.first < 0 || arcPair.second >= numberOfArcs )
             {
                 throw std::runtime_error( "Error in assembleInterArcContinuityContribution for body \"" + settings->body( ) +
-                                          "\": arc pair (" + std::to_string( pair.first ) + ", " + std::to_string( pair.second ) +
-                                          ") is out of range [0, " + std::to_string( nArcs ) + ")." );
+                                          "\": arc pair (" + std::to_string( arcPair.first ) + ", " + std::to_string( arcPair.second ) +
+                                          ") is out of range [0, " + std::to_string( numberOfArcs ) + ")." );
             }
 
-            const double tC = epochs[ pairIndex ];
-            const detail::BodyArcRows leftBodyRows = detail::getBodyRowsInMultiArcLayout( stmInterface, pair.first, settings->body( ) );
-            const detail::BodyArcRows rightBodyRows = detail::getBodyRowsInMultiArcLayout( stmInterface, pair.second, settings->body( ) );
+            const double connectionEpoch = epochs[ pairIndex ];
+            const detail::BodyArcRows leftBodyRows = detail::getBodyRowsInMultiArcLayout( stmInterface, arcPair.first, settings->body( ) );
+            const detail::BodyArcRows rightBodyRows =
+                    detail::getBodyRowsInMultiArcLayout( stmInterface, arcPair.second, settings->body( ) );
             if( leftBodyRows.size != 6 || rightBodyRows.size != 6 )
             {
                 throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + settings->body( ) +
                                           "\" does not have a 6-state translational block in the multi-arc STM layout." );
             }
+
+            // Both arcs must contain the connection epoch so that state and variational data can be evaluated
+            // from the explicitly requested left and right sides of the boundary.
             for( int side = 0; side < 2; ++side )
             {
-                const int arcIndex = ( side == 0 ) ? pair.first : pair.second;
+                const int arcIndex = ( side == 0 ) ? arcPair.first : arcPair.second;
                 const double arcStart = arcStartTimes.at( arcIndex );
                 const double arcEnd = arcEndTimes.at( arcIndex );
-                if( tC < arcStart || tC > arcEnd )
+                if( connectionEpoch < arcStart || connectionEpoch > arcEnd )
                 {
-                    throw std::runtime_error( "Inter-arc continuity connection epoch " + std::to_string( tC ) + " for body " +
-                                              settings->body( ) + " and arc pair (" + std::to_string( pair.first ) + ", " +
-                                              std::to_string( pair.second ) + ") is outside the propagated interval of arc " +
+                    throw std::runtime_error( "Inter-arc continuity connection epoch " + std::to_string( connectionEpoch ) + " for body " +
+                                              settings->body( ) + " and arc pair (" + std::to_string( arcPair.first ) + ", " +
+                                              std::to_string( arcPair.second ) + ") is outside the propagated interval of arc " +
                                               std::to_string( arcIndex ) + " [" + std::to_string( arcStart ) + ", " +
                                               std::to_string( arcEnd ) +
                                               "]. Extend the arc propagation interval or change the "
@@ -357,61 +361,74 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                 }
             }
 
-            const Eigen::Matrix< double, 6, 1 > xLeft =
-                    detail::evaluateArcStateAtTime( perArcResults.at( pair.first )->getEquationsOfMotionNumericalSolution( ),
-                                                    tC,
-                                                    arcStartTimes.at( pair.first ),
-                                                    arcEndTimes.at( pair.first ),
+            // Evaluate the constrained body's state from both sides of the connection epoch.
+            const Eigen::Matrix< double, 6, 1 > leftArcState =
+                    detail::evaluateArcStateAtTime( perArcResults.at( arcPair.first )->getEquationsOfMotionNumericalSolution( ),
+                                                    connectionEpoch,
+                                                    arcStartTimes.at( arcPair.first ),
+                                                    arcEndTimes.at( arcPair.first ),
                                                     leftBodyRows.arcWiseStateStart );
-            const Eigen::Matrix< double, 6, 1 > xRight =
-                    detail::evaluateArcStateAtTime( perArcResults.at( pair.second )->getEquationsOfMotionNumericalSolution( ),
-                                                    tC,
-                                                    arcStartTimes.at( pair.second ),
-                                                    arcEndTimes.at( pair.second ),
+            const Eigen::Matrix< double, 6, 1 > rightArcState =
+                    detail::evaluateArcStateAtTime( perArcResults.at( arcPair.second )->getEquationsOfMotionNumericalSolution( ),
+                                                    connectionEpoch,
+                                                    arcStartTimes.at( arcPair.second ),
+                                                    arcEndTimes.at( arcPair.second ),
                                                     rightBodyRows.arcWiseStateStart );
-            const Eigen::VectorXd d = xRight - xLeft;
+            const Eigen::VectorXd stateDiscrepancy = rightArcState - leftArcState;
 
-            Eigen::MatrixXd mLeft = stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( pair.first, tC );
-            Eigen::MatrixXd mRight = stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( pair.second, tC );
-            if( mLeft.rows( ) != stmInterface->getFullStateSize( ) || mLeft.cols( ) != totalParameterSize ||
-                mRight.rows( ) != stmInterface->getFullStateSize( ) || mRight.cols( ) != totalParameterSize )
+            // Retrieve each side's full variational matrix explicitly; time-based arc lookup alone cannot
+            // distinguish the left and right arcs at a shared boundary.
+            Eigen::MatrixXd leftArcVariationalMatrix =
+                    stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( arcPair.first, connectionEpoch );
+            Eigen::MatrixXd rightArcVariationalMatrix =
+                    stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( arcPair.second, connectionEpoch );
+            if( leftArcVariationalMatrix.rows( ) != stmInterface->getFullStateSize( ) ||
+                leftArcVariationalMatrix.cols( ) != totalParameterSize ||
+                rightArcVariationalMatrix.rows( ) != stmInterface->getFullStateSize( ) ||
+                rightArcVariationalMatrix.cols( ) != totalParameterSize )
             {
                 throw std::runtime_error(
                         "Error in assembleInterArcContinuityContribution: per-arc STM has unexpected "
                         "shape (rows=" +
-                        std::to_string( mLeft.rows( ) ) + ", cols=" + std::to_string( mLeft.cols( ) ) + "), expected (" +
+                        std::to_string( leftArcVariationalMatrix.rows( ) ) +
+                        ", cols=" + std::to_string( leftArcVariationalMatrix.cols( ) ) + "), expected (" +
                         std::to_string( stmInterface->getFullStateSize( ) ) + ", " + std::to_string( totalParameterSize ) + ")." );
             }
-            Eigen::MatrixXd D = mRight.block( rightBodyRows.fullStateStart, 0, 6, totalParameterSize ) -
-                    mLeft.block( leftBodyRows.fullStateStart, 0, 6, totalParameterSize );  // 6 x N_params
+            Eigen::MatrixXd continuityDesignMatrix =
+                    rightArcVariationalMatrix.block( rightBodyRows.fullStateStart, 0, 6, totalParameterSize ) -
+                    leftArcVariationalMatrix.block( leftBodyRows.fullStateStart, 0, 6, totalParameterSize );
 
-            // Column-normalise D using the same factors applied to the observation design matrix.
-            for( int col = 0; col < D.cols( ); ++col )
+            // Column-normalise the continuity design matrix using the same factors applied to the observation
+            // design matrix before solving the least-squares normal equations.
+            for( int col = 0; col < continuityDesignMatrix.cols( ); ++col )
             {
                 const double factor = columnNormalizationFactors( col );
                 if( factor == 0.0 )
                 {
                     throw std::runtime_error(
                             "Error in assembleInterArcContinuityContribution: column "
-                            "normalisation factor is zero at parameter index " +
+                            "normalization factor is zero at parameter index " +
                             std::to_string( col ) + "." );
                 }
-                D.col( col ) /= factor;
+                continuityDesignMatrix.col( col ) /= factor;
             }
 
-            const Eigen::Matrix< double, 6, 6 >& C = settings->weightMatrixForPair( pairIndex );
-            const double mu = settings->muForPair( pairIndex );
-            const Eigen::Matrix< double, 6, 6 > weight = ( 1.0 / ( mu * static_cast< double >( mDTotal ) ) ) * C;
+            const Eigen::Matrix< double, 6, 6 >& constraintWeightMatrix = settings->weightMatrixForPair( pairIndex );
+            const double constraintScalingFactor = settings->constraintScalingFactorForPair( pairIndex );
+            const Eigen::Matrix< double, 6, 6 > constraintWeight =
+                    ( 1.0 / ( constraintScalingFactor * static_cast< double >( totalConstraintDimension ) ) ) * constraintWeightMatrix;
 
-            // Symmetrise the rank-one normal-matrix contribution explicitly. Mathematically D^T W D is symmetric
-            // (W is symmetric), but Eigen evaluates the triple product left-to-right and the resulting numerical
-            // asymmetry can be non-trivial when D has columns of disparate magnitudes (e.g. position and velocity
-            // STM entries mixed together).
-            const Eigen::MatrixXd Hpair = D.transpose( ) * weight * D;
-            contribution.additionalNormalMatrix.noalias( ) += 0.5 * ( Hpair + Hpair.transpose( ) );
-            contribution.additionalRightHandSide.noalias( ) -= D.transpose( ) * ( weight * d );
-            contribution.totalConstraintCost += d.transpose( ) * weight * d;
-            contribution.perPairDiscrepancies.push_back( d );
+            // Symmetrise the normal-matrix contribution explicitly. Mathematically the product is symmetric, but
+            // Eigen evaluates the triple product left-to-right and small numerical asymmetries can appear when
+            // columns have very different magnitudes.
+            const Eigen::MatrixXd pairNormalMatrixContribution =
+                    continuityDesignMatrix.transpose( ) * constraintWeight * continuityDesignMatrix;
+            contribution.additionalNormalMatrix.noalias( ) +=
+                    0.5 * ( pairNormalMatrixContribution + pairNormalMatrixContribution.transpose( ) );
+            contribution.additionalRightHandSide.noalias( ) -=
+                    continuityDesignMatrix.transpose( ) * ( constraintWeight * stateDiscrepancy );
+            contribution.totalConstraintCost += stateDiscrepancy.transpose( ) * constraintWeight * stateDiscrepancy;
+            contribution.perPairDiscrepancies.push_back( stateDiscrepancy );
         }
     }
 

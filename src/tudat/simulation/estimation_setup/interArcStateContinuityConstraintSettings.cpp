@@ -23,10 +23,10 @@ InterArcStateContinuityConstraintSettings::InterArcStateContinuityConstraintSett
         std::string body,
         std::vector< double > connectionEpochs,
         std::vector< Eigen::Matrix< double, 6, 6 > > weightMatrices,
-        std::vector< double > muValues,
+        std::vector< double > constraintScalingFactors,
         std::vector< std::pair< int, int > > arcPairs ):
     body_( std::move( body ) ), connectionEpochs_( std::move( connectionEpochs ) ), weightMatrices_( std::move( weightMatrices ) ),
-    muValues_( std::move( muValues ) ), arcPairs_( std::move( arcPairs ) )
+    constraintScalingFactors_( std::move( constraintScalingFactors ) ), arcPairs_( std::move( arcPairs ) )
 {
     validate( );
 }
@@ -67,19 +67,19 @@ void InterArcStateContinuityConstraintSettings::validate( ) const
                                   std::to_string( weightMatrices_.size( ) ) + ") must be either 1 or " +
                                   std::to_string( connectionEpochs_.size( ) ) + "." );
     }
-    if( muValues_.size( ) != 1 && muValues_.size( ) != connectionEpochs_.size( ) )
+    if( constraintScalingFactors_.size( ) != 1 && constraintScalingFactors_.size( ) != connectionEpochs_.size( ) )
     {
-        throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body_ + ": muValues size (" +
-                                  std::to_string( muValues_.size( ) ) + ") must be either 1 or " +
-                                  std::to_string( connectionEpochs_.size( ) ) + "." );
+        throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body_ +
+                                  ": constraintScalingFactors size (" + std::to_string( constraintScalingFactors_.size( ) ) +
+                                  ") must be either 1 or " + std::to_string( connectionEpochs_.size( ) ) + "." );
     }
-    for( std::size_t i = 0; i < muValues_.size( ); ++i )
+    for( std::size_t i = 0; i < constraintScalingFactors_.size( ); ++i )
     {
-        if( !( muValues_[ i ] > 0.0 ) )
+        if( !( constraintScalingFactors_[ i ] > 0.0 ) )
         {
             throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body_ +
-                                      ": mu must be strictly positive (entry " + std::to_string( i ) + " = " +
-                                      std::to_string( muValues_[ i ] ) + ")." );
+                                      ": constraint scaling factor must be strictly positive (entry " + std::to_string( i ) + " = " +
+                                      std::to_string( constraintScalingFactors_[ i ] ) + ")." );
         }
     }
     for( std::size_t i = 0; i < weightMatrices_.size( ); ++i )
@@ -88,17 +88,19 @@ void InterArcStateContinuityConstraintSettings::validate( ) const
     }
 }
 
-void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const Eigen::Matrix< double, 6, 6 >& C, std::size_t entryIndex ) const
+void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const Eigen::Matrix< double, 6, 6 >& constraintWeightMatrix,
+                                                                      std::size_t entryIndex ) const
 {
-    const double cNorm = C.norm( );
-    const double symmetryNorm = ( C - C.transpose( ) ).norm( );
-    if( symmetryNorm > 1.0E-12 * std::max( cNorm, 1.0 ) )
+    const double weightMatrixNorm = constraintWeightMatrix.norm( );
+    const double symmetryNorm = ( constraintWeightMatrix - constraintWeightMatrix.transpose( ) ).norm( );
+    if( symmetryNorm > 1.0E-12 * std::max( weightMatrixNorm, 1.0 ) )
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body_ + ": weight matrix entry " +
                                   std::to_string( entryIndex ) + " is not symmetric (asymmetry norm = " + std::to_string( symmetryNorm ) +
                                   ")." );
     }
-    Eigen::SelfAdjointEigenSolver< Eigen::Matrix< double, 6, 6 > > eigenSolver( 0.5 * ( C + C.transpose( ) ) );
+    Eigen::SelfAdjointEigenSolver< Eigen::Matrix< double, 6, 6 > > eigenSolver(
+            0.5 * ( constraintWeightMatrix + constraintWeightMatrix.transpose( ) ) );
     if( eigenSolver.info( ) != Eigen::Success )
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body_ +

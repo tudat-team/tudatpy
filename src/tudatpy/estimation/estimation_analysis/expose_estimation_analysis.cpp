@@ -578,6 +578,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          Class for defining all inputs to the estimation.
 
+         This class contains the observations, a-priori information, convergence settings, optional consider
+         parameter information, and optional soft inter-arc continuity constraints used by
+         :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`.
 
 
 
@@ -669,7 +672,28 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
-     )doc" );
+     )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity constraints to the estimation input.
+
+         These constraints act as least-squares priors on the discontinuity between two neighbouring multi-arc
+         propagated states. Each settings object currently applies to one multi-arc translational body; constrain
+         multiple bodies by passing multiple settings objects. The constraint scaling factor controls the overall
+         penalty strength, while the constraint weight matrix selects which state components (position, velocity,
+         or both) are penalized. Pass an empty list to disable the feature.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached inter-arc continuity constraint settings.
+      )doc" );
 
     m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 

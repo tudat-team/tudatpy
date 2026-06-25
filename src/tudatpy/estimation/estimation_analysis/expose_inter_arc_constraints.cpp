@@ -29,8 +29,8 @@ namespace
 //! Build a 6x6 diagonal weight matrix from either a scalar or a length-3 sequence of per-component weights.
 Eigen::Matrix< double, 6, 6 > buildDiagonalWeight( const py::object& positionWeight, const py::object& velocityWeight )
 {
-    Eigen::Matrix< double, 6, 6 > C = Eigen::Matrix< double, 6, 6 >::Zero( );
-    auto fillBlock = [ &C ]( const py::object& value, int startIdx ) {
+    Eigen::Matrix< double, 6, 6 > constraintWeightMatrix = Eigen::Matrix< double, 6, 6 >::Zero( );
+    auto fillBlock = [ &constraintWeightMatrix ]( const py::object& value, int startIdx ) {
         if( value.is_none( ) )
         {
             return;
@@ -38,9 +38,9 @@ Eigen::Matrix< double, 6, 6 > buildDiagonalWeight( const py::object& positionWei
         if( py::isinstance< py::float_ >( value ) || py::isinstance< py::int_ >( value ) )
         {
             const double scalar = value.cast< double >( );
-            C( startIdx, startIdx ) = scalar;
-            C( startIdx + 1, startIdx + 1 ) = scalar;
-            C( startIdx + 2, startIdx + 2 ) = scalar;
+            constraintWeightMatrix( startIdx, startIdx ) = scalar;
+            constraintWeightMatrix( startIdx + 1, startIdx + 1 ) = scalar;
+            constraintWeightMatrix( startIdx + 2, startIdx + 2 ) = scalar;
         }
         else
         {
@@ -51,22 +51,22 @@ Eigen::Matrix< double, 6, 6 > buildDiagonalWeight( const py::object& positionWei
             }
             for( int i = 0; i < 3; ++i )
             {
-                C( startIdx + i, startIdx + i ) = weights[ static_cast< std::size_t >( i ) ];
+                constraintWeightMatrix( startIdx + i, startIdx + i ) = weights[ static_cast< std::size_t >( i ) ];
             }
         }
     };
     fillBlock( positionWeight, 0 );
     fillBlock( velocityWeight, 3 );
-    return C;
+    return constraintWeightMatrix;
 }
 
-std::vector< double > buildMuValues( const py::object& mu )
+std::vector< double > buildConstraintScalingFactors( const py::object& constraintScalingFactor )
 {
-    if( py::isinstance< py::float_ >( mu ) || py::isinstance< py::int_ >( mu ) )
+    if( py::isinstance< py::float_ >( constraintScalingFactor ) || py::isinstance< py::int_ >( constraintScalingFactor ) )
     {
-        return { mu.cast< double >( ) };
+        return { constraintScalingFactor.cast< double >( ) };
     }
-    return mu.cast< std::vector< double > >( );
+    return constraintScalingFactor.cast< std::vector< double > >( );
 }
 
 }  // namespace
@@ -93,16 +93,14 @@ void expose_inter_arc_constraints( py::module& m )
          :meth:`EstimationInput.set_inter_arc_continuity_constraints` to attach the feature. The feature is
          currently supported for pure multi-arc translational estimators only.
 
-         The cost contribution per boundary is ``q = d^T W_d d`` with
-         ``W_d = (1 / (mu * m_d_total)) * C`` and ``d = x_right(t_c) - x_left(t_c)``. The linearized
-         normal-equation terms are ``D_norm.T @ W_d @ D_norm`` and ``-D_norm.T @ W_d @ d``, where ``D_norm``
-         is the right-minus-left state-transition/sensitivity row block after applying the estimator's column
-         normalization. ``m_d_total`` is the global rank sum across every settings entry. Larger ``mu`` weakens
-         the prior.
+         See Lari et al. (2021), Eq. (28) for the underlying mathematics. The cost contribution per boundary
+         uses the state discrepancy, the constraint weight matrix, the constraint scaling factor, and the total
+         constrained dimension across every settings entry. Larger constraint scaling factors weaken the penalty.
       )doc" )
             .def_property_readonly( "body", &tss::InterArcStateContinuityConstraintSettings::body )
             .def_property_readonly( "connection_epochs", &tss::InterArcStateContinuityConstraintSettings::connectionEpochs )
-            .def_property_readonly( "mu_values", &tss::InterArcStateContinuityConstraintSettings::muValues )
+            .def_property_readonly( "constraint_scaling_factors",
+                                    &tss::InterArcStateContinuityConstraintSettings::constraintScalingFactors )
             .def_property_readonly( "arc_pairs", &tss::InterArcStateContinuityConstraintSettings::arcPairs );
 
     m.def(
@@ -111,27 +109,28 @@ void expose_inter_arc_constraints( py::module& m )
                 std::vector< double > epochs,
                 py::object positionWeight,
                 py::object velocityWeight,
-                py::object mu,
+                py::object constraintScalingFactor,
                 std::vector< std::pair< int, int > > arcPairs ) {
-                auto C = buildDiagonalWeight( positionWeight, velocityWeight );
+                auto constraintWeightMatrix = buildDiagonalWeight( positionWeight, velocityWeight );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
                         std::move( body ),
                         std::move( epochs ),
-                        std::vector< Eigen::Matrix< double, 6, 6 > >{ C },
-                        buildMuValues( mu ),
+                        std::vector< Eigen::Matrix< double, 6, 6 > >{ constraintWeightMatrix },
+                        buildConstraintScalingFactors( constraintScalingFactor ),
                         std::move( arcPairs ) );
             },
             py::arg( "body" ),
             py::arg( "epochs" ),
             py::arg( "position_weight" ) = py::float_( 1.0 ),
             py::arg( "velocity_weight" ) = py::float_( 1.0 ),
-            py::arg( "mu" ) = py::float_( 1.0 ),
+            py::arg( "constraint_scaling_factor" ) = py::float_( 1.0 ),
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a full-state (position + velocity) soft-prior settings object. ``position_weight`` and
-         ``velocity_weight`` may each be a scalar (isotropic) or a length-3 sequence (anisotropic). When
-         ``arc_pairs`` is empty the prior is applied to every consecutive arc pair as ``(0, 1)``,
+         Build a full-state (position + velocity) continuity settings object. ``position_weight`` and
+         ``velocity_weight`` may each be a scalar (isotropic) or a length-3 sequence (anisotropic).
+         ``constraint_scaling_factor`` may be a scalar or a sequence matching the number of connection epochs.
+         When ``arc_pairs`` is empty the constraint is applied to every consecutive arc pair as ``(0, 1)``,
          ``(1, 2)``, ... in the order of ``epochs``.
       )doc" );
 
@@ -140,26 +139,26 @@ void expose_inter_arc_constraints( py::module& m )
             []( std::string body,
                 std::vector< double > epochs,
                 py::object positionWeight,
-                py::object mu,
+                py::object constraintScalingFactor,
                 std::vector< std::pair< int, int > > arcPairs ) {
-                auto C = buildDiagonalWeight( positionWeight, py::float_( 0.0 ) );
+                auto constraintWeightMatrix = buildDiagonalWeight( positionWeight, py::float_( 0.0 ) );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
                         std::move( body ),
                         std::move( epochs ),
-                        std::vector< Eigen::Matrix< double, 6, 6 > >{ C },
-                        buildMuValues( mu ),
+                        std::vector< Eigen::Matrix< double, 6, 6 > >{ constraintWeightMatrix },
+                        buildConstraintScalingFactors( constraintScalingFactor ),
                         std::move( arcPairs ) );
             },
             py::arg( "body" ),
             py::arg( "epochs" ),
             py::arg( "position_weight" ) = py::float_( 1.0 ),
-            py::arg( "mu" ) = py::float_( 1.0 ),
+            py::arg( "constraint_scaling_factor" ) = py::float_( 1.0 ),
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a position-only soft-prior settings object (rank-3 ``C``). Velocity-row entries of ``C`` are
-         zero so the prior leaves the inter-arc Delta-v free. This is the Rosetta OCM-boundary
-         configuration.
+         Build a position-only continuity settings object. Velocity-row entries of the constraint weight matrix
+         are zero so the constraint leaves the inter-arc Delta-v free. ``constraint_scaling_factor`` may be a
+         scalar or a sequence matching the number of connection epochs.
       )doc" );
 
     m.def(
@@ -167,25 +166,26 @@ void expose_inter_arc_constraints( py::module& m )
             []( std::string body,
                 std::vector< double > epochs,
                 py::object velocityWeight,
-                py::object mu,
+                py::object constraintScalingFactor,
                 std::vector< std::pair< int, int > > arcPairs ) {
-                auto C = buildDiagonalWeight( py::float_( 0.0 ), velocityWeight );
+                auto constraintWeightMatrix = buildDiagonalWeight( py::float_( 0.0 ), velocityWeight );
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
                         std::move( body ),
                         std::move( epochs ),
-                        std::vector< Eigen::Matrix< double, 6, 6 > >{ C },
-                        buildMuValues( mu ),
+                        std::vector< Eigen::Matrix< double, 6, 6 > >{ constraintWeightMatrix },
+                        buildConstraintScalingFactors( constraintScalingFactor ),
                         std::move( arcPairs ) );
             },
             py::arg( "body" ),
             py::arg( "epochs" ),
             py::arg( "velocity_weight" ) = py::float_( 1.0 ),
-            py::arg( "mu" ) = py::float_( 1.0 ),
+            py::arg( "constraint_scaling_factor" ) = py::float_( 1.0 ),
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a velocity-only soft-prior settings object (rank-3 ``C``). Position-row entries of ``C`` are
-         zero so the prior leaves inter-arc position jumps free.
+         Build a velocity-only continuity settings object. Position-row entries of the constraint weight matrix
+         are zero so the constraint leaves inter-arc position jumps free. ``constraint_scaling_factor`` may be a
+         scalar or a sequence matching the number of connection epochs.
       )doc" );
 
     m.def(
@@ -193,21 +193,26 @@ void expose_inter_arc_constraints( py::module& m )
             []( std::string body,
                 std::vector< double > epochs,
                 std::vector< Eigen::Matrix< double, 6, 6 > > weightMatrices,
-                py::object mu,
+                py::object constraintScalingFactor,
                 std::vector< std::pair< int, int > > arcPairs ) {
                 return std::make_shared< tss::InterArcStateContinuityConstraintSettings >(
-                        std::move( body ), std::move( epochs ), std::move( weightMatrices ), buildMuValues( mu ), std::move( arcPairs ) );
+                        std::move( body ),
+                        std::move( epochs ),
+                        std::move( weightMatrices ),
+                        buildConstraintScalingFactors( constraintScalingFactor ),
+                        std::move( arcPairs ) );
             },
             py::arg( "body" ),
             py::arg( "epochs" ),
             py::arg( "weight_matrices" ),
-            py::arg( "mu" ) = py::float_( 1.0 ),
+            py::arg( "constraint_scaling_factor" ) = py::float_( 1.0 ),
             py::arg( "arc_pairs" ) = std::vector< std::pair< int, int > >( ),
             R"doc(
 
-         Build a generic soft-prior settings object from a list of 6x6 PSD weight matrices. The list must have
-         either length 1 (applied to every pair) or length equal to ``len(epochs)``. Use this when you need a
-         dense or per-boundary heterogeneous weight; otherwise prefer the preset factories.
+         Build a generic continuity settings object from a list of 6x6 PSD weight matrices. The list must have
+         either length 1 (applied to every pair) or length equal to ``len(epochs)``. ``constraint_scaling_factor``
+         may use the same scalar-or-per-epoch broadcasting. Use this when you need a dense or per-boundary
+         heterogeneous weight; otherwise prefer the preset factories.
       )doc" );
 }
 
