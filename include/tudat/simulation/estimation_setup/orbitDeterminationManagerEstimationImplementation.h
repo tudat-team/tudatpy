@@ -88,7 +88,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
     std::vector< double > interArcContinuityCostHistory;
-    std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > > interArcContinuityDiscrepancyHistory;
+    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory;
 
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;

@@ -1002,9 +1002,10 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          **read-only**
 
-         Per-iteration list of 6-component discrepancies ``d = x_right(t_c) - x_left(t_c)`` at every
-         regularized boundary. Outer index is iteration, inner index is pair in the order produced by the
-         attached settings.
+         Per-iteration list of state discrepancies at every constrained boundary, computed as the right-arc state
+         minus the left-arc state at the connection epoch. Outer index is iteration, inner index is pair in the
+         order produced by the attached settings. For the current translational-state continuity settings, each
+         discrepancy has six entries.
       )doc" );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );

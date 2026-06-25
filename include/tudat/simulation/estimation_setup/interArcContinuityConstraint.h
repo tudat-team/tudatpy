@@ -38,7 +38,7 @@ struct InterArcConstraintContribution {
     Eigen::MatrixXd additionalNormalMatrix;
     Eigen::VectorXd additionalRightHandSide;
     double totalConstraintCost = 0.0;
-    std::vector< Eigen::Matrix< double, 6, 1 > > perPairDiscrepancies;
+    std::vector< Eigen::VectorXd > perPairDiscrepancies;
 };
 
 namespace detail
@@ -369,7 +369,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                                     arcStartTimes.at( pair.second ),
                                                     arcEndTimes.at( pair.second ),
                                                     rightBodyRows.arcWiseStateStart );
-            const Eigen::Matrix< double, 6, 1 > d = xRight - xLeft;
+            const Eigen::VectorXd d = xRight - xLeft;
 
             Eigen::MatrixXd mLeft = stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( pair.first, tC );
             Eigen::MatrixXd mRight = stmInterface->getFullCombinedStateTransitionAndSensitivityMatrixForArc( pair.second, tC );

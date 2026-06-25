@@ -1245,12 +1245,12 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return interArcContinuityCostHistory_;
     }
 
-    void setInterArcContinuityDiscrepancyHistory( const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& history )
+    void setInterArcContinuityDiscrepancyHistory( const std::vector< std::vector< Eigen::VectorXd > >& history )
     {
         interArcContinuityDiscrepancyHistory_ = history;
     }
 
-    const std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > >& getInterArcContinuityDiscrepancyHistory( ) const
+    const std::vector< std::vector< Eigen::VectorXd > >& getInterArcContinuityDiscrepancyHistory( ) const
     {
         return interArcContinuityDiscrepancyHistory_;
     }
@@ -1290,10 +1290,10 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //! for an opt-in feature).
     std::vector< double > interArcContinuityCostHistory_;
 
-    //! Per-iteration list of per-pair 6-component discrepancies d = x_right(t_c) - x_left(t_c) at every
-    //! regularized boundary. Outer index is iteration, inner index is pair index in the assembly order.
+    //! Per-iteration list of per-pair state discrepancies at every constrained boundary. Outer index is iteration,
+    //! inner index is pair index in the assembly order.
     //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
-    std::vector< std::vector< Eigen::Matrix< double, 6, 1 > > > interArcContinuityDiscrepancyHistory_;
+    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory_;
 
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >

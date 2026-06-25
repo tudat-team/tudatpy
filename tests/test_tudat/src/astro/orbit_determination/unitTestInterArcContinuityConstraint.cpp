@@ -152,7 +152,7 @@ TwoArcFixture buildTwoArcFixture(
     return fixture;
 }
 
-Eigen::Matrix< double, 6, 1 > getSinglePairDiscrepancy( const TwoArcFixture& fixture )
+Eigen::VectorXd getSinglePairDiscrepancy( const TwoArcFixture& fixture )
 {
     const int N = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
     auto settings = fullStateContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0, 1.0 );
@@ -341,7 +341,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_StructureAndSymmetry )
     // The discrepancy at the shared boundary is finite (no NaN/Inf). Magnitude depends on the propagation model:
     // this test uses point-mass Earth-Sun gravity only, so the arc-0 forward propagation drifts substantially from
     // SPICE Earth (used as arc-1's initial state). That's irrelevant to the structural assembly check.
-    const Eigen::Matrix< double, 6, 1 >& d = contribution.perPairDiscrepancies[ 0 ];
+    const Eigen::VectorXd& d = contribution.perPairDiscrepancies[ 0 ];
+    BOOST_CHECK_EQUAL( d.rows( ), 6 );
     BOOST_CHECK( std::isfinite( d.norm( ) ) );
 
     // Cost is non-negative.
@@ -379,7 +380,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquatio
         D.col( col ) /= normalization( col );
     }
 
-    const Eigen::Matrix< double, 6, 1 >& d = contribution.perPairDiscrepancies.at( 0 );
+    const Eigen::VectorXd& d = contribution.perPairDiscrepancies.at( 0 );
+    BOOST_CHECK_EQUAL( d.rows( ), 6 );
     const Eigen::Matrix< double, 6, 6 > W = denseRankOne / mu;  // rank(C)=1 -> m_d=1
     const Eigen::MatrixXd expectedH = D.transpose( ) * W * D;
     const Eigen::VectorXd expectedG = -D.transpose( ) * ( W * d );
@@ -444,8 +446,10 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_FiniteDifferenceInitialSta
 
         auto positiveFixture = buildTwoArcFixture( positivePerturbations );
         auto negativeFixture = buildTwoArcFixture( negativePerturbations );
-        const Eigen::Matrix< double, 6, 1 > positiveDiscrepancy = getSinglePairDiscrepancy( positiveFixture );
-        const Eigen::Matrix< double, 6, 1 > negativeDiscrepancy = getSinglePairDiscrepancy( negativeFixture );
+        const Eigen::VectorXd positiveDiscrepancy = getSinglePairDiscrepancy( positiveFixture );
+        const Eigen::VectorXd negativeDiscrepancy = getSinglePairDiscrepancy( negativeFixture );
+        BOOST_CHECK_EQUAL( positiveDiscrepancy.rows( ), 6 );
+        BOOST_CHECK_EQUAL( negativeDiscrepancy.rows( ), 6 );
         finiteDifferenceD.col( column ) = ( positiveDiscrepancy - negativeDiscrepancy ) / ( 2.0 * perturbation );
     }
 
@@ -475,7 +479,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeR
     auto fullContribution = assembleInterArcContinuityContribution< double, double >(
             { fullSettings }, fixture.parametersToEstimate, fixture.simulator, fixture.stmInterface, normalization, N );
 
-    const Eigen::Matrix< double, 6, 1 >& d = fullContribution.perPairDiscrepancies.at( 0 );
+    const Eigen::VectorXd& d = fullContribution.perPairDiscrepancies.at( 0 );
+    BOOST_CHECK_EQUAL( d.rows( ), 6 );
     const double expectedPositionCost = ( 2.0 / ( 5.0 * 3.0 ) ) * d.head( 3 ).squaredNorm( );
     const double expectedVelocityCost = ( 4.0 / ( 5.0 * 3.0 ) ) * d.tail( 3 ).squaredNorm( );
     const double expectedFullCost = ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * d.head( 3 ).squaredNorm( ) + 4.0 * d.tail( 3 ).squaredNorm( ) );
@@ -689,7 +694,8 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     // non-trivially-weak constraint.
     const auto& history = outputWithConstraint->getInterArcContinuityDiscrepancyHistory( );
     const int bestIter = std::max( 0, std::min( outputWithConstraint->bestIteration_, static_cast< int >( history.size( ) ) - 1 ) );
-    const Eigen::Matrix< double, 6, 1 >& dBest = history.at( bestIter ).at( 0 );
+    const Eigen::VectorXd& dBest = history.at( bestIter ).at( 0 );
+    BOOST_CHECK_EQUAL( dBest.rows( ), 6 );
     BOOST_TEST_MESSAGE( "Best-iter position discrepancy with constraint: " << dBest.head( 3 ).norm( ) );
     BOOST_TEST_MESSAGE( "Best-iter velocity discrepancy with constraint: " << dBest.tail( 3 ).norm( ) );
     BOOST_CHECK( std::isfinite( dBest.norm( ) ) );
