@@ -775,8 +775,7 @@ struct CovarianceAnalysisOutput {
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                               const double interArcContinuityCost = 0.0,
-                              const std::vector< Eigen::Matrix< double, 6, 1 > >& interArcContinuityDiscrepancies =
-                                      std::vector< Eigen::Matrix< double, 6, 1 > >( ),
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
                               const bool exceptionDuringPropagation = false ):
         normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
@@ -996,7 +995,7 @@ struct CovarianceAnalysisOutput {
         return interArcContinuityCost_;
     }
 
-    const std::vector< Eigen::Matrix< double, 6, 1 > >& getInterArcContinuityDiscrepancies( ) const
+    const std::vector< Eigen::VectorXd >& getInterArcContinuityDiscrepancies( ) const
     {
         return interArcContinuityDiscrepancies_;
     }
@@ -1071,7 +1070,7 @@ struct CovarianceAnalysisOutput {
     double interArcContinuityCost_;
 
     //! Per-pair inter-arc state discrepancies used to assemble the covariance-analysis continuity prior.
-    std::vector< Eigen::Matrix< double, 6, 1 > > interArcContinuityDiscrepancies_;
+    std::vector< Eigen::VectorXd > interArcContinuityDiscrepancies_;
 
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
@@ -1129,7 +1128,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      covarianceConsiderContribution,
                                                                      considerCovariance,
                                                                      0.0,
-                                                                     std::vector< Eigen::Matrix< double, 6, 1 > >( ),
+                                                                     std::vector< Eigen::VectorXd >( ),
                                                                      exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),

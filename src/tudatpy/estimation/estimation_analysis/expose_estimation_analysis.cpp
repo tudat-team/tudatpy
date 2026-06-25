@@ -942,7 +942,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          **read-only**
 
-         List of 6-component discrepancies :math:`d=x_\mathrm{right}(t_c)-x_\mathrm{left}(t_c)` used
+         List of state discrepancy vectors :math:`d=x_\mathrm{right}(t_c)-x_\mathrm{left}(t_c)` used
          to assemble the soft inter-arc continuity prior in covariance analysis.
       )doc" );
 
