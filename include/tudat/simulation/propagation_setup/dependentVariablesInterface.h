@@ -88,26 +88,10 @@ public:
         for( unsigned int i = 0; i < dependentVariablesSettings_.size( ); i++ )
         {
             dependentVariablesTypes_.push_back( dependentVariablesSettings_[ i ]->dependentVariableType_ );
-            const std::string dependentVariableId = getDependentVariableId( dependentVariablesSettings_[ i ] );
-            dependentVariablesIdsAndIndices_[ dependentVariableId ] = dependentVariablesSize_;
-
-            bool sizeRetrievedFromOrderedSettings = false;
-            for( auto orderedSetting : orderedDependentVariableSettings_ )
-            {
-                if( getDependentVariableId( orderedSetting.second ) == dependentVariableId )
-                {
-                    dependentVariablesIdsAndSize_[ dependentVariableId ] = orderedSetting.first.second;
-                    sizeRetrievedFromOrderedSettings = true;
-                    break;
-                }
-            }
-
-            if( !sizeRetrievedFromOrderedSettings )
-            {
-                dependentVariablesIdsAndSize_[ dependentVariableId ] =
-                        getDependentVariableSaveSize( dependentVariablesSettings_[ i ], bodies );
-            }
-            dependentVariablesSize_ += dependentVariablesIdsAndSize_[ dependentVariableId ];
+            dependentVariablesIdsAndIndices_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] = dependentVariablesSize_;
+            dependentVariablesIdsAndSize_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] =
+                    getDependentVariableSaveSize( dependentVariablesSettings_[ i ], bodies );
+            dependentVariablesSize_ += dependentVariablesIdsAndSize_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ];
         }
         dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
 
