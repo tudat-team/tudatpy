@@ -87,6 +87,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
     const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    double bestInterArcContinuityCost = 0.0;
+    std::vector< Eigen::VectorXd > bestInterArcContinuityDiscrepancies;
     std::vector< double > interArcContinuityCostHistory;
     std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory;
 
@@ -294,6 +296,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestIteration = numberOfIterations;
             bestConsiderTransformationData = std::move( normalizationTermsConsider );
             bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
+            if( !interArcConstraints.empty( ) )
+            {
+                bestInterArcContinuityCost = interArcContribution.totalConstraintCost;
+                bestInterArcContinuityDiscrepancies = interArcContribution.perPairDiscrepancies;
+            }
         }
 
         // Increment number of iterations
@@ -356,7 +363,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      bestConsiderCovarianceContribution,
                                                                                      estimationInput->getConsiderCovariance( ),
                                                                                      exceptionDuringInversion,
-                                                                                     exceptionDuringPropagation );
+                                                                                     exceptionDuringPropagation,
+                                                                                     bestInterArcContinuityCost,
+                                                                                     bestInterArcContinuityDiscrepancies );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

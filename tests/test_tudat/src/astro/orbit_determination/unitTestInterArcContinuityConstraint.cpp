@@ -936,11 +936,22 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
         BOOST_CHECK_GE( cost, 0.0 );
     }
 
-    // The boundary discrepancy at the best iteration should be smaller than at the first iteration for any
-    // non-trivially-weak constraint.
     const auto& history = outputWithConstraint->getInterArcContinuityDiscrepancyHistory( );
     const int bestIterationIndex =
             std::max( 0, std::min( outputWithConstraint->bestIteration_, static_cast< int >( history.size( ) ) - 1 ) );
+    BOOST_CHECK_EQUAL( outputWithConstraint->getInterArcContinuityCost( ),
+                       outputWithConstraint->getInterArcContinuityCostHistory( ).at( bestIterationIndex ) );
+
+    const auto& bestIterationDiscrepancies = history.at( bestIterationIndex );
+    const auto& outputDiscrepancies = outputWithConstraint->getInterArcContinuityDiscrepancies( );
+    BOOST_REQUIRE_EQUAL( outputDiscrepancies.size( ), bestIterationDiscrepancies.size( ) );
+    for( unsigned int i = 0; i < outputDiscrepancies.size( ); ++i )
+    {
+        BOOST_CHECK_SMALL( ( outputDiscrepancies.at( i ) - bestIterationDiscrepancies.at( i ) ).norm( ), 1.0E-14 );
+    }
+
+    // The boundary discrepancy at the best iteration should be smaller than at the first iteration for any
+    // non-trivially-weak constraint.
     const Eigen::VectorXd& bestIterationStateDiscrepancy = history.at( bestIterationIndex ).at( 0 );
     BOOST_CHECK_EQUAL( bestIterationStateDiscrepancy.rows( ), 6 );
     BOOST_TEST_MESSAGE( "Best-iter position discrepancy with constraint: " << bestIterationStateDiscrepancy.head( 3 ).norm( ) );
