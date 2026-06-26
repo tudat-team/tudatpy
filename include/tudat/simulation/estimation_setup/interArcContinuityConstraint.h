@@ -11,7 +11,10 @@
 #ifndef TUDAT_INTERARCCONTINUITYCONSTRAINT_H
 #define TUDAT_INTERARCCONTINUITYCONSTRAINT_H
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -101,13 +104,20 @@ Eigen::VectorXd evaluateArcStateAtTime( const std::map< TimeType, Eigen::Matrix<
         return result;
     };
 
-    // Use a tolerance proportional to the arc span; the fixed-step integrator can stop a few wall-clock units
-    // short of the nominal arc end time. Also short-circuit when the evaluation time is at or beyond either
-    // actual extremum of the sampled solution (Lagrange interpolation isn't well-posed at the bounds anyway).
-    const double arcSpan = std::max( arcFinalTime - arcInitialTime, 1.0 );
-    const double boundaryTolerance = std::max( 1.0E-7 * arcSpan, 1.0E-6 );
     const double firstSampleTime = static_cast< double >( arcSolution.begin( )->first );
     const double lastSampleTime = static_cast< double >( arcSolution.rbegin( )->first );
+    // Snap to endpoint samples only when the requested epoch is numerically indistinguishable from a
+    // boundary. A fixed 1.0E-6 s tolerance is adequate for ordinary second-based epochs, but it does
+    // not scale with floating-point spacing when epochs have large absolute magnitudes. The epsilon-
+    // scaled term keeps the comparison tied to the precision available at the actual epoch values,
+    // while the absolute floor preserves stable behaviour for epochs near zero.
+    const double timeScale = std::max( { 1.0,
+                                         std::fabs( evaluationTime ),
+                                         std::fabs( arcInitialTime ),
+                                         std::fabs( arcFinalTime ),
+                                         std::fabs( firstSampleTime ),
+                                         std::fabs( lastSampleTime ) } );
+    const double boundaryTolerance = std::max( 1.0E-6, 100.0 * std::numeric_limits< double >::epsilon( ) * timeScale );
 
     if( evaluationTime <= firstSampleTime || std::fabs( evaluationTime - arcInitialTime ) < boundaryTolerance ||
         std::fabs( evaluationTime - firstSampleTime ) < boundaryTolerance )

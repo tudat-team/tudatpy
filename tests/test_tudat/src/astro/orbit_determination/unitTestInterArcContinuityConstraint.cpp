@@ -13,6 +13,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <map>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -316,6 +317,53 @@ TwoArcFixture buildTwoBodyTwoArcFixture( const bool useOverlappingArcs = false )
 }
 
 }  // namespace
+
+BOOST_AUTO_TEST_CASE( test_EvaluateArcStateAtTime_NearBoundaryEpochsAreInterpolated )
+{
+    const double arcInitialTime = 1.0E9;
+    const double arcFinalTime = arcInitialTime + physical_constants::JULIAN_YEAR;
+
+    auto stateAtTime = [ arcInitialTime ]( const double time ) {
+        Eigen::VectorXd state( 6 );
+        const double elapsedTime = time - arcInitialTime;
+        for( int i = 0; i < state.size( ); ++i )
+        {
+            state( i ) = 10.0 * static_cast< double >( i + 1 ) + 1.0E-3 * static_cast< double >( i + 1 ) * elapsedTime;
+        }
+        return state;
+    };
+
+    std::map< double, Eigen::VectorXd > arcSolution;
+    for( int i = 0; i <= 8; ++i )
+    {
+        const double time = arcInitialTime + static_cast< double >( i );
+        arcSolution[ time ] = stateAtTime( time );
+    }
+    for( int i = 8; i >= 0; --i )
+    {
+        const double time = arcFinalTime - static_cast< double >( i );
+        arcSolution[ time ] = stateAtTime( time );
+    }
+
+    const Eigen::VectorXd initialState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
+            arcSolution, arcInitialTime, arcInitialTime, arcFinalTime, 0, 6 );
+    const Eigen::VectorXd finalState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
+            arcSolution, arcFinalTime, arcInitialTime, arcFinalTime, 0, 6 );
+    BOOST_CHECK_SMALL( ( initialState - stateAtTime( arcInitialTime ) ).norm( ), std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( ( finalState - stateAtTime( arcFinalTime ) ).norm( ), std::numeric_limits< double >::epsilon( ) );
+
+    const double nearStartEpoch = arcInitialTime + 1.25;
+    const Eigen::VectorXd nearStartState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
+            arcSolution, nearStartEpoch, arcInitialTime, arcFinalTime, 0, 6 );
+    BOOST_CHECK_SMALL( ( nearStartState - stateAtTime( nearStartEpoch ) ).norm( ), 1.0E-6 );
+    BOOST_CHECK_GT( ( nearStartState - stateAtTime( arcInitialTime ) ).norm( ), 1.0E-3 );
+
+    const double nearFinalEpoch = arcFinalTime - 1.25;
+    const Eigen::VectorXd nearFinalState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
+            arcSolution, nearFinalEpoch, arcInitialTime, arcFinalTime, 0, 6 );
+    BOOST_CHECK_SMALL( ( nearFinalState - stateAtTime( nearFinalEpoch ) ).norm( ), 1.0E-6 );
+    BOOST_CHECK_GT( ( nearFinalState - stateAtTime( arcFinalTime ) ).norm( ), 1.0E-3 );
+}
 
 //! At a shared arc boundary, the per-arc-index "full" STM accessor returns identity in the right arc's 6-block
 //! and zeros everywhere else (other arcs' state blocks and the sensitivity block).
