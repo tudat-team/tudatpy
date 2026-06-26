@@ -132,16 +132,38 @@ public:
         return currentLinkEndType_;
     }
 
+    Eigen::Vector3d getCurrentRelativeRangeVectorCameraFrame( ) const
+    {
+        if( !hasCurrentCameraFrameQuantities_ )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving pixel-coordinate camera-frame range vector: scaling object has not been updated." );
+        }
+        return currentRelativeRangeVectorCameraFrame_;
+    }
+
+    Eigen::Matrix< double, 2, 3 > getCurrentPixelLinePartialWrtCameraFramePosition( ) const
+    {
+        if( !hasCurrentCameraFrameQuantities_ )
+        {
+            throw std::runtime_error( "Error when retrieving pixel-coordinate projection partial: scaling object has not been updated." );
+        }
+        return currentPixelLinePartialWrtCameraFramePosition_;
+    }
+
 private:
     Eigen::Matrix< double, 2, 3 > positionScalingFactor_;
     Eigen::Matrix< double, 2, 3 > realPositionScalingFactor_;
     Eigen::Vector2d lightTimeCorrectionScalingFactor_;
+    Eigen::Vector3d currentRelativeRangeVectorCameraFrame_;
+    Eigen::Matrix< double, 2, 3 > currentPixelLinePartialWrtCameraFramePosition_;
     std::function< Eigen::Quaterniond( const double epoch ) > rotationFromInertialToCameraFrameFunction_;
     std::function< Eigen::Matrix< double, 2, 3 >( const Eigen::Vector3d& cameraFramePosition ) >
             pixelLinePartialWrtCameraFramePositionFunction_;
     observation_models::LinkEndType currentLinkEndType_;
     int observerIndex_;
     int observedBodyIndex_;
+    bool hasCurrentCameraFrameQuantities_ = false;
 };
 }  // namespace observation_partials
 }  // namespace tudat

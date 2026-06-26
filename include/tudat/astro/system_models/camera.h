@@ -281,18 +281,24 @@ public:
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             std::pair< double, double > focal_lengths = std::make_pair( 1.0, 1.0 ),
             std::pair< double, double > optical_center = std::make_pair( 0.0, 0.0 ),
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
+            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
         projectionModel_( std::make_shared< PinholeCameraProjectionModel >( focal_lengths, optical_center ) ),
-        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
+                                                           : pointingCorrection )
     {}
 
     Camera( const std::string& cameraId,
             const Eigen::Quaterniond& rotationFromBodyFixedToCameraFrame,
             const std::shared_ptr< CameraProjectionModel > projectionModel,
-            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr,
+            std::shared_ptr< Eigen::Vector3d > pointingCorrection = nullptr ):
         cameraId_( cameraId ), rotationFromBodyFixedToCameraFrame_( rotationFromBodyFixedToCameraFrame ),
-        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction ),
+        pointingCorrection_( pointingCorrection == nullptr ? std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) )
+                                                           : pointingCorrection )
     {
         if( projectionModel_ == nullptr )
         {
@@ -396,6 +402,21 @@ public:
                                                                positionOfObservedBodyInInertialFrame );
     }
 
+    Eigen::Vector3d getPointingCorrection( ) const
+    {
+        return *pointingCorrection_;
+    }
+
+    std::shared_ptr< Eigen::Vector3d > getPointingCorrectionPointer( ) const
+    {
+        return pointingCorrection_;
+    }
+
+    void setPointingCorrection( const Eigen::Vector3d& pointingCorrection )
+    {
+        *pointingCorrection_ = pointingCorrection;
+    }
+
 private:
     /*! \brief Calculate the position of a body in the camera frame from its position in the body-fixed frame.
      *  \param positionOfObservedBodyInBodyFrame Position of the observed body in the body-fixed frame.
@@ -417,6 +438,9 @@ private:
 
     //! Optional direct rotation from inertial to camera frame, used for picture-specific camera pointing data.
     std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;
+
+    //! Small rotation-vector correction applied by camera-specific pointing estimation.
+    std::shared_ptr< Eigen::Vector3d > pointingCorrection_;
 };
 }  // namespace system_models
 }  // namespace tudat
