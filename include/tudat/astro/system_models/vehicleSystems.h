@@ -11,6 +11,7 @@
 #ifndef TUDAT_VEHICLESYSTEMS_H
 #define TUDAT_VEHICLESYSTEMS_H
 
+#include <cmath>
 #include <map>
 #include <iostream>
 
@@ -361,7 +362,7 @@ public:
 
     bool isTransponderDelayDefined( ) const
     {
-        return !( transponderDelay_ != transponderDelay_ );
+        return !std::isnan( transponderDelay_ );
     }
 
     double getTransponderDelay( )

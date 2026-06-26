@@ -864,6 +864,65 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 
+BOOST_AUTO_TEST_CASE( testDeprecatedObservationCollectionTransponderDelay )
+{
+    LinkEnds marsLinkEnds;
+    marsLinkEnds[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    marsLinkEnds[ retransmitter ] = LinkEndId( "Mars", "MarsStation" );
+    marsLinkEnds[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    LinkEnds moonLinkEnds;
+    moonLinkEnds[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    moonLinkEnds[ retransmitter ] = LinkEndId( "Moon", "MoonStation" );
+    moonLinkEnds[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    Eigen::VectorXd observationValue = Eigen::VectorXd::Zero( 1 );
+    std::vector< Eigen::VectorXd > observations = { observationValue };
+    std::vector< double > observationTimes = { 1.0E5 };
+
+    const double originalMarsDelay = 1.0E-6;
+    const double updatedMarsDelay = 5.0E-6;
+    const double originalMoonDelay = 3.0E-6;
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > marsAncillarySettings =
+            getNWayRangeAncillarySettings( { 0.0, originalMarsDelay, 0.0 } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > moonAncillarySettings =
+            getNWayRangeAncillarySettings( { 0.0, originalMoonDelay, 0.0 } );
+
+    std::shared_ptr< SingleObservationSet< double, double > > marsObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( marsLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        marsAncillarySettings );
+    std::shared_ptr< SingleObservationSet< double, double > > moonObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( moonLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        moonAncillarySettings );
+
+    std::vector< std::shared_ptr< SingleObservationSet< double, double > > > observationSets = { marsObservationSet, moonObservationSet };
+    ObservationCollection< double, double > observationCollection( observationSets );
+    observationCollection.setTransponderDelay( "Mars", updatedMarsDelay );
+
+    std::vector< double > marsLinkEndDelays = marsAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+    std::vector< double > moonLinkEndDelays = moonAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.size( ), 3 );
+    BOOST_CHECK_EQUAL( moonLinkEndDelays.size( ), 3 );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 0 ), 0.0 );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 1 ), updatedMarsDelay );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 2 ), 0.0 );
+    BOOST_CHECK_EQUAL( moonLinkEndDelays.at( 1 ), originalMoonDelay );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
