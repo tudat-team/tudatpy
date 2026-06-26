@@ -589,7 +589,10 @@ Read a mapping from DOMES id to station name.
            R"doc(
  Reads a space weather data file and produces a dictionary with solar activity data for a range of epochs. Data files can be obtained from http://celestrak.com/SpaceData and should follow the legacy format.
 
- :param file_path: Path to the space weather data file.
+ Parameters
+ ----------
+ file_path : str
+     Path to the space weather data file.
  )doc" );
 
     py::class_< tio::solar_activity::SolarActivityContainer, std::shared_ptr< tio::solar_activity::SolarActivityContainer > >(
@@ -666,7 +669,10 @@ Read a mapping from DOMES id to station name.
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfDataSpecificBlock, std::shared_ptr< tio::OdfDataSpecificBlock > >(
@@ -701,7 +707,10 @@ Read a mapping from DOMES id to station name.
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfRampBlock, std::shared_ptr< tio::OdfRampBlock > >(
@@ -798,11 +807,19 @@ Read a mapping from DOMES id to station name.
 
            Two of the columns of an IFMS file contain, respectively, the Doppler averaged frequency and a tropospheric correction for the station. When the `apply_tropospheric_correction` option is set to true, the content of the first column is modified by subtracting the values in the second.
 
-           :param file_name: String representing the path to the file to be loaded
-           :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
-           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           apply_tropospheric_correction : bool
+               Whether to modify the averaged Doppler frequency as described above (Default: True)
+           remove_invalid_lines : bool
+               Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
 
-           :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
+           Returns
+           -------
+           ifms_contents : TrackingTxtFileContents
+               Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
@@ -834,9 +851,17 @@ Read a mapping from DOMES id to station name.
 
            If the file contains an additional leading scan-number column, this column is detected automatically.
 
-           :param file_name: String representing the path to the file to be loaded
-           :param date_format: Date format used in the Fdets file
-           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           date_format : FdetDateFormat
+               Date format used in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 
     m.def( "read_fdets_file",
@@ -848,9 +873,17 @@ Read a mapping from DOMES id to station name.
            .. deprecated::
               Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
 
-           :param file_name: String representing the path to the file to be loaded
-           :param column_types: Identifiers of the columns present in the Fdets file
-           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           column_types : List[str]
+               Identifiers of the columns present in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 };
 

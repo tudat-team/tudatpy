@@ -322,6 +322,99 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
     BOOST_TEST( rmsResidual < 3.0e-3 );
 }
 
+BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( tudat::paths::getTudatTestDataPath( ) +
+                                             "dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
+
+    const std::string spacecraftName = "MGS";
+    const std::string ephemeridesOrigin = "SSB";
+    const std::vector< std::string > odfFiles = {
+        tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068068a.odf",
+        tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068071a.odf"
+    };
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mars" };
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, ephemeridesOrigin, "J2000" );
+
+    bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, "J2000" );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+
+    bodySettings.addSettings( spacecraftName );
+    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( ephemeridesOrigin, "J2000" );
+
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
+    for( std::string odfFile : odfFiles )
+    {
+        rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
+    }
+
+    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
+            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
+
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
+                                                                                             { dsn_n_way_averaged_doppler } );
+    observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
+
+    LinkEnds dss45MgsLinkEnds;
+    dss45MgsLinkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-45" );
+    dss45MgsLinkEnds[ retransmitter ] = LinkEndId( spacecraftName );
+    dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
+
+    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
+            observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
+    BOOST_REQUIRE( !singleLinkObservedObservations.empty( ) );
+    BOOST_REQUIRE( !singleLinkObservedObservations.at( 0 )->getObservationTimes( ).empty( ) );
+
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > sourceAncillarySettings =
+            singleLinkObservedObservations.at( 0 )->getAncillarySettings( );
+
+    const std::vector< FrequencyBands > frequencyBands =
+            convertDoubleVectorToFrequencyBands( sourceAncillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
+    const FrequencyBands receptionReferenceFrequencyBand =
+            convertDoubleToFrequencyBand( sourceAncillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
+    const double referenceFrequency = sourceAncillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
+    const double integrationTime = sourceAncillarySettings->getAncillaryDoubleData( doppler_integration_time );
+
+    const double vehicleSystemDelay = 4.0E-6;
+    const double ancillaryDelay = 9.0E-6;
+    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderDelay( vehicleSystemDelay );
+
+    std::shared_ptr< observation_models::ObservationModelSettings > observationSettings =
+            std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( dss45MgsLinkEnds );
+    std::shared_ptr< observation_models::ObservationModel< 1, long double, Time > > observationModel =
+            observation_models::ObservationModelCreator< 1, long double, Time >::createObservationModel( observationSettings, bodies );
+
+    const Time observationTime = singleLinkObservedObservations.at( 0 )->getObservationTimes( ).at( 0 );
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime,
+            receiver,
+            linkEndTimes,
+            linkEndStates,
+            getDsnNWayAveragedDopplerAncillarySettings(
+                    frequencyBands, receptionReferenceFrequencyBand, referenceFrequency, integrationTime ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ), 1.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - vehicleSystemDelay ), 1.0E-8 );
+
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime,
+            receiver,
+            linkEndTimes,
+            linkEndStates,
+            getDsnNWayAveragedDopplerAncillarySettings(
+                    frequencyBands, receptionReferenceFrequencyBand, referenceFrequency, integrationTime, { ancillaryDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ), 1.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - ancillaryDelay ), 1.0E-8 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

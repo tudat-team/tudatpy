@@ -11,9 +11,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <cmath>
 #include <limits>
 #include <string>
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
@@ -1018,6 +1020,165 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseDragDirectionScaling, partialWrtArcWiseDragDirection, 1.0e-7 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseSideDirectionScaling, partialWrtArcWiseSideDirection, 1.0e-7 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseLiftDirectionScaling, partialWrtArcWiseLiftDirection, 1.0e-7 );
+    }
+}
+
+// Regression test for NaN bug in AerodynamicAccelerationPartial when a wind model is present.
+// Pre-fit residuals path (observation simulators reading SPICE ephemerides) does not exercise the
+// partial code; variational equations propagation inside the Estimator constructor does, and was
+// producing NaN entries that broke the Lagrange interpolator construction downstream
+// (lagrangeInterpolator.h:131). This test isolates AerodynamicAccelerationPartial::update() and
+// wrtParameter(constantDragCoefficient) under different wind magnitudes — including a magnitude
+// that drives airspeed through zero (where the aerodynamic frame becomes singular).
+BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartialsWithWind )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Sweep wind magnitude (m/s) in the vertical frame — the radial (z) component.
+    // 0 = no wind (sanity baseline)
+    // 1000 / 3000 = wind larger than but not exactly matching airspeed
+    // 7700 = wind magnitude tuned to ~vehicle ground speed, driving airspeed near zero
+    // -1500 = wind opposing vehicle motion (large airspeed regime, like Rosetta + 700 m/s outflow)
+    const std::vector< double > windSpeeds = { 0.0, 1000.0, 3000.0, 7700.0, -1500.0 };
+
+    for( const double windZ : windSpeeds )
+    {
+        BOOST_TEST_MESSAGE( "Sub-case: wind_z = " << windZ << " m/s in vertical frame" );
+
+        BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Earth" } );
+        defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
+
+        // Wire a constant wind into the Earth atmosphere — radial outflow in the vertical frame,
+        // matching the way the failing Rosetta cases set up their wind models.
+        const Eigen::Vector3d constantWindVerticalFrame( 0.0, 0.0, windZ );
+        const auto windFunction = [ constantWindVerticalFrame ]( const double, const double, const double, const double ) {
+            return constantWindVerticalFrame;
+        };
+        defaultBodySettings.at( "Earth" )->atmosphereSettings->setWindSettings(
+                std::make_shared< CustomWindModelSettings >( windFunction, reference_frames::vertical_frame ) );
+
+        SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+        // Create vehicle (mirrors testAerodynamicAccelerationPartials).
+        const double vehicleMass = 5.0E3;
+        bodies.createEmptyBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+
+        const bool areCoefficientsInAerodynamicFrame = true;
+        const Eigen::Vector3d aerodynamicCoefficients = ( Eigen::Vector3d( ) << 2.5, -0.1, 0.5 ).finished( );
+
+        std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+                std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                        2.0,
+                        4.0,
+                        Eigen::Vector3d::Zero( ),
+                        aerodynamicCoefficients,
+                        Eigen::Vector3d::Zero( ),
+                        aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, true ),
+                        aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, true ) );
+        bodies.at( "Vehicle" )
+                ->setAerodynamicCoefficientInterface(
+                        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+
+        // Spherical → Cartesian initial state at 120 km altitude, ~7.7 km/s ground speed.
+        Eigen::Vector6d vehicleSphericalEntryState;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+                spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.7E3;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) = -0.9 * mathematical_constants::PI / 180.0;
+        vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
+
+        const Eigen::Vector6d systemInitialState =
+                tudat::ephemerides::transformStateToTargetFrame( convertSphericalOrbitalToCartesianState( vehicleSphericalEntryState ),
+                                                                 0.0,
+                                                                 bodies.at( "Earth" )->getRotationalEphemeris( ) );
+
+        bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+        bodies.at( "Earth" )->setCurrentRotationToLocalFrameFromEphemeris( 0.0 );
+        bodies.at( "Vehicle" )->setState( systemInitialState );
+
+        std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
+                simulation_setup::createAerodynamicAcceleratioModel( bodies.at( "Vehicle" ), bodies.at( "Earth" ), "Vehicle", "Earth" );
+        bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
+        accelerationModel->updateMembers( 0.0 );
+
+        std::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
+                createAnalyticalAccelerationPartial( accelerationModel,
+                                                     std::make_pair( "Vehicle", bodies.at( "Vehicle" ) ),
+                                                     std::make_pair( "Earth", bodies.at( "Earth" ) ),
+                                                     bodies );
+
+        std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = std::make_shared< ConstantDragCoefficient >(
+                std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                        bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
+                "Vehicle",
+                bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+
+        // === The actual bug surface: update() and parameter partials must be finite. ===
+        BOOST_REQUIRE_NO_THROW( aerodynamicAccelerationPartial->update( 0.0 ) );
+
+        Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+        aerodynamicAccelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+        Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+        aerodynamicAccelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+        const Eigen::Vector3d partialWrtDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( dragCoefficientParameter );
+
+        // No NaN/Inf anywhere — this is what fails today.
+        for( int i = 0; i < 3; ++i )
+        {
+            for( int j = 0; j < 3; ++j )
+            {
+                BOOST_CHECK_MESSAGE( std::isfinite( partialWrtVehiclePosition( i, j ) ),
+                                     "partialWrtVehiclePosition(" << i << "," << j << ") = " << partialWrtVehiclePosition( i, j )
+                                                                  << " (wind_z=" << windZ << ")" );
+                BOOST_CHECK_MESSAGE( std::isfinite( partialWrtVehicleVelocity( i, j ) ),
+                                     "partialWrtVehicleVelocity(" << i << "," << j << ") = " << partialWrtVehicleVelocity( i, j )
+                                                                  << " (wind_z=" << windZ << ")" );
+            }
+            BOOST_CHECK_MESSAGE(
+                    std::isfinite( partialWrtDragCoefficient( i ) ),
+                    "partialWrtDragCoefficient(" << i << ") = " << partialWrtDragCoefficient( i ) << " (wind_z=" << windZ << ")" );
+        }
+
+        // Numerical-vs-analytical cross-check for the non-singular sub-cases. The airspeed-zero
+        // sub-case (wind_z = 7700) is excluded from the tolerance check because the partial there
+        // is genuinely ill-conditioned even when finite — but it must still be NaN-free.
+        if( std::abs( windZ - 7700.0 ) > 1.0 )
+        {
+            std::function< void( ) > environmentUpdateFunction =
+                    std::bind( &updateFlightConditionsWithPerturbedState, bodies.at( "Vehicle" )->getFlightConditions( ), 0.0 );
+            Eigen::Vector3d positionPerturbation;
+            positionPerturbation << 1.0, 1.0, 1.0;
+            Eigen::Vector3d velocityPerturbation;
+            velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
+
+            std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+                    std::bind( &Body::setState, bodies.at( "Vehicle" ), std::placeholders::_1 );
+
+            const Eigen::Matrix3d testPartialWrtVehiclePosition =
+                    calculateAccelerationWrtStatePartials( vehicleStateSetFunction,
+                                                           accelerationModel,
+                                                           bodies.at( "Vehicle" )->getState( ),
+                                                           positionPerturbation,
+                                                           0,
+                                                           environmentUpdateFunction );
+            const Eigen::Matrix3d testPartialWrtVehicleVelocity =
+                    calculateAccelerationWrtStatePartials( vehicleStateSetFunction,
+                                                           accelerationModel,
+                                                           bodies.at( "Vehicle" )->getState( ),
+                                                           velocityPerturbation,
+                                                           3,
+                                                           environmentUpdateFunction );
+            const Eigen::Vector3d testPartialWrtDragCoefficient = calculateAccelerationWrtParameterPartials(
+                    dragCoefficientParameter, accelerationModel, 1.0E-4, environmentUpdateFunction );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragCoefficient, partialWrtDragCoefficient, 1.0E-8 );
+        }
     }
 }
 
