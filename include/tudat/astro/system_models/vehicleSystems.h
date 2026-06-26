@@ -11,6 +11,7 @@
 #ifndef TUDAT_VEHICLESYSTEMS_H
 #define TUDAT_VEHICLESYSTEMS_H
 
+#include <cmath>
 #include <map>
 #include <iostream>
 
@@ -45,7 +46,9 @@ public:
      * Constructor
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
-    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) {}
+    VehicleSystems( const double dryMass = TUDAT_NAN ):
+        currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ), transponderDelay_( TUDAT_NAN )
+    {}
 
     //! Destructor
     ~VehicleSystems( ) {}
@@ -352,6 +355,25 @@ public:
         return transponderTurnaroundRatio_;
     }
 
+    void setTransponderDelay( const double transponderDelay )
+    {
+        transponderDelay_ = transponderDelay;
+    }
+
+    bool isTransponderDelayDefined( ) const
+    {
+        return !std::isnan( transponderDelay_ );
+    }
+
+    double getTransponderDelay( )
+    {
+        if( !isTransponderDelayDefined( ) )
+        {
+            throw std::runtime_error( "Error when retrieving transponder delay from vehicle systems: transponder delay is not defined." );
+        }
+        return transponderDelay_;
+    }
+
     bool doesReferencePointExist( const std::string referencePoint )
     {
         return ( referencePoints_.count( referencePoint ) > 0 );
@@ -513,6 +535,8 @@ private:
 
     std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
             transponderTurnaroundRatio_;
+
+    double transponderDelay_;
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator_;
 };

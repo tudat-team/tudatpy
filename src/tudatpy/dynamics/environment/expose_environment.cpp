@@ -1404,6 +1404,24 @@ bool
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
+            .def_property( "transponder_delay",
+                           &tsm::VehicleSystems::getTransponderDelay,
+                           &tsm::VehicleSystems::setTransponderDelay,
+                           R"doc(
+         Transponder retransmission delay for the vehicle, in seconds.
+
+         :type: float
+     )doc" )
+            .def( "is_transponder_delay_defined",
+                  &tsm::VehicleSystems::isTransponderDelayDefined,
+                  R"doc(
+         Check whether a transponder retransmission delay has been defined for the vehicle.
+
+         Returns
+         -------
+         bool
+             True if a transponder delay is defined.
+     )doc" )
             .def( "set_transmitted_frequency_calculator",
                   &tsm::VehicleSystems::setTransmittedFrequencyCalculator,
                   py::arg( "transmitted_frequency_calculator" ),

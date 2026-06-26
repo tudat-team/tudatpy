@@ -430,6 +430,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
         case position_observable:
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
             break;
         case one_way_differenced_range:
         case differenced_time_of_arrival:
@@ -440,6 +441,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
             canHaveDelay = true;
             break;
         case two_way_doppler:
+        case doppler_measured_frequency:
             canHaveDelay = true;
             break;
         case euler_angle_313_observable:
@@ -455,6 +457,8 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
             break;
         case dsn_n_way_averaged_doppler:
             canHaveDelay = true;
+            break;
+        case dsn_one_way_averaged_doppler:
             break;
         default:
             throw std::runtime_error( "Error when determining if observable type can have retransmission delay; observable " +
