@@ -966,6 +966,7 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DuplicateBodyInitialStateP
         const std::string what = error.what( );
         BOOST_CHECK( what.find( "Earth" ) != std::string::npos );
         BOOST_CHECK( what.find( "matches 2 arc-wise initial state parameters" ) != std::string::npos );
+        BOOST_CHECK( what.find( "translational" ) != std::string::npos );
     }
 }
 
@@ -1305,6 +1306,10 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     Eigen::Matrix< double, 6, 6 > indefinite = Eigen::Matrix< double, 6, 6 >::Zero( );
     indefinite( 0, 0 ) = -1.0;
     BOOST_CHECK_THROW( generalContinuity( "Sat", epochs, { indefinite } ), std::runtime_error );
+
+    // The feature is translational-only: generic weights must still be 6x6 position/velocity weights.
+    Eigen::MatrixXd wrongSizeWeight = Eigen::Matrix3d::Identity( );
+    BOOST_CHECK_THROW( generalContinuity( "Sat", epochs, { wrongSizeWeight } ), std::runtime_error );
 
     // Mismatched arcPairs / connectionEpochs sizes throw.
     BOOST_CHECK_THROW(

@@ -87,6 +87,11 @@ def test_inter_arc_constraint_factories_validate_inputs():
             {"Vehicle": [np.eye(6), np.eye(6), np.eye(6)]},
         )
 
+    with pytest.raises(RuntimeError):
+        estimation_analysis.general_continuity(
+            ["Vehicle"], {"Vehicle": [100.0]}, {"Vehicle": [np.eye(3)]}
+        )
+
 
 def test_inter_arc_constraints_attach_to_input():
     constraints = [

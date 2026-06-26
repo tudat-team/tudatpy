@@ -177,10 +177,10 @@ void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const std:
                                                                       const Eigen::MatrixXd& constraintWeightMatrix,
                                                                       std::size_t entryIndex ) const
 {
-    if( constraintWeightMatrix.rows( ) == 0 || constraintWeightMatrix.rows( ) != constraintWeightMatrix.cols( ) )
+    if( constraintWeightMatrix.rows( ) != 6 || constraintWeightMatrix.cols( ) != 6 )
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body + ": weight matrix entry " +
-                                  std::to_string( entryIndex ) + " must be a non-empty square matrix." );
+                                  std::to_string( entryIndex ) + " must be a 6x6 matrix for translational position/velocity continuity." );
     }
     const double weightMatrixNorm = constraintWeightMatrix.norm( );
     const double symmetryNorm = ( constraintWeightMatrix - constraintWeightMatrix.transpose( ) ).norm( );

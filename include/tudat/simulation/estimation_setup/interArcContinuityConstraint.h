@@ -300,7 +300,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
     {
         for( const auto& body : settings->bodies( ) )
         {
-            // Locate the body's arc-wise initial-state parameter.
+            // Locate the body's arc-wise translational initial-state parameter.
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >
                     bodyParameter;
             int matchingParameterCount = 0;
@@ -325,7 +325,18 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                           "\" referenced by an inter-arc continuity prior matches " +
                                           std::to_string( matchingParameterCount ) +
                                           " arc-wise initial state parameters. Each body must have a unique arc-wise "
-                                          "initial state parameter." );
+                                          "translational initial state parameter." );
+            }
+
+            auto bodyTranslationalParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ObservationScalarType > >(
+                            bodyParameter );
+            if( bodyTranslationalParameter == nullptr )
+            {
+                throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body +
+                                          "\" referenced by an inter-arc continuity prior matches an arc-wise "
+                                          "initial state parameter that is not an ArcWiseInitialTranslationalStateParameter. "
+                                          "Inter-arc continuity priors currently support translational 6D states only." );
             }
 
             const auto& epochs = settings->connectionEpochsForBody( body );
@@ -344,12 +355,19 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                 throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body +
                                           "\" has an invalid state-block size in the multi-arc STM layout." );
             }
-            if( bodyParameter->getParameterSize( ) % firstBodyRows.size != 0 )
+            if( firstBodyRows.size != 6 )
+            {
+                throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body + "\" has state-block size " +
+                                          std::to_string( firstBodyRows.size ) +
+                                          " in the multi-arc STM layout. Inter-arc continuity priors currently support "
+                                          "translational 6D states only." );
+            }
+            if( bodyTranslationalParameter->getParameterSize( ) % firstBodyRows.size != 0 )
             {
                 throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body +
                                           "\" parameter size is not an integer multiple of its state-block size." );
             }
-            const int numberOfArcs = static_cast< int >( bodyParameter->getParameterSize( ) ) / firstBodyRows.size;
+            const int numberOfArcs = static_cast< int >( bodyTranslationalParameter->getParameterSize( ) ) / firstBodyRows.size;
 
             for( std::size_t pairIndex = 0; pairIndex < epochs.size( ); ++pairIndex )
             {

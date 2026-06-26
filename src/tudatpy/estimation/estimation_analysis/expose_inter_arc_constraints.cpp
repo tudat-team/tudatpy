@@ -157,7 +157,7 @@ void expose_inter_arc_constraints( py::module& m )
             "InterArcStateContinuityConstraintSettings",
             R"doc(
 
-         Soft inter-arc state continuity-prior settings for one or more multi-arc bodies.
+         Soft inter-arc translational state continuity-prior settings for one or more multi-arc bodies.
 
          Created via the factory functions :func:`full_state_continuity`, :func:`position_only_continuity`,
          :func:`velocity_only_continuity`, or :func:`general_continuity`. Pass a list of these objects to
@@ -198,7 +198,7 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = py::none( ),
             R"doc(
 
-         Build a full-state (position + velocity) continuity settings object. ``epochs``, ``position_weights``,
+         Build a full translational-state (position + velocity) continuity settings object. ``epochs``, ``position_weights``,
          and ``velocity_weights`` must be dictionaries keyed by body name. Weight values may each be a scalar
          (isotropic) or a length-3 sequence (anisotropic). ``constraint_scaling_factor`` is one global scaling
          factor for all bodies and connection epochs.
@@ -282,7 +282,7 @@ void expose_inter_arc_constraints( py::module& m )
             py::arg( "arc_pairs" ) = py::none( ),
             R"doc(
 
-         Build a generic continuity settings object from body-specific square PSD weight matrices. ``epochs`` and
+         Build a generic continuity settings object from body-specific 6x6 PSD weight matrices. ``epochs`` and
          ``weight_matrices`` must be dictionaries keyed by body name. Each body may provide one matrix, broadcast
          to every connection epoch for that body, or one matrix per body-specific connection epoch.
       )doc" );

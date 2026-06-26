@@ -25,7 +25,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! User-facing soft-continuity constraint between consecutive multi-arc state arcs of one or more bodies.
+//! User-facing soft-continuity constraint between consecutive multi-arc translational state arcs of one or more bodies.
 //! The cost added to the LSQ target is, per pair (Lari et al. 2021 Eq. 28):
 //!   pairCost = stateDiscrepancy^T * scaledConstraintWeight * stateDiscrepancy
 //! where scaledConstraintWeight is the constraint weight matrix divided by the product of the constraint scaling
@@ -168,7 +168,7 @@ inline std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnly
                                                                           std::move( arcPairsByBody ) );
 }
 
-//! Build a soft-prior settings object with arbitrary body-specific, possibly per-boundary, PSD weight matrices.
+//! Build a soft-prior settings object with arbitrary body-specific, possibly per-boundary, 6x6 PSD weight matrices.
 inline std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
         std::vector< std::string > bodies,
         InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
