@@ -1346,6 +1346,14 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 }
 
 //! Unit test to check if acceleration derivatives w.r.t. estimatable parameters are correctly stored.
+/*!
+ * This test propagates a Vehicle subject to Earth spherical-harmonic gravity and Sun third-body point-mass gravity,
+ * while saving single-acceleration and total-acceleration partials w.r.t. scalar and vector parameters. Scalar
+ * gravitational-parameter partials are checked against the analytical acceleration/gravitational-parameter relation.
+ * Spherical-harmonic coefficient partials are checked by updating the state derivative model at each saved epoch and
+ * querying the actual acceleration partial object, so that the saved dependent-variable output is tested against the
+ * same direct partial interface used by the variational equations instead of a finite-difference reconstruction.
+ */
 BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -1394,6 +1402,8 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
     std::shared_ptr< EstimatableParameterSettings > earthSineCoefficientSettings =
             sphericalHarmonicsSineBlock( "Earth", std::vector< std::pair< int, int > >{ { 2, 1 }, { 2, 2 } } );
 
+    // Request the dependent variables under test: direct single-acceleration partials and total-acceleration partials
+    // w.r.t. gravitational parameters and spherical-harmonic coefficient blocks.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
             std::make_shared< SingleAccelerationDependentVariableSaveSettings >( spherical_harmonic_gravity, "Vehicle", "Earth" ) );
@@ -1450,9 +1460,18 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
             false,
             true );
 
-    const std::map< double, Eigen::MatrixXd > sensitivitySolution = variationalEquationsSimulator.getSensitivityMatrixSolution( );
+    const std::map< double, Eigen::MatrixXd >& stateTransitionSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
+    const std::map< double, Eigen::MatrixXd >& sensitivitySolution = variationalEquationsSimulator.getSensitivityMatrixSolution( );
     const std::map< double, Eigen::VectorXd > dependentVariableSolution =
             variationalEquationsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd >& equationsOfMotionSolution =
+            variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+    std::shared_ptr< VariationalEquations > variationalEquationsObject = variationalEquationsSimulator.getVariationalEquationsObject( );
+    const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+            variationalEquationsObject->getStateDerivativePartialList( );
+    std::shared_ptr< acceleration_partials::AccelerationPartial > earthSphericalHarmonicPartial = getAccelerationPartialForBody(
+            stateDerivativePartials.at( translational_state ), spherical_harmonic_gravity, "Vehicle", "Earth" );
 
     const int earthAccelerationStart = 0;
     const int earthGravitationalParameterPartialStart = 3;
@@ -1468,7 +1487,6 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
     const int totalEarthCosineCoefficientPartialSize = 9;
     const int totalEarthSineCoefficientPartialStart = totalEarthCosineCoefficientPartialStart + totalEarthCosineCoefficientPartialSize;
     const int totalEarthSineCoefficientPartialSize = 6;
-    const int totalAccelerationStatePartialStart = totalEarthSineCoefficientPartialStart + totalEarthSineCoefficientPartialSize;
 
     const double sunGravitationalParameter = bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( );
 
@@ -1478,20 +1496,36 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
     std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
             earthSineParameterIndices =
                     parametersToEstimate->getParametersAndIndicesForParameterIdentifier( earthSineCoefficientSettings->parameterType_ );
+
+    // The coefficient-block dependent-variable output is only unambiguous if each requested coefficient setting maps
+    // to exactly one estimatable parameter object.
     BOOST_CHECK_EQUAL( earthCosineParameterIndices.size( ), 1 );
     BOOST_CHECK_EQUAL( earthSineParameterIndices.size( ), 1 );
 
-    const int nonDynamicalParameterStartIndex = parametersToEstimate->getInitialDynamicalStateParameterSize( );
-    const int earthCosineSensitivityStart = earthCosineParameterIndices.at( 0 ).first.first - nonDynamicalParameterStartIndex;
-    const int earthSineSensitivityStart = earthSineParameterIndices.at( 0 ).first.first - nonDynamicalParameterStartIndex;
+    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > earthCosineParameter =
+            std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >(
+                    earthCosineParameterIndices.at( 0 ).second );
+    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > earthSineParameter =
+            std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >(
+                    earthSineParameterIndices.at( 0 ).second );
 
-    auto dependentVariableIteratorBack = dependentVariableSolution.begin( );
+    // The spherical-harmonic coefficient blocks are vector parameters; the cast verifies that the subsequent direct
+    // partial-function query uses the same parameter type as the acceleration partial implementation.
+    BOOST_CHECK( earthCosineParameter != nullptr );
+    BOOST_CHECK( earthSineParameter != nullptr );
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > earthCosinePartialFunction =
+            earthSphericalHarmonicPartial->getParameterPartialFunction( earthCosineParameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > earthSinePartialFunction =
+            earthSphericalHarmonicPartial->getParameterPartialFunction( earthSineParameter );
+
+    // The direct partial functions must expose the same number of columns as the saved coefficient-block outputs.
+    BOOST_CHECK_EQUAL( earthCosinePartialFunction.second, earthCosineParameterIndices.at( 0 ).first.second );
+    BOOST_CHECK_EQUAL( earthSinePartialFunction.second, earthSineParameterIndices.at( 0 ).first.second );
+
     auto dependentVariableIteratorMid = dependentVariableSolution.begin( );
-    std::advance( dependentVariableIteratorMid, 1 );
-    auto dependentVariableIteratorForward = dependentVariableSolution.begin( );
-    std::advance( dependentVariableIteratorForward, 2 );
 
-    for( unsigned int i = 0; i < dependentVariableSolution.size( ) - 2; i++ )
+    for( unsigned int i = 0; i < dependentVariableSolution.size( ); i++ )
     {
         const Eigen::Vector3d earthAcceleration = dependentVariableIteratorMid->second.segment( earthAccelerationStart, 3 );
         const Eigen::Vector3d earthGravitationalParameterPartial =
@@ -1504,25 +1538,34 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
         const Eigen::Vector3d totalSunGravitationalParameterPartial =
                 dependentVariableIteratorMid->second.segment( totalSunGravitationalParameterPartialStart, 3 );
 
+        // For these gravity models, the acceleration is linear in the gravitational parameter, so da/dmu = a/mu.
         BOOST_CHECK_SMALL( ( earthGravitationalParameterPartial - earthAcceleration / earthGravitationalParameter ).norm( ) /
                                    ( earthAcceleration / earthGravitationalParameter ).norm( ),
                            1.0E-12 );
         BOOST_CHECK_SMALL( ( sunGravitationalParameterPartial - sunAcceleration / sunGravitationalParameter ).norm( ) /
                                    ( sunAcceleration / sunGravitationalParameter ).norm( ),
                            1.0E-11 );
+
+        // The total partial w.r.t. each gravitational parameter should equal the corresponding single-acceleration
+        // partial because only one acceleration model in this setup depends on each of these scalar parameters.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthGravitationalParameterPartial, totalEarthGravitationalParameterPartial, 1.0E-14 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sunGravitationalParameterPartial, totalSunGravitationalParameterPartial, 1.0E-14 );
 
-        Eigen::MatrixXd totalAccelerationStatePartial;
-        getOutputVectorInMatrixRepresentation( dependentVariableIteratorMid->second.segment( totalAccelerationStatePartialStart, 18 ),
-                                               totalAccelerationStatePartial,
-                                               3,
-                                               6 );
+        // Recreate the full variational state at the saved epoch so computeStateDerivative updates the environment,
+        // acceleration models, and partial objects to exactly the state associated with the saved dependent variables.
+        const Eigen::MatrixXd& currentStateTransition = stateTransitionSolution.at( dependentVariableIteratorMid->first );
+        const Eigen::MatrixXd& currentSensitivity = sensitivitySolution.at( dependentVariableIteratorMid->first );
+        const Eigen::VectorXd& currentState = equationsOfMotionSolution.at( dependentVariableIteratorMid->first );
 
-        const Eigen::MatrixXd sensitivityDerivative = ( sensitivitySolution.at( dependentVariableIteratorForward->first ) -
-                                                        sensitivitySolution.at( dependentVariableIteratorBack->first ) ) /
-                ( dependentVariableIteratorForward->first - dependentVariableIteratorBack->first );
-        const Eigen::MatrixXd midSensitivity = sensitivitySolution.at( dependentVariableIteratorMid->first );
+        Eigen::MatrixXd currentVariationalState =
+                Eigen::MatrixXd::Zero( currentState.rows( ), currentStateTransition.cols( ) + currentSensitivity.cols( ) + 1 );
+        currentVariationalState.block( 0, 0, currentState.rows( ), currentStateTransition.cols( ) ) = currentStateTransition;
+        currentVariationalState.block( 0, currentStateTransition.cols( ), currentState.rows( ), currentSensitivity.cols( ) ) =
+                currentSensitivity;
+        currentVariationalState.col( currentVariationalState.cols( ) - 1 ) = currentState;
+
+        variationalEquationsSimulator.getDynamicsSimulator( )->getDynamicsStateDerivative( )->computeStateDerivative(
+                dependentVariableIteratorMid->first, currentVariationalState );
 
         Eigen::MatrixXd earthCosinePartial;
         getOutputVectorInMatrixRepresentation(
@@ -1530,11 +1573,12 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
                 earthCosinePartial,
                 3,
                 earthCosineParameterIndices.at( 0 ).first.second );
-        Eigen::MatrixXd expectedEarthCosinePartial =
-                sensitivityDerivative.block( 3, earthCosineSensitivityStart, 3, earthCosineParameterIndices.at( 0 ).first.second ) -
-                totalAccelerationStatePartial *
-                        midSensitivity.block( 0, earthCosineSensitivityStart, 6, earthCosineParameterIndices.at( 0 ).first.second );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthCosinePartial, expectedEarthCosinePartial, 1.0E-4 );
+
+        // Check the saved Earth cosine-coefficient partial against the current value returned by the actual
+        // spherical-harmonic acceleration partial object.
+        Eigen::MatrixXd expectedEarthCosinePartial = Eigen::MatrixXd::Zero( 3, earthCosinePartialFunction.second );
+        earthCosinePartialFunction.first( expectedEarthCosinePartial );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthCosinePartial, expectedEarthCosinePartial, 1.0E-14 );
 
         Eigen::MatrixXd totalEarthCosinePartial;
         getOutputVectorInMatrixRepresentation( dependentVariableIteratorMid->second.segment( totalEarthCosineCoefficientPartialStart,
@@ -1542,8 +1586,11 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
                                                totalEarthCosinePartial,
                                                3,
                                                earthCosineParameterIndices.at( 0 ).first.second );
+
+        // The total cosine-coefficient partial should match the single-acceleration partial because only the Earth
+        // spherical-harmonic acceleration depends on these coefficients.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthCosinePartial, earthCosinePartial, 1.0E-14 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthCosinePartial, expectedEarthCosinePartial, 1.0E-4 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthCosinePartial, expectedEarthCosinePartial, 1.0E-14 );
 
         Eigen::MatrixXd earthSinePartial;
         getOutputVectorInMatrixRepresentation(
@@ -1551,11 +1598,11 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
                 earthSinePartial,
                 3,
                 earthSineParameterIndices.at( 0 ).first.second );
-        Eigen::MatrixXd expectedEarthSinePartial =
-                sensitivityDerivative.block( 3, earthSineSensitivityStart, 3, earthSineParameterIndices.at( 0 ).first.second ) -
-                totalAccelerationStatePartial *
-                        midSensitivity.block( 0, earthSineSensitivityStart, 6, earthSineParameterIndices.at( 0 ).first.second );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthSinePartial, expectedEarthSinePartial, 1.0E-4 );
+
+        // Check the saved Earth sine-coefficient partial through the same direct partial-object interface.
+        Eigen::MatrixXd expectedEarthSinePartial = Eigen::MatrixXd::Zero( 3, earthSinePartialFunction.second );
+        earthSinePartialFunction.first( expectedEarthSinePartial );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthSinePartial, expectedEarthSinePartial, 1.0E-14 );
 
         Eigen::MatrixXd totalEarthSinePartial;
         getOutputVectorInMatrixRepresentation(
@@ -1563,12 +1610,12 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
                 totalEarthSinePartial,
                 3,
                 earthSineParameterIndices.at( 0 ).first.second );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, earthSinePartial, 1.0E-14 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, expectedEarthSinePartial, 1.0E-4 );
 
-        dependentVariableIteratorBack++;
+        // The total sine-coefficient partial should also collapse to the single Earth spherical-harmonic contribution.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, earthSinePartial, 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, expectedEarthSinePartial, 1.0E-14 );
+
         dependentVariableIteratorMid++;
-        dependentVariableIteratorForward++;
     }
 }
 
