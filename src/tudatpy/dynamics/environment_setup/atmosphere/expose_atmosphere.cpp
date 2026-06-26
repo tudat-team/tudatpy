@@ -1383,7 +1383,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
  EUV scenario, perturbation model and topography mode. To use the MCD as an atmosphere model, assign
  these settings to
  :attr:`~tudatpy.dynamics.environment_setup.BodySettings.climate_model_settings` and assign
- :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database` to the same body's
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model` to the same body's
  atmosphere settings.
 
  .. note:: **Altitude Convention**: the MCD atmosphere interface uses MCD's height-above-surface mode
@@ -1472,7 +1472,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
         environment_setup.atmosphere.mars_climate_database_climate_model()
     )
     body_settings.get("Mars").atmosphere_settings = (
-        environment_setup.atmosphere.mars_climate_database()
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
     )
 
  **Example 2**: Dust storm scenario with high-resolution topography:
@@ -1486,7 +1486,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
         )
     )
     body_settings.get("Mars").atmosphere_settings = (
-        environment_setup.atmosphere.mars_climate_database()
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
     )
 
  **Example 3**: Mars Year 32 with stochastic perturbations:
@@ -1502,7 +1502,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
         )
     )
     body_settings.get("Mars").atmosphere_settings = (
-        environment_setup.atmosphere.mars_climate_database()
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
     )
 
  **Example 4**: Custom data path and n-sigma perturbations:
@@ -1519,13 +1519,13 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
         )
     )
     body_settings.get("Mars").atmosphere_settings = (
-        environment_setup.atmosphere.mars_climate_database()
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
     )
 
 
  See Also
  --------
- :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database` : Atmosphere settings that use the MCD climate model
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model` : Atmosphere settings that use the MCD climate model
  :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
 
 
@@ -1539,7 +1539,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
      )doc" );
 
-    m.def( "mars_climate_database",
+    m.def( "mars_climate_database_atmosphere_model",
            &tss::mcdAtmosphereSettings,
            R"doc(
 
@@ -1562,7 +1562,7 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 	       environment_setup.atmosphere.mars_climate_database_climate_model()
 	   )
 	   body_settings.get("Mars").atmosphere_settings = (
-	       environment_setup.atmosphere.mars_climate_database()
+	       environment_setup.atmosphere.mars_climate_database_atmosphere_model()
 	   )
 
 	Returns

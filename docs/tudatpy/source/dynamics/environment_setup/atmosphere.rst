@@ -63,8 +63,6 @@ Functions
    exponential_predefined
    exponential
    nrlmsise00
-   mars_climate_database_climate_model
-   mars_climate_database
    tabulated
    us76
    mars_dtm
@@ -74,6 +72,13 @@ Functions
    scaled_by_function
    coma_model_from_poly_data
    coma_model_from_stokes_data
+
+.. ifconfig:: has_mcd_support
+
+   .. autosummary::
+
+      mars_climate_database_climate_model
+      mars_climate_database_atmosphere_model
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.empty_wind_model
@@ -89,10 +94,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.exponential
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
-
-.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
-
-.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
 
@@ -112,6 +113,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_stokes_data
 
+.. ifconfig:: has_mcd_support
+
+   Mars Climate Database
+   ~~~~~~~~~~~~~~~~~~~~~
+
+   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
+
+   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model
+
 
 Classes
 -------
@@ -128,9 +138,14 @@ Classes
    ExponentialAtmosphereSettings
    CustomConstantTemperatureAtmosphereSettings
    ScaledAtmosphereSettings
-   ClimateModelSettings
    NRLMSISE00Input
    NRLMSISE00Atmosphere
+
+.. ifconfig:: has_mcd_support
+
+   .. autosummary::
+
+      ClimateModelSettings
 
 
 Wind Model Settings
@@ -151,12 +166,13 @@ Wind Model Settings
    :members:
    :show-inheritance:
 
+.. ifconfig:: has_mcd_support
 
-Climate Model Settings
-~~~~~~~~~~~~~~~~~~~~~~
+   Climate Model Settings
+   ~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
-   :members:
+   .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
+      :members:
 
 
 Atmosphere Settings
