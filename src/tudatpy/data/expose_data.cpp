@@ -565,6 +565,15 @@ Read a mapping from DOMES id to station name.
                     R"doc(No documentation available.)doc" )
             .export_values( );
 
+    py::enum_< tudat::input_output::FdetDateFormat >( m, "FdetDateFormat", R"doc(Date format used in an Fdets file.)doc" )
+            .value( "datetime_string",
+                    tudat::input_output::FdetDateFormat::datetime_string,
+                    R"doc(Date is provided in a single UTC datetime string column.)doc" )
+            .value( "pair_of_numbers",
+                    tudat::input_output::FdetDateFormat::pair_of_numbers,
+                    R"doc(Date is provided as a pair of numeric columns. This format is not currently supported.)doc" )
+            .export_values( );
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -809,24 +818,35 @@ Read a mapping from DOMES id to station name.
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
 
-    // Temporary fix: Asigned default to variable to avoid compilation error
-    const std::vector< std::string > fdet_cols = {
-        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
-    };
-
     m.def( "read_fdets_file",
-           &tio::readFdetsFile,
+           py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),
            py::arg( "file_name" ),
-           py::arg( "column_types" ) = fdet_cols,
+           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string,
            R"doc(Load contents of Fdets file into object
 
-           This function loads the contents of an Fdets file into a dictionary with keys defined by the strings listed in `column_types`. If a list of columns is not specified, the following structure is assumed:
+           This function loads the contents of an Fdets file. For the currently supported `datetime_string` date format, the following structure is assumed:
 
            - UTC datetime string
            - Signal to noise ratio [-]
            - Normalized spectral max (Not sure what this is)
            - Doppler measured frequency [Hz]
            - Doppler noise [Hz]
+
+           If the file contains an additional leading scan-number column, this column is detected automatically.
+
+           :param file_name: String representing the path to the file to be loaded
+           :param date_format: Date format used in the Fdets file
+           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
+
+    m.def( "read_fdets_file",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tio::readFdetsFile ),
+           py::arg( "file_name" ),
+           py::arg( "column_types" ),
+           R"doc(Load contents of Fdets file into object using explicit column identifiers.
+
+           .. deprecated::
+              Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
 
            :param file_name: String representing the path to the file to be loaded
            :param column_types: Identifiers of the columns present in the Fdets file
