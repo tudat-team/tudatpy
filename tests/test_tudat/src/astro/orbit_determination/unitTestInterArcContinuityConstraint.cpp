@@ -932,6 +932,43 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_EpochOutsideArcThrows )
     }
 }
 
+//! Ambiguous estimated-parameter layouts must be rejected instead of silently using the first body-name match.
+BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DuplicateBodyInitialStateParameterThrows )
+{
+    auto fixture = buildTwoArcFixture( );
+    const int totalParameterSize = fixture.fullStateTransitionSize + fixture.fullSensitivitySize;
+    Eigen::VectorXd columnNormalizationFactors = Eigen::VectorXd::Ones( totalParameterSize );
+
+    auto multiArcStateParameters = fixture.parametersToEstimate->getEstimatedMultiArcInitialStateParameters( );
+    BOOST_REQUIRE_EQUAL( multiArcStateParameters.size( ), 1u );
+
+    typedef EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > InitialStateParameter;
+    std::vector< std::shared_ptr< InitialStateParameter > > duplicatedInitialStateParameters = { multiArcStateParameters.at( 0 ),
+                                                                                                 multiArcStateParameters.at( 0 ) };
+    auto duplicatedParametersToEstimate = std::make_shared< EstimatableParameterSet< double > >(
+            std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
+            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ),
+            duplicatedInitialStateParameters );
+
+    auto settings = positionOnlyContinuity( "Earth", { fixture.arcStartTimes[ 1 ] }, 1.0, 1.0 );
+    try
+    {
+        assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                  duplicatedParametersToEstimate,
+                                                                  fixture.simulator,
+                                                                  fixture.stmInterface,
+                                                                  columnNormalizationFactors,
+                                                                  totalParameterSize );
+        BOOST_FAIL( "Expected runtime_error from duplicate body initial-state parameters was not thrown." );
+    }
+    catch( const std::runtime_error& error )
+    {
+        const std::string what = error.what( );
+        BOOST_CHECK( what.find( "Earth" ) != std::string::npos );
+        BOOST_CHECK( what.find( "matches 2 arc-wise initial state parameters" ) != std::string::npos );
+    }
+}
+
 //! Test 12: covariance analysis with inter-arc continuity priors attached directly to CovarianceAnalysisInput. The regularized inverse
 //! normalized covariance matrix must dominate the unregularized one elementwise on the parameter block (PSD
 //! inequality), confirming that the position-only prior genuinely tightens the covariance in the regularized

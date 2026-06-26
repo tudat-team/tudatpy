@@ -303,18 +303,28 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
             // Locate the body's arc-wise initial-state parameter.
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >
                     bodyParameter;
+            int matchingParameterCount = 0;
             for( const auto& candidate : multiArcStateParameters )
             {
-                if( candidate->getParameterName( ).second.first == body )
+                if( candidate->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state &&
+                    candidate->getParameterName( ).second.first == body )
                 {
                     bodyParameter = candidate;
-                    break;
+                    ++matchingParameterCount;
                 }
             }
             if( bodyParameter == nullptr )
             {
                 throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body +
                                           "\" referenced by an inter-arc continuity prior does not have an arc-wise "
+                                          "initial state parameter." );
+            }
+            if( matchingParameterCount > 1 )
+            {
+                throw std::runtime_error( "Error in assembleInterArcContinuityContribution: body \"" + body +
+                                          "\" referenced by an inter-arc continuity prior matches " +
+                                          std::to_string( matchingParameterCount ) +
+                                          " arc-wise initial state parameters. Each body must have a unique arc-wise "
                                           "initial state parameter." );
             }
 
