@@ -170,10 +170,10 @@ private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 
     //! Cached solar longitude value to avoid redundant state function calls [rad]
-    double cachedSolarLongitude_;
+    mutable double cachedSolarLongitude_;
 
     //! Time at which solar longitude was last cached [s]
-    double cachedTime_;
+    mutable double cachedTime_;
 
     //! Pre-allocated coefficient matrices to avoid repeated allocations
     Eigen::MatrixXd cachedCosineCoefficients_;
@@ -204,9 +204,9 @@ private:
     Eigen::MatrixXd cachedTemperatureSineCoefficients_;
 
     //! Cached state function results
-    Eigen::Vector6d cachedSunState_;
-    Eigen::Vector6d cachedCometState_;
-    Eigen::Matrix3d cachedRotationMatrix_;
+    mutable Eigen::Vector6d cachedSunState_;
+    mutable Eigen::Vector6d cachedCometState_;
+    mutable Eigen::Matrix3d cachedRotationMatrix_;
 
     //! Pre-allocated interpolation point vectors to avoid repeated allocations
     std::vector< double > interpolationPoint2D_;
@@ -226,7 +226,7 @@ private:
             temperatureValid( false )
         {}
     };
-    CacheFlags cacheFlags_;
+    mutable CacheFlags cacheFlags_;
 
     // ========== Configuration: Model parameters (small, accessed during initialization and queries) ==========
 
@@ -395,7 +395,7 @@ private:
      * @param time Time at which to compute solar longitude [s]
      * @return Solar longitude [rad]
      */
-    double calculateSolarLongitude( double time );
+    double calculateSolarLongitude( double time ) const;
 
     /*!
      * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
