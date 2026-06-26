@@ -37,7 +37,7 @@ Eigen::MatrixXd buildDiagonalWeight( const py::object& positionWeight, const py:
         {
             return;
         }
-        if( py::isinstance< py::float_ >( value ) || py::isinstance< py::int_ >( value ) )
+        if( PyNumber_Check( value.ptr( ) ) != 0 && PySequence_Check( value.ptr( ) ) == 0 )
         {
             const double scalar = value.cast< double >( );
             constraintWeightMatrix( startIdx, startIdx ) = scalar;

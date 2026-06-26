@@ -43,6 +43,28 @@ def test_inter_arc_constraint_factories_accept_expected_inputs():
     assert general.constraint_scaling_factor == 3.0
 
 
+@pytest.mark.parametrize("scalar", [np.float32(1.0), np.float64(1.0), np.int32(1), np.int64(1)])
+def test_inter_arc_constraint_factories_accept_numpy_weight_scalars(scalar):
+    settings = estimation_analysis.full_state_continuity(
+        ["Vehicle"],
+        {"Vehicle": [100.0]},
+        position_weights={"Vehicle": scalar},
+        velocity_weights={"Vehicle": scalar},
+    )
+
+    assert type(settings).__name__ == "InterArcStateContinuityConstraintSettings"
+
+
+def test_inter_arc_constraint_factories_accept_numpy_weight_arrays_as_sequences():
+    settings = estimation_analysis.position_only_continuity(
+        ["Vehicle"],
+        {"Vehicle": [100.0]},
+        position_weights={"Vehicle": np.array([1.0, 2.0, 3.0])},
+    )
+
+    assert type(settings).__name__ == "InterArcStateContinuityConstraintSettings"
+
+
 def test_inter_arc_constraint_factories_validate_inputs():
     with pytest.raises(RuntimeError):
         estimation_analysis.position_only_continuity(
