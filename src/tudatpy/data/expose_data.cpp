@@ -27,7 +27,7 @@
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/readVariousPdsFiles.h"
 #include "tudat/io/solarActivityData.h"
-#include "unified_data_library/expose_unified_data_library_reader.h"
+
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -602,9 +602,7 @@ void expose_data( py::module& m )
            :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 
-    auto unified_data_library_submodule =
-            m.def_submodule( "unified_data_library", "Submodule for reading and processing Unified Data Library (UDL) files." );
-    unified_data_library::expose_unified_data_library_reader( unified_data_library_submodule );
+
 };
 
 }  // namespace data
