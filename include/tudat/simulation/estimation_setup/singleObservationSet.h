@@ -359,6 +359,11 @@ public:
 
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving observation dependent variables matrix, no dependent variable bookkeeping is defined." );
+        }
         Eigen::MatrixXd dependentVariablesMatrix =
                 Eigen::MatrixXd::Zero( numberOfObservations_, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
@@ -385,6 +390,10 @@ public:
     Eigen::MatrixXd getSingleDependentVariable( std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
                                                 const bool returnFirstCompatibleSettings = false )
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving single dependent variable, no dependent variable bookkeeping is defined." );
+        }
         // Retrieve full map of dependent variables start indices and sizes based on settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
                 settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
@@ -424,6 +433,11 @@ public:
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getCompatibleDependentVariablesSettingsList(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving compatible dependent variable settings, no dependent variable bookkeeping is defined." );
+        }
         // Check which settings are compatible with the input settings object
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings;
         for( auto it : dependentVariableBookkeeping_->getDependentVariableSettings( ) )
@@ -441,6 +455,11 @@ public:
     std::vector< Eigen::MatrixXd > getAllCompatibleDependentVariables(
             std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
     {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving compatible dependent variables, no dependent variable bookkeeping is defined." );
+        }
         // Retrieve start indices and sizes for each dependent variable settings
         std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > >
                 settingsIndicesAndSizes = dependentVariableBookkeeping_->getSettingsIndicesAndSizes( );
