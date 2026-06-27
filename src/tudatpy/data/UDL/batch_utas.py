@@ -715,7 +715,7 @@ class BatchUTAS:
             # Create TDOA observation set
             tdoa_set = observations.create_single_observation_set(
                 model_settings.differenced_time_of_arrival_type,
-                link_def,
+                link_def.link_ends,
                 tdoa_observations,
                 observation_times,
                 links.receiver,
@@ -725,7 +725,7 @@ class BatchUTAS:
             # Create FDOA observation set
             fdoa_set = observations.create_single_observation_set(
                 model_settings.differenced_frequency_of_arrival_type,
-                link_def,
+                link_def.link_ends,
                 fdoa_observations,
                 observation_times,
                 links.receiver,
