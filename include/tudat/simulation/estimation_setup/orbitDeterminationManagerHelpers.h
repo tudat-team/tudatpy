@@ -95,14 +95,6 @@ void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dyna
             componentPeriods[ 1 ] = 2.0 * mathematical_constants::PI;
             componentPeriods[ 2 ] = 2.0 * mathematical_constants::PI;
             break;
-        case observation_models::position_angle:
-            // Single component is periodic with period 2*pi
-            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
-            break;
-        case observation_models::position_angle_and_separation:
-            // Component 0 (position angle) is periodic with period 2*pi
-            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
-            break;
         default:
             break;
     }
