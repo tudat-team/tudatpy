@@ -37,7 +37,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     // Get number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    int totalNumberOfObservations = static_cast< int >( estimationInput->getObservationDataset( )->getTotalScalarSize( ) );
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
@@ -227,7 +227,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         if( estimationInput->getPrintOutput( ) )
         {
             std::map< observation_models::ObservableType, std::pair< int, int > > indicesPerObservableType =
-                    estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
+                    estimationInput->getObservationDataset( )->getObservableTypeStartAndSize( );
 
             if( indicesPerObservableType.size( ) > 1 )
             {
@@ -253,7 +253,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
-            estimationInput->getObservationCollection( )->setResiduals( residuals );
+            estimationInput->getObservationDataset( )->setResidualVector( residuals );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
                 bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
@@ -393,7 +393,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
 {
     // Get number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    int totalNumberOfObservations = static_cast< int >( estimationInput->getObservationDataset( )->getTotalScalarSize( ) );
 
     // Re-integrate equations of motion and variational equations with new parameter estimate.
     try
@@ -430,7 +430,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     Eigen::MatrixXd designMatrix;
     if( calculateResiduals )
     {
-        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
+        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationDataset( ),
                                                                               observationManagers_,
                                                                               totalNumberParameters_,
                                                                               totalNumberOfObservations,
@@ -440,7 +440,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     }
     else
     {
-        calculateDesignMatrix< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
+        calculateDesignMatrix< ObservationScalarType, TimeType >( estimationInput->getObservationDataset( ),
                                                                   observationManagers_,
                                                                   totalNumberParameters_,
                                                                   totalNumberOfObservations,

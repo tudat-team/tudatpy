@@ -4,7 +4,7 @@ from tudatpy.estimation.observations_setup.ancillary_settings import (
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 
-from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
+from tudatpy.estimation.observations import ObservationDataset
 
 from . import RadioBase
 from trk234 import SFDU
@@ -48,11 +48,9 @@ class DerivedSraRangeConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(
-        self, range_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[SingleObservationSet]:
+    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> ObservationDataset:
 
-        observation_set_list = []
+        observation_dataset = ObservationDataset()
         for link_end in range_df["link_ends"].unique():
             link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
             link_def = link_definition(link_ends_dict)
@@ -79,17 +77,16 @@ class DerivedSraRangeConverter(RadioBase):
                             obs_values = [_np.array([row["obs"]], dtype=float).reshape((-1, 1))]
                             station = link_end[2] if len(link_end) == 3 else link_end[1]
                             epoch_seconds = [self.from_datetime_UTC_to_TDB(row["epoch"], station)]
-                            observation_set = create_single_observation_set(
+                            observation_dataset.add_observation_set(
                                 ObservableType.dsn_n_way_range_type,
-                                link_def.link_ends,
+                                link_def,
                                 obs_values,
                                 epoch_seconds,
                                 receiver,
-                                ancillary_settings,
+                                ancillary_settings=ancillary_settings,
                             )
-                            observation_set_list.append(observation_set)
 
-        return observation_set_list
+        return observation_dataset
 
     def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """

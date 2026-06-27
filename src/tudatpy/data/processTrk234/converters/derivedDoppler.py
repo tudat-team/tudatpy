@@ -3,7 +3,7 @@ from tudatpy.estimation.observations_setup.ancillary_settings import (
 )
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
+from tudatpy.estimation.observations import ObservationDataset
 
 from trk234 import SFDU
 from . import RadioBase
@@ -39,9 +39,9 @@ class DerivedDopplerConverter(RadioBase):
 
     def process(
         self, doppler_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[SingleObservationSet]:
+    ) -> ObservationDataset:
 
-        observation_set_list = []
+        observation_dataset = ObservationDataset()
         for link_end in doppler_df["link_ends"].unique():
             link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
             link_def = link_definition(link_ends_dict)
@@ -69,17 +69,16 @@ class DerivedDopplerConverter(RadioBase):
                             .apply(lambda t: self.from_datetime_UTC_to_TDB(t, station))
                             .tolist()
                         )
-                        observation_set = create_single_observation_set(
+                        observation_dataset.add_observation_set(
                             ObservableType.dsn_n_way_averaged_doppler_type,
-                            link_def.link_ends,
+                            link_def,
                             obs_values,
                             epoch_seconds,
                             receiver,
-                            ancillary_settings,
+                            ancillary_settings=ancillary_settings,
                         )
-                        observation_set_list.append(observation_set)
 
-        return observation_set_list
+        return observation_dataset
 
     def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """

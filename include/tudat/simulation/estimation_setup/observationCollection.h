@@ -79,6 +79,29 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
+    ObservationCollection( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
+        observationDataset_( observationDataset )
+    {
+        if( observationDataset_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating observation collection wrapper, input dataset is null." );
+        }
+
+        for( ObservationSetId setId = 0; setId < observationDataset_->getNumberOfObservationSets( ); ++setId )
+        {
+            const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
+                    observationDataset_->getObservationSetMetadata( setId );
+            const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
+                    std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
+            observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( observationSet );
+            observationSetWrappersByDatasetSetId_.push_back( observationSet );
+        }
+
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( false );
+    }
+
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVector( )
     {
         refreshLegacyConcatenatedProjectionFromObservationDataset( );
@@ -113,7 +136,6 @@ public:
                 }
             }
         }
-        invalidateObservationDataset( );
         refreshLegacyConcatenatedProjectionFromObservationDataset( );
     }
 
@@ -139,7 +161,6 @@ public:
                 }
             }
         }
-        invalidateObservationDataset( );
     }
 
     void setObservations( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations,
@@ -174,7 +195,6 @@ public:
                     "should be consistent with "
                     "the combined size of all required observation sets." );
         }
-        invalidateObservationDataset( );
         refreshLegacyConcatenatedProjectionFromObservationDataset( );
     }
 
@@ -219,7 +239,6 @@ public:
                     "consistent with "
                     "the combined size of all required observation sets." );
         }
-        invalidateObservationDataset( );
     }
 
     void setResiduals( const std::map< std::shared_ptr< ObservationCollectionParser >,
@@ -994,7 +1013,6 @@ public:
         {
             singleObsSet->setConstantWeight( weight );
         }
-        invalidateObservationDataset( );
     }
 
     void setConstantWeight(
@@ -1012,7 +1030,6 @@ public:
         {
             singleObsSet->setConstantWeight( weight );
         }
-        invalidateObservationDataset( );
     }
 
     void setConstantWeightPerObservable(
@@ -1079,7 +1096,6 @@ public:
                         "of all required observation sets." );
             }
         }
-        invalidateObservationDataset( );
     }
 
     void setTabulatedWeights(
@@ -1148,7 +1164,7 @@ public:
 
         // Reset observation set indices and concatenated observations and times
         setObservationSetIndices( );
-        setConcatenatedObservationsAndTimes( );
+        setConcatenatedObservationsAndTimes( false );
     }
 
     void filterObservations(
@@ -1915,40 +1931,59 @@ public:
     }
 
 private:
-    void invalidateObservationDataset( ) const
+    void rebuildObservationSetListFromObservationDataset( ) const
     {
-        observationDataset_.reset( );
+        observationSetList_.clear( );
         observationSetWrappersByDatasetSetId_.clear( );
+
+        for( ObservationSetId setId = 0; setId < observationDataset_->getNumberOfObservationSets( ); ++setId )
+        {
+            const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
+                    observationDataset_->getObservationSetMetadata( setId );
+            const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
+                    std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
+            observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( observationSet );
+            observationSetWrappersByDatasetSetId_.push_back( observationSet );
+        }
+    }
+
+    void rebuildObservationDatasetFromObservationSets( ) const
+    {
+        ObservationDataset< ObservationScalarType, TimeType > rebuiltDataset;
+        for( const auto& observableIt : observationSetList_ )
+        {
+            for( const auto& linkEndsIt : observableIt.second )
+            {
+                for( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSet : linkEndsIt.second )
+                {
+                    rebuiltDataset.addObservationSetFromDataset( *observationSet->getObservationDataset( ),
+                                                                 observationSet->getObservationSetId( ) );
+                }
+            }
+        }
+
+        if( observationDataset_ == nullptr )
+        {
+            observationDataset_ = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+        }
+
+        *observationDataset_ = rebuiltDataset;
+        rebuildObservationSetListFromObservationDataset( );
     }
 
     void ensureObservationDataset( ) const
     {
         if( observationDataset_ == nullptr )
         {
-            observationDataset_ = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
-            observationSetWrappersByDatasetSetId_.clear( );
-            for( const auto& observableIt : observationSetList_ )
-            {
-                for( const auto& linkEndsIt : observableIt.second )
-                {
-                    for( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSet :
-                         linkEndsIt.second )
-                    {
-                        observationDataset_->addObservationSetFromDataset( *observationSet->getObservationDataset( ),
-                                                                           observationSet->getObservationSetId( ) );
-                        observationSetWrappersByDatasetSetId_.push_back( observationSet );
-                    }
-                }
-            }
+            rebuildObservationDatasetFromObservationSets( );
         }
     }
 
     void refreshLegacyConcatenatedProjectionFromObservationDataset( )
     {
-        const EstimationVectorProjection< ObservationScalarType, TimeType > projection =
-                getObservationDataset( )->createLegacyProjection( );
-        concatenatedObservations_ = projection.getObservationVector( );
-        concatenatedTimes_ = projection.getTimes( );
+        ensureObservationDataset( );
+        setLegacyConcatenatedProjectionFromObservationSets( );
     }
 
     void setObservationSetIndices( )
@@ -1999,14 +2034,18 @@ private:
         }
     }
 
-    void setConcatenatedObservationsAndTimes( )
+    void setConcatenatedObservationsAndTimes( const bool rebuildObservationDataset = true )
     {
-        invalidateObservationDataset( );
-        ensureObservationDataset( );
+        if( rebuildObservationDataset )
+        {
+            rebuildObservationDatasetFromObservationSets( );
+        }
+        else
+        {
+            ensureObservationDataset( );
+        }
 
-        const EstimationVectorProjection< ObservationScalarType, TimeType > projection = observationDataset_->createLegacyProjection( );
-        concatenatedObservations_ = projection.getObservationVector( );
-        concatenatedTimes_ = projection.getTimes( );
+        setLegacyConcatenatedProjectionFromObservationSets( );
         concatenatedLinkEndIds_.resize( totalObservableSize_ );
         concatenatedLinkEndIdNames_.resize( totalObservableSize_ );
 
@@ -2077,6 +2116,52 @@ private:
             {
                 observationSetStartAndSizePerLinkEndIndex_[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
             }
+        }
+    }
+
+    void setLegacyConcatenatedProjectionFromObservationSets( )
+    {
+        concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
+        concatenatedTimes_.clear( );
+        concatenatedTimes_.reserve( totalObservableSize_ );
+
+        int currentIndex = 0;
+        for( const auto& observationIterator : observationSetList_ )
+        {
+            const int observableSize = getObservableSize( observationIterator.first );
+            for( const auto& linkEndIterator : observationIterator.second )
+            {
+                for( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSet :
+                     linkEndIterator.second )
+                {
+                    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservations =
+                            observationSet->getObservationsVector( );
+                    const std::vector< TimeType > currentTimes = observationSet->getObservationTimes( );
+
+                    if( currentObservations.size( ) != static_cast< int >( currentTimes.size( ) ) * observableSize )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating legacy observation collection projection, observation and time sizes are "
+                                "inconsistent." );
+                    }
+
+                    concatenatedObservations_.segment( currentIndex, currentObservations.size( ) ) = currentObservations;
+                    for( const TimeType& observationTime : currentTimes )
+                    {
+                        for( int i = 0; i < observableSize; ++i )
+                        {
+                            concatenatedTimes_.push_back( observationTime );
+                        }
+                    }
+                    currentIndex += currentObservations.size( );
+                }
+            }
+        }
+
+        if( currentIndex != totalObservableSize_ )
+        {
+            throw std::runtime_error(
+                    "Error when creating legacy observation collection projection, total observation size is inconsistent." );
         }
     }
 
@@ -2181,7 +2266,7 @@ private:
         return observationParser;
     }
 
-    SortedObservationSets observationSetList_;
+    mutable SortedObservationSets observationSetList_;
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
 
@@ -2238,21 +2323,7 @@ template< typename ObservationScalarType = double,
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
         const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
 {
-    if( observationDataset == nullptr )
-    {
-        throw std::runtime_error( "Error when creating observation collection wrapper, input dataset is null." );
-    }
-
-    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
-    for( ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
-    {
-        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = observationDataset->getObservationSetMetadata( setId );
-        const LinkEnds linkEnds = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-        sortedObservations[ metadata.observableType_ ][ linkEnds ].push_back(
-                createSingleObservationSet< ObservationScalarType, TimeType >( observationDataset, setId ) );
-    }
-
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( sortedObservations );
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationDataset );
 }
 
 template< typename ObservationScalarType = double,

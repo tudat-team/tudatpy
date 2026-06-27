@@ -1388,7 +1388,7 @@ class BatchMPC:
 
         # 4. Group by unique Link (Target Body + Observatory)
         unique_links = df.groupby(["number", "observatory"])
-        observation_set_list = []
+        observation_dataset = observations.ObservationDataset()
 
         for (mpc_code, observatory_code), group in unique_links:
             # --- A. Define Link Ends ---
@@ -1404,10 +1404,10 @@ class BatchMPC:
             times = group["epoch_seconds_TDB"].to_numpy()
             observables = group[[RA_col, DEC_col]].to_numpy()
 
-            # --- C. Create SingleObservationSet ---
-            observation_set = observations.create_single_observation_set(
+            # --- C. Add observation set ---
+            set_id = observation_dataset.add_observation_set(
                 model_settings.angular_position_type,
-                link_definition.link_ends,
+                link_definition,
                 observables,
                 times,
                 links.receiver,
@@ -1418,11 +1418,9 @@ class BatchMPC:
             if "weight" in group.columns:
                 weights = group["weight"].to_numpy()
                 weights_flat = np.ravel([weights, weights], "F")
-                observation_set.weights_vector = weights_flat
+                observation_dataset.set_weight_vector_for_set(set_id, weights_flat)
 
-            observation_set_list.append(observation_set)
-
-        return observations.ObservationCollection(observation_set_list)
+        return observations.create_observation_collection_from_dataset(observation_dataset)
 
     def to_tudat(
         self,
@@ -1449,9 +1447,9 @@ class BatchMPC:
             6. (Optionally) creates a link definition between each
             space telescope / minor planet combination in the batch.
             This requires an addional input.\\
-            7. Creates a `SingleObservationSet` object for each unique link that
+            7. Adds an observation set for each unique link that
             includes all observations for that link.\\
-            8. (By Default) Add the relevant weights to the `SingleObservationSet`
+            8. (By Default) Add the relevant weights to the observation set
             per observation.\\
             8. Returns the observations
 
@@ -1614,7 +1612,7 @@ class BatchMPC:
             observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
 
-        observation_set_list = []
+        observation_dataset = observations.ObservationDataset()
         for combo in unique_link_combos:
             MPC_number = combo[0]
             station_name = combo[1]
@@ -1649,7 +1647,7 @@ class BatchMPC:
             ]
 
             # create a set of obs for this link
-            observation_set = observations.single_observation_set(
+            set_id = observation_dataset.add_observation_set(
                 model_settings.angular_position_type,
                 link_definition,
                 observation_angles,
@@ -1663,11 +1661,11 @@ class BatchMPC:
                 # this is to make sure the order is RA1, DEC1, 2, 2, 3, 3 etc.
                 observation_weights = np.ravel([observation_weights, observation_weights], "F")
 
-                observation_set.weights_vector = observation_weights
+                observation_dataset.set_weight_vector_for_set(set_id, observation_weights)
 
-            observation_set_list.append(observation_set)
-
-        observation_collection = observations.ObservationCollection(observation_set_list)
+        observation_collection = observations.create_observation_collection_from_dataset(
+            observation_dataset
+        )
         return observation_collection
 
     def plot_observations_temporal(

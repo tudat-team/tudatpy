@@ -1,7 +1,11 @@
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
-from tudatpy.estimation.observations import ObservationCollection
+from tudatpy.estimation.observations import (
+    ObservationCollection,
+    ObservationDataset,
+    create_observation_collection_from_dataset,
+)
 from tudatpy.astro import time_representation
 from tudatpy.dynamics.environment import (
     PiecewiseLinearFrequencyInterpolator,
@@ -103,14 +107,18 @@ class Trk234Processor:
                     extracted_data[dtype].append(extracted)
 
         # Process observables data: merge extracted DataFrames and process them.
-        observation_sets = []
+        observation_dataset = ObservationDataset()
         for dtype, converter in self.converters.items():
             if extracted_data[dtype]:
                 merged_df = pd_concat(extracted_data[dtype], ignore_index=True)
                 if not merged_df.empty:
-                    observation_sets.extend(converter.process(merged_df, self.spacecraft_name))
+                    converter_dataset = converter.process(merged_df, self.spacecraft_name)
+                    for set_id in range(converter_dataset.number_of_observation_sets):
+                        observation_dataset.add_observation_set_from_dataset(
+                            converter_dataset, set_id
+                        )
 
-        return ObservationCollection(observation_sets)
+        return create_observation_collection_from_dataset(observation_dataset)
 
     def set_tnf_information_in_bodies(
         self,

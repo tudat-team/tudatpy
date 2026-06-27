@@ -5,7 +5,7 @@ Base converter class for processing SFDU data into structured data.
 from abc import ABC, abstractmethod
 from pandas import DataFrame
 from trk234 import SFDU
-from tudatpy.estimation.observations import SingleObservationSet
+from tudatpy.estimation.observations import ObservationDataset
 
 
 class Converter(ABC):
@@ -19,11 +19,11 @@ class Converter(ABC):
     @abstractmethod
     def process(
         self, merged_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[SingleObservationSet]:
+    ) -> ObservationDataset:
         """
         Process a merged DataFrame (from multiple files extract outputs) into Tudat structured format.
-        For observable converters, this will be a list of
-        :class:`~tudatpy.estimation.observations.SingleObservationSet` objects.
+        For observable converters, this will be an
+        :class:`~tudatpy.estimation.observations.ObservationDataset` object.
 
         Parameters
         ----------
@@ -35,7 +35,7 @@ class Converter(ABC):
 
         Returns
         -------
-        list[SingleObservationSet]
-            A list of single observation sets.
+        ObservationDataset
+            A dataset containing the converted observation sets.
         """
         pass

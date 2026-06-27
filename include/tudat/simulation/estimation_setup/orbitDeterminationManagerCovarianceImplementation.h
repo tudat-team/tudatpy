@@ -31,7 +31,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
     // Get total number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    int totalNumberOfObservations = static_cast< int >( estimationInput->getObservationDataset( )->getTotalScalarSize( ) );
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )

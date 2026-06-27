@@ -248,8 +248,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     if( observableType == 4 )
@@ -538,8 +538,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             getObservationSimulationSettings< TimeType >( linkEndsPerObservable, baseTimeList, receiver );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
@@ -1118,8 +1118,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
