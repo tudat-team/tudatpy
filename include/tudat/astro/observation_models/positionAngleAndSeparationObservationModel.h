@@ -175,10 +175,13 @@ public:
                 std::cos( declinationFirstTransmitter ) * std::sin( declinationSecondTransmitter ) -
                         std::sin( declinationFirstTransmitter ) * std::cos( declinationSecondTransmitter ) * std::cos( deltaRA ) );
 
-        // Compute angular separation
-        double separation =
-                std::acos( std::sin( declinationFirstTransmitter ) * std::sin( declinationSecondTransmitter ) +
-                           std::cos( declinationFirstTransmitter ) * std::cos( declinationSecondTransmitter ) * std::cos( deltaRA ) );
+        // Compute angular separation using numerically stable atan2 formulation:
+        // θ = atan2(||u1 × u2||, u1 · u2)
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
+
+        double separation = std::atan2( static_cast< double >( unitVector1.cross( unitVector2 ).norm( ) ),
+                                        static_cast< double >( unitVector1.dot( unitVector2 ) ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );

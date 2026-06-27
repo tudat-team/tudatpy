@@ -151,30 +151,16 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter2 =
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
-        // Compute right ascension and declination for first transmitter.
-        double rightAscensionFirstTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter1[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter1[ 0 ] * relativeStateTransmitter1[ 0 ] +
-                                        relativeStateTransmitter1[ 1 ] * relativeStateTransmitter1[ 1 ] ) +
-                             relativeStateTransmitter1[ 0 ] ) );
-        double declinationFirstTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter1[ 2 ] / relativeStateTransmitter1.norm( ) );
+        // Compute unit vectors from receiver to each transmitter
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
 
-        // Compute right ascension and declination for second transmitter.
-        double rightAscensionSecondTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter2[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter2[ 0 ] * relativeStateTransmitter2[ 0 ] +
-                                        relativeStateTransmitter2[ 1 ] * relativeStateTransmitter2[ 1 ] ) +
-                             relativeStateTransmitter2[ 0 ] ) );
-        double declinationSecondTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter2[ 2 ] / relativeStateTransmitter2.norm( ) );
+        // Compute angular separation using numerically stable atan2 formulation:
+        // θ = atan2(||u1 × u2||, u1 · u2)
+        Eigen::Matrix< ObservationScalarType, 3, 1 > crossProduct = unitVector1.cross( unitVector2 );
+        ObservationScalarType dotProduct = unitVector1.dot( unitVector2 );
 
-        double deltaRA = rightAscensionSecondTransmitter - rightAscensionFirstTransmitter;
-
-        // Compute angular separation: acos(sin(d1)*sin(d2) + cos(d1)*cos(d2)*cos(dRA))
-        double separation =
-                std::acos( std::sin( declinationFirstTransmitter ) * std::sin( declinationSecondTransmitter ) +
-                           std::cos( declinationFirstTransmitter ) * std::cos( declinationSecondTransmitter ) * std::cos( deltaRA ) );
+        double separation = std::atan2( static_cast< double >( crossProduct.norm( ) ), static_cast< double >( dotProduct ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );
