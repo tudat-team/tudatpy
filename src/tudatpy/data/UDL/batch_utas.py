@@ -299,12 +299,12 @@ class BatchUTAS:
 
         body = bodies.get_body(station_body)
 
-        if body.get_shape_model() is None:
+        if body.shape_model is None:
             shape_model = environment_setup.create_body_shape_model(
                 environment_setup.from_spice_oblate_spherical_body_shape_settings(),
                 station_body,
             )
-            body.set_shape_model(shape_model)
+            body.shape_model = shape_model
 
     def create_ground_stations(
         self,
@@ -629,12 +629,12 @@ class BatchUTAS:
 
         body = bodies.get_body(station_body)
 
-        if body.get_shape_model() is None:
+        if body.shape_model is None:
             shape_model = environment_setup.create_body_shape_model(
                 environment_setup.from_spice_oblate_spherical_body_shape_settings(),
                 station_body,
             )
-            body.set_shape_model(shape_model)
+            body.shape_model = shape_model
 
     def _create_ground_stations(
         self, bodies: environment.SystemOfBodies, station_body: str
