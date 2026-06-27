@@ -372,6 +372,29 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
+            .def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            const Eigen::MatrixXd >( ),
+                  py::arg( "observation_dataset" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  R"doc(
+
+         Class constructor using the dataset-backed observation representation.
+
+         This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
+         directly. A legacy ``ObservationCollection`` compatibility wrapper is created internally
+         for code paths that still require it.
+
+         Parameters
+         ----------
+         observation_dataset : tudatpy.estimation.observations.ObservationDataset
+             Dataset containing observations, residuals, weights, link metadata and ancillary data.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             Inverse a-priori covariance matrix of estimated parameters.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of considered parameters.
+     )doc" )
             .def( "set_constant_weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeightsMatrix,
                   py::arg( "weight" ),
@@ -546,6 +569,16 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def_property_readonly( "observation_dataset",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationDataset,
+                                    R"doc(
+
+         **read-only**
+
+         Dataset-backed observation data used by this covariance-analysis input.
+
+         :type: tudatpy.estimation.observations.ObservationDataset
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -597,6 +630,41 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
+     )doc" )
+            .def( py::init< const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            std::shared_ptr< tss::EstimationConvergenceChecker >,
+                            const Eigen::MatrixXd,
+                            const Eigen::VectorXd,
+                            const bool >( ),
+                  py::arg( "observation_dataset" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
+                  py::arg( "apply_final_parameter_correction" ) = true,
+                  R"doc(
+
+         Class constructor using the dataset-backed observation representation.
+
+         This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
+         directly. A legacy ``ObservationCollection`` compatibility wrapper is created internally
+         for code paths that still require it.
+
+         Parameters
+         ----------
+         observation_dataset : tudatpy.estimation.observations.ObservationDataset
+             Dataset containing observations, residuals, weights, link metadata and ancillary data.
+         inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             Inverse a-priori covariance matrix of estimated parameters.
+         convergence_checker : tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker, optional
+             Object defining when the estimation is converged.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of considered parameters.
+         consider_parameters_deviations : numpy.ndarray[numpy.float64[m, 1]], default = [ ]
+             Deviation vector for considered parameters.
+         apply_final_parameter_correction : bool, default = True
+             Whether to apply the final estimated parameter update.
      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,

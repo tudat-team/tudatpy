@@ -55,6 +55,7 @@ set(estimation_HEADERS
         observationOutput.h
         observationSimulationSettings.h
         observationsProcessing.h
+        observationDataset.h
         observations.h
         createDirectObservationPartials.h
         createPositionPartialScaling.h

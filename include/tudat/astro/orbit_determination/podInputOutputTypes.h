@@ -39,7 +39,24 @@ public:
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
+        observationCollection_( observationCollection ), observationDataset_( observationCollection->getObservationDataset( ) ),
+        inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
+        saveDesignMatrix_( true ), printOutput_( true )
+    {
+        considerParametersIncluded_ = false;
+        if( considerCovariance.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
+    }
+
+    CovarianceAnalysisInput(
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+        observationCollection_( observation_models::createObservationCollection< ObservationScalarType, TimeType >( observationDataset ) ),
+        observationDataset_( observationDataset ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
     {
@@ -359,6 +376,11 @@ public:
         return observationCollection_;
     }
 
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
+    {
+        return observationDataset_;
+    }
+
     //! A priori covariance matrix (unnormalized) of estimated parameters
     //! Function to return the a priori covariance matrix (unnormalized) of estimated parameters
     /*!
@@ -493,6 +515,8 @@ protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
 
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
+
     //! A priori covariance matrix (unnormalized) of estimated parameters
     Eigen::MatrixXd inverseOfAprioriCovariance_;
 
@@ -611,6 +635,43 @@ public:
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
+        saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
+        convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
+
+    {
+        if( this->areConsiderParametersIncluded( ) )
+        {
+            if( considerParametersDeviations_.size( ) > 0 )
+            {
+                if( considerCovariance.rows( ) != considerParametersDeviations_.size( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when defining consider covariance and consider parameters deviations, sizes are inconsistent." );
+                }
+                std::cerr << "Warning, considerParametersDeviations are provided as input. These should contain (statistical) deviations "
+                             "with respect to the *nominal*"
+                             "consider parameters values, and not their absolute values."
+                          << "\n\n";
+            }
+        }
+        else
+        {
+            if( considerParametersDeviations_.size( ) > 0 )
+            {
+                throw std::runtime_error( "Error, non-zero consider parameters deviations, but no consider covariance provided." );
+            }
+        }
+    }
+
+    EstimationInput(
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
+            const bool applyFinalParameterCorrection = true ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationDataset, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )

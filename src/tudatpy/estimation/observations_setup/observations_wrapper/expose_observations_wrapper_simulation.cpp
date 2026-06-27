@@ -63,6 +63,54 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "observation_times" ),
            R"doc(No documentation found.)doc" );
 
+    m.def( "create_pseudo_observation_dataset_and_models",
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const TIME_TYPE,
+                              const TIME_TYPE,
+                              const TIME_TYPE >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "time_step" ),
+           R"doc(
+Create pseudo-observation simulators and an :class:`~tudatpy.estimation.observations.ObservationDataset`.
+
+This is the dataset-backed counterpart of
+``create_pseudo_observations_and_models``. It creates the observation models for
+the requested observed bodies and returns the generated pseudo-observations in
+the new dataset representation.
+
+Returns
+-------
+tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDataset]
+    Observation simulators and the generated dataset.
+)doc" );
+
+    m.def( "create_pseudo_observation_dataset_and_models_from_observation_times",
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const std::vector< TIME_TYPE > >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "observation_times" ),
+           R"doc(
+Create pseudo-observation simulators and a dataset at explicit observation times.
+
+This is the dataset-backed counterpart of
+``create_pseudo_observations_and_models_from_observation_times``.
+
+Returns
+-------
+tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDataset]
+    Observation simulators and the generated dataset.
+)doc" );
+
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
@@ -105,6 +153,36 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
 
 
      )doc" );
+
+    m.def( "simulate_observation_dataset",
+           &tss::simulateObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "simulation_settings" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(
+Simulate observations and return the new dataset representation.
+
+This function is the dataset-backed counterpart of ``simulate_observations``. It
+uses the same simulation settings, observation simulators and bodies, but stores
+the simulated observations in an
+:class:`~tudatpy.estimation.observations.ObservationDataset` instead of wrapping
+them in a legacy ``ObservationCollection``.
+
+Parameters
+----------
+simulation_settings : list[ObservationSimulationSettings]
+    Settings defining what observations should be simulated.
+observation_simulators : list[ObservationSimulator]
+    Observation simulators that evaluate the requested observables.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    Physical environment used by the observation models.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing all simulated observations, residual placeholders,
+    weights, dependent variables and metadata.
+)doc" );
 
     m.def( "single_type_observation_collection",
            py::overload_cast< const tom::ObservableType,
