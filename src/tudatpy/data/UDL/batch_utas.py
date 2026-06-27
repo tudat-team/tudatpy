@@ -10,6 +10,11 @@ from tudatpy.estimation.observable_models_setup import (
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 
+# Create time scale converter once at module level (expensive to recreate)
+_time_scale_converter = time_representation.default_time_scale_converter()
+_utc_scale = time_representation.utc_scale
+_tdb_scale = time_representation.tdb_scale
+
 
 class StationPairObservations:
     """Time series data for a single station pair.
@@ -579,10 +584,9 @@ class BatchUTAS:
             dt = DateTime.from_iso_string(time_str)
             time_utc = dt.epoch()
 
-            time_scale_converter = time_representation.default_time_scale_converter()
-            time_tdb = time_scale_converter.convert_time(
-                input_scale=time_representation.utc_scale,
-                output_scale=time_representation.tdb_scale,
+            time_tdb = _time_scale_converter.convert_time(
+                input_scale=_utc_scale,
+                output_scale=_tdb_scale,
                 input_value=time_utc,
             )
             return time_tdb
