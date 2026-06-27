@@ -60,6 +60,71 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
     }
 }
 
+template< typename ObservationScalarType >
+void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+                               const std::pair< int, int > observableStartAndSize,
+                               const observation_models::ObservableType observableType )
+{
+    // Get the block of residuals for this observable type
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
+            residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
+
+    int observableSize = observableStartAndSize.second;
+    if( observableSize == 0 )
+    {
+        return;
+    }
+
+    int observationCount = observableSize / observation_models::getObservableSize( observableType );
+    int singleObsSize = observation_models::getObservableSize( observableType );
+
+    // Determine which components are periodic and their periods
+    // based on the observable type
+    std::vector< double > componentPeriods( singleObsSize, 0.0 );
+    switch( observableType )
+    {
+        case observation_models::angular_position:
+        case observation_models::relative_angular_position:
+        case observation_models::azimuth_elevation_angle:
+            // Component 0 (RA / azimuth) is periodic with period 2*pi
+            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
+            break;
+        case observation_models::euler_angle_313_observable:
+            // All 3 components are periodic with period 2*pi
+            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
+            componentPeriods[ 1 ] = 2.0 * mathematical_constants::PI;
+            componentPeriods[ 2 ] = 2.0 * mathematical_constants::PI;
+            break;
+        case observation_models::position_angle:
+            // Single component is periodic with period 2*pi
+            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
+            break;
+        case observation_models::position_angle_and_separation:
+            // Component 0 (position angle) is periodic with period 2*pi
+            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
+            break;
+        default:
+            break;
+    }
+
+    // Wrap each periodic component per observation
+    for( int obsIdx = 0; obsIdx < observationCount; obsIdx++ )
+    {
+        for( int compIdx = 0; compIdx < singleObsSize; compIdx++ )
+        {
+            if( componentPeriods[ compIdx ] > 0.0 )
+            {
+                int linearIdx = obsIdx * singleObsSize + compIdx;
+                double period = componentPeriods[ compIdx ];
+                residualsBlock( linearIdx, 0 ) =
+                        residualsBlock( linearIdx, 0 ) - period * std::round( residualsBlock( linearIdx, 0 ) / period );
+            }
+        }
+    }
+
+    residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
+}
+
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -109,6 +174,7 @@ void calculateResiduals(
                 observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
 
         checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
+        wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
     }
 }
 
@@ -212,6 +278,7 @@ void calculateDesignMatrixAndResiduals(
             std::pair< int, int > observableStartAndSize =
                     observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
             checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
+            wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
         }
     }
 }
