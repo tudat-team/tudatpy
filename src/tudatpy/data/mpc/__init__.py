@@ -6,3 +6,4 @@ from .mpc import (
     BIAS_LOWRES_FILE,
     DEFAULT_CATALOG_FLAGS,
 )
+from .batch_utas import BatchUTAS
