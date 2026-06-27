@@ -208,7 +208,9 @@ class BatchUTAS:
             )
         return self._observations_by_station_pair[station_pair]
 
-    def get_all_observations_by_station_pair(self) -> dict[tuple[str, str], StationPairObservations]:
+    def get_all_observations_by_station_pair(
+        self,
+    ) -> dict[tuple[str, str], StationPairObservations]:
         """Get all observations organized by station pair.
 
         Returns
@@ -433,7 +435,11 @@ class BatchUTAS:
         # Handle different JSON structures
         if isinstance(data, list):
             observations_list = data
-        elif isinstance(data, dict) and "observations" in data and isinstance(data["observations"], list):
+        elif (
+            isinstance(data, dict)
+            and "observations" in data
+            and isinstance(data["observations"], list)
+        ):
             observations_list = data["observations"]
         else:
             raise RuntimeError(
@@ -518,15 +524,11 @@ class BatchUTAS:
 
             # TDOA
             station_obs.tdoa.append(self._get_required(obs, "tdoa", float))
-            station_obs.tdoa_uncertainties.append(
-                self._get_optional(obs, "tdoaUnc", 0.0, float)
-            )
+            station_obs.tdoa_uncertainties.append(self._get_optional(obs, "tdoaUnc", 0.0, float))
 
             # FDOA
             station_obs.fdoa.append(self._get_required(obs, "fdoa", float))
-            station_obs.fdoa_uncertainties.append(
-                self._get_optional(obs, "fdoaUnc", 0.0, float)
-            )
+            station_obs.fdoa_uncertainties.append(self._get_optional(obs, "fdoaUnc", 0.0, float))
 
     def _validate_single_target(self, new_target_id: str, file_path: str) -> None:
         """Validate that only a single target is present across all files.
@@ -602,11 +604,13 @@ class BatchUTAS:
         np.ndarray
             3-element array [altitude[m], latitude[rad], longitude[rad]].
         """
-        return np.array([
-            position["altitude"],
-            position["latitude"] * np.pi / 180.0,
-            position["longitude"] * np.pi / 180.0,
-        ])
+        return np.array(
+            [
+                position["altitude"],
+                position["latitude"] * np.pi / 180.0,
+                position["longitude"] * np.pi / 180.0,
+            ]
+        )
 
     def _ensure_shape_model(self, bodies: environment.SystemOfBodies, station_body: str) -> None:
         """Ensure the station body has a compatible shape model.
@@ -632,7 +636,9 @@ class BatchUTAS:
             )
             body.set_shape_model(shape_model)
 
-    def _create_ground_stations(self, bodies: environment.SystemOfBodies, station_body: str) -> None:
+    def _create_ground_stations(
+        self, bodies: environment.SystemOfBodies, station_body: str
+    ) -> None:
         """Create ground stations on the specified body.
 
         Parameters
