@@ -33,12 +33,44 @@ namespace
 const char* legacyObservationProcessingDeprecationGuide =
         "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
 
+std::string getObservationProcessingReplacement( const std::string& interfaceName )
+{
+    if( interfaceName == "observation_filter" )
+    {
+        return "tudatpy.estimation.observations.ObservationCondition with ObservationDataset.reject_observations or "
+               "ObservationDataset.create_new_and_drop";
+    }
+    if( interfaceName == "observation_parser" )
+    {
+        return "tudatpy.estimation.observations.ObservationCondition with ObservationDataset.create_viewer, "
+               "ObservationDataset.create_new_and_keep or ObservationDataset.create_new_and_drop";
+    }
+    if( interfaceName == "observation_set_splitter" )
+    {
+        return "tudatpy.estimation.observations.ObservationDataset.create_new_and_keep plus "
+               "ObservationDataset.add_observation_set_from_dataset";
+    }
+    return "tudatpy.estimation.observations.ObservationDataset";
+}
+
+std::string getObservationProcessingApiReferenceLink( const std::string& interfaceName )
+{
+    if( interfaceName == "observation_filter" || interfaceName == "observation_parser" )
+    {
+        return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
+               "ObservationCondition";
+    }
+    return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
+           "ObservationDataset";
+}
+
 void warnLegacyObservationProcessingInterface( const std::string& interfaceName )
 {
     const std::string message = interfaceName +
-            " is deprecated and kept only for backwards compatibility with legacy observation processing. Use ObservationDataset "
-            "conditions/viewers instead. Migration guide: " +
-            legacyObservationProcessingDeprecationGuide;
+            " is deprecated and kept only for backwards compatibility with legacy observation processing. Use " +
+            getObservationProcessingReplacement( interfaceName ) +
+            " instead. API reference: " + getObservationProcessingApiReferenceLink( interfaceName ) +
+            ". Migration guide: " + legacyObservationProcessingDeprecationGuide;
     if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
     {
         throw py::error_already_set( );
@@ -58,6 +90,10 @@ namespace observations_processing
 
 void expose_observations_processing( py::module& m )
 {
+    py::options legacyDocOptions;
+    legacyDocOptions.disable_user_defined_docstrings( );
+    legacyDocOptions.disable_function_signatures( );
+
     py::enum_< tom::ObservationFilterType >( m, "ObservationFilterType", R"doc(
         Enum for types of observation filters.
 
