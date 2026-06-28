@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set weights
-    for( ObservationSetId setId = 0; setId < observationsAndTimes->getNumberOfObservationSets( ); ++setId )
+    for( int setId = 0; setId < observationsAndTimes->getNumberOfObservationSets( ); ++setId )
     {
         const ObservableType currentObservable = observationsAndTimes->getObservationSetMetadata( setId ).observableType_;
         if( currentObservable == one_way_range )

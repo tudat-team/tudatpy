@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
                                                   const observation_models::LinkEnds& linkEnds ) -> std::vector< std::pair< int, int > > {
         std::vector< std::pair< int, int > > blocks;
         const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
-        for( observation_models::ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+        for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
         {
             const auto& metadata = dataset->getObservationSetMetadata( setId );
             if( metadata.observableType_ == observation_models::position_observable &&
@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcStateEstimation )
                                                   const observation_models::LinkEnds& linkEnds ) -> std::vector< std::pair< int, int > > {
         std::vector< std::pair< int, int > > blocks;
         const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
-        for( observation_models::ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+        for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
         {
             const auto& metadata = dataset->getObservationSetMetadata( setId );
             if( metadata.observableType_ == observation_models::position_observable &&
@@ -1079,7 +1079,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
                                                   const observation_models::LinkEnds& linkEnds ) -> std::vector< std::pair< int, int > > {
         std::vector< std::pair< int, int > > blocks;
         const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
-        for( observation_models::ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+        for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
         {
             const auto& metadata = dataset->getObservationSetMetadata( setId );
             if( metadata.observableType_ == observation_models::position_observable &&

@@ -193,7 +193,7 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
     std::shared_ptr< ObservationDataset< double, double > > dataset = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    for( ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservableType observableType = dataset->getObservationSetMetadata( setId ).observableType_;
         if( observableType == one_way_range )
@@ -213,11 +213,11 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
     return dataset;
 }
 
-std::vector< ObservationSetId > getSetIdsForObservable( const ObservationDataset< double, double >& dataset,
-                                                        const ObservableType observableType )
+std::vector< unsigned int > getSetIdsForObservable( const ObservationDataset< double, double >& dataset,
+                                                    const ObservableType observableType )
 {
-    std::vector< ObservationSetId > setIds;
-    for( ObservationSetId setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
+    std::vector< unsigned int > setIds;
+    for( unsigned int setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
     {
         if( dataset.getObservationSetMetadata( setId ).observableType_ == observableType )
         {
@@ -227,10 +227,10 @@ std::vector< ObservationSetId > getSetIdsForObservable( const ObservationDataset
     return setIds;
 }
 
-std::vector< ObservationSetId > getSetIdsForLinkEnd( const ObservationDataset< double, double >& dataset, const LinkEndId& linkEndId )
+std::vector< unsigned int > getSetIdsForLinkEnd( const ObservationDataset< double, double >& dataset, const LinkEndId& linkEndId )
 {
-    std::vector< ObservationSetId > setIds;
-    for( ObservationSetId setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
+    std::vector< unsigned int > setIds;
+    for( unsigned int setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
     {
         const LinkEnds& linkEnds = dataset.getLinkDefinition( dataset.getObservationSetMetadata( setId ).linkDefinitionId_ ).linkEnds_;
         for( const auto& linkEndIterator : linkEnds )
@@ -245,10 +245,10 @@ std::vector< ObservationSetId > getSetIdsForLinkEnd( const ObservationDataset< d
     return setIds;
 }
 
-std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& dataset, const std::vector< ObservationSetId >& setIds )
+std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& dataset, const std::vector< unsigned int >& setIds )
 {
     std::size_t totalSize = 0;
-    for( const ObservationSetId setId : setIds )
+    for( const unsigned int setId : setIds )
     {
         totalSize += dataset.getTotalScalarSizeForSet( setId );
     }
@@ -260,7 +260,7 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  *
  * Test outline: creates a representative multi-station range, Doppler and angular
  * dataset. It checks the registered observable/link metadata, selection by
- * observable type and link end, viewer creation and scalar projection size.
+ * observable type and link end, viewer creation and scalar flattened data size.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
 {
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
     std::set< LinkEnds > linkEndsList;
     std::set< std::string > bodyNames;
     std::set< std::string > referencePointNames;
-    for( ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< double, double >& metadata = dataset->getObservationSetMetadata( setId );
         observableTypes.insert( metadata.observableType_ );
@@ -319,14 +319,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
     BOOST_CHECK( bodyNames == std::set< std::string >( { "Earth", "Vehicle" } ) );
     BOOST_CHECK( referencePointNames == std::set< std::string >( { "Station1", "Station2", "Station3" } ) );
 
-    const std::vector< ObservationSetId > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
-    const std::vector< ObservationSetId > station1SetIds = getSetIdsForLinkEnd( *dataset, LinkEndId( "Earth", "Station1" ) );
+    const std::vector< unsigned int > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
+    const std::vector< unsigned int > station1SetIds = getSetIdsForLinkEnd( *dataset, LinkEndId( "Earth", "Station1" ) );
 
     // Dataset metadata helpers must select range sets and Station1 sets across observable types.
     BOOST_CHECK_EQUAL( rangeSetIds.size( ), 3 );
     BOOST_CHECK_EQUAL( station1SetIds.size( ), 2 );
 
-    const std::vector< ObservationId > firstDayRangeIds = dataset->getObservationIdsMatchingCondition(
+    const std::vector< unsigned int > firstDayRangeIds = dataset->getObservationIdsMatchingCondition(
             ObservationCondition< double, double >::observableType( one_way_range ) &&
             ObservationCondition< double, double >::timeBounds( startTime, startTime + 86400.0 ) );
 
@@ -336,30 +336,31 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
     const ObservationCondition< double, double > station2RangeCondition =
             ObservationCondition< double, double >::observableType( one_way_range ) &&
             ObservationCondition< double, double >::linkEnd( receiver, LinkEndId( "Earth", "Station2" ) );
-    const std::vector< ObservationId > station2RangeIds = dataset->getObservationIdsMatchingCondition( station2RangeCondition );
+    const std::vector< unsigned int > station2RangeIds = dataset->getObservationIdsMatchingCondition( station2RangeCondition );
 
     // Combining observable and link-end conditions must isolate one station's range set.
     BOOST_CHECK_EQUAL( station2RangeIds.size( ), numberOfObservations );
 
     const ObservationDatasetViewer< double, double > station2RangeView = dataset->createViewer( station2RangeCondition );
 
-    // A viewer created from the same condition must expose the selected rows and scalar projection only.
+    // A viewer created from the same condition must expose the selected rows and scalar flattened data only.
     BOOST_CHECK_EQUAL( station2RangeView.getNumberOfObservations( ), numberOfObservations );
-    BOOST_CHECK_EQUAL( station2RangeView.createEstimationProjection( ).getObservationVector( ).size( ), numberOfObservations );
+    BOOST_CHECK_EQUAL( station2RangeView.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ),
+                       numberOfObservations );
 
     const std::size_t expectedScalarSize = getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_range ) ) +
             getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_doppler ) ) +
             getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, angular_position ) );
 
-    // The full projection size must equal the sum of scalar sizes over all observable types.
-    BOOST_CHECK_EQUAL( dataset->createEstimationProjection( ).getObservationVector( ).size( ), expectedScalarSize );
+    // The full flattened data size must equal the sum of scalar sizes over all observable types.
+    BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), expectedScalarSize );
 }
 
 /*!
  * Verifies rejection, restoration and reduced dataset creation on simulated data.
  *
  * Test outline: rejects range observations selected by value, confirms active and
- * rejected projections/viewers have the expected sizes, restores the data and
+ * rejected flattened data/viewers have the expected sizes, restores the data and
  * then creates a reduced dataset for a time-window selection.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
@@ -384,9 +385,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
                                                                                                      baseTimeList,
                                                                                                      bodies );
 
-    const std::vector< ObservationSetId > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
+    const std::vector< unsigned int > rangeSetIds = getSetIdsForObservable( *dataset, one_way_range );
     double cutOffValueMean = 0.0;
-    for( const ObservationId observationId : dataset->getObservationIdsForSet( rangeSetIds.at( 0 ) ) )
+    for( const unsigned int observationId : dataset->getObservationIdsForSet( rangeSetIds.at( 0 ) ) )
     {
         cutOffValueMean += dataset->getObservationValue( observationId )( 0 );
     }
@@ -397,21 +398,21 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
             ObservationCondition< double, double >::observableType( one_way_range ) &&
             ObservationCondition< double, double >::observationAbsoluteValueGreaterThan( rangeLimit );
 
-    const std::vector< ObservationId > rejectedRangeIds = dataset->getObservationIdsMatchingCondition( highRangeValues );
+    const std::vector< unsigned int > rejectedRangeIds = dataset->getObservationIdsMatchingCondition( highRangeValues );
 
     // The value threshold must identify a non-empty subset before mutating row status.
     BOOST_CHECK( !rejectedRangeIds.empty( ) );
 
-    const int originalScalarSize = dataset->createEstimationProjection( ).getObservationVector( ).size( );
+    const int originalScalarSize = dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( );
     dataset->rejectObservations( highRangeValues, "range value threshold" );
 
-    // Rejection must affect rejected-row queries, rejected viewers and active-only projections consistently.
+    // Rejection must affect rejected-row queries, rejected viewers and active-only flattened data consistently.
     BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationCondition< double, double >::rejected( ) ).size( ),
                        rejectedRangeIds.size( ) );
     BOOST_CHECK_EQUAL( dataset->createViewer( ObservationCondition< double, double >::rejected( ) ).getNumberOfObservations( ),
                        rejectedRangeIds.size( ) );
-    BOOST_CHECK_EQUAL( dataset->createEstimationProjection( true ).getObservationVector( ).size( ), originalScalarSize );
-    BOOST_CHECK_EQUAL( dataset->createEstimationProjection( ).getObservationVector( ).size( ),
+    BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), originalScalarSize );
+    BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ),
                        originalScalarSize - static_cast< int >( rejectedRangeIds.size( ) ) );
 
     const std::shared_ptr< ObservationDataset< double, double > > activeDataset =
@@ -422,10 +423,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
 
     dataset->restoreObservations( ObservationCondition< double, double >::rejected( ) );
 
-    // Restoration must make all observations active again and recover the original projection size.
+    // Restoration must make all observations active again and recover the original flattened data size.
     BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationCondition< double, double >::active( ) ).size( ),
                        dataset->getNumberOfObservations( ) );
-    BOOST_CHECK_EQUAL( dataset->createEstimationProjection( ).getObservationVector( ).size( ), originalScalarSize );
+    BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), originalScalarSize );
 
     const std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     const std::pair< double, double > middleRangeWindow =
@@ -442,13 +443,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
 }
 
 /*!
- * Verifies sorted dataset projection preserves row-associated data.
+ * Verifies sorted dataset flattened data preserves row-associated data.
  *
  * Test outline: inserts unsorted one-way range observations with weights and
  * residuals, requests time sorting and then confirms the sorted rows retain
- * their original observation, weight and residual values in projection order.
+ * their original observation, weight and residual values in flattened data order.
  */
-BOOST_AUTO_TEST_CASE( test_dataset_projection_weights_residuals_and_ordering )
+BOOST_AUTO_TEST_CASE( test_dataset_flattened_data_weights_residuals_and_ordering )
 {
     LinkEnds linkEnds;
     linkEnds[ receiver ] = LinkEndId( "A" );
@@ -466,19 +467,19 @@ BOOST_AUTO_TEST_CASE( test_dataset_projection_weights_residuals_and_ordering )
     }
 
     ObservationDataset< double, double > dataset;
-    const ObservationSetId setId = dataset.addObservationSet( one_way_range,
-                                                              LinkDefinition( linkEnds ),
-                                                              observations,
-                                                              observationTimes,
-                                                              receiver,
-                                                              {},
-                                                              nullptr,
-                                                              nullptr,
-                                                              weights,
-                                                              residuals,
-                                                              true );
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          LinkDefinition( linkEnds ),
+                                                          observations,
+                                                          observationTimes,
+                                                          receiver,
+                                                          {},
+                                                          nullptr,
+                                                          nullptr,
+                                                          weights,
+                                                          residuals,
+                                                          true );
 
-    const std::vector< ObservationId >& observationIds = dataset.getObservationIdsForSet( setId );
+    const std::vector< unsigned int >& observationIds = dataset.getObservationIdsForSet( setId );
 
     // Sorting on insertion must make row times strictly increasing.
     for( std::size_t i = 1; i < observationIds.size( ); ++i )
@@ -487,19 +488,19 @@ BOOST_AUTO_TEST_CASE( test_dataset_projection_weights_residuals_and_ordering )
     }
 
     // Sorted rows must retain the weight and residual values associated with their original observation value.
-    for( const ObservationId observationId : observationIds )
+    for( const unsigned int observationId : observationIds )
     {
         const double originalIndex = dataset.getObservationValue( observationId )( 0 );
         BOOST_CHECK_EQUAL( dataset.getWeightValue( observationId )( 0 ), 100.0 + originalIndex );
         BOOST_CHECK_EQUAL( dataset.getResidualValue( observationId )( 0 ), -originalIndex );
     }
 
-    const EstimationVectorProjection< double, double > projection = dataset.createEstimationProjection( );
+    const FlattenedObservationData< double, double > flattenedData = dataset.createEstimationFlattenedObservationData( );
 
-    // Projection vectors for observations, weights and residuals must all cover the same sorted scalar rows.
-    BOOST_CHECK_EQUAL( projection.getObservationVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
-    BOOST_CHECK_EQUAL( projection.getWeightVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
-    BOOST_CHECK_EQUAL( projection.getResidualVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+    // Flattened data vectors for observations, weights and residuals must all cover the same sorted scalar rows.
+    BOOST_CHECK_EQUAL( flattenedData.getObservationVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+    BOOST_CHECK_EQUAL( flattenedData.getWeightVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
+    BOOST_CHECK_EQUAL( flattenedData.getResidualVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

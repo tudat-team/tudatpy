@@ -471,7 +471,7 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return observationDataset_->createLegacyProjection( ).getWeightVector( );
+        return observationDataset_->createOrderedFlattenedObservationData( ).getWeightVector( );
     }
 
     void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )

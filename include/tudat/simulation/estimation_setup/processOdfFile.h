@@ -1352,7 +1352,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressDopplerData(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
-        const observation_models::ObservationSetId setId,
+        const unsigned int setId,
         const unsigned int compressionRatio )
 {
     if( compressionRatio == 0 )
@@ -1489,7 +1489,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedData =
             std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
 
-    for( observation_models::ObservationSetId setId = 0; setId < originalDopplerData->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < originalDopplerData->getNumberOfObservationSets( ); ++setId )
     {
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
                 originalDopplerData->getObservationSetMetadata( setId );

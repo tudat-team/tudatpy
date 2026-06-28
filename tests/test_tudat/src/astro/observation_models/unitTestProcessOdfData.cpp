@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     bool checkedDss14DopplerSet = false;
 
     // Check the observations for NWayRange and DsnNWayAveragedDoppler
-    for( observation_models::ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
         observation_models::ObservableType observableType = observedObservationDataset->getObservationSetMetadata( setId ).observableType_;
         const observation_models::LinkEnds& linkEnds =

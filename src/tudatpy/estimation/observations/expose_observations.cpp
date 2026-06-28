@@ -89,14 +89,14 @@ std::string getSingleObservationSetReplacement( const std::string& memberName )
 std::string getObservationCollectionReplacement( const std::string& memberName )
 {
     const static std::map< std::string, std::string > replacements = {
-        { "concatenated_times", "ObservationDataset.legacy_vector_projection.times" },
-        { "concatenated_times_objects", "ObservationDataset.legacy_vector_projection.times" },
-        { "concatenated_weights", "ObservationDataset.legacy_vector_projection.weight_vector" },
-        { "concatenated_observations", "ObservationDataset.legacy_vector_projection.observation_vector" },
-        { "concatenated_link_definition_ids", "ObservationDataset.legacy_vector_projection.set_ids" },
+        { "concatenated_times", "ObservationDataset.ordered_flattened_observation_data.times" },
+        { "concatenated_times_objects", "ObservationDataset.ordered_flattened_observation_data.times" },
+        { "concatenated_weights", "ObservationDataset.ordered_flattened_observation_data.weight_vector" },
+        { "concatenated_observations", "ObservationDataset.ordered_flattened_observation_data.observation_vector" },
+        { "concatenated_link_definition_ids", "ObservationDataset.ordered_flattened_observation_data.set_ids" },
         { "link_definition_ids", "ObservationDataset.link_definition" },
-        { "observable_type_start_index_and_size", "ObservationDataset.legacy_vector_projection" },
-        { "observation_set_start_index_and_size", "ObservationDataset.legacy_vector_projection" },
+        { "observable_type_start_index_and_size", "ObservationDataset.ordered_flattened_observation_data" },
+        { "observation_set_start_index_and_size", "ObservationDataset.ordered_flattened_observation_data" },
         { "observation_vector_size", "ObservationDataset.total_scalar_size" },
         { "sorted_observation_sets", "ObservationDataset.observation_set_metadata" },
         { "filter_observations", "ObservationDataset.reject_observations or ObservationDataset.create_new_and_drop" },
@@ -221,24 +221,25 @@ all observations in the set.
                                                            R"doc(
 Row-level storage metadata for one observation inside an :class:`ObservationDataset`.
 
-Each row points to the first scalar component of the observation and records the
-observation time, owning set and index within that set.
+Each row points to the first scalar value of the observation in the dataset-wide
+scalar-value storage and records the observation time, owning set and index
+within that set.
 )doc" )
             .def_readonly( "time", &tom::ObservationDatasetRow< TIME_TYPE >::time_, R"doc(Observation time.)doc" )
             .def_readonly(
                     "set_id", &tom::ObservationDatasetRow< TIME_TYPE >::setId_, R"doc(Identifier of the owning observation set.)doc" )
             .def_readonly( "first_scalar_component",
                            &tom::ObservationDatasetRow< TIME_TYPE >::firstScalarComponent_,
-                           R"doc(Index of the first scalar component belonging to this observation.)doc" )
+                           R"doc(Index of this observation's first scalar value in the dataset-wide scalar-value storage.)doc" )
             .def_readonly( "scalar_size",
                            &tom::ObservationDatasetRow< TIME_TYPE >::scalarSize_,
-                           R"doc(Number of scalar components in this observation.)doc" )
+                           R"doc(Observable size of this observation: the number of scalar values it contributes.)doc" )
             .def_readonly( "index_in_set",
                            &tom::ObservationDatasetRow< TIME_TYPE >::indexInSet_,
                            R"doc(Index of this observation within its observation set.)doc" )
             .def_readonly( "is_active",
                            &tom::ObservationDatasetRow< TIME_TYPE >::isActive_,
-                           R"doc(Boolean flag indicating whether this row is active in projections.)doc" )
+                           R"doc(Boolean flag indicating whether this row is active in estimation/covariance flattened data.)doc" )
             .def_readonly( "rejection_reason",
                            &tom::ObservationDatasetRow< TIME_TYPE >::rejectionReason_,
                            R"doc(Optional text describing why this observation was rejected.)doc" );
@@ -277,10 +278,10 @@ represented as per-observation weights or as a full set-level weight block.
                             &tom::ObservationWeightBlock::weightBlock_,
                             R"doc(Dense weight block for the selected scalar components.)doc" );
 
-    py::class_< tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
-                                                                                   "EstimationVectorProjection",
-                                                                                   R"doc(
-Flat estimation-vector view of an :class:`ObservationDataset`.
+    py::class_< tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                 "FlattenedObservationData",
+                                                                                 R"doc(
+Flattened vector data created from an :class:`ObservationDataset`.
 
 This object contains the concatenated observation, residual and weight vectors,
 together with the scalar-component provenance needed to map each entry back to
@@ -289,16 +290,16 @@ available through :attr:`weight_vector`. The full matrix is returned as a sparse
 matrix and is only needed when off-diagonal terms are present.
 )doc" )
             .def_property_readonly( "observation_vector",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
                                     R"doc(Concatenated vector of observed values.)doc" )
             .def_property_readonly( "residual_vector",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
                                     R"doc(Concatenated vector of residual values.)doc" )
             .def_property_readonly( "weight_vector",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
                                     R"doc(Concatenated vector of scalar observation weights.)doc" )
             .def_property_readonly( "weight_matrix",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrix,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrix,
                                     R"doc(
 Sparse weight matrix in the same order as :attr:`observation_vector`.
 
@@ -308,31 +309,43 @@ from per-observation blocks, set-level blocks and advanced scalar-component
 blocks.
 )doc" )
             .def_property_readonly( "sparse_weight_matrix",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
                                     R"doc(
 Sparse weight matrix in the same row order as :attr:`observation_vector`.
 
-For diagonal-only projections, prefer :attr:`weight_vector`; requesting this
+For diagonal-only flattened data, prefer :attr:`weight_vector`; requesting this
 property materializes the sparse diagonal matrix.
 )doc" )
             .def_property_readonly( "is_diagonal_weight_only",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
-                                    R"doc(True when the projection weight matrix contains no off-diagonal entries.)doc" )
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
+                                    R"doc(True when the weight matrix contains no off-diagonal entries.)doc" )
             .def_property_readonly( "has_off_diagonal_weights",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
-                                    R"doc(True when the projection weight matrix contains off-diagonal entries.)doc" )
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
+                                    R"doc(True when the weight matrix contains off-diagonal entries.)doc" )
             .def_property_readonly( "times",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimes,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimes,
                                     R"doc(Observation time associated with each scalar component.)doc" )
             .def_property_readonly( "observation_ids",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
                                     R"doc(Observation row identifier associated with each scalar component.)doc" )
             .def_property_readonly( "set_ids",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
                                     R"doc(Observation set identifier associated with each scalar component.)doc" )
             .def_property_readonly( "scalar_component_ids",
-                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
-                                    R"doc(Scalar-component row identifier for each entry in the projection.)doc" );
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
+                                    R"doc(Scalar-component row identifier for each flattened scalar entry.)doc" )
+            .def_property_readonly( "set_ids_in_row_order",
+                                    &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIdsInRowOrder,
+                                    R"doc(Unique observation set identifiers in the order in which they first appear.)doc" )
+            .def( "unique_observation_ids_for_set",
+                  &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getUniqueObservationIdsForSetInRowOrder,
+                  py::arg( "set_id" ),
+                  R"doc(Return unique observation row identifiers for one set in flattened-data row order.)doc" )
+            .def( "flattened_row",
+                  &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getFlattenedRow,
+                  py::arg( "observation_id" ),
+                  py::arg( "component_index" ),
+                  R"doc(Return the flattened scalar row for one observation row and component index.)doc" );
 
     py::enum_< tom::ObservationConditionType >( m, "ObservationConditionType", R"doc(Type of an observation-selection condition node.)doc" )
             .value( "all", tom::ObservationConditionType::all )
@@ -458,7 +471,7 @@ public builders.
 Read-only view on a selected subset of an ObservationDataset.
 
 The viewer stores observation row identifiers selected from a parent dataset and
-exposes only inspection and projection methods. It is invalidated if the parent
+exposes only inspection and flattened-data methods. It is invalidated if the parent
 dataset is structurally modified.
 )doc" )
             .def_property_readonly( "number_of_observations",
@@ -484,14 +497,14 @@ dataset is structurally modified.
                   py::keep_alive< 0, 1 >( ),
                   py::arg( "condition" ),
                   R"doc(Return a narrower read-only viewer selected from this viewer.)doc" )
-            .def( "estimation_vector_projection",
-                  &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+            .def( "estimation_flattened_observation_data",
+                  &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                   py::arg( "include_rejected" ) = false,
-                  R"doc(Return a projection for this viewer. Rejected observations are excluded by default.)doc" )
-            .def( "legacy_vector_projection",
-                  &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createLegacyProjection,
+                  R"doc(Return flattened data for estimation. Rejected observations are excluded by default.)doc" )
+            .def( "ordered_flattened_observation_data",
+                  &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedFlattenedObservationData,
                   py::arg( "include_inactive" ) = true,
-                  R"doc(Return a legacy projection for this viewer.)doc" );
+                  R"doc(Return flattened data in observable-type/link-definition order.)doc" );
 
     py::class_< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
@@ -621,13 +634,13 @@ but the data are inserted directly into the dataset backend.
                   py::arg( "residual_vector" ),
                   R"doc(Replace all residuals in a set from one concatenated vector.)doc" )
             .def( "set_constant_weight_for_set",
-                  py::overload_cast< const tom::ObservationSetId, const double >(
+                  py::overload_cast< const unsigned int, const double >(
                           &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeightForSet ),
                   py::arg( "set_id" ),
                   py::arg( "weight" ),
                   R"doc(Set the same scalar weight for every scalar component in an observation set.)doc" )
             .def( "set_constant_weight_for_set",
-                  py::overload_cast< const tom::ObservationSetId, const Eigen::VectorXd& >(
+                  py::overload_cast< const unsigned int, const Eigen::VectorXd& >(
                           &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeightForSet ),
                   py::arg( "set_id" ),
                   py::arg( "weight" ),
@@ -647,7 +660,7 @@ Store one full set-level weight matrix for an observation set.
 The matrix must have size ``M x M``, where ``M`` is the total number of scalar
 components in the set. For example, three angular-position observations require
 a ``6 x 6`` matrix. A set-level matrix is used as the complete weight block for
-that set in estimation projections and takes precedence over per-observation
+that set in estimation flattened data and takes precedence over per-observation
 blocks in that set.
 )doc" )
             .def( "has_weight_matrix_for_set",
@@ -679,7 +692,7 @@ Add an advanced dense weight block over selected scalar components.
 This method is intended for low-level use when a correlation cannot be expressed
 as a per-observation block or as one full set-level block. The row and column
 scalar-component ids define where the dense block is inserted in estimation
-projections.
+flattened data.
 )doc" )
             .def( "set_weight_block",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightBlock,
@@ -749,9 +762,9 @@ identical, the supplied block must itself be symmetric.
             .def(
                     "move_observations_to_set",
                     []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset,
-                        const tom::ObservationSetId sourceSetId,
+                        const unsigned int sourceSetId,
                         const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >& targetDataset,
-                        const tom::ObservationSetId targetSetId,
+                        const unsigned int targetSetId,
                         const std::vector< unsigned int >& indices,
                         const bool removeFromSource ) {
                         if( targetDataset == nullptr )
@@ -805,7 +818,7 @@ identical, the supplied block must itself be symmetric.
                     py::overload_cast<>( &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSetMetadata, py::const_ ),
                     R"doc(List of metadata entries for all observation sets.)doc" )
             .def( "get_observation_set_metadata",
-                  py::overload_cast< const tom::ObservationSetId >(
+                  py::overload_cast< const unsigned int >(
                           &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSetMetadata, py::const_ ),
                   py::arg( "set_id" ),
                   R"doc(Return metadata for one observation set.)doc" )
@@ -898,16 +911,14 @@ Scalar or vector diagonal weights are materialized as a diagonal matrix.
                   py::arg( "observation_id" ),
                   R"doc(Return the dependent-variable vector for one observation row.)doc" )
             .def( "single_dependent_variable_for_set",
-                  py::overload_cast< const tom::ObservationSetId,
-                                     const std::shared_ptr< tss::ObservationDependentVariableSettings >&,
-                                     const bool >(
+                  py::overload_cast< const unsigned int, const std::shared_ptr< tss::ObservationDependentVariableSettings >&, const bool >(
                           &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableForSet, py::const_ ),
                   py::arg( "set_id" ),
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "return_first_compatible_settings" ) = false,
                   R"doc(Return the values of one dependent variable stored for a set.)doc" )
             .def( "single_dependent_variable_for_set_by_index",
-                  py::overload_cast< const tom::ObservationSetId, const std::pair< int, int >& >(
+                  py::overload_cast< const unsigned int, const std::pair< int, int >& >(
                           &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableForSet, py::const_ ),
                   py::arg( "set_id" ),
                   py::arg( "dependent_variable_index_and_size" ),
@@ -990,18 +1001,18 @@ Scalar or vector diagonal weights are materialized as a diagonal matrix.
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::restoreObservations,
                   py::arg( "condition" ),
                   R"doc(Restore observations selected by a row-level condition to active status.)doc" )
-            .def( "active_estimation_vector_projection",
-                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+            .def( "active_estimation_flattened_observation_data",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                   py::arg( "include_rejected" ) = false,
-                  R"doc(Return an estimation projection. Rejected observations are excluded by default.)doc" )
-            .def( "legacy_vector_projection",
-                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createLegacyProjection,
+                  R"doc(Return flattened data for estimation. Rejected observations are excluded by default.)doc" )
+            .def( "ordered_flattened_observation_data",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedFlattenedObservationData,
                   py::arg( "include_inactive" ) = true,
-                  R"doc(Return the legacy flat projection. Inactive/rejected observations are included by default.)doc" )
-            .def( "estimation_vector_projection",
-                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createLegacyProjection,
-                  py::arg( "include_inactive" ) = true,
-                  R"doc(Return a flat estimation-vector projection of the dataset.)doc" );
+                  R"doc(Return flattened data in observable-type/link-definition order. Inactive/rejected observations are included by default.)doc" )
+            .def( "estimation_flattened_observation_data",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
+                  py::arg( "include_rejected" ) = false,
+                  R"doc(Return flattened data for estimation. Rejected observations are excluded by default.)doc" );
 
     {
         py::options legacyDocOptions;
@@ -1028,7 +1039,7 @@ Scalar or vector diagonal weights are materialized as a diagonal matrix.
         m.def(
                 "create_single_observation_set_from_dataset",
                 []( const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >& observationDataset,
-                    const tom::ObservationSetId setId ) {
+                    const unsigned int setId ) {
                     warnLegacyObservationInterface( "create_single_observation_set_from_dataset",
                                                     "ObservationDataset.observation_ids_for_set" );
                     return tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset, setId );

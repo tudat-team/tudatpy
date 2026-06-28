@@ -34,7 +34,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
 bool isObservationSetSelectedByLegacyParser( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
-                                             const ObservationSetId setId,
+                                             const unsigned int setId,
                                              const std::shared_ptr< ObservationCollectionParser >& observationParser )
 {
     const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = dataset.getObservationSetMetadata( setId );

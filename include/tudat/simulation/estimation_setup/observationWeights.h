@@ -27,7 +27,7 @@ namespace observation_models
 //! Compact weight representation for one observation event.
 /*!
  * Scalar and diagonal-vector weights are stored compactly and are expanded only
- * when a matrix projection is materialized. Block weights store the full
+ * when flattened observation data with a matrix is materialized. Block weights store the full
  * observable-size matrix for one observation event.
  */
 struct PerObservationWeight {
@@ -144,7 +144,7 @@ struct ObservationWeightBlock {
 /*!
  * The common path stores one compact PerObservationWeight per observation row.
  * A set-level block stores the full M x M block for a newly added batch/set and
- * is materialized only during projection. Extra off-diagonal blocks are kept as
+ * is materialized only while flattened observation data is assembled. Extra off-diagonal blocks are kept as
  * an internal extension point for larger cross-observation correlations.
  */
 class ObservationWeights
@@ -240,7 +240,7 @@ public:
         return perObservationWeights_.size( );
     }
 
-    //! Store a full set-level block that replaces per-row weights during projection for this set.
+    //! Store a full set-level block that replaces per-row weights in flattened data for this set.
     void setSetWeightBlock( const std::size_t setId, const Eigen::MatrixXd& setWeightBlock )
     {
         if( setWeightBlock.rows( ) != setWeightBlock.cols( ) )

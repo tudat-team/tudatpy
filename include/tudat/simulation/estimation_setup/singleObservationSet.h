@@ -117,8 +117,7 @@ public:
         synchronizeLegacyCacheFromObservationDataset( );
     }
 
-    SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-                          const ObservationSetId setId ):
+    SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
         observableType_( dataset->getObservationSetMetadata( setId ).observableType_ ),
         linkEnds_( dataset->getLinkDefinition( dataset->getObservationSetMetadata( setId ).linkDefinitionId_ ) ), observations_( ),
         observationTimes_( ), referenceLinkEnd_( dataset->getObservationSetMetadata( setId ).referenceLinkEnd_ ),
@@ -400,7 +399,7 @@ public:
         return dataset_;
     }
 
-    ObservationSetId getObservationSetId( ) const
+    int getObservationSetId( ) const
     {
         return setId_;
     }
@@ -665,7 +664,7 @@ private:
 
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > dataset_;
 
-    ObservationSetId setId_;
+    int setId_;
 };
 
 template< typename ObservationScalarType = double,
@@ -687,7 +686,7 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSet(
         const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-        const ObservationSetId setId = 0 )
+        const int setId = 0 )
 {
     if( dataset == nullptr )
     {

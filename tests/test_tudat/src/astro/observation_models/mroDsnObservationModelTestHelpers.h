@@ -341,7 +341,7 @@ inline void applyMroNotebookObservationDatasetPostProcessing(
         const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset,
         SystemOfBodies& bodies )
 {
-    for( ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
         const LinkDefinition& linkDefinition = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ );
@@ -359,7 +359,7 @@ inline void applyMroNotebookObservationDatasetPostProcessing(
     std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observationDataset );
     bodies.at( "MRO" )->getVehicleSystems( )->setReferencePointPosition( "Antenna",
                                                                          createMroAntennaEphemeris( timeBounds.first, timeBounds.second ) );
-    for( ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
         std::map< LinkEndType, LinkEndId > linkEnds = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
@@ -395,7 +395,7 @@ inline std::vector< std::shared_ptr< ObservationModelSettings > > createMroObser
     const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections =
             getMroDsnLightTimeCorrections( includeSolarCoronaCorrection );
 
-    for( ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
         const LinkDefinition& linkDefinition = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ );
@@ -425,8 +425,8 @@ inline Eigen::VectorXd simulateAndGetResiduals( const std::shared_ptr< Observati
     std::shared_ptr< ObservationDataset< long double, Time > > simulatedObservationDataset =
             simulateObservationDataset< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
 
-    return ( simulatedObservationDataset->createEstimationProjection( ).getObservationVector( ) -
-             observationDataset->createEstimationProjection( ).getObservationVector( ) )
+    return ( simulatedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
+             observationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) )
             .template cast< double >( );
 }
 

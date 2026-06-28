@@ -103,9 +103,9 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
         auto observationDataset = observation_models::createTrackingTxtFilesObservationDataset< double, Time >(
                 processedIfmsFiles, { ObservableType::dsn_n_way_averaged_doppler } );
 
-        const auto observationProjection = observationDataset->createEstimationProjection( );
-        std::vector< Time > observationTimes = observationProjection.getTimes( );
-        Eigen::VectorXd observationValues = observationProjection.getObservationVector( );
+        const auto observationData = observationDataset->createEstimationFlattenedObservationData( );
+        std::vector< Time > observationTimes = observationData.getTimes( );
+        Eigen::VectorXd observationValues = observationData.getObservationVector( );
 
         if( i < rawIfmsFiles.size( ) )
         {
@@ -174,7 +174,7 @@ std::map< Time, double > loadIfmsFilesCombined( const std::vector< std::string >
     std::shared_ptr< StationFrequencyInterpolator > freqCalc = nwnorcia->getTransmittingFrequencyCalculator( );
 
     // Extract scalar observation times and compute frequencies
-    std::vector< Time > epochs = observationDatasetCombined->createEstimationProjection( ).getTimes( );
+    std::vector< Time > epochs = observationDatasetCombined->createEstimationFlattenedObservationData( ).getTimes( );
     for( double epoch : epochs )
     {
         uplinkFrequencies[ epoch ] = freqCalc->getTemplatedCurrentFrequency( epoch );
@@ -206,7 +206,7 @@ std::map< Time, double > loadIfmsFilesSeparate( const std::vector< std::string >
     for( unsigned int i = 0; i < observationDatasets.size( ); i++ )
     {
         // Extract scalar observation times and compute frequencies
-        std::vector< Time > epochs = observationDatasets.at( i )->createEstimationProjection( ).getTimes( );
+        std::vector< Time > epochs = observationDatasets.at( i )->createEstimationFlattenedObservationData( ).getTimes( );
         for( double epoch : epochs )
         {
             uplinkFrequencies[ epoch ] = freqCalc->getTemplatedCurrentFrequency( epoch );

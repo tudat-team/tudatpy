@@ -243,7 +243,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
 
     if( observableType == 4 )
     {
-        for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+        for( int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
         {
             const ObservableType currentObservable = simulatedObservations->getObservationSetMetadata( setId ).observableType_;
             if( currentObservable == one_way_range )

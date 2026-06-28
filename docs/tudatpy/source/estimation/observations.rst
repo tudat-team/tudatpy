@@ -43,7 +43,7 @@ Classes
 
    ObservationCondition
 
-   EstimationVectorProjection
+   FlattenedObservationData
 
    ObservationSetMetadata
 
@@ -62,7 +62,7 @@ Classes
 .. autoclass:: tudatpy.estimation.observations.ObservationCondition
    :members:
 
-.. autoclass:: tudatpy.estimation.observations.EstimationVectorProjection
+.. autoclass:: tudatpy.estimation.observations.FlattenedObservationData
    :members:
 
 .. autoclass:: tudatpy.estimation.observations.ObservationSetMetadata

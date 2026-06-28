@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
             lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
             std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable;
-            for( ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+            for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
             {
                 const ObservationSetMetadata< long double, Time >& metadata =
                         observedObservationDataset->getObservationSetMetadata( setId );
@@ -199,8 +199,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                     simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
             Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                    observedObservationDataset->createEstimationProjection( ).getObservationVector( ) -
-                    computedObservationDataset->createEstimationProjection( ).getObservationVector( );
+                    observedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
+                    computedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( );
             double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
             double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 
@@ -222,7 +222,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             //        std::to_string( i ) + ".dat", 16 ); input_output::writeMatrixToFile(
             //            utilities::convertStlVectorToEigenVector(
             //                utilities::staticCastVector< double, Time >(
-            //                observedObservationDataset->createEstimationProjection().getTimes() ) ), "ifms_times_" + std::to_string( i ) +
+            //                observedObservationDataset->createEstimationFlattenedObservationData().getTimes() ) ), "ifms_times_" +
+            //                std::to_string( i ) +
             //                ".dat", 16 );
         }
     }

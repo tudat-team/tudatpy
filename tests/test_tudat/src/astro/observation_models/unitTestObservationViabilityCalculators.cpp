@@ -42,7 +42,7 @@ std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int >
 {
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > startAndSizeByLink;
     const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
-    for( ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< double, double >& metadata = dataset->getObservationSetMetadata( setId );
         startAndSizeByLink[ metadata.observableType_ ][ dataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_ ].push_back(
@@ -725,8 +725,10 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Vector6d > linkEndStates;
 
-        std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
-        std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
+        std::vector< double > unconstrainedConcatenatedTimes =
+                unconstrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+        std::vector< double > constrainedConcatenatedTimes =
+                constrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
 
         // Iterate over all observations and check viability constraints
         for( int i = 0; i < numberOfObservables; i++ )
@@ -1084,8 +1086,10 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
 
-    std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
-    std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
+    std::vector< double > unconstrainedConcatenatedTimes =
+            unconstrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+    std::vector< double > constrainedConcatenatedTimes =
+            constrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
 
     // Iterate over all observations and check viability constraints
     for( int i = 0; i < numberOfObservables; i++ )

@@ -406,8 +406,8 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
                     // Compute numerical partials
                     Eigen::VectorXd numericalPartials =
-                            ( upperturbedSimulatedObservations->createEstimationProjection( ).getObservationVector( ) -
-                              downperturbedSimulatedObservations->createEstimationProjection( ).getObservationVector( ) ) /
+                            ( upperturbedSimulatedObservations->createEstimationFlattenedObservationData( ).getObservationVector( ) -
+                              downperturbedSimulatedObservations->createEstimationFlattenedObservationData( ).getObservationVector( ) ) /
                             ( 2.0 * timeBiasPerturbation );
                     Eigen::VectorXd analyticalPartials = partials.block( 0, parameterIndex, partials.rows( ), 1 );
 

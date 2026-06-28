@@ -765,7 +765,7 @@ getObservationSimulationSettingsFromObservationDataset(
 {
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
 
-    for( observation_models::ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
                 observedObservationDataset->getObservationSetMetadata( setId );
@@ -822,17 +822,17 @@ void computeResidualsAndDependentVariables(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
             simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
-    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > observationProjection =
-            observationDataset->createComputationProjection( true );
-    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > computedObservationProjection =
-            computedObservationDataset->createComputationProjection( true );
+    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > observationData =
+            observationDataset->createComputationFlattenedObservationData( true );
+    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computedObservationData =
+            computedObservationDataset->createComputationFlattenedObservationData( true );
 
     // Residual/dependent-variable computation includes rejected rows by default so they remain inspectable for restoration decisions.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
-            observationProjection.getObservationVector( ) - computedObservationProjection.getObservationVector( );
-    observationDataset->setResidualVector( observationProjection, residuals );
+            observationData.getObservationVector( ) - computedObservationData.getObservationVector( );
+    observationDataset->setResidualVector( observationData, residuals );
 
-    for( observation_models::ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
         std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
         if( computedDependentVariables.size( ) > 0 )
@@ -883,8 +883,12 @@ Eigen::VectorXd getNumericalObservationTimePartial(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedDownperturbedObservationDataset =
             simulateObservationDataset( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
 
-    return ( computedUpperturbedObservationDataset->createLegacyProjection( ).getObservationVector( ).template cast< double >( ) -
-             computedDownperturbedObservationDataset->createLegacyProjection( ).getObservationVector( ).template cast< double >( ) ) /
+    return ( computedUpperturbedObservationDataset->createOrderedFlattenedObservationData( )
+                     .getObservationVector( )
+                     .template cast< double >( ) -
+             computedDownperturbedObservationDataset->createOrderedFlattenedObservationData( )
+                     .getObservationVector( )
+                     .template cast< double >( ) ) /
             ( 2.0 * timePerturbation );
 }
 
@@ -896,7 +900,8 @@ void estimateTimeBiasPerSet(
         Eigen::VectorXd& correctedResiduals )
 {
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
-    Eigen::VectorXd residualVector = observationDataset->createLegacyProjection( ).getResidualVector( ).template cast< double >( );
+    Eigen::VectorXd residualVector =
+            observationDataset->createOrderedFlattenedObservationData( ).getResidualVector( ).template cast< double >( );
     correctedResiduals.resize( residualVector.rows( ), 1 );
 
     for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
@@ -933,7 +938,7 @@ void estimateTimeBiasAndPolynomialFitPerSet(
     estimateTimeBiasPerSet( observationDataset, timePartials, timeBiases, correctedResiduals );
 
     std::vector< double > stlTimeVector =
-            utilities::staticCastVector< double, TimeType >( observationDataset->createLegacyProjection( ).getTimes( ) );
+            utilities::staticCastVector< double, TimeType >( observationDataset->createOrderedFlattenedObservationData( ).getTimes( ) );
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
 
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
@@ -972,12 +977,12 @@ void getResidualStatistics(
         Eigen::VectorXd& meanValues,
         Eigen::VectorXd& rmsValues )
 {
-    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > projection =
-            observationDataset->createLegacyProjection( );
-    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( projection.getTimes( ) );
+    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > flattenedObservationData =
+            observationDataset->createOrderedFlattenedObservationData( );
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( flattenedObservationData.getTimes( ) );
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
 
-    Eigen::VectorXd residuals = projection.getResidualVector( ).template cast< double >( );
+    Eigen::VectorXd residuals = flattenedObservationData.getResidualVector( ).template cast< double >( );
 
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
     startTimes = Eigen::VectorXd::Zero( startEndIndices.size( ) );

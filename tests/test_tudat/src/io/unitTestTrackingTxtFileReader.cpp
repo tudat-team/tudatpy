@@ -145,7 +145,7 @@ std::shared_ptr< tom::ObservationDataset< double, double > > createTrackingDatas
     return tom::createTrackingTxtFileObservationDataset< double, double >( processedTrackingFile );
 }
 
-tom::EstimationVectorProjection< double, double > createSelectedProjection(
+tom::FlattenedObservationData< double, double > createSelectedFlattenedObservationData(
         const std::shared_ptr< tom::ObservationDataset< double, double > >& dataset,
         const tom::ObservableType observableType,
         const tom::LinkDefinition& linkDefinition )
@@ -153,7 +153,7 @@ tom::EstimationVectorProjection< double, double > createSelectedProjection(
     const tom::ObservationCondition< double, double > selectedRows =
             tom::ObservationCondition< double, double >::observableType( observableType ) &&
             tom::ObservationCondition< double, double >::linkDefinition( linkDefinition );
-    return dataset->createViewer( selectedRows ).createEstimationProjection( );
+    return dataset->createViewer( selectedRows ).createEstimationFlattenedObservationData( );
 }
 
 std::shared_ptr< tom::ObservationAncillarySimulationSettings > getFirstAncillarySettings(
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
             { tom::receiver, tom::LinkEndId( "Earth", "DSS-63" ) },
     } );
 
-    const auto observationsAndTimesDsn63 = createSelectedProjection( observationDataset, tom::n_way_range, linkDefDsn63 );
+    const auto observationsAndTimesDsn63 = createSelectedFlattenedObservationData( observationDataset, tom::n_way_range, linkDefDsn63 );
     auto observationsDsn63 = observationsAndTimesDsn63.getObservationVector( );
     auto timesDsn63 = observationsAndTimesDsn63.getTimes( );
 
@@ -487,9 +487,9 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     auto observationDataset = createTrackingDataset( rawFdetsDopplerFile, "JUICE" );
     BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 120 );
 
-    auto observationProjection = observationDataset->createEstimationProjection( );
-    auto concatenatedObservations = observationProjection.getObservationVector( );
-    auto concatenatedTimes = observationProjection.getTimes( );
+    auto observationData = observationDataset->createEstimationFlattenedObservationData( );
+    auto concatenatedObservations = observationData.getObservationVector( );
+    auto concatenatedTimes = observationData.getTimes( );
 
     BOOST_CHECK_EQUAL( concatenatedObservations.size( ), 120 );
 

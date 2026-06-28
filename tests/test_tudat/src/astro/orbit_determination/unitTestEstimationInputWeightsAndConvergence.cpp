@@ -30,12 +30,12 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
 
 template< typename ObservationScalarType, typename TimeType >
-std::vector< ObservationSetId > getSetIdsForObservableType(
+std::vector< unsigned int > getSetIdsForObservableType(
         const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
         const ObservableType observableType )
 {
-    std::vector< ObservationSetId > setIds;
-    for( const ObservationSetId setId : dataset->getSetIdsInLegacyOrder( ) )
+    std::vector< unsigned int > setIds;
+    for( const unsigned int setId : dataset->getSetIdsInOrderedFlattenedDataOrder( ) )
     {
         if( dataset->getObservationSetMetadata( setId ).observableType_ == observableType )
         {
@@ -50,7 +50,7 @@ std::size_t getTotalScalarSizeForObservableType( const std::shared_ptr< Observat
                                                  const ObservableType observableType )
 {
     std::size_t totalSize = 0;
-    for( const ObservationSetId setId : getSetIdsForObservableType( dataset, observableType ) )
+    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
     {
         totalSize += dataset->getTotalScalarSizeForSet( setId );
     }
@@ -67,7 +67,7 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorFo
                     getTotalScalarSizeForObservableType( dataset, observableType ) );
 
     int currentIndex = 0;
-    for( const ObservationSetId setId : getSetIdsForObservableType( dataset, observableType ) )
+    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
     {
         const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > setObservations = dataset->getObservationVectorForSet( setId );
         observations.segment( currentIndex, setObservations.size( ) ) = setObservations;
@@ -87,7 +87,7 @@ void setObservationVectorForObservableType( const std::shared_ptr< ObservationDa
     }
 
     int currentIndex = 0;
-    for( const ObservationSetId setId : getSetIdsForObservableType( dataset, observableType ) )
+    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
     {
         const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
         dataset->setObservationVectorForSet( setId, observations.segment( currentIndex, setSize ) );
@@ -100,10 +100,10 @@ void setWeightVectorForObservableType( const std::shared_ptr< ObservationDataset
                                        const ObservableType observableType,
                                        const Eigen::VectorXd& weights )
 {
-    const std::vector< ObservationSetId > setIds = getSetIdsForObservableType( dataset, observableType );
+    const std::vector< unsigned int > setIds = getSetIdsForObservableType( dataset, observableType );
     int totalSize = 0;
     bool allSetsSameSize = true;
-    for( const ObservationSetId setId : setIds )
+    for( const unsigned int setId : setIds )
     {
         const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
         totalSize += setSize;
@@ -114,7 +114,7 @@ void setWeightVectorForObservableType( const std::shared_ptr< ObservationDataset
     }
 
     int currentIndex = 0;
-    for( const ObservationSetId setId : setIds )
+    for( const unsigned int setId : setIds )
     {
         const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
         if( weights.size( ) == totalSize )
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
         for( const auto& weightIterator : weightPerObservable )
         {
-            for( const ObservationSetId setId : getSetIdsForObservableType( simulatedObservations, weightIterator.first ) )
+            for( const unsigned int setId : getSetIdsForObservableType( simulatedObservations, weightIterator.first ) )
             {
                 simulatedObservations->setConstantWeightForSet( setId, weightIterator.second );
             }
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         Eigen::Vector2d angularPositionWeight;
         angularPositionWeight << 0.1, 0.2;
         simulatedObservations->setConstantWeight( 2.0 );
-        for( const ObservationSetId setId : getSetIdsForObservableType( simulatedObservations, angular_position ) )
+        for( const unsigned int setId : getSetIdsForObservableType( simulatedObservations, angular_position ) )
         {
             simulatedObservations->setConstantWeightForSet( setId, angularPositionWeight );
         }

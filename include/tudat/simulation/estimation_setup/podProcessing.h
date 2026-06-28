@@ -227,7 +227,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
         std::vector< int >& timeOrder )
 {
     // Retrieve unordered vector of times
-    std::vector< TimeType > concatenatedTimes = measurementData->createLegacyProjection( ).getTimes( );
+    std::vector< TimeType > concatenatedTimes = measurementData->createOrderedFlattenedObservationData( ).getTimes( );
 
     // Sort the concatesnated time vector, and get the order of the sorting.
     std::pair< std::vector< int >, std::vector< TimeType > > sortOutput =
@@ -422,7 +422,8 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
-    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector( measurementData->createLegacyProjection( ).getTimes( ) );
+    Eigen::VectorXd timeVector =
+            utilities::convertStlVectorToEigenVector( measurementData->createOrderedFlattenedObservationData( ).getTimes( ) );
     double minimumTime = timeVector.minCoeff( );
     double maximumTime = timeVector.maxCoeff( );
     double currentTime = minimumTime;

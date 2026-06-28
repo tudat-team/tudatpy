@@ -241,7 +241,7 @@ int main( )
         std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-        for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+        for( int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
         {
             if( simulatedObservations->getObservationSetMetadata( setId ).observableType_ == one_way_doppler )
             {

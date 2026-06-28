@@ -151,9 +151,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
                     juiceDataFile, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
         }
 
-        auto projection = observationDataset->createEstimationProjection( );
-        auto observationTimes = projection.getTimes( );
-        auto observations = projection.getObservationVector( );
+        auto flattenedData = observationDataset->createEstimationFlattenedObservationData( );
+        auto observationTimes = flattenedData.getTimes( );
+        auto observations = flattenedData.getObservationVector( );
 
         // Compute observables
         std::vector< double > linkEndTimes;

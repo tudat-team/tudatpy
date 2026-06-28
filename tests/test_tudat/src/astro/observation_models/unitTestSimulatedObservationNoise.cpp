@@ -52,7 +52,7 @@ Eigen::VectorXd getSingleLinkObservationVector( const std::shared_ptr< Observati
 {
     const ObservationCondition< double, double > selectedRows = ObservationCondition< double, double >::observableType( observableType ) &&
             ObservationCondition< double, double >::linkDefinition( LinkDefinition( linkEnds ) );
-    return dataset->createViewer( selectedRows ).createEstimationProjection( ).getObservationVector( );
+    return dataset->createViewer( selectedRows ).createEstimationFlattenedObservationData( ).getObservationVector( );
 }
 
 //! Test whether observation noise is correctly added when simulating noisy observations

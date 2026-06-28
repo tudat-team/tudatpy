@@ -165,11 +165,11 @@ Eigen::Vector2d getObservationFromDatasetAtTime(
         const observation_models::LinkDefinition& linkDefinition,
         const double observationTime )
 {
-    const std::vector< observation_models::ObservationId > matchingObservationIds = observationDataset->getObservationIdsMatchingCondition(
+    const std::vector< unsigned int > matchingObservationIds = observationDataset->getObservationIdsMatchingCondition(
             observation_models::ObservationCondition< double, double >::observableType( observation_models::pixel_coordinates ) &&
             observation_models::ObservationCondition< double, double >::linkDefinition( linkDefinition ) );
 
-    for( const observation_models::ObservationId observationId : matchingObservationIds )
+    for( const unsigned int observationId : matchingObservationIds )
     {
         if( std::fabs( observationDataset->getObservationTime( observationId ) - observationTime ) < 1.0E-6 )
         {

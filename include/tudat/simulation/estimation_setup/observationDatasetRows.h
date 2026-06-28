@@ -11,7 +11,6 @@
 #ifndef TUDAT_OBSERVATION_DATASET_ROWS_H
 #define TUDAT_OBSERVATION_DATASET_ROWS_H
 
-#include <cstddef>
 #include <string>
 
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -22,13 +21,6 @@ namespace tudat
 
 namespace observation_models
 {
-
-using ObservationSetId = std::size_t;
-using ObservationId = std::size_t;
-using ScalarComponentId = std::size_t;
-using LinkDefinitionId = std::size_t;
-using AncillarySettingsId = std::size_t;
-using DependentVariableLayoutId = std::size_t;
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -48,7 +40,7 @@ class ObservationCondition;
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-class EstimationVectorProjection;
+class FlattenedObservationData;
 
 //! Metadata shared by all observations in one logical observation set.
 /*!
@@ -64,40 +56,52 @@ template< typename ObservationScalarType = double,
 struct ObservationSetMetadata {
     //! Observable type of the set, e.g. one-way range or angular position.
     ObservableType observableType_;
+
     //! Registry id of the full link definition shared by the set.
-    LinkDefinitionId linkDefinitionId_;
+    unsigned int linkDefinitionId_;
+
     //! Link end whose time tag defines the observation time.
     LinkEndType referenceLinkEnd_;
-    //! Number of scalar components in one observation event of this set.
+
+    //! Observable size for one observation in this set, e.g. 1 for range and 2 for angular position.
     unsigned int observableSize_;
+
     //! Registry id of ancillary settings shared by the set; may point to nullptr.
-    AncillarySettingsId ancillarySettingsId_;
+    unsigned int ancillarySettingsId_;
+
     //! Registry id of dependent-variable layout/bookkeeping; may point to nullptr.
-    DependentVariableLayoutId dependentVariableLayoutId_;
+    unsigned int dependentVariableLayoutId_;
 };
 
 //! One row per observation event, independent of observable dimension.
 /*!
  * A row represents one measurement epoch/event. Vector observables are not split
- * into multiple rows; instead, scalarSize_ and firstScalarComponent_ point to
- * the contiguous scalar components stored in the scalar-value arrays. This is
- * the distinction between the scientific observation event and estimator-vector
- * scalar entries.
+ * into multiple rows. Instead, scalarSize_ gives the number of scalar values in
+ * this observation, and firstScalarComponent_ points to the first of those
+ * values in the dataset-wide observed-value, residual-value and weight storage.
+ * This is the distinction between the scientific observation event and the
+ * scalar entries used by estimation vectors.
  */
 template< typename TimeType = double >
 struct ObservationDatasetRow {
     //! Observation time at the row's reference link end.
     TimeType time_;
+
     //! Metadata set to which this observation belongs.
-    ObservationSetId setId_;
-    //! First scalar component belonging to this observation in the scalar arrays.
-    ScalarComponentId firstScalarComponent_;
-    //! Number of scalar components in this observation event.
+    unsigned int setId_;
+
+    //! Index of this observation's first scalar value in the dataset-wide scalar-value storage.
+    unsigned int firstScalarComponent_;
+
+    //! Observable size of this observation: the number of scalar values it contributes.
     unsigned int scalarSize_;
+
     //! Zero-based index of this observation within its set.
     unsigned int indexInSet_;
-    //! Status flag used by projections that exclude inactive observations.
+
+    //! Status flag used by flattened data objects that exclude inactive observations.
     bool isActive_;
+
     //! Optional human-readable reason for rejection or deactivation.
     std::string rejectionReason_;
 };
@@ -110,7 +114,8 @@ struct ObservationDatasetRow {
  */
 struct ObservationScalarComponentRow {
     //! Observation event that owns this scalar component.
-    ObservationId observationId_;
+    unsigned int observationId_;
+
     //! Component number inside the owning observation event.
     unsigned int componentIndex_;
 };

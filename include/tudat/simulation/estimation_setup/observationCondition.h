@@ -99,13 +99,13 @@ template< typename ObservationScalarType,
 class ObservationCondition
 {
 public:
-    using Evaluator = std::function< bool( const ObservationDataset< ObservationScalarType, TimeType >&, const ObservationId ) >;
+    using Evaluator = std::function< bool( const ObservationDataset< ObservationScalarType, TimeType >&, const int ) >;
 
     ObservationCondition( ): type_( ObservationConditionType::all ) {}
 
     explicit ObservationCondition( const Evaluator& evaluator ): type_( ObservationConditionType::custom ), customEvaluator_( evaluator ) {}
 
-    bool operator( )( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const ObservationId observationId ) const
+    bool operator( )( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         switch( type_ )
         {
@@ -311,29 +311,28 @@ public:
 
 private:
     bool evaluateObservableType( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
-                                 const ObservationId observationId ) const
+                                 const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
         return dataset.getObservationSetMetadata( row.setId_ ).observableType_ == observableType_;
     }
 
     bool evaluateLinkDefinition( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
-                                 const ObservationId observationId ) const
+                                 const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = dataset.getObservationSetMetadata( row.setId_ );
         return dataset.getLinkDefinition( metadata.linkDefinitionId_ ) == linkDefinition_;
     }
 
-    bool evaluateLinkEndType( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
-                              const ObservationId observationId ) const
+    bool evaluateLinkEndType( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = dataset.getObservationSetMetadata( row.setId_ );
         return dataset.getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_.count( linkEndType_ ) > 0;
     }
 
-    bool evaluateLinkEnd( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const ObservationId observationId ) const
+    bool evaluateLinkEnd( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = dataset.getObservationSetMetadata( row.setId_ );
@@ -341,14 +340,14 @@ private:
         return linkEnds.count( linkEndType_ ) > 0 && linkEnds.at( linkEndType_ ) == linkEndId_;
     }
 
-    bool evaluateTimeBounds( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const ObservationId observationId ) const
+    bool evaluateTimeBounds( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const TimeType observationTime = dataset.getObservationTime( observationId );
         return observationTime >= startTime_ && observationTime <= endTime_;
     }
 
     bool evaluateDependentVariable( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
-                                    const ObservationId observationId ) const
+                                    const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = dataset.getObservationSetMetadata( row.setId_ );

@@ -271,7 +271,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    for( int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
     {
         const ObservableType currentObservable = simulatedObservations->getObservationSetMetadata( setId ).observableType_;
         if( currentObservable == one_way_range )

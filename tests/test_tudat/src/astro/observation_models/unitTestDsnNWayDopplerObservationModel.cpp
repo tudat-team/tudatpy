@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
-        for( ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+        for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
         {
             const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
             if( metadata.observableType_ == observation_models::dsn_n_way_averaged_doppler )
@@ -148,10 +148,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         const ObservationCondition< long double, Time > selectedDss45Rows =
                 ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
                 ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
-        std::vector< ObservationSetId > selectedSetIds;
-        for( const ObservationId observationId : observedObservationDataset->getObservationIdsMatchingCondition( selectedDss45Rows ) )
+        std::vector< unsigned int > selectedSetIds;
+        for( const unsigned int observationId : observedObservationDataset->getObservationIdsMatchingCondition( selectedDss45Rows ) )
         {
-            const ObservationSetId setId = observedObservationDataset->getObservationRow( observationId ).setId_;
+            const unsigned int setId = observedObservationDataset->getObservationRow( observationId ).setId_;
             if( selectedSetIds.empty( ) || selectedSetIds.back( ) != setId )
             {
                 selectedSetIds.push_back( setId );
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         // - Some error in the conversion between frames
         // - Difference in the used count interval: Verma uses 60s, the ODF file uses 10s
 
-        for( const ObservationSetId setId : selectedSetIds )
+        for( const unsigned int setId : selectedSetIds )
         {
             std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
                     simulatedObservationDataset->getAncillarySettings(
@@ -376,10 +376,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     const ObservationCondition< long double, Time > dss45Condition =
             ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
             ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
-    const std::vector< ObservationId > dss45ObservationIds =
+    const std::vector< unsigned int > dss45ObservationIds =
             observedObservationDataset->getObservationIdsMatchingCondition( dss45Condition );
     BOOST_REQUIRE( !dss45ObservationIds.empty( ) );
-    const ObservationSetId dss45SetId = observedObservationDataset->getObservationRow( dss45ObservationIds.at( 0 ) ).setId_;
+    const int dss45SetId = observedObservationDataset->getObservationRow( dss45ObservationIds.at( 0 ) ).setId_;
     BOOST_REQUIRE( !observedObservationDataset->getObservationTimesForSet( dss45SetId ).empty( ) );
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > sourceAncillarySettings =

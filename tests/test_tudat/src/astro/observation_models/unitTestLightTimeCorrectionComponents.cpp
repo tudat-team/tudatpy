@@ -84,13 +84,13 @@ SimulationOutputs simulateRangeObservableWithDependentVariables(
             simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
     const ObservationCondition< double, double > selectedRows = ObservationCondition< double, double >::observableType( observableType ) &&
             ObservationCondition< double, double >::linkDefinition( LinkDefinition( linkEnds ) );
-    for( const ObservationId observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
+    for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
     {
         outputs.observations[ dataset->getObservationTime( observationId ) ] = dataset->getObservationValue( observationId );
     }
     if( dependentVariablesList.empty( ) == false )
     {
-        for( const ObservationId observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
+        for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
         {
             outputs.dependentVariables[ dataset->getObservationTime( observationId ) ] = dataset->getDependentVariables( observationId );
         }
@@ -624,7 +624,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionCorrectionComponents )
             ObservationCondition< double, double >::observableType( angular_position ) &&
             ObservationCondition< double, double >::linkDefinition( LinkDefinition( linkEnds ) );
     std::map< double, Eigen::VectorXd > dependentVariableHistory;
-    for( const ObservationId observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
+    for( const unsigned int observationId : dataset->getObservationIdsMatchingCondition( selectedRows ) )
     {
         dependentVariableHistory[ dataset->getObservationTime( observationId ) ] = dataset->getDependentVariables( observationId );
     }

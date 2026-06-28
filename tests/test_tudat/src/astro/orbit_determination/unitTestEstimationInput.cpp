@@ -295,10 +295,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
     simulatedObservations->setConstantWeight( 1.0 );
 
-    std::map< ObservationSetId, Eigen::MatrixXd > expectedSetWeightMatrices;
+    std::map< unsigned int, Eigen::MatrixXd > expectedSetWeightMatrices;
     int numberOfObservationBlockSets = 0;
     int numberOfSetBlockSets = 0;
-    for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    for( unsigned int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< double, double >& metadata = simulatedObservations->getObservationSetMetadata( setId );
         const LinkEnds& currentLinkEnds = simulatedObservations->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         {
             Eigen::MatrixXd expectedSetMatrix = Eigen::MatrixXd::Zero( setSize, setSize );
             const double stationOffset = ( stationName == "Station1" ? 0.0 : 1.0 );
-            const std::vector< ObservationId >& observationIds = simulatedObservations->getObservationIdsForSet( setId );
+            const std::vector< unsigned int >& observationIds = simulatedObservations->getObservationIdsForSet( setId );
             for( unsigned int i = 0; i < observationIds.size( ); ++i )
             {
                 Eigen::Matrix2d currentBlock;
@@ -339,21 +339,21 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const int totalObservationSize = static_cast< int >( simulatedObservations->getTotalScalarSize( ) );
     Eigen::MatrixXd expectedFullWeightsMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalObservationSize );
     int currentStartIndex = 0;
-    std::map< ObservationSetId, int > legacySetStartIndex;
-    for( const ObservationSetId setId : simulatedObservations->getSetIdsInLegacyOrder( ) )
+    std::map< unsigned int, int > orderedSetStartIndex;
+    for( const unsigned int setId : simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( ) )
     {
         const int currentSetSize = static_cast< int >( simulatedObservations->getTotalScalarSizeForSet( setId ) );
-        legacySetStartIndex[ setId ] = currentStartIndex;
+        orderedSetStartIndex[ setId ] = currentStartIndex;
         expectedFullWeightsMatrix.block( currentStartIndex, currentStartIndex, currentSetSize, currentSetSize ) =
                 expectedSetWeightMatrices.at( setId );
         currentStartIndex += currentSetSize;
     }
 
-    // The reference dense matrix must span the complete legacy projection vector.
+    // The reference dense matrix must span the complete ordered flattened data vector.
     BOOST_CHECK_EQUAL( currentStartIndex, totalObservationSize );
 
-    std::vector< ObservationSetId > rangeSetIds;
-    for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    std::vector< unsigned int > rangeSetIds;
+    for( unsigned int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
     {
         if( simulatedObservations->getObservationSetMetadata( setId ).observableType_ == one_way_range )
         {
@@ -363,11 +363,11 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     // The test requires at least two range sets so the arbitrary block crosses unrelated observation sets.
     BOOST_REQUIRE_GE( rangeSetIds.size( ), 2 );
-    const std::vector< ObservationId > rowBlockObservationIds = {
+    const std::vector< unsigned int > rowBlockObservationIds = {
         simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 0 ),
         simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 2 )
     };
-    const std::vector< ObservationId > columnBlockObservationIds = {
+    const std::vector< unsigned int > columnBlockObservationIds = {
         simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 1 ) ).at( 1 ),
         simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 1 ) ).at( 2 )
     };
@@ -375,28 +375,28 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     crossSetWeightBlock << 0.35, 0.04, 0.06, 0.31;
     simulatedObservations->setWeightBlock( rowBlockObservationIds, columnBlockObservationIds, crossSetWeightBlock, {}, {}, true );
 
-    auto getLegacyProjectionIndex = [ &simulatedObservations, &legacySetStartIndex ]( const ObservationId observationId,
-                                                                                      const unsigned int componentIndex ) {
+    auto getOrderedFlattenedDataIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
+                                                                                           const unsigned int componentIndex ) {
         const ObservationDatasetRow< double >& row = simulatedObservations->getObservationRow( observationId );
-        return legacySetStartIndex.at( row.setId_ ) + static_cast< int >( row.indexInSet_ * row.scalarSize_ + componentIndex );
+        return orderedSetStartIndex.at( row.setId_ ) + static_cast< int >( row.indexInSet_ * row.scalarSize_ + componentIndex );
     };
     for( unsigned int i = 0; i < rowBlockObservationIds.size( ); ++i )
     {
         for( unsigned int j = 0; j < columnBlockObservationIds.size( ); ++j )
         {
-            const int rowIndex = getLegacyProjectionIndex( rowBlockObservationIds.at( i ), 0 );
-            const int columnIndex = getLegacyProjectionIndex( columnBlockObservationIds.at( j ), 0 );
+            const int rowIndex = getOrderedFlattenedDataIndex( rowBlockObservationIds.at( i ), 0 );
+            const int columnIndex = getOrderedFlattenedDataIndex( columnBlockObservationIds.at( j ), 0 );
             expectedFullWeightsMatrix( rowIndex, columnIndex ) = crossSetWeightBlock( i, j );
             expectedFullWeightsMatrix( columnIndex, rowIndex ) = crossSetWeightBlock( i, j );
         }
     }
 
-    const EstimationVectorProjection< double, double > weightProjection = simulatedObservations->createLegacyProjection( );
+    const FlattenedObservationData< double, double > weightData = simulatedObservations->createOrderedFlattenedObservationData( );
 
-    // Dataset projection must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
-    BOOST_CHECK( weightProjection.hasOffDiagonalWeights( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightProjection.getWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightProjection.getWeightVector( ), expectedFullWeightsMatrix.diagonal( ), 1.0E-15 );
+    // Dataset flattened data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
+    BOOST_CHECK( weightData.hasOffDiagonalWeights( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightVector( ), expectedFullWeightsMatrix.diagonal( ), 1.0E-15 );
 
     const Eigen::VectorXd truthStateVector = parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::VectorXd perturbedState = truthStateVector;
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
     const Eigen::VectorXd expectedSingleStepParameterUpdate =
             linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    singleStepDesignMatrix, singleStepResiduals, weightProjection.getWeightMatrix( ) )
+                    singleStepDesignMatrix, singleStepResiduals, weightData.getWeightMatrix( ) )
                     .first.cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualSingleStepParameterUpdate =
             singleStepEstimationOutput->parameterHistory_.at( 1 ) - singleStepEstimationOutput->parameterHistory_.at( 0 );
@@ -467,19 +467,19 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
                                        estimationOutput->getUnnormalizedInverseCovarianceMatrix( ),
                                        1.0E-12 );
 
-    const ObservationId rejectedObservationId = simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 1 );
+    const unsigned int rejectedObservationId = simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 1 );
     const unsigned int rejectedObservationSize = simulatedObservations->getObservationRow( rejectedObservationId ).scalarSize_;
     const ObservationCondition< double, double > rejectedObservationCondition(
-            [ rejectedObservationId ]( const ObservationDataset< double, double >&, const ObservationId observationId ) {
+            [ rejectedObservationId ]( const ObservationDataset< double, double >&, const unsigned int observationId ) {
                 return observationId == rejectedObservationId;
             } );
     simulatedObservations->rejectObservations( rejectedObservationCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
-    const EstimationVectorProjection< double, double > activeProjection = simulatedObservations->createEstimationProjection( false );
+    const FlattenedObservationData< double, double > activeData = simulatedObservations->createEstimationFlattenedObservationData( false );
 
-    // Rejecting one observation must remove only its scalar rows from the estimator-facing projection.
-    BOOST_CHECK_EQUAL( activeProjection.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );
+    // Rejecting one observation must remove only its scalar rows from the estimator-facing flattened data.
+    BOOST_CHECK_EQUAL( activeData.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );
 
     parametersToEstimate->resetParameterValues( perturbedState );
     std::shared_ptr< EstimationInput< double, double > > rejectedEstimationInput =
@@ -491,8 +491,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     // Differential correction must use only active rows in its residual history and saved design matrix.
     BOOST_REQUIRE_EQUAL( rejectedEstimationOutput->residualHistory_.size( ), 1 );
-    BOOST_CHECK_EQUAL( rejectedEstimationOutput->residualHistory_.at( 0 ).size( ), activeProjection.getObservationVector( ).size( ) );
-    BOOST_CHECK_EQUAL( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ).rows( ), activeProjection.getObservationVector( ).size( ) );
+    BOOST_CHECK_EQUAL( rejectedEstimationOutput->residualHistory_.at( 0 ).size( ), activeData.getObservationVector( ).size( ) );
+    BOOST_CHECK_EQUAL( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
 
     // The rejected observation remains stored and must still receive an updated residual during estimation.
     BOOST_CHECK( !simulatedObservations->getObservationRow( rejectedObservationId ).isActive_ );
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residualHistory_.at( 0 );
     const Eigen::VectorXd expectedRejectedStepParameterUpdate =
             linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    rejectedSingleStepDesignMatrix, rejectedSingleStepResiduals, activeProjection.getSparseWeightMatrix( ) )
+                    rejectedSingleStepDesignMatrix, rejectedSingleStepResiduals, activeData.getSparseWeightMatrix( ) )
                     .first.cwiseQuotient( rejectedEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualRejectedStepParameterUpdate =
             rejectedEstimationOutput->parameterHistory_.at( 1 ) - rejectedEstimationOutput->parameterHistory_.at( 0 );
@@ -517,10 +517,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< CovarianceAnalysisOutput< double, double > > rejectedCovarianceOutput =
             orbitDeterminationManager.computeCovariance( rejectedCovarianceInput );
 
-    // Covariance analysis must use the same active-only projection as differential correction.
-    BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeProjection.getObservationVector( ).size( ) );
+    // Covariance analysis must use the same active-only flattened data as differential correction.
+    BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
     const Eigen::MatrixXd expectedRejectedInverseCovariance = rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).transpose( ) *
-            activeProjection.getSparseWeightMatrix( ).toDense( ) * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
+            activeData.getSparseWeightMatrix( ).toDense( ) * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             rejectedCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedRejectedInverseCovariance, 1.0E-13 );
 }
