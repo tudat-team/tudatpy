@@ -32,17 +32,16 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
-    // Get total number of observations
-    int totalNumberOfObservations = static_cast< int >( estimationInput->getObservationDataset( )->getTotalScalarSize( ) );
     const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > weightProjection =
-            estimationInput->getObservationDataset( )->createLegacyProjection( );
+            estimationInput->getObservationDataset( )->createEstimationProjection( false );
+    const int totalNumberOfObservations = static_cast< int >( weightProjection.getObservationVector( ).size( ) );
     const Eigen::VectorXd weightsMatrixDiagonal = weightProjection.getWeightVector( );
     const bool hasOffDiagonalWeights = weightProjection.hasOffDiagonalWeights( );
     Eigen::SparseMatrix< double > weightsMatrix;
 
     if( hasOffDiagonalWeights )
     {
-        weightsMatrix = weightProjection.getWeightMatrix( );
+        weightsMatrix = weightProjection.getSparseWeightMatrix( );
         if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
         {
             throw std::runtime_error( "Error when computing covariance, size of weights matrix (" +
@@ -73,8 +72,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-            designMatricesAndResiduals =
-                    performPreEstimationSteps( estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
+            designMatricesAndResiduals = performPreEstimationSteps(
+                    estimationInput, parameterValues, weightProjection, false, 0, exceptionDuringPropagation, simulationResults );
     Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
     Eigen::MatrixXd designMatrixConsiderParameters;
     designMatrixConsiderParameters = designMatricesAndResiduals.first.second;

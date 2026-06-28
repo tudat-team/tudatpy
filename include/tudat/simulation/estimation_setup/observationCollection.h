@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -270,6 +271,7 @@ public:
 
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
+        refreshFromDatasetIfNeeded( );
         return std::make_pair( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
                                *std::max_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ) );
     }
@@ -283,6 +285,7 @@ public:
     std::vector< std::pair< TimeType, TimeType > > getTimeBoundsPerSet(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
+        refreshFromDatasetIfNeeded( );
         std::vector< std::pair< TimeType, TimeType > > timeBounds;
         for( auto observableIt : getSingleObservationSetsIndices( observationParser ) )
         {
@@ -314,11 +317,13 @@ public:
 
     std::vector< int > getConcatenatedLinkEndIds( )
     {
+        refreshFromDatasetIfNeeded( );
         return concatenatedLinkEndIds_;
     }
 
     std::vector< int > getConcatenatedLinkEndIds( std::shared_ptr< ObservationCollectionParser > observationParser )
     {
+        refreshFromDatasetIfNeeded( );
         std::vector< int > subsetConcatenatedLinkEndIds;
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
                 getSingleObservationSetsIndices( observationParser );
@@ -344,61 +349,73 @@ public:
 
     std::map< observation_models::LinkEnds, int > getLinkEndIdentifierMap( )
     {
+        refreshFromDatasetIfNeeded( );
         return linkEndIds_;
     }
 
     std::map< int, observation_models::LinkEnds > getInverseLinkEndIdentifierMap( )
     {
+        refreshFromDatasetIfNeeded( );
         return inverseLinkEndIds_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSize_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >& getObservationSetStartAndSizeReference( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSize_;
     }
 
     std::vector< std::pair< int, int > > getConcatenatedObservationSetStartAndSize( )
     {
+        refreshFromDatasetIfNeeded( );
         return concatenatedObservationSetStartAndSize_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationTypeAndLinkEndStartAndSize_;
     }
 
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizePerLinkEndIndex( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationSetStartAndSizePerLinkEndIndex_;
     }
 
     std::map< ObservableType, std::pair< int, int > > getObservationTypeStartAndSize( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationTypeStartAndSize_;
     }
 
     int getTotalObservableSize( )
     {
+        refreshFromDatasetIfNeeded( );
         return totalObservableSize_;
     }
 
     SortedObservationSets getObservationsSets( )
     {
+        refreshFromDatasetIfNeeded( );
         return observationSetList_;
     }
 
     const SortedObservationSets& getObservationsReference( ) const
     {
+        refreshFromDatasetIfNeeded( );
         return observationSetList_;
     }
 
     std::vector< LinkEnds > getConcatenatedLinkEndIdNames( )
     {
+        refreshFromDatasetIfNeeded( );
         return concatenatedLinkEndIdNames_;
     }
 
@@ -1982,8 +1999,21 @@ private:
 
     void refreshLegacyConcatenatedProjectionFromObservationDataset( )
     {
-        ensureObservationDataset( );
+        refreshFromDatasetIfNeeded( );
         setLegacyConcatenatedProjectionFromObservationSets( );
+    }
+
+    void refreshFromDatasetIfNeeded( ) const
+    {
+        ensureObservationDataset( );
+        if( cachedDatasetStructuralVersion_ != observationDataset_->getStructuralVersion( ) )
+        {
+            ObservationCollection< ObservationScalarType, TimeType >* mutableThis =
+                    const_cast< ObservationCollection< ObservationScalarType, TimeType >* >( this );
+            mutableThis->rebuildObservationSetListFromObservationDataset( );
+            mutableThis->setObservationSetIndices( );
+            mutableThis->setConcatenatedObservationsAndTimes( false );
+        }
     }
 
     void setObservationSetIndices( )
@@ -2117,6 +2147,8 @@ private:
                 observationSetStartAndSizePerLinkEndIndex_[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
             }
         }
+
+        cachedDatasetStructuralVersion_ = observationDataset_->getStructuralVersion( );
     }
 
     void setLegacyConcatenatedProjectionFromObservationSets( )
@@ -2301,6 +2333,8 @@ private:
     mutable std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
 
     mutable std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetWrappersByDatasetSetId_;
+
+    mutable std::size_t cachedDatasetStructuralVersion_ = std::numeric_limits< std::size_t >::max( );
 };
 
 template< typename ObservationScalarType = double,

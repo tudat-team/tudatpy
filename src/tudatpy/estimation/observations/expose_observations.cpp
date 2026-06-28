@@ -30,6 +30,26 @@ namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
 
+namespace
+{
+
+const char* legacyObservationDeprecationGuide =
+        "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
+
+void warnLegacyObservationInterface( const std::string& interfaceName )
+{
+    const std::string message = interfaceName +
+            " is deprecated and kept only for backwards compatibility. Use the ObservationDataset-based interfaces instead. "
+            "Migration guide: " +
+            legacyObservationDeprecationGuide;
+    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
+    {
+        throw py::error_already_set( );
+    }
+}
+
+}  // namespace
+
 namespace tudat
 {
 
@@ -45,7 +65,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
         const tom::LinkEndType referenceLinkEnd,
         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
-    std::cerr << "Function single_observation_set is deprecated. Use create_single_observation_set instead" << std::endl;
+    warnLegacyObservationInterface( "single_observation_set" );
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
                                                                                              linkEnds,
                                                                                              observations,
@@ -196,6 +216,14 @@ For off-diagonal weights it contains the materialized sparse matrix assembled
 from per-observation blocks, set-level blocks and advanced scalar-component
 blocks.
 )doc" )
+            .def_property_readonly( "sparse_weight_matrix",
+                                    &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
+                                    R"doc(
+Sparse weight matrix in the same row order as :attr:`observation_vector`.
+
+For diagonal-only projections, prefer :attr:`weight_vector`; requesting this
+property materializes the sparse diagonal matrix.
+)doc" )
             .def_property_readonly( "is_diagonal_weight_only",
                                     &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
                                     R"doc(True when the projection weight matrix contains no off-diagonal entries.)doc" )
@@ -215,15 +243,61 @@ blocks.
                                     &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
                                     R"doc(Scalar-component row identifier for each entry in the projection.)doc" );
 
+    py::enum_< tom::ObservationConditionType >( m, "ObservationConditionType", R"doc(Type of an observation-selection condition node.)doc" )
+            .value( "all", tom::ObservationConditionType::all )
+            .value( "observable_type", tom::ObservationConditionType::observable_type )
+            .value( "link_definition", tom::ObservationConditionType::link_definition )
+            .value( "link_end_type", tom::ObservationConditionType::link_end_type )
+            .value( "link_end", tom::ObservationConditionType::link_end )
+            .value( "time_bounds", tom::ObservationConditionType::time_bounds )
+            .value( "active", tom::ObservationConditionType::active )
+            .value( "residual_absolute_value_greater_than", tom::ObservationConditionType::residual_absolute_value_greater_than )
+            .value( "observation_absolute_value_greater_than", tom::ObservationConditionType::observation_absolute_value_greater_than )
+            .value( "dependent_variable_greater_than", tom::ObservationConditionType::dependent_variable_greater_than )
+            .value( "and_condition", tom::ObservationConditionType::and_condition )
+            .value( "or_condition", tom::ObservationConditionType::or_condition )
+            .value( "not_condition", tom::ObservationConditionType::not_condition )
+            .value( "custom", tom::ObservationConditionType::custom );
+
     py::class_< tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
                                                                              "ObservationCondition",
                                                                              R"doc(
 Composable row-level condition used to select observations in an ObservationDataset.
 
 Conditions operate on individual observation rows, not complete observation
-sets. Combine conditions with ``&`` and ``|`` and negate them with ``~``.
+sets. Combine conditions with ``&`` and ``|`` and negate them with ``~``. The
+condition stores an inspectable query tree for conditions created through the
+public builders.
 )doc" )
             .def( py::init<>( ), R"doc(Create a condition that selects all observations.)doc" )
+            .def_property_readonly( "condition_type",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getConditionType,
+                                    R"doc(Type of this condition node.)doc" )
+            .def_property_readonly( "condition_type_string",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getConditionTypeString,
+                                    R"doc(String name of this condition node type.)doc" )
+            .def_property_readonly( "child_conditions",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getChildConditions,
+                                    py::return_value_policy::reference_internal,
+                                    R"doc(Child conditions for logical AND, OR and NOT nodes.)doc" )
+            .def_property_readonly( "observable_type",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
+                                    R"doc(Observable type stored by observable-type condition nodes.)doc" )
+            .def_property_readonly( "link_definition",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinition,
+                                    R"doc(Link definition stored by link-definition condition nodes.)doc" )
+            .def_property_readonly( "link_end_type",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEndType,
+                                    R"doc(Link-end type stored by link-end condition nodes.)doc" )
+            .def_property_readonly( "link_end_id",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEndId,
+                                    R"doc(Link-end identifier stored by link-end condition nodes.)doc" )
+            .def_property_readonly( "time_bounds",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
+                                    R"doc(Inclusive time bounds stored by time-bound condition nodes.)doc" )
+            .def_property_readonly( "vector_limit",
+                                    &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::getVectorLimit,
+                                    R"doc(Component limit stored by value-threshold condition nodes.)doc" )
             .def_static( "all",
                          &tom::ObservationCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all,
                          R"doc(Return a condition that selects all observations.)doc" )
@@ -902,14 +976,24 @@ Scalar or vector diagonal weights are materialized as a diagonal matrix.
         ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observation.
       )doc" )
-            .def( py::init< const tom::ObservableType,
-                            const tom::LinkDefinition,
-                            const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
-                            const std::vector< TIME_TYPE >,
-                            const tom::LinkEndType,
-                            const std::vector< Eigen::VectorXd >,
-                            const std::shared_ptr< tss::ObservationDependentVariableBookkeeping >,
-                            const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+            .def( py::init( []( const tom::ObservableType observableType,
+                                const tom::LinkDefinition linkEnds,
+                                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > observations,
+                                const std::vector< TIME_TYPE > observationEpochs,
+                                const tom::LinkEndType referenceLinkEnd,
+                                const std::vector< Eigen::VectorXd > observationDependentVariables,
+                                const std::shared_ptr< tss::ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                      warnLegacyObservationInterface( "SingleObservationSet" );
+                      return std::make_shared< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >( observableType,
+                                                                                                            linkEnds,
+                                                                                                            observations,
+                                                                                                            observationEpochs,
+                                                                                                            referenceLinkEnd,
+                                                                                                            observationDependentVariables,
+                                                                                                            dependentVariableBookkeeping,
+                                                                                                            ancillarySettings );
+                  } ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "observations" ),
@@ -1001,11 +1085,17 @@ Parameters
 weights : numpy.ndarray
     A single vector containing all weights concatenated.
 )doc" )
-            .def( "filter_observations",
-                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::filterObservations,
-                  py::arg( "filter" ),
-                  py::arg( "save_filtered_obs" ) = true,
-                  R"doc(
+            .def(
+                    "filter_observations",
+                    []( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >& observationSet,
+                        const std::shared_ptr< tom::ObservationFilterBase >& observationFilter,
+                        const bool saveFilteredObservations ) {
+                        warnLegacyObservationInterface( "SingleObservationSet.filter_observations" );
+                        observationSet.filterObservations( observationFilter, saveFilteredObservations );
+                    },
+                    py::arg( "filter" ),
+                    py::arg( "save_filtered_obs" ) = true,
+                    R"doc(
 Filters observations based on a given filter criterion.
 
 Parameters
@@ -1346,21 +1436,25 @@ numpy.ndarray
 
         )doc" );
 
-    m.def( "create_single_observation_set",
-           py::overload_cast< const tom::ObservableType,
-                              const tom::LinkEnds&,
-                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
-                              const std::vector< TIME_TYPE >,
-                              const tom::LinkEndType,
-                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
-                   &tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "observable_type" ),
-           py::arg( "link_ends" ),
-           py::arg( "observations" ),
-           py::arg( "observation_times" ),
-           py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings" ) = nullptr,
-           R"doc(
+    m.def(
+            "create_single_observation_set",
+            []( const tom::ObservableType observableType,
+                const tom::LinkEnds& linkEnds,
+                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observations,
+                const std::vector< TIME_TYPE > observationTimes,
+                const tom::LinkEndType referenceLinkEnd,
+                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                warnLegacyObservationInterface( "create_single_observation_set" );
+                return tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        observableType, linkEnds, observations, observationTimes, referenceLinkEnd, ancillarySettings );
+            },
+            py::arg( "observable_type" ),
+            py::arg( "link_ends" ),
+            py::arg( "observations" ),
+            py::arg( "observation_times" ),
+            py::arg( "reference_link_end" ),
+            py::arg( "ancillary_settings" ) = nullptr,
+            R"doc(
         Factory function to create a `SingleObservationSet` object.
 
         This function creates a `SingleObservationSet` object from a list of observations and their corresponding times.
@@ -1405,7 +1499,11 @@ numpy.ndarray
 
 
       )doc" )
-            .def( py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > > >( ),
+            .def( py::init( []( const std::vector< std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                                        observationSets ) {
+                      warnLegacyObservationInterface( "ObservationCollection" );
+                      return std::make_shared< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >( observationSets );
+                  } ),
                   py::arg( "observation_sets" ),
                   R"doc(
 Constructor for the ObservationCollection class.
@@ -2187,13 +2285,18 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             .def( "append",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
                   py::arg( "observation_collection_to_append" ) )
-            .def( "filter_observations",
-                  py::overload_cast< const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
-                                                     std::shared_ptr< tom::ObservationFilterBase > >&,
-                                     const bool >( &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::filterObservations ),
-                  py::arg( "observation_filters" ),
-                  py::arg( "save_filtered_observations" ) = true,
-                  R"doc(
+            .def(
+                    "filter_observations",
+                    []( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& observationCollection,
+                        const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
+                                        std::shared_ptr< tom::ObservationFilterBase > >& observationFilters,
+                        const bool saveFilteredObservations ) {
+                        warnLegacyObservationInterface( "ObservationCollection.filter_observations" );
+                        observationCollection.filterObservations( observationFilters, saveFilteredObservations );
+                    },
+                    py::arg( "observation_filters" ),
+                    py::arg( "save_filtered_observations" ) = true,
+                    R"doc(
          Filter observations using a set of filters.
 
          This function filters the observations in the collection based on a map of observation filters, each associated with an observation parser.
@@ -2205,14 +2308,19 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
      )doc" )
-            .def( "filter_observations",
-                  py::overload_cast< std::shared_ptr< tom::ObservationFilterBase >,
-                                     std::shared_ptr< tom::ObservationCollectionParser >,
-                                     const bool >( &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::filterObservations ),
-                  py::arg( "observation_filters" ),
-                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-                  py::arg( "save_filtered_observations" ) = true,
-                  R"doc(
+            .def(
+                    "filter_observations",
+                    []( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& observationCollection,
+                        const std::shared_ptr< tom::ObservationFilterBase >& observationFilter,
+                        const std::shared_ptr< tom::ObservationCollectionParser >& observationParser,
+                        const bool saveFilteredObservations ) {
+                        warnLegacyObservationInterface( "ObservationCollection.filter_observations" );
+                        observationCollection.filterObservations( observationFilter, observationParser, saveFilteredObservations );
+                    },
+                    py::arg( "observation_filters" ),
+                    py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                    py::arg( "save_filtered_observations" ) = true,
+                    R"doc(
          Filter observations using a single filter.
 
          This function filters a subset of observations (or all) using a single observation filter.
@@ -2226,13 +2334,17 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
      )doc" )
-            .def( "split_observation_sets",
-                  py::overload_cast< std::shared_ptr< tom::ObservationSetSplitterBase >,
-                                     std::shared_ptr< tom::ObservationCollectionParser > >(
-                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::splitObservationSets ),
-                  py::arg( "observation_set_splitter" ),
-                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-                  R"doc(
+            .def(
+                    "split_observation_sets",
+                    []( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& observationCollection,
+                        const std::shared_ptr< tom::ObservationSetSplitterBase >& observationSetSplitter,
+                        const std::shared_ptr< tom::ObservationCollectionParser >& observationParser ) {
+                        warnLegacyObservationInterface( "ObservationCollection.split_observation_sets" );
+                        observationCollection.splitObservationSets( observationSetSplitter, observationParser );
+                    },
+                    py::arg( "observation_set_splitter" ),
+                    py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                    R"doc(
          Split observation sets based on a splitter.
 
          This function splits a subset of observation sets (or all) into smaller sets based on the criteria defined by the splitter.
@@ -2586,15 +2698,20 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              A map from time to dependent variable value, with times as Time objects.
      )doc" );
 
-    m.def( "compute_residuals_and_dependent_variables",
-           static_cast< void ( * )( std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                                    const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >&,
-                                    const tss::SystemOfBodies& ) >(
-                   &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "observation_collection" ),
-           py::arg( "observation_simulators" ),
-           py::arg( "bodies" ),
-           R"doc(
+    m.def(
+            "compute_residuals_and_dependent_variables",
+            []( std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > observationCollection,
+                const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                        observationSimulators,
+                const tss::SystemOfBodies& bodies ) {
+                warnLegacyObservationInterface( "compute_residuals_and_dependent_variables" );
+                tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        observationCollection, observationSimulators, bodies );
+            },
+            py::arg( "observation_collection" ),
+            py::arg( "observation_simulators" ),
+            py::arg( "bodies" ),
+            R"doc(
         Computes residuals and dependent variables for a given observation collection.
 
         This function simulates observations based on the settings of the input `observation_collection`
@@ -2675,28 +2792,38 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             System of bodies required for observation simulation.
         )doc" );
 
-    m.def( "filter_observations",
-           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const bool >( &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_set" ),
-           py::arg( "observation_filter" ),
-           py::arg( "save_filtered_observations" ) = false,
-           R"doc(
+    m.def(
+            "filter_observations",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationSet,
+                const std::shared_ptr< tom::ObservationFilterBase > observationFilter,
+                const bool saveFilteredObservations ) {
+                warnLegacyObservationInterface( "filter_observations" );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationSet, observationFilter, saveFilteredObservations );
+            },
+            py::arg( "original_observation_set" ),
+            py::arg( "observation_filter" ),
+            py::arg( "save_filtered_observations" ) = false,
+            R"doc(
 
 Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observation_set` instead.
 
 
         )doc" );
 
-    m.def( "create_filtered_observation_set",
-           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const bool >( &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_set" ),
-           py::arg( "observation_filter" ),
-           py::arg( "save_filtered_observations" ) = false,
-           R"doc(
+    m.def(
+            "create_filtered_observation_set",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationSet,
+                const std::shared_ptr< tom::ObservationFilterBase > observationFilter,
+                const bool saveFilteredObservations ) {
+                warnLegacyObservationInterface( "create_filtered_observation_set" );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationSet, observationFilter, saveFilteredObservations );
+            },
+            py::arg( "original_observation_set" ),
+            py::arg( "observation_filter" ),
+            py::arg( "save_filtered_observations" ) = false,
+            R"doc(
 
         Filters a single observation set and returns a new set containing the filtered observations.
 
@@ -2718,14 +2845,19 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             A new observation set containing only the observations that passed the filter.
         )doc" );
 
-    m.def( "split_observation_set",
-           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationSetSplitterBase >,
-                              const bool >( &tom::splitObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_set" ),
-           py::arg( "observation_splitter" ),
-           py::arg( "print_warning" ) = true,
-           R"doc(
+    m.def(
+            "split_observation_set",
+            []( const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationSet,
+                const std::shared_ptr< tom::ObservationSetSplitterBase > observationSplitter,
+                const bool printWarning ) {
+                warnLegacyObservationInterface( "split_observation_set" );
+                return tom::splitObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationSet, observationSplitter, printWarning );
+            },
+            py::arg( "original_observation_set" ),
+            py::arg( "observation_splitter" ),
+            py::arg( "print_warning" ) = true,
+            R"doc(
         Splits a single observation set into multiple sets based on a splitter.
 
         This function takes an observation set and divides it into a list of smaller observation sets
@@ -2746,20 +2878,28 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             A list of new observation sets resulting from the split.
         )doc" );
 
-    m.def( "merge_observation_collections",
-           &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "observation_collection_list" ) );
+    m.def(
+            "merge_observation_collections",
+            []( const std::vector< std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                        observationCollectionList ) {
+                warnLegacyObservationInterface( "merge_observation_collections" );
+                return tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >( observationCollectionList );
+            },
+            py::arg( "observation_collection_list" ) );
 
     // The following functions create a new ObservationCollection object from an existing one
 
-    m.def( "create_filtered_observation_collection",
-           py::overload_cast<
-                   const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > >& >(
-                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_filters_map" ),
-           R"doc(
+    m.def(
+            "create_filtered_observation_collection",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationCollection,
+                const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > >&
+                        observationFiltersMap ) {
+                warnLegacyObservationInterface( "create_filtered_observation_collection" );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >( originalObservationCollection, observationFiltersMap );
+            },
+            py::arg( "original_observation_collection" ),
+            py::arg( "observation_filters_map" ),
+            R"doc(
 
         Creates a new, filtered observation collection from an existing one using multiple filters.
 
@@ -2780,15 +2920,19 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
 
         )doc" );
 
-    m.def( "create_filtered_observation_collection",
-           py::overload_cast< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const std::shared_ptr< tom::ObservationCollectionParser > >(
-                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_filter" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(
+    m.def(
+            "create_filtered_observation_collection",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationCollection,
+                const std::shared_ptr< tom::ObservationFilterBase > observationFilter,
+                const std::shared_ptr< tom::ObservationCollectionParser > observationParser ) {
+                warnLegacyObservationInterface( "create_filtered_observation_collection" );
+                return tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationCollection, observationFilter, observationParser );
+            },
+            py::arg( "original_observation_collection" ),
+            py::arg( "observation_filter" ),
+            py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+            R"doc(
 
         Creates a new, filtered observation collection from an existing one using a single filter.
 
@@ -2811,12 +2955,19 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
 
         )doc" );
 
-    m.def( "split_observation_collection",
-           &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_set_splitter" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(
+    m.def(
+            "split_observation_collection",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationCollection,
+                const std::shared_ptr< tom::ObservationSetSplitterBase > observationSetSplitter,
+                const std::shared_ptr< tom::ObservationCollectionParser > observationParser ) {
+                warnLegacyObservationInterface( "split_observation_collection" );
+                return tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        originalObservationCollection, observationSetSplitter, observationParser );
+            },
+            py::arg( "original_observation_collection" ),
+            py::arg( "observation_set_splitter" ),
+            py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+            R"doc(
         Creates a new observation collection by splitting sets from an existing collection.
 
         This function splits observation sets from the original collection based on a splitter and
@@ -2837,11 +2988,17 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             A new observation collection with the split observation sets.
         )doc" );
 
-    m.def( "create_new_observation_collection",
-           &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(
+    m.def(
+            "create_new_observation_collection",
+            []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationCollection,
+                const std::shared_ptr< tom::ObservationCollectionParser > observationParser ) {
+                warnLegacyObservationInterface( "create_new_observation_collection" );
+                return tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( originalObservationCollection,
+                                                                                            observationParser );
+            },
+            py::arg( "original_observation_collection" ),
+            py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+            R"doc(
 
         Creates a new observation collection containing a subset of an existing collection.
 

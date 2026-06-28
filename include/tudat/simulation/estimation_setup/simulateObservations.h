@@ -822,11 +822,15 @@ void computeResidualsAndDependentVariables(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
             simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
-    // Retrieve observation residuals and add them to the original observation collection
+    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > observationProjection =
+            observationDataset->createComputationProjection( true );
+    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > computedObservationProjection =
+            computedObservationDataset->createComputationProjection( true );
+
+    // Residual/dependent-variable computation includes rejected rows by default so they remain inspectable for restoration decisions.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
-            observationDataset->createLegacyProjection( ).getObservationVector( ) -
-            computedObservationDataset->createLegacyProjection( ).getObservationVector( );
-    observationDataset->setResidualVector( residuals );
+            observationProjection.getObservationVector( ) - computedObservationProjection.getObservationVector( );
+    observationDataset->setResidualVector( observationProjection, residuals );
 
     for( observation_models::ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {

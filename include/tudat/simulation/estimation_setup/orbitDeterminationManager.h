@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/estimationVectorProjection.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 
 namespace tudat
@@ -268,6 +269,7 @@ protected:
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
                                const ParameterVectorType& newParameterEstimate,
+                               const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType >& projection,
                                const bool calculateResiduals,
                                const int numberOfIterations,
                                bool& exceptionDuringPropagation,

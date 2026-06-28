@@ -15,6 +15,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -34,12 +35,36 @@ namespace simulation_setup
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
+private:
+    static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > checkObservationDatasetInput(
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
+    {
+        if( observationDataset == nullptr )
+        {
+            throw std::runtime_error( "Error when creating covariance/estimation input, observation dataset is null." );
+        }
+        return observationDataset;
+    }
+
+    static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >
+    getObservationDatasetFromCollectionInput(
+            const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection )
+    {
+        if( observationCollection == nullptr )
+        {
+            throw std::runtime_error( "Error when creating covariance/estimation input, observation collection is null." );
+        }
+
+        return checkObservationDatasetInput( observationCollection->getObservationDataset( ) );
+    }
+
 public:
     CovarianceAnalysisInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( observationCollection ), observationDataset_( observationCollection->getObservationDataset( ) ),
+        observationCollection_( observationCollection ),
+        observationDataset_( getObservationDatasetFromCollectionInput( observationCollection ) ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )
@@ -55,7 +80,7 @@ public:
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( nullptr ), observationDataset_( observationDataset ),
+        observationCollection_( nullptr ), observationDataset_( checkObservationDatasetInput( observationDataset ) ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )

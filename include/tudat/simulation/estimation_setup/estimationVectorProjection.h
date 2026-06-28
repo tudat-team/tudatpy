@@ -52,10 +52,11 @@ public:
         return weights_;
     }
 
-    const Eigen::SparseMatrix< double >& getWeightMatrix( ) const
+    const Eigen::SparseMatrix< double >& getSparseWeightMatrix( ) const
     {
         if( weightMatrix_.rows( ) == 0 && weights_.size( ) > 0 )
         {
+            // Diagonal-only projections keep only the vector form until a matrix is explicitly requested.
             weightMatrix_.resize( weights_.size( ), weights_.size( ) );
             weightMatrix_.reserve( weights_.size( ) );
             for( int i = 0; i < weights_.size( ); ++i )
@@ -68,6 +69,11 @@ public:
             weightMatrix_.makeCompressed( );
         }
         return weightMatrix_;
+    }
+
+    const Eigen::SparseMatrix< double >& getWeightMatrix( ) const
+    {
+        return getSparseWeightMatrix( );
     }
 
     bool isDiagonalWeightOnly( ) const

@@ -70,6 +70,7 @@ Eigen::MatrixXd multiplyDesignMatrixByWeightMatrix( const Eigen::MatrixXd& desig
     {
         throw std::runtime_error( "Error when multiplying design matrix by weights matrix, sizes are incompatible." );
     }
+    // Keep the weight matrix sparse until multiplying with the dense design matrix.
     return ( weightMatrix * designMatrix ).eval( );
 }
 
@@ -99,6 +100,7 @@ void addConstraintsToInverseCovarianceMatrix( Eigen::MatrixXd& inverseOfCovarian
     int numberOfConstraints = constraintMultiplier.rows( );
     int numberOfParameters = constraintMultiplier.cols( );
 
+    // Append the KKT constraint rows/columns to the inverse covariance matrix.
     inverseOfCovarianceMatrix.conservativeResize( numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
     inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) = constraintMultiplier;
     inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) = constraintMultiplier.transpose( );
@@ -112,6 +114,7 @@ Eigen::VectorXd multiplyObservationVectorByWeightMatrix( const Eigen::VectorXd& 
     {
         throw std::runtime_error( "Error when multiplying observation vector by weights matrix, sizes are incompatible." );
     }
+    // This forms W*r for the right-hand side H^T*W*r without densifying W.
     return weightMatrix * observationVector;
 }
 
@@ -159,6 +162,7 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
                                                            const Eigen::VectorXd& constraintRightHandside,
                                                            const double limitConditionNumberForWarning )
 {
+    // For full weights the normal matrix is H^T*W*H plus any a priori information.
     Eigen::MatrixXd inverseOfCovarianceMatrix =
             inverseOfAPrioriCovarianceMatrix + designMatrix.transpose( ) * multiplyDesignMatrixByWeightMatrix( designMatrix, weightMatrix );
     addConstraintsToInverseCovarianceMatrix( inverseOfCovarianceMatrix, designMatrix, constraintMultiplier, constraintRightHandside );
@@ -257,6 +261,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         weightedRightHandSideArgument += designMatrixConsiderParameters * considerParametersDeviations;
     }
 
+    // Use the same sparse full weight matrix in H^T*W*r as in the normal matrix.
     Eigen::VectorXd rightHandSide =
             designMatrix.transpose( ) * multiplyObservationVectorByWeightMatrix( weightedRightHandSideArgument, weightMatrix );
 

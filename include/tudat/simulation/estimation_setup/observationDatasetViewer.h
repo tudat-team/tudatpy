@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVATION_DATASET_VIEWER_H
 
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -45,7 +46,13 @@ public:
     ObservationDatasetViewer( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                               const std::vector< ObservationId >& observationIds,
                               const std::size_t structuralVersion ):
-        dataset_( dataset ), observationIds_( observationIds ), structuralVersion_( structuralVersion )
+        dataset_( &dataset ), observationIds_( observationIds ), structuralVersion_( structuralVersion )
+    {}
+
+    ObservationDatasetViewer( const std::shared_ptr< const ObservationDataset< ObservationScalarType, TimeType > >& dataset,
+                              const std::vector< ObservationId >& observationIds,
+                              const std::size_t structuralVersion ):
+        ownedDataset_( dataset ), dataset_( dataset.get( ) ), observationIds_( observationIds ), structuralVersion_( structuralVersion )
     {}
 
     std::size_t getNumberOfObservations( ) const
@@ -63,19 +70,19 @@ public:
     const ObservationDatasetRow< TimeType >& getObservationRow( const std::size_t viewerIndex ) const
     {
         checkValidity( );
-        return dataset_.getObservationRow( observationIds_.at( viewerIndex ) );
+        return dataset( ).getObservationRow( observationIds_.at( viewerIndex ) );
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationValue( const std::size_t viewerIndex ) const
     {
         checkValidity( );
-        return dataset_.getObservationValue( observationIds_.at( viewerIndex ) );
+        return dataset( ).getObservationValue( observationIds_.at( viewerIndex ) );
     }
 
     TimeType getObservationTime( const std::size_t viewerIndex ) const
     {
         checkValidity( );
-        return dataset_.getObservationTime( observationIds_.at( viewerIndex ) );
+        return dataset( ).getObservationTime( observationIds_.at( viewerIndex ) );
     }
 
     ObservationDatasetViewer createViewer( const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
@@ -84,41 +91,59 @@ public:
         std::vector< ObservationId > narrowedObservationIds;
         for( const ObservationId observationId : observationIds_ )
         {
-            if( condition( dataset_, observationId ) )
+            if( condition( dataset( ), observationId ) )
             {
                 narrowedObservationIds.push_back( observationId );
             }
         }
-        return ObservationDatasetViewer( dataset_, narrowedObservationIds, structuralVersion_ );
+        if( ownedDataset_ != nullptr )
+        {
+            return ObservationDatasetViewer( ownedDataset_, narrowedObservationIds, structuralVersion_ );
+        }
+        return ObservationDatasetViewer( dataset( ), narrowedObservationIds, structuralVersion_ );
     }
 
     EstimationVectorProjection< ObservationScalarType, TimeType > createEstimationProjection( const bool includeRejected = false ) const
     {
         checkValidity( );
-        return dataset_.createProjectionFromObservationIds( observationIds_, includeRejected );
+        return dataset( ).createProjectionFromObservationIds( observationIds_, includeRejected );
     }
 
     EstimationVectorProjection< ObservationScalarType, TimeType > createLegacyProjection( const bool includeInactive = true ) const
     {
         checkValidity( );
-        return dataset_.createProjectionFromObservationIds( observationIds_, includeInactive );
+        return dataset( ).createProjectionFromObservationIds( observationIds_, includeInactive );
     }
 
 private:
+    const ObservationDataset< ObservationScalarType, TimeType >& dataset( ) const
+    {
+        if( dataset_ == nullptr )
+        {
+            throw std::runtime_error( "Error when using observation dataset viewer, parent dataset is null." );
+        }
+        return *dataset_;
+    }
+
     //! Throw if the parent dataset has structurally changed since viewer creation.
     void checkValidity( ) const
     {
-        if( structuralVersion_ != dataset_.getStructuralVersion( ) )
+        if( structuralVersion_ != dataset( ).getStructuralVersion( ) )
         {
             throw std::runtime_error(
                     "Error when using observation dataset viewer, parent dataset has been structurally modified since viewer creation." );
         }
     }
 
-    //! Non-owning parent dataset reference; caller must keep the dataset alive.
-    const ObservationDataset< ObservationScalarType, TimeType >& dataset_;
+    //! Optional owning parent dataset pointer used when the dataset was created by shared ownership.
+    std::shared_ptr< const ObservationDataset< ObservationScalarType, TimeType > > ownedDataset_;
+
+    //! Parent dataset pointer; backed by ownedDataset_ when shared ownership is available.
+    const ObservationDataset< ObservationScalarType, TimeType >* dataset_;
+
     //! Observation ids selected by this viewer, in projection order.
     std::vector< ObservationId > observationIds_;
+
     //! Parent structural version captured when the viewer was created.
     std::size_t structuralVersion_;
 };
@@ -129,6 +154,14 @@ template< typename ObservationScalarType,
 ObservationDatasetViewer< ObservationScalarType, TimeType > ObservationDataset< ObservationScalarType, TimeType, Enable >::createViewer(
         const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
 {
+    try
+    {
+        return ObservationDatasetViewer< ObservationScalarType, TimeType >(
+                this->shared_from_this( ), getObservationIdsMatchingCondition( condition ), structuralVersion_ );
+    }
+    catch( const std::bad_weak_ptr& )
+    {}
+
     return ObservationDatasetViewer< ObservationScalarType, TimeType >(
             *this, getObservationIdsMatchingCondition( condition ), structuralVersion_ );
 }
