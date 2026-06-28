@@ -100,11 +100,12 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
 
         setTrackingDataInformationInBodies( processedIfmsFiles, bodies, ObservableType::dsn_n_way_averaged_doppler );
 
-        auto observationCollection = observation_models::createTrackingTxtFilesObservationCollection< double, Time >(
+        auto observationDataset = observation_models::createTrackingTxtFilesObservationDataset< double, Time >(
                 processedIfmsFiles, { ObservableType::dsn_n_way_averaged_doppler } );
 
-        std::vector< Time > observationTimes = observationCollection->getConcatenatedTimeVector( );
-        Eigen::VectorXd observationValues = observationCollection->getObservationVector( );
+        const auto observationProjection = observationDataset->createEstimationProjection( );
+        std::vector< Time > observationTimes = observationProjection.getTimes( );
+        Eigen::VectorXd observationValues = observationProjection.getObservationVector( );
 
         if( i < rawIfmsFiles.size( ) )
         {
@@ -163,17 +164,17 @@ std::map< Time, double > loadIfmsFilesCombined( const std::vector< std::string >
 {
     std::map< Time, double > uplinkFrequencies;
 
-    // Build a single observation collection from all IFMS files
-    std::shared_ptr< ObservationCollection< double, Time > > observationCollectionCombined =
-            createIfmsObservedObservationCollectionFromFiles< double, Time >(
+    // Build a single observation dataset from all IFMS files
+    std::shared_ptr< ObservationDataset< double, Time > > observationDatasetCombined =
+            createIfmsObservedObservationDatasetFromFiles< double, Time >(
                     ifmsFileNames, bodies, "spacecraft", "NWNORCIA", FrequencyBands::x_band, FrequencyBands::x_band );
 
     // Retrieve frequency calculator
     std::shared_ptr< ground_stations::GroundStation > nwnorcia = bodies.at( "Earth" )->getGroundStation( "NWNORCIA" );
     std::shared_ptr< StationFrequencyInterpolator > freqCalc = nwnorcia->getTransmittingFrequencyCalculator( );
 
-    // Extract concatenated observation times and compute frequencies
-    std::vector< Time > epochs = observationCollectionCombined->getConcatenatedObservationTimes( );
+    // Extract scalar observation times and compute frequencies
+    std::vector< Time > epochs = observationDatasetCombined->createEstimationProjection( ).getTimes( );
     for( double epoch : epochs )
     {
         uplinkFrequencies[ epoch ] = freqCalc->getTemplatedCurrentFrequency( epoch );
@@ -185,27 +186,27 @@ std::map< Time, double > loadIfmsFilesSeparate( const std::vector< std::string >
 {
     std::map< Time, double > uplinkFrequencies;
 
-    // Build a separate observation collection from each IFMS file
-    std::vector< std::shared_ptr< ObservationCollection< double, Time > > > observationCollections;
+    // Build a separate observation dataset from each IFMS file
+    std::vector< std::shared_ptr< ObservationDataset< double, Time > > > observationDatasets;
     for( const std::string& fileName : ifmsFileNames )
     {
-        observationCollections.push_back(
-                createIfmsObservedObservationCollectionFromFiles< double, Time >( std::vector< std::string >( { fileName } ),
-                                                                                  bodies,
-                                                                                  "spacecraft",
-                                                                                  "NWNORCIA",
-                                                                                  FrequencyBands::x_band,
-                                                                                  FrequencyBands::x_band ) );
+        observationDatasets.push_back(
+                createIfmsObservedObservationDatasetFromFiles< double, Time >( std::vector< std::string >( { fileName } ),
+                                                                               bodies,
+                                                                               "spacecraft",
+                                                                               "NWNORCIA",
+                                                                               FrequencyBands::x_band,
+                                                                               FrequencyBands::x_band ) );
     }
 
     // Retrieve frequency calculator
     std::shared_ptr< ground_stations::GroundStation > nwnorcia = bodies.at( "Earth" )->getGroundStation( "NWNORCIA" );
     std::shared_ptr< StationFrequencyInterpolator > freqCalc = nwnorcia->getTransmittingFrequencyCalculator( );
 
-    for( unsigned int i = 0; i < observationCollections.size( ); i++ )
+    for( unsigned int i = 0; i < observationDatasets.size( ); i++ )
     {
-        // Extract concatenated observation times and compute frequencies
-        std::vector< Time > epochs = observationCollections.at( i )->getConcatenatedObservationTimes( );
+        // Extract scalar observation times and compute frequencies
+        std::vector< Time > epochs = observationDatasets.at( i )->createEstimationProjection( ).getTimes( );
         for( double epoch : epochs )
         {
             uplinkFrequencies[ epoch ] = freqCalc->getTemplatedCurrentFrequency( epoch );

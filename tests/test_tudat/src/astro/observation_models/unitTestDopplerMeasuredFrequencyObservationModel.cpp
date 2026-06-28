@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         LinkEndType referenceLinkEnd = receiver;
 
         // Ancillary Settings
-        std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection;
+        std::shared_ptr< observation_models::ObservationDataset< double, Time > > observationDataset;
         std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
         if( testType == 0 )
         {
@@ -141,16 +141,19 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
             fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
             fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6 );
 
-            observationCollection = createTrackingTxtFileObservationCollection< double, Time >( fdetsFileContents, "JUICE" );
+            auto processedFdetsFileContents = std::make_shared< ProcessedTrackingTxtFileContents< double, Time > >(
+                    fdetsFileContents, "JUICE", simulation_setup::getCombinedApproximateGroundStationPositions( ) );
+            observationDataset = createTrackingTxtFileObservationDataset< double, Time >( processedFdetsFileContents );
         }
         else
         {
-            observationCollection = createFdetsObservedObservationCollectionFromFile(
+            observationDataset = createFdetsObservedObservationDatasetFromFile(
                     juiceDataFile, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
         }
 
-        auto observationTimes = observationCollection->getConcatenatedObservationTimes( );
-        auto observations = observationCollection->getConcatenatedObservations( );
+        auto projection = observationDataset->createEstimationProjection( );
+        auto observationTimes = projection.getTimes( );
+        auto observations = projection.getObservationVector( );
 
         // Compute observables
         std::vector< double > linkEndTimes;

@@ -160,15 +160,20 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
     return convertUnitVectorToRightAscensionAndDeclinationDegrees( b1950UnitVector.normalized( ) );
 }
 
-Eigen::Vector2d getObservationFromSetAtTime(
-        const std::shared_ptr< observation_models::SingleObservationSet< double, double > >& observationSet,
+Eigen::Vector2d getObservationFromDatasetAtTime(
+        const std::shared_ptr< observation_models::ObservationDataset< double, double > >& observationDataset,
+        const observation_models::LinkDefinition& linkDefinition,
         const double observationTime )
 {
-    for( unsigned int i = 0; i < observationSet->getNumberOfObservables( ); ++i )
+    const std::vector< observation_models::ObservationId > matchingObservationIds = observationDataset->getObservationIdsMatchingCondition(
+            observation_models::ObservationCondition< double, double >::observableType( observation_models::pixel_coordinates ) &&
+            observation_models::ObservationCondition< double, double >::linkDefinition( linkDefinition ) );
+
+    for( const observation_models::ObservationId observationId : matchingObservationIds )
     {
-        if( std::fabs( observationSet->getObservationTime( i ) - observationTime ) < 1.0E-6 )
+        if( std::fabs( observationDataset->getObservationTime( observationId ) - observationTime ) < 1.0E-6 )
         {
-            return observationSet->getObservation( i );
+            return observationDataset->getObservationValue( observationId );
         }
     }
 
@@ -325,8 +330,8 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
     conversionSettings.useRawImageNameAsBodyNameIfUnmapped_ = false;
 
     // Exercise the PSF-to-observation conversion separately from the model calculation below.
-    const std::shared_ptr< observation_models::ObservationCollection< double, double > > observationCollection =
-            observation_models::createPsfFileObservationCollection< double, double >( psfFile, conversionSettings );
+    const std::shared_ptr< observation_models::ObservationDataset< double, double > > observationDataset =
+            observation_models::createPsfFileObservationDataset< double, double >( psfFile, conversionSettings );
 
     // The model test below forces only Voyager's state from the paper table. Triton uses a normal Neptune-barycentric
     // SPICE ephemeris, so the model computes the target state and light-time geometry through the standard path.
@@ -363,12 +368,9 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId( reference.targetName_ );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId( "VGR2", image.cameraId_ );
         const observation_models::LinkDefinition linkDefinition( linkEnds );
-        const std::vector< std::shared_ptr< observation_models::SingleObservationSet< double, double > > > observationSets =
-                observationCollection->getSingleLinkAndTypeObservationSets( observation_models::pixel_coordinates, linkDefinition );
-        BOOST_REQUIRE_EQUAL( observationSets.size( ), 1 );
-
         const double observationTime = observation_models::getPsfPictureObservationTime< double >( image, true );
-        const Eigen::Vector2d observationSetPixelLine = getObservationFromSetAtTime( observationSets.at( 0 ), observationTime );
+        const Eigen::Vector2d observationSetPixelLine =
+                getObservationFromDatasetAtTime( observationDataset, linkDefinition, observationTime );
 
         // The observation set should store the PSF effective pixel/line exactly; dynamics only enter when the model is evaluated.
         BOOST_CHECK_SMALL( ( observationSetPixelLine - measurement->getEffectivePixelLine( ) ).norm( ), 1.0E-12 );

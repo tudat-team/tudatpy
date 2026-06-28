@@ -161,8 +161,8 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
         bool caughtException = false;
         try
         {
-            std::shared_ptr< ObservationCollection<> > observationsAndTimes =
-                    simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+            std::shared_ptr< ObservationDataset<> > observationsAndTimes =
+                    simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
         }
         catch( std::runtime_error& exception )
         {

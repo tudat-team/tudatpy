@@ -604,16 +604,23 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-    weightsPerObservationParser[ observationParser( n_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-    weightsPerObservationParser[ observationParser( one_way_doppler ) ] =
-            1.0 / ( 1.0E-12 * 1.0E-12 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+    for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    {
+        const ObservableType currentObservable = simulatedObservations->getObservationSetMetadata( setId ).observableType_;
+        if( currentObservable == one_way_range || currentObservable == n_way_range )
+        {
+            simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
+        }
+        else if( currentObservable == one_way_doppler )
+        {
+            simulatedObservations->setConstantWeightForSet(
+                    setId, 1.0 / ( 1.0E-12 * 1.0E-12 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) );
+        }
+    }
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =

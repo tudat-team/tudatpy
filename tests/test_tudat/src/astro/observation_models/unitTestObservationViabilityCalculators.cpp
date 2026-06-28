@@ -37,6 +37,20 @@ using namespace tudat::unit_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_observation_viability_calculators )
 
+std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink(
+        const std::shared_ptr< ObservationDataset<> >& dataset )
+{
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > startAndSizeByLink;
+    const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
+    for( ObservationSetId setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
+    {
+        const ObservationSetMetadata< double, double >& metadata = dataset->getObservationSetMetadata( setId );
+        startAndSizeByLink[ metadata.observableType_ ][ dataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_ ].push_back(
+                startAndSize.at( setId ) );
+    }
+    return startAndSizeByLink;
+}
+
 BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 {
     // Load spice kernels.
@@ -685,23 +699,23 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             observationSimulatorsMap[ observationSimulators.at( i )->getObservableType( ) ] = observationSimulators.at( i );
         }
 
-        // Simulate observations without constraints directly from simulateObservations function
-        std::shared_ptr< observation_models::ObservationCollection<> > unconstrainedSimulatedObservables =
-                simulateObservations( observationTimeSettings, observationSimulators, bodies );
+        // Simulate observations without constraints through the dataset interface
+        std::shared_ptr< observation_models::ObservationDataset<> > unconstrainedSimulatedObservables =
+                simulateObservationDataset( observationTimeSettings, observationSimulators, bodies );
 
-        // Simulate observations with viability constraints directly from simulateObservations function
-        std::shared_ptr< observation_models::ObservationCollection<> > constrainedSimulatedObservables =
-                simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies );
+        // Simulate observations with viability constraints through the dataset interface
+        std::shared_ptr< observation_models::ObservationDataset<> > constrainedSimulatedObservables =
+                simulateObservationDataset( observationTimeSettingsConstrained, observationSimulators, bodies );
 
         int numberOfObservables = testLinkEndsList.size( );
 
-        // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
-        BOOST_CHECK_EQUAL( numberOfObservables, unconstrainedSimulatedObservables->getObservationTypeStartAndSize( ).size( ) );
-        BOOST_CHECK_EQUAL( numberOfObservables, constrainedSimulatedObservables->getObservationTypeStartAndSize( ).size( ) );
+        // Check consistency of simulated observations from ObservationSimulator objects and dataset simulation
+        BOOST_CHECK_EQUAL( numberOfObservables, unconstrainedSimulatedObservables->getObservableTypeStartAndSize( ).size( ) );
+        BOOST_CHECK_EQUAL( numberOfObservables, constrainedSimulatedObservables->getObservableTypeStartAndSize( ).size( ) );
 
         // Create iterators over all simulated observations
-        auto unconstrainedSortedObservations = unconstrainedSimulatedObservables->getObservationSetStartAndSize( );
-        auto constrainedSortedObservations = constrainedSimulatedObservables->getObservationSetStartAndSize( );
+        auto unconstrainedSortedObservations = getObservationSetStartAndSizeByLink( unconstrainedSimulatedObservables );
+        auto constrainedSortedObservations = getObservationSetStartAndSizeByLink( constrainedSimulatedObservables );
 
         std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >::iterator unconstrainedIterator =
                 unconstrainedSortedObservations.begin( );
@@ -711,8 +725,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Vector6d > linkEndStates;
 
-        std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->getConcatenatedTimeVector( );
-        std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->getConcatenatedTimeVector( );
+        std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
+        std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
 
         // Iterate over all observations and check viability constraints
         for( int i = 0; i < numberOfObservables; i++ )
@@ -720,7 +734,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             int numberOfLinkEnds = testLinkEndsList.at( unconstrainedIterator->first ).size( );
             int currentObservableSize = getObservableSize( unconstrainedIterator->first );
 
-            // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
+            // Check consistency of simulated observations from ObservationSimulator objects and dataset simulation
             BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );
             BOOST_CHECK_EQUAL( numberOfLinkEnds, constrainedIterator->second.size( ) );
 
@@ -1048,19 +1062,19 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
         observationSimulatorsMap[ observationSimulators.at( i )->getObservableType( ) ] = observationSimulators.at( i );
     }
 
-    // Simulate observations without constraints directly from simulateObservations function
-    std::shared_ptr< observation_models::ObservationCollection<> > unconstrainedSimulatedObservables =
-            simulateObservations( observationTimeSettings, observationSimulators, bodies );
+    // Simulate observations without constraints through the dataset interface
+    std::shared_ptr< observation_models::ObservationDataset<> > unconstrainedSimulatedObservables =
+            simulateObservationDataset( observationTimeSettings, observationSimulators, bodies );
 
-    // Simulate observations with viability constraints directly from simulateObservations function
-    std::shared_ptr< observation_models::ObservationCollection<> > constrainedSimulatedObservables =
-            simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies );
+    // Simulate observations with viability constraints through the dataset interface
+    std::shared_ptr< observation_models::ObservationDataset<> > constrainedSimulatedObservables =
+            simulateObservationDataset( observationTimeSettingsConstrained, observationSimulators, bodies );
 
     int numberOfObservables = testLinkEndsList.size( );
 
     // Create iterators over all simulated observations
-    auto unconstrainedSortedObservations = unconstrainedSimulatedObservables->getObservationSetStartAndSize( );
-    auto constrainedSortedObservations = constrainedSimulatedObservables->getObservationSetStartAndSize( );
+    auto unconstrainedSortedObservations = getObservationSetStartAndSizeByLink( unconstrainedSimulatedObservables );
+    auto constrainedSortedObservations = getObservationSetStartAndSizeByLink( constrainedSimulatedObservables );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >::iterator unconstrainedIterator =
             unconstrainedSortedObservations.begin( );
@@ -1070,8 +1084,8 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
 
-    std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->getConcatenatedTimeVector( );
-    std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->getConcatenatedTimeVector( );
+    std::vector< double > unconstrainedConcatenatedTimes = unconstrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
+    std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->createEstimationProjection( ).getTimes( );
 
     // Iterate over all observations and check viability constraints
     for( int i = 0; i < numberOfObservables; i++ )

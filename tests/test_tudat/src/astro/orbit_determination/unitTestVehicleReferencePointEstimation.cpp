@@ -222,16 +222,27 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     }
 
     // Simulate observations.
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set observation weights
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-    weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightsPerObservationParser[ observationParser( one_way_doppler ) ] =
-            1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-    observationsAndTimes->setConstantWeightPerObservable( weightsPerObservationParser );
+    for( ObservationSetId setId = 0; setId < observationsAndTimes->getNumberOfObservationSets( ); ++setId )
+    {
+        const ObservableType currentObservable = observationsAndTimes->getObservationSetMetadata( setId ).observableType_;
+        if( currentObservable == one_way_range )
+        {
+            observationsAndTimes->setConstantWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
+        }
+        else if( currentObservable == angular_position )
+        {
+            observationsAndTimes->setConstantWeightForSet( setId, 1.0 / ( 1.0E-5 * 1.0E-5 ) );
+        }
+        else if( currentObservable == one_way_doppler )
+        {
+            observationsAndTimes->setConstantWeightForSet(
+                    setId, 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) );
+        }
+    }
 
     // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

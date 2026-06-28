@@ -44,7 +44,130 @@ using namespace tudat::ground_stations;
 
 BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
 
-void compareAgainstReference( const std::shared_ptr< ObservationCollection<> > simulatedObservations,
+std::vector< ObservationSetId > getObservationSetIdsForDependentVariableSettings(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings )
+{
+    std::vector< ObservationSetId > matchingSetIds;
+    for( const ObservationSetId setId : observationDataset->getSetIdsInLegacyOrder( ) )
+    {
+        const ObservationSetMetadata< double, double >& metadata = observationDataset->getObservationSetMetadata( setId );
+        if( !observationDataset->getCompatibleDependentVariableSettingsForSet( setId, dependentVariableSettings ).empty( ) &&
+            !createAllCompatibleDependentVariableSettings( metadata.observableType_,
+                                                           observationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_,
+                                                           dependentVariableSettings )
+                     .empty( ) )
+        {
+            matchingSetIds.push_back( setId );
+        }
+    }
+    return matchingSetIds;
+}
+
+std::vector< ObservationSetId > getObservationSetIdsWithDependentVariableValues(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings )
+{
+    std::vector< ObservationSetId > matchingSetIds;
+    for( const ObservationSetId setId : getObservationSetIdsForDependentVariableSettings( observationDataset, dependentVariableSettings ) )
+    {
+        if( !observationDataset->getAllCompatibleDependentVariablesForSet( setId, dependentVariableSettings ).empty( ) )
+        {
+            matchingSetIds.push_back( setId );
+        }
+    }
+    return matchingSetIds;
+}
+
+std::map< double, Eigen::VectorXd > getDependentVariableHistoryFromDataset(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings,
+        const bool returnFirstCompatibleSettings = false )
+{
+    std::map< double, Eigen::VectorXd > dependentVariableHistory;
+    for( const ObservationSetId setId : getObservationSetIdsWithDependentVariableValues( observationDataset, dependentVariableSettings ) )
+    {
+        const Eigen::MatrixXd dependentVariables =
+                observationDataset->getSingleDependentVariableForSet( setId, dependentVariableSettings, returnFirstCompatibleSettings );
+        const std::vector< double > observationTimes = observationDataset->getObservationTimesForSet( setId );
+        for( unsigned int i = 0; i < observationTimes.size( ); ++i )
+        {
+            dependentVariableHistory[ observationTimes.at( i ) ] =
+                    dependentVariables.block( i, 0, 1, dependentVariables.cols( ) ).transpose( );
+        }
+    }
+    return dependentVariableHistory;
+}
+
+std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > getCompatibleDependentVariableSettingsPerSet(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings )
+{
+    std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > compatibleSettingsPerSet;
+    for( const ObservationSetId setId : getObservationSetIdsWithDependentVariableValues( observationDataset, dependentVariableSettings ) )
+    {
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings =
+                observationDataset->getCompatibleDependentVariableSettingsForSet( setId, dependentVariableSettings );
+        if( !compatibleSettings.empty( ) )
+        {
+            compatibleSettingsPerSet.push_back( compatibleSettings );
+        }
+    }
+    return compatibleSettingsPerSet;
+}
+
+std::vector< std::vector< Eigen::MatrixXd > > getAllCompatibleDependentVariablesPerSet(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings )
+{
+    std::vector< std::vector< Eigen::MatrixXd > > dependentVariablesPerSet;
+    for( const ObservationSetId setId : getObservationSetIdsWithDependentVariableValues( observationDataset, dependentVariableSettings ) )
+    {
+        const std::vector< Eigen::MatrixXd > currentVariables =
+                observationDataset->getAllCompatibleDependentVariablesForSet( setId, dependentVariableSettings );
+        if( !currentVariables.empty( ) )
+        {
+            dependentVariablesPerSet.push_back( currentVariables );
+        }
+    }
+    return dependentVariablesPerSet;
+}
+
+void addDependentVariableToDatasetSets(
+        const std::shared_ptr< ObservationDataset< double, double > >& observationDataset,
+        const std::shared_ptr< ObservationDependentVariableSettings >& dependentVariableSettings,
+        const ObservationCondition< double, double >& condition = ObservationCondition< double, double >::all( ) )
+{
+    for( ObservationSetId setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    {
+        const std::vector< ObservationId >& observationIds = observationDataset->getObservationIdsForSet( setId );
+        if( observationIds.empty( ) || !condition( *observationDataset, observationIds.front( ) ) )
+        {
+            continue;
+        }
+
+        const ObservationSetMetadata< double, double >& metadata = observationDataset->getObservationSetMetadata( setId );
+        const LinkEnds& linkEnds = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
+                createAllCompatibleDependentVariableSettings( metadata.observableType_, linkEnds, dependentVariableSettings );
+        if( allSettingsToCreate.empty( ) )
+        {
+            continue;
+        }
+
+        std::shared_ptr< ObservationDependentVariableBookkeeping > bookkeeping =
+                observationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
+        if( bookkeeping == nullptr )
+        {
+            bookkeeping =
+                    std::make_shared< ObservationDependentVariableBookkeeping >( metadata.observableType_, LinkDefinition( linkEnds ) );
+        }
+        bookkeeping->addDependentVariables( allSettingsToCreate );
+        observationDataset->setDependentVariableBookkeeping( setId, bookkeeping );
+    }
+}
+
+void compareAgainstReference( const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations,
                               const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableSettingsList,
                               const std::vector< std::map< double, Eigen::VectorXd > >& referenceReceiverDependentVariableResults,
                               const ObservableType observableType,
@@ -55,7 +178,7 @@ void compareAgainstReference( const std::shared_ptr< ObservationCollection<> > s
     for( unsigned int i = 0; i < dependentVariableSettingsList.size( ); i++ )
     {
         std::map< double, Eigen::VectorXd > computedDependentVariables =
-                simulatedObservations->getDependentVariableHistory( dependentVariableSettingsList.at( i ) );
+                getDependentVariableHistoryFromDataset( simulatedObservations, dependentVariableSettingsList.at( i ) );
         std::map< double, Eigen::VectorXd > referenceDependentVariables = referenceReceiverDependentVariableResults.at( i );
 
         BOOST_CHECK_EQUAL( computedDependentVariables.size( ), referenceDependentVariables.size( ) );
@@ -653,44 +776,44 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 addDependentVariablesToObservationSimulationSettings( measurementSimulationInput, dependentVariableList, bodies );
 
                 // Simulate noise-free observations
-                std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
-                        simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+                std::shared_ptr< ObservationDataset< double, double > > idealObservationsAndTimes =
+                        simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
                 // If first case (one-way range) compare against theoretical expectations
                 if( currentObservableTestCase == 0 )
                 {
                     std::map< double, Eigen::VectorXd > elevationAngles1 =
-                            idealObservationsAndTimes->getDependentVariableHistory( elevationAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, elevationAngleSettings );
                     std::map< double, Eigen::VectorXd > elevationAngles2 =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkEndTypeElevationAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkEndTypeElevationAngleSettings );
 
                     std::map< double, Eigen::VectorXd > azimuthAngles1 =
-                            idealObservationsAndTimes->getDependentVariableHistory( azimuthAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, azimuthAngleSettings );
                     std::map< double, Eigen::VectorXd > azimuthAngles2 =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkEndTypeAzimuthAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkEndTypeAzimuthAngleSettings );
 
                     std::map< double, Eigen::VectorXd > targetRanges1 =
-                            idealObservationsAndTimes->getDependentVariableHistory( targetRangeSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, targetRangeSettings );
                     std::map< double, Eigen::VectorXd > targetInverseRanges1 =
-                            idealObservationsAndTimes->getDependentVariableHistory( targetInverseRangeSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, targetInverseRangeSettings );
 
                     std::map< double, Eigen::VectorXd > linkBodyDistances =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkBodyCenterDistanceSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkBodyCenterDistanceSettings );
                     std::map< double, Eigen::VectorXd > linkBodyInverseDistances =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkBodyCenterDistanceInverseSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkBodyCenterDistanceInverseSettings );
 
                     std::map< double, Eigen::VectorXd > linkLimbDistances =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkLimbDistanceSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkLimbDistanceSettings );
                     std::map< double, Eigen::VectorXd > linkLimbInverseDistances =
-                            idealObservationsAndTimes->getDependentVariableHistory( linkLimbDistanceInverseSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, linkLimbDistanceInverseSettings );
 
                     std::map< double, Eigen::VectorXd > moonAvoidanceAngles =
-                            idealObservationsAndTimes->getDependentVariableHistory( moonAvoidanceAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, moonAvoidanceAngleSettings );
                     std::map< double, Eigen::VectorXd > moonAvoidanceAngles2 =
-                            idealObservationsAndTimes->getDependentVariableHistory( moonAvoidanceAngleSettings2 );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, moonAvoidanceAngleSettings2 );
 
                     std::map< double, Eigen::VectorXd > orbitalPlaneAngles =
-                            idealObservationsAndTimes->getDependentVariableHistory( orbitalPlaneAngleSettings );
+                            getDependentVariableHistoryFromDataset( idealObservationsAndTimes, orbitalPlaneAngleSettings );
 
                     // Add data to reference cases against which subsequent observables will be compared
                     if( currentLinkEndCase == 0 )
@@ -726,12 +849,17 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         referenceTransmitterDependentVariableResults.push_back( orbitalPlaneAngles );
                     }
 
-                    // Check size of dependent variable results vectors
-                    std::map< LinkEnds, int > linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
-                    std::vector< int > linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
-
-                    int numberOfLinkEnds1Observations =
-                            utilities::countNumberOfOccurencesInVector< int >( linkEndIds, linkEndIdentifiers.at( currentLinkEnds ) );
+                    int numberOfLinkEnds1Observations = 0;
+                    const ObservationCondition< double, double > currentLinkCondition =
+                            ObservationCondition< double, double >::linkDefinition( LinkDefinition( currentLinkEnds ) );
+                    for( const ObservationId observationId :
+                         idealObservationsAndTimes->getObservationIdsMatchingCondition( currentLinkCondition ) )
+                    {
+                        if( idealObservationsAndTimes->getObservationRow( observationId ).isActive_ )
+                        {
+                            ++numberOfLinkEnds1Observations;
+                        }
+                    }
 
                     BOOST_CHECK_EQUAL( elevationAngles1.size( ), numberOfLinkEnds1Observations );
                     BOOST_CHECK_EQUAL( azimuthAngles1.size( ), numberOfLinkEnds1Observations );
@@ -1159,28 +1287,46 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         }
 
         // Simulate noise-free observations
-        std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
-                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationDataset< double, double > > idealObservationsAndTimes =
+                simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         if( testCase == 1 )
         {
-            idealObservationsAndTimes->clearDependentVariableValues( );
+            for( ObservationSetId setId = 0; setId < idealObservationsAndTimes->getNumberOfObservationSets( ); ++setId )
+            {
+                idealObservationsAndTimes->clearDependentVariablesForSet( setId );
+            }
 
-            // Add dependent variables after observation collection is created
-            std::shared_ptr< ObservationCollectionParser > elevationAngleParser =
-                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings );
-            std::shared_ptr< ObservationCollectionParser > azimuthAngleParser1 =
-                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1 );
-            std::shared_ptr< ObservationCollectionParser > azimuthAngleParser2 = idealObservationsAndTimes->addDependentVariable(
-                    azimuthStationSettings2, observationParser( n_way_differenced_range ) );
-            std::shared_ptr< ObservationCollectionParser > limbDistanceParser =
-                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings );
-            std::shared_ptr< ObservationCollectionParser > moonAngleParser = idealObservationsAndTimes->addDependentVariable(
-                    moonAvoidanceAngleSettings, observationParser( std::make_pair( "Earth", "Station1" ) ) );
-            std::shared_ptr< ObservationCollectionParser > integrationTimeParser =
-                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings );
-            std::shared_ptr< ObservationCollectionParser > retransmissionDelaysParser =
-                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings );
+            const ObservationCondition< double, double > bodyAvoidanceCondition(
+                    []( const ObservationDataset< double, double >& dataset, const ObservationId observationId ) {
+                        const ObservationDatasetRow< double >& row = dataset.getObservationRow( observationId );
+                        const ObservationSetMetadata< double, double >& metadata = dataset.getObservationSetMetadata( row.setId_ );
+                        if( metadata.observableType_ == relative_angular_position )
+                        {
+                            return true;
+                        }
+
+                        const LinkEnds& linkEnds = dataset.getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+                        for( const auto& linkEnd : linkEnds )
+                        {
+                            if( linkEnd.second.bodyName_ == "Earth" && linkEnd.second.getReferencePointName( ) == "Station1" )
+                            {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } );
+
+            // Add dependent variables after observation dataset is created
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, elevationAngleSettings );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, azimuthStationSettings1 );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes,
+                                               azimuthStationSettings2,
+                                               ObservationCondition< double, double >::observableType( n_way_differenced_range ) );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, limbDistanceSettings );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, moonAvoidanceAngleSettings, bodyAvoidanceCondition );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, integrationTimeSettings );
+            addDependentVariableToDatasetSets( idealObservationsAndTimes, retransmissionDelaysSettings );
 
             // Compute dependent variables
             computeResidualsAndDependentVariables< double, double >( idealObservationsAndTimes, observationSimulators, bodies );
@@ -1203,11 +1349,16 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
             // Parse all observable types
             for( auto observableIt : variableIt.second )
             {
-                // Retrieve single observation sets for given observable
-                std::vector< std::shared_ptr< SingleObservationSet< double, double > > > observationSets =
-                        idealObservationsAndTimes->getSingleObservationSets( observationParser( observableIt.first ) );
+                std::vector< ObservationSetId > observationSetIds;
+                for( const ObservationSetId setId : idealObservationsAndTimes->getSetIdsInLegacyOrder( ) )
+                {
+                    if( idealObservationsAndTimes->getObservationSetMetadata( setId ).observableType_ == observableIt.first )
+                    {
+                        observationSetIds.push_back( setId );
+                    }
+                }
 
-                if( observationSets.size( ) != observableIt.second.size( ) )
+                if( observationSetIds.size( ) != observableIt.second.size( ) )
                 {
                     throw std::runtime_error(
                             "Error when comparing number of dependent variable settings effectively created, number of reference values "
@@ -1216,18 +1367,15 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                             std::to_string( observableIt.first ) + "." );
                 }
 
-                for( unsigned int i = 0; i < observationSets.size( ); i++ )
+                for( unsigned int i = 0; i < observationSetIds.size( ); i++ )
                 {
                     // Retrieve relevant dependent variable settings and check numbers of settings are consistent
-                    std::vector< Eigen::MatrixXd > dependentVariables = observationSets.at( i )->getAllCompatibleDependentVariables(
-                            std::make_shared< ObservationDependentVariableSettings >( variableIt.first ) );
+                    std::vector< Eigen::MatrixXd > dependentVariables = idealObservationsAndTimes->getAllCompatibleDependentVariablesForSet(
+                            observationSetIds.at( i ), std::make_shared< ObservationDependentVariableSettings >( variableIt.first ) );
                     BOOST_CHECK( dependentVariables.size( ) == observableIt.second.at( i ) );
                 }
             }
         }
-
-        std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< double, double > > > > >
-                sortedObservationSets = idealObservationsAndTimes->getObservationsSets( );
 
         // Save dependent variables values from first test case
         if( testCase == 0 )
@@ -1238,30 +1386,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
                 std::vector< std::vector< Eigen::MatrixXd > > currentDependentVariablesSortedPerSet;
 
-                for( auto set : idealObservationsAndTimes->getSingleObservationSets( ) )
+                for( const ObservationSetId setId : idealObservationsAndTimes->getSetIdsInLegacyOrder( ) )
                 {
-                    std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
-                    for( auto it : set->getDependentVariableBookkeeping( )->getSettingsIndicesAndSizes( ) )
-                    {
-                        if( it.second->areSettingsCompatible( currentSettings ) )
-                        {
-                            compatibleIndicesAndSizes.push_back( it.first );
-                        }
-                    }
-
-                    std::vector< Eigen::MatrixXd > currentSetDependentVariablesPerSettings;
-                    Eigen::MatrixXd currentSetFullDependentVariables = set->getObservationsDependentVariablesMatrix( );
-                    for( auto indicesIt : compatibleIndicesAndSizes )
-                    {
-                        Eigen::MatrixXd singleDependentVariableValues =
-                                Eigen::MatrixXd::Zero( currentSetFullDependentVariables.rows( ), indicesIt.second );
-                        for( unsigned int i = 0; i < currentSetFullDependentVariables.rows( ); i++ )
-                        {
-                            singleDependentVariableValues.block( i, 0, 1, indicesIt.second ) =
-                                    currentSetFullDependentVariables.block( i, indicesIt.first, 1, indicesIt.second );
-                        }
-                        currentSetDependentVariablesPerSettings.push_back( singleDependentVariableValues );
-                    }
+                    std::vector< Eigen::MatrixXd > currentSetDependentVariablesPerSettings =
+                            idealObservationsAndTimes->getAllCompatibleDependentVariablesForSet( setId, currentSettings );
 
                     if( currentSetDependentVariablesPerSettings.size( ) > 0 )
                     {
@@ -1279,9 +1407,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
             for( auto currentSettings : dependentVariablesList )
             {
                 std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > compatibleSettingsList =
-                        idealObservationsAndTimes->getCompatibleDependentVariablesSettingsList( currentSettings ).first;
+                        getCompatibleDependentVariableSettingsPerSet( idealObservationsAndTimes, currentSettings );
                 std::vector< std::vector< Eigen::MatrixXd > > dependentVariableValues =
-                        idealObservationsAndTimes->getAllCompatibleDependentVariables( currentSettings ).first;
+                        getAllCompatibleDependentVariablesPerSet( idealObservationsAndTimes, currentSettings );
 
                 // Retrieve reference values from first test case
                 std::vector< std::vector< Eigen::MatrixXd > > referenceValues =
@@ -1293,20 +1421,20 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                     BOOST_CHECK( dependentVariableValues.size( ) == referenceValues.size( ) );
                 }
 
-                std::shared_ptr< ObservationCollectionParser > currentSettingsParser =
-                        idealObservationsAndTimes->getCompatibleDependentVariablesSettingsList( currentSettings ).second;
-                std::vector< std::shared_ptr< SingleObservationSet< double, double > > > currentSettingsSets =
-                        idealObservationsAndTimes->getSingleObservationSets( currentSettingsParser );
-                BOOST_CHECK( currentSettingsSets.size( ) == referenceValues.size( ) );
+                std::vector< ObservationSetId > currentSettingsSetIds =
+                        getObservationSetIdsForDependentVariableSettings( idealObservationsAndTimes, currentSettings );
+                std::vector< ObservationSetId > currentSettingsSetIdsWithValues =
+                        getObservationSetIdsWithDependentVariableValues( idealObservationsAndTimes, currentSettings );
+                if( currentSettings != moonAvoidanceAngleSettings )
+                {
+                    BOOST_CHECK( currentSettingsSetIds.size( ) == referenceValues.size( ) );
+                }
 
                 // Parse dependent variable values per single observation set
                 for( unsigned int k = 0; k < dependentVariableValues.size( ); k++ )
                 {
                     // Check that the number of settings per single observation sets is consistent
                     BOOST_CHECK( dependentVariableValues.at( k ).size( ) == referenceValues.at( k ).size( ) );
-
-                    // Current single observation set
-                    std::shared_ptr< SingleObservationSet< double, double > > currentSet = currentSettingsSets.at( k );
 
                     for( unsigned int j = 0; j < dependentVariableValues.at( k ).size( ); j++ )
                     {
@@ -1318,7 +1446,8 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                         std::shared_ptr< ObservationDependentVariableSettings > currentCompleteSettings =
                                 compatibleSettingsList.at( k ).at( j );
                         Eigen::MatrixXd dependentVariablesFromCompleteSettings =
-                                currentSet->getSingleDependentVariable( currentCompleteSettings );
+                                idealObservationsAndTimes->getSingleDependentVariableForSet( currentSettingsSetIdsWithValues.at( k ),
+                                                                                             currentCompleteSettings );
 
                         // Check that the dependent variable sizes and values are consistent
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -1373,10 +1502,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeLinkEndEpochDependentVariable )
             std::vector< std::shared_ptr< ObservationDependentVariableSettings > >( { linkEndEpochsSettings } ),
             bodies );
 
-    std::shared_ptr< ObservationCollection<> > simulatedObservations =
-            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< ObservationDataset< double, double > > simulatedObservations =
+            simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
-    std::map< double, Eigen::VectorXd > linkEndEpochsHistory = simulatedObservations->getDependentVariableHistory( linkEndEpochsSettings );
+    std::map< double, Eigen::VectorXd > linkEndEpochsHistory =
+            getDependentVariableHistoryFromDataset( simulatedObservations, linkEndEpochsSettings );
     BOOST_CHECK_EQUAL( linkEndEpochsHistory.size( ), observationTimes.size( ) );
 
     std::shared_ptr< ObservationSimulator< 1, double, double > > nWayRangeObservationSimulator =

@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
         }
 
         // Simulate ideal observations
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, createObservationSimulators( observationSettingsList, bodies ), bodies );
 
         // Create orbit determination object.

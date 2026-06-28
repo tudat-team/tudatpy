@@ -107,7 +107,7 @@ std::shared_ptr< tio::TrackingTxtFileContents > createSyntheticAveragedDopplerTr
     return trackingFile;
 }
 
-std::shared_ptr< tom::SingleObservationSet< double, double > > createSyntheticAveragedDopplerObservationSet(
+std::shared_ptr< tom::ObservationDataset< double, double > > createSyntheticAveragedDopplerDataset(
         const std::vector< double >& observationSeconds,
         const bool addFileNameMetadata = true,
         const double precomputedCadence = std::numeric_limits< double >::quiet_NaN( ) )
@@ -121,10 +121,45 @@ std::shared_ptr< tom::SingleObservationSet< double, double > > createSyntheticAv
             std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
                     trackingFile, "SyntheticSpacecraft", stationPositions );
 
-    std::shared_ptr< tom::ObservationCollection< double, double > > observationCollection =
-            tom::createTrackingTxtFileObservationCollection< double, double >( processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
-    auto observationSets = observationCollection->getObservationsSets( );
-    return observationSets.at( tom::dsn_n_way_averaged_doppler ).begin( )->second.at( 0 );
+    return tom::createTrackingTxtFileObservationDataset< double, double >( processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
+}
+
+std::shared_ptr< tom::ObservationDataset< double, double > > createTrackingDataset(
+        const std::shared_ptr< tio::TrackingTxtFileContents >& rawTrackingFile,
+        const std::string& spacecraftName,
+        const std::vector< tom::ObservableType >& observableTypesToProcess )
+{
+    std::shared_ptr< tom::ProcessedTrackingTxtFileContents< double, double > > processedTrackingFile =
+            std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
+                    rawTrackingFile, spacecraftName, tss::getCombinedApproximateGroundStationPositions( ) );
+    return tom::createTrackingTxtFileObservationDataset< double, double >( processedTrackingFile, observableTypesToProcess );
+}
+
+std::shared_ptr< tom::ObservationDataset< double, double > > createTrackingDataset(
+        const std::shared_ptr< tio::TrackingTxtFileContents >& rawTrackingFile,
+        const std::string& spacecraftName )
+{
+    std::shared_ptr< tom::ProcessedTrackingTxtFileContents< double, double > > processedTrackingFile =
+            std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
+                    rawTrackingFile, spacecraftName, tss::getCombinedApproximateGroundStationPositions( ) );
+    return tom::createTrackingTxtFileObservationDataset< double, double >( processedTrackingFile );
+}
+
+tom::EstimationVectorProjection< double, double > createSelectedProjection(
+        const std::shared_ptr< tom::ObservationDataset< double, double > >& dataset,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkDefinition )
+{
+    const tom::ObservationCondition< double, double > selectedRows =
+            tom::ObservationCondition< double, double >::observableType( observableType ) &&
+            tom::ObservationCondition< double, double >::linkDefinition( linkDefinition );
+    return dataset->createViewer( selectedRows ).createEstimationProjection( );
+}
+
+std::shared_ptr< tom::ObservationAncillarySimulationSettings > getFirstAncillarySettings(
+        const std::shared_ptr< tom::ObservationDataset< double, double > >& dataset )
+{
+    return dataset->getAncillarySettings( dataset->getObservationSetMetadata( 0 ).ancillarySettingsId_ );
 }
 
 }  // namespace
@@ -238,10 +273,9 @@ BOOST_AUTO_TEST_CASE( VikingRangeDataCustomFunction )
     BOOST_CHECK_EQUAL( dataBlock3[ tio::TrackingDataType::second ], 32 );
     BOOST_CHECK_EQUAL( dataBlock3[ tio::TrackingDataType::n_way_light_time ], 2290.150246895 );
 
-    //! Incidentally, check if the correct number of observations are transferred into an observation collection
-    auto observationCollection = observation_models::createTrackingTxtFileObservationCollection< double, double >(
-            rawVikingFile, spacecraftName, { tom::n_way_range } );
-    BOOST_CHECK_EQUAL( observationCollection->getTotalObservableSize( ), 1258 );
+    //! Incidentally, check if the correct number of observations are transferred into an observation dataset
+    auto observationDataset = createTrackingDataset( rawVikingFile, spacecraftName, { tom::n_way_range } );
+    BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 1258 );
 }
 
 //! Test raw reading from file without custom reading function for the MarsPathFinder data
@@ -374,19 +408,18 @@ BOOST_AUTO_TEST_CASE( marinerSimpleReading )
     BOOST_CHECK_EQUAL( metaDataStrMap.at( input_output::TrackingDataType::observed_body ), "Mars" );
 }
 
-//! Test observation collection and time conversions with Viking Data
-BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationCollection )
+//! Test observation dataset and time conversions with Viking Data
+BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
 {
     // Load the observations from the Viking file
     std::shared_ptr< tio::TrackingTxtFileContents > rawVikingFile = readVikingRangeFile( vikingRangePath );
-    auto observationCollection = observation_models::createTrackingTxtFileObservationCollection< double, double >(
-            rawVikingFile, "Viking", { tom::n_way_range } );
+    auto observationDataset = createTrackingDataset( rawVikingFile, "Viking", { tom::n_way_range } );
 
     // Check size of observations
-    BOOST_CHECK_EQUAL( observationCollection->getTotalObservableSize( ), 1258 );
+    BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 1258 );
 
-    // Check if n-way-range is present in the collection
-    const auto& observationTypeStartSize = observationCollection->getObservationTypeStartAndSize( );
+    // Check if n-way-range is present in the dataset
+    const auto& observationTypeStartSize = observationDataset->getObservableTypeStartAndSize( );
     BOOST_CHECK( observationTypeStartSize.find( tom::n_way_range ) != observationTypeStartSize.end( ) );
 
     //  Checking the first element with station 63 - 63 in the Viking file
@@ -396,9 +429,9 @@ BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationCollection )
             { tom::receiver, tom::LinkEndId( "Earth", "DSS-63" ) },
     } );
 
-    auto observationsAndTimesDsn63 = observationCollection->getSingleLinkObservationsAndTimes( tom::n_way_range, linkDefDsn63 );
-    auto observationsDsn63 = observationsAndTimesDsn63.first;
-    auto timesDsn63 = observationsAndTimesDsn63.second;
+    const auto observationsAndTimesDsn63 = createSelectedProjection( observationDataset, tom::n_way_range, linkDefDsn63 );
+    auto observationsDsn63 = observationsAndTimesDsn63.getObservationVector( );
+    auto timesDsn63 = observationsAndTimesDsn63.getTimes( );
 
     BOOST_CHECK_CLOSE( observationsDsn63( 0, 0 ),
                        2371564782.809 * 1.0E-6 * physical_constants::SPEED_OF_LIGHT,
@@ -451,12 +484,12 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::transmitting_station_name ), transmittingStationName );
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::receiving_station_name ), receivingStationName );
 
-    auto observationCollection =
-            observation_models::createTrackingTxtFileObservationCollection< double, double >( rawFdetsDopplerFile, "JUICE" );
-    BOOST_CHECK_EQUAL( observationCollection->getTotalObservableSize( ), 120 );
+    auto observationDataset = createTrackingDataset( rawFdetsDopplerFile, "JUICE" );
+    BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 120 );
 
-    auto concatenatedObservations = observationCollection->getObservationVectorReference( );
-    auto concatenatedTimes = observationCollection->getConcatenatedDoubleTimeVector( );
+    auto observationProjection = observationDataset->createEstimationProjection( );
+    auto concatenatedObservations = observationProjection.getObservationVector( );
+    auto concatenatedTimes = observationProjection.getTimes( );
 
     BOOST_CHECK_EQUAL( concatenatedObservations.size( ), 120 );
 
@@ -500,42 +533,44 @@ BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )
 //! Test averaged Doppler cadence inference when filtered rows leave middle-of-file gaps
 BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
 {
-    std::shared_ptr< tom::SingleObservationSet< double, double > > gapObservationSet;
+    std::shared_ptr< tom::ObservationDataset< double, double > > gapObservationDataset;
     std::string gapWarning;
     {
         CoutRedirect outputRedirect;
-        gapObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 }, true, 10.0 );
+        gapObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 50.0 }, true, 10.0 );
         gapWarning = outputRedirect.getOutput( );
     }
 
     BOOST_CHECK_CLOSE_FRACTION(
-            gapObservationSet->getAncillarySettings( )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
+            getFirstAncillarySettings( gapObservationDataset )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
     BOOST_CHECK( gapWarning.find( "synthetic_ifms_gap_file.tab" ) != std::string::npos );
     BOOST_CHECK( gapWarning.find( "found 1 cadence gap" ) != std::string::npos );
     BOOST_CHECK( gapWarning.find( "nominal cadence 10" ) != std::string::npos );
     BOOST_CHECK( gapWarning.find( "index 3" ) != std::string::npos );
     BOOST_CHECK( gapWarning.find( "observed delta 30" ) != std::string::npos );
 
-    std::shared_ptr< tom::SingleObservationSet< double, double > > gapFreeObservationSet;
+    std::shared_ptr< tom::ObservationDataset< double, double > > gapFreeObservationDataset;
     std::string gapFreeWarning;
     {
         CoutRedirect outputRedirect;
-        gapFreeObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 30.0 } );
+        gapFreeObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 30.0 } );
         gapFreeWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK_CLOSE_FRACTION(
-            gapFreeObservationSet->getAncillarySettings( )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
+            getFirstAncillarySettings( gapFreeObservationDataset )->getAncillaryDoubleData( tom::doppler_integration_time ),
+            10.0,
+            1.0E-14 );
     BOOST_CHECK( gapFreeWarning.find( "cadence gap" ) == std::string::npos );
 
     std::string unknownFileWarning;
     {
         CoutRedirect outputRedirect;
-        createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 30.0 }, false, 10.0 );
+        createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 30.0 }, false, 10.0 );
         unknownFileWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK( unknownFileWarning.find( "unknown tracking file" ) != std::string::npos );
 
-    BOOST_CHECK_THROW( createSyntheticAveragedDopplerObservationSet( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
+    BOOST_CHECK_THROW( createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
@@ -556,16 +591,16 @@ BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
     BOOST_CHECK_CLOSE_FRACTION(
             filteredIfmsFile->getMetaDataDoubleMap( ).at( tio::TrackingDataType::doppler_integration_time ), 10.0, 1.0E-14 );
 
-    std::shared_ptr< tom::SingleObservationSet< double, double > > gapObservationSet;
+    std::shared_ptr< tom::ObservationDataset< double, double > > gapObservationDataset;
     std::string gapWarning;
     {
         CoutRedirect outputRedirect;
-        gapObservationSet = createSyntheticAveragedDopplerObservationSet( { 0.0, 20.0, 40.0 }, true, 10.0 );
+        gapObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 20.0, 40.0 }, true, 10.0 );
         gapWarning = outputRedirect.getOutput( );
     }
 
     BOOST_CHECK_CLOSE_FRACTION(
-            gapObservationSet->getAncillarySettings( )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
+            getFirstAncillarySettings( gapObservationDataset )->getAncillaryDoubleData( tom::doppler_integration_time ), 10.0, 1.0E-14 );
     BOOST_CHECK( gapWarning.find( "found 2 cadence gap" ) != std::string::npos );
     BOOST_CHECK( gapWarning.find( "nominal cadence 10" ) != std::string::npos );
 }

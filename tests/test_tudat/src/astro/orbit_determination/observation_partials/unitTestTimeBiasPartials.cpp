@@ -389,24 +389,25 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                     Eigen::VectorXd perturbedParameters = originalParameters;
                     perturbedParameters( parameterIndex ) += timeBiasPerturbation;
                     parametersToEstimate->resetParameterValues( perturbedParameters );
-                    std::shared_ptr< ObservationCollection< double, double > > upperturbedSimulatedObservations =
-                            simulateObservations< double, double >(
+                    std::shared_ptr< ObservationDataset< double, double > > upperturbedSimulatedObservations =
+                            simulateObservationDataset< double, double >(
                                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
                     // Perturb bias value down and recompute observations
                     perturbedParameters = originalParameters;
                     perturbedParameters( parameterIndex ) -= timeBiasPerturbation;
                     parametersToEstimate->resetParameterValues( perturbedParameters );
-                    std::shared_ptr< ObservationCollection< double, double > > downperturbedSimulatedObservations =
-                            simulateObservations< double, double >(
+                    std::shared_ptr< ObservationDataset< double, double > > downperturbedSimulatedObservations =
+                            simulateObservationDataset< double, double >(
                                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
                     // Reset to nominal values
                     parametersToEstimate->resetParameterValues( perturbedParameters );
 
                     // Compute numerical partials
-                    Eigen::VectorXd numericalPartials = ( upperturbedSimulatedObservations->getObservationVector( ) -
-                                                          downperturbedSimulatedObservations->getObservationVector( ) ) /
+                    Eigen::VectorXd numericalPartials =
+                            ( upperturbedSimulatedObservations->createEstimationProjection( ).getObservationVector( ) -
+                              downperturbedSimulatedObservations->createEstimationProjection( ).getObservationVector( ) ) /
                             ( 2.0 * timeBiasPerturbation );
                     Eigen::VectorXd analyticalPartials = partials.block( 0, parameterIndex, partials.rows( ), 1 );
 

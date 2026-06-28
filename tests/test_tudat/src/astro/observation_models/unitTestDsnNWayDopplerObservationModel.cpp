@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
         // Read and process ODF file data
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection;
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset;
 
         if( testType == 0 )
         {
@@ -100,33 +100,30 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
                     std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
 
-            // Create observed observation collection
-            observedObservationCollection = observation_models::createOdfObservedObservationCollection< long double, Time >(
+            // Create observed observation dataset
+            observedObservationDataset = observation_models::createOdfObservedObservationDataset< long double, Time >(
                     processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
             observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
         }
         else if( testType == 1 )
         {
-            observedObservationCollection =
-                    createOdfObservedObservationCollectionFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
-            observedObservationCollection->removeSingleObservationSets(
-                    std::make_shared< ObservationCollectionObservableTypeParser >( dsn_n_way_range ) );
+            observedObservationDataset =
+                    createOdfObservedObservationDatasetFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
+            observedObservationDataset = observedObservationDataset->createNewAndKeep(
+                    ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
         }
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
-        std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-                observedObservationCollection->getLinkEndsPerObservableType( );
-        for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
+        for( ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
         {
-            for( unsigned int i = 0; i < it->second.size( ); ++i )
+            const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
+            if( metadata.observableType_ == observation_models::dsn_n_way_averaged_doppler )
             {
-                if( it->first == observation_models::dsn_n_way_averaged_doppler )
-                {
-                    observationModelSettingsList.push_back(
-                            std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( it->second.at( i ) ) );
-                }
+                observationModelSettingsList.push_back(
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
+                                observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ) ) );
             }
         }
 
@@ -134,12 +131,13 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 observation_models::createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
 
         std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                getObservationSimulationSettingsFromObservations< long double, Time >( observedObservationCollection, bodies );
+                getObservationSimulationSettingsFromObservationDataset< long double, Time >( observedObservationDataset, bodies );
 
         std::cout << "Pre-simulation " << observationSimulationSettings.size( ) << std::endl;
 
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > simulatedObservationCollection =
-                simulation_setup::simulateObservations< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > simulatedObservationDataset =
+                simulation_setup::simulateObservationDataset< long double, Time >(
+                        observationSimulationSettings, observationSimulators, bodies );
         std::cout << "Post-simulation" << std::endl;
 
         LinkEnds dss45MgsLinkEnds;
@@ -147,10 +145,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         dss45MgsLinkEnds[ retransmitter ] = LinkEndId( "MGS" );
         dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-        std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkSimulatedObservations =
-                simulatedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
-        std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
-                observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
+        const ObservationCondition< long double, Time > selectedDss45Rows =
+                ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
+                ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
+        std::vector< ObservationSetId > selectedSetIds;
+        for( const ObservationId observationId : observedObservationDataset->getObservationIdsMatchingCondition( selectedDss45Rows ) )
+        {
+            const ObservationSetId setId = observedObservationDataset->getObservationRow( observationId ).setId_;
+            if( selectedSetIds.empty( ) || selectedSetIds.back( ) != setId )
+            {
+                selectedSetIds.push_back( setId );
+            }
+        }
 
         // Compare value of observations
         // Min/max values from Verma (2022), "A Python-based tool for constructing observables from the DSN’s closed-loop
@@ -174,10 +180,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         // - Some error in the conversion between frames
         // - Difference in the used count interval: Verma uses 60s, the ODF file uses 10s
 
-        for( unsigned int i = 0; i < singleLinkSimulatedObservations.size( ); ++i )
+        for( const ObservationSetId setId : selectedSetIds )
         {
             std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
-                    singleLinkSimulatedObservations.at( i )->getAncillarySettings( );
+                    simulatedObservationDataset->getAncillarySettings(
+                            simulatedObservationDataset->getObservationSetMetadata( setId ).ancillarySettingsId_ );
 
             double referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
 
@@ -195,11 +202,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             }
 
             std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > simulatedObservations =
-                    singleLinkSimulatedObservations.at( i )->getObservations( );
-            std::vector< Time > simulatedTimes = singleLinkSimulatedObservations.at( i )->getObservationTimes( );
+                    simulatedObservationDataset->getObservationsForSet( setId );
+            std::vector< Time > simulatedTimes = simulatedObservationDataset->getObservationTimesForSet( setId );
             std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observedObservations =
-                    singleLinkObservedObservations.at( i )->getObservations( );
-            std::vector< Time > observedTimes = singleLinkObservedObservations.at( i )->getObservationTimes( );
+                    observedObservationDataset->getObservationsForSet( setId );
+            std::vector< Time > observedTimes = observedObservationDataset->getObservationTimesForSet( setId );
 
             double firstMinimum = 0.0, firstMaximum = 0.0, secondMinimum = 0.0, secondMaximum = 0.0;
 
@@ -299,18 +306,18 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
 
     // The MRO DSN Doppler fixture is generated from mromagr2012_076_0840xmmmv1.tnf over a one-hour
     // tracking interval, at the Tudat trk234 converter boundary: rows contain the exact values passed
-    // to SingleObservationSet creation before the 60 s Doppler compression applied below.
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "doppler_single_observation_set_inputs.csv",
-                                                      observation_models::dsn_n_way_averaged_doppler );
-    observedObservationCollection = createCompressedDopplerCollection< long double, Time >( observedObservationCollection, 60, 10 );
+    // to dataset creation before the 60 s Doppler compression applied below.
+    std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+            createObservationDatasetFromTrk234Csv( trk234InputsDirectory + "doppler_single_observation_set_inputs.csv",
+                                                   observation_models::dsn_n_way_averaged_doppler );
+    observedObservationDataset = createCompressedDopplerDataset< long double, Time >( observedObservationDataset, 60, 10 );
 
-    std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
+    std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observedObservationDataset );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
     setRampFrequencyInterpolatorsInBodies( bodies );
-    applyMroNotebookObservationCollectionPostProcessing( observedObservationCollection, bodies );
+    applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );
 
-    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationCollection, bodies, false );
+    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationDataset, bodies, false );
     BOOST_CHECK_EQUAL( residuals.rows( ), 59 );
 
     const double meanResidual = residuals.mean( );
@@ -356,9 +363,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
-                                                                                             { dsn_n_way_averaged_doppler } );
+    std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+            observation_models::createOdfObservedObservationDataset< long double, Time >( processedOdfFileContents,
+                                                                                          { dsn_n_way_averaged_doppler } );
     observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
 
     LinkEnds dss45MgsLinkEnds;
@@ -366,13 +373,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     dss45MgsLinkEnds[ retransmitter ] = LinkEndId( spacecraftName );
     dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
-            observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
-    BOOST_REQUIRE( !singleLinkObservedObservations.empty( ) );
-    BOOST_REQUIRE( !singleLinkObservedObservations.at( 0 )->getObservationTimes( ).empty( ) );
+    const ObservationCondition< long double, Time > dss45Condition =
+            ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
+            ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
+    const std::vector< ObservationId > dss45ObservationIds =
+            observedObservationDataset->getObservationIdsMatchingCondition( dss45Condition );
+    BOOST_REQUIRE( !dss45ObservationIds.empty( ) );
+    const ObservationSetId dss45SetId = observedObservationDataset->getObservationRow( dss45ObservationIds.at( 0 ) ).setId_;
+    BOOST_REQUIRE( !observedObservationDataset->getObservationTimesForSet( dss45SetId ).empty( ) );
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > sourceAncillarySettings =
-            singleLinkObservedObservations.at( 0 )->getAncillarySettings( );
+            observedObservationDataset->getAncillarySettings(
+                    observedObservationDataset->getObservationSetMetadata( dss45SetId ).ancillarySettingsId_ );
 
     const std::vector< FrequencyBands > frequencyBands =
             convertDoubleVectorToFrequencyBands( sourceAncillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
@@ -390,7 +402,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     std::shared_ptr< observation_models::ObservationModel< 1, long double, Time > > observationModel =
             observation_models::ObservationModelCreator< 1, long double, Time >::createObservationModel( observationSettings, bodies );
 
-    const Time observationTime = singleLinkObservedObservations.at( 0 )->getObservationTimes( ).at( 0 );
+    const Time observationTime = observedObservationDataset->getObservationTimesForSet( dss45SetId ).at( 0 );
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
 

@@ -139,11 +139,11 @@ BOOST_AUTO_TEST_CASE( test_VariationalEquationsWithWindModel )
 
         // Pseudo-observations — needed by OrbitDeterminationManager constructor.
         std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
-                   std::shared_ptr< observation_models::ObservationCollection< double > > >
-                observationCollectionAndModelSettings =
-                        simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, initialTime, finalTime, 120.0 );
+                   std::shared_ptr< observation_models::ObservationDataset< double > > >
+                observationDatasetAndModelSettings =
+                        simulatePseudoObservationDataset( bodies, bodiesToEstimate, centralBodies, initialTime, finalTime, 120.0 );
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
-                observationCollectionAndModelSettings.first;
+                observationDatasetAndModelSettings.first;
 
         // === The actual bug surface. ===
         // The OrbitDeterminationManager constructor propagates the variational equations together

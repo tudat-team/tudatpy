@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
              ************************** LOAD ODF FILES
              *****************************************************************************************/
 
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedUncompressedObservationCollection;
+            std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedUncompressedObservationDataset;
 
             if( testType == 0 )
             {
@@ -138,20 +138,19 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band,
                                                           convertFrequencyBandToDouble( currentReceptionBand ) );
 
-                // Create and process observation collection
-                observedUncompressedObservationCollection =
-                        observation_models::createTrackingTxtFilesObservationCollection< long double, Time >(
-                                { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancillarySettings );
+                // Create and process observation dataset
+                observedUncompressedObservationDataset = observation_models::createTrackingTxtFilesObservationDataset< long double, Time >(
+                        { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancillarySettings );
                 setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
             }
             else
             {
-                observedUncompressedObservationCollection = createIfmsObservedObservationCollectionFromFiles< long double, Time >(
+                observedUncompressedObservationDataset = createIfmsObservedObservationDatasetFromFiles< long double, Time >(
                         { ifmsFileNames.at( i ) }, bodies, "MeX", "NWNORCIA", currentReceptionBand, x_band );
             }
 
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-                    createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
+            std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+                    createCompressedDopplerDataset( observedUncompressedObservationDataset, 60.0 );
 
             /****************************************************************************************
              ************************** CREATE OBSERVATION MODEL SETTINGS
@@ -161,8 +160,14 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
             std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
             lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
-            std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-                    observedObservationCollection->getLinkEndsPerObservableType( );
+            std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable;
+            for( ObservationSetId setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
+            {
+                const ObservationSetMetadata< long double, Time >& metadata =
+                        observedObservationDataset->getObservationSetMetadata( setId );
+                linkEndsPerObservable[ metadata.observableType_ ].push_back(
+                        observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_ );
+            }
 
             for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
             {
@@ -189,12 +194,13 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
              *****************************************************************************************/
 
             std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                    getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-                    simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+                    getObservationSimulationSettingsFromObservationDataset( observedObservationDataset, bodies );
+            std::shared_ptr< observation_models::ObservationDataset< long double, Time > > computedObservationDataset =
+                    simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
             Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                    observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
+                    observedObservationDataset->createEstimationProjection( ).getObservationVector( ) -
+                    computedObservationDataset->createEstimationProjection( ).getObservationVector( );
             double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
             double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 
@@ -215,8 +221,9 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             //        std::to_string( i ) + ".dat", 16 ); input_output::writeMatrixToFile( residualVector, "ifms_residuals_" +
             //        std::to_string( i ) + ".dat", 16 ); input_output::writeMatrixToFile(
             //            utilities::convertStlVectorToEigenVector(
-            //                utilities::staticCastVector< double, Time >( observedObservationCollection->getConcatenatedTimeVector() ) ),
-            //                "ifms_times_" + std::to_string( i ) + ".dat", 16 );
+            //                utilities::staticCastVector< double, Time >(
+            //                observedObservationDataset->createEstimationProjection().getTimes() ) ), "ifms_times_" + std::to_string( i ) +
+            //                ".dat", 16 );
         }
     }
 }

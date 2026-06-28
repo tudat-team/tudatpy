@@ -238,12 +238,16 @@ int main( )
         }
 
         // Simulate observations
-        std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-        weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 0.1 * 0.1 );
-        simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
+        for( ObservationSetId setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+        {
+            if( simulatedObservations->getObservationSetMetadata( setId ).observableType_ == one_way_doppler )
+            {
+                simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 0.1 * 0.1 ) );
+            }
+        }
 
         // Perturb parameter estimate
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
