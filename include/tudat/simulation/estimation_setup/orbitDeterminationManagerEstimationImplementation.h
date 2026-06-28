@@ -14,6 +14,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <Eigen/SparseCore>
+
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -47,8 +49,23 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                   << std::endl;
     }
 
-    const Eigen::VectorXd weightsMatrixDiagonals = estimationInput->getWeightsMatrixDiagonals( );
-    if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
+    const observation_models::EstimationVectorProjection< ObservationScalarType, TimeType > weightProjection =
+            estimationInput->getObservationDataset( )->createLegacyProjection( );
+    const Eigen::VectorXd weightsMatrixDiagonals = weightProjection.getWeightVector( );
+    const bool hasOffDiagonalWeights = weightProjection.hasOffDiagonalWeights( );
+    Eigen::SparseMatrix< double > weightsMatrix;
+    if( hasOffDiagonalWeights )
+    {
+        weightsMatrix = weightProjection.getWeightMatrix( );
+        if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights matrix (" +
+                                      std::to_string( weightsMatrix.rows( ) ) + ", " + std::to_string( weightsMatrix.cols( ) ) +
+                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
+                                      ")" );
+        }
+    }
+    else if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
     {
         throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
                                   std::to_string( weightsMatrixDiagonals.rows( ) ) + ") is not compatible with number of observations (" +
@@ -164,16 +181,32 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 conditionNumberCheck = TUDAT_NAN;
             }
             // Perform LSQ inversion
-            leastSquaresOutput =
-                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                              residuals.template cast< double >( ),
-                                                                                              weightsMatrixDiagonals,
-                                                                                              normalizedInverseAprioriCovarianceMatrix,
-                                                                                              conditionNumberCheck,
-                                                                                              constraintStateMultiplier,
-                                                                                              constraintRightHandSide,
-                                                                                              designMatrixConsiderParameters,
-                                                                                              normalizedConsiderParametersDeviation ) );
+            if( hasOffDiagonalWeights )
+            {
+                leastSquaresOutput =
+                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                                  residuals.template cast< double >( ),
+                                                                                                  weightsMatrix,
+                                                                                                  normalizedInverseAprioriCovarianceMatrix,
+                                                                                                  conditionNumberCheck,
+                                                                                                  constraintStateMultiplier,
+                                                                                                  constraintRightHandSide,
+                                                                                                  designMatrixConsiderParameters,
+                                                                                                  normalizedConsiderParametersDeviation ) );
+            }
+            else
+            {
+                leastSquaresOutput =
+                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                                  residuals.template cast< double >( ),
+                                                                                                  weightsMatrixDiagonals,
+                                                                                                  normalizedInverseAprioriCovarianceMatrix,
+                                                                                                  conditionNumberCheck,
+                                                                                                  constraintStateMultiplier,
+                                                                                                  constraintRightHandSide,
+                                                                                                  designMatrixConsiderParameters,
+                                                                                                  normalizedConsiderParametersDeviation ) );
+            }
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -197,12 +230,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
         {
-            covarianceContributionConsiderParameters =
-                    linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
-                                                                                       designMatrixEstimatedParameters,
-                                                                                       weightsMatrixDiagonals,
-                                                                                       designMatrixConsiderParameters,
-                                                                                       normalizedConsiderCovariance );
+            if( hasOffDiagonalWeights )
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrix,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
+            else
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrixDiagonals,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
         }
         else
         {
@@ -211,7 +256,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
-        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        if( hasOffDiagonalWeights )
+        {
+            costFunction =
+                    linear_algebra::computeLeastSquaresCostFunctionFromFullWeights( weightsMatrix, residuals.template cast< double >( ) );
+        }
+        else
+        {
+            costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        }
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 

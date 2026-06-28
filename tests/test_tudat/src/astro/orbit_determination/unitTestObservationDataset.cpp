@@ -18,6 +18,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -730,8 +731,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scalarWeightDataset.getWeightVectorForSet( scalarSetId ), expectedScalarWeights, 1.0E-15 );
     const Eigen::MatrixXd expectedScalarWeightMatrix = 5.0 * Eigen::MatrixXd::Identity( 4, 4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            scalarWeightDataset.createEstimationProjection( ).getWeightMatrix( ), expectedScalarWeightMatrix, 1.0E-15 );
+            scalarWeightDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), expectedScalarWeightMatrix, 1.0E-15 );
+    BOOST_CHECK_EQUAL( scalarWeightDataset.createEstimationProjection( ).getWeightMatrix( ).nonZeros( ), 4 );
     BOOST_CHECK( scalarWeightDataset.createEstimationProjection( ).isDiagonalWeightOnly( ) );
+    BOOST_CHECK( !scalarWeightDataset.hasWeightMatrixForObservation( scalarWeightDataset.getObservationIdsForSet( scalarSetId ).at( 0 ) ) );
 
     Eigen::Matrix2d observationWeightBlock;
     observationWeightBlock << 2.0, 0.5, 0.5, 3.0;
@@ -747,8 +750,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     expectedObservationBlockMatrix.block( 0, 0, 2, 2 ) = observationWeightBlock;
     expectedObservationBlockMatrix.block( 2, 2, 2, 2 ) = observationWeightBlock;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            blockWeightDataset.createEstimationProjection( ).getWeightMatrix( ), expectedObservationBlockMatrix, 1.0E-15 );
+            blockWeightDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), expectedObservationBlockMatrix, 1.0E-15 );
+    BOOST_CHECK_EQUAL( blockWeightDataset.createEstimationProjection( ).getWeightMatrix( ).nonZeros( ), 8 );
     BOOST_CHECK( blockWeightDataset.createEstimationProjection( ).hasOffDiagonalWeights( ) );
+    BOOST_CHECK( blockWeightDataset.hasWeightMatrixForObservation( blockWeightDataset.getObservationIdsForSet( blockSetId ).at( 0 ) ) );
     Eigen::VectorXd expectedBlockWeightDiagonal( 4 );
     expectedBlockWeightDiagonal << 2.0, 3.0, 2.0, 3.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( blockWeightDataset.getWeightVectorForSet( blockSetId ), expectedBlockWeightDiagonal, 1.0E-15 );
@@ -765,9 +770,134 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             setWeightBlock );
     BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockWeightDataset.getWeightMatrixForSet( setBlockSetId ), setWeightBlock, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockWeightDataset.createEstimationProjection( ).getWeightMatrix( ), setWeightBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            setBlockWeightDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             setBlockWeightDataset.createEstimationProjection( ).getWeightVector( ), setWeightBlock.diagonal( ), 1.0E-15 );
+
+    ObservationDataset< double, double > extraBlockDataset;
+    extraBlockDataset.addObservationSetWithScalarWeight(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
+            { 1.0, 2.0, 3.0 },
+            receiver,
+            1.0 );
+    const std::vector< ObservationId > extraBlockObservationIds = extraBlockDataset.getObservationIdsForSet( 0 );
+    const Eigen::Matrix2d extraWeightBlock = ( Eigen::Matrix2d( ) << 4.0, 0.25, 0.25, 5.0 ).finished( );
+    extraBlockDataset.setWeightBlock( { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
+                                      { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
+                                      extraWeightBlock,
+                                      {},
+                                      {},
+                                      true );
+    BOOST_CHECK( extraBlockDataset.hasExtraWeightBlocks( ) );
+    BOOST_CHECK_EQUAL( extraBlockDataset.getExtraWeightBlocks( ).size( ), 1 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( extraBlockDataset.getExtraWeightBlocks( ).at( 0 ).weightBlock_, extraWeightBlock, 1.0E-15 );
+    Eigen::MatrixXd expectedExtraBlockProjection = Eigen::MatrixXd::Identity( 3, 3 );
+    expectedExtraBlockProjection( 0, 0 ) = 4.0;
+    expectedExtraBlockProjection( 2, 2 ) = 5.0;
+    expectedExtraBlockProjection( 0, 2 ) = 0.25;
+    expectedExtraBlockProjection( 2, 0 ) = 0.25;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            extraBlockDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), expectedExtraBlockProjection, 1.0E-15 );
+
+    ObservationDataset< double, double > symmetricComponentBlockDataset;
+    symmetricComponentBlockDataset.addObservationSetWithScalarWeight( angular_position,
+                                                                      linkDefinition,
+                                                                      { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                                        ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                                        ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                                      { 1.0, 2.0, 3.0 },
+                                                                      receiver,
+                                                                      1.0 );
+    const std::vector< ObservationId > symmetricObservationIds = symmetricComponentBlockDataset.getObservationIdsForSet( 0 );
+    const Eigen::MatrixXd crossComponentBlock = ( Eigen::Matrix< double, 2, 1 >( ) << 0.7, 0.8 ).finished( );
+    symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
+                                                   { symmetricObservationIds.at( 2 ) },
+                                                   crossComponentBlock,
+                                                   { 0 },
+                                                   { 1 },
+                                                   true );
+    BOOST_CHECK_EQUAL( symmetricComponentBlockDataset.getExtraWeightBlocks( ).size( ), 2 );
+    Eigen::MatrixXd expectedSymmetricComponentProjection = Eigen::MatrixXd::Identity( 6, 6 );
+    expectedSymmetricComponentProjection( 0, 5 ) = 0.7;
+    expectedSymmetricComponentProjection( 2, 5 ) = 0.8;
+    expectedSymmetricComponentProjection( 5, 0 ) = 0.7;
+    expectedSymmetricComponentProjection( 5, 2 ) = 0.8;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( symmetricComponentBlockDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ),
+                                       expectedSymmetricComponentProjection,
+                                       1.0E-15 );
+    BOOST_CHECK_THROW( symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ) },
+                                                                      { symmetricObservationIds.at( 1 ) },
+                                                                      Eigen::MatrixXd::Ones( 1, 1 ),
+                                                                      { 3 },
+                                                                      { 0 },
+                                                                      false ),
+                       std::runtime_error );
+
+    ObservationDataset< double, double > rejectedSetBlockDataset;
+    Eigen::MatrixXd fullSetWeightBlock = Eigen::MatrixXd::Zero( 6, 6 );
+    for( int row = 0; row < fullSetWeightBlock.rows( ); ++row )
+    {
+        for( int column = 0; column < fullSetWeightBlock.cols( ); ++column )
+        {
+            fullSetWeightBlock( row, column ) =
+                    row == column ? static_cast< double >( row + 1 ) : 0.01 * static_cast< double >( 10 * ( row + 1 ) + column + 1 );
+        }
+    }
+    rejectedSetBlockDataset.addObservationSetWithSetWeightBlock( angular_position,
+                                                                 linkDefinition,
+                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                                 { 1.0, 2.0, 3.0 },
+                                                                 receiver,
+                                                                 fullSetWeightBlock );
+    rejectedSetBlockDataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 1.5, 2.5 ) );
+    Eigen::MatrixXd expectedRejectedWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
+    const std::vector< int > keptScalarIndices = { 0, 1, 4, 5 };
+    for( unsigned int row = 0; row < keptScalarIndices.size( ); ++row )
+    {
+        for( unsigned int column = 0; column < keptScalarIndices.size( ); ++column )
+        {
+            expectedRejectedWeightBlock( row, column ) = fullSetWeightBlock( keptScalarIndices.at( row ), keptScalarIndices.at( column ) );
+        }
+    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            rejectedSetBlockDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), expectedRejectedWeightBlock, 1.0E-15 );
+    rejectedSetBlockDataset.restoreObservations( ObservationCondition< double, double >::rejected( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            rejectedSetBlockDataset.createEstimationProjection( ).getWeightMatrix( ).toDense( ), fullSetWeightBlock, 1.0E-15 );
+}
+
+BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
+{
+    Eigen::MatrixXd designMatrix( 3, 2 );
+    designMatrix << 1.0, 2.0, 3.0, -1.0, 0.5, 4.0;
+    Eigen::VectorXd residuals( 3 );
+    residuals << 0.2, -0.4, 0.7;
+
+    Eigen::SparseMatrix< double > sparseWeights( 3, 3 );
+    std::vector< Eigen::Triplet< double > > weightTriplets;
+    weightTriplets.emplace_back( 0, 0, 2.0 );
+    weightTriplets.emplace_back( 1, 1, 3.0 );
+    weightTriplets.emplace_back( 2, 2, 4.0 );
+    weightTriplets.emplace_back( 0, 2, 0.3 );
+    weightTriplets.emplace_back( 2, 0, 0.3 );
+    sparseWeights.setFromTriplets( weightTriplets.begin( ), weightTriplets.end( ) );
+
+    const Eigen::MatrixXd denseWeights = sparseWeights.toDense( );
+    const Eigen::MatrixXd expectedNormalMatrix = designMatrix.transpose( ) * denseWeights * designMatrix;
+    const Eigen::VectorXd expectedRightHandSide = designMatrix.transpose( ) * denseWeights * residuals;
+    const Eigen::VectorXd expectedParameterUpdate =
+            linear_algebra::solveSystemOfEquationsWithSvd( expectedNormalMatrix, expectedRightHandSide );
+
+    const std::pair< Eigen::VectorXd, Eigen::MatrixXd > sparseLeastSquaresOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix, residuals, sparseWeights );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.second, expectedNormalMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.first, expectedParameterUpdate, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

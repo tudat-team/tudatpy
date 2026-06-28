@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 
@@ -51,11 +52,20 @@ public:
         return weights_;
     }
 
-    const Eigen::MatrixXd& getWeightMatrix( ) const
+    const Eigen::SparseMatrix< double >& getWeightMatrix( ) const
     {
-        if( weightMatrix_.size( ) == 0 && weights_.size( ) > 0 )
+        if( weightMatrix_.rows( ) == 0 && weights_.size( ) > 0 )
         {
-            weightMatrix_ = weights_.asDiagonal( );
+            weightMatrix_.resize( weights_.size( ), weights_.size( ) );
+            weightMatrix_.reserve( weights_.size( ) );
+            for( int i = 0; i < weights_.size( ); ++i )
+            {
+                if( weights_( i ) != 0.0 )
+                {
+                    weightMatrix_.insert( i, i ) = weights_( i );
+                }
+            }
+            weightMatrix_.makeCompressed( );
         }
         return weightMatrix_;
     }
@@ -103,7 +113,7 @@ private:
     //! Diagonal scalar weights in the same order as observations_.
     Eigen::VectorXd weights_;
     //! Full projection weight matrix; left empty for diagonal-only projections until requested.
-    mutable Eigen::MatrixXd weightMatrix_;
+    mutable Eigen::SparseMatrix< double > weightMatrix_;
     //! True when the full projection weight matrix has no off-diagonal entries.
     bool isDiagonalWeightOnly_ = true;
     //! Reference-link-end time for each scalar entry in the projection.

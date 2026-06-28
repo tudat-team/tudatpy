@@ -163,6 +163,11 @@ public:
         return perObservationWeights_.at( observationId );
     }
 
+    bool hasObservationWeightBlock( const std::size_t observationId ) const
+    {
+        return perObservationWeights_.at( observationId ).type_ == PerObservationWeight::Type::block;
+    }
+
     Eigen::MatrixXd getObservationWeightMatrix( const std::size_t observationId, const int observableSize ) const
     {
         return perObservationWeights_.at( observationId ).toMatrix( observableSize );
@@ -220,6 +225,11 @@ public:
     const std::vector< ObservationWeightBlock >& getExtraWeightBlocks( ) const
     {
         return extraWeightBlocks_;
+    }
+
+    bool hasExtraWeightBlocks( ) const
+    {
+        return !extraWeightBlocks_.empty( );
     }
 
 private:

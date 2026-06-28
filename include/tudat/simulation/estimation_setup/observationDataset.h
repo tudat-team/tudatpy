@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
@@ -562,10 +563,81 @@ public:
         observationWeights_.setWeightBlock( observationId, weightMatrix );
     }
 
+    //! Return whether an observation event stores an explicit N x N weight block.
+    bool hasWeightMatrixForObservation( const ObservationId observationId ) const
+    {
+        return observationWeights_.hasObservationWeightBlock( observationId );
+    }
+
     //! Add an advanced off-diagonal weight block over selected scalar components.
     void addExtraWeightBlock( const ObservationWeightBlock& weightBlock )
     {
         observationWeights_.addExtraWeightBlock( weightBlock );
+    }
+
+    //! Store a dense weight block selected by observation ids.
+    /*!
+     * This is the public interface for correlations between unrelated
+     * observations. Empty component lists select all scalar components of each
+     * observation. Non-empty component lists are applied to every observation in
+     * the corresponding row or column selection.
+     */
+    void setWeightBlock( const std::vector< ObservationId >& rowObservationIds,
+                         const std::vector< ObservationId >& columnObservationIds,
+                         const Eigen::MatrixXd& weightBlock,
+                         const std::vector< unsigned int >& rowComponents = std::vector< unsigned int >( ),
+                         const std::vector< unsigned int >& columnComponents = std::vector< unsigned int >( ),
+                         const bool makeSymmetric = false )
+    {
+        const std::vector< ScalarComponentId > rowScalarComponentIds =
+                getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents );
+        const std::vector< ScalarComponentId > columnScalarComponentIds =
+                getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents );
+
+        if( weightBlock.rows( ) != static_cast< int >( rowScalarComponentIds.size( ) ) ||
+            weightBlock.cols( ) != static_cast< int >( columnScalarComponentIds.size( ) ) )
+        {
+            throw std::runtime_error( "Error when setting dataset weight block, matrix size is inconsistent with selected observations." );
+        }
+
+        ObservationWeightBlock datasetWeightBlock;
+        datasetWeightBlock.rowScalarComponentIds_ = rowScalarComponentIds;
+        datasetWeightBlock.columnScalarComponentIds_ = columnScalarComponentIds;
+        datasetWeightBlock.weightBlock_ = weightBlock;
+        addExtraWeightBlock( datasetWeightBlock );
+
+        if( makeSymmetric )
+        {
+            if( rowScalarComponentIds == columnScalarComponentIds )
+            {
+                if( weightBlock.rows( ) != weightBlock.cols( ) || !weightBlock.isApprox( weightBlock.transpose( ) ) )
+                {
+                    throw std::runtime_error(
+                            "Error when setting symmetric dataset weight block, block with identical row and column selection is not "
+                            "symmetric." );
+                }
+            }
+            else
+            {
+                ObservationWeightBlock transposedWeightBlock;
+                transposedWeightBlock.rowScalarComponentIds_ = columnScalarComponentIds;
+                transposedWeightBlock.columnScalarComponentIds_ = rowScalarComponentIds;
+                transposedWeightBlock.weightBlock_ = weightBlock.transpose( );
+                addExtraWeightBlock( transposedWeightBlock );
+            }
+        }
+    }
+
+    //! Return the advanced scalar-component weight blocks stored on the dataset.
+    const std::vector< ObservationWeightBlock >& getExtraWeightBlocks( ) const
+    {
+        return observationWeights_.getExtraWeightBlocks( );
+    }
+
+    //! Return whether advanced scalar-component weight blocks are stored on the dataset.
+    bool hasExtraWeightBlocks( ) const
+    {
+        return observationWeights_.hasExtraWeightBlocks( );
     }
 
     //! Set a scalar constant weight on all observations selected by a parser.
@@ -1858,7 +1930,7 @@ private:
         projection.weights_ = Eigen::VectorXd::Zero( projectionSize );
         if( materializeWeightMatrix )
         {
-            projection.weightMatrix_ = Eigen::MatrixXd::Zero( projectionSize, projectionSize );
+            projection.weightMatrix_.resize( projectionSize, projectionSize );
         }
         projection.times_.reserve( projectionSize );
         projection.observationIds_.reserve( projectionSize );
@@ -1867,6 +1939,19 @@ private:
 
         std::size_t currentIndex = 0;
         std::map< ScalarComponentId, std::size_t > projectionIndexByScalarComponent;
+        std::map< std::pair< std::size_t, std::size_t >, double > sparseWeightEntries;
+        auto setProjectionWeightEntry = [ &sparseWeightEntries ](
+                                                const std::size_t rowIndex, const std::size_t columnIndex, const double weight ) {
+            const std::pair< std::size_t, std::size_t > indexPair = std::make_pair( rowIndex, columnIndex );
+            if( weight != 0.0 )
+            {
+                sparseWeightEntries[ indexPair ] = weight;
+            }
+            else
+            {
+                sparseWeightEntries.erase( indexPair );
+            }
+        };
         for( const ObservationId observationId : selectedObservationIds )
         {
             const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
@@ -1889,9 +1974,21 @@ private:
                 }
                 if( materializeWeightMatrix )
                 {
-                    projection.weightMatrix_.block(
-                            currentIndex - row.scalarSize_, currentIndex - row.scalarSize_, row.scalarSize_, row.scalarSize_ ) =
-                            observationWeights_.getObservationWeightMatrix( observationId, row.scalarSize_ );
+                    if( !observationWeights_.hasSetWeightBlock( row.setId_ ) )
+                    {
+                        const Eigen::MatrixXd observationWeightMatrix =
+                                observationWeights_.getObservationWeightMatrix( observationId, row.scalarSize_ );
+                        const std::size_t observationStartIndex = currentIndex - row.scalarSize_;
+                        for( unsigned int rowComponentIndex = 0; rowComponentIndex < row.scalarSize_; ++rowComponentIndex )
+                        {
+                            for( unsigned int columnComponentIndex = 0; columnComponentIndex < row.scalarSize_; ++columnComponentIndex )
+                            {
+                                setProjectionWeightEntry( observationStartIndex + rowComponentIndex,
+                                                          observationStartIndex + columnComponentIndex,
+                                                          observationWeightMatrix( rowComponentIndex, columnComponentIndex ) );
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1937,8 +2034,8 @@ private:
                                                     projectionIndexByScalarComponent.at( columnScalarComponentId );
                                             const std::size_t setLocalColumn =
                                                     columnRow.indexInSet_ * setMetadata_.at( setId ).observableSize_ + columnComponentIndex;
-                                            projection.weightMatrix_( projectionRow, projectionColumn ) =
-                                                    setWeightBlock( setLocalRow, setLocalColumn );
+                                            setProjectionWeightEntry(
+                                                    projectionRow, projectionColumn, setWeightBlock( setLocalRow, setLocalColumn ) );
                                         }
                                     }
                                 }
@@ -1972,9 +2069,9 @@ private:
                     }
                     if( materializeWeightMatrix )
                     {
-                        projection.weightMatrix_( projectionIndexByScalarComponent.at( rowScalarComponentId ),
-                                                  projectionIndexByScalarComponent.at( columnScalarComponentId ) ) =
-                                extraWeightBlock.weightBlock_( i, j );
+                        setProjectionWeightEntry( projectionIndexByScalarComponent.at( rowScalarComponentId ),
+                                                  projectionIndexByScalarComponent.at( columnScalarComponentId ),
+                                                  extraWeightBlock.weightBlock_( i, j ) );
                     }
                 }
             }
@@ -1982,8 +2079,19 @@ private:
 
         if( materializeWeightMatrix )
         {
-            projection.weights_ = projection.weightMatrix_.diagonal( );
-            projection.isDiagonalWeightOnly_ = PerObservationWeight::isMatrixDiagonal( projection.weightMatrix_ );
+            std::vector< Eigen::Triplet< double > > sparseWeightTriplets;
+            sparseWeightTriplets.reserve( sparseWeightEntries.size( ) );
+            for( const auto& weightEntry : sparseWeightEntries )
+            {
+                sparseWeightTriplets.emplace_back( weightEntry.first.first, weightEntry.first.second, weightEntry.second );
+                if( weightEntry.first.first == weightEntry.first.second )
+                {
+                    projection.weights_( weightEntry.first.first ) = weightEntry.second;
+                }
+            }
+            projection.weightMatrix_.setFromTriplets( sparseWeightTriplets.begin( ), sparseWeightTriplets.end( ) );
+            projection.weightMatrix_.makeCompressed( );
+            projection.isDiagonalWeightOnly_ = false;
         }
         else
         {
@@ -2208,6 +2316,38 @@ private:  //! Validate per-observation vectors before replacing/appending set da
             throw std::runtime_error( "Error when setting dataset weight, scalar size is inconsistent." );
         }
         observationWeights_.setDiagonalWeightVector( observationId, weight );
+    }
+
+    //! Expand observation ids and optional component indices to scalar-component ids.
+    std::vector< ScalarComponentId > getScalarComponentIdsForObservationSelection( const std::vector< ObservationId >& observationIds,
+                                                                                   const std::vector< unsigned int >& components ) const
+    {
+        std::vector< ScalarComponentId > scalarComponentIds;
+        for( const ObservationId observationId : observationIds )
+        {
+            const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
+            if( components.empty( ) )
+            {
+                for( unsigned int componentIndex = 0; componentIndex < row.scalarSize_; ++componentIndex )
+                {
+                    scalarComponentIds.push_back( row.firstScalarComponent_ + componentIndex );
+                }
+            }
+            else
+            {
+                for( const unsigned int componentIndex : components )
+                {
+                    if( componentIndex >= row.scalarSize_ )
+                    {
+                        throw std::runtime_error(
+                                "Error when setting dataset weight block, selected component index is inconsistent with observation "
+                                "size." );
+                    }
+                    scalarComponentIds.push_back( row.firstScalarComponent_ + componentIndex );
+                }
+            }
+        }
+        return scalarComponentIds;
     }
 
     //! Return the registry id for a link definition, inserting it if needed.

@@ -18,6 +18,7 @@
 #include <map>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 #include <Eigen/SVD>
 
 namespace tudat
@@ -73,6 +74,10 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
                                                             const Eigen::VectorXd& diagonalOfWeightMatrix );
 
+//! Function to multiply information matrix by a sparse full weights matrix.
+Eigen::MatrixXd multiplyDesignMatrixByWeightMatrix( const Eigen::MatrixXd& designMatrix,
+                                                    const Eigen::SparseMatrix< double >& weightMatrix );
+
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
@@ -86,6 +91,13 @@ Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixX
 
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
                                                            const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                           const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+                                                           const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+                                                           const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+                                                           const double limitConditionNumberForWarning = 1.0E8 );
+
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
+                                                           const Eigen::SparseMatrix< double >& weightMatrix,
                                                            const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
                                                            const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
                                                            const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
@@ -106,6 +118,12 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
                                                                    const Eigen::MatrixXd& designMatrix,
                                                                    const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const Eigen::MatrixXd& considerDesignMatrix,
+                                                                   const Eigen::MatrixXd& considerCovariance );
+
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                   const Eigen::MatrixXd& designMatrix,
+                                                                   const Eigen::SparseMatrix< double >& weightMatrix,
                                                                    const Eigen::MatrixXd& considerDesignMatrix,
                                                                    const Eigen::MatrixXd& considerCovariance );
 
@@ -137,6 +155,17 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
 
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
  * Function to perform an iteration of least squares estimation from information matrix, weights and residuals, as is
@@ -153,6 +182,12 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const double limitConditionNumberForWarning = 1.0E8 );
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
         const double limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals

@@ -172,8 +172,10 @@ represented as per-observation weights or as a full set-level weight block.
 Flat estimation-vector view of an :class:`ObservationDataset`.
 
 This object contains the concatenated observation, residual and weight vectors,
-together with the scalar-component provenance needed to map each entry back to a
-dataset observation row and observation set.
+together with the scalar-component provenance needed to map each entry back to
+a dataset observation row and observation set. The diagonal weights are always
+available through :attr:`weight_vector`. The full matrix is returned as a sparse
+matrix and is only needed when off-diagonal terms are present.
 )doc" )
             .def_property_readonly( "observation_vector",
                                     &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
@@ -186,7 +188,14 @@ dataset observation row and observation set.
                                     R"doc(Concatenated vector of scalar observation weights.)doc" )
             .def_property_readonly( "weight_matrix",
                                     &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrix,
-                                    R"doc(Full projection weight matrix, including block/off-diagonal weights when present.)doc" )
+                                    R"doc(
+Sparse weight matrix in the same order as :attr:`observation_vector`.
+
+For diagonal-only weights this matrix is generated from :attr:`weight_vector`.
+For off-diagonal weights it contains the materialized sparse matrix assembled
+from per-observation blocks, set-level blocks and advanced scalar-component
+blocks.
+)doc" )
             .def_property_readonly( "is_diagonal_weight_only",
                                     &tom::EstimationVectorProjection< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
                                     R"doc(True when the projection weight matrix contains no off-diagonal entries.)doc" )
@@ -467,20 +476,77 @@ but the data are inserted directly into the dataset backend.
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForSet,
                   py::arg( "set_id" ),
                   py::arg( "weight_matrix" ),
-                  R"doc(Store one full M x M weight matrix for an observation set.)doc" )
+                  R"doc(
+Store one full set-level weight matrix for an observation set.
+
+The matrix must have size ``M x M``, where ``M`` is the total number of scalar
+components in the set. For example, three angular-position observations require
+a ``6 x 6`` matrix. A set-level matrix is used as the complete weight block for
+that set in estimation projections and takes precedence over per-observation
+blocks in that set.
+)doc" )
             .def( "has_weight_matrix_for_set",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForSet,
                   py::arg( "set_id" ),
-                  R"doc(Return whether a set has a stored full M x M weight matrix.)doc" )
+                  R"doc(Return whether a set has an explicitly stored set-level weight matrix.)doc" )
             .def( "set_weight_matrix_for_observation",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightMatrixForObservation,
                   py::arg( "observation_id" ),
                   py::arg( "weight_matrix" ),
-                  R"doc(Store one observable-size N x N weight matrix for a single observation.)doc" )
+                  R"doc(
+Store one observable-size weight matrix for a single observation row.
+
+The matrix must have size ``N x N``, where ``N`` is the scalar size of the
+observable. This is the convenient interface for correlations between
+components of one vector-valued observation, such as the two components of an
+angular-position observation.
+)doc" )
+            .def( "has_weight_matrix_for_observation",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasWeightMatrixForObservation,
+                  py::arg( "observation_id" ),
+                  R"doc(Return whether an observation row has an explicitly stored observable-size weight matrix.)doc" )
             .def( "add_extra_weight_block",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addExtraWeightBlock,
                   py::arg( "weight_block" ),
-                  R"doc(Add an advanced dense off-diagonal weight block over selected scalar components.)doc" )
+                  R"doc(
+Add an advanced dense weight block over selected scalar components.
+
+This method is intended for low-level use when a correlation cannot be expressed
+as a per-observation block or as one full set-level block. The row and column
+scalar-component ids define where the dense block is inserted in estimation
+projections.
+)doc" )
+            .def( "set_weight_block",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightBlock,
+                  py::arg( "row_observation_ids" ),
+                  py::arg( "column_observation_ids" ),
+                  py::arg( "weight_block" ),
+                  py::arg( "row_components" ) = std::vector< unsigned int >( ),
+                  py::arg( "column_components" ) = std::vector< unsigned int >( ),
+                  py::arg( "make_symmetric" ) = false,
+                  R"doc(
+Store a dense weight block selected by observation ids.
+
+Observation ids can be obtained with methods such as
+:func:`observation_ids_for_set`, :func:`observation_ids_matching_condition`, or
+from an :class:`ObservationDatasetViewer`. Empty component lists select all
+scalar components of each selected observation. Non-empty component lists are
+applied to every observation in the corresponding row or column selection.
+
+The matrix size must match the expanded scalar selections:
+``weight_block.shape == (number_of_selected_row_components,
+number_of_selected_column_components)``.
+
+If ``make_symmetric`` is ``True`` and the row and column selections differ, the
+transposed block is stored automatically as well. If the selections are
+identical, the supplied block must itself be symmetric.
+)doc" )
+            .def( "extra_weight_blocks",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getExtraWeightBlocks,
+                  R"doc(Return the advanced scalar-component weight blocks stored on this dataset.)doc" )
+            .def_property_readonly( "has_extra_weight_blocks",
+                                    &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
+                                    R"doc(True when the dataset stores advanced scalar-component weight blocks.)doc" )
             .def( "replace_observation_set_data",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::replaceObservationSetData,
                   py::arg( "set_id" ),
@@ -627,7 +693,13 @@ but the data are inserted directly into the dataset backend.
             .def( "weight_matrix_for_set",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForSet,
                   py::arg( "set_id" ),
-                  R"doc(Return the full weight matrix for a set, materializing compact weights if needed.)doc" )
+                  R"doc(
+Return the full dense weight matrix for a set.
+
+If a set-level matrix was stored, that matrix is returned. Otherwise the matrix
+is assembled from the per-observation scalar weights or observable-size blocks
+stored for the observations in the set.
+)doc" )
             .def( "weight_value",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightValue,
                   py::arg( "observation_id" ),
@@ -635,7 +707,11 @@ but the data are inserted directly into the dataset backend.
             .def( "weight_matrix_for_observation",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrixForObservation,
                   py::arg( "observation_id" ),
-                  R"doc(Return the observable-size weight matrix for one observation row.)doc" )
+                  R"doc(
+Return the observable-size dense weight matrix for one observation row.
+
+Scalar or vector diagonal weights are materialized as a diagonal matrix.
+)doc" )
             .def( "residuals_for_set",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsForSet,
                   py::arg( "set_id" ),
