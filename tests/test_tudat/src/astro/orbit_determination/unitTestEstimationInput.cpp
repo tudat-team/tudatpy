@@ -164,11 +164,12 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
 /*!
  * Verifies off-diagonal weights through estimation and covariance analysis.
  *
- * Test outline: simulates range and angular observations, assigns per-observation
- * blocks, set-level blocks and cross-set blocks through ObservationDataset, and
- * checks the assembled sparse weight matrix. It then verifies that these
- * weights are used in the parameter update, final estimation inverse covariance
- * and covariance-analysis inverse covariance.
+ * Test outline: simulates range and angular observations inserted out of
+ * observable/link-end order, assigns per-observation blocks, set-level blocks
+ * and cross-set blocks through ObservationDataset, and checks the assembled
+ * sparse weight matrix. It then verifies that these weights are used in the
+ * parameter update, final estimation inverse covariance and covariance-analysis
+ * inverse covariance.
  */
 BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 {
@@ -281,19 +282,25 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-            one_way_range, rangeLinkEndsStation1, observationTimes, receiver ) );
+            angular_position, angularLinkEndsStation3, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
             one_way_range, rangeLinkEndsStation2, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
             angular_position, angularLinkEndsStation1, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-            angular_position, angularLinkEndsStation2, observationTimes, receiver ) );
+            one_way_range, rangeLinkEndsStation1, observationTimes, receiver ) );
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-            angular_position, angularLinkEndsStation3, observationTimes, receiver ) );
+            angular_position, angularLinkEndsStation2, observationTimes, receiver ) );
 
     std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
     simulatedObservations->setConstantWeight( 1.0 );
+
+    const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( );
+
+    // The simulated dataset is intentionally inserted out of observable/link-end order.
+    BOOST_REQUIRE_EQUAL( orderedSetIds.size( ), simulatedObservations->getNumberOfObservationSets( ) );
+    BOOST_CHECK( orderedSetIds.front( ) != 0 );
 
     std::map< unsigned int, Eigen::MatrixXd > expectedSetWeightMatrices;
     int numberOfObservationBlockSets = 0;
@@ -340,7 +347,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     Eigen::MatrixXd expectedFullWeightsMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalObservationSize );
     int currentStartIndex = 0;
     std::map< unsigned int, int > orderedSetStartIndex;
-    for( const unsigned int setId : simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : orderedSetIds )
     {
         const int currentSetSize = static_cast< int >( simulatedObservations->getTotalScalarSizeForSet( setId ) );
         orderedSetStartIndex[ setId ] = currentStartIndex;
@@ -476,7 +483,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     simulatedObservations->rejectObservations( rejectedObservationCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
-    const FlattenedObservationData< double, double > activeData = simulatedObservations->createEstimationFlattenedObservationData( false );
+    const FlattenedObservationData< double, double > activeData = simulatedObservations->createOrderedFlattenedObservationData( false );
 
     // Rejecting one observation must remove only its scalar rows from the estimator-facing flattened data.
     BOOST_CHECK_EQUAL( activeData.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );

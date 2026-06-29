@@ -13,6 +13,8 @@
 
 #include <string>
 
+#include <Eigen/Core>
+
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/tudatTypeTraits.h"
 
@@ -98,6 +100,9 @@ struct ObservationDatasetRow {
 
     //! Zero-based index of this observation within its set.
     unsigned int indexInSet_;
+
+    //! Dependent-variable values computed for this observation event.
+    Eigen::VectorXd dependentVariableValues_;
 
     //! Status flag used by flattened data objects that exclude inactive observations.
     bool isActive_;

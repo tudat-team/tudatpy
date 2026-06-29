@@ -189,16 +189,24 @@ public:
         setMetadata_.push_back(
                 { observableType, linkDefinitionId, referenceLinkEnd, observableSize, ancillarySettingsId, dependentVariableLayoutId } );
 
-        observationIdsBySet_.push_back( std::vector< int >( ) );
+        observationIdsBySet_.push_back( std::vector< unsigned int >( ) );
         observationIdsBySet_.back( ).reserve( preparedObservations.size( ) );
 
         for( std::size_t i = 0; i < preparedObservations.size( ); ++i )
         {
             const unsigned int observationId = observationRows_.size( );
-            const int firstScalarComponent = scalarComponentRows_.size( );
+            const unsigned int firstScalarComponent = scalarComponentRows_.size( );
+            const Eigen::VectorXd dependentVariablesForObservation =
+                    preparedDependentVariables.empty( ) ? Eigen::VectorXd( ) : preparedDependentVariables.at( i );
 
-            observationRows_.push_back(
-                    { preparedTimes.at( i ), setId, firstScalarComponent, observableSize, static_cast< unsigned int >( i ), true, "" } );
+            observationRows_.push_back( { preparedTimes.at( i ),
+                                          setId,
+                                          firstScalarComponent,
+                                          observableSize,
+                                          static_cast< unsigned int >( i ),
+                                          dependentVariablesForObservation,
+                                          true,
+                                          "" } );
             observationIdsBySet_.back( ).push_back( observationId );
 
             for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
@@ -216,15 +224,6 @@ public:
             else
             {
                 observationWeights_.appendDiagonalWeightVector( preparedWeights.at( i ) );
-            }
-
-            if( preparedDependentVariables.empty( ) )
-            {
-                dependentVariableValues_.push_back( Eigen::VectorXd( ) );
-            }
-            else
-            {
-                dependentVariableValues_.push_back( preparedDependentVariables.at( i ) );
             }
         }
 
@@ -773,7 +772,7 @@ public:
                                             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) )
     {
         replaceObservationSetDataWithSourceRows(
-                setId, observations, times, dependentVariables, weights, residuals, std::vector< int >( ) );
+                setId, observations, times, dependentVariables, weights, residuals, std::vector< unsigned int >( ) );
     }
 
     //! Append per-observation data to an existing set.
@@ -1429,7 +1428,7 @@ public:
         bool hasNonEmptyDependentVariables = false;
         for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
         {
-            const Eigen::VectorXd dependentVariable = dependentVariableValues_.at( observationId );
+            const Eigen::VectorXd dependentVariable = observationRows_.at( observationId ).dependentVariableValues_;
             if( dependentVariable.size( ) > 0 )
             {
                 hasNonEmptyDependentVariables = true;
@@ -1441,7 +1440,7 @@ public:
 
     Eigen::VectorXd getDependentVariables( const unsigned int observationId ) const
     {
-        return dependentVariableValues_.at( observationId );
+        return observationRows_.at( observationId ).dependentVariableValues_;
     }
 
     //! Extract one dependent-variable block by column start and size.
@@ -1567,7 +1566,7 @@ public:
         }
         for( std::size_t i = 0; i < observationIds.size( ); ++i )
         {
-            dependentVariableValues_.at( observationIds.at( i ) ) = dependentVariables.at( i );
+            observationRows_.at( observationIds.at( i ) ).dependentVariableValues_ = dependentVariables.at( i );
         }
     }
 
@@ -1576,7 +1575,7 @@ public:
     {
         for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
         {
-            dependentVariableValues_.at( observationId ) = Eigen::VectorXd( );
+            observationRows_.at( observationId ).dependentVariableValues_ = Eigen::VectorXd( );
         }
     }
 
@@ -2237,7 +2236,7 @@ public:
     }
 
 private:
-    static int invalidObservationId( )
+    static unsigned int invalidObservationId( )
     {
         return std::numeric_limits< unsigned int >::max( );
     }
@@ -2285,7 +2284,7 @@ private:
 
     //! Copy arbitrary scalar-component weight blocks that survive a structural rebuild.
     void copyRemappedExtraWeightBlocksFrom( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
-                                            const std::map< int, int >& scalarComponentIdMap )
+                                            const std::map< unsigned int, unsigned int >& scalarComponentIdMap )
     {
         for( const ObservationWeightBlock& sourceWeightBlock : sourceDataset.observationWeights_.getExtraWeightBlocks( ) )
         {
@@ -2293,7 +2292,7 @@ private:
             std::vector< unsigned int > targetRowScalarComponentIds;
             for( std::size_t i = 0; i < sourceWeightBlock.rowScalarComponentIds_.size( ); ++i )
             {
-                const int sourceScalarComponentId = sourceWeightBlock.rowScalarComponentIds_.at( i );
+                const unsigned int sourceScalarComponentId = sourceWeightBlock.rowScalarComponentIds_.at( i );
                 if( scalarComponentIdMap.count( sourceScalarComponentId ) > 0 )
                 {
                     selectedRowIndices.push_back( i );
@@ -2305,7 +2304,7 @@ private:
             std::vector< unsigned int > targetColumnScalarComponentIds;
             for( std::size_t i = 0; i < sourceWeightBlock.columnScalarComponentIds_.size( ); ++i )
             {
-                const int sourceScalarComponentId = sourceWeightBlock.columnScalarComponentIds_.at( i );
+                const unsigned int sourceScalarComponentId = sourceWeightBlock.columnScalarComponentIds_.at( i );
                 if( scalarComponentIdMap.count( sourceScalarComponentId ) > 0 )
                 {
                     selectedColumnIndices.push_back( i );
@@ -2651,8 +2650,6 @@ private:
     std::vector< ObservationScalarType > residualValues_;
     //! Compact observation weight storage; materialized into vectors/matrices only on request.
     ObservationWeights observationWeights_;
-    //! Per-observation dependent-variable vectors aligned one-to-one with observationRows_.
-    std::vector< Eigen::VectorXd > dependentVariableValues_;
     //! Monotonic counter used to invalidate viewers after structural mutations.
     std::size_t structuralVersion_ = 0;
 };

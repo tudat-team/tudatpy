@@ -12,7 +12,7 @@
 #define TUDAT_OBSERVATION_WEIGHTS_H
 
 #include <cstddef>
-#include <map>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
@@ -133,9 +133,9 @@ struct PerObservationWeight {
  */
 struct ObservationWeightBlock {
     //! Scalar component ids covered by the block rows.
-    std::vector< std::size_t > rowScalarComponentIds_;
+    std::vector< unsigned int > rowScalarComponentIds_;
     //! Scalar component ids covered by the block columns.
-    std::vector< std::size_t > columnScalarComponentIds_;
+    std::vector< unsigned int > columnScalarComponentIds_;
     //! Dense block value for the selected scalar components.
     Eigen::MatrixXd weightBlock_;
 };
@@ -247,25 +247,33 @@ public:
         {
             throw std::runtime_error( "Error when setting observation set weight block, block is not square." );
         }
-        setWeightBlocks_[ setId ] = setWeightBlock;
+        if( setWeightBlocks_.size( ) <= setId )
+        {
+            setWeightBlocks_.resize( setId + 1 );
+        }
+        setWeightBlocks_.at( setId ) = setWeightBlock;
     }
 
     //! Return whether a full set-level block is stored for the requested set.
     bool hasSetWeightBlock( const std::size_t setId ) const
     {
-        return setWeightBlocks_.count( setId ) > 0;
+        return setId < setWeightBlocks_.size( ) && setWeightBlocks_.at( setId ).has_value( );
     }
 
     //! Return the full set-level block for the requested set.
     const Eigen::MatrixXd& getSetWeightBlock( const std::size_t setId ) const
     {
-        return setWeightBlocks_.at( setId );
+        if( !hasSetWeightBlock( setId ) )
+        {
+            throw std::runtime_error( "Error when retrieving observation set weight block, no block is stored for the requested set." );
+        }
+        return setWeightBlocks_.at( setId ).value( );
     }
 
     //! Return whether the stored set-level block has no off-diagonal entries.
     bool isSetWeightBlockDiagonalOnly( const std::size_t setId ) const
     {
-        return PerObservationWeight::isMatrixDiagonal( setWeightBlocks_.at( setId ) );
+        return PerObservationWeight::isMatrixDiagonal( getSetWeightBlock( setId ) );
     }
 
     //! Add an arbitrary block over scalar-component ids for cross-observation correlations.
@@ -293,7 +301,7 @@ private:
     //! Per-observation compact weights, aligned one-to-one with observation rows.
     std::vector< PerObservationWeight > perObservationWeights_;
     //! Optional full M x M blocks for complete observation sets/batches.
-    std::map< std::size_t, Eigen::MatrixXd > setWeightBlocks_;
+    std::vector< std::optional< Eigen::MatrixXd > > setWeightBlocks_;
     //! Optional arbitrary blocks for rare off-diagonal correlations.
     std::vector< ObservationWeightBlock > extraWeightBlocks_;
 };
