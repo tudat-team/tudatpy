@@ -56,13 +56,21 @@ set(estimation_HEADERS
         observationSimulationSettings.h
         observationsProcessing.h
         observationDataset.h
+        observationDatasetAccessorsImplementation.h
+        observationDatasetFlatteningImplementation.h
+        observationDatasetMutationImplementation.h
+        observationDatasetPrivateImplementation.h
+        observationDatasetSelectionImplementation.h
+        observationDatasetWeightsImplementation.h
         observations.h
         createDirectObservationPartials.h
         createPositionPartialScaling.h
         createClockPartials.h
         processOdfFile.h
+        processObservationFilesLegacy.h
         processPsfFile.h
         processTrackingTxtFile.h
+        simulateObservationsLegacy.h
         )
 
 # Add header files.

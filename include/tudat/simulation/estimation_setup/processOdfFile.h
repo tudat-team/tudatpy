@@ -28,8 +28,8 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 namespace tudat
 {
@@ -1242,7 +1242,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
         std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
         std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
-        const bool allowDuplicateObservationsWithinSingleObservationSet = true )
+        const bool allowDuplicateObservationsWithinObservationSet = true )
 {
     // Set observables to process
     if( observableTypesToProcess.empty( ) )
@@ -1326,27 +1326,12 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                         std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),                 // weights
                         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),  // residuals
                         true,
-                        !allowDuplicateObservationsWithinSingleObservationSet );
+                        !allowDuplicateObservationsWithinObservationSet );
             }
         }
     }
 
     return observationDataset;
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
-        std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
-        std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
-        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
-        const bool allowDuplicateObservationsWithinSingleObservationSet = true )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createOdfObservedObservationDataset< ObservationScalarType, TimeType >(
-                    processedOdfFileContents,
-                    observableTypesToProcess,
-                    startAndEndTimesToProcess,
-                    allowDuplicateObservationsWithinSingleObservationSet ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -1470,16 +1455,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
-        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            compressDopplerData< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ), originalDopplerData->getObservationSetId( ), compressionRatio ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCompressedDopplerDataset(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio,
@@ -1547,18 +1522,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     }
 
     return compressedData;
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10,
-        const double maxArcGap = 300.0 )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createCompressedDopplerDataset< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ), compressionRatio, minNumberObservations, maxArcGap ) );
 }
 
 /*!
@@ -1646,7 +1609,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         const bool verboseOutput = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getApproximateDsnGroundStationPositions( ),
-        const bool allowDuplicateObservationsWithinSingleObservationSet = true )
+        const bool allowDuplicateObservationsWithinObservationSet = true )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFileName : odfFileNames )
@@ -1663,27 +1626,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
             processedOdfFileContents,
             std::vector< observation_models::ObservableType >( ),
             std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
-            allowDuplicateObservationsWithinSingleObservationSet );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies& bodies,
-                                                const std::vector< std::string >& odfFileNames,
-                                                const std::string& targetName,
-                                                const bool verboseOutput = true,
-                                                const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                        simulation_setup::getApproximateDsnGroundStationPositions( ),
-                                                const bool allowDuplicateObservationsWithinSingleObservationSet = true )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createOdfObservedObservationDatasetFromFile< ObservationScalarType, TimeType >(
-                    bodies,
-                    odfFileNames,
-                    targetName,
-                    verboseOutput,
-                    earthFixedGroundStationPositions,
-                    allowDuplicateObservationsWithinSingleObservationSet ) );
+            allowDuplicateObservationsWithinObservationSet );
 }
 
 }  // namespace observation_models

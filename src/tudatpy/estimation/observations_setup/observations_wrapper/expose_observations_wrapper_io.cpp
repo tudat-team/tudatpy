@@ -20,9 +20,7 @@
 
 #include "scalarTypes.h"
 
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
-#include "tudat/simulation/estimation_setup/processPsfFile.h"
-#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/simulation/estimation_setup/processObservationFilesLegacy.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tom = tudat::observation_models;

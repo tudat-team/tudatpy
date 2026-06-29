@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayRangeModel )
     std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observedObservationDataset );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
     setRampFrequencyInterpolatorsInBodies( bodies );
-    applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );
+    observedObservationDataset = applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );
 
     Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationDataset, bodies, true );
     BOOST_CHECK_EQUAL( residuals.rows( ), 18 );

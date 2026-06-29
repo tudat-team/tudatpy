@@ -70,6 +70,7 @@ Eigen::MatrixXd multiplyDesignMatrixByWeightMatrix( const Eigen::MatrixXd& desig
     {
         throw std::runtime_error( "Error when multiplying design matrix by weights matrix, sizes are incompatible." );
     }
+
     // Keep the weight matrix sparse until multiplying with the dense design matrix.
     return ( weightMatrix * designMatrix ).eval( );
 }
@@ -114,6 +115,7 @@ Eigen::VectorXd multiplyObservationVectorByWeightMatrix( const Eigen::VectorXd& 
     {
         throw std::runtime_error( "Error when multiplying observation vector by weights matrix, sizes are incompatible." );
     }
+
     // This forms W*r for the right-hand side H^T*W*r without densifying W.
     return weightMatrix * observationVector;
 }

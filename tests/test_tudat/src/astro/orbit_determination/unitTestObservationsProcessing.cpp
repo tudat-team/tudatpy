@@ -193,22 +193,9 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
     std::shared_ptr< ObservationDataset< double, double > > dataset = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
-    {
-        const ObservableType observableType = dataset->getObservationSetMetadata( setId ).observableType_;
-        if( observableType == one_way_range )
-        {
-            dataset->setConstantWeightForSet( setId, 1.0 / ( 3.0 * 3.0 ) );
-        }
-        else if( observableType == angular_position )
-        {
-            dataset->setConstantWeightForSet( setId, 1.0 / ( 1.0E-5 * 1.0E-5 ) );
-        }
-        else if( observableType == one_way_doppler )
-        {
-            dataset->setConstantWeightForSet( setId, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
-        }
-    }
+    dataset->setConstantWeightPerObservableType( { { one_way_range, 1.0 / ( 3.0 * 3.0 ) },
+                                                   { angular_position, 1.0 / ( 1.0E-5 * 1.0E-5 ) },
+                                                   { one_way_doppler, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) } } );
 
     return dataset;
 }

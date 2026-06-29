@@ -16,7 +16,7 @@
 #include <functional>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
@@ -226,29 +226,6 @@ simulateObservationDatasetWithCheckAndLinkEndIdOutput(
     return observationDataset;
 }
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
-simulateObservationsWithCheckAndLinkEndIdOutput(
-        const std::vector< TimeType >& observationTimes,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
-                std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
-        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
-        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateObservationDatasetWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes,
-                    observationModel,
-                    referenceLinkEnd,
-                    linkViabilityCalculators,
-                    noiseFunction,
-                    dependentVariableCalculator,
-                    ancillarySettings ) );
-}
-
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulatePerArcObservationDataset(
         const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
@@ -406,17 +383,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return observationDataset;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulatePerArcSingleObservationSet(
-        const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulatePerArcObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationModel, bodies ) );
-}
-
 //! Function to compute observations at times defined by settings object using a given observation model
 /*!
  *  Function to compute observations at times defined by settings object using a given observation model
@@ -480,17 +446,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return simulatedObservations;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
-        const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateSingleObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationModel, bodies ) );
-}
-
 //! Function to simulate observations for single observable and single set of link ends.
 /*!
  *  Function to simulate observations for single observable and single set of link ends. From the observation time settings and
@@ -515,18 +470,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 
     return simulateSingleObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
             observationsToSimulate, observationSimulator->getObservationModel( observationsToSimulate->getLinkEnds( ).linkEnds_ ), bodies );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulateSingleObservationSet(
-        const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
-        const std::shared_ptr< observation_models::ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >
-                observationSimulator,
-        const SystemOfBodies& bodies )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            simulateSingleObservationDataset< ObservationScalarType, TimeType, ObservationSize >(
-                    observationsToSimulate, observationSimulator, bodies ) );
 }
 
 //! Function to simulate observations from set of observables and link and sets
@@ -621,17 +564,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > simulateObservations(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
-        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-                observationSimulators,
-        const SystemOfBodies bodies )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            simulateObservationDataset< ObservationScalarType, TimeType >( observationsToSimulate, observationSimulators, bodies ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > setExistingObservationDataset(
         const std::map< observation_models::ObservableType,
                         std::pair< observation_models::LinkEnds,
@@ -681,21 +613,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     }
 
     return observationDataset;
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > setExistingObservations(
-        const std::map< observation_models::ObservableType,
-                        std::pair< observation_models::LinkEnds,
-                                   std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
-                                              std::vector< TimeType > > > > observationsInput,
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::map< observation_models::ObservableType, std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >
-                ancillarySettings = std::map< observation_models::ObservableType,
-                                              std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            setExistingObservationDataset< ObservationScalarType, TimeType >( observationsInput, referenceLinkEnd, ancillarySettings ) );
 }
 
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise( const std::function< double( const double ) > noiseFunction,
@@ -751,10 +668,9 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_se
                                                              const bool transmittingToTarget );
 
 /*!
- * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
- * collection.
+ * Creates observation simulation settings to be used when simulating observations consistent with an observed observation dataset.
  *
- * @param observedObservationCollection Observation collection of observed observations (i.e. from ODF file)
+ * @param observedObservationDataset Dataset of observed observations (i.e. from ODF file)
  * @return Observation simulation settings for simulated observations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -797,18 +713,8 @@ getObservationSimulationSettingsFromObservationDataset(
     return observationSimulationSettings;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >
-getObservationSimulationSettingsFromObservations(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
-        const SystemOfBodies& bodies )
-{
-    return getObservationSimulationSettingsFromObservationDataset< ObservationScalarType, TimeType >(
-            observedObservationCollection->getObservationDataset( ), bodies );
-}
-
-//! Function that simulates observations from a given observation collection (containing real observations), and computes the residuals and relevant observation dependent variables.
-//! The derived residuals and dependent variables are then appended to the observed observation collection.
+//! Function that simulates observations from a given observation dataset, and computes the residuals and relevant observation dependent variables.
+//! The derived residuals and dependent variables are then appended to the observed observation dataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 void computeResidualsAndDependentVariables(
         std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
@@ -843,17 +749,6 @@ void computeResidualsAndDependentVariables(
             }
         }
     }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-void computeResidualsAndDependentVariables(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-                observationSimulators,
-        const SystemOfBodies& bodies )
-{
-    computeResidualsAndDependentVariables< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), observationSimulators, bodies );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -917,17 +812,6 @@ void estimateTimeBiasPerSet(
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-void estimateTimeBiasPerSet(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const Eigen::VectorXd& timePartials,
-        std::vector< double >& timeBiases,
-        Eigen::VectorXd& correctedResiduals )
-{
-    estimateTimeBiasPerSet< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), timePartials, timeBiases, correctedResiduals );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
 void estimateTimeBiasAndPolynomialFitPerSet(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
         const Eigen::VectorXd& timePartials,
@@ -955,18 +839,6 @@ void estimateTimeBiasAndPolynomialFitPerSet(
     //        Eigen::VectorXd polynomialValues = linear_algebra::evaluatePolynomial( currentTimes, polynomialCoefficients, { 0, 1, 2, 3 } );
     //        correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -= polynomialValues;
     //    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-void estimateTimeBiasAndPolynomialFitPerSet(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const Eigen::VectorXd& timePartials,
-        std::vector< double >& timeBiases,
-        std::vector< Eigen::VectorXd >& polynomialCoefficientsList,
-        Eigen::VectorXd& correctedResiduals )
-{
-    estimateTimeBiasAndPolynomialFitPerSet< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), timePartials, timeBiases, polynomialCoefficientsList, correctedResiduals );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -1001,18 +873,6 @@ void getResidualStatistics(
         meanValues( i ) = linear_algebra::getVectorEntryMean( currentResiduals );
         rmsValues( i ) = linear_algebra::getVectorEntryRootMeanSquare( currentResiduals );
     }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-void getResidualStatistics(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        Eigen::VectorXd& startTimes,
-        Eigen::VectorXd& durations,
-        Eigen::VectorXd& meanValues,
-        Eigen::VectorXd& rmsValues )
-{
-    getResidualStatistics< ObservationScalarType, TimeType >(
-            observationCollection->getObservationDataset( ), startTimes, durations, meanValues, rmsValues );
 }
 
 }  // namespace simulation_setup

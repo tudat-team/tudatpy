@@ -146,7 +146,7 @@ public:
 
     void setLinkEnds( LinkDefinition& linkEnds )
     {
-        dataset_->setLinkDefinition( setId_, linkEnds );
+        dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
         synchronizeLegacyCacheFromObservationDataset( );
     }
 
@@ -598,7 +598,7 @@ public:
         {
             dependentVariableBookkeeping_ =
                     std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, getLinkEnds( ).linkEnds_ );
-            dataset_->setDependentVariableBookkeeping( setId_, dependentVariableBookkeeping_ );
+            dataset_->resetDependentVariableBookkeepingForSet( setId_, dependentVariableBookkeeping_ );
         }
         else if( dataset_->getDependentVariablesForSet( setId_ ).size( ) != 0 )
         {

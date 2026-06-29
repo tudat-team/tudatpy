@@ -22,7 +22,8 @@
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processObservationFilesLegacy.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 

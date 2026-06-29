@@ -243,22 +243,9 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
 
     if( observableType == 4 )
     {
-        for( int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
-        {
-            const ObservableType currentObservable = simulatedObservations->getObservationSetMetadata( setId ).observableType_;
-            if( currentObservable == one_way_range )
-            {
-                simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
-            }
-            else if( currentObservable == angular_position )
-            {
-                simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0E-9 * 1.0E-9 ) );
-            }
-            else if( currentObservable == one_way_doppler )
-            {
-                simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0E-12 * 1.0E-12 ) );
-            }
-        }
+        simulatedObservations->setConstantWeightPerObservableType( { { one_way_range, 1.0 / ( 1.0 * 1.0 ) },
+                                                                     { angular_position, 1.0 / ( 1.0E-9 * 1.0E-9 ) },
+                                                                     { one_way_doppler, 1.0 / ( 1.0E-12 * 1.0E-12 ) } } );
     }
     else
     {

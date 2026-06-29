@@ -34,7 +34,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
 
 namespace tudat
 {
@@ -347,16 +347,6 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createP
         const PsfFileObservationConversionSettings& conversionSettings );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-createPsfFileObservationSets( const input_output::psf::RawPsfFileContents& psfFileContents,
-                              const PsfFileObservationConversionSettings& conversionSettings )
-{
-    return createObservationCollection< ObservationScalarType, TimeType >(
-                   createPsfFileObservationDataset< ObservationScalarType, TimeType >( psfFileContents, conversionSettings ) )
-            ->getObservationsSets( );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createPsfFileObservationDataset(
         const input_output::psf::RawPsfFileContents& psfFileContents,
         const PsfFileObservationConversionSettings& conversionSettings )
@@ -436,24 +426,6 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createP
 {
     return createPsfFileObservationDataset< ObservationScalarType, TimeType >( input_output::psf::readPsfFile( psfFile ),
                                                                                conversionSettings );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createPsfFileObservationCollection(
-        const input_output::psf::RawPsfFileContents& psfFileContents,
-        const PsfFileObservationConversionSettings& conversionSettings )
-{
-    return createObservationCollection< ObservationScalarType, TimeType >(
-            createPsfFileObservationDataset< ObservationScalarType, TimeType >( psfFileContents, conversionSettings ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createPsfFileObservationCollection(
-        const std::string& psfFile,
-        const PsfFileObservationConversionSettings& conversionSettings )
-{
-    return createObservationCollection< ObservationScalarType, TimeType >(
-            createPsfFileObservationDataset< ObservationScalarType, TimeType >( psfFile, conversionSettings ) );
 }
 
 inline void addPsfCamerasToBodies( const std::string& psfFile,

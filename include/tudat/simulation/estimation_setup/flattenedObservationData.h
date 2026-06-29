@@ -140,28 +140,40 @@ private:
 
     //! Observation scalar values in this object's row order.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations_;
+
     //! Residual scalar values in the same order as observations_.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals_;
+
     //! Diagonal scalar weights in the same order as observations_.
     Eigen::VectorXd weights_;
+
     //! Full weight matrix; left empty for diagonal-only data until requested.
     mutable Eigen::SparseMatrix< double > weightMatrix_;
+
     //! True when the full weight matrix has no off-diagonal entries.
     bool isDiagonalWeightOnly_ = true;
+
     //! Reference-link-end time for each scalar entry.
     std::vector< TimeType > times_;
+
     //! Observation id for each scalar entry.
     std::vector< unsigned int > observationIds_;
+
     //! Observation set id for each scalar entry.
     std::vector< unsigned int > setIds_;
+
     //! Scalar component id for each scalar entry.
     std::vector< unsigned int > scalarComponentIds_;
+
     //! First row in the flat vectors for each selected observation; -1 for unselected observations.
     std::vector< int > firstFlattenedRowByObservation_;
+
     //! Scalar size for each selected observation; 0 for unselected observations.
     std::vector< unsigned int > scalarSizeByObservation_;
+
     //! Unique observation ids grouped by set, preserving this object's row order.
     std::vector< std::vector< unsigned int > > uniqueObservationIdsBySet_;
+
     //! Set ids in the order in which each set first appears in this object's rows.
     std::vector< unsigned int > setIdsInRowOrder_;
 };

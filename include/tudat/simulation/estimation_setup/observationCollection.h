@@ -88,8 +88,9 @@ public:
             throw std::runtime_error( "Error when creating observation collection wrapper, input dataset is null." );
         }
 
-        for( int setId = 0; setId < observationDataset_->getNumberOfObservationSets( ); ++setId )
+        for( std::size_t setIndex = 0; setIndex < observationDataset_->getNumberOfObservationSets( ); ++setIndex )
         {
+            const int setId = static_cast< int >( setIndex );
             const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
                     observationDataset_->getObservationSetMetadata( setId );
             const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
@@ -1367,8 +1368,8 @@ public:
                     observationSetList_.at( metadata.observableType_ ).at( linkEnds );
             for( unsigned int i = 0; i < setsForLinkEnds.size( ); ++i )
             {
-                if( setId < observationSetWrappersByDatasetSetId_.size( ) &&
-                    setsForLinkEnds.at( i ) == observationSetWrappersByDatasetSetId_.at( setId ) )
+                if( setId >= 0 && static_cast< std::size_t >( setId ) < observationSetWrappersByDatasetSetId_.size( ) &&
+                    setsForLinkEnds.at( i ) == observationSetWrappersByDatasetSetId_.at( static_cast< std::size_t >( setId ) ) )
                 {
                     observationSetsIndices[ metadata.observableType_ ][ linkEnds ].push_back( i );
                 }
@@ -1953,8 +1954,9 @@ private:
         observationSetList_.clear( );
         observationSetWrappersByDatasetSetId_.clear( );
 
-        for( int setId = 0; setId < observationDataset_->getNumberOfObservationSets( ); ++setId )
+        for( std::size_t setIndex = 0; setIndex < observationDataset_->getNumberOfObservationSets( ); ++setIndex )
         {
+            const int setId = static_cast< int >( setIndex );
             const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
                     observationDataset_->getObservationSetMetadata( setId );
             const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;

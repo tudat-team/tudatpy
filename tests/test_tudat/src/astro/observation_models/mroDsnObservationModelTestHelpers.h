@@ -337,7 +337,7 @@ inline std::shared_ptr< ephemerides::Ephemeris > createMroAntennaEphemeris( cons
             "MRO_SPACECRAFT" );
 }
 
-inline void applyMroNotebookObservationDatasetPostProcessing(
+inline std::shared_ptr< ObservationDataset< long double, Time > > applyMroNotebookObservationDatasetPostProcessing(
         const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset,
         SystemOfBodies& bodies )
 {
@@ -359,6 +359,9 @@ inline void applyMroNotebookObservationDatasetPostProcessing(
     std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observationDataset );
     bodies.at( "MRO" )->getVehicleSystems( )->setReferencePointPosition( "Antenna",
                                                                          createMroAntennaEphemeris( timeBounds.first, timeBounds.second ) );
+    std::shared_ptr< ObservationDataset< long double, Time > > updatedObservationDataset =
+            std::make_shared< ObservationDataset< long double, Time > >( );
+
     for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
         const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
@@ -366,9 +369,24 @@ inline void applyMroNotebookObservationDatasetPostProcessing(
         if( linkEnds.count( reflector1 ) > 0 && linkEnds.at( reflector1 ).bodyName_ == "MRO" )
         {
             linkEnds[ reflector1 ] = LinkEndId( "MRO", "Antenna" );
-            observationDataset->setLinkDefinition( setId, LinkDefinition( linkEnds ) );
+        }
+        const unsigned int updatedSetId = updatedObservationDataset->addObservationSet(
+                metadata.observableType_,
+                LinkDefinition( linkEnds ),
+                observationDataset->getObservationsForSet( setId ),
+                observationDataset->getObservationTimesForSet( setId ),
+                metadata.referenceLinkEnd_,
+                observationDataset->getDependentVariablesForSet( setId ),
+                observationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ ),
+                observationDataset->getAncillarySettings( metadata.ancillarySettingsId_ ),
+                observationDataset->getWeightsForSet( setId ),
+                observationDataset->getResidualsForSet( setId ) );
+        if( observationDataset->hasWeightMatrixForSet( setId ) )
+        {
+            updatedObservationDataset->setWeightMatrixForSet( updatedSetId, observationDataset->getWeightMatrixForSet( setId ) );
         }
     }
+    return updatedObservationDataset;
 }
 
 inline std::vector< std::shared_ptr< LightTimeCorrectionSettings > > getMroDsnLightTimeCorrections(

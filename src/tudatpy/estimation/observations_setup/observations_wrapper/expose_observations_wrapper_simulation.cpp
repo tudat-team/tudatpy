@@ -20,7 +20,7 @@
 
 #include "scalarTypes.h"
 
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "tudat/simulation/estimation_setup/simulatePseudoObservations.h"
 
 namespace tom = tudat::observation_models;

@@ -47,10 +47,13 @@ struct PerObservationWeight {
 
     //! Representation type used for this observation.
     Type type_ = Type::scalar;
+
     //! Compact scalar weight used when type_ is scalar.
     double scalarWeight_ = 1.0;
+
     //! Compact component-wise diagonal weights used when type_ is diagonal_vector.
     Eigen::VectorXd diagonalWeight_;
+
     //! Full observable-size block used when type_ is block.
     Eigen::MatrixXd blockWeight_;
 
@@ -90,6 +93,33 @@ struct PerObservationWeight {
             return diagonalWeight_;
         }
         return toMatrix( observableSize ).diagonal( );
+    }
+
+    void writeDiagonalTo( Eigen::Ref< Eigen::VectorXd > targetSegment, const int observableSize ) const
+    {
+        if( targetSegment.size( ) != observableSize )
+        {
+            throw std::runtime_error( "Error when writing observation weight vector, target segment size is inconsistent." );
+        }
+        if( type_ == Type::scalar )
+        {
+            targetSegment.setConstant( scalarWeight_ );
+            return;
+        }
+        if( type_ == Type::diagonal_vector )
+        {
+            if( diagonalWeight_.size( ) != observableSize )
+            {
+                throw std::runtime_error( "Error when writing observation weight vector, diagonal-vector size is inconsistent." );
+            }
+            targetSegment = diagonalWeight_;
+            return;
+        }
+        if( blockWeight_.rows( ) != observableSize || blockWeight_.cols( ) != observableSize )
+        {
+            throw std::runtime_error( "Error when writing observation weight vector, block size is inconsistent." );
+        }
+        targetSegment = blockWeight_.diagonal( );
     }
 
     bool isDiagonalOnly( const int observableSize ) const
@@ -134,8 +164,10 @@ struct PerObservationWeight {
 struct ObservationWeightBlock {
     //! Scalar component ids covered by the block rows.
     std::vector< unsigned int > rowScalarComponentIds_;
+
     //! Scalar component ids covered by the block columns.
     std::vector< unsigned int > columnScalarComponentIds_;
+
     //! Dense block value for the selected scalar components.
     Eigen::MatrixXd weightBlock_;
 };
@@ -229,6 +261,13 @@ public:
         return perObservationWeights_.at( observationId ).toDiagonalVector( observableSize );
     }
 
+    void writeObservationWeightDiagonalTo( const std::size_t observationId,
+                                           const int observableSize,
+                                           Eigen::Ref< Eigen::VectorXd > targetSegment ) const
+    {
+        perObservationWeights_.at( observationId ).writeDiagonalTo( targetSegment, observableSize );
+    }
+
     //! Return whether the row weight has no off-diagonal entries after expansion.
     bool isObservationWeightDiagonalOnly( const std::size_t observationId, const int observableSize ) const
     {
@@ -258,6 +297,18 @@ public:
     bool hasSetWeightBlock( const std::size_t setId ) const
     {
         return setId < setWeightBlocks_.size( ) && setWeightBlocks_.at( setId ).has_value( );
+    }
+
+    bool hasAnySetWeightBlocks( ) const
+    {
+        for( const std::optional< Eigen::MatrixXd >& setWeightBlock : setWeightBlocks_ )
+        {
+            if( setWeightBlock.has_value( ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     //! Return the full set-level block for the requested set.
@@ -300,8 +351,10 @@ public:
 private:
     //! Per-observation compact weights, aligned one-to-one with observation rows.
     std::vector< PerObservationWeight > perObservationWeights_;
+
     //! Optional full M x M blocks for complete observation sets/batches.
     std::vector< std::optional< Eigen::MatrixXd > > setWeightBlocks_;
+
     //! Optional arbitrary blocks for rare off-diagonal correlations.
     std::vector< ObservationWeightBlock > extraWeightBlocks_;
 };

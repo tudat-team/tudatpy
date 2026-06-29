@@ -26,7 +26,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tudat
@@ -42,7 +42,7 @@ namespace observation_models
 
 /*!
  * Map containing all the tracking data types that correspond to an observable. If a specific set of TrackingDataTypes (keys)
- * Is present in the file, the corresponding ObservableType (value) can later be added to the  ObservationCollection
+ * is present in the file, the corresponding ObservableType (value) can later be added to the dataset.
  */
 static const std::map< ObservableType, std::vector< input_output::TrackingDataType > > observableRequiredDataTypesMap = {
     { n_way_range, { input_output::TrackingDataType::n_way_light_time } },
@@ -624,20 +624,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-createTrackingTxtFileObservationSets(
-        const std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >
-                processedTrackingTxtFileContents,
-        std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-                   createTrackingTxtFileObservationDataset< ObservationScalarType, TimeType >(
-                           processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings ) )
-            ->getObservationsSets( );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createTrackingTxtFilesObservationDataset(
         const std::vector< std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > >
                 processedTrackingTxtFileContents,
@@ -725,57 +711,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 {
     return createTrackingTxtFilesObservationDataset< ObservationScalarType, TimeType >(
             { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createTrackingTxtFilesObservationCollection(
-        const std::vector< std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > >
-                processedTrackingTxtFileContents,
-        std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createTrackingTxtFilesObservationDataset< ObservationScalarType, TimeType >(
-                    processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createTrackingTxtFileObservationCollection(
-        const std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >
-                processedTrackingTxtFileContents,
-        std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createTrackingTxtFileObservationDataset< ObservationScalarType, TimeType >(
-                    processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings ) );
-}
-
-/*!
- * Function to create an observation collection from the raw Tracking file data
- * @param rawTrackingTxtFileContents The raw tracking file contents
- * @param spacecraftName Name of the spacecraft
- * @param observableTypesToProcess Vector of observable types that need to be in the collection
- * @param earthFixedGroundStationPositions map of ground station positions
- * @param ancillarySettings
- * @return observation collection
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createTrackingTxtFileObservationCollection(
-        const std::shared_ptr< input_output::TrackingTxtFileContents > rawTrackingTxtFileContents,
-        const std::string spacecraftName,
-        const std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ),
-        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
-{
-    // Create processed tracking file contents
-    auto processedTrackingTxtFileContents =
-            std::make_shared< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
-                    rawTrackingTxtFileContents, spacecraftName, earthFixedGroundStationPositions );
-
-    // Create observation collection and return
-    return createTrackingTxtFileObservationCollection( processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings );
 }
 
 /*!
@@ -898,32 +833,6 @@ createMultiStationIfmsObservedObservationDatasetFromFiles(
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createMultiStationIfmsObservedObservationCollectionFromFiles(
-        const std::vector< std::string >& ifmsFileNames,
-        simulation_setup::SystemOfBodies& bodies,
-        const std::string& targetName,
-        const std::vector< std::string >& groundStationNames,
-        const FrequencyBands& receptionBand,
-        const FrequencyBands& transmissionBand,
-        const bool applyTroposphereCorrection = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ),
-        const bool filterInvalidLines = true )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createMultiStationIfmsObservedObservationDatasetFromFiles< ObservationScalarType, TimeType >( ifmsFileNames,
-                                                                                                          bodies,
-                                                                                                          targetName,
-                                                                                                          groundStationNames,
-                                                                                                          receptionBand,
-                                                                                                          transmissionBand,
-                                                                                                          applyTroposphereCorrection,
-                                                                                                          earthFixedGroundStationPositions,
-                                                                                                          filterInvalidLines ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createIfmsObservedObservationDatasetFromFiles(
         const std::vector< std::string >& ifmsFileNames,
         simulation_setup::SystemOfBodies& bodies,
@@ -947,31 +856,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                                                                                                          applyTroposphereCorrection,
                                                                                                          earthFixedGroundStationPositions,
                                                                                                          filterInvalidLines );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string >& ifmsFileNames,
-                                                  simulation_setup::SystemOfBodies& bodies,
-                                                  const std::string& targetName,
-                                                  const std::string& groundStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
-                                                  const bool applyTroposphereCorrection = true,
-                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ),
-                                                  const bool filterInvalidLines = true )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createIfmsObservedObservationDatasetFromFiles< ObservationScalarType, TimeType >( ifmsFileNames,
-                                                                                              bodies,
-                                                                                              targetName,
-                                                                                              groundStationName,
-                                                                                              receptionBand,
-                                                                                              transmissionBand,
-                                                                                              applyTroposphereCorrection,
-                                                                                              earthFixedGroundStationPositions,
-                                                                                              filterInvalidLines ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
@@ -1005,28 +889,6 @@ createFdetsObservedObservationDatasetFromRawContents( const std::shared_ptr< inp
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createFdetsObservedObservationCollectionFromRawContents( const std::shared_ptr< input_output::TrackingTxtFileContents > fdetsFileContents,
-                                                         const double& baseFrequency,
-                                                         const std::string& targetName,
-                                                         const std::string& transmittingStationName,
-                                                         const std::string& receivingStationName,
-                                                         const FrequencyBands& receptionBand,
-                                                         const FrequencyBands& transmissionBand,
-                                                         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createFdetsObservedObservationDatasetFromRawContents< ObservationScalarType, TimeType >( fdetsFileContents,
-                                                                                                     baseFrequency,
-                                                                                                     targetName,
-                                                                                                     transmittingStationName,
-                                                                                                     receivingStationName,
-                                                                                                     receptionBand,
-                                                                                                     transmissionBand,
-                                                                                                     earthFixedGroundStationPositions ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createFdetsObservedObservationDatasetFromFile(
         const std::string& fdetsFileName,
         const double& baseFrequency,
@@ -1051,31 +913,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
-                                                  const double& baseFrequency,
-                                                  input_output::FdetDateFormat dateFormat,
-                                                  const std::string& targetName,
-                                                  const std::string& transmittingStationName,
-                                                  const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
-                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createFdetsObservedObservationDatasetFromFile< ObservationScalarType, TimeType >( fdetsFileName,
-                                                                                              baseFrequency,
-                                                                                              dateFormat,
-                                                                                              targetName,
-                                                                                              transmittingStationName,
-                                                                                              receivingStationName,
-                                                                                              receptionBand,
-                                                                                              transmissionBand,
-                                                                                              earthFixedGroundStationPositions ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createFdetsObservedObservationDatasetFromFile(
         const std::string& fdetsFileName,
         const double& baseFrequency,
@@ -1097,31 +934,6 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
             receptionBand,
             transmissionBand,
             earthFixedGroundStationPositions );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
-                                                  const double& baseFrequency,
-                                                  const std::vector< std::string >& columnTypes,
-                                                  const std::string& targetName,
-                                                  const std::string& transmittingStationName,
-                                                  const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
-                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createFdetsObservedObservationDatasetFromFile< ObservationScalarType, TimeType >( fdetsFileName,
-                                                                                              baseFrequency,
-                                                                                              columnTypes,
-                                                                                              targetName,
-                                                                                              transmittingStationName,
-                                                                                              receivingStationName,
-                                                                                              receptionBand,
-                                                                                              transmissionBand,
-                                                                                              earthFixedGroundStationPositions ) );
 }
 
 }  // namespace observation_models

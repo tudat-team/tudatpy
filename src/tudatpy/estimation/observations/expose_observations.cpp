@@ -21,7 +21,7 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
 
@@ -51,7 +51,7 @@ std::string getSingleObservationSetReplacement( const std::string& memberName )
         { "set_tabulated_weights", "ObservationDataset.set_weight_vector_for_set" },
         { "filter_observations", "ObservationDataset.reject_observations or ObservationDataset.create_new_and_drop" },
         { "observable_type", "ObservationDataset.get_observation_set_metadata" },
-        { "link_definition", "ObservationDataset.set_link_definition" },
+        { "link_definition", "ObservationDataset.get_observation_set_metadata and ObservationDataset.get_link_definition" },
         { "reference_link_end", "ObservationDataset.get_observation_set_metadata" },
         { "number_of_observables", "ObservationDataset.number_of_observations_for_set" },
         { "single_observable_size", "ObservationDataset.get_observation_set_metadata" },
@@ -608,11 +608,6 @@ but the data are inserted directly into the dataset backend.
                   py::arg( "ancillary_settings" ) = nullptr,
                   py::arg( "residuals" ) = std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >( ),
                   R"doc(Add a set using one full M x M set-level weight block.)doc" )
-            .def( "set_link_definition",
-                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setLinkDefinition,
-                  py::arg( "set_id" ),
-                  py::arg( "link_definition" ),
-                  R"doc(Replace the link definition associated with an observation set.)doc" )
             .def( "set_observations_for_set",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationsForSet,
                   py::arg( "set_id" ),

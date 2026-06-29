@@ -271,22 +271,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    for( int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
-    {
-        const ObservableType currentObservable = simulatedObservations->getObservationSetMetadata( setId ).observableType_;
-        if( currentObservable == one_way_range )
-        {
-            simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
-        }
-        else if( currentObservable == angular_position )
-        {
-            simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0E-5 * 1.0E-5 ) );
-        }
-        else if( currentObservable == one_way_doppler )
-        {
-            simulatedObservations->setConstantWeightForSet( setId, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
-        }
-    }
+    simulatedObservations->setConstantWeightPerObservableType(
+            { { one_way_range, 1.0 / ( 1.0 * 1.0 ) },
+              { angular_position, 1.0 / ( 1.0E-5 * 1.0E-5 ) },
+              { one_way_doppler, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) } } );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =

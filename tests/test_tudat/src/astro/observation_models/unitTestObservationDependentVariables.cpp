@@ -159,11 +159,10 @@ void addDependentVariableToDatasetSets(
                 observationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
         if( bookkeeping == nullptr )
         {
-            bookkeeping =
-                    std::make_shared< ObservationDependentVariableBookkeeping >( metadata.observableType_, LinkDefinition( linkEnds ) );
+            throw std::runtime_error(
+                    "Error when adding dependent variables to test dataset, observation set has no dependent-variable bookkeeping." );
         }
         bookkeeping->addDependentVariables( allSettingsToCreate );
-        observationDataset->setDependentVariableBookkeeping( setId, bookkeeping );
     }
 }
 
