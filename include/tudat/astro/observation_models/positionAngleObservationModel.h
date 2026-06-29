@@ -14,7 +14,6 @@
 #include <map>
 #include <Eigen/Core>
 
-#include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
 
@@ -152,31 +151,22 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter2 =
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
-        // Compute right ascension and declination for first transmitter.
-        double rightAscensionFirstTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter1[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter1[ 0 ] * relativeStateTransmitter1[ 0 ] +
-                                        relativeStateTransmitter1[ 1 ] * relativeStateTransmitter1[ 1 ] ) +
-                             relativeStateTransmitter1[ 0 ] ) );
-        double declinationFirstTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter1[ 2 ] / relativeStateTransmitter1.norm( ) );
+        // Compute unit vectors from receiver to each transmitter
+        Eigen::Matrix< ObservationScalarType, 3, 1 > u1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > u2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
 
-        // Compute right ascension and declination for second transmitter.
-        double rightAscensionSecondTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter2[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter2[ 0 ] * relativeStateTransmitter2[ 0 ] +
-                                        relativeStateTransmitter2[ 1 ] * relativeStateTransmitter2[ 1 ] ) +
-                             relativeStateTransmitter2[ 0 ] ) );
-        double declinationSecondTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter2[ 2 ] / relativeStateTransmitter2.norm( ) );
+        // Compute position angle directly from unit vectors.
+        // Position angle is measured from north through east in the tangent plane at u1.
+        // e_perp = z_hat × u1 / ||z_hat × u1||  (east direction in tangent plane)
+        // e_para = u1 × e_perp                   (north direction in tangent plane)
+        // θ = atan2(u2 · e_perp, u2 · e_para)
+        Eigen::Matrix< ObservationScalarType, 3, 1 > zHat;
+        zHat << 0.0, 0.0, 1.0;
+        Eigen::Matrix< ObservationScalarType, 3, 1 > ePerp = zHat.cross( u1 );
+        ePerp = ePerp / ePerp.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > ePara = u1.cross( ePerp );
 
-        double deltaRA = rightAscensionSecondTransmitter - rightAscensionFirstTransmitter;
-
-        // Compute position angle: atan2(sin(dRA) * cos(d2), cos(d1) * sin(d2) - sin(d1) * cos(d2) * cos(dRA))
-        double positionAngle = std::atan2(
-                std::sin( deltaRA ) * std::cos( declinationSecondTransmitter ),
-                std::cos( declinationFirstTransmitter ) * std::sin( declinationSecondTransmitter ) -
-                        std::sin( declinationFirstTransmitter ) * std::cos( declinationSecondTransmitter ) * std::cos( deltaRA ) );
+        double positionAngle = std::atan2( static_cast< double >( u2.dot( ePerp ) ), static_cast< double >( u2.dot( ePara ) ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );
