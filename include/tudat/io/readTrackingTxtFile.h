@@ -264,6 +264,8 @@ static const std::map< std::string, std::shared_ptr< TrackingFileFieldConverter 
 
 enum TrackingTxtFileReadFilterType { no_tracking_txt_file_filter, ifms_tracking_txt_file_filter };
 
+enum class FdetDateFormat { datetime_string, pair_of_numbers };
+
 /*!
  * Class to extract the raw data from a file with the appropriate conversion to doubles. Data fields that do not have an
  * appropriate converter are simply stored as raw strings.
@@ -501,18 +503,10 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
     return rawFileContents;
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
-                                                                 const std::vector< std::string >& columnTypes = {
-                                                                         "utc_datetime_string",
-                                                                         "signal_to_noise_ratio",
-                                                                         "normalised_spectral_max",
-                                                                         "doppler_measured_frequency_hz",
-                                                                         "doppler_noise_hz" } )
-{
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t" );
-    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
-    return rawFileContents;
-}
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
+                                                          FdetDateFormat dateFormat = FdetDateFormat::datetime_string );
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, const std::vector< std::string >& columnTypes );
 
 }  // namespace input_output
 }  // namespace tudat
