@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
     BOOST_TEST( std::fabs( meanResidual ) < 2.0e-3 );
     BOOST_TEST( rmsResidual < 3.0e-3 );
 }
-  
+
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
 {
     spice_interface::loadStandardSpiceKernels( );
