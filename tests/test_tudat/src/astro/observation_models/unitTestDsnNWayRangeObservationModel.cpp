@@ -8,141 +8,90 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-// #define BOOST_TEST_DYN_LINK
-// #define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
-#include <string>
+#include <vector>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "mroDsnObservationModelTestHelpers.h"
 
-#include "tudat/io/readOdfFile.h"
-#include "tudat/io/readTabulatedMediaCorrections.h"
-#include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include <boost/date_time/gregorian/gregorian.hpp>
-
-#include "tudat/astro/ground_stations/transmittingFrequencies.h"
-
-// namespace tudat
-//{
-// namespace unit_tests
-//{
-
-using namespace tudat::spice_interface;
-using namespace tudat::ephemerides;
-using namespace tudat::input_output;
-using namespace tudat::simulation_setup;
-// using namespace tudat::unit_tests;
-using namespace tudat;
-
-// BOOST_AUTO_TEST_SUITE( test_dsn_n_way_range_observation_model )
-//
-// BOOST_AUTO_TEST_CASE( testDsnNWayRangeModel )
-int main( )
+namespace tudat
 {
-    spice_interface::loadStandardSpiceKernels( );
-    // Verma (2022) uses DE438, but here we use the standard Tudat SPICE kernels as the difference produced by the kernels
-    // is way below the level of the current residuals.
-    // spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
-    spice_interface::loadSpiceKernelInTudat( tudat::paths::getTudatTestDataPath( ) +
-                                             "dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
+namespace unit_tests
+{
 
-    std::vector< double > testResiduals;
+using namespace tudat::simulation_setup;
 
-    int counter = 0;
-    std::string spacecraftName = "MGS";
-    std::string ephemeridesOrigin = "SSB";
+BOOST_AUTO_TEST_SUITE( test_dsn_n_way_range_observation_model )
 
-    std::vector< std::string > odfFiles = { tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068068a.odf",
-                                            tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068071a.odf" };
+BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayRangeModel )
+{
+    using namespace tudat::unit_tests::mro_dsn_test;
 
-    // Define bodies to use.
-    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mars" };
+    loadMroSpiceKernels( );
 
-    // Create bodies settings needed in simulation
-    BodyListSettings bodySettings;
-    bodySettings = getDefaultBodySettings( bodiesToCreate, ephemeridesOrigin, "J2000" );
+    // The MRO DSN range fixture is generated from mromagr2012_076_0840xmmmv1.tnf over the same
+    // one-hour interval as the Doppler fixture, at the Tudat trk234 converter boundary. The CSV
+    // stores the exact values that are otherwise passed directly to SingleObservationSet creation.
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+            createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "range_single_observation_set_inputs.csv",
+                                                      observation_models::dsn_n_way_range );
 
-    bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
-    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, "J2000" );
-    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
+    SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
+    setRampFrequencyInterpolatorsInBodies( bodies );
+    applyMroNotebookObservationCollectionPostProcessing( observedObservationCollection, bodies );
 
-    // Create spacecraft
-    bodySettings.addSettings( spacecraftName );
-    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( ephemeridesOrigin, "J2000" );
+    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationCollection, bodies, true );
+    BOOST_CHECK_EQUAL( residuals.rows( ), 18 );
+    BOOST_TEST_MESSAGE( "MRO DSN range residuals: " << residuals.transpose( ) );
 
-    // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
-
-    // Read and process ODF file data
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection;
-
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile : odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
-
-    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
-
-    // Create observed observation collection
-    observedObservationCollection = observation_models::createOdfObservedObservationCollection< long double, Time >(
-            processedOdfFileContents, { dsn_n_way_range } );
-
-    observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
-
-    // Create computed observation collection
-    std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
-
-    std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-            observedObservationCollection->getLinkEndsPerObservableType( );
-    for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
+    std::vector< double > absoluteResiduals;
+    for( Eigen::Index i = 0; i < residuals.rows( ); ++i )
     {
-        for( unsigned int i = 0; i < it->second.size( ); ++i )
+        absoluteResiduals.push_back( std::fabs( residuals( i ) ) );
+    }
+    std::sort( absoluteResiduals.begin( ), absoluteResiduals.end( ) );
+    const double medianAbsoluteResidual =
+            0.5 * ( absoluteResiduals.at( absoluteResiduals.size( ) / 2 - 1 ) + absoluteResiduals.at( absoluteResiduals.size( ) / 2 ) );
+    const double residualThreshold = 3.0 * medianAbsoluteResidual;
+
+    std::vector< double > filteredResiduals;
+    for( Eigen::Index i = 0; i < residuals.rows( ); ++i )
+    {
+        if( std::fabs( residuals( i ) ) <= residualThreshold )
         {
-            if( it->first == observation_models::dsn_n_way_range )
-            {
-                const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections =
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun" } ) );
-                observationModelSettingsList.push_back( std::make_shared< observation_models::ObservationModelSettings >(
-                        dsn_n_way_range, it->second.at( i ), lightTimeCorrections ) );
-            }
+            filteredResiduals.push_back( residuals( i ) );
         }
     }
 
-    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > > observationSimulators =
-            observation_models::createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
+    double filteredResidualSum = 0.0;
+    double filteredResidualSquaredSum = 0.0;
+    for( const double residual : filteredResiduals )
+    {
+        filteredResidualSum += residual;
+        filteredResidualSquaredSum += residual * residual;
+    }
 
-    std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations< long double, Time >( observedObservationCollection, bodies );
+    const double filteredMeanResidual = filteredResidualSum / static_cast< double >( filteredResiduals.size( ) );
+    const double filteredRmsResidual = std::sqrt( filteredResidualSquaredSum / static_cast< double >( filteredResiduals.size( ) ) );
+    BOOST_TEST_MESSAGE( "MRO DSN range median absolute residual: " << medianAbsoluteResidual << " RU" );
+    BOOST_TEST_MESSAGE( "MRO DSN range retained observations: " << filteredResiduals.size( ) << " / " << residuals.rows( ) );
+    BOOST_TEST_MESSAGE( "MRO DSN range filtered residual mean: " << filteredMeanResidual << " RU" );
+    BOOST_TEST_MESSAGE( "MRO DSN range filtered residual RMS: " << filteredRmsResidual << " RU" );
 
-    std::cout << "Pre-simulation " << observationSimulationSettings.size( ) << std::endl;
-
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > simulatedObservationCollection =
-            simulation_setup::simulateObservations< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
-    std::cout << "Post-simulation" << std::endl;
-
-    std::cout << simulatedObservationCollection->getConcatenatedObservations( ).transpose( ) -
-                    observedObservationCollection->getConcatenatedObservations( ).transpose( )
-              << std::endl;
-
-    LinkEnds dss45MgsLinkEnds;
-    dss45MgsLinkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-45" );
-    dss45MgsLinkEnds[ retransmitter ] = LinkEndId( "MGS" );
-    dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
-
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkSimulatedObservations =
-            simulatedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_range, dss45MgsLinkEnds );
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
-            observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_range, dss45MgsLinkEnds );
+    BOOST_TEST( std::fabs( filteredMeanResidual ) < 10.0 );
+    BOOST_TEST( filteredRmsResidual < 10.0 );
 }
-//
-// BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}  // namespace unit_tests
+
+}  // namespace tudat
