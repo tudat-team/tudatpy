@@ -325,6 +325,12 @@ public:
 
     void removeObservationFromSet( const unsigned int setId, const unsigned int indexToRemove );
 
+    //! Remove all observation events matching a row-level condition.
+    void removeObservations( const ObservationCondition< ObservationScalarType, TimeType >& condition );
+
+    //! Physically remove all currently rejected observation events.
+    void deleteRejectedObservations( );
+
     //! Evaluate an ObservationFilter and return per-set observation indices to remove.
     std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
                                                                const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;

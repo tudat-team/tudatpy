@@ -21,6 +21,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
@@ -712,9 +713,9 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         std::vector< Eigen::Vector6d > linkEndStates;
 
         std::vector< double > unconstrainedConcatenatedTimes =
-                unconstrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+                unconstrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
         std::vector< double > constrainedConcatenatedTimes =
-                constrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+                constrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
 
         // Iterate over all observations and check viability constraints
         for( int i = 0; i < numberOfObservables; i++ )
@@ -1073,9 +1074,9 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     std::vector< Eigen::Vector6d > linkEndStates;
 
     std::vector< double > unconstrainedConcatenatedTimes =
-            unconstrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+            unconstrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
     std::vector< double > constrainedConcatenatedTimes =
-            constrainedSimulatedObservables->createEstimationFlattenedObservationData( ).getTimes( );
+            constrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
 
     // Iterate over all observations and check viability constraints
     for( int i = 0; i < numberOfObservables; i++ )

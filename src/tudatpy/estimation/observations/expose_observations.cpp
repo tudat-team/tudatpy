@@ -49,7 +49,8 @@ std::string getSingleObservationSetReplacement( const std::string& memberName )
         { "set_residuals", "ObservationDataset.set_residuals_for_set" },
         { "set_constant_weight", "ObservationDataset.set_constant_weight_for_set" },
         { "set_tabulated_weights", "ObservationDataset.set_weight_vector_for_set" },
-        { "filter_observations", "ObservationDataset.reject_observations or ObservationDataset.create_new_and_drop" },
+        { "filter_observations",
+          "ObservationDataset.reject_observations, ObservationDataset.remove_observations or ObservationDataset.create_new_and_drop" },
         { "observable_type", "ObservationDataset.get_observation_set_metadata" },
         { "link_definition", "ObservationDataset.get_observation_set_metadata and ObservationDataset.get_link_definition" },
         { "reference_link_end", "ObservationDataset.get_observation_set_metadata" },
@@ -99,7 +100,8 @@ std::string getObservationCollectionReplacement( const std::string& memberName )
         { "observation_set_start_index_and_size", "ObservationDataset.ordered_flattened_observation_data" },
         { "observation_vector_size", "ObservationDataset.total_scalar_size" },
         { "sorted_observation_sets", "ObservationDataset.observation_set_metadata" },
-        { "filter_observations", "ObservationDataset.reject_observations or ObservationDataset.create_new_and_drop" },
+        { "filter_observations",
+          "ObservationDataset.reject_observations, ObservationDataset.remove_observations or ObservationDataset.create_new_and_drop" },
         { "split_observation_sets", "ObservationDataset.create_new_and_keep plus add_observation_set_from_dataset" },
         { "create_new_observation_collection", "ObservationDataset.create_new_and_keep" },
         { "set_constant_weight", "ObservationDataset.set_constant_weight_for_set" },
@@ -749,6 +751,13 @@ identical, the supplied block must itself be symmetric.
                   py::arg( "set_id" ),
                   py::arg( "index_to_remove" ),
                   R"doc(Remove one observation from a set by index within that set.)doc" )
+            .def( "remove_observations",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservations,
+                  py::arg( "condition" ),
+                  R"doc(Physically remove all observations selected by a row-level condition.)doc" )
+            .def( "delete_rejected_observations",
+                  &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::deleteRejectedObservations,
+                  R"doc(Physically remove all currently rejected observations.)doc" )
             .def( "filtered_observation_indices",
                   &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getFilteredObservationIndices,
                   py::arg( "set_id" ),

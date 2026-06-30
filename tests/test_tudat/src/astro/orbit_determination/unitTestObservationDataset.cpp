@@ -976,6 +976,26 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
     BOOST_CHECK( dataset.getObservationRow( 2 ).rejectionReason_.empty( ) );
     BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), 4 );
 
+    dataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 2.5, 3.5 ), "delete rejection" );
+    dataset.deleteRejectedObservations( );
+
+    // Deleting rejected rows is explicit and physically removes rows from the dataset.
+    Eigen::VectorXd expectedAfterRejectedDeletion( 3 );
+    expectedAfterRejectedDeletion << 10.0, 20.0, 40.0;
+    BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterRejectedDeletion, 1.0E-15 );
+    BOOST_CHECK_EQUAL( dataset.createViewer( ObservationCondition< double, double >::rejected( ) ).getNumberOfObservations( ), 0 );
+
+    dataset.removeObservations( ObservationCondition< double, double >::timeBounds( 3.5, 4.5 ) );
+
+    // Direct condition-based removal must provide the destructive counterpart to createNewAndDrop.
+    Eigen::VectorXd expectedAfterConditionRemoval( 2 );
+    expectedAfterConditionRemoval << 10.0, 20.0;
+    BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 2 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterConditionRemoval, 1.0E-15 );
+
     const ObservationDatasetViewer< double, double > invalidatedViewer =
             dataset.createViewer( ObservationCondition< double, double >::all( ) );
     dataset.addObservationSet( one_way_range, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );

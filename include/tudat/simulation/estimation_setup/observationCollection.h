@@ -2378,6 +2378,11 @@ template< typename ObservationScalarType = double,
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
         const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
 {
+    if( observationDataset == nullptr )
+    {
+        throw std::runtime_error( "Error when creating observation collection, input dataset is null." );
+    }
+
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationDataset );
 }
 

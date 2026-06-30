@@ -32,6 +32,39 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndDrop(
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservations(
+        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+{
+    std::vector< std::vector< unsigned int > > indicesToRemoveBySet( getNumberOfObservationSets( ) );
+    for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
+    {
+        if( condition( *this, observationId ) )
+        {
+            const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
+            indicesToRemoveBySet.at( row.setId_ ).push_back( row.indexInSet_ );
+        }
+    }
+
+    for( unsigned int setId = 0; setId < indicesToRemoveBySet.size( ); ++setId )
+    {
+        if( !indicesToRemoveBySet.at( setId ).empty( ) )
+        {
+            removeObservationsFromSet( setId, indicesToRemoveBySet.at( setId ) );
+        }
+    }
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::deleteRejectedObservations( )
+{
+    removeObservations( ObservationCondition< ObservationScalarType, TimeType >::rejected( ) );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObservations(
         const ObservationCondition< ObservationScalarType, TimeType >& condition,
         const std::string& reason )

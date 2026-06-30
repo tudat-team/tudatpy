@@ -55,13 +55,21 @@ set(estimation_HEADERS
         observationOutput.h
         observationSimulationSettings.h
         observationsProcessing.h
+        flattenedObservationData.h
+        observationCollection.h
+        observationCondition.h
         observationDataset.h
         observationDatasetAccessorsImplementation.h
         observationDatasetFlatteningImplementation.h
         observationDatasetMutationImplementation.h
         observationDatasetPrivateImplementation.h
+        observationDatasetRows.h
         observationDatasetSelectionImplementation.h
+        observationDatasetViewer.h
         observationDatasetWeightsImplementation.h
+        observationLegacyParserAdapter.h
+        observationWeights.h
+        singleObservationSet.h
         observations.h
         createDirectObservationPartials.h
         createPositionPartialScaling.h
