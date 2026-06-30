@@ -887,6 +887,26 @@ void expose_estimation_analysis( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
+            .def_property_readonly( "has_full_weight_matrix",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::hasFullWeightMatrix,
+                                    R"doc(
+
+         **read-only**
+
+         Whether the estimation/covariance output stores a full weight matrix with off-diagonal entries.
+
+         :type: bool
+      )doc" )
+            .def_property_readonly( "weight_matrix",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrix,
+                                    R"doc(
+
+         **read-only**
+
+         Complete sparse weight matrix used for the estimation or covariance analysis.
+
+         :type: scipy.sparse.csc_matrix
+      )doc" )
             .def_property_readonly( "consider_covariance_contribution",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getConsiderCovarianceContribution,
                                     R"doc(

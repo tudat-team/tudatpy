@@ -37,20 +37,6 @@ using namespace tudat::unit_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_observation_viability_calculators )
 
-std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink(
-        const std::shared_ptr< ObservationDataset<> >& dataset )
-{
-    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > startAndSizeByLink;
-    const std::vector< std::pair< int, int > > startAndSize = dataset->getObservationSetStartAndSizeInDatasetOrder( );
-    for( unsigned int setId = 0; setId < dataset->getNumberOfObservationSets( ); ++setId )
-    {
-        const ObservationSetMetadata< double, double >& metadata = dataset->getObservationSetMetadata( setId );
-        startAndSizeByLink[ metadata.observableType_ ][ dataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_ ].push_back(
-                startAndSize.at( setId ) );
-    }
-    return startAndSizeByLink;
-}
-
 BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 {
     // Load spice kernels.
@@ -714,8 +700,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         BOOST_CHECK_EQUAL( numberOfObservables, constrainedSimulatedObservables->getObservableTypeStartAndSize( ).size( ) );
 
         // Create iterators over all simulated observations
-        auto unconstrainedSortedObservations = getObservationSetStartAndSizeByLink( unconstrainedSimulatedObservables );
-        auto constrainedSortedObservations = getObservationSetStartAndSizeByLink( constrainedSimulatedObservables );
+        auto unconstrainedSortedObservations = unconstrainedSimulatedObservables->getObservationSetStartAndSizeByLink( );
+        auto constrainedSortedObservations = constrainedSimulatedObservables->getObservationSetStartAndSizeByLink( );
 
         std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >::iterator unconstrainedIterator =
                 unconstrainedSortedObservations.begin( );
@@ -1075,8 +1061,8 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     int numberOfObservables = testLinkEndsList.size( );
 
     // Create iterators over all simulated observations
-    auto unconstrainedSortedObservations = getObservationSetStartAndSizeByLink( unconstrainedSimulatedObservables );
-    auto constrainedSortedObservations = getObservationSetStartAndSizeByLink( constrainedSimulatedObservables );
+    auto unconstrainedSortedObservations = unconstrainedSimulatedObservables->getObservationSetStartAndSizeByLink( );
+    auto constrainedSortedObservations = constrainedSimulatedObservables->getObservationSetStartAndSizeByLink( );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >::iterator unconstrainedIterator =
             unconstrainedSortedObservations.begin( );

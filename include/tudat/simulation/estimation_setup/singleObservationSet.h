@@ -354,8 +354,12 @@ public:
                         "input "
                         "should be consistent with the total dependent variable size." );
             }
+            dataset_->setDependentVariablesForSet( setId_, dependentVariables );
         }
-        dataset_->setDependentVariablesForSet( setId_, dependentVariables );
+        else
+        {
+            dataset_->clearDependentVariablesForSet( setId_ );
+        }
         synchronizeLegacyCacheFromObservationDataset( );
     }
 
@@ -402,6 +406,18 @@ public:
     int getObservationSetId( ) const
     {
         return setId_;
+    }
+
+    void resetObservationDatasetReference( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
+                                           const int setId )
+    {
+        if( dataset == nullptr )
+        {
+            throw std::runtime_error( "Error when resetting SingleObservationSet dataset reference, dataset is null." );
+        }
+        dataset_ = dataset;
+        setId_ = setId;
+        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const

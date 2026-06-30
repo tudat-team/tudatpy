@@ -82,7 +82,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulators,
-        const SystemOfBodies bodies )
+        const SystemOfBodies& bodies )
 {
     return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
             simulateObservationDataset< ObservationScalarType, TimeType >( observationsToSimulate, observationSimulators, bodies ) );

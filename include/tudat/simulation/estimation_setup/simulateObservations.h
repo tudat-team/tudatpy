@@ -488,7 +488,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulators,
-        const SystemOfBodies bodies )
+        const SystemOfBodies& bodies )
 {
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
             std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );

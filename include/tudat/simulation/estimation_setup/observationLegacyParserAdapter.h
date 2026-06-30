@@ -172,7 +172,7 @@ bool isObservationSetSelectedByLegacyParser( const ObservationDataset< Observati
                     }
                 }
             }
-            return isSelected;
+            break;
         }
         default:
             throw std::runtime_error( "Observation parser type not recognised." );

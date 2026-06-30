@@ -376,6 +376,12 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             station1RangeObservationSets.at( 0 )->getObservationsVector( ), rangeSet->getObservationsVector( ), 1.0E-15 );
 
+    std::vector< std::shared_ptr< SingleObservationSet< double, double > > > notStation1RangeObservationSets =
+            observationCollection.getSingleObservationSets( observationParser( station1RangeParserList, true, true ) );
+
+    // Negating a multi-type parser must apply to the combined result, not be ignored by the legacy adapter.
+    BOOST_CHECK_EQUAL( notStation1RangeObservationSets.size( ), 2 );
+
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > rangeObservations =
             observationCollection.getObservations( observationParser( one_way_range ) );
 
@@ -569,6 +575,84 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
                                    externallyMutatedTimes.end( ),
                                    expectedExternallyMutatedTimes.begin( ),
                                    expectedExternallyMutatedTimes.end( ) );
+}
+
+BOOST_AUTO_TEST_CASE( test_legacy_collection_preserves_single_set_sharing_and_dependent_variable_clearing )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+    std::shared_ptr< SingleObservationSet< double, double > > sharedSet = std::make_shared< SingleObservationSet< double, double > >(
+            one_way_range,
+            linkDefinition,
+            std::vector< Eigen::VectorXd >( { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) } ),
+            std::vector< double >( { 1.0, 2.0 } ),
+            receiver );
+
+    ObservationCollection< double, double > collection(
+            std::vector< std::shared_ptr< SingleObservationSet< double, double > > >( { sharedSet } ) );
+    const ObservationCollection< double, double >::SortedObservationSets observationSets = collection.getObservationsSets( );
+    BOOST_CHECK( observationSets.at( one_way_range ).at( linkDefinition.linkEnds_ ).at( 0 ) == sharedSet );
+
+    std::shared_ptr< SingleObservationSet< double, double > > sortedConstructorSet =
+            std::make_shared< SingleObservationSet< double, double > >(
+                    one_way_range,
+                    linkDefinition,
+                    std::vector< Eigen::VectorXd >( { Eigen::Vector1d::Constant( 5.0 ), Eigen::Vector1d::Constant( 6.0 ) } ),
+                    std::vector< double >( { 3.0, 4.0 } ),
+                    receiver );
+    ObservationCollection< double, double >::SortedObservationSets sortedInputSets;
+    sortedInputSets[ one_way_range ][ linkDefinition.linkEnds_ ].push_back( sortedConstructorSet );
+    ObservationCollection< double, double > sortedConstructorCollection( sortedInputSets );
+    BOOST_CHECK( sortedConstructorCollection.getObservationsSets( ).at( one_way_range ).at( linkDefinition.linkEnds_ ).at( 0 ) ==
+                 sortedConstructorSet );
+
+    sharedSet->setObservations( std::vector< Eigen::VectorXd >( { Eigen::Vector1d::Constant( 3.0 ), Eigen::Vector1d::Constant( 4.0 ) } ) );
+    Eigen::VectorXd expectedMutatedObservations( 2 );
+    expectedMutatedObservations << 3.0, 4.0;
+
+    // Mutating the original SingleObservationSet after collection construction must still update the collection view.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collection.getObservationVector( ), expectedMutatedObservations, 1.0E-15 );
+
+    std::vector< Eigen::VectorXd > dependentVariables(
+            { ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ), ( Eigen::Vector2d( ) << 0.3, 0.4 ).finished( ) } );
+    sharedSet->setObservationsDependentVariables( dependentVariables );
+    BOOST_CHECK_EQUAL( sharedSet->getObservationsDependentVariables( ).size( ), 2 );
+
+    std::vector< Eigen::VectorXd > emptyDependentVariables;
+    sharedSet->setObservationsDependentVariables( emptyDependentVariables );
+
+    // The legacy empty-vector setter is the documented clearing path and must not throw.
+    BOOST_CHECK( sharedSet->getObservationsDependentVariables( ).empty( ) );
+    BOOST_CHECK( collection.getObservationsSets( ).at( one_way_range ).at( linkDefinition.linkEnds_ ).at( 0 ) == sharedSet );
+}
+
+BOOST_AUTO_TEST_CASE( test_weighted_design_matrix_output_uses_sparse_weights )
+{
+    Eigen::MatrixXd normalizedDesignMatrix( 2, 2 );
+    normalizedDesignMatrix << 1.0, 2.0, 3.0, 4.0;
+    Eigen::Matrix2d denseWeights;
+    denseWeights << 4.0, 1.0, 1.0, 3.0;
+    const Eigen::SparseMatrix< double > sparseWeights = denseWeights.sparseView( );
+    const Eigen::Vector2d diagonalWeights = denseWeights.diagonal( );
+    const Eigen::Vector2d normalizationTerms = Eigen::Vector2d::Ones( );
+
+    simulation_setup::CovarianceAnalysisOutput< double, double > covarianceOutput( normalizedDesignMatrix,
+                                                                                   diagonalWeights,
+                                                                                   normalizationTerms,
+                                                                                   Eigen::Matrix2d::Identity( ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   Eigen::VectorXd::Zero( 0 ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                                   false,
+                                                                                   sparseWeights );
+
+    const Eigen::MatrixXd lowerWeightSquareRoot = Eigen::LLT< Eigen::MatrixXd >( denseWeights ).matrixL( );
+    const Eigen::MatrixXd expectedWeightedDesignMatrix = lowerWeightSquareRoot.transpose( ) * normalizedDesignMatrix;
+
+    BOOST_CHECK( covarianceOutput.hasFullWeightMatrix( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getWeightsMatrix( ).toDense( ), denseWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getNormalizedWeightedDesignMatrix( ), expectedWeightedDesignMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getUnnormalizedWeightedDesignMatrix( ), expectedWeightedDesignMatrix, 1.0E-15 );
 }
 
 /*!
@@ -1049,6 +1133,44 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                                                                       { 0 },
                                                                       false ),
                        std::runtime_error );
+    const std::size_t extraWeightBlockCountBeforeInvalidSymmetricBlock = symmetricComponentBlockDataset.getExtraWeightBlocks( ).size( );
+    BOOST_CHECK_THROW( symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
+                                                                      { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
+                                                                      ( Eigen::Matrix2d( ) << 1.0, 2.0, 3.0, 4.0 ).finished( ),
+                                                                      {},
+                                                                      {},
+                                                                      true ),
+                       std::runtime_error );
+    BOOST_CHECK_EQUAL( symmetricComponentBlockDataset.getExtraWeightBlocks( ).size( ), extraWeightBlockCountBeforeInvalidSymmetricBlock );
+
+    ObservationDataset< double, double > invalidAddWeightDataset;
+    BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithWeightBlock( angular_position,
+                                                                                 linkDefinition,
+                                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                                                                                 { 1.0 },
+                                                                                 receiver,
+                                                                                 Eigen::Matrix3d::Identity( ) ),
+                       std::runtime_error );
+    BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
+
+    BOOST_CHECK_THROW(
+            invalidAddWeightDataset.addObservationSetWithWeightBlocks( angular_position,
+                                                                       linkDefinition,
+                                                                       { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                                                                       { 1.0 },
+                                                                       receiver,
+                                                                       std::vector< Eigen::MatrixXd >( { Eigen::Matrix3d::Identity( ) } ) ),
+            std::runtime_error );
+    BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
+
+    BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithSetWeightBlock( angular_position,
+                                                                                    linkDefinition,
+                                                                                    { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                                                                                    { 1.0 },
+                                                                                    receiver,
+                                                                                    Eigen::Matrix3d::Identity( ) ),
+                       std::runtime_error );
+    BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
 
     ObservationDataset< double, double > rejectedSetBlockDataset;
     Eigen::MatrixXd fullSetWeightBlock = Eigen::MatrixXd::Zero( 6, 6 );

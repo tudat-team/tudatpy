@@ -190,6 +190,15 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getAncillarySettin
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+const std::shared_ptr< ObservationAncillarySimulationSettings >&
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::getAncillarySettingsForSet( const unsigned int setId ) const
+{
+    return getAncillarySettings( getObservationSetMetadata( setId ).ancillarySettingsId_ );
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >&
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariableBookkeeping(
         const unsigned int dependentVariableLayoutId ) const
@@ -212,6 +221,157 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
         }
     }
     return setIds;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsForDependentVariableSettings(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
+{
+    std::vector< unsigned int > matchingSetIds;
+    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    {
+        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
+        const LinkEnds& linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+        if( !getCompatibleDependentVariableSettingsForSet( setId, dependentVariableSettings ).empty( ) &&
+            !simulation_setup::createAllCompatibleDependentVariableSettings( metadata.observableType_, linkEnds, dependentVariableSettings )
+                     .empty( ) )
+        {
+            matchingSetIds.push_back( setId );
+        }
+    }
+    return matchingSetIds;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsWithDependentVariableValues(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
+{
+    std::vector< unsigned int > matchingSetIds;
+    for( const unsigned int setId : getObservationSetIdsForDependentVariableSettings( dependentVariableSettings ) )
+    {
+        if( !getAllCompatibleDependentVariablesForSet( setId, dependentVariableSettings ).empty( ) )
+        {
+            matchingSetIds.push_back( setId );
+        }
+    }
+    return matchingSetIds;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::getCompatibleDependentVariableSettingsPerSet(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
+{
+    std::vector< std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > > compatibleSettingsPerSet;
+    for( const unsigned int setId : getObservationSetIdsWithDependentVariableValues( dependentVariableSettings ) )
+    {
+        const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > compatibleSettings =
+                getCompatibleDependentVariableSettingsForSet( setId, dependentVariableSettings );
+        if( !compatibleSettings.empty( ) )
+        {
+            compatibleSettingsPerSet.push_back( compatibleSettings );
+        }
+    }
+    return compatibleSettingsPerSet;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::vector< std::vector< Eigen::MatrixXd > >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::getAllCompatibleDependentVariablesPerSet(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
+{
+    std::vector< std::vector< Eigen::MatrixXd > > dependentVariablesPerSet;
+    for( const unsigned int setId : getObservationSetIdsWithDependentVariableValues( dependentVariableSettings ) )
+    {
+        const std::vector< Eigen::MatrixXd > currentVariables =
+                getAllCompatibleDependentVariablesForSet( setId, dependentVariableSettings );
+        if( !currentVariables.empty( ) )
+        {
+            dependentVariablesPerSet.push_back( currentVariables );
+        }
+    }
+    return dependentVariablesPerSet;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+std::map< TimeType, Eigen::VectorXd > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariableHistory(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+        const bool returnFirstCompatibleSettings ) const
+{
+    std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
+    for( const unsigned int setId : getObservationSetIdsWithDependentVariableValues( dependentVariableSettings ) )
+    {
+        const Eigen::MatrixXd dependentVariables =
+                getSingleDependentVariableForSet( setId, dependentVariableSettings, returnFirstCompatibleSettings );
+        const std::vector< TimeType > observationTimes = getObservationTimesForSet( setId );
+        for( unsigned int i = 0; i < observationTimes.size( ); ++i )
+        {
+            dependentVariableHistory[ observationTimes.at( i ) ] =
+                    dependentVariables.block( i, 0, 1, dependentVariables.cols( ) ).transpose( );
+        }
+    }
+    return dependentVariableHistory;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentVariableToSets(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+{
+    for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
+    {
+        const std::vector< unsigned int >& observationIds = getObservationIdsForSet( setId );
+        bool setMatchesCondition = observationIds.empty( );
+        for( const unsigned int observationId : observationIds )
+        {
+            if( condition( *this, observationId ) )
+            {
+                setMatchesCondition = true;
+                break;
+            }
+        }
+        if( !setMatchesCondition )
+        {
+            continue;
+        }
+
+        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
+        const LinkEnds& linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
+        const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > allSettingsToCreate =
+                simulation_setup::createAllCompatibleDependentVariableSettings(
+                        metadata.observableType_, linkEnds, dependentVariableSettings );
+        if( allSettingsToCreate.empty( ) )
+        {
+            continue;
+        }
+
+        std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > bookkeeping =
+                getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
+        if( bookkeeping == nullptr )
+        {
+            bookkeeping =
+                    std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( metadata.observableType_, linkEnds );
+            setMetadata_.at( setId ).dependentVariableLayoutId_ = registerDependentVariableLayout( bookkeeping );
+        }
+        else if( !getDependentVariablesForSet( setId ).empty( ) )
+        {
+            throw std::runtime_error(
+                    "Error when adding dependent variable settings to observation dataset, dependent-variable values already exist." );
+        }
+        bookkeeping->addDependentVariables( allSettingsToCreate );
+    }
 }
 
 template< typename ObservationScalarType,

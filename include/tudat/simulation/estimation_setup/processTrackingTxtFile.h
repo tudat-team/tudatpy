@@ -713,6 +713,22 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
             { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createTrackingTxtFileObservationDataset(
+        const std::shared_ptr< input_output::TrackingTxtFileContents > rawTrackingTxtFileContents,
+        const std::string& spacecraftName,
+        std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
+        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                simulation_setup::getCombinedApproximateGroundStationPositions( ),
+        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
+{
+    return createTrackingTxtFileObservationDataset< ObservationScalarType, TimeType >(
+            std::make_shared< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
+                    rawTrackingTxtFileContents, spacecraftName, earthFixedGroundStationPositions ),
+            observableTypesToProcess,
+            ancillarySettings );
+}
+
 /*!
  * @brief Container for transmitter frequency ramp information extracted from tracking data.
  */

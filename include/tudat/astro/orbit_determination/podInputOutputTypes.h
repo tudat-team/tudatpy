@@ -18,7 +18,9 @@
 #include <stdexcept>
 
 #include <Eigen/Core>
+#include <Eigen/Cholesky>
 #include <Eigen/LU>
+#include <Eigen/SparseCore>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -841,8 +843,9 @@ struct CovarianceAnalysisOutput {
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-                              const bool exceptionDuringPropagation = false ):
-        normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
+                              const bool exceptionDuringPropagation = false,
+                              const Eigen::SparseMatrix< double >& weightsMatrix = Eigen::SparseMatrix< double >( ) ):
+        normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ), weightsMatrix_( weightsMatrix ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( normalizedDesignMatrixConsiderParameters ),
@@ -894,6 +897,28 @@ struct CovarianceAnalysisOutput {
             considerCovarianceContribution_ =
                     normaliseUnnormaliseCovarianceMatrix( considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
         }
+    }
+
+    bool hasFullWeightMatrix( ) const
+    {
+        return weightsMatrix_.rows( ) > 0;
+    }
+
+    Eigen::SparseMatrix< double > getWeightsMatrix( ) const
+    {
+        if( hasFullWeightMatrix( ) )
+        {
+            return weightsMatrix_;
+        }
+
+        Eigen::SparseMatrix< double > diagonalWeights( weightsMatrixDiagonal_.rows( ), weightsMatrixDiagonal_.rows( ) );
+        diagonalWeights.reserve( weightsMatrixDiagonal_.rows( ) );
+        for( int i = 0; i < weightsMatrixDiagonal_.rows( ); ++i )
+        {
+            diagonalWeights.insert( i, i ) = weightsMatrixDiagonal_( i );
+        }
+        diagonalWeights.makeCompressed( );
+        return diagonalWeights;
     }
 
     Eigen::VectorXd getNormalizationTerms( )
@@ -974,7 +999,14 @@ struct CovarianceAnalysisOutput {
         if( designMatrixSaved_ )
         {
             Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-            scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            if( hasFullWeightMatrix( ) )
+            {
+                weightedNormalizedDesignMatrix = getSquareRootWeightedDesignMatrix( weightedNormalizedDesignMatrix );
+            }
+            else
+            {
+                scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            }
             return weightedNormalizedDesignMatrix;
         }
         else
@@ -1020,7 +1052,14 @@ struct CovarianceAnalysisOutput {
         if( designMatrixSaved_ )
         {
             Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
-            scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            if( hasFullWeightMatrix( ) )
+            {
+                weightedUnnormalizedDesignMatrix = getSquareRootWeightedDesignMatrix( weightedUnnormalizedDesignMatrix );
+            }
+            else
+            {
+                scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
+            }
             return weightedUnnormalizedDesignMatrix;
         }
         else
@@ -1082,11 +1121,32 @@ struct CovarianceAnalysisOutput {
                   << std::endl;
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
+
+    Eigen::MatrixXd getSquareRootWeightedDesignMatrix( const Eigen::MatrixXd& designMatrix ) const
+    {
+        if( weightsMatrix_.rows( ) != designMatrix.rows( ) || weightsMatrix_.cols( ) != designMatrix.rows( ) )
+        {
+            throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix size is inconsistent." );
+        }
+
+        const Eigen::MatrixXd denseWeights( weightsMatrix_ );
+        const Eigen::LLT< Eigen::MatrixXd > weightCholesky( denseWeights );
+        if( weightCholesky.info( ) != Eigen::Success )
+        {
+            throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix is not positive definite." );
+        }
+        const Eigen::MatrixXd lowerWeightSquareRoot = weightCholesky.matrixL( );
+        return lowerWeightSquareRoot.transpose( ) * designMatrix;
+    }
+
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     Eigen::MatrixXd normalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;
+
+    //! Full sparse weights matrix used in the estimation when off-diagonal weights are present.
+    Eigen::SparseMatrix< double > weightsMatrix_;
 
     //! Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries.
     Eigen::VectorXd designMatrixTransformationDiagonal_;
@@ -1154,6 +1214,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::VectorXd& residuals,
                       const Eigen::MatrixXd& normalizedDesignMatrix,
                       const Eigen::VectorXd& weightsMatrixDiagonal,
+                      const Eigen::SparseMatrix< double >& weightsMatrix,
                       const Eigen::VectorXd& designMatrixTransformationDiagonal,
                       const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
                       const double residualStandardDeviation,
@@ -1175,10 +1236,47 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      considerNormalizationFactors,
                                                                      covarianceConsiderContribution,
                                                                      considerCovariance,
-                                                                     exceptionDuringPropagation ),
+                                                                     exceptionDuringPropagation,
+                                                                     weightsMatrix ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
         exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+    {}
+
+    EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
+                      const Eigen::VectorXd& residuals,
+                      const Eigen::MatrixXd& normalizedDesignMatrix,
+                      const Eigen::VectorXd& weightsMatrixDiagonal,
+                      const Eigen::VectorXd& designMatrixTransformationDiagonal,
+                      const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                      const double residualStandardDeviation,
+                      const int bestIteration,
+                      const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
+                      const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory =
+                              std::vector< Eigen::VectorXd >( ),
+                      const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+                      const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const bool exceptionDuringInversion = false,
+                      const bool exceptionDuringPropagation = false ):
+        EstimationOutput( parameterEstimate,
+                          residuals,
+                          normalizedDesignMatrix,
+                          weightsMatrixDiagonal,
+                          Eigen::SparseMatrix< double >( ),
+                          designMatrixTransformationDiagonal,
+                          inverseNormalizedCovarianceMatrix,
+                          residualStandardDeviation,
+                          bestIteration,
+                          residualHistory,
+                          parameterHistory,
+                          normalizedDesignMatrixConsiderParameters,
+                          considerNormalizationFactors,
+                          covarianceConsiderContribution,
+                          considerCovariance,
+                          exceptionDuringInversion,
+                          exceptionDuringPropagation )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix

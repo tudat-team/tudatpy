@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
                                                    observation_models::dsn_n_way_averaged_doppler );
     observedObservationDataset = createCompressedDopplerDataset< long double, Time >( observedObservationDataset, 60, 10 );
 
-    std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observedObservationDataset );
+    std::pair< Time, Time > timeBounds = observedObservationDataset->getTimeBounds( );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
     setRampFrequencyInterpolatorsInBodies( bodies );
     observedObservationDataset = applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );

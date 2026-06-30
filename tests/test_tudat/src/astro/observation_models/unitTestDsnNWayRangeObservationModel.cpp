@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayRangeModel )
             createObservationDatasetFromTrk234Csv( trk234InputsDirectory + "range_single_observation_set_inputs.csv",
                                                    observation_models::dsn_n_way_range );
 
-    std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observedObservationDataset );
+    std::pair< Time, Time > timeBounds = observedObservationDataset->getTimeBounds( );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
     setRampFrequencyInterpolatorsInBodies( bodies );
     observedObservationDataset = applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );

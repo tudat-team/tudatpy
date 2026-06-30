@@ -400,22 +400,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Create estimation output object
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
-            std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >( bestParameterEstimate,
-                                                                                     bestResiduals,
-                                                                                     bestDesignMatrixEstimatedParameters,
-                                                                                     bestWeightsMatrixDiagonal,
-                                                                                     bestTransformationData,
-                                                                                     bestInverseNormalizedCovarianceMatrix,
-                                                                                     bestRmsResidual,
-                                                                                     bestIteration,
-                                                                                     residualHistory,
-                                                                                     parameterHistory,
-                                                                                     bestDesignMatrixConsiderParameters,
-                                                                                     bestConsiderTransformationData,
-                                                                                     bestConsiderCovarianceContribution,
-                                                                                     estimationInput->getConsiderCovariance( ),
-                                                                                     exceptionDuringInversion,
-                                                                                     exceptionDuringPropagation );
+            std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
+                    bestParameterEstimate,
+                    bestResiduals,
+                    bestDesignMatrixEstimatedParameters,
+                    bestWeightsMatrixDiagonal,
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ),
+                    bestTransformationData,
+                    bestInverseNormalizedCovarianceMatrix,
+                    bestRmsResidual,
+                    bestIteration,
+                    residualHistory,
+                    parameterHistory,
+                    bestDesignMatrixConsiderParameters,
+                    bestConsiderTransformationData,
+                    bestConsiderCovarianceContribution,
+                    estimationInput->getConsiderCovariance( ),
+                    exceptionDuringInversion,
+                    exceptionDuringPropagation );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

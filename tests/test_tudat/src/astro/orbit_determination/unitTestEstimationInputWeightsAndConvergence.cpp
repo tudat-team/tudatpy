@@ -29,110 +29,6 @@ namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
 
-template< typename ObservationScalarType, typename TimeType >
-std::vector< unsigned int > getSetIdsForObservableType(
-        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-        const ObservableType observableType )
-{
-    std::vector< unsigned int > setIds;
-    for( const unsigned int setId : dataset->getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        if( dataset->getObservationSetMetadata( setId ).observableType_ == observableType )
-        {
-            setIds.push_back( setId );
-        }
-    }
-    return setIds;
-}
-
-template< typename ObservationScalarType, typename TimeType >
-std::size_t getTotalScalarSizeForObservableType( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-                                                 const ObservableType observableType )
-{
-    std::size_t totalSize = 0;
-    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
-    {
-        totalSize += dataset->getTotalScalarSizeForSet( setId );
-    }
-    return totalSize;
-}
-
-template< typename ObservationScalarType, typename TimeType >
-Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForObservableType(
-        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-        const ObservableType observableType )
-{
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations =
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero(
-                    getTotalScalarSizeForObservableType( dataset, observableType ) );
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
-    {
-        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > setObservations = dataset->getObservationVectorForSet( setId );
-        observations.segment( currentIndex, setObservations.size( ) ) = setObservations;
-        currentIndex += setObservations.size( );
-    }
-    return observations;
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void setObservationVectorForObservableType( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-                                            const ObservableType observableType,
-                                            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations )
-{
-    if( observations.size( ) != static_cast< int >( getTotalScalarSizeForObservableType( dataset, observableType ) ) )
-    {
-        throw std::runtime_error( "Error when setting observable-type observation vector, input size is inconsistent." );
-    }
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsForObservableType( dataset, observableType ) )
-    {
-        const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
-        dataset->setObservationVectorForSet( setId, observations.segment( currentIndex, setSize ) );
-        currentIndex += setSize;
-    }
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void setWeightVectorForObservableType( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-                                       const ObservableType observableType,
-                                       const Eigen::VectorXd& weights )
-{
-    const std::vector< unsigned int > setIds = getSetIdsForObservableType( dataset, observableType );
-    int totalSize = 0;
-    bool allSetsSameSize = true;
-    for( const unsigned int setId : setIds )
-    {
-        const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
-        totalSize += setSize;
-        if( setSize != static_cast< int >( dataset->getTotalScalarSizeForSet( setIds.front( ) ) ) )
-        {
-            allSetsSameSize = false;
-        }
-    }
-
-    int currentIndex = 0;
-    for( const unsigned int setId : setIds )
-    {
-        const int setSize = static_cast< int >( dataset->getTotalScalarSizeForSet( setId ) );
-        if( weights.size( ) == totalSize )
-        {
-            dataset->setWeightVectorForSet( setId, weights.segment( currentIndex, setSize ) );
-            currentIndex += setSize;
-        }
-        else if( allSetsSameSize && weights.size( ) == setSize )
-        {
-            dataset->setWeightVectorForSet( setId, weights );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when setting observable-type weights, input size is inconsistent." );
-        }
-    }
-}
-
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
 {
@@ -394,7 +290,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
                 Eigen::VectorXd::LinSpaced( sizeRangeObsPerObsSet, 1.0 / ( 3.0 * 3.0 ), 1.0 / ( 4.0 * 4.0 ) );
 
         // Compute full range weight vector
-        unsigned int nbRangeObsSets = getSetIdsForObservableType( simulatedObservations, one_way_range ).size( );
+        unsigned int nbRangeObsSets = simulatedObservations->getObservationSetIdsForObservableType( one_way_range ).size( );
         Eigen::VectorXd rangeWeights = Eigen::VectorXd::Zero( nbRangeObsSets * sizeRangeObsPerObsSet );
         for( unsigned int k = 0; k < nbRangeObsSets; k++ )
         {
@@ -402,20 +298,20 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         }
 
         // Set total tabulated weights for all Doppler observation sets
-        int totalSizeDopplerObs = static_cast< int >( getTotalScalarSizeForObservableType( simulatedObservations, one_way_doppler ) );
+        int totalSizeDopplerObs = static_cast< int >( simulatedObservations->getTotalScalarSizeForObservableType( one_way_doppler ) );
         Eigen::VectorXd dopplerWeights = Eigen::VectorXd::LinSpaced( totalSizeDopplerObs,
                                                                      1.0 / ( 1.0e-11 * SPEED_OF_LIGHT * 1.0e-11 * SPEED_OF_LIGHT ),
                                                                      1.0 / ( 1.5e-11 * SPEED_OF_LIGHT * 1.5e-11 * SPEED_OF_LIGHT ) );
 
         // Default angular position weights set to 1
         int totalSizeAngularPositionObs =
-                static_cast< int >( getTotalScalarSizeForObservableType( simulatedObservations, angular_position ) );
+                static_cast< int >( simulatedObservations->getTotalScalarSizeForObservableType( angular_position ) );
         Eigen::VectorXd angularPositionWeights = Eigen::VectorXd::Ones( totalSizeAngularPositionObs );
 
         // Concatenate tabulated weights per observable type (default weights for angular_position observables)
-        setWeightVectorForObservableType( simulatedObservations, one_way_range, singleSetRangeWeights );
-        setWeightVectorForObservableType( simulatedObservations, one_way_doppler, dopplerWeights );
-        setWeightVectorForObservableType( simulatedObservations, angular_position, angularPositionWeights );
+        simulatedObservations->setWeightVectorForObservableType( one_way_range, singleSetRangeWeights );
+        simulatedObservations->setWeightVectorForObservableType( one_way_doppler, dopplerWeights );
+        simulatedObservations->setWeightVectorForObservableType( angular_position, angularPositionWeights );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =
@@ -531,8 +427,8 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Inject deterministic structured biases so range and angular residual improvements compete across iterations.
-    Eigen::VectorXd baseRangeObservations = getObservationVectorForObservableType( simulatedObservations, one_way_range );
-    Eigen::VectorXd baseAngularObservations = getObservationVectorForObservableType( simulatedObservations, angular_position );
+    Eigen::VectorXd baseRangeObservations = simulatedObservations->getObservationVectorForObservableType( one_way_range );
+    Eigen::VectorXd baseAngularObservations = simulatedObservations->getObservationVectorForObservableType( angular_position );
     for( int i = 0; i < baseRangeObservations.size( ); i++ )
     {
         const double cycleArgument = static_cast< double >( i ) / 31.0;
@@ -563,10 +459,10 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
         angularWeights( 2 * i ) = angularBaseWeight * raScaleFactor;
         angularWeights( 2 * i + 1 ) = angularBaseWeight * decScaleFactor;
     }
-    setWeightVectorForObservableType( simulatedObservations, one_way_range, rangeWeights );
-    setWeightVectorForObservableType( simulatedObservations, angular_position, angularWeights );
-    setObservationVectorForObservableType( simulatedObservations, one_way_range, baseRangeObservations );
-    setObservationVectorForObservableType( simulatedObservations, angular_position, baseAngularObservations );
+    simulatedObservations->setWeightVectorForObservableType( one_way_range, rangeWeights );
+    simulatedObservations->setWeightVectorForObservableType( angular_position, angularWeights );
+    simulatedObservations->setObservationVectorForObservableType( one_way_range, baseRangeObservations );
+    simulatedObservations->setObservationVectorForObservableType( angular_position, baseAngularObservations );
 
     int numberOfDistinctBestIterationCases = 0;
 

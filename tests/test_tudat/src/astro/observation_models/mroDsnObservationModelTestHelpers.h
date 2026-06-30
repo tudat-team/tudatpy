@@ -247,23 +247,6 @@ inline std::shared_ptr< ObservationDataset< long double, Time > > createObservat
     return observationDataset;
 }
 
-inline std::pair< Time, Time > getDatasetTimeBounds( const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset )
-{
-    if( observationDataset->getNumberOfObservations( ) == 0 )
-    {
-        throw std::runtime_error( "Cannot determine time bounds of an empty MRO observation dataset." );
-    }
-
-    Time startTime = observationDataset->getObservationRow( 0 ).time_;
-    Time endTime = observationDataset->getObservationRow( 0 ).time_;
-    for( const ObservationDatasetRow< Time >& row : observationDataset->getObservationRows( ) )
-    {
-        startTime = std::min( startTime, row.time_ );
-        endTime = std::max( endTime, row.time_ );
-    }
-    return std::make_pair( startTime, endTime );
-}
-
 inline void loadMroSpiceKernels( )
 {
     spice_interface::loadStandardSpiceKernels( );
@@ -356,37 +339,11 @@ inline std::shared_ptr< ObservationDataset< long double, Time > > applyMroNotebo
         }
     }
 
-    std::pair< Time, Time > timeBounds = getDatasetTimeBounds( observationDataset );
+    std::pair< Time, Time > timeBounds = observationDataset->getTimeBounds( );
     bodies.at( "MRO" )->getVehicleSystems( )->setReferencePointPosition( "Antenna",
                                                                          createMroAntennaEphemeris( timeBounds.first, timeBounds.second ) );
-    std::shared_ptr< ObservationDataset< long double, Time > > updatedObservationDataset =
-            std::make_shared< ObservationDataset< long double, Time > >( );
-
-    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
-    {
-        const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
-        std::map< LinkEndType, LinkEndId > linkEnds = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-        if( linkEnds.count( reflector1 ) > 0 && linkEnds.at( reflector1 ).bodyName_ == "MRO" )
-        {
-            linkEnds[ reflector1 ] = LinkEndId( "MRO", "Antenna" );
-        }
-        const unsigned int updatedSetId = updatedObservationDataset->addObservationSet(
-                metadata.observableType_,
-                LinkDefinition( linkEnds ),
-                observationDataset->getObservationsForSet( setId ),
-                observationDataset->getObservationTimesForSet( setId ),
-                metadata.referenceLinkEnd_,
-                observationDataset->getDependentVariablesForSet( setId ),
-                observationDataset->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ ),
-                observationDataset->getAncillarySettings( metadata.ancillarySettingsId_ ),
-                observationDataset->getWeightsForSet( setId ),
-                observationDataset->getResidualsForSet( setId ) );
-        if( observationDataset->hasWeightMatrixForSet( setId ) )
-        {
-            updatedObservationDataset->setWeightMatrixForSet( updatedSetId, observationDataset->getWeightMatrixForSet( setId ) );
-        }
-    }
-    return updatedObservationDataset;
+    observationDataset->setLinkEndReferencePoint( "MRO", "Antenna", reflector1 );
+    return observationDataset;
 }
 
 inline std::vector< std::shared_ptr< LightTimeCorrectionSettings > > getMroDsnLightTimeCorrections(

@@ -126,12 +126,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
         throw std::runtime_error( "Error when setting dataset weight block, matrix size is inconsistent with selected observations." );
     }
 
-    ObservationWeightBlock datasetWeightBlock;
-    datasetWeightBlock.rowScalarComponentIds_ = rowScalarComponentIds;
-    datasetWeightBlock.columnScalarComponentIds_ = columnScalarComponentIds;
-    datasetWeightBlock.weightBlock_ = weightBlock;
-    addExtraWeightBlock( datasetWeightBlock );
-
     if( makeSymmetric )
     {
         if( rowScalarComponentIds == columnScalarComponentIds )
@@ -143,14 +137,21 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
                         "symmetric." );
             }
         }
-        else
-        {
-            ObservationWeightBlock transposedWeightBlock;
-            transposedWeightBlock.rowScalarComponentIds_ = columnScalarComponentIds;
-            transposedWeightBlock.columnScalarComponentIds_ = rowScalarComponentIds;
-            transposedWeightBlock.weightBlock_ = weightBlock.transpose( );
-            addExtraWeightBlock( transposedWeightBlock );
-        }
+    }
+
+    ObservationWeightBlock datasetWeightBlock;
+    datasetWeightBlock.rowScalarComponentIds_ = rowScalarComponentIds;
+    datasetWeightBlock.columnScalarComponentIds_ = columnScalarComponentIds;
+    datasetWeightBlock.weightBlock_ = weightBlock;
+    addExtraWeightBlock( datasetWeightBlock );
+
+    if( makeSymmetric && rowScalarComponentIds != columnScalarComponentIds )
+    {
+        ObservationWeightBlock transposedWeightBlock;
+        transposedWeightBlock.rowScalarComponentIds_ = columnScalarComponentIds;
+        transposedWeightBlock.columnScalarComponentIds_ = rowScalarComponentIds;
+        transposedWeightBlock.weightBlock_ = weightBlock.transpose( );
+        addExtraWeightBlock( transposedWeightBlock );
     }
 }
 

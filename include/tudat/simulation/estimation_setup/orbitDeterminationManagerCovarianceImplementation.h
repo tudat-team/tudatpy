@@ -164,7 +164,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     considerNormalizationTerms,
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
-                    exceptionDuringPropagation );
+                    exceptionDuringPropagation,
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ) );
 
     return estimationOutput;
 }

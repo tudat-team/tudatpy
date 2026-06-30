@@ -1951,6 +1951,8 @@ public:
 private:
     void rebuildObservationSetListFromObservationDataset( ) const
     {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > existingWrappersBySetId =
+                observationSetWrappersByDatasetSetId_;
         observationSetList_.clear( );
         observationSetWrappersByDatasetSetId_.clear( );
 
@@ -1961,7 +1963,10 @@ private:
                     observationDataset_->getObservationSetMetadata( setId );
             const LinkEnds linkEnds = observationDataset_->getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
             std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-                    std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
+                    setIndex < existingWrappersBySetId.size( ) && existingWrappersBySetId.at( setIndex ) != nullptr
+                    ? existingWrappersBySetId.at( setIndex )
+                    : std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observationDataset_, setId );
+            observationSet->resetObservationDatasetReference( observationDataset_, setId );
             observationSetList_[ metadata.observableType_ ][ linkEnds ].push_back( observationSet );
             observationSetWrappersByDatasetSetId_.push_back( observationSet );
         }
@@ -1988,7 +1993,21 @@ private:
         }
 
         *observationDataset_ = rebuiltDataset;
-        rebuildObservationSetListFromObservationDataset( );
+
+        int setId = 0;
+        observationSetWrappersByDatasetSetId_.clear( );
+        for( const auto& observableIt : observationSetList_ )
+        {
+            for( const auto& linkEndsIt : observableIt.second )
+            {
+                for( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& observationSet : linkEndsIt.second )
+                {
+                    observationSet->resetObservationDatasetReference( observationDataset_, setId );
+                    observationSetWrappersByDatasetSetId_.push_back( observationSet );
+                    ++setId;
+                }
+            }
+        }
     }
 
     void ensureObservationDataset( ) const
