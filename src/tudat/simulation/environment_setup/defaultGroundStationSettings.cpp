@@ -21,10 +21,10 @@ namespace tudat
 namespace simulation_setup
 {
 
-std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( )
+const std::map< std::string, Eigen::Vector3d >& getApproximateDsnGroundStationPositions( )
 {
     // excluding DSS-23 and DSS-33-T19 since they are still in planning as of Rev. O (2024)
-    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
+    static const std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
         { "DSS-12",
           ( Eigen::Vector3d( ) << -2350443.812, -4651980.837, +3665630.988 )
                   .finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
@@ -53,7 +53,7 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
         { "DSS-55", ( Eigen::Vector3d( ) << +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
         { "DSS-56", ( Eigen::Vector3d( ) << +4849421.679, -360549.659, +4114646.987 ).finished( ) },
         { "DSS-61",
-          ( Eigen::Vector3d( ) << +4849245.211, -0360278.166, +4114884.445 )
+          ( Eigen::Vector3d( ) << +4849245.211, -360278.166, +4114884.445 )
                   .finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
         { "DSS-63", ( Eigen::Vector3d( ) << +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
         { "DSS-65", ( Eigen::Vector3d( ) << +4849339.634, -360427.6637, +4114750.733 ).finished( ) },
@@ -63,11 +63,48 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
     return dsnStationPositionsItrf93;
 }
 
-Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName )
+int getDsnComplexId( const std::string& stationName )
+{
+    if( stationName.size( ) < 5 || stationName.substr( 0, 4 ) != "DSS-" )
+    {
+        throw std::runtime_error( "Error when retrieving DSN complex ID: station name " + stationName + " not recognized." );
+    }
+
+    switch( stationName[ 4 ] )
+    {
+        case '1':
+        case '2':
+            return 10;  // Goldstone
+        case '3':
+        case '4':
+            return 40;  // Canberra
+        case '5':
+        case '6':
+            return 60;  // Madrid
+        default:
+            throw std::runtime_error( "Error when retrieving DSN complex ID: station name " + stationName + " not recognized." );
+    }
+}
+
+std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( )
+{
+    std::map< int, std::vector< std::string > > stationsPerComplex;
+    auto const& dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
+
+    for( auto const& [ stationName, position ] : dsnStationPositionsItrf93 )
+    {
+        int complexId = getDsnComplexId( stationName );
+        stationsPerComplex[ complexId ].push_back( stationName );
+    }
+
+    return stationsPerComplex;
+}
+
+Eigen::Vector3d getApproximateGroundStationPosition( const std::string& stationName )
 {
     Eigen::Vector3d groundStationPosition;
 
-    std::map< std::string, Eigen::Vector3d > dsnMap = getApproximateDsnGroundStationPositions( );
+    const std::map< std::string, Eigen::Vector3d >& dsnMap = getApproximateDsnGroundStationPositions( );
     if( dsnMap.count( stationName ) != 0 )
     {
         groundStationPosition = dsnMap.at( stationName );
@@ -75,7 +112,7 @@ Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName )
     else
     {
         throw std::runtime_error( "Error when retrieving approximate ground station position: station name " + stationName +
-                                  "not recognized." );
+                                  " not recognized." );
     }
 
     return groundStationPosition;
@@ -96,35 +133,35 @@ std::map< std::string, Eigen::Vector3d > getCombinedApproximateGroundStationPosi
     return combinedMap;
 }
 
-std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( )
+const std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( )
 {
-    static std::map< std::string, Eigen::Vector3d > stationPositions =
+    static const std::map< std::string, Eigen::Vector3d > stationPositions =
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t" );
     return stationPositions;
 }
 
-std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( )
+const std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( )
 {
-    static std::map< std::string, Eigen::Vector3d > stationVelocities =
+    static const std::map< std::string, Eigen::Vector3d > stationVelocities =
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationVelFile, '$', " \t" );
     return stationVelocities;
 }
 
-std::map< std::string, Eigen::Vector3d >& getMPCStationPositions( )
+const std::map< std::string, Eigen::Vector3d >& getMPCStationPositions( )
 {
-    static std::map< std::string, Eigen::Vector3d > stationPositions =
+    static const std::map< std::string, Eigen::Vector3d > stationPositions =
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( MPCGroundStationPosFile, '$', " \t" );
     return stationPositions;
 }
 
-std::map< std::string, Eigen::Vector3d >& getMPCStationVelocities( )
+const std::map< std::string, Eigen::Vector3d >& getMPCStationVelocities( )
 {
-    static std::map< std::string, Eigen::Vector3d > stationVelocities =
+    static const std::map< std::string, Eigen::Vector3d > stationVelocities =
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( MPCGroundStationVelFile, '$', " \t" );
     return stationVelocities;
 }
 
-Eigen::Vector3d getDsnStationVelocity( std::string stationName )
+Eigen::Vector3d getDsnStationVelocity( const std::string& stationName )
 {
     Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
     goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
@@ -133,53 +170,44 @@ Eigen::Vector3d getDsnStationVelocity( std::string stationName )
     Eigen::Vector3d madridStationVelocity( -0.0100, 0.0242, 0.0156 );
     madridStationVelocity /= physical_constants::JULIAN_YEAR;
     Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
-    if( stationName[ 4 ] == '1' || stationName[ 4 ] == '2' )
+
+    int complexId = getDsnComplexId( stationName );
+    switch( complexId )
     {
-        stationVelocityItrf93 = goldstoneStationVelocity;
-    }
-    else if( stationName[ 4 ] == '3' || stationName[ 4 ] == '4' )
-    {
-        stationVelocityItrf93 = canberraStationVelocity;
-    }
-    else if( stationName[ 4 ] == '5' || stationName[ 4 ] == '6' )
-    {
-        stationVelocityItrf93 = madridStationVelocity;
-    }
-    else
-    {
-        throw std::runtime_error( "Error when retrieving approximate ground station velocity: station name " + stationName +
-                                  "not recognized." );
+        case 10:
+            stationVelocityItrf93 = goldstoneStationVelocity;
+            break;
+        case 40:
+            stationVelocityItrf93 = canberraStationVelocity;
+            break;
+        case 60:
+            stationVelocityItrf93 = madridStationVelocity;
+            break;
+        default:
+            throw std::runtime_error( "Error when retrieving approximate ground station velocity: station complex of " + stationName +
+                                      " not recognized." );
     }
 
     return stationVelocityItrf93;
 }
 
-std::shared_ptr< GroundStationSettings > getDsnStationSetting( std::string stationName )
+std::shared_ptr< GroundStationSettings > getDsnStationSetting( const std::string& stationName )
 {
     // DSS positions: at 2003.0 with respect to ITRF93
     double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
-    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
-
-    if( dsnStationPositionsItrf93.find( stationName ) == dsnStationPositionsItrf93.end( ) )
-    {
-        throw std::runtime_error( "Error when retrieving approximate ground station position: station name " + stationName +
-                                  "not recognized." );
-    }
+    Eigen::Vector3d stationPositionItrf93 = getApproximateGroundStationPosition( stationName );
 
     // Get the station velocity in ITRF93
     Eigen::Vector3d stationVelocityItrf93 = getDsnStationVelocity( stationName );
 
     // Convert ground station state to ITRF2014
     Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
-            ( Eigen::Vector6d( ) << dsnStationPositionsItrf93[ stationName ], stationVelocityItrf93 ).finished( ),
-            stationPositionsReferenceEpoch,
-            "ITRF93" );
+            ( Eigen::Vector6d( ) << stationPositionItrf93, stationVelocityItrf93 ).finished( ), stationPositionsReferenceEpoch, "ITRF93" );
 
     std::shared_ptr< GroundStationMotionSettings > stationMotion =
             std::make_shared< LinearGroundStationMotionSettings >( stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
 
-    std::shared_ptr< GroundStationSettings > stationSettings =
-            std::make_shared< GroundStationSettings >( stationName, stationStateItrf2014.segment( 0, 3 ) );
+    auto stationSettings = std::make_shared< GroundStationSettings >( stationName, stationStateItrf2014.segment( 0, 3 ) );
     stationSettings->addStationMotionSettings( stationMotion );
 
     return stationSettings;
@@ -187,13 +215,13 @@ std::shared_ptr< GroundStationSettings > getDsnStationSetting( std::string stati
 
 std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 {
-    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
+    auto const& dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
 
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
 
-    for( auto it : dsnStationPositionsItrf93 )
+    for( auto const& [ stationName, position ] : dsnStationPositionsItrf93 )
     {
-        std::shared_ptr< GroundStationSettings > stationSettings( getDsnStationSetting( it.first ) );
+        std::shared_ptr< GroundStationSettings > stationSettings( getDsnStationSetting( stationName ) );
 
         stationSettingsList.push_back( stationSettings );
     }
@@ -209,21 +237,21 @@ std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( )
     std::map< std::string, Eigen::Vector3d > stationVelocities = getVlbiStationVelocities( );
 
     std::vector< std::string > commonStationNames;
-    for( auto it : stationPositions )
+    for( auto const& [ stationName, position ] : stationPositions )
     {
-        if( stationVelocities.count( it.first ) > 0 )
+        if( stationVelocities.count( stationName ) > 0 )
         {
-            commonStationNames.push_back( it.first );
+            commonStationNames.push_back( stationName );
         }
     }
 
-    for( unsigned int i = 0; i < commonStationNames.size( ); i++ )
+    for( auto const& stationName : commonStationNames )
     {
         std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
-                stationVelocities.at( commonStationNames.at( i ) ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
+                stationVelocities.at( stationName ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
 
         std::shared_ptr< GroundStationSettings > stationSettings =
-                std::make_shared< GroundStationSettings >( commonStationNames.at( i ), stationPositions.at( commonStationNames.at( i ) ) );
+                std::make_shared< GroundStationSettings >( stationName, stationPositions.at( stationName ) );
         stationSettings->addStationMotionSettings( stationMotion );
         stationSettingsList.push_back( stationSettings );
     }
@@ -238,21 +266,21 @@ std::vector< std::shared_ptr< GroundStationSettings > > getMPCStationSettings( )
     std::map< std::string, Eigen::Vector3d > stationVelocities = getMPCStationVelocities( );
 
     std::vector< std::string > commonStationNames;
-    for( auto it : stationPositions )
+    for( auto const& [ stationName, position ] : stationPositions )
     {
-        if( stationVelocities.count( it.first ) > 0 )
+        if( stationVelocities.count( stationName ) > 0 )
         {
-            commonStationNames.push_back( it.first );
+            commonStationNames.push_back( stationName );
         }
     }
 
-    for( unsigned int i = 0; i < commonStationNames.size( ); i++ )
+    for( auto const& stationName : commonStationNames )
     {
         std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
-                stationVelocities.at( commonStationNames.at( i ) ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
+                stationVelocities.at( stationName ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
 
         std::shared_ptr< GroundStationSettings > stationSettings =
-                std::make_shared< GroundStationSettings >( commonStationNames.at( i ), stationPositions.at( commonStationNames.at( i ) ) );
+                std::make_shared< GroundStationSettings >( stationName, stationPositions.at( stationName ) );
         stationSettings->addStationMotionSettings( stationMotion );
         stationSettingsList.push_back( stationSettings );
     }
