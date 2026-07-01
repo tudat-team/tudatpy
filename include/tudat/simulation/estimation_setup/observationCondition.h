@@ -29,14 +29,19 @@ namespace tudat
 namespace observation_models
 {
 
-//! Inspectable condition kinds used by ObservationCondition.
-enum class ObservationConditionType {
+//! Inspectable condition kinds used by ObservationSelectionCondition.
+enum class ObservationSelectionConditionType {
     all,
     observable_type,
     link_definition,
     link_end_type,
     link_end,
+    set_id,
     time_bounds,
+    time_greater_equal,
+    time_greater_than,
+    time_less_equal,
+    time_less_than,
     active,
     residual_absolute_value_greater_than,
     observation_absolute_value_greater_than,
@@ -47,37 +52,47 @@ enum class ObservationConditionType {
     custom
 };
 
-inline std::string getObservationConditionTypeString( const ObservationConditionType conditionType )
+inline std::string getObservationSelectionConditionTypeString( const ObservationSelectionConditionType conditionType )
 {
     switch( conditionType )
     {
-        case ObservationConditionType::all:
+        case ObservationSelectionConditionType::all:
             return "all";
-        case ObservationConditionType::observable_type:
+        case ObservationSelectionConditionType::observable_type:
             return "observable_type";
-        case ObservationConditionType::link_definition:
+        case ObservationSelectionConditionType::link_definition:
             return "link_definition";
-        case ObservationConditionType::link_end_type:
+        case ObservationSelectionConditionType::link_end_type:
             return "link_end_type";
-        case ObservationConditionType::link_end:
+        case ObservationSelectionConditionType::link_end:
             return "link_end";
-        case ObservationConditionType::time_bounds:
+        case ObservationSelectionConditionType::set_id:
+            return "set_id";
+        case ObservationSelectionConditionType::time_bounds:
             return "time_bounds";
-        case ObservationConditionType::active:
+        case ObservationSelectionConditionType::time_greater_equal:
+            return "time_greater_equal";
+        case ObservationSelectionConditionType::time_greater_than:
+            return "time_greater_than";
+        case ObservationSelectionConditionType::time_less_equal:
+            return "time_less_equal";
+        case ObservationSelectionConditionType::time_less_than:
+            return "time_less_than";
+        case ObservationSelectionConditionType::active:
             return "active";
-        case ObservationConditionType::residual_absolute_value_greater_than:
+        case ObservationSelectionConditionType::residual_absolute_value_greater_than:
             return "residual_absolute_value_greater_than";
-        case ObservationConditionType::observation_absolute_value_greater_than:
+        case ObservationSelectionConditionType::observation_absolute_value_greater_than:
             return "observation_absolute_value_greater_than";
-        case ObservationConditionType::dependent_variable_greater_than:
+        case ObservationSelectionConditionType::dependent_variable_greater_than:
             return "dependent_variable_greater_than";
-        case ObservationConditionType::and_condition:
+        case ObservationSelectionConditionType::and_condition:
             return "and";
-        case ObservationConditionType::or_condition:
+        case ObservationSelectionConditionType::or_condition:
             return "or";
-        case ObservationConditionType::not_condition:
+        case ObservationSelectionConditionType::not_condition:
             return "not";
-        case ObservationConditionType::custom:
+        case ObservationSelectionConditionType::custom:
             return "custom";
         default:
             throw std::runtime_error( "Error when getting observation condition type string, type not recognized." );
@@ -96,87 +111,99 @@ inline std::string getObservationConditionTypeString( const ObservationCondition
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
-class ObservationCondition
+class ObservationSelectionCondition
 {
 public:
     using Evaluator = std::function< bool( const ObservationDataset< ObservationScalarType, TimeType >&, const int ) >;
 
-    ObservationCondition( ): type_( ObservationConditionType::all ) {}
+    ObservationSelectionCondition( ): type_( ObservationSelectionConditionType::all ) {}
 
-    explicit ObservationCondition( const Evaluator& evaluator ): type_( ObservationConditionType::custom ), customEvaluator_( evaluator ) {}
+    explicit ObservationSelectionCondition( const Evaluator& evaluator ):
+        type_( ObservationSelectionConditionType::custom ), customEvaluator_( evaluator )
+    {}
 
     bool operator( )( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         switch( type_ )
         {
-            case ObservationConditionType::all:
+            case ObservationSelectionConditionType::all:
                 return true;
-            case ObservationConditionType::observable_type:
+            case ObservationSelectionConditionType::observable_type:
                 return evaluateObservableType( dataset, observationId );
-            case ObservationConditionType::link_definition:
+            case ObservationSelectionConditionType::link_definition:
                 return evaluateLinkDefinition( dataset, observationId );
-            case ObservationConditionType::link_end_type:
+            case ObservationSelectionConditionType::link_end_type:
                 return evaluateLinkEndType( dataset, observationId );
-            case ObservationConditionType::link_end:
+            case ObservationSelectionConditionType::link_end:
                 return evaluateLinkEnd( dataset, observationId );
-            case ObservationConditionType::time_bounds:
+            case ObservationSelectionConditionType::set_id:
+                return dataset.getObservationRow( observationId ).setId_ == setId_;
+            case ObservationSelectionConditionType::time_bounds:
                 return evaluateTimeBounds( dataset, observationId );
-            case ObservationConditionType::active:
+            case ObservationSelectionConditionType::time_greater_equal:
+                return dataset.getObservationTime( observationId ) >= timeValue_;
+            case ObservationSelectionConditionType::time_greater_than:
+                return dataset.getObservationTime( observationId ) > timeValue_;
+            case ObservationSelectionConditionType::time_less_equal:
+                return dataset.getObservationTime( observationId ) <= timeValue_;
+            case ObservationSelectionConditionType::time_less_than:
+                return dataset.getObservationTime( observationId ) < timeValue_;
+            case ObservationSelectionConditionType::active:
                 return dataset.getObservationRow( observationId ).isActive_;
-            case ObservationConditionType::residual_absolute_value_greater_than:
+            case ObservationSelectionConditionType::residual_absolute_value_greater_than:
                 return evaluateVectorLimit( dataset.getResidualValue( observationId ), vectorLimit_, "residual" );
-            case ObservationConditionType::observation_absolute_value_greater_than:
+            case ObservationSelectionConditionType::observation_absolute_value_greater_than:
                 return evaluateVectorLimit( dataset.getObservationValue( observationId ), vectorLimit_, "observation" );
-            case ObservationConditionType::dependent_variable_greater_than:
+            case ObservationSelectionConditionType::dependent_variable_greater_than:
                 return evaluateDependentVariable( dataset, observationId );
-            case ObservationConditionType::and_condition:
+            case ObservationSelectionConditionType::and_condition:
                 return children_.at( 0 )( dataset, observationId ) && children_.at( 1 )( dataset, observationId );
-            case ObservationConditionType::or_condition:
+            case ObservationSelectionConditionType::or_condition:
                 return children_.at( 0 )( dataset, observationId ) || children_.at( 1 )( dataset, observationId );
-            case ObservationConditionType::not_condition:
+            case ObservationSelectionConditionType::not_condition:
                 return !children_.at( 0 )( dataset, observationId );
-            case ObservationConditionType::custom:
+            case ObservationSelectionConditionType::custom:
                 return customEvaluator_( dataset, observationId );
             default:
                 throw std::runtime_error( "Error when evaluating observation condition, condition type not recognized." );
         }
     }
 
-    ObservationCondition operator&&( const ObservationCondition& other ) const
+    ObservationSelectionCondition operator&&( const ObservationSelectionCondition& other ) const
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::and_condition;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::and_condition;
         condition.children_ = { *this, other };
         return condition;
     }
 
-    ObservationCondition operator||( const ObservationCondition& other ) const
+    ObservationSelectionCondition operator||( const ObservationSelectionCondition& other ) const
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::or_condition;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::or_condition;
         condition.children_ = { *this, other };
         return condition;
     }
 
-    ObservationCondition operator!( ) const
+    ObservationSelectionCondition operator!( ) const
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::not_condition;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::not_condition;
         condition.children_ = { *this };
         return condition;
     }
 
-    ObservationConditionType getConditionType( ) const
+    ObservationSelectionConditionType getConditionType( ) const
     {
         return type_;
     }
 
     std::string getConditionTypeString( ) const
     {
-        return getObservationConditionTypeString( type_ );
+        return getObservationSelectionConditionTypeString( type_ );
     }
 
-    const std::vector< ObservationCondition >& getChildConditions( ) const
+    const std::vector< ObservationSelectionCondition >& getChildConditions( ) const
     {
         return children_;
     }
@@ -201,9 +228,19 @@ public:
         return linkEndId_;
     }
 
+    unsigned int getSetId( ) const
+    {
+        return setId_;
+    }
+
     std::pair< TimeType, TimeType > getTimeBounds( ) const
     {
         return std::make_pair( startTime_, endTime_ );
+    }
+
+    TimeType getTimeValue( ) const
+    {
+        return timeValue_;
     }
 
     const Eigen::VectorXd& getVectorLimit( ) const
@@ -221,92 +258,151 @@ public:
         return returnFirstCompatibleSettings_;
     }
 
-    static ObservationCondition all( )
+    static ObservationSelectionCondition all( )
     {
-        return ObservationCondition( );
+        return ObservationSelectionCondition( );
     }
 
-    static ObservationCondition observableType( const ObservableType observableType )
+    static ObservationSelectionCondition observableType( const ObservableType observableType )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::observable_type;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::observable_type;
         condition.observableType_ = observableType;
         return condition;
     }
 
-    static ObservationCondition linkDefinition( const LinkDefinition& linkDefinition )
+    static ObservationSelectionCondition linkDefinition( const LinkDefinition& linkDefinition )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::link_definition;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::link_definition;
         condition.linkDefinition_ = linkDefinition;
         return condition;
     }
 
-    static ObservationCondition linkEndType( const LinkEndType linkEndType )
+    static ObservationSelectionCondition linkEndType( const LinkEndType linkEndType )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::link_end_type;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::link_end_type;
         condition.linkEndType_ = linkEndType;
         return condition;
     }
 
-    static ObservationCondition linkEnd( const LinkEndType linkEndType, const LinkEndId& linkEndId )
+    static ObservationSelectionCondition linkEnd( const LinkEndType linkEndType, const LinkEndId& linkEndId )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::link_end;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::link_end;
         condition.linkEndType_ = linkEndType;
         condition.linkEndId_ = linkEndId;
         return condition;
     }
 
-    static ObservationCondition timeBounds( const TimeType startTime, const TimeType endTime )
+    static ObservationSelectionCondition setId( const unsigned int setId )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::time_bounds;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::set_id;
+        condition.setId_ = setId;
+        return condition;
+    }
+
+    static ObservationSelectionCondition timeBounds( const TimeType startTime, const TimeType endTime )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::time_bounds;
         condition.startTime_ = startTime;
         condition.endTime_ = endTime;
         return condition;
     }
 
-    static ObservationCondition active( )
+    static ObservationSelectionCondition timeGreaterEqual( const TimeType time )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::active;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::time_greater_equal;
+        condition.timeValue_ = time;
         return condition;
     }
 
-    static ObservationCondition rejected( )
+    static ObservationSelectionCondition timeGreaterThan( const TimeType time )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::time_greater_than;
+        condition.timeValue_ = time;
+        return condition;
+    }
+
+    static ObservationSelectionCondition timeLessEqual( const TimeType time )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::time_less_equal;
+        condition.timeValue_ = time;
+        return condition;
+    }
+
+    static ObservationSelectionCondition timeLessThan( const TimeType time )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::time_less_than;
+        condition.timeValue_ = time;
+        return condition;
+    }
+
+    static ObservationSelectionCondition active( )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::active;
+        return condition;
+    }
+
+    static ObservationSelectionCondition rejected( )
     {
         return !active( );
     }
 
-    static ObservationCondition residualAbsoluteValueGreaterThan( const Eigen::VectorXd& residualLimit )
+    static ObservationSelectionCondition residualAbsoluteValueGreaterThan( const Eigen::VectorXd& residualLimit )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::residual_absolute_value_greater_than;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::residual_absolute_value_greater_than;
         condition.vectorLimit_ = residualLimit;
         return condition;
     }
 
-    static ObservationCondition observationAbsoluteValueGreaterThan( const Eigen::VectorXd& observationLimit )
+    static ObservationSelectionCondition residualAbsoluteValueGreaterThan( const double residualLimit )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::observation_absolute_value_greater_than;
+        return residualAbsoluteValueGreaterThan( ( Eigen::VectorXd( 1 ) << residualLimit ).finished( ) );
+    }
+
+    static ObservationSelectionCondition observationAbsoluteValueGreaterThan( const Eigen::VectorXd& observationLimit )
+    {
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::observation_absolute_value_greater_than;
         condition.vectorLimit_ = observationLimit;
         return condition;
     }
 
-    static ObservationCondition dependentVariableGreaterThan(
+    static ObservationSelectionCondition observationAbsoluteValueGreaterThan( const double observationLimit )
+    {
+        return observationAbsoluteValueGreaterThan( ( Eigen::VectorXd( 1 ) << observationLimit ).finished( ) );
+    }
+
+    static ObservationSelectionCondition dependentVariableGreaterThan(
             const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
             const Eigen::VectorXd& dependentVariableLimit,
             const bool returnFirstCompatibleSettings = false )
     {
-        ObservationCondition condition;
-        condition.type_ = ObservationConditionType::dependent_variable_greater_than;
+        ObservationSelectionCondition condition;
+        condition.type_ = ObservationSelectionConditionType::dependent_variable_greater_than;
         condition.dependentVariableSettings_ = dependentVariableSettings;
         condition.vectorLimit_ = dependentVariableLimit;
         condition.returnFirstCompatibleSettings_ = returnFirstCompatibleSettings;
         return condition;
+    }
+
+    static ObservationSelectionCondition dependentVariableGreaterThan(
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
+            const double dependentVariableLimit,
+            const bool returnFirstCompatibleSettings = false )
+    {
+        return dependentVariableGreaterThan(
+                dependentVariableSettings, ( Eigen::VectorXd( 1 ) << dependentVariableLimit ).finished( ), returnFirstCompatibleSettings );
     }
 
 private:
@@ -379,19 +475,37 @@ private:
 
         const std::pair< int, int >& indexAndSize = compatibleIndicesAndSizes.at( 0 );
         const Eigen::VectorXd dependentVariables = dataset.getDependentVariables( observationId );
-        if( indexAndSize.first + indexAndSize.second > dependentVariables.size( ) || vectorLimit_.size( ) != indexAndSize.second )
+        if( indexAndSize.first + indexAndSize.second > dependentVariables.size( ) )
         {
             throw std::runtime_error( "Error when evaluating dependent-variable condition, dependent-variable size is inconsistent." );
         }
 
-        return evaluateGreaterThanLimit( dependentVariables.segment( indexAndSize.first, indexAndSize.second ), vectorLimit_ );
+        return evaluateGreaterThanLimit(
+                dependentVariables.segment( indexAndSize.first, indexAndSize.second ), vectorLimit_, "dependent-variable" );
     }
 
-    static bool evaluateGreaterThanLimit( const Eigen::VectorXd& values, const Eigen::VectorXd& limit )
+    static double limitForComponent( const Eigen::VectorXd& limit,
+                                     const int componentIndex,
+                                     const int expectedSize,
+                                     const std::string& valueName )
+    {
+        if( limit.size( ) == 1 )
+        {
+            return limit( 0 );
+        }
+        if( limit.size( ) == expectedSize )
+        {
+            return limit( componentIndex );
+        }
+        throw std::runtime_error( "Error when evaluating " + valueName + " condition, limit size is " + std::to_string( limit.size( ) ) +
+                                  " but expected either 1 or " + std::to_string( expectedSize ) + "." );
+    }
+
+    static bool evaluateGreaterThanLimit( const Eigen::VectorXd& values, const Eigen::VectorXd& limit, const std::string& valueName )
     {
         for( int i = 0; i < values.size( ); ++i )
         {
-            if( values( i ) > limit( i ) )
+            if( values( i ) > limitForComponent( limit, i, values.size( ), valueName ) )
             {
                 return true;
             }
@@ -402,14 +516,9 @@ private:
     template< typename VectorType >
     static bool evaluateVectorLimit( const VectorType& values, const Eigen::VectorXd& limit, const std::string& valueName )
     {
-        if( limit.size( ) != values.size( ) )
-        {
-            throw std::runtime_error( "Error when evaluating " + valueName +
-                                      " condition, limit size is incompatible with observation size." );
-        }
         for( int i = 0; i < values.size( ); ++i )
         {
-            if( std::fabs( values( i ) ) > limit( i ) )
+            if( std::fabs( values( i ) ) > limitForComponent( limit, i, values.size( ), valueName ) )
             {
                 return true;
             }
@@ -418,10 +527,10 @@ private:
     }
 
     //! Node type used to evaluate and inspect this condition.
-    ObservationConditionType type_ = ObservationConditionType::all;
+    ObservationSelectionConditionType type_ = ObservationSelectionConditionType::all;
 
     //! Child nodes used by logical AND/OR/NOT conditions.
-    std::vector< ObservationCondition > children_;
+    std::vector< ObservationSelectionCondition > children_;
 
     //! Opaque evaluator used only for custom callable leaves.
     Evaluator customEvaluator_;
@@ -438,11 +547,17 @@ private:
     //! Link-end id parameter for link-end leaves.
     LinkEndId linkEndId_;
 
+    //! Observation set id parameter for set-id leaves.
+    unsigned int setId_ = 0;
+
     //! Inclusive start time for time-bound leaves.
     TimeType startTime_ = TimeType( );
 
     //! Inclusive end time for time-bound leaves.
     TimeType endTime_ = TimeType( );
+
+    //! Single time parameter for one-sided time comparison leaves.
+    TimeType timeValue_ = TimeType( );
 
     //! Component limit used by residual, observation and dependent-variable leaves.
     Eigen::VectorXd vectorLimit_;

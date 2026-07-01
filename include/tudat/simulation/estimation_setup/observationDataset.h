@@ -102,70 +102,14 @@ public:
     int addObservationSetFromDataset( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
                                       const unsigned int sourceSetId );
 
-    //! Add a set using one compact scalar weight for every observation event.
-    int addObservationSetWithScalarWeight(
+    //! Add a set and apply the requested compact/block weight policy.
+    int addObservationSetWithWeights(
             const ObservableType observableType,
             const LinkDefinition& linkDefinition,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType >& times,
             const LinkEndType referenceLinkEnd,
-            const double weight,
-            const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
-
-    //! Add a set using one compact scalar weight per observation event.
-    int addObservationSetWithScalarWeights(
-            const ObservableType observableType,
-            const LinkDefinition& linkDefinition,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType >& times,
-            const LinkEndType referenceLinkEnd,
-            const std::vector< double >& weights,
-            const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
-
-    //! Add a set using one observable-size N x N weight block for every observation event.
-    int addObservationSetWithWeightBlock(
-            const ObservableType observableType,
-            const LinkDefinition& linkDefinition,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType >& times,
-            const LinkEndType referenceLinkEnd,
-            const Eigen::MatrixXd& weightBlock,
-            const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
-
-    //! Add a set using one observable-size N x N weight block per observation event.
-    int addObservationSetWithWeightBlocks(
-            const ObservableType observableType,
-            const LinkDefinition& linkDefinition,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType >& times,
-            const LinkEndType referenceLinkEnd,
-            const std::vector< Eigen::MatrixXd >& weightBlocks,
-            const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
-
-    //! Add a set using one full M x M set-level weight block for the new batch.
-    int addObservationSetWithSetWeightBlock(
-            const ObservableType observableType,
-            const LinkDefinition& linkDefinition,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType >& times,
-            const LinkEndType referenceLinkEnd,
-            const Eigen::MatrixXd& setWeightBlock,
+            const ObservationWeightSettings& weightSettings,
             const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
             const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
             const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
@@ -180,30 +124,34 @@ public:
     void setObservationsForSet( const unsigned int setId,
                                 const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations );
 
-    //! Replace a set's measurements from a legacy flat scalar-component vector.
-    void setObservationVectorForSet( const unsigned int setId,
-                                     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationVector );
-
     //! Replace the vector-valued residuals for all observation events in one set.
     void setResidualsForSet( const unsigned int setId,
                              const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals );
-
-    //! Replace a set's residuals from a legacy flat scalar-component vector.
-    void setResidualVectorForSet( const unsigned int setId,
-                                  const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
     //////////////////////////////////////////////////////////
     /////////////////       WEIGHTS FUNCTIONALITY   //////////
     //////////////////////////////////////////////////////////
 
     //! Apply one compact scalar weight to every observation event in one set.
-    void setConstantWeightForSet( const unsigned int setId, const double weight );
+    void setConstantSingleObservationScalarWeightForSet( const unsigned int setId, const double weight );
 
     //! Apply one component-wise weight vector to every observation event in one set.
-    void setConstantWeightForSet( const unsigned int setId, const Eigen::VectorXd& weight );
+    void setConstantSingleObservationDiagonalWeightForSet( const unsigned int setId, const Eigen::VectorXd& weight );
 
-    //! Replace a set's weights from a legacy flat scalar-component vector.
-    void setWeightVectorForSet( const unsigned int setId, const Eigen::VectorXd& weightVector );
+    //! Apply one observable-size N x N weight block to every observation event in one set.
+    void setConstantSingleObservationMatrixWeightForSet( const unsigned int setId, const Eigen::MatrixXd& weight );
+
+    //! Set a scalar constant weight on all observations matching a row-level condition.
+    void setConstantSingleObservationScalarWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                   const double weight );
+
+    //! Set a vector-valued constant weight on all observations matching a row-level condition.
+    void setConstantSingleObservationDiagonalWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                     const Eigen::VectorXd& weight );
+
+    //! Set an observable-size N x N weight block on all observations matching a row-level condition.
+    void setConstantSingleObservationMatrixWeight( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                   const Eigen::MatrixXd& weight );
 
     //! Store one full M x M weight block for an observation set.
     void setWeightMatrixForSet( const unsigned int setId, const Eigen::MatrixXd& weightMatrix );
@@ -245,65 +193,9 @@ public:
     //! Return whether advanced scalar-component weight blocks are stored on the dataset.
     bool hasExtraWeightBlocks( ) const;
 
-    //! Set a scalar constant weight on all observations selected by a parser.
-    void setConstantWeight(
-            const double weight = 1.0,
-            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
-
-    //! Set a vector-valued constant weight on all observations selected by a parser.
-    void setConstantWeight(
-            const Eigen::VectorXd weight,
-            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
-
-    //! Set a scalar constant weight on all observations of one observable type.
-    void setConstantWeightForObservableType( const ObservableType observableType, const double weight );
-
-    //! Set a vector-valued constant weight on all observations of one observable type.
-    void setConstantWeightForObservableType( const ObservableType observableType, const Eigen::VectorXd& weight );
-
-    //! Apply scalar constant weights for multiple observable types.
-    void setConstantWeightPerObservableType( const std::map< ObservableType, double >& weightsPerObservableType );
-
-    //! Apply scalar constant weights for multiple observable types from a brace-initializer list.
-    void setConstantWeightPerObservableType( const std::initializer_list< std::pair< ObservableType, double > > weightsPerObservableType );
-
-    //! Apply vector constant weights for multiple observable types.
-    void setConstantWeightPerObservableType( const std::map< ObservableType, Eigen::VectorXd >& weightsPerObservableType );
-
-    //! Apply scalar constant weights for multiple parser-defined selections.
-    void setConstantWeightPerObservable(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser );
-
-    //! Apply vector constant weights for multiple parser-defined selections.
-    void setConstantWeightPerObservable(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
-
-    //! Set scalar-component weights from a flat vector for parser-selected sets.
-    void setTabulatedWeights(
-            const Eigen::VectorXd tabulatedWeights,
-            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
-
-    //! Apply tabulated scalar-component weights for multiple parser-defined selections.
-    void setTabulatedWeights(
-            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
-
     //////////////////////////////////////////////////////////
     /////////////////       SET MUTATION            //////////
     //////////////////////////////////////////////////////////
-
-    //! Replace all rows and scalar components of one set while preserving its set id.
-    /*!
-     * This operation rebuilds the dataset contents in-place so existing shared
-     * dataset pointers remain valid. Other set ids are preserved in order.
-     */
-    void replaceObservationSetData( const unsigned int setId,
-                                    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-                                    const std::vector< TimeType >& times,
-                                    const std::vector< Eigen::VectorXd >& dependentVariables = std::vector< Eigen::VectorXd >( ),
-                                    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights =
-                                            std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
-                                    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                                            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
 
     //! Append per-observation data to an existing set.
     /*!
@@ -323,32 +215,16 @@ public:
     //! Remove observation events from a set by per-set observation index.
     void removeObservationsFromSet( const unsigned int setId, std::vector< unsigned int > indicesToRemove );
 
-    void removeObservationFromSet( const unsigned int setId, const unsigned int indexToRemove );
-
     //! Remove all observation events matching a row-level condition.
-    void removeObservations( const ObservationCondition< ObservationScalarType, TimeType >& condition );
+    void removeObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition );
 
     //! Physically remove all currently rejected observation events.
-    void deleteRejectedObservations( );
-
-    //! Evaluate an ObservationFilter and return per-set observation indices to remove.
-    std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
-                                                               const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
-
-    //! Copy or move selected observations between sets, preserving scalar data.
-    void moveObservationsToSet( const unsigned int sourceSetId,
-                                ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
-                                const unsigned int targetSetId,
-                                const std::vector< unsigned int >& indices,
-                                const bool removeFromSource = true );
+    void removeRejectedObservations( );
 
     std::pair< TimeType, TimeType > getTimeBoundsForSet( const unsigned int setId ) const;
 
     //! Return time bounds for all observations in the dataset.
     std::pair< TimeType, TimeType > getTimeBounds( ) const;
-
-    //! Remove duplicate epochs from one set using the legacy duplicate criterion.
-    void eraseDuplicateObservationsFromSet( const unsigned int setId, const bool printWarning = true );
 
     //////////////////////////////////////////////////////////
     /////////////////       DATA ACCESSORS          //////////
@@ -357,9 +233,6 @@ public:
     //! Return computed observations as observed-minus-residual values for one set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservationsForSet(
             const unsigned int setId ) const;
-
-    //! Return computed observations as one flat scalar vector for one set.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getComputedObservationVectorForSet( const unsigned int setId ) const;
 
     //! Compute component-wise RMS residuals over all observations in one set.
     Eigen::VectorXd getRmsResidualsForSet( const unsigned int setId ) const;
@@ -390,9 +263,6 @@ public:
     //! Return one vector-valued measurement per observation event in a set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsForSet( const unsigned int setId ) const;
 
-    //! Return all scalar components of a set as one legacy flat vector.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForSet( const unsigned int setId ) const;
-
     //! Reconstruct the vector-valued measurement for one observation event.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationValue( const unsigned int observationId ) const;
 
@@ -403,9 +273,6 @@ public:
 
     //! Return one vector of scalar-component weights per observation event.
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeightsForSet( const unsigned int setId ) const;
-
-    //! Return all scalar-component weights of a set as one legacy flat vector.
-    Eigen::VectorXd getWeightVectorForSet( const unsigned int setId ) const;
 
     //! Reconstruct the scalar-component weight vector for one observation event.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeightValue( const unsigned int observationId ) const;
@@ -418,9 +285,6 @@ public:
 
     //! Return one vector-valued residual per observation event in a set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResidualsForSet( const unsigned int setId ) const;
-
-    //! Return all scalar residual components of a set as one legacy flat vector.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualVectorForSet( const unsigned int setId ) const;
 
     //! Reconstruct the vector-valued residual for one observation event.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualValue( const unsigned int observationId ) const;
@@ -472,8 +336,8 @@ public:
     void setLinkEndReferencePoint( const std::string& bodyName,
                                    const std::string& referencePointName,
                                    const LinkEndType linkEndType,
-                                   const ObservationCondition< ObservationScalarType, TimeType >& condition =
-                                           ObservationCondition< ObservationScalarType, TimeType >::all( ) );
+                                   const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                           ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ) );
 
     const std::shared_ptr< ObservationAncillarySimulationSettings >& getAncillarySettings( const unsigned int ancillarySettingsId ) const;
 
@@ -487,31 +351,28 @@ public:
     /////////////////       SELECTION AND STATUS    //////////
     //////////////////////////////////////////////////////////
 
-    //! Translate a legacy ObservationCollectionParser into dataset set ids.
-    std::vector< unsigned int > getObservationSetIds( const std::shared_ptr< ObservationCollectionParser >& observationParser =
-                                                              std::make_shared< ObservationCollectionParser >( ) ) const;
-
     //! Return observation ids for rows that satisfy a new row-level condition.
     std::vector< unsigned int > getObservationIdsMatchingCondition(
-            const ObservationCondition< ObservationScalarType, TimeType >& condition ) const;
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
 
     //! Create a read-only view over observations satisfying a row-level condition.
     ObservationDatasetViewer< ObservationScalarType, TimeType > createViewer(
-            const ObservationCondition< ObservationScalarType, TimeType >& condition ) const;
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
 
     //! Create a new dataset containing only observations satisfying a condition.
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createNewAndKeep(
-            const ObservationCondition< ObservationScalarType, TimeType >& condition ) const;
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
 
     //! Create a new dataset containing all observations except those satisfying a condition.
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createNewAndDrop(
-            const ObservationCondition< ObservationScalarType, TimeType >& condition ) const;
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
 
     //! Mark matching observation rows as rejected without physically deleting data.
-    void rejectObservations( const ObservationCondition< ObservationScalarType, TimeType >& condition, const std::string& reason = "" );
+    void rejectObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                             const std::string& reason = "" );
 
     //! Restore matching observation rows to active status.
-    void restoreObservations( const ObservationCondition< ObservationScalarType, TimeType >& condition );
+    void restoreObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition );
 
     //////////////////////////////////////////////////////////
     /////////////////       FLATTENED DATA          //////////
@@ -539,6 +400,81 @@ public:
     std::vector< unsigned int > getSetIdsInOrderedFlattenedDataOrder( ) const;
 
     std::size_t getStructuralVersion( ) const;
+
+    //////////////////////////////////////////////////////////
+    /////////////////       LEGACY INTERFACES       //////////
+    //////////////////////////////////////////////////////////
+
+    void setObservationVectorForSet( const unsigned int setId,
+                                     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationVector );
+
+    void setResidualVectorForSet( const unsigned int setId,
+                                  const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
+
+    void setWeightVectorForSet( const unsigned int setId, const Eigen::VectorXd& weightVector );
+
+    void setConstantWeight(
+            const double weight = 1.0,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
+
+    void setConstantWeight(
+            const Eigen::VectorXd weight,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
+
+    void setConstantWeightPerObservable(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser );
+
+    void setConstantWeightPerObservable(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
+
+    void setTabulatedWeights(
+            const Eigen::VectorXd tabulatedWeights,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
+
+    void setTabulatedWeights(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
+
+    std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
+                                                               const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
+
+    void moveObservationsToSet( const unsigned int sourceSetId,
+                                ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
+                                const unsigned int targetSetId,
+                                const std::vector< unsigned int >& indices,
+                                const bool removeFromSource = true );
+
+    void eraseDuplicateObservationsFromSet( const unsigned int setId, const bool printWarning = true );
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getComputedObservationVectorForSet( const unsigned int setId ) const;
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForSet( const unsigned int setId ) const;
+
+    Eigen::VectorXd getWeightVectorForSet( const unsigned int setId ) const;
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualVectorForSet( const unsigned int setId ) const;
+
+    std::vector< unsigned int > getObservationSetIds( const std::shared_ptr< ObservationCollectionParser >& observationParser =
+                                                              std::make_shared< ObservationCollectionParser >( ) ) const;
+
+    std::vector< std::pair< int, int > > getObservationSetStartAndSize( ) const;
+
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink( ) const;
+
+    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( ) const;
+
+    std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndSize( ) const;
+
+    std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( ) const;
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForObservableType(
+            const ObservableType observableType ) const;
+
+    void setObservationVectorForObservableType( const ObservableType observableType,
+                                                const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations );
+
+    void setWeightVectorForObservableType( const ObservableType observableType, const Eigen::VectorXd& weights );
+
+    void setResidualVector( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
 private:
     //////////////////////////////////////////////////////////
@@ -580,43 +516,11 @@ public:
     //! Return flat scalar-vector start and size for each set in dataset insertion order.
     std::vector< std::pair< int, int > > getObservationSetStartAndSizeInDatasetOrder( ) const;
 
-    //! Return flat scalar-vector start and size for each set in ordered flattened-data order.
-    /*!
-     * This method preserves the old ObservationCollection vector-order contract:
-     * observable type, then link ends, then set index within that group. Use
-     * getObservationSetStartAndSizeInDatasetOrder() when indices must follow
-     * dataset set ids instead.
-     */
-    std::vector< std::pair< int, int > > getObservationSetStartAndSize( ) const;
-
-    //! Return flat scalar-vector start and size grouped by observable type and link ends.
-    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink( ) const;
-
-    //! Return flat scalar-vector start and size grouped by observable type and link ends.
-    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( ) const;
-
-    //! Return flat scalar-vector start and size grouped by observable type.
-    std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndSize( ) const;
-
-    //! Return unique link-end definitions grouped by observable type.
-    std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( ) const;
-
     //! Return ordered set ids for a single observable type.
     std::vector< unsigned int > getObservationSetIdsForObservableType( const ObservableType observableType ) const;
 
     //! Return total scalar size for all sets of one observable type.
     std::size_t getTotalScalarSizeForObservableType( const ObservableType observableType ) const;
-
-    //! Return concatenated observations for all sets of one observable type.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForObservableType(
-            const ObservableType observableType ) const;
-
-    //! Replace concatenated observations for all sets of one observable type.
-    void setObservationVectorForObservableType( const ObservableType observableType,
-                                                const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations );
-
-    //! Replace concatenated weights for all sets of one observable type.
-    void setWeightVectorForObservableType( const ObservableType observableType, const Eigen::VectorXd& weights );
 
     //! Return concatenated observations for a single observable/link-definition pair.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations( const ObservableType observableType,
@@ -655,11 +559,8 @@ public:
     //! Add dependent-variable settings to all compatible sets matching an optional condition.
     void addDependentVariableToSets(
             const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
-            const ObservationCondition< ObservationScalarType, TimeType >& condition =
-                    ObservationCondition< ObservationScalarType, TimeType >::all( ) );
-
-    //! Set residuals from one flat scalar vector in dataset row order.
-    void setResidualVector( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ) );
 
     //! Set residuals for scalar rows described by flattened observation data.
     void setResidualVector( const FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
@@ -786,5 +687,6 @@ private:
 #include "tudat/simulation/estimation_setup/observationDatasetSelectionImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetFlatteningImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetPrivateImplementation.h"
+#include "tudat/simulation/estimation_setup/observationDatasetLegacyImplementation.h"
 
 #endif  // TUDAT_OBSERVATION_DATASET_H

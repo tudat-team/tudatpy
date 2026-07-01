@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             observedObservationDataset =
                     createOdfObservedObservationDatasetFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
             observedObservationDataset = observedObservationDataset->createNewAndKeep(
-                    ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
+                    ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
         }
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
@@ -145,9 +145,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         dss45MgsLinkEnds[ retransmitter ] = LinkEndId( "MGS" );
         dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-        const ObservationCondition< long double, Time > selectedDss45Rows =
-                ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
-                ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
+        const ObservationSelectionCondition< long double, Time > selectedDss45Rows =
+                ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
+                ObservationSelectionCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
         std::vector< unsigned int > selectedSetIds;
         for( const unsigned int observationId : observedObservationDataset->getObservationIdsMatchingCondition( selectedDss45Rows ) )
         {
@@ -373,9 +373,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     dss45MgsLinkEnds[ retransmitter ] = LinkEndId( spacecraftName );
     dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-    const ObservationCondition< long double, Time > dss45Condition =
-            ObservationCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
-            ObservationCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
+    const ObservationSelectionCondition< long double, Time > dss45Condition =
+            ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) &&
+            ObservationSelectionCondition< long double, Time >::linkDefinition( LinkDefinition( dss45MgsLinkEnds ) );
     const std::vector< unsigned int > dss45ObservationIds =
             observedObservationDataset->getObservationIdsMatchingCondition( dss45Condition );
     BOOST_REQUIRE( !dss45ObservationIds.empty( ) );

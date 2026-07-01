@@ -85,7 +85,7 @@ public:
         return dataset( ).getObservationTime( observationIds_.at( viewerIndex ) );
     }
 
-    ObservationDatasetViewer createViewer( const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
+    ObservationDatasetViewer createViewer( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
     {
         checkValidity( );
         std::vector< unsigned int > narrowedObservationIds;
@@ -154,7 +154,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Enable >
 ObservationDatasetViewer< ObservationScalarType, TimeType > ObservationDataset< ObservationScalarType, TimeType, Enable >::createViewer(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
 {
     try
     {

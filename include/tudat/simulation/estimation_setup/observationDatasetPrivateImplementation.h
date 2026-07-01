@@ -23,28 +23,6 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVector(
-        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector )
-{
-    if( residualVector.size( ) != static_cast< int >( getTotalScalarSize( ) ) )
-    {
-        throw std::runtime_error(
-                "Error when setting dataset residual vector, input size is inconsistent with total scalar observation size." );
-    }
-
-    int currentIndex = 0;
-    for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
-    {
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > setResiduals = residualVector.segment( currentIndex, currentSize );
-        setResidualVectorForSet( setId, setResiduals );
-        currentIndex += currentSize;
-    }
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVector(
         const FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
         const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector )
 {

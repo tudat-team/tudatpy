@@ -727,8 +727,8 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     }
 
                     int numberOfLinkEnds1Observations = 0;
-                    const ObservationCondition< double, double > currentLinkCondition =
-                            ObservationCondition< double, double >::linkDefinition( LinkDefinition( currentLinkEnds ) );
+                    const ObservationSelectionCondition< double, double > currentLinkCondition =
+                            ObservationSelectionCondition< double, double >::linkDefinition( LinkDefinition( currentLinkEnds ) );
                     for( const unsigned int observationId :
                          idealObservationsAndTimes->getObservationIdsMatchingCondition( currentLinkCondition ) )
                     {
@@ -1174,7 +1174,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                 idealObservationsAndTimes->clearDependentVariablesForSet( setId );
             }
 
-            const ObservationCondition< double, double > bodyAvoidanceCondition(
+            const ObservationSelectionCondition< double, double > bodyAvoidanceCondition(
                     []( const ObservationDataset< double, double >& dataset, const unsigned int observationId ) {
                         const ObservationDatasetRow< double >& row = dataset.getObservationRow( observationId );
                         const ObservationSetMetadata< double, double >& metadata = dataset.getObservationSetMetadata( row.setId_ );
@@ -1198,7 +1198,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
             idealObservationsAndTimes->addDependentVariableToSets( elevationAngleSettings );
             idealObservationsAndTimes->addDependentVariableToSets( azimuthStationSettings1 );
             idealObservationsAndTimes->addDependentVariableToSets(
-                    azimuthStationSettings2, ObservationCondition< double, double >::observableType( n_way_differenced_range ) );
+                    azimuthStationSettings2, ObservationSelectionCondition< double, double >::observableType( n_way_differenced_range ) );
             idealObservationsAndTimes->addDependentVariableToSets( limbDistanceSettings );
             idealObservationsAndTimes->addDependentVariableToSets( moonAvoidanceAngleSettings, bodyAvoidanceCondition );
             idealObservationsAndTimes->addDependentVariableToSets( integrationTimeSettings );

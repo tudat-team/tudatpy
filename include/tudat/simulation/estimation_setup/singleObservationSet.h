@@ -486,13 +486,13 @@ public:
 
     void setConstantWeight( const double weight )
     {
-        dataset_->setConstantWeightForSet( setId_, weight );
+        dataset_->setConstantSingleObservationScalarWeightForSet( setId_, weight );
         synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setConstantWeight( const Eigen::Matrix< double, Eigen::Dynamic, 1 >& weight )
     {
-        dataset_->setConstantWeightForSet( setId_, weight );
+        dataset_->setConstantSingleObservationDiagonalWeightForSet( setId_, weight );
         synchronizeLegacyCacheFromObservationDataset( );
     }
 
@@ -536,7 +536,7 @@ public:
                     "incompatible with number of observations." );
         }
 
-        dataset_->removeObservationFromSet( setId_, indexToRemove );
+        dataset_->removeObservationsFromSet( setId_, std::vector< unsigned int >( { indexToRemove } ) );
         synchronizeLegacyCacheFromObservationDataset( );
     }
 

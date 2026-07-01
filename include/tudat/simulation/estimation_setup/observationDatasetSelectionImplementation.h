@@ -24,7 +24,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndDrop(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
 {
     return createNewAndKeep( !condition );
 }
@@ -33,7 +33,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservations(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
     std::vector< std::vector< unsigned int > > indicesToRemoveBySet( getNumberOfObservationSets( ) );
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
@@ -57,16 +57,16 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObserva
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::deleteRejectedObservations( )
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeRejectedObservations( )
 {
-    removeObservations( ObservationCondition< ObservationScalarType, TimeType >::rejected( ) );
+    removeObservations( ObservationSelectionCondition< ObservationScalarType, TimeType >::rejected( ) );
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObservations(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition,
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const std::string& reason )
 {
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
@@ -83,7 +83,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObservations(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
     {

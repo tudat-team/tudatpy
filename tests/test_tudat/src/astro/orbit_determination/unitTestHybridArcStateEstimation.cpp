@@ -307,7 +307,10 @@ Eigen::VectorXd executeParameterEstimation(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set weights
-    observationsAndTimes->setConstantWeightPerObservableType( { { one_way_range, 1.0E-4 }, { angular_position, 1.0E-20 } } );
+    observationsAndTimes->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( one_way_range ), 1.0E-4 );
+    observationsAndTimes->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( angular_position ), 1.0E-20 );
 
     // Perturb parameter vector
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

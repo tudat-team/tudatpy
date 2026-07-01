@@ -48,7 +48,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
 
 else:
     # when building locally, use the binaries generated with tudat-bundle
-    sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+    sys.path.insert(0, os.path.abspath("../../../build/src"))
 
 
 def has_mcd_support():

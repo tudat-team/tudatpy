@@ -957,7 +957,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         // Set observations weights.
         for( unsigned int setId = 0; setId < observationsAndTimes->getNumberOfObservationSets( ); ++setId )
         {
-            observationsAndTimes->setConstantWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
+            observationsAndTimes->setConstantSingleObservationScalarWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
         }
 
         // Define POD input

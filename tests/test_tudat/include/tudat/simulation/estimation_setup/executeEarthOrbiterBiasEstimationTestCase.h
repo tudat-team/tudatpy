@@ -608,11 +608,13 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
             simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    simulatedObservations->setConstantWeightPerObservableType(
-            { { one_way_range, 1.0 / ( 1.0 * 1.0 ) },
-              { n_way_range, 1.0 / ( 1.0 * 1.0 ) },
-              { one_way_doppler,
-                1.0 / ( 1.0E-12 * 1.0E-12 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) } } );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( n_way_range ), 1.0 / ( 1.0 * 1.0 ) );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_doppler ),
+            1.0 / ( 1.0E-12 * 1.0E-12 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT ) );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =

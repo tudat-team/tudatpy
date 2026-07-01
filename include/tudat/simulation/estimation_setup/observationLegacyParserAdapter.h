@@ -28,7 +28,7 @@ namespace observation_models
 //! Evaluate a legacy ObservationCollectionParser against one dataset set.
 /*!
  * This adapter preserves the old set-level parser behavior for compatibility
- * APIs. New row-level selection should use ObservationCondition instead.
+ * APIs. New row-level selection should use ObservationSelectionCondition instead.
  */
 template< typename ObservationScalarType,
           typename TimeType,

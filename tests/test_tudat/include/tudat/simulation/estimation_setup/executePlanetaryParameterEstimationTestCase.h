@@ -243,13 +243,18 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
 
     if( observableType == 4 )
     {
-        simulatedObservations->setConstantWeightPerObservableType( { { one_way_range, 1.0 / ( 1.0 * 1.0 ) },
-                                                                     { angular_position, 1.0 / ( 1.0E-9 * 1.0E-9 ) },
-                                                                     { one_way_doppler, 1.0 / ( 1.0E-12 * 1.0E-12 ) } } );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( angular_position ), 1.0 / ( 1.0E-9 * 1.0E-9 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_doppler ),
+                1.0 / ( 1.0E-12 * 1.0E-12 ) );
     }
     else
     {
-        simulatedObservations->setConstantWeight( weight );
+        simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< StateScalarType, TimeType >::all( ),
+                                                                         weight );
     }
 
     // Perturb parameter estimate.

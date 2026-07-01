@@ -172,6 +172,67 @@ struct ObservationWeightBlock {
     Eigen::MatrixXd weightBlock_;
 };
 
+//! Weight policy used while adding a new observation set.
+/*!
+ * This object keeps the add-observation-set interface small while still
+ * supporting compact scalar weights, per-observation scalar weights,
+ * observable-size per-observation blocks and full set-level blocks.
+ */
+struct ObservationWeightSettings {
+    enum class Type { default_weights, constant_scalar, scalar_per_observation, constant_block, block_per_observation, set_block };
+
+    static ObservationWeightSettings defaultWeights( )
+    {
+        return ObservationWeightSettings( );
+    }
+
+    static ObservationWeightSettings constantScalar( const double weight )
+    {
+        ObservationWeightSettings settings;
+        settings.type_ = Type::constant_scalar;
+        settings.scalarWeight_ = weight;
+        return settings;
+    }
+
+    static ObservationWeightSettings scalarPerObservation( const std::vector< double >& weights )
+    {
+        ObservationWeightSettings settings;
+        settings.type_ = Type::scalar_per_observation;
+        settings.scalarWeights_ = weights;
+        return settings;
+    }
+
+    static ObservationWeightSettings constantBlock( const Eigen::MatrixXd& weightBlock )
+    {
+        ObservationWeightSettings settings;
+        settings.type_ = Type::constant_block;
+        settings.weightBlock_ = weightBlock;
+        return settings;
+    }
+
+    static ObservationWeightSettings blockPerObservation( const std::vector< Eigen::MatrixXd >& weightBlocks )
+    {
+        ObservationWeightSettings settings;
+        settings.type_ = Type::block_per_observation;
+        settings.weightBlocks_ = weightBlocks;
+        return settings;
+    }
+
+    static ObservationWeightSettings setBlock( const Eigen::MatrixXd& weightBlock )
+    {
+        ObservationWeightSettings settings;
+        settings.type_ = Type::set_block;
+        settings.weightBlock_ = weightBlock;
+        return settings;
+    }
+
+    Type type_ = Type::default_weights;
+    double scalarWeight_ = 1.0;
+    std::vector< double > scalarWeights_;
+    Eigen::MatrixXd weightBlock_;
+    std::vector< Eigen::MatrixXd > weightBlocks_;
+};
+
 //! Storage for all observation weights in an ObservationDataset.
 /*!
  * The common path stores one compact PerObservationWeight per observation row.

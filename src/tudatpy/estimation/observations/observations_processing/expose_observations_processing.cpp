@@ -37,12 +37,12 @@ std::string getObservationProcessingReplacement( const std::string& interfaceNam
 {
     if( interfaceName == "observation_filter" )
     {
-        return "tudatpy.estimation.observations.ObservationCondition with ObservationDataset.reject_observations or "
+        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.reject_observations or "
                "ObservationDataset.create_new_and_drop";
     }
     if( interfaceName == "observation_parser" )
     {
-        return "tudatpy.estimation.observations.ObservationCondition with ObservationDataset.create_viewer, "
+        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.create_viewer, "
                "ObservationDataset.create_new_and_keep or ObservationDataset.create_new_and_drop";
     }
     if( interfaceName == "observation_set_splitter" )
@@ -58,7 +58,7 @@ std::string getObservationProcessingApiReferenceLink( const std::string& interfa
     if( interfaceName == "observation_filter" || interfaceName == "observation_parser" )
     {
         return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
-               "ObservationCondition";
+               "ObservationSelectionCondition";
     }
     return "https://py.api.tudat.space/en/latest/estimation/observations.html#tudatpy.estimation.observations."
            "ObservationDataset";

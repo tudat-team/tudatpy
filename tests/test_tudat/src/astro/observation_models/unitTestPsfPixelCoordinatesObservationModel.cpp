@@ -166,8 +166,8 @@ Eigen::Vector2d getObservationFromDatasetAtTime(
         const double observationTime )
 {
     const std::vector< unsigned int > matchingObservationIds = observationDataset->getObservationIdsMatchingCondition(
-            observation_models::ObservationCondition< double, double >::observableType( observation_models::pixel_coordinates ) &&
-            observation_models::ObservationCondition< double, double >::linkDefinition( linkDefinition ) );
+            observation_models::ObservationSelectionCondition< double, double >::observableType( observation_models::pixel_coordinates ) &&
+            observation_models::ObservationSelectionCondition< double, double >::linkDefinition( linkDefinition ) );
 
     for( const unsigned int observationId : matchingObservationIds )
     {

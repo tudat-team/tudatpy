@@ -116,7 +116,8 @@ public:
      */
     void setConstantWeightsMatrix( const double constantWeight = 1.0 )
     {
-        observationDataset_->setConstantWeight( constantWeight );
+        observationDataset_->setConstantSingleObservationScalarWeight(
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ), constantWeight );
     }
 
     //! Set constant scalar weight for all observables of given type
@@ -129,16 +130,16 @@ public:
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
 
-        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                observationDataset_->getObservableTypeStartAndSize( );
-        if( observationTypeStartAndSize.count( currentObservable ) == 0 )
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
+        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
         {
             std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
                       << " No data of given type found." << std::endl;
         }
         else
         {
-            observationDataset_->setConstantWeight( weight, observationParser( currentObservable ) );
+            observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
         }
     }
 
@@ -153,16 +154,16 @@ public:
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
 
-        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                observationDataset_->getObservableTypeStartAndSize( );
-        if( observationTypeStartAndSize.count( currentObservable ) == 0 )
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
+        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
         {
             std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
                       << " No data of given type found." << std::endl;
         }
         else
         {
-            observationDataset_->setConstantWeight( weight, observationParser( currentObservable ) );
+            observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
         }
     }
 
@@ -177,12 +178,11 @@ public:
                      "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerParser;
-        std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser =
-                observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
-        weightsPerParser[ multiTypeParser ] = weight;
-        observationDataset_->setConstantWeightPerObservable( weightsPerParser );
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
+                        observation_models::LinkDefinition( currentLinkEnds ) );
+        observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -196,12 +196,11 @@ public:
                      "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerParser;
-        std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser =
-                observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
-        weightsPerParser[ multiTypeParser ] = weight;
-        observationDataset_->setConstantWeightPerObservable( weightsPerParser );
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
+                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
+                        observation_models::LinkDefinition( currentLinkEnds ) );
+        observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -235,12 +234,13 @@ public:
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
 
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
         for( auto observableIt : weightPerObservable )
         {
-            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
+            observationDataset_->setConstantSingleObservationScalarWeight(
+                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
+                            observableIt.first ),
+                    observableIt.second );
         }
-        observationDataset_->setConstantWeightPerObservable( weightsPerObservationParser );
     }
 
     void setConstantPerObservableVectorWeightsMatrix(
@@ -252,12 +252,13 @@ public:
                      "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
         for( auto observableIt : weightPerObservable )
         {
-            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
+            observationDataset_->setConstantSingleObservationDiagonalWeight(
+                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
+                            observableIt.first ),
+                    observableIt.second );
         }
-        observationDataset_->setConstantWeightPerObservable( weightsPerObservationParser );
     }
 
     //! Function to set a values for observation weights, constant per observable type and link ends type
@@ -275,18 +276,18 @@ public:
                      "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
         for( auto observableIt : weightPerObservableAndLinkEnds )
         {
             for( auto linkEndsIt : observableIt.second )
             {
-                weightPerObservationParser[ observationParser(
-                        std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                                { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] =
-                        linkEndsIt.second;
+                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
+                                observableIt.first ) &&
+                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
+                                observation_models::LinkDefinition( linkEndsIt.first ) );
+                observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, linkEndsIt.second );
             }
         }
-        observationDataset_->setConstantWeightPerObservable( weightPerObservationParser );
     }
 
     void setConstantPerObservableAndLinkEndsVectorWeights(
@@ -299,18 +300,18 @@ public:
                      "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
                      "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
         for( auto observableIt : weightPerObservableAndLinkEnds )
         {
             for( auto linkEndsIt : observableIt.second )
             {
-                weightPerObservationParser[ observationParser(
-                        std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                                { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] =
-                        linkEndsIt.second;
+                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
+                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
+                                observableIt.first ) &&
+                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
+                                observation_models::LinkDefinition( linkEndsIt.first ) );
+                observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, linkEndsIt.second );
             }
         }
-        observationDataset_->setConstantWeightPerObservable( weightPerObservationParser );
     }
 
     void setConstantPerObservableAndLinkEndsWeights( const observation_models::ObservableType observableType,

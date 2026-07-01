@@ -193,9 +193,12 @@ std::shared_ptr< ObservationDataset< double, double > > setUpObservationDatasetT
     std::shared_ptr< ObservationDataset< double, double > > dataset = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    dataset->setConstantWeightPerObservableType( { { one_way_range, 1.0 / ( 3.0 * 3.0 ) },
-                                                   { angular_position, 1.0 / ( 1.0E-5 * 1.0E-5 ) },
-                                                   { one_way_doppler, 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) } } );
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( one_way_range ),
+                                                       1.0 / ( 3.0 * 3.0 ) );
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( angular_position ),
+                                                       1.0 / ( 1.0E-5 * 1.0E-5 ) );
+    dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( one_way_doppler ),
+                                                       1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
 
     return dataset;
 }
@@ -314,15 +317,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
     BOOST_CHECK_EQUAL( station1SetIds.size( ), 2 );
 
     const std::vector< unsigned int > firstDayRangeIds = dataset->getObservationIdsMatchingCondition(
-            ObservationCondition< double, double >::observableType( one_way_range ) &&
-            ObservationCondition< double, double >::timeBounds( startTime, startTime + 86400.0 ) );
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::timeBounds( startTime, startTime + 86400.0 ) );
 
     // Combining observable and time conditions must select one day of range observations for all stations.
     BOOST_CHECK_EQUAL( firstDayRangeIds.size( ), 3 * numberOfObservations );
 
-    const ObservationCondition< double, double > station2RangeCondition =
-            ObservationCondition< double, double >::observableType( one_way_range ) &&
-            ObservationCondition< double, double >::linkEnd( receiver, LinkEndId( "Earth", "Station2" ) );
+    const ObservationSelectionCondition< double, double > station2RangeCondition =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::linkEnd( receiver, LinkEndId( "Earth", "Station2" ) );
     const std::vector< unsigned int > station2RangeIds = dataset->getObservationIdsMatchingCondition( station2RangeCondition );
 
     // Combining observable and link-end conditions must isolate one station's range set.
@@ -381,9 +384,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
     cutOffValueMean /= static_cast< double >( dataset->getNumberOfObservationsForSet( rangeSetIds.at( 0 ) ) );
 
     const Eigen::VectorXd rangeLimit = ( Eigen::VectorXd( 1 ) << cutOffValueMean ).finished( );
-    const ObservationCondition< double, double > highRangeValues =
-            ObservationCondition< double, double >::observableType( one_way_range ) &&
-            ObservationCondition< double, double >::observationAbsoluteValueGreaterThan( rangeLimit );
+    const ObservationSelectionCondition< double, double > highRangeValues =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::observationAbsoluteValueGreaterThan( rangeLimit );
 
     const std::vector< unsigned int > rejectedRangeIds = dataset->getObservationIdsMatchingCondition( highRangeValues );
 
@@ -394,33 +397,33 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
     dataset->rejectObservations( highRangeValues, "range value threshold" );
 
     // Rejection must affect rejected-row queries, rejected viewers and active-only flattened data consistently.
-    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationCondition< double, double >::rejected( ) ).size( ),
+    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
                        rejectedRangeIds.size( ) );
-    BOOST_CHECK_EQUAL( dataset->createViewer( ObservationCondition< double, double >::rejected( ) ).getNumberOfObservations( ),
+    BOOST_CHECK_EQUAL( dataset->createViewer( ObservationSelectionCondition< double, double >::rejected( ) ).getNumberOfObservations( ),
                        rejectedRangeIds.size( ) );
     BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), originalScalarSize );
     BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ),
                        originalScalarSize - static_cast< int >( rejectedRangeIds.size( ) ) );
 
     const std::shared_ptr< ObservationDataset< double, double > > activeDataset =
-            dataset->createNewAndKeep( ObservationCondition< double, double >::active( ) );
+            dataset->createNewAndKeep( ObservationSelectionCondition< double, double >::active( ) );
 
     // A reduced active dataset must contain exactly the observations not rejected above.
     BOOST_CHECK_EQUAL( activeDataset->getNumberOfObservations( ), dataset->getNumberOfObservations( ) - rejectedRangeIds.size( ) );
 
-    dataset->restoreObservations( ObservationCondition< double, double >::rejected( ) );
+    dataset->restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
 
     // Restoration must make all observations active again and recover the original flattened data size.
-    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationCondition< double, double >::active( ) ).size( ),
+    BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::active( ) ).size( ),
                        dataset->getNumberOfObservations( ) );
     BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), originalScalarSize );
 
     const std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     const std::pair< double, double > middleRangeWindow =
             std::make_pair( rangeObsTimes.at( numberOfObservations / 3 ), rangeObsTimes.at( 2 * numberOfObservations / 3 ) );
-    const ObservationCondition< double, double > middleRangeValues =
-            ObservationCondition< double, double >::observableType( one_way_range ) &&
-            ObservationCondition< double, double >::timeBounds( middleRangeWindow.first, middleRangeWindow.second );
+    const ObservationSelectionCondition< double, double > middleRangeValues =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::timeBounds( middleRangeWindow.first, middleRangeWindow.second );
     const std::shared_ptr< ObservationDataset< double, double > > middleRangeDataset = dataset->createNewAndKeep( middleRangeValues );
 
     // A reduced range-only time-window dataset must retain all three range sets with the expected inclusive time count.

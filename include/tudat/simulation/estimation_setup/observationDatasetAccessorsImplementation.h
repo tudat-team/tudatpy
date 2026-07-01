@@ -209,23 +209,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariab
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIds(
-        const std::shared_ptr< ObservationCollectionParser >& observationParser ) const
-{
-    std::vector< unsigned int > setIds;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        if( isObservationSetSelectedByLegacyParser( *this, setId, observationParser ) )
-        {
-            setIds.push_back( setId );
-        }
-    }
-    return setIds;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsForDependentVariableSettings(
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
 {
@@ -328,7 +311,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentVariableToSets(
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
-        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
     for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
     {
@@ -378,7 +361,7 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationIdsMatchingCondition(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
 {
     std::vector< unsigned int > observationIds;
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
@@ -396,7 +379,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
-        const ObservationCondition< ObservationScalarType, TimeType >& condition ) const
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const
 {
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > reducedDataset =
             std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );

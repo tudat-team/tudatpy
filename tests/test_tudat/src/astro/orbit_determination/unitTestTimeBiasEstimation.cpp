@@ -241,7 +241,8 @@ int main( )
         std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-        simulatedObservations->setConstantWeightForObservableType( one_way_doppler, 1.0 / ( 0.1 * 0.1 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< double, double >::observableType( one_way_doppler ), 1.0 / ( 0.1 * 0.1 ) );
 
         // Perturb parameter estimate
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

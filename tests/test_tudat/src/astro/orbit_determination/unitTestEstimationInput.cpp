@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-    simulatedObservations->setConstantWeight( 1.0 );
+    simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::all( ), 1.0 );
 
     const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( );
 
@@ -476,11 +476,11 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     const unsigned int rejectedObservationId = simulatedObservations->getObservationIdsForSet( rangeSetIds.at( 0 ) ).at( 1 );
     const unsigned int rejectedObservationSize = simulatedObservations->getObservationRow( rejectedObservationId ).scalarSize_;
-    const ObservationCondition< double, double > rejectedObservationCondition(
+    const ObservationSelectionCondition< double, double > rejectedObservationSelectionCondition(
             [ rejectedObservationId ]( const ObservationDataset< double, double >&, const unsigned int observationId ) {
                 return observationId == rejectedObservationId;
             } );
-    simulatedObservations->rejectObservations( rejectedObservationCondition, "excluded from estimation system" );
+    simulatedObservations->rejectObservations( rejectedObservationSelectionCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
     const FlattenedObservationData< double, double > activeData = simulatedObservations->createOrderedFlattenedObservationData( false );

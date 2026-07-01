@@ -95,7 +95,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setLinkEndRef
         const std::string& bodyName,
         const std::string& referencePointName,
         const LinkEndType linkEndType,
-        const ObservationCondition< ObservationScalarType, TimeType >& condition )
+        const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
     bool hasUpdatedSet = false;
     for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
@@ -464,117 +464,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetS
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< std::pair< int, int > > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetStartAndSize( ) const
-{
-    std::vector< std::pair< int, int > > startAndSize;
-    startAndSize.reserve( getNumberOfObservationSets( ) );
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        startAndSize.push_back( std::make_pair( currentIndex, currentSize ) );
-        currentIndex += currentSize;
-    }
-    return startAndSize;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetStartAndSizeByLink( ) const
-{
-    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > startAndSizeByLink;
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
-        const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        startAndSizeByLink[ metadata.observableType_ ][ linkEnds ].push_back( std::make_pair( currentIndex, currentSize ) );
-        currentIndex += currentSize;
-    }
-    return startAndSizeByLink;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationTypeAndLinkEndStartAndSize( ) const
-{
-    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > startAndSize;
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
-        const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        if( startAndSize[ metadata.observableType_ ].count( linkEnds ) == 0 )
-        {
-            startAndSize[ metadata.observableType_ ][ linkEnds ] = std::make_pair( currentIndex, currentSize );
-        }
-        else
-        {
-            startAndSize[ metadata.observableType_ ][ linkEnds ].second += currentSize;
-        }
-        currentIndex += currentSize;
-    }
-    return startAndSize;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::map< ObservableType, std::pair< int, int > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservableTypeStartAndSize( ) const
-{
-    std::map< ObservableType, std::pair< int, int > > startAndSize;
-    int currentIndex = 0;
-
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        const ObservableType observableType = getObservationSetMetadata( setId ).observableType_;
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        if( startAndSize.count( observableType ) == 0 )
-        {
-            startAndSize[ observableType ] = std::make_pair( currentIndex, currentSize );
-        }
-        else
-        {
-            startAndSize[ observableType ].second += currentSize;
-        }
-        currentIndex += currentSize;
-    }
-    return startAndSize;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::map< ObservableType, std::vector< LinkEnds > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getLinkEndsPerObservableType( ) const
-{
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
-    {
-        const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
-        const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
-        std::vector< LinkEnds >& linkEndsForType = linkEndsPerObservableType[ metadata.observableType_ ];
-        if( std::count( linkEndsForType.begin( ), linkEndsForType.end( ), linkEnds ) == 0 )
-        {
-            linkEndsForType.push_back( linkEnds );
-        }
-    }
-    return linkEndsPerObservableType;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsForObservableType(
         const ObservableType observableType ) const
 {
@@ -607,56 +496,6 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationVectorForObservableType(
-        const ObservableType observableType ) const
-{
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations =
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( getTotalScalarSizeForObservableType( observableType ) );
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getObservationSetIdsForObservableType( observableType ) )
-    {
-        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > setObservations = getObservationVectorForSet( setId );
-        observations.segment( currentIndex, setObservations.size( ) ) = setObservations;
-        currentIndex += setObservations.size( );
-    }
-    return observations;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setObservationVectorForObservableType(
-        const ObservableType observableType,
-        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations )
-{
-    if( observations.size( ) != static_cast< int >( getTotalScalarSizeForObservableType( observableType ) ) )
-    {
-        throw std::runtime_error( "Error when setting observable-type observation vector, input size is inconsistent." );
-    }
-
-    int currentIndex = 0;
-    for( const unsigned int setId : getObservationSetIdsForObservableType( observableType ) )
-    {
-        const int setSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        setObservationVectorForSet( setId, observations.segment( currentIndex, setSize ) );
-        currentIndex += setSize;
-    }
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightVectorForObservableType( const ObservableType observableType,
-                                                                                                     const Eigen::VectorXd& weights )
-{
-    setTabulatedWeights( weights, observationParser( observableType ) );
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkObservations( const ObservableType observableType,
                                                                                          const LinkDefinition& linkDefinition ) const
 {
@@ -681,9 +520,9 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkObser
         const ObservableType observableType,
         const LinkDefinition& linkDefinition ) const
 {
-    const ObservationCondition< ObservationScalarType, TimeType > condition =
-            ObservationCondition< ObservationScalarType, TimeType >::observableType( observableType ) &&
-            ObservationCondition< ObservationScalarType, TimeType >::linkDefinition( linkDefinition );
+    const ObservationSelectionCondition< ObservationScalarType, TimeType > condition =
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( observableType ) &&
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition( linkDefinition );
     const FlattenedObservationData< ObservationScalarType, TimeType > flattenedData =
             createFlattenedObservationDataFromObservationIds( getObservationIdsMatchingCondition( condition ), true );
     if( flattenedData.getObservationVector( ).size( ) == 0 )

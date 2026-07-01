@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
                                                   { ( Eigen::Vector2d( ) << 1.0, 2.0 ).finished( ) } ),
                        std::runtime_error );
     BOOST_CHECK_THROW( dataset.setObservationVectorForSet( emptySetId, ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ) ), std::runtime_error );
-    BOOST_CHECK_THROW( dataset.removeObservationFromSet( emptySetId, 0 ), std::runtime_error );
+    BOOST_CHECK_THROW( dataset.removeObservationsFromSet( emptySetId, std::vector< unsigned int >( { 0 } ) ), std::runtime_error );
 }
 
 /*!
@@ -739,13 +739,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
     BOOST_CHECK_EQUAL_COLLECTIONS(
             sortedUniqueTimes.begin( ), sortedUniqueTimes.end( ), expectedSortedUniqueTimes.begin( ), expectedSortedUniqueTimes.end( ) );
 
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::residualAbsoluteValueGreaterThan(
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
                       ( Eigen::VectorXd( 1 ) << 0.25 ).finished( ) ) ),
               { 1 } );
 
     // Value- and residual-based conditions must operate on the sorted, duplicate-free rows.
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::observationAbsoluteValueGreaterThan(
-                      ( Eigen::VectorXd( 1 ) << 12.0 ).finished( ) ) ),
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::observationAbsoluteValueGreaterThan(
+                              ( Eigen::VectorXd( 1 ) << 12.0 ).finished( ) ) ),
               { 1 } );
 
     ObservationDataset< double, double > targetDataset;
@@ -773,7 +774,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
 }
 
 /*!
- * Verifies row-level ObservationCondition selection logic.
+ * Verifies row-level ObservationSelectionCondition selection logic.
  *
  * Test outline: creates observations with link metadata, values, residuals, weights,
  * dependent variables and active/rejected status. It checks that each condition
@@ -820,71 +821,109 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
                                std::vector< Eigen::VectorXd >( ),
                                { ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ), ( Eigen::Vector2d( ) << 0.7, 0.1 ).finished( ) } );
 
+    // Set-id conditions must be backend conditions, not Python-only convenience filters.
+    const ObservationSelectionCondition< double, double > secondSet = ObservationSelectionCondition< double, double >::setId( 1 );
+    BOOST_CHECK( secondSet.getConditionType( ) == ObservationSelectionConditionType::set_id );
+    BOOST_CHECK_EQUAL( secondSet.getConditionTypeString( ), "set_id" );
+    BOOST_CHECK_EQUAL( secondSet.getSetId( ), 1 );
+    checkIds( dataset.getObservationIdsMatchingCondition( secondSet ), { 3, 4 } );
+
     // Link-based conditions must match rows by complete link definition, link-end type and individual link end.
-    checkIds(
-            dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::linkDefinition( station2LinkDefinition ) ),
-            { 3, 4 } );
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::linkEndType( transmitter ) ),
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::linkDefinition( station2LinkDefinition ) ),
+              { 3, 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::linkEndType( transmitter ) ),
               { 0, 1, 2, 3, 4 } );
     checkIds( dataset.getObservationIdsMatchingCondition(
-                      ObservationCondition< double, double >::linkEnd( transmitter, LinkEndId( "Earth", "Station1" ) ) ),
+                      ObservationSelectionCondition< double, double >::linkEnd( transmitter, LinkEndId( "Earth", "Station1" ) ) ),
               { 0, 1, 2 } );
 
-    const ObservationCondition< double, double > rangeOrLastAngular =
-            ObservationCondition< double, double >::observableType( one_way_range ) ||
-            ObservationCondition< double, double >::timeBounds( 4.5, 5.5 );
+    const ObservationSelectionCondition< double, double > rangeOrLastAngular =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) ||
+            ObservationSelectionCondition< double, double >::timeBounds( 4.5, 5.5 );
 
     // Query-tree metadata must expose the logical operator and its two typed child conditions.
-    BOOST_CHECK( rangeOrLastAngular.getConditionType( ) == ObservationConditionType::or_condition );
+    BOOST_CHECK( rangeOrLastAngular.getConditionType( ) == ObservationSelectionConditionType::or_condition );
     BOOST_CHECK_EQUAL( rangeOrLastAngular.getChildConditions( ).size( ), 2 );
-    BOOST_CHECK( rangeOrLastAngular.getChildConditions( ).at( 0 ).getConditionType( ) == ObservationConditionType::observable_type );
-    BOOST_CHECK( rangeOrLastAngular.getChildConditions( ).at( 1 ).getConditionType( ) == ObservationConditionType::time_bounds );
+    BOOST_CHECK( rangeOrLastAngular.getChildConditions( ).at( 0 ).getConditionType( ) ==
+                 ObservationSelectionConditionType::observable_type );
+    BOOST_CHECK( rangeOrLastAngular.getChildConditions( ).at( 1 ).getConditionType( ) == ObservationSelectionConditionType::time_bounds );
     BOOST_CHECK_EQUAL( rangeOrLastAngular.getChildConditions( ).at( 0 ).getObservableType( ), one_way_range );
     BOOST_CHECK_CLOSE_FRACTION( rangeOrLastAngular.getChildConditions( ).at( 1 ).getTimeBounds( ).first, 4.5, 1.0E-15 );
+
+    // One-sided time comparison conditions must expose their comparison value and select expected rows.
+    const ObservationSelectionCondition< double, double > afterOrAtFour =
+            ObservationSelectionCondition< double, double >::timeGreaterEqual( 4.0 );
+    BOOST_CHECK( afterOrAtFour.getConditionType( ) == ObservationSelectionConditionType::time_greater_equal );
+    BOOST_CHECK_CLOSE_FRACTION( afterOrAtFour.getTimeValue( ), 4.0, 1.0E-15 );
+    checkIds( dataset.getObservationIdsMatchingCondition( afterOrAtFour ), { 3, 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::timeGreaterThan( 4.0 ) ),
+              { 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::timeLessEqual( 2.0 ) ),
+              { 0, 1 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::timeLessThan( 2.0 ) ), { 0 } );
 
     // Boolean condition composition must support unions and complements of row selections.
     checkIds( dataset.getObservationIdsMatchingCondition( rangeOrLastAngular ), { 0, 1, 2, 4 } );
 
-    const ObservationCondition< double, double > outsideMiddleTimes = !ObservationCondition< double, double >::timeBounds( 2.0, 4.0 );
+    const ObservationSelectionCondition< double, double > outsideMiddleTimes =
+            !ObservationSelectionCondition< double, double >::timeBounds( 2.0, 4.0 );
 
     // Negated conditions must expose their child while evaluating the complement selection.
-    BOOST_CHECK( outsideMiddleTimes.getConditionType( ) == ObservationConditionType::not_condition );
+    BOOST_CHECK( outsideMiddleTimes.getConditionType( ) == ObservationSelectionConditionType::not_condition );
     BOOST_CHECK_EQUAL( outsideMiddleTimes.getChildConditions( ).size( ), 1 );
     checkIds( dataset.getObservationIdsMatchingCondition( outsideMiddleTimes ), { 0, 4 } );
 
     // Value, residual and dependent-variable conditions must compare component-wise vectors of matching size.
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::observableType( one_way_range ) &&
-                                                          ObservationCondition< double, double >::residualAbsoluteValueGreaterThan(
-                                                                  ( Eigen::VectorXd( 1 ) << 0.5 ).finished( ) ) ),
-              { 1 } );
+    checkIds(
+            dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+                                                        ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
+                                                                ( Eigen::VectorXd( 1 ) << 0.5 ).finished( ) ) ),
+            { 1 } );
 
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::observableType( angular_position ) &&
-                                                          ObservationCondition< double, double >::observationAbsoluteValueGreaterThan(
-                                                                  ( Eigen::Vector2d( ) << 2.5, 3.5 ).finished( ) ) ),
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::observableType( angular_position ) &&
+                      ObservationSelectionCondition< double, double >::observationAbsoluteValueGreaterThan(
+                              ( Eigen::Vector2d( ) << 2.5, 3.5 ).finished( ) ) ),
               { 4 } );
 
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::dependentVariableGreaterThan(
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan(
                       elevationSettings, ( Eigen::VectorXd( 1 ) << 0.3 ).finished( ) ) ),
               { 1 } );
 
-    // Conditions with incompatible vector sizes must fail before selecting rows.
-    BOOST_CHECK_THROW( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::residualAbsoluteValueGreaterThan(
-                               ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
-                       std::runtime_error );
-    BOOST_CHECK_THROW( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::dependentVariableGreaterThan(
-                               elevationSettings, ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
-                       std::runtime_error );
+    // Scalar limits broadcast across vector-valued observations and select a row when any component exceeds the limit.
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::observableType( angular_position ) &&
+                      ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan( 0.6 ) ),
+              { 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::observableType( angular_position ) &&
+                      ObservationSelectionCondition< double, double >::observationAbsoluteValueGreaterThan( 3.5 ) ),
+              { 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition(
+                      ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( elevationSettings, 0.3 ) ),
+              { 1 } );
 
-    dataset.rejectObservations(
-            ObservationCondition< double, double >::observableType( one_way_range ) &&
-                    ObservationCondition< double, double >::residualAbsoluteValueGreaterThan( ( Eigen::VectorXd( 1 ) << 0.5 ).finished( ) ),
-            "large residual" );
+    // Conditions with incompatible vector sizes must fail before selecting rows.
+    BOOST_CHECK_THROW(
+            dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
+                    ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
+            std::runtime_error );
+    BOOST_CHECK_THROW(
+            dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan(
+                    elevationSettings, ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
+            std::runtime_error );
+
+    dataset.rejectObservations( ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+                                        ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
+                                                ( Eigen::VectorXd( 1 ) << 0.5 ).finished( ) ),
+                                "large residual" );
 
     // Rejection and restoration conditions must toggle row status without changing row ids.
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::rejected( ) ), { 1 } );
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::active( ) ), { 0, 2, 3, 4 } );
-    dataset.restoreObservations( ObservationCondition< double, double >::rejected( ) );
-    checkIds( dataset.getObservationIdsMatchingCondition( ObservationCondition< double, double >::active( ) ), { 0, 1, 2, 3, 4 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::rejected( ) ), { 1 } );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::active( ) ), { 0, 2, 3, 4 } );
+    dataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
+    checkIds( dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::active( ) ), { 0, 1, 2, 3, 4 } );
 }
 
 /*!
@@ -920,8 +959,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
                                  ( Eigen::VectorXd( 1 ) << 0.3 ).finished( ),
                                  ( Eigen::VectorXd( 1 ) << 0.4 ).finished( ) } );
 
-    const ObservationCondition< double, double > middleTimes = ObservationCondition< double, double >::observableType( one_way_range ) &&
-            ObservationCondition< double, double >::timeBounds( 1.5, 3.5 );
+    const ObservationSelectionCondition< double, double > middleTimes =
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
+            ObservationSelectionCondition< double, double >::timeBounds( 1.5, 3.5 );
     const std::vector< unsigned int > selectedObservationIds = dataset.getObservationIdsMatchingCondition( middleTimes );
     const std::vector< unsigned int > expectedSelectedObservationIds = { 1, 2 };
 
@@ -956,7 +996,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             droppedDataset->createEstimationFlattenedObservationData( ).getObservationVector( ), expectedDroppedObservations, 1.0E-15 );
 
-    dataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 2.5, 3.5 ), "test rejection" );
+    dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), "test rejection" );
 
     // Rejection must store row status and reason while removing the row from active flattened data.
     BOOST_CHECK( !dataset.getObservationRow( 2 ).isActive_ );
@@ -967,17 +1007,17 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             dataset.createEstimationFlattenedObservationData( ).getObservationVector( ), expectedActiveObservations, 1.0E-15 );
     BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), 4 );
-    BOOST_CHECK_EQUAL( dataset.createViewer( ObservationCondition< double, double >::rejected( ) ).getNumberOfObservations( ), 1 );
+    BOOST_CHECK_EQUAL( dataset.createViewer( ObservationSelectionCondition< double, double >::rejected( ) ).getNumberOfObservations( ), 1 );
 
-    dataset.restoreObservations( ObservationCondition< double, double >::rejected( ) );
+    dataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
 
     // Restoration must reactivate rejected rows and clear their rejection reason.
     BOOST_CHECK( dataset.getObservationRow( 2 ).isActive_ );
     BOOST_CHECK( dataset.getObservationRow( 2 ).rejectionReason_.empty( ) );
     BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), 4 );
 
-    dataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 2.5, 3.5 ), "delete rejection" );
-    dataset.deleteRejectedObservations( );
+    dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), "delete rejection" );
+    dataset.removeRejectedObservations( );
 
     // Deleting rejected rows is explicit and physically removes rows from the dataset.
     Eigen::VectorXd expectedAfterRejectedDeletion( 3 );
@@ -985,9 +1025,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterRejectedDeletion, 1.0E-15 );
-    BOOST_CHECK_EQUAL( dataset.createViewer( ObservationCondition< double, double >::rejected( ) ).getNumberOfObservations( ), 0 );
+    BOOST_CHECK_EQUAL( dataset.createViewer( ObservationSelectionCondition< double, double >::rejected( ) ).getNumberOfObservations( ), 0 );
 
-    dataset.removeObservations( ObservationCondition< double, double >::timeBounds( 3.5, 4.5 ) );
+    dataset.removeObservations( ObservationSelectionCondition< double, double >::timeBounds( 3.5, 4.5 ) );
 
     // Direct condition-based removal must provide the destructive counterpart to createNewAndDrop.
     Eigen::VectorXd expectedAfterConditionRemoval( 2 );
@@ -997,7 +1037,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
             dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterConditionRemoval, 1.0E-15 );
 
     const ObservationDatasetViewer< double, double > invalidatedViewer =
-            dataset.createViewer( ObservationCondition< double, double >::all( ) );
+            dataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
     dataset.addObservationSet( one_way_range, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );
 
     // Structural dataset mutations must invalidate previously created viewers.
@@ -1018,13 +1058,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
 
     ObservationDataset< double, double > scalarWeightDataset;
-    const int scalarSetId = scalarWeightDataset.addObservationSetWithScalarWeight(
+    const int scalarSetId = scalarWeightDataset.addObservationSetWithWeights(
             angular_position,
             linkDefinition,
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            5.0 );
+            ObservationWeightSettings::constantScalar( 5.0 ) );
 
     // Scalar-weight construction must remain diagonal-only and expose no per-observation matrix blocks.
     BOOST_CHECK_EQUAL( scalarSetId, 0 );
@@ -1042,13 +1082,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     Eigen::Matrix2d observationWeightBlock;
     observationWeightBlock << 2.0, 0.5, 0.5, 3.0;
     ObservationDataset< double, double > blockWeightDataset;
-    const int blockSetId = blockWeightDataset.addObservationSetWithWeightBlock(
+    const int blockSetId = blockWeightDataset.addObservationSetWithWeights(
             angular_position,
             linkDefinition,
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            observationWeightBlock );
+            ObservationWeightSettings::constantBlock( observationWeightBlock ) );
     Eigen::MatrixXd expectedObservationBlockMatrix = Eigen::MatrixXd::Zero( 4, 4 );
     expectedObservationBlockMatrix.block( 0, 0, 2, 2 ) = observationWeightBlock;
     expectedObservationBlockMatrix.block( 2, 2, 2, 2 ) = observationWeightBlock;
@@ -1066,16 +1106,64 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     // Compact weight-vector access must return the diagonal of repeated per-observation blocks.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( blockWeightDataset.getWeightVectorForSet( blockSetId ), expectedBlockWeightDiagonal, 1.0E-15 );
 
+    ObservationDataset< double, double > setConstantMatrixDataset;
+    const int constantMatrixSetId = setConstantMatrixDataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver );
+    setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, observationWeightBlock );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setConstantMatrixDataset.createEstimationFlattenedObservationData( ).getWeightMatrix( ).toDense( ),
+                                       expectedObservationBlockMatrix,
+                                       1.0E-15 );
+    BOOST_CHECK_THROW(
+            setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, Eigen::Matrix3d::Identity( ) ),
+            std::runtime_error );
+
+    ObservationDataset< double, double > conditionWeightDataset;
+    const int conditionRangeSetId =
+            conditionWeightDataset.addObservationSet( one_way_range,
+                                                      linkDefinition,
+                                                      { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                      { 1.0, 2.0 },
+                                                      receiver );
+    const int conditionAngularSetId = conditionWeightDataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ), ( Eigen::Vector2d( ) << 40.0, 41.0 ).finished( ) },
+            { 3.0, 4.0 },
+            receiver );
+    conditionWeightDataset.setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< double, double >::observableType( one_way_range ), 7.0 );
+    conditionWeightDataset.setConstantSingleObservationDiagonalWeight(
+            ObservationSelectionCondition< double, double >::timeBounds( 3.5, 4.5 ), ( Eigen::Vector2d( ) << 8.0, 9.0 ).finished( ) );
+    conditionWeightDataset.setConstantSingleObservationMatrixWeight(
+            ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), observationWeightBlock );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            conditionWeightDataset.getWeightVectorForSet( conditionRangeSetId ), 7.0 * Eigen::Vector2d::Ones( ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( conditionWeightDataset.getWeightMatrixForObservation(
+                                               conditionWeightDataset.getObservationIdsForSet( conditionAngularSetId ).at( 0 ) ),
+                                       observationWeightBlock,
+                                       1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            conditionWeightDataset.getWeightValue( conditionWeightDataset.getObservationIdsForSet( conditionAngularSetId ).at( 1 ) ),
+            ( Eigen::Vector2d( ) << 8.0, 9.0 ).finished( ),
+            1.0E-15 );
+    BOOST_CHECK_THROW( conditionWeightDataset.setConstantSingleObservationDiagonalWeight(
+                               ObservationSelectionCondition< double, double >::all( ), ( Eigen::Vector2d( ) << 1.0, 2.0 ).finished( ) ),
+                       std::runtime_error );
+
     Eigen::MatrixXd setWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
     setWeightBlock << 1.0, 0.1, 0.2, 0.3, 0.1, 2.0, 0.4, 0.5, 0.2, 0.4, 3.0, 0.6, 0.3, 0.5, 0.6, 4.0;
     ObservationDataset< double, double > setBlockWeightDataset;
-    const int setBlockSetId = setBlockWeightDataset.addObservationSetWithSetWeightBlock(
+    const int setBlockSetId = setBlockWeightDataset.addObservationSetWithWeights(
             angular_position,
             linkDefinition,
             { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
             { 1.0, 2.0 },
             receiver,
-            setWeightBlock );
+            ObservationWeightSettings::setBlock( setWeightBlock ) );
 
     // A set-level weight block must be stored as one matrix spanning the full scalar range of the set.
     BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
@@ -1086,13 +1174,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             setBlockWeightDataset.createEstimationFlattenedObservationData( ).getWeightVector( ), setWeightBlock.diagonal( ), 1.0E-15 );
 
     ObservationDataset< double, double > extraBlockDataset;
-    extraBlockDataset.addObservationSetWithScalarWeight(
+    extraBlockDataset.addObservationSetWithWeights(
             one_way_range,
             linkDefinition,
             { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
             { 1.0, 2.0, 3.0 },
             receiver,
-            1.0 );
+            ObservationWeightSettings::constantScalar( 1.0 ) );
     const std::vector< unsigned int > extraBlockObservationIds = extraBlockDataset.getObservationIdsForSet( 0 );
     const Eigen::Matrix2d extraWeightBlock = ( Eigen::Matrix2d( ) << 4.0, 0.25, 0.25, 5.0 ).finished( );
     extraBlockDataset.setWeightBlock( { extraBlockObservationIds.at( 0 ), extraBlockObservationIds.at( 2 ) },
@@ -1116,14 +1204,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                                        1.0E-15 );
 
     ObservationDataset< double, double > symmetricComponentBlockDataset;
-    symmetricComponentBlockDataset.addObservationSetWithScalarWeight( angular_position,
-                                                                      linkDefinition,
-                                                                      { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
-                                                                        ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
-                                                                        ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
-                                                                      { 1.0, 2.0, 3.0 },
-                                                                      receiver,
-                                                                      1.0 );
+    symmetricComponentBlockDataset.addObservationSetWithWeights( angular_position,
+                                                                 linkDefinition,
+                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                                   ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                                 { 1.0, 2.0, 3.0 },
+                                                                 receiver,
+                                                                 ObservationWeightSettings::constantScalar( 1.0 ) );
     const std::vector< unsigned int > symmetricObservationIds = symmetricComponentBlockDataset.getObservationIdsForSet( 0 );
     const Eigen::MatrixXd crossComponentBlock = ( Eigen::Matrix< double, 2, 1 >( ) << 0.7, 0.8 ).finished( );
     symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
@@ -1164,32 +1252,35 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     BOOST_CHECK_EQUAL( symmetricComponentBlockDataset.getExtraWeightBlocks( ).size( ), extraWeightBlockCountBeforeInvalidSymmetricBlock );
 
     ObservationDataset< double, double > invalidAddWeightDataset;
-    BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithWeightBlock( angular_position,
-                                                                                 linkDefinition,
-                                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
-                                                                                 { 1.0 },
-                                                                                 receiver,
-                                                                                 Eigen::Matrix3d::Identity( ) ),
+    BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithWeights(
+                               angular_position,
+                               linkDefinition,
+                               { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                               { 1.0 },
+                               receiver,
+                               ObservationWeightSettings::constantBlock( Eigen::Matrix3d::Identity( ) ) ),
                        std::runtime_error );
     BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
 
     BOOST_CHECK_THROW(
-            invalidAddWeightDataset.addObservationSetWithWeightBlocks( angular_position,
-                                                                       linkDefinition,
-                                                                       { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
-                                                                       { 1.0 },
-                                                                       receiver,
-                                                                       std::vector< Eigen::MatrixXd >( { Eigen::Matrix3d::Identity( ) } ) ),
+            invalidAddWeightDataset.addObservationSetWithWeights(
+                    angular_position,
+                    linkDefinition,
+                    { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                    { 1.0 },
+                    receiver,
+                    ObservationWeightSettings::blockPerObservation( std::vector< Eigen::MatrixXd >( { Eigen::Matrix3d::Identity( ) } ) ) ),
             std::runtime_error );
     BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
 
-    BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithSetWeightBlock( angular_position,
-                                                                                    linkDefinition,
-                                                                                    { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
-                                                                                    { 1.0 },
-                                                                                    receiver,
-                                                                                    Eigen::Matrix3d::Identity( ) ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW(
+            invalidAddWeightDataset.addObservationSetWithWeights( angular_position,
+                                                                  linkDefinition,
+                                                                  { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ) },
+                                                                  { 1.0 },
+                                                                  receiver,
+                                                                  ObservationWeightSettings::setBlock( Eigen::Matrix3d::Identity( ) ) ),
+            std::runtime_error );
     BOOST_CHECK_EQUAL( invalidAddWeightDataset.getNumberOfObservationSets( ), 0 );
 
     ObservationDataset< double, double > rejectedSetBlockDataset;
@@ -1202,15 +1293,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                     row == column ? static_cast< double >( row + 1 ) : 0.01 * static_cast< double >( 10 * ( row + 1 ) + column + 1 );
         }
     }
-    rejectedSetBlockDataset.addObservationSetWithSetWeightBlock( angular_position,
-                                                                 linkDefinition,
-                                                                 { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
-                                                                   ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
-                                                                   ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
-                                                                 { 1.0, 2.0, 3.0 },
-                                                                 receiver,
-                                                                 fullSetWeightBlock );
-    rejectedSetBlockDataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 1.5, 2.5 ) );
+    rejectedSetBlockDataset.addObservationSetWithWeights( angular_position,
+                                                          linkDefinition,
+                                                          { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                            ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                            ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                          { 1.0, 2.0, 3.0 },
+                                                          receiver,
+                                                          ObservationWeightSettings::setBlock( fullSetWeightBlock ) );
+    rejectedSetBlockDataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ) );
     Eigen::MatrixXd expectedRejectedWeightBlock = Eigen::MatrixXd::Zero( 4, 4 );
     const std::vector< int > keptScalarIndices = { 0, 1, 4, 5 };
     for( unsigned int row = 0; row < keptScalarIndices.size( ); ++row )
@@ -1225,7 +1316,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rejectedSetBlockDataset.createEstimationFlattenedObservationData( ).getWeightMatrix( ).toDense( ),
                                        expectedRejectedWeightBlock,
                                        1.0E-15 );
-    rejectedSetBlockDataset.restoreObservations( ObservationCondition< double, double >::rejected( ) );
+    rejectedSetBlockDataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
 
     // Restoring rejected rows must restore the full original weight block in the flattened data.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rejectedSetBlockDataset.createEstimationFlattenedObservationData( ).getWeightMatrix( ).toDense( ),
@@ -1264,7 +1355,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
                             {},
                             {},
                             true );
-    dataset.rejectObservations( ObservationCondition< double, double >::timeBounds( 1.5, 2.5 ), "manual rejection" );
+    dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ), "manual rejection" );
 
     // Rejected observations remain stored for computation/inspection, while the default estimation flattened data excludes them.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
@@ -1272,7 +1363,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( false ).getObservationVector( ).size( ), 2 );
 
     const std::shared_ptr< ObservationDataset< double, double > > keepAll =
-            dataset.createNewAndKeep( ObservationCondition< double, double >::all( ) );
+            dataset.createNewAndKeep( ObservationSelectionCondition< double, double >::all( ) );
 
     // Copy-style reduction with all rows must preserve row rejection state and the complete sparse weight flattened data.
     BOOST_CHECK( !keepAll->getObservationRow( 1 ).isActive_ );
@@ -1282,14 +1373,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
                                        1.0E-15 );
 
     const std::shared_ptr< ObservationDataset< double, double > > activeOnly =
-            dataset.createNewAndDrop( ObservationCondition< double, double >::rejected( ) );
+            dataset.createNewAndDrop( ObservationSelectionCondition< double, double >::rejected( ) );
 
     // Explicit drop is the only operation here that physically removes the rejected observation from the new dataset.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
     BOOST_CHECK_EQUAL( activeOnly->getNumberOfObservations( ), 2 );
     BOOST_CHECK_EQUAL( activeOnly->createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), 2 );
 
-    dataset.removeObservationFromSet( setId, 0 );
+    dataset.removeObservationsFromSet( setId, std::vector< unsigned int >( { 0 } ) );
 
     // Removing a different row must not reset the rejection state of the remaining rejected observation.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 2 );
@@ -1314,14 +1405,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
 
     ObservationDataset< double, double > setBlockDataset;
     const Eigen::Matrix3d setWeightBlock = ( Eigen::Matrix3d( ) << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0 ).finished( );
-    const int setBlockSetId = setBlockDataset.addObservationSetWithSetWeightBlock(
+    const int setBlockSetId = setBlockDataset.addObservationSetWithWeights(
             one_way_range,
             linkDefinition,
             { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
             { 1.0, 2.0, 3.0 },
             receiver,
-            setWeightBlock );
-    setBlockDataset.removeObservationFromSet( setBlockSetId, 1 );
+            ObservationWeightSettings::setBlock( setWeightBlock ) );
+    setBlockDataset.removeObservationsFromSet( setBlockSetId, std::vector< unsigned int >( { 1 } ) );
     const Eigen::Matrix2d expectedSubsetSetWeightBlock = ( Eigen::Matrix2d( ) << 1.0, 0.2, 0.2, 3.0 ).finished( );
 
     // Removing from a set-level block has a clear subsetting rule and must keep the corresponding rows/columns.
