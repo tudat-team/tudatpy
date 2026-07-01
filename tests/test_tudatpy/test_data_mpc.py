@@ -5,6 +5,7 @@ from tudatpy.interface import spice
 import numpy as np
 import datetime
 import pytest
+import warnings
 
 spice.load_standard_kernels()
 
@@ -65,6 +66,42 @@ weights_test_combinations = [
     (None, False),  # all data
 ]
 
+
+def _flattened_radec_and_times(observation_dataset):
+    """Return flattened angular-position data in the same shape used by the MPC source table."""
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
+    obs_radec = np.array(flattened_data.observation_vector).reshape(2, -1, order="F")
+    obs_times = np.array(flattened_data.times).reshape(2, -1, order="F")
+    return obs_radec, obs_times
+
+
+def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
+    """Check that compatibility collection output matches the dataset ordered projection."""
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        # The compatibility collection must expose the same scalar observation order.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_observations),
+            np.array(flattened_data.observation_vector),
+        )
+        # The compatibility collection must expose the same scalar-component times.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_times),
+            np.array(flattened_data.times),
+        )
+        # The compatibility collection must expose the same scalar-component weights.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_weights),
+            np.array(flattened_data.weight_vector),
+        )
+        # The number of single-set facades must match the number of dataset sets.
+        assert len(legacy_collection.get_single_observation_sets()) == (
+            observation_dataset.number_of_observation_sets
+        )
+
+
 # @pytest.mark.parametrize("inp,expected", get_observations_input)
 # def test_BatchMPC_getobservations(inp, expected):
 #    query = BatchMPC()
@@ -83,8 +120,8 @@ weights_test_combinations = [
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_create_observations_from_astropy_table(mpc_code):
-    """Check if observatory table matches observation_collection"""
+def test_create_observation_dataset_from_astropy_table(mpc_code):
+    """Check if observatory table matches the primary ObservationDataset output."""
     query = BatchMPC()
     query.get_observations([mpc_code])
     query.filter(observatories=["T05", "T08"])
@@ -98,19 +135,20 @@ def test_create_observations_from_astropy_table(mpc_code):
     # we created a table by using get_observations.
     # This yields observations in radians, so we have to set
     # in_degrees = False
-    observation_collection = query.create_observations_from_astropy_table(
+    observation_dataset = query.create_observation_dataset_from_astropy_table(
         query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
     )
 
-    # reshape to [2, ...] where 2 is RA + DEC
-    obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
-        2, -1, order="F"
-    )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
+    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
 
-    # max error between the two should be zero
-    assert (np.max(obscol_times - times)) == pytest.approx(0.00)
-    assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
+    np.testing.assert_allclose(dataset_times, times)
+    np.testing.assert_allclose(dataset_RADEC, RADEC)
+
+    legacy_collection = query.create_observations_from_astropy_table(
+        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
+    )
+    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -131,7 +169,7 @@ def test_mpc_custom_name_metadata(mpc_code):
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat(mpc_code):
-    """Check if observatory table matches observation_collection"""
+    """Check if observatory table matches the ObservationDataset returned by to_tudat."""
     query = BatchMPC()
     query.get_observations([mpc_code])
     query.filter(observatories=["T05", "T08"])
@@ -154,24 +192,25 @@ def test_BatchMPC_to_tudat(mpc_code):
     )
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
-    observation_collection = query.to_tudat(
+    observation_dataset = query.to_tudat(
         bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
     )
 
-    # reshape to [2, ...] where 2 is RA + DEC
-    obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
-        2, -1, order="F"
-    )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
+    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
 
-    # max error between the two should be zero
-    assert (np.max(obscol_times - times)) == pytest.approx(0.00)
-    assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
+    np.testing.assert_allclose(dataset_times, times)
+    np.testing.assert_allclose(dataset_RADEC, RADEC)
+
+    legacy_collection = query.to_tudat_observation_collection(
+        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
+    )
+    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat_with_satelite(mpc_code):
-    """Check if observatory table matches observation_collection"""
+    """Check if space-telescope observations match the ObservationDataset returned by to_tudat."""
     query = BatchMPC()
     query.get_observations([mpc_code])
     query.filter(observatories=["C51"])
@@ -195,19 +234,15 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     bodies = environment_setup.create_system_of_bodies(body_settings)
     bodies.create_empty_body("Wise")
 
-    observation_collection = query.to_tudat(
+    observation_dataset = query.to_tudat(
         bodies=bodies, included_satellites={"C51": "Wise"}, apply_star_catalog_debias=False
     )
 
-    # reshape to [2, ...] where 2 is RA + DEC
-    obscol_RADEC = (np.array(observation_collection.concatenated_observations)).reshape(
-        2, -1, order="F"
-    )
-    obscol_times = (np.array(observation_collection.concatenated_times)).reshape(2, -1, order="F")
+    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
 
-    # max error between the two should be zero
-    assert (np.max(obscol_times - times)) == pytest.approx(0.00)
-    assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
+    np.testing.assert_allclose(dataset_times, times)
+    np.testing.assert_allclose(dataset_RADEC, RADEC)
 
 
 def test_compare_mpc_horizons_eph():

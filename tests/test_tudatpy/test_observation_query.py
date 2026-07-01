@@ -70,6 +70,11 @@ def _assert_link_end_id(link_end_id, body_name, reference_point=""):
     assert link_end_id.reference_point == reference_point
 
 
+def _to_dense_matrix(matrix):
+    """Convert a scipy sparse or numpy-like matrix returned by pybind to a dense array."""
+    return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
+
+
 def test_observation_query_builds_basic_backend_conditions():
     """Check that simple observation_query selectors create inspectable backend conditions."""
     observation_query = observations.observation_query
@@ -371,6 +376,86 @@ def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset):
     assert flattened.flattened_row(3, 1) == 2
 
 
+def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sample_dataset):
+    """Check Python bindings for sparse/off-diagonal dataset weight blocks."""
+    angular_ids = sample_dataset.observation_ids_for_set(1)
+    cross_weight_block = np.array([[0.2, 0.3], [0.4, 0.5]])
+
+    sample_dataset.set_weight_block(
+        row_observation_ids=[angular_ids[0]],
+        column_observation_ids=[angular_ids[1]],
+        weight_block=cross_weight_block,
+        make_symmetric=True,
+    )
+
+    # The dataset-level flag verifies that the Python set_weight_block call stored advanced blocks.
+    assert sample_dataset.has_extra_weight_blocks is True
+    # Symmetric insertion should store the requested block and its transpose.
+    assert len(sample_dataset.extra_weight_blocks) == 2
+    # The first exposed block should preserve the row scalar-component ids for the first angular row.
+    assert sample_dataset.extra_weight_blocks[0].row_scalar_component_ids == [3, 4]
+    # The first exposed block should preserve the column scalar-component ids for the second angular row.
+    assert sample_dataset.extra_weight_blocks[0].column_scalar_component_ids == [5, 6]
+    # The dense block value must round-trip through the Python ObservationWeightBlock binding.
+    np.testing.assert_allclose(
+        sample_dataset.extra_weight_blocks[0].weight_block, cross_weight_block
+    )
+
+    flattened = sample_dataset.estimation_flattened_observation_data(True)
+    # A cross-observation block must mark the flattened data as non-diagonal.
+    assert flattened.has_off_diagonal_weights is True
+    # The inverse flag should also reflect the presence of off-diagonal weights.
+    assert flattened.is_diagonal_weight_only is False
+
+    dense_weight_matrix = _to_dense_matrix(flattened.sparse_weight_matrix)
+    first_row_start = flattened.flattened_row(angular_ids[0], 0)
+    second_row_start = flattened.flattened_row(angular_ids[1], 0)
+
+    # The requested block must materialize at the flattened rows of the selected observations.
+    np.testing.assert_allclose(
+        dense_weight_matrix[
+            first_row_start : first_row_start + 2, second_row_start : second_row_start + 2
+        ],
+        cross_weight_block,
+    )
+    # make_symmetric=True must materialize the transposed block in the opposite quadrant.
+    np.testing.assert_allclose(
+        dense_weight_matrix[
+            second_row_start : second_row_start + 2, first_row_start : first_row_start + 2
+        ],
+        cross_weight_block.T,
+    )
+
+
+def test_python_viewer_ordered_flattening_reorders_selected_rows():
+    """Check Python viewer ordered flattening against dataset-row flattening."""
+    angular_dataset = _converted_single_set(
+        observations.angular_position,
+        "Mars",
+        [[1.0, 2.0], [3.0, 4.0]],
+        [3.0, 4.0],
+    )
+    range_dataset = _converted_single_set(
+        observations.one_way_range,
+        "Earth",
+        [[10.0], [20.0]],
+        [1.0, 2.0],
+    )
+    assert angular_dataset.add_observation_set_from_dataset(range_dataset, 0) == 1
+
+    viewer = angular_dataset.create_viewer(observations.ObservationSelectionCondition.all())
+    # The viewer itself follows dataset row insertion order: angular rows before range rows.
+    assert viewer.observation_ids == [0, 1, 2, 3]
+
+    estimation_flattened = viewer.estimation_flattened_observation_data()
+    # Estimation flattening expands vector rows but keeps the selected dataset row order.
+    assert estimation_flattened.observation_ids == [0, 0, 1, 1, 2, 3]
+
+    ordered_flattened = viewer.ordered_flattened_observation_data()
+    # Ordered flattening should reorder selected rows into Tudat's ordered-output convention.
+    assert ordered_flattened.observation_ids == [2, 3, 0, 0, 1, 1]
+
+
 def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     sample_dataset,
 ):
@@ -426,26 +511,34 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == [4]
     # Restored row 1 should become active again.
     assert sample_dataset.observation_row(1).is_active is True
+    # The renamed removal API should physically delete all rows that are still rejected.
+    sample_dataset.remove_rejected_observations()
+    # After physical removal, no rejected rows should remain selectable.
+    assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == []
+    # The dataset should now contain the four rows that were not rejected at removal time.
+    assert sample_dataset.number_of_observations == 4
+    # The old delete_* spelling should not remain on the primary ObservationDataset API.
+    assert not hasattr(sample_dataset, "delete_rejected_observations")
 
 
-def test_query_selectors_can_be_used_by_weight_convenience_api(sample_dataset):
-    """Check that fixed selector keywords drive the weight convenience overloads."""
+def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
+    """Check that query-built conditions drive the canonical weight API."""
     observation_query = observations.observation_query
 
     sample_dataset.set_constant_single_observation_scalar_weight(
+        condition=observation_query.set_id == 0,
         weight=9.0,
-        set_id=0,
     )
     for observation_id in sample_dataset.observation_ids_for_set(0):
-        # set_id should route to the per-set scalar-weight path for all range rows.
+        # A set-id condition should select every row in the range set.
         np.testing.assert_allclose(sample_dataset.weight_value(observation_id), [9.0])
 
     sample_dataset.set_constant_single_observation_diagonal_weight(
+        condition=observation_query.observable_type == observations.angular_position,
         weight=np.array([7.0, 8.0]),
-        observable_type=observations.angular_position,
     )
     for observation_id in sample_dataset.observation_ids_for_set(1):
-        # observable_type should select both angular rows and apply a diagonal vector.
+        # An observable-type condition should select both angular rows and apply a diagonal vector.
         np.testing.assert_allclose(
             sample_dataset.weight_value(observation_id),
             [7.0, 8.0],
@@ -464,44 +557,28 @@ def test_query_selectors_can_be_used_by_weight_convenience_api(sample_dataset):
     np.testing.assert_allclose(sample_dataset.weight_value(2), [6.0])
 
 
-def test_weight_selector_api_rejects_ambiguous_selector_combinations(sample_dataset):
-    """Check that keyword selector overloads reject ambiguous calls."""
-    observation_query = observations.observation_query
+def test_redundant_weight_aliases_and_legacy_dataset_methods_are_not_public(sample_dataset):
+    """Check that the primary ObservationDataset Python surface contains no removed aliases."""
 
-    # condition= is canonical and must not be mixed with selector keywords.
-    with pytest.raises(ValueError, match="condition cannot be combined"):
-        sample_dataset.set_constant_single_observation_scalar_weight(
-            weight=1.0,
-            condition=observation_query.set_id == 0,
-            observable_type=observations.one_way_range,
-        )
+    # Short ambiguous aliases should not be available beside the explicit scalar/diagonal/matrix names.
+    assert not hasattr(sample_dataset, "set_constant_weight")
+    # The diagonal alias should not be available beside set_constant_single_observation_diagonal_weight.
+    assert not hasattr(sample_dataset, "set_constant_diagonal_weight")
+    # The matrix alias should not be available beside set_constant_single_observation_matrix_weight.
+    assert not hasattr(sample_dataset, "set_constant_matrix_weight")
 
-    # set_id is a direct per-set shortcut and must not be combined with filters.
-    with pytest.raises(ValueError, match="set_id cannot be combined"):
+    # Keyword selector overloads were removed; selection should go through ObservationSelectionCondition objects.
+    with pytest.raises(TypeError):
         sample_dataset.set_constant_single_observation_scalar_weight(
             weight=1.0,
             set_id=0,
-            observable_type=observations.one_way_range,
         )
 
-    # active=False would be ambiguous; users should use rejected=True or ~observation_query.active.
-    with pytest.raises(ValueError, match="active only accepts True"):
-        sample_dataset.set_constant_single_observation_scalar_weight(
-            weight=1.0,
-            active=False,
-        )
-
-    # rejected=False would be ambiguous; users should use active=True or ~observation_query.rejected.
-    with pytest.raises(ValueError, match="rejected only accepts True"):
-        sample_dataset.set_constant_single_observation_scalar_weight(
-            weight=1.0,
-            rejected=False,
-        )
-
-    # active and rejected are mutually exclusive state selectors.
-    with pytest.raises(ValueError, match="cannot both be selected"):
-        sample_dataset.set_constant_single_observation_scalar_weight(
-            weight=1.0,
-            active=True,
-            rejected=True,
-        )
+    # Legacy flat mutation helpers should not be public on the primary dataset API.
+    assert not hasattr(sample_dataset, "set_observation_vector_for_set")
+    # Legacy flat residual mutation should likewise remain out of the primary Python surface.
+    assert not hasattr(sample_dataset, "set_residual_vector_for_set")
+    # Parser/filter compatibility helpers should not be exposed directly on ObservationDataset.
+    assert not hasattr(sample_dataset, "filtered_observation_indices")
+    # Duplicate-erasure is a legacy set-processing helper and should not be public on ObservationDataset.
+    assert not hasattr(sample_dataset, "erase_duplicate_observations_from_set")

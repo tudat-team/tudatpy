@@ -545,9 +545,10 @@ public:
     }
 
 protected:
-    //! Total data structure of observations and associated times/link ends/type
+    //! Legacy collection facade retained only to preserve ObservationCollection constructor/getter identity.
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
 
+    //! Dataset backend used by covariance/estimation internals.
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
 
     //! A priori covariance matrix (unnormalized) of estimated parameters

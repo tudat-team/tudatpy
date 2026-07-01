@@ -115,13 +115,13 @@ Creating views and reduced datasets
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.create_new_and_keep
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.create_new_and_drop
 
-Rejecting, restoring, and deleting observations
+Rejecting, restoring, and removing observations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.reject_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.restore_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_observations
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_rejected_observations
 
 Flattening data
 ~~~~~~~~~~~~~~~
@@ -150,12 +150,12 @@ Common cases
 
 .. code-block:: python
 
-   dataset.set_constant_weight(
+   dataset.set_constant_single_observation_scalar_weight(
        condition=(observation_query.observable_type == observations.angular_position),
        weight=1.0e-9,
    )
 
-   dataset.set_constant_diagonal_weight(
+   dataset.set_constant_single_observation_diagonal_weight(
        condition=(observation_query.set_id == set_id),
        weight=weight_vector,
    )
@@ -163,6 +163,12 @@ Common cases
    dataset.set_weight_vector_for_set(set_id, weight_vector)
    dataset.set_weight_matrix_for_observation(observation_id, weight_matrix)
    dataset.set_weight_matrix_for_set(set_id, weight_matrix)
+
+When a set-level matrix, per-observation weights, and extra scalar-component
+blocks overlap, the effective matrix is the one returned by flattened data, for
+example ``dataset.estimation_flattened_observation_data().weight_matrix``.
+``weight_matrix_for_set`` returns the stored set-level block when one is present,
+otherwise it materializes the set's compact per-observation weights.
 
 Off-diagonal blocks
 ~~~~~~~~~~~~~~~~~~~
@@ -184,9 +190,9 @@ Weight API
 
 .. autoclass:: tudatpy.estimation.observations.ObservationWeightSettings
 
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_weight
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_diagonal_weight
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_matrix_weight
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_scalar_weight
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_diagonal_weight
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_matrix_weight
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_weight_vector_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_weight_matrix_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.has_weight_matrix_for_set
@@ -321,12 +327,9 @@ Mutation helpers
 ~~~~~~~~~~~~~~~~
 
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_observations_for_set
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_observation_vector_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_residuals_for_set
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_residual_vector_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.add_observations_to_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_observations_from_set
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.erase_duplicate_observations_from_set
 
 Registries and set metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -342,9 +345,6 @@ Registries and set metadata
 Advanced weight conveniences
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_scalar_weight
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_diagonal_weight
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_matrix_weight
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_scalar_weight_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_diagonal_weight_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_constant_single_observation_matrix_weight_for_set

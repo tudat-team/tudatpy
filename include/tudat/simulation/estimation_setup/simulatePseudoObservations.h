@@ -32,7 +32,7 @@ std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSet
 simulatePseudoObservationDataset( const SystemOfBodies& bodies,
                                   const std::vector< std::string >& bodiesToPropagate,
                                   const std::vector< std::string >& centralBodies,
-                                  const std::vector< TimeType > observationTimes )
+                                  const std::vector< TimeType >& observationTimes )
 {
     using namespace observation_models;
 
@@ -106,7 +106,7 @@ std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSet
 simulatePseudoObservations( const SystemOfBodies& bodies,
                             const std::vector< std::string >& bodiesToPropagate,
                             const std::vector< std::string >& centralBodies,
-                            const std::vector< TimeType > observationTimes )
+                            const std::vector< TimeType >& observationTimes )
 {
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
                std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > >

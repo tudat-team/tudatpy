@@ -405,12 +405,16 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
             std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights;
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
             const bool hasDependentVariables = !getDependentVariablesForSet( setId ).empty( );
+            const bool hasSetWeightBlock = hasWeightMatrixForSet( setId );
 
             for( const unsigned int observationId : selectedObservationIds )
             {
                 observations.push_back( getObservationValue( observationId ) );
                 times.push_back( getObservationTime( observationId ) );
-                weights.push_back( getWeightValue( observationId ) );
+                if( !hasSetWeightBlock )
+                {
+                    weights.push_back( getWeightValue( observationId ) );
+                }
                 residuals.push_back( getResidualValue( observationId ) );
                 if( hasDependentVariables )
                 {
@@ -430,7 +434,7 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
                                                        weights,
                                                        residuals );
 
-            if( hasWeightMatrixForSet( setId ) )
+            if( hasSetWeightBlock )
             {
                 std::vector< std::size_t > selectedSetScalarIndices;
                 for( const unsigned int observationId : selectedObservationIds )
@@ -455,14 +459,14 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
                 }
                 reducedDataset->setWeightMatrixForSet( newSetId, reducedSetWeightMatrix );
             }
-            else
+
+            const std::vector< unsigned int >& newObservationIds = reducedDataset->getObservationIdsForSet( newSetId );
+            for( std::size_t i = 0; i < selectedObservationIds.size( ); ++i )
             {
-                const std::vector< unsigned int >& newObservationIds = reducedDataset->getObservationIdsForSet( newSetId );
-                for( std::size_t i = 0; i < selectedObservationIds.size( ); ++i )
-                {
-                    reducedDataset->observationWeights_.setObservationWeight(
-                            newObservationIds.at( i ), observationWeights_.getObservationWeight( selectedObservationIds.at( i ) ) );
-                }
+                reducedDataset->observationWeights_.setObservationWeight(
+                        newObservationIds.at( i ),
+                        observationWeights_.getObservationWeight( selectedObservationIds.at( i ) ),
+                        observationWeights_.hasExplicitObservationWeight( selectedObservationIds.at( i ) ) );
             }
 
             for( std::size_t i = 0; i < selectedObservationIds.size( ); ++i )

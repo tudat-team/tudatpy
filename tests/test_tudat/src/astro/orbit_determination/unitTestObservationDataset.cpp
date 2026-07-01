@@ -14,6 +14,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <iostream>
+#include <sstream>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
@@ -577,6 +579,118 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
                                    expectedExternallyMutatedTimes.end( ) );
 }
 
+/*!
+ * Verifies the legacy ObservationCollection observation-set splitters.
+ *
+ * Test outline: builds small legacy collections and applies every splitter type
+ * still exposed through ObservationCollection: explicit time tags, maximum time
+ * span, maximum number of observations and maximum adjacent time interval. The
+ * assertions check both the number of generated sets and the row/time ranges in
+ * each set, including the legacy minimum-observation rule that drops too-small
+ * split fragments.
+ */
+BOOST_AUTO_TEST_CASE( test_legacy_observation_collection_splitters )
+{
+    const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
+    const LinkDefinition station2LinkDefinition = createOneWayLinkDefinition( "Station2" );
+
+    const auto createScalarSet = []( const LinkDefinition& linkDefinition,
+                                     const std::vector< double >& times ) -> std::shared_ptr< SingleObservationSet< double, double > > {
+        std::vector< Eigen::VectorXd > observations;
+        for( std::size_t i = 0; i < times.size( ); ++i )
+        {
+            // The scalar value records the original row number, making it easy
+            // to verify that split sets preserve row order and row association.
+            observations.push_back( ( Eigen::VectorXd( 1 ) << static_cast< double >( i ) ).finished( ) );
+        }
+        return std::make_shared< SingleObservationSet< double, double > >( one_way_range, linkDefinition, observations, times, receiver );
+    };
+
+    const auto getRangeSetsForStation1 = []( ObservationCollection< double, double >& collection )
+            -> std::vector< std::shared_ptr< SingleObservationSet< double, double > > > {
+        return collection.getSingleObservationSets( observationParser( "Station1", true ) );
+    };
+
+    const auto checkTimes = []( const std::vector< double >& actualTimes, const std::vector< double >& expectedTimes ) {
+        // Each split set must expose exactly the expected ordered event times.
+        BOOST_CHECK_EQUAL_COLLECTIONS( actualTimes.begin( ), actualTimes.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
+    };
+
+    {
+        ObservationCollection< double, double > collection( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >(
+                { createScalarSet( station1LinkDefinition, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 } ) } ) );
+
+        collection.splitObservationSets( observationSetSplitter( time_tags_splitter, std::vector< double >( { 0.0, 3.0, 6.0 } ) ),
+                                         observationParser( "Station1", true ) );
+
+        const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > splitSets = getRangeSetsForStation1( collection );
+
+        // Time-tag splitting should create one set up to the split tag and one after it.
+        BOOST_REQUIRE_EQUAL( splitSets.size( ), 2 );
+        BOOST_CHECK_EQUAL( splitSets.at( 0 )->getNumberOfObservables( ), 4 );
+        BOOST_CHECK_EQUAL( splitSets.at( 1 )->getNumberOfObservables( ), 3 );
+        checkTimes( splitSets.at( 0 )->getObservationTimes( ), { 0.0, 1.0, 2.0, 3.0 } );
+        checkTimes( splitSets.at( 1 )->getObservationTimes( ), { 4.0, 5.0, 6.0 } );
+    }
+
+    {
+        ObservationCollection< double, double > collection( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >(
+                { createScalarSet( station1LinkDefinition, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 } ) } ) );
+
+        collection.splitObservationSets( observationSetSplitter( time_span_splitter, 3.0, 3 ), observationParser( "Station1", true ) );
+
+        const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > splitSets = getRangeSetsForStation1( collection );
+
+        // The final two-row fragment is below minNumberObservations and should be dropped by the legacy splitter.
+        BOOST_REQUIRE_EQUAL( splitSets.size( ), 2 );
+        checkTimes( splitSets.at( 0 )->getObservationTimes( ), { 0.0, 1.0, 2.0, 3.0 } );
+        checkTimes( splitSets.at( 1 )->getObservationTimes( ), { 4.0, 5.0, 6.0, 7.0 } );
+        for( const std::shared_ptr< SingleObservationSet< double, double > >& splitSet : splitSets )
+        {
+            // Every retained split set must satisfy the requested maximum span.
+            BOOST_CHECK( splitSet->getObservationTimes( ).back( ) - splitSet->getObservationTimes( ).front( ) <= 3.0 );
+        }
+    }
+
+    {
+        ObservationCollection< double, double > collection( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >(
+                { createScalarSet( station1LinkDefinition, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 } ) } ) );
+
+        collection.splitObservationSets( observationSetSplitter( nb_observations_splitter, 4, 4 ), observationParser( "Station1", true ) );
+
+        const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > splitSets = getRangeSetsForStation1( collection );
+
+        // Splitting by maximum count should keep two complete four-row sets and drop the two-row tail.
+        BOOST_REQUIRE_EQUAL( splitSets.size( ), 2 );
+        BOOST_CHECK_EQUAL( splitSets.at( 0 )->getNumberOfObservables( ), 4 );
+        BOOST_CHECK_EQUAL( splitSets.at( 1 )->getNumberOfObservables( ), 4 );
+        checkTimes( splitSets.at( 0 )->getObservationTimes( ), { 0.0, 1.0, 2.0, 3.0 } );
+        checkTimes( splitSets.at( 1 )->getObservationTimes( ), { 4.0, 5.0, 6.0, 7.0 } );
+    }
+
+    {
+        ObservationCollection< double, double > collection( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >(
+                { createScalarSet( station1LinkDefinition, { 0.0, 1.0, 2.0, 8.0, 9.0 } ),
+                  createScalarSet( station2LinkDefinition, { 0.0, 100.0 } ) } ) );
+
+        collection.splitObservationSets( observationSetSplitter( time_interval_splitter, 2.0 ), observationParser( "Station1", true ) );
+
+        const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > station1SplitSets =
+                getRangeSetsForStation1( collection );
+        const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > station2Sets =
+                collection.getSingleObservationSets( observationParser( "Station2", true ) );
+
+        // A large adjacent time gap in Station1 should create two sets.
+        BOOST_REQUIRE_EQUAL( station1SplitSets.size( ), 2 );
+        checkTimes( station1SplitSets.at( 0 )->getObservationTimes( ), { 0.0, 1.0, 2.0 } );
+        checkTimes( station1SplitSets.at( 1 )->getObservationTimes( ), { 8.0, 9.0 } );
+
+        // The parser passed to splitObservationSets must keep unrelated Station2 data untouched.
+        BOOST_REQUIRE_EQUAL( station2Sets.size( ), 1 );
+        checkTimes( station2Sets.at( 0 )->getObservationTimes( ), { 0.0, 100.0 } );
+    }
+}
+
 BOOST_AUTO_TEST_CASE( test_legacy_collection_preserves_single_set_sharing_and_dependent_variable_clearing )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -927,6 +1041,44 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
 }
 
 /*!
+ * Verifies that viewer ordered flattening follows dataset ordered-output order.
+ *
+ * Test outline: inserts angular-position rows before one-way range rows, so
+ * dataset row order differs from ordered flattened-data order. A viewer
+ * selecting all rows must keep dataset order for estimation flattening but use
+ * observable/link/set ordered output for ordered flattening.
+ */
+BOOST_AUTO_TEST_CASE( test_dataset_viewer_ordered_flattening_reorders_selected_rows )
+{
+    ObservationDataset< double, double > dataset;
+    const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
+    const LinkDefinition station2LinkDefinition = createOneWayLinkDefinition( "Station2" );
+
+    dataset.addObservationSet( angular_position,
+                               station2LinkDefinition,
+                               { ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ), ( Eigen::Vector2d( ) << 22.0, 23.0 ).finished( ) },
+                               { 3.0, 4.0 },
+                               receiver );
+    dataset.addObservationSet( one_way_range,
+                               station1LinkDefinition,
+                               { ( Eigen::VectorXd( 1 ) << 10.0 ).finished( ), ( Eigen::VectorXd( 1 ) << 11.0 ).finished( ) },
+                               { 1.0, 2.0 },
+                               receiver );
+
+    const ObservationDatasetViewer< double, double > viewer =
+            dataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
+
+    // The viewer selection itself is in dataset row order: angular rows first, then range rows.
+    checkIds( viewer.getObservationIds( ), { 0, 1, 2, 3 } );
+
+    // Estimation flattening intentionally preserves the viewer's selected row order.
+    checkIds( viewer.createEstimationFlattenedObservationData( ).getObservationIds( ), { 0, 0, 1, 1, 2, 3 } );
+
+    // Ordered flattening must instead follow legacy ordered output: one-way range before angular position.
+    checkIds( viewer.createOrderedFlattenedObservationData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
+}
+
+/*!
  * Verifies viewers, rejection/restoration and reduced dataset creation.
  *
  * Test outline: builds a dataset, selects rows with conditions, creates viewers and
@@ -1141,7 +1293,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     conditionWeightDataset.setConstantSingleObservationMatrixWeight(
             ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), observationWeightBlock );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            conditionWeightDataset.getWeightVectorForSet( conditionRangeSetId ), 7.0 * Eigen::Vector2d::Ones( ), 1.0E-15 );
+            conditionWeightDataset.getWeightVectorForSet( conditionRangeSetId ), ( 7.0 * Eigen::Vector2d::Ones( ) ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( conditionWeightDataset.getWeightMatrixForObservation(
                                                conditionWeightDataset.getObservationIdsForSet( conditionAngularSetId ).at( 0 ) ),
                                        observationWeightBlock,
@@ -1325,6 +1477,139 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
 }
 
 /*!
+ * Verifies the precedence between set-level, per-observation and extra block weights.
+ *
+ * Test outline: creates one vector-valued set with a full set-level block, then
+ * overwrites part of it with an explicit per-observation block and finally
+ * overwrites cross-observation entries with an extra scalar-component block. It
+ * checks the resulting dense sparse matrix and confirms that conflicts report
+ * the affected flattened/scalar-component indices.
+ */
+BOOST_AUTO_TEST_CASE( test_dataset_weight_precedence_and_conflict_warnings )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > dataset;
+    const unsigned int setId = dataset.addObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ), ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ) },
+            { 1.0, 2.0 },
+            receiver );
+    const std::vector< unsigned int > observationIds = dataset.getObservationIdsForSet( setId );
+
+    Eigen::MatrixXd setWeightBlock( 4, 4 );
+    setWeightBlock << 1.0, 0.1, 0.2, 0.3, 0.1, 2.0, 0.4, 0.5, 0.2, 0.4, 3.0, 0.6, 0.3, 0.5, 0.6, 4.0;
+    dataset.setWeightMatrixForSet( setId, setWeightBlock );
+
+    Eigen::Matrix2d perObservationWeightBlock;
+    perObservationWeightBlock << 10.0, 0.7, 0.8, 11.0;
+    dataset.setWeightMatrixForObservation( observationIds.at( 0 ), perObservationWeightBlock );
+    const Eigen::Vector2d perObservationDiagonalWeights = ( Eigen::Vector2d( ) << 12.0, 13.0 ).finished( );
+    dataset.setConstantSingleObservationDiagonalWeight( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ),
+                                                        perObservationDiagonalWeights );
+
+    Eigen::Matrix2d extraWeightBlock;
+    extraWeightBlock << 20.0, 21.0, 22.0, 23.0;
+    dataset.setWeightBlock( { observationIds.at( 0 ) }, { observationIds.at( 1 ) }, extraWeightBlock, {}, {}, false );
+
+    std::ostringstream warningStream;
+    std::streambuf* originalWarningBuffer = std::cerr.rdbuf( warningStream.rdbuf( ) );
+    const FlattenedObservationData< double, double > flattenedData = dataset.createEstimationFlattenedObservationData( );
+    std::cerr.rdbuf( originalWarningBuffer );
+
+    Eigen::MatrixXd expectedWeightMatrix = setWeightBlock;
+    expectedWeightMatrix.block( 0, 0, 2, 2 ) = perObservationWeightBlock;
+    expectedWeightMatrix.block( 2, 2, 2, 2 ) = perObservationDiagonalWeights.asDiagonal( );
+    expectedWeightMatrix.block( 0, 2, 2, 2 ) = extraWeightBlock;
+
+    // Set-level blocks provide the baseline, explicit matrix/vector observation weights overwrite that baseline,
+    // and extra scalar-component blocks overwrite both lower-priority layers.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getWeightMatrix( ).toDense( ), expectedWeightMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getWeightVector( ), expectedWeightMatrix.diagonal( ), 1.0E-15 );
+
+    const std::string warningText = warningStream.str( );
+
+    // The per-observation layer conflicts with the set-level diagonal entry at the first scalar component.
+    BOOST_CHECK( warningText.find( "flattened matrix row 0, column 0 (scalar component ids 0, 0)" ) != std::string::npos );
+
+    // The per-observation layer also conflicts with an off-diagonal entry inside the first observation block.
+    BOOST_CHECK( warningText.find( "flattened matrix row 0, column 1 (scalar component ids 0, 1)" ) != std::string::npos );
+
+    // The vector observation-level update clears the within-observation off-diagonal set-level entry.
+    BOOST_CHECK( warningText.find( "flattened matrix row 2, column 3 (scalar component ids 2, 3)" ) != std::string::npos );
+
+    // The extra scalar-component block conflicts with the set-level block across the two observation rows.
+    BOOST_CHECK( warningText.find( "flattened matrix row 0, column 2 (scalar component ids 0, 2)" ) != std::string::npos );
+
+    // The warning must document the resolved precedence so users can understand which value remains active.
+    BOOST_CHECK( warningText.find( "Precedence is set-level weights, then explicit per-observation weights, "
+                                   "then extra scalar-component blocks" ) != std::string::npos );
+}
+
+/*!
+ * Verifies that default weights introduced while appending rows remain implicit.
+ *
+ * Test outline: appends rows before setting a full set-level weight block. The
+ * first dataset omits append weights, so the later set-level block should remain
+ * authoritative for every row. The second dataset supplies append weights
+ * explicitly, so only that appended row should override its diagonal entry.
+ */
+BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_block )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > implicitAppendDataset;
+    const unsigned int implicitSetId =
+            implicitAppendDataset.addObservationSet( one_way_range,
+                                                     linkDefinition,
+                                                     { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                     { 1.0, 2.0 },
+                                                     receiver );
+    implicitAppendDataset.addObservationsToSet( implicitSetId, { Eigen::Vector1d::Constant( 30.0 ) }, { 3.0 }, {}, {}, {}, true );
+
+    Eigen::Matrix3d setWeightBlock;
+    setWeightBlock << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+    implicitAppendDataset.setWeightMatrixForSet( implicitSetId, setWeightBlock );
+
+    std::ostringstream implicitWarningStream;
+    std::streambuf* originalWarningBuffer = std::cerr.rdbuf( implicitWarningStream.rdbuf( ) );
+    const Eigen::MatrixXd implicitFlattenedWeightMatrix =
+            implicitAppendDataset.createEstimationFlattenedObservationData( ).getWeightMatrix( ).toDense( );
+    std::cerr.rdbuf( originalWarningBuffer );
+
+    // Appended rows without user-supplied weights should keep implicit unit defaults, so the set block should be unchanged.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( implicitFlattenedWeightMatrix, setWeightBlock, 1.0E-15 );
+    // No conflict warning should be printed when implicit defaults are correctly skipped under a set-level block.
+    BOOST_CHECK( implicitWarningStream.str( ).empty( ) );
+
+    ObservationDataset< double, double > explicitAppendDataset;
+    const unsigned int explicitSetId =
+            explicitAppendDataset.addObservationSet( one_way_range,
+                                                     linkDefinition,
+                                                     { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                     { 1.0, 2.0 },
+                                                     receiver );
+    explicitAppendDataset.addObservationsToSet(
+            explicitSetId, { Eigen::Vector1d::Constant( 30.0 ) }, { 3.0 }, {}, { Eigen::Vector1d::Constant( 9.0 ) }, {}, true );
+    explicitAppendDataset.setWeightMatrixForSet( explicitSetId, setWeightBlock );
+
+    std::ostringstream explicitWarningStream;
+    originalWarningBuffer = std::cerr.rdbuf( explicitWarningStream.rdbuf( ) );
+    const Eigen::MatrixXd explicitFlattenedWeightMatrix =
+            explicitAppendDataset.createEstimationFlattenedObservationData( ).getWeightMatrix( ).toDense( );
+    std::cerr.rdbuf( originalWarningBuffer );
+
+    Eigen::Matrix3d expectedExplicitWeightMatrix = setWeightBlock;
+    expectedExplicitWeightMatrix( 2, 2 ) = 9.0;
+
+    // Explicit append weights should override the diagonal entry for the appended observation only.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitFlattenedWeightMatrix, expectedExplicitWeightMatrix, 1.0E-15 );
+    // The override should be reported with the flattened/scalar-component index that changed.
+    BOOST_CHECK( explicitWarningStream.str( ).find( "flattened matrix row 2, column 2 (scalar component ids 2, 2)" ) != std::string::npos );
+}
+
+/*!
  * Verifies that row status and advanced weights survive dataset rebuilds.
  *
  * Test outline: creates rejected rows and off-diagonal weights, then exercises
@@ -1423,6 +1708,87 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     // Appending to a full set-level block has no unique correlation extension and must be rejected explicitly.
     BOOST_CHECK_THROW( setBlockDataset.addObservationsToSet( setBlockSetId, { Eigen::Vector1d::Constant( 40.0 ) }, { 4.0 } ),
                        std::runtime_error );
+}
+
+/*!
+ * Verifies that copying a set between datasets preserves row status and sparse extra weights.
+ *
+ * Test outline: creates a source set with a rejected observation and an
+ * off-diagonal extra weight block, copies it into a non-empty target dataset,
+ * and verifies that the copied rows keep their active/rejected state and that
+ * the extra weight block is remapped from source scalar-component ids to target
+ * scalar-component ids.
+ */
+BOOST_AUTO_TEST_CASE( test_add_observation_set_from_dataset_preserves_status_and_extra_weights )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    ObservationDataset< double, double > sourceDataset;
+    const unsigned int sourceSetId = sourceDataset.addObservationSet( angular_position,
+                                                                      linkDefinition,
+                                                                      { ( Eigen::Vector2d( ) << 10.0, 11.0 ).finished( ),
+                                                                        ( Eigen::Vector2d( ) << 20.0, 21.0 ).finished( ),
+                                                                        ( Eigen::Vector2d( ) << 30.0, 31.0 ).finished( ) },
+                                                                      { 1.0, 2.0, 3.0 },
+                                                                      receiver );
+    const std::vector< unsigned int > sourceObservationIds = sourceDataset.getObservationIdsForSet( sourceSetId );
+
+    const Eigen::Matrix2d sourceExtraWeightBlock = ( Eigen::Matrix2d( ) << 4.0, 0.2, 0.3, 5.0 ).finished( );
+    sourceDataset.setWeightBlock(
+            { sourceObservationIds.at( 0 ) }, { sourceObservationIds.at( 2 ) }, sourceExtraWeightBlock, {}, {}, false );
+    sourceDataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ), "copy rejection" );
+
+    // The source setup must contain exactly the state that addObservationSetFromDataset is expected to preserve.
+    BOOST_CHECK( !sourceDataset.getObservationRow( sourceObservationIds.at( 1 ) ).isActive_ );
+    BOOST_CHECK_EQUAL( sourceDataset.getObservationRow( sourceObservationIds.at( 1 ) ).rejectionReason_, "copy rejection" );
+    BOOST_REQUIRE_EQUAL( sourceDataset.getExtraWeightBlocks( ).size( ), 1 );
+
+    ObservationDataset< double, double > targetDataset;
+    targetDataset.addObservationSet( one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 0.0 }, receiver );
+    const unsigned int copiedSetId = targetDataset.addObservationSetFromDataset( sourceDataset, sourceSetId );
+    const std::vector< unsigned int > copiedObservationIds = targetDataset.getObservationIdsForSet( copiedSetId );
+
+    // The target starts non-empty so copied observation and scalar-component ids differ from the source ids.
+    BOOST_CHECK_EQUAL( copiedSetId, 1 );
+    BOOST_CHECK( copiedObservationIds.at( 0 ) != sourceObservationIds.at( 0 ) );
+    BOOST_CHECK( targetDataset.getObservationRow( copiedObservationIds.at( 0 ) ).firstScalarComponent_ !=
+                 sourceDataset.getObservationRow( sourceObservationIds.at( 0 ) ).firstScalarComponent_ );
+
+    // Active rows must remain active after copying, not just retain their observation values and times.
+    BOOST_CHECK( targetDataset.getObservationRow( copiedObservationIds.at( 0 ) ).isActive_ );
+    BOOST_CHECK( targetDataset.getObservationRow( copiedObservationIds.at( 2 ) ).isActive_ );
+
+    // Rejected rows must remain stored but inactive, with the original rejection reason preserved for diagnostics.
+    BOOST_CHECK( !targetDataset.getObservationRow( copiedObservationIds.at( 1 ) ).isActive_ );
+    BOOST_CHECK_EQUAL( targetDataset.getObservationRow( copiedObservationIds.at( 1 ) ).rejectionReason_, "copy rejection" );
+    checkIds( targetDataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::rejected( ) ),
+              { copiedObservationIds.at( 1 ) } );
+
+    // Default estimation data must still exclude the copied rejected row while keeping the unrelated pre-existing target row.
+    BOOST_CHECK_EQUAL( targetDataset.getNumberOfObservations( ), 4 );
+    BOOST_CHECK_EQUAL( targetDataset.createEstimationFlattenedObservationData( false ).getObservationVector( ).size( ), 5 );
+    BOOST_CHECK_EQUAL( targetDataset.createComputationFlattenedObservationData( true ).getObservationVector( ).size( ), 7 );
+
+    BOOST_REQUIRE_EQUAL( targetDataset.getExtraWeightBlocks( ).size( ), 1 );
+    const ObservationWeightBlock& copiedWeightBlock = targetDataset.getExtraWeightBlocks( ).at( 0 );
+    const ObservationDatasetRow< double >& copiedFirstRow = targetDataset.getObservationRow( copiedObservationIds.at( 0 ) );
+    const ObservationDatasetRow< double >& copiedThirdRow = targetDataset.getObservationRow( copiedObservationIds.at( 2 ) );
+
+    // The stored sparse block must be remapped to the copied rows' scalar-component ids, not left pointing at source ids.
+    checkIds( copiedWeightBlock.rowScalarComponentIds_,
+              { copiedFirstRow.firstScalarComponent_, copiedFirstRow.firstScalarComponent_ + 1 } );
+    checkIds( copiedWeightBlock.columnScalarComponentIds_,
+              { copiedThirdRow.firstScalarComponent_, copiedThirdRow.firstScalarComponent_ + 1 } );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( copiedWeightBlock.weightBlock_, sourceExtraWeightBlock, 1.0E-15 );
+
+    const FlattenedObservationData< double, double > copiedFlattenedData = targetDataset.createComputationFlattenedObservationData( true );
+    const Eigen::MatrixXd copiedDenseWeightMatrix = copiedFlattenedData.getWeightMatrix( ).toDense( );
+    const int copiedFirstRowStart = copiedFlattenedData.getFlattenedRow( copiedObservationIds.at( 0 ), 0 );
+    const int copiedThirdRowStart = copiedFlattenedData.getFlattenedRow( copiedObservationIds.at( 2 ), 0 );
+
+    // Downstream consumers use the flattened sparse matrix, so the remapped block must materialize at the copied row positions.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            copiedDenseWeightMatrix.block( copiedFirstRowStart, copiedThirdRowStart, 2, 2 ), sourceExtraWeightBlock, 1.0E-15 );
 }
 
 /*!

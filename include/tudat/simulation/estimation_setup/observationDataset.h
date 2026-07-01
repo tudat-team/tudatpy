@@ -280,7 +280,12 @@ public:
     //! Reconstruct the weight matrix for one observation event.
     Eigen::MatrixXd getWeightMatrixForObservation( const unsigned int observationId ) const;
 
-    //! Return a set's full weight matrix, materializing compact weights if needed.
+    //! Return the stored set-level block if present, otherwise materialize compact per-observation weights for one set.
+    /*!
+     * This accessor does not apply extra scalar-component blocks outside the set
+     * or later precedence layers. Use flattened observation data to inspect the
+     * effective matrix used by estimation.
+     */
     Eigen::MatrixXd getWeightMatrixForSet( const unsigned int setId ) const;
 
     //! Return one vector-valued residual per observation event in a set.
@@ -596,7 +601,8 @@ private:
             const std::vector< Eigen::VectorXd >& dependentVariables,
             const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-            const std::vector< unsigned int >& sourceObservationIdsForReplacement );
+            const std::vector< unsigned int >& sourceObservationIdsForReplacement,
+            const std::vector< bool >& explicitWeightsForReplacement = std::vector< bool >( ) );
 
     //! Validate per-observation vectors before replacing/appending set data.
     void validateObservationSetData( const unsigned int setId,

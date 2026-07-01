@@ -3,6 +3,8 @@ import pandas as pd
 import requests
 import os
 import pytest
+import warnings
+import numpy as np
 from tudatpy.interface import spice
 from tudatpy.dynamics.environment_setup import (
     get_default_body_settings,
@@ -14,6 +16,33 @@ from tudatpy.estimation.observable_models_setup import links
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.data.processTrk234 import converters as cnv
 from tudatpy.data.processTrk234 import OpenRampHandling
+
+
+def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
+    """Check that the compatibility collection preserves the dataset projection."""
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        # Scalar observation values must match the dataset ordered projection exactly.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_observations),
+            np.array(flattened_data.observation_vector),
+        )
+        # Scalar-component times must match the dataset ordered projection exactly.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_times),
+            np.array(flattened_data.times),
+        )
+        # Scalar-component weights must match the dataset ordered projection exactly.
+        np.testing.assert_allclose(
+            np.array(legacy_collection.concatenated_weights),
+            np.array(flattened_data.weight_vector),
+        )
+        # The wrapper must preserve one facade per dataset observation set.
+        assert len(legacy_collection.get_single_observation_sets()) == (
+            observation_dataset.number_of_observation_sets
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -372,28 +401,32 @@ def test_reader():
 
     bodies = create_system_of_bodies(body_settings)
 
-    # Create observation collection from the TNF file.
+    # Create observation dataset from the TNF file.
     trkProcessor = Trk234Processor(
         [local_filename],
         ["doppler"],
         spacecraft_name="-202",
     )
-    observationCollection = trkProcessor.process()
+    observation_dataset = trkProcessor.process()
     # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalar type tudat::Time
 
-    single_obs_sets = observationCollection.get_single_observation_sets()
-    assert single_obs_sets, "No observation sets found in the observation collection."
+    assert (
+        observation_dataset.number_of_observation_sets > 0
+    ), "No observation sets found in the observation dataset."
 
-    obs_set = single_obs_sets[0]
+    set_metadata = observation_dataset.get_observation_set_metadata(0)
 
     # Check doppler integration time.
-    dopplerCount = obs_set.ancillary_settings.get_float_settings(
+    ancillary_settings_for_set = observation_dataset.ancillary_settings(
+        set_metadata.ancillary_settings_id
+    )
+    dopplerCount = ancillary_settings_for_set.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
     assert dopplerCount == 1.0, f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
-    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
+    linkEndDelays = ancillary_settings_for_set.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]
@@ -402,7 +435,7 @@ def test_reader():
     ), f"Expected link end delays {expected_delays}, got {linkEndDelays}"
 
     # Check link definition.
-    linkEndType = obs_set.link_definition
+    linkEndType = observation_dataset.link_definition(set_metadata.link_definition_id)
     transmitter = linkEndType.link_end_id(links.transmitter).reference_point
     sc = linkEndType.link_end_id(links.reflector1).body_name
     rcv = linkEndType.link_end_id(links.receiver).reference_point
@@ -411,10 +444,7 @@ def test_reader():
     assert rcv == "DSS-65", f"Expected receiver 'DSS-65', got {rcv}"
 
     # Check observation times and values.
-    obsTimes = obs_set.observation_times
-
-    # Check observation times and values.
-    obsTimes = obs_set.observation_times
+    obsTimes = observation_dataset.observation_times_for_set(0)
     # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
@@ -422,10 +452,29 @@ def test_reader():
     assert float(obsTimes[0]) == pytest.approx(
         617245672.6834568
     ), f"Unexpected observation time: {obsTimes[0]}"
-    obsValues = obs_set.concatenated_observations
+    obsValues = observation_dataset.observation_vector_for_set(0)
     assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
+
+    legacy_collection = trkProcessor.process_observation_collection()
+    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        first_legacy_set = legacy_collection.get_single_observation_sets()[0]
+
+        # The compatibility set must preserve the same ancillary settings used by the dataset set.
+        legacyDopplerCount = first_legacy_set.ancillary_settings.get_float_settings(
+            ancillary_settings.doppler_integration_time
+        )
+        assert legacyDopplerCount == pytest.approx(dopplerCount)
+
+        # The compatibility set must preserve the same link definition as the dataset set.
+        legacyLinkEndType = first_legacy_set.link_definition
+        assert legacyLinkEndType.link_end_id(links.transmitter).reference_point == transmitter
+        assert legacyLinkEndType.link_end_id(links.reflector1).body_name == sc
+        assert legacyLinkEndType.link_end_id(links.receiver).reference_point == rcv
 
     os.remove(local_filename)
 

@@ -126,7 +126,7 @@ tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDat
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::vector< std::string >&,
                               const std::vector< std::string >&,
-                              const std::vector< TIME_TYPE > >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
+                              const std::vector< TIME_TYPE >& >( &tss::simulatePseudoObservationDataset< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
@@ -167,7 +167,23 @@ tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDat
            py::arg( "reference_link_end" ),
            py::arg( "ancillary_settings_per_observatble" ) =
                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
-           R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from existing observation values.)doc" );
+           R"doc(
+Create an observation dataset from existing observation values.
+
+Parameters
+----------
+observations : dict
+    Existing observations grouped by observable type and link definition.
+reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Link end used as the reference for the observation times.
+ancillary_settings_per_observatble : dict, optional
+    Ancillary settings to attach to each observable type.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the provided observations.
+)doc" );
 
     m.def(
             "simulate_observations",
@@ -218,13 +234,10 @@ tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDat
            py::arg( "observation_simulators" ),
            py::arg( "bodies" ),
            R"doc(
-Simulate observations and return the new dataset representation.
+Simulate observations and return the dataset representation.
 
-This function is the dataset-backed counterpart of ``simulate_observations``. It
-uses the same simulation settings, observation simulators and bodies, but stores
-the simulated observations in an
-:class:`~tudatpy.estimation.observations.ObservationDataset` instead of wrapping
-them in a legacy ``ObservationCollection``.
+This function uses the supplied simulation settings, observation simulators and
+bodies to create an :class:`~tudatpy.estimation.observations.ObservationDataset`.
 
 Parameters
 ----------
@@ -288,7 +301,29 @@ tudatpy.estimation.observations.ObservationDataset
             py::arg( "times_list" ),
             py::arg( "reference_link_end" ),
             py::arg( "ancillary_settings" ) = nullptr,
-            R"doc(Create a single-set :class:`~tudatpy.estimation.observations.ObservationDataset` from existing values.)doc" );
+            R"doc(
+Create a single-set observation dataset from existing values.
+
+Parameters
+----------
+observable_type : tudatpy.estimation.observable_models_setup.model_settings.ObservableType
+    Observable type of the provided observations.
+link_ends : tudatpy.estimation.observable_models_setup.links.LinkDefinition
+    Link definition for the observation set.
+observations_list : list[numpy.ndarray]
+    Vector-valued observations to store.
+times_list : list[float]
+    Observation time for each observation.
+reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
+    Link end used as the reference for the observation times.
+ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
+    Ancillary settings to attach to the observation set.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one observation set.
+)doc" );
 }
 
 }  // namespace observations_wrapper

@@ -219,6 +219,18 @@ void warnLegacyEstimationWeightSetter( const std::string& interfaceName )
     }
 }
 
+void warnLegacyWeightMatrixDiagonalAccess( )
+{
+    const std::string message =
+            "CovarianceAnalysisInput.weight_matrix_diagonal is deprecated. It is retained for older scripts and is not "
+            "consistent with rejected/inactive observations; set and inspect weights on "
+            "tudatpy.estimation.observations.ObservationDataset instead.";
+    if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
+    {
+        throw py::error_already_set( );
+    }
+}
+
 }  // namespace
 
 void expose_estimation_analysis( py::module& m )
@@ -409,8 +421,7 @@ void expose_estimation_analysis( py::module& m )
          Class constructor using the dataset-backed observation representation.
 
          This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
-         directly. A legacy ``ObservationCollection`` compatibility wrapper is created internally
-         for code paths that still require it.
+         directly.
 
          Parameters
          ----------
@@ -561,14 +572,24 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
-            .def_property( "weight_matrix_diagonal",
-                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
-                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightsMatrixDiagonals,
-                           R"doc(
+            .def_property(
+                    "weight_matrix_diagonal",
+                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input ) {
+                        warnLegacyWeightMatrixDiagonalAccess( );
+                        return input.getWeightsMatrixDiagonals( );
+                    },
+                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input,
+                        const Eigen::VectorXd& weightsMatrixDiagonals ) {
+                        warnLegacyWeightMatrixDiagonalAccess( );
+                        input.setWeightsMatrixDiagonals( weightsMatrixDiagonals );
+                    },
+                    R"doc(
 
-         **read-only**
+         Deprecated complete diagonal of the weights matrix.
 
-         Complete diagonal of the weights matrix that is to be used
+         This value is not consistent with rejected or inactive observations. Set
+         and inspect weights on :class:`tudatpy.estimation.observations.ObservationDataset`
+         instead.
 
          :type: numpy.ndarray[numpy.float64[n, 1]]
       )doc" )
@@ -664,8 +685,7 @@ void expose_estimation_analysis( py::module& m )
          Class constructor using the dataset-backed observation representation.
 
          This overload accepts an :class:`~tudatpy.estimation.observations.ObservationDataset`
-         directly. A legacy ``ObservationCollection`` compatibility wrapper is created internally
-         for code paths that still require it.
+         directly.
 
          Parameters
          ----------

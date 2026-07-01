@@ -153,194 +153,6 @@ Eigen::VectorXd castObservationSelectionConditionVectorLimit( const py::object& 
     return value.cast< Eigen::VectorXd >( );
 }
 
-bool isProvided( const py::object& value )
-{
-    return !value.is_none( );
-}
-
-template< typename ObservationScalarType, typename TimeType >
-struct ObservationWeightSelector {
-    bool useSetId = false;
-    unsigned int setId = 0;
-    tom::ObservationSelectionCondition< ObservationScalarType, TimeType > condition =
-            tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::all( );
-};
-
-template< typename ObservationScalarType, typename TimeType >
-void addObservationWeightCondition( tom::ObservationSelectionCondition< ObservationScalarType, TimeType >& combinedCondition,
-                                    bool& hasCondition,
-                                    const tom::ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
-{
-    combinedCondition = hasCondition ? ( combinedCondition && condition ) : condition;
-    hasCondition = true;
-}
-
-template< typename ObservationScalarType, typename TimeType >
-ObservationWeightSelector< ObservationScalarType, TimeType > createObservationWeightSelector(
-        const py::object& condition,
-        const py::object& setId,
-        const py::object& observableType,
-        const py::object& linkDefinition,
-        const py::object& linkEndType,
-        const py::object& linkEnd,
-        const py::object& timeBounds,
-        const py::object& active,
-        const py::object& rejected,
-        const py::object& residualAbsoluteValueGreaterThan,
-        const py::object& observationAbsoluteValueGreaterThan,
-        const py::object& dependentVariableGreaterThan )
-{
-    const bool hasCondition = isProvided( condition );
-    const bool hasSetId = isProvided( setId );
-    const bool hasObservableType = isProvided( observableType );
-    const bool hasLinkDefinition = isProvided( linkDefinition );
-    const bool hasLinkEndType = isProvided( linkEndType );
-    const bool hasLinkEnd = isProvided( linkEnd );
-    const bool hasTimeBounds = isProvided( timeBounds );
-    const bool hasActive = isProvided( active );
-    const bool hasRejected = isProvided( rejected );
-    const bool hasResidualLimit = isProvided( residualAbsoluteValueGreaterThan );
-    const bool hasObservationLimit = isProvided( observationAbsoluteValueGreaterThan );
-    const bool hasDependentVariableLimit = isProvided( dependentVariableGreaterThan );
-
-    const bool hasNonSetSelector = hasObservableType || hasLinkDefinition || hasLinkEndType || hasLinkEnd || hasTimeBounds || hasActive ||
-            hasRejected || hasResidualLimit || hasObservationLimit || hasDependentVariableLimit;
-
-    if( hasCondition && ( hasSetId || hasNonSetSelector ) )
-    {
-        throw py::value_error( "condition cannot be combined with selector keywords." );
-    }
-    if( hasSetId && hasNonSetSelector )
-    {
-        throw py::value_error( "set_id cannot be combined with other selector keywords." );
-    }
-    if( hasActive && !active.cast< bool >( ) )
-    {
-        throw py::value_error( "active only accepts True." );
-    }
-    if( hasRejected && !rejected.cast< bool >( ) )
-    {
-        throw py::value_error( "rejected only accepts True." );
-    }
-    if( hasActive && hasRejected )
-    {
-        throw py::value_error( "active and rejected cannot both be selected." );
-    }
-    if( !( hasCondition || hasSetId || hasNonSetSelector ) )
-    {
-        throw py::value_error( "At least one observation selector must be provided." );
-    }
-
-    ObservationWeightSelector< ObservationScalarType, TimeType > selector;
-    if( hasSetId )
-    {
-        selector.useSetId = true;
-        selector.setId = setId.cast< unsigned int >( );
-        return selector;
-    }
-    if( hasCondition )
-    {
-        selector.condition = condition.cast< tom::ObservationSelectionCondition< ObservationScalarType, TimeType > >( );
-        return selector;
-    }
-
-    bool hasCombinedCondition = false;
-    if( hasObservableType )
-    {
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                                               observableType.cast< tom::ObservableType >( ) ) );
-    }
-    if( hasLinkDefinition )
-    {
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                                               linkDefinition.cast< tom::LinkDefinition >( ) ) );
-    }
-    if( hasLinkEndType )
-    {
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkEndType(
-                                               linkEndType.cast< tom::LinkEndType >( ) ) );
-    }
-    if( hasLinkEnd )
-    {
-        const py::tuple linkEndTuple = linkEnd.cast< py::tuple >( );
-        if( linkEndTuple.size( ) != 2 )
-        {
-            throw py::value_error( "link_end must be a tuple of (link_end_type, link_end_id)." );
-        }
-        addObservationWeightCondition(
-                selector.condition,
-                hasCombinedCondition,
-                tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkEnd(
-                        linkEndTuple[ 0 ].cast< tom::LinkEndType >( ), linkEndTuple[ 1 ].cast< tom::LinkEndId >( ) ) );
-    }
-    if( hasTimeBounds )
-    {
-        const py::tuple timeBoundsTuple = timeBounds.cast< py::tuple >( );
-        if( timeBoundsTuple.size( ) != 2 )
-        {
-            throw py::value_error( "time_bounds must be a tuple of (start_time, end_time)." );
-        }
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::timeBounds(
-                                               timeBoundsTuple[ 0 ].cast< TimeType >( ), timeBoundsTuple[ 1 ].cast< TimeType >( ) ) );
-    }
-    if( hasActive )
-    {
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::active( ) );
-    }
-    if( hasRejected )
-    {
-        addObservationWeightCondition( selector.condition,
-                                       hasCombinedCondition,
-                                       tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::rejected( ) );
-    }
-    if( hasResidualLimit )
-    {
-        addObservationWeightCondition(
-                selector.condition,
-                hasCombinedCondition,
-                tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::residualAbsoluteValueGreaterThan(
-                        castObservationSelectionConditionVectorLimit( residualAbsoluteValueGreaterThan ) ) );
-    }
-    if( hasObservationLimit )
-    {
-        addObservationWeightCondition(
-                selector.condition,
-                hasCombinedCondition,
-                tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::observationAbsoluteValueGreaterThan(
-                        castObservationSelectionConditionVectorLimit( observationAbsoluteValueGreaterThan ) ) );
-    }
-    if( hasDependentVariableLimit )
-    {
-        const py::tuple dependentVariableTuple = dependentVariableGreaterThan.cast< py::tuple >( );
-        if( dependentVariableTuple.size( ) != 2 && dependentVariableTuple.size( ) != 3 )
-        {
-            throw py::value_error(
-                    "dependent_variable_greater_than must be a tuple of (dependent_variable_settings, limit) or "
-                    "(dependent_variable_settings, limit, return_first_compatible_settings)." );
-        }
-        const bool returnFirstCompatibleSettings =
-                dependentVariableTuple.size( ) == 3 ? dependentVariableTuple[ 2 ].cast< bool >( ) : false;
-        addObservationWeightCondition(
-                selector.condition,
-                hasCombinedCondition,
-                tom::ObservationSelectionCondition< ObservationScalarType, TimeType >::dependentVariableGreaterThan(
-                        dependentVariableTuple[ 0 ].cast< std::shared_ptr< tss::ObservationDependentVariableSettings > >( ),
-                        castObservationSelectionConditionVectorLimit( dependentVariableTuple[ 1 ].cast< py::object >( ) ),
-                        returnFirstCompatibleSettings ) );
-    }
-    return selector;
-}
-
 struct ObservationDocSpec {
     std::string signature;
     std::string returnType;
@@ -611,7 +423,7 @@ const char* observationDatasetDoc( const std::string& methodName )
         { "reject_observations", { "(condition, reason='')", "None", "Mark selected observations as rejected." } },
         { "restore_observations", { "(condition)", "None", "Restore selected observations to active status." } },
         { "remove_observations", { "(condition)", "None", "Physically remove selected observations." } },
-        { "delete_rejected_observations", { "()", "None", "Physically remove all currently rejected observations." } },
+        { "remove_rejected_observations", { "()", "None", "Physically remove all currently rejected observations." } },
         { "estimation_flattened_observation_data",
           { "(include_rejected=False)",
             "tudatpy.estimation.observations.FlattenedObservationData",
@@ -626,11 +438,6 @@ const char* observationDatasetDoc( const std::string& methodName )
             "Return flattened data in ordered output order." } },
         { "rms_residuals_for_set", { "(set_id)", "numpy.ndarray", "Return root-mean-square residuals for one set." } },
         { "mean_residuals_for_set", { "(set_id)", "numpy.ndarray", "Return mean residuals for one set." } },
-        { "set_constant_weight", { "(condition, weight)", "None", "Set one scalar weight for all observations matching a condition." } },
-        { "set_constant_diagonal_weight",
-          { "(condition, weight)", "None", "Set one diagonal weight vector for all matching observations." } },
-        { "set_constant_matrix_weight",
-          { "(condition, weight)", "None", "Set one dense observable-size weight matrix for all matching observations." } },
         { "set_weight_vector_for_set",
           { "(set_id, weight_vector)", "None", "Replace the concatenated scalar-component weight vector for one set." } },
         { "set_weight_matrix_for_set", { "(set_id, weight_matrix)", "None", "Store one full dense set-level weight matrix." } },
@@ -668,7 +475,10 @@ const char* observationDatasetDoc( const std::string& methodName )
         { "weight_value", { "(observation_id)", "numpy.ndarray", "Return the scalar-component weight vector for one observation row." } },
         { "weight_matrix_for_observation",
           { "(observation_id)", "numpy.ndarray", "Return the dense observable-size weight matrix for one observation row." } },
-        { "weight_matrix_for_set", { "(set_id)", "numpy.ndarray", "Return the full dense weight matrix for one set." } },
+        { "weight_matrix_for_set",
+          { "(set_id)",
+            "numpy.ndarray",
+            "Return the stored set-level block when present, otherwise materialize compact per-observation weights for one set." } },
         { "residuals_for_set", { "(set_id)", "list[numpy.ndarray]", "Return all residual vectors in one set." } },
         { "residual_vector_for_set", { "(set_id)", "numpy.ndarray", "Return all residuals in one set as a concatenated vector." } },
         { "residual_value", { "(observation_id)", "numpy.ndarray", "Return the residual vector for one observation row." } },
@@ -693,17 +503,12 @@ const char* observationDatasetDoc( const std::string& methodName )
           { "(set_id, dependent_variables)", "None", "Replace all dependent-variable vectors in one set." } },
         { "clear_dependent_variables_for_set", { "(set_id)", "None", "Clear all dependent-variable vectors in one set." } },
         { "set_observations_for_set", { "(set_id, observations)", "None", "Replace all observation vectors in one set." } },
-        { "set_observation_vector_for_set",
-          { "(set_id, observation_vector)", "None", "Replace all observations in one set from a vector." } },
         { "set_residuals_for_set", { "(set_id, residuals)", "None", "Replace all residual vectors in one set." } },
-        { "set_residual_vector_for_set", { "(set_id, residual_vector)", "None", "Replace all residuals in one set from a vector." } },
         { "add_observations_to_set",
           { "(set_id, observations, times, dependent_variables=[], weights=[], residuals=[], sort_observations=True)",
             "None",
             "Append observations to an existing set." } },
         { "remove_observations_from_set", { "(set_id, indices_to_remove)", "None", "Remove observations from one set by index." } },
-        { "erase_duplicate_observations_from_set",
-          { "(set_id, print_warning=True)", "None", "Remove duplicate observations from one set." } },
         { "time_bounds_for_set", { "(set_id)", "tuple", "Return the minimum and maximum observation time in one set." } },
         { "number_of_observations_for_set", { "(set_id)", "int", "Return the number of observation rows in one set." } },
         { "total_scalar_size_for_set", { "(set_id)", "int", "Return the number of scalar components in one set." } },
@@ -1333,21 +1138,11 @@ dataset-centric representation.
                       py::arg( "set_id" ),
                       py::arg( "observations" ),
                       observationDatasetDoc( "set_observations_for_set" ) )
-                .def( "set_observation_vector_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationVectorForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "observation_vector" ),
-                      observationDatasetDoc( "set_observation_vector_for_set" ) )
                 .def( "set_residuals_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setResidualsForSet,
                       py::arg( "set_id" ),
                       py::arg( "residuals" ),
                       observationDatasetDoc( "set_residuals_for_set" ) )
-                .def( "set_residual_vector_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setResidualVectorForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "residual_vector" ),
-                      observationDatasetDoc( "set_residual_vector_for_set" ) )
                 .def( "set_constant_single_observation_scalar_weight_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeightForSet,
                       py::arg( "set_id" ),
@@ -1368,187 +1163,16 @@ dataset-centric representation.
                       py::arg( "condition" ),
                       py::arg( "weight" ),
                       observationDatasetDoc( "set_constant_single_observation_scalar_weight" ) )
-                .def(
-                        "set_constant_single_observation_scalar_weight",
-                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset,
-                            const double weight,
-                            const py::object& condition,
-                            const py::object& setId,
-                            const py::object& observableType,
-                            const py::object& linkDefinition,
-                            const py::object& linkEndType,
-                            const py::object& linkEnd,
-                            const py::object& timeBounds,
-                            const py::object& active,
-                            const py::object& rejected,
-                            const py::object& residualAbsoluteValueGreaterThan,
-                            const py::object& observationAbsoluteValueGreaterThan,
-                            const py::object& dependentVariableGreaterThan ) {
-                            const auto selector =
-                                    createObservationWeightSelector< STATE_SCALAR_TYPE, TIME_TYPE >( condition,
-                                                                                                     setId,
-                                                                                                     observableType,
-                                                                                                     linkDefinition,
-                                                                                                     linkEndType,
-                                                                                                     linkEnd,
-                                                                                                     timeBounds,
-                                                                                                     active,
-                                                                                                     rejected,
-                                                                                                     residualAbsoluteValueGreaterThan,
-                                                                                                     observationAbsoluteValueGreaterThan,
-                                                                                                     dependentVariableGreaterThan );
-                            if( selector.useSetId )
-                            {
-                                dataset.setConstantSingleObservationScalarWeightForSet( selector.setId, weight );
-                            }
-                            else
-                            {
-                                dataset.setConstantSingleObservationScalarWeight( selector.condition, weight );
-                            }
-                        },
-                        py::arg( "weight" ),
-                        py::kw_only( ),
-                        py::arg( "condition" ) = py::none( ),
-                        py::arg( "set_id" ) = py::none( ),
-                        py::arg( "observable_type" ) = py::none( ),
-                        py::arg( "link_definition" ) = py::none( ),
-                        py::arg( "link_end_type" ) = py::none( ),
-                        py::arg( "link_end" ) = py::none( ),
-                        py::arg( "time_bounds" ) = py::none( ),
-                        py::arg( "active" ) = py::none( ),
-                        py::arg( "rejected" ) = py::none( ),
-                        py::arg( "residual_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "observation_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "dependent_variable_greater_than" ) = py::none( ) )
-                .def( "set_constant_weight",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeight,
-                      py::arg( "condition" ),
-                      py::arg( "weight" ),
-                      observationDatasetDoc( "set_constant_weight" ) )
                 .def( "set_constant_single_observation_diagonal_weight",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationDiagonalWeight,
                       py::arg( "condition" ),
                       py::arg( "weight" ),
                       observationDatasetDoc( "set_constant_single_observation_diagonal_weight" ) )
-                .def(
-                        "set_constant_single_observation_diagonal_weight",
-                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset,
-                            const Eigen::VectorXd& weight,
-                            const py::object& condition,
-                            const py::object& setId,
-                            const py::object& observableType,
-                            const py::object& linkDefinition,
-                            const py::object& linkEndType,
-                            const py::object& linkEnd,
-                            const py::object& timeBounds,
-                            const py::object& active,
-                            const py::object& rejected,
-                            const py::object& residualAbsoluteValueGreaterThan,
-                            const py::object& observationAbsoluteValueGreaterThan,
-                            const py::object& dependentVariableGreaterThan ) {
-                            const auto selector =
-                                    createObservationWeightSelector< STATE_SCALAR_TYPE, TIME_TYPE >( condition,
-                                                                                                     setId,
-                                                                                                     observableType,
-                                                                                                     linkDefinition,
-                                                                                                     linkEndType,
-                                                                                                     linkEnd,
-                                                                                                     timeBounds,
-                                                                                                     active,
-                                                                                                     rejected,
-                                                                                                     residualAbsoluteValueGreaterThan,
-                                                                                                     observationAbsoluteValueGreaterThan,
-                                                                                                     dependentVariableGreaterThan );
-                            if( selector.useSetId )
-                            {
-                                dataset.setConstantSingleObservationDiagonalWeightForSet( selector.setId, weight );
-                            }
-                            else
-                            {
-                                dataset.setConstantSingleObservationDiagonalWeight( selector.condition, weight );
-                            }
-                        },
-                        py::arg( "weight" ),
-                        py::kw_only( ),
-                        py::arg( "condition" ) = py::none( ),
-                        py::arg( "set_id" ) = py::none( ),
-                        py::arg( "observable_type" ) = py::none( ),
-                        py::arg( "link_definition" ) = py::none( ),
-                        py::arg( "link_end_type" ) = py::none( ),
-                        py::arg( "link_end" ) = py::none( ),
-                        py::arg( "time_bounds" ) = py::none( ),
-                        py::arg( "active" ) = py::none( ),
-                        py::arg( "rejected" ) = py::none( ),
-                        py::arg( "residual_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "observation_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "dependent_variable_greater_than" ) = py::none( ) )
-                .def( "set_constant_diagonal_weight",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationDiagonalWeight,
-                      py::arg( "condition" ),
-                      py::arg( "weight" ),
-                      observationDatasetDoc( "set_constant_diagonal_weight" ) )
                 .def( "set_constant_single_observation_matrix_weight",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationMatrixWeight,
                       py::arg( "condition" ),
                       py::arg( "weight" ),
                       observationDatasetDoc( "set_constant_single_observation_matrix_weight" ) )
-                .def(
-                        "set_constant_single_observation_matrix_weight",
-                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& dataset,
-                            const Eigen::MatrixXd& weight,
-                            const py::object& condition,
-                            const py::object& setId,
-                            const py::object& observableType,
-                            const py::object& linkDefinition,
-                            const py::object& linkEndType,
-                            const py::object& linkEnd,
-                            const py::object& timeBounds,
-                            const py::object& active,
-                            const py::object& rejected,
-                            const py::object& residualAbsoluteValueGreaterThan,
-                            const py::object& observationAbsoluteValueGreaterThan,
-                            const py::object& dependentVariableGreaterThan ) {
-                            const auto selector =
-                                    createObservationWeightSelector< STATE_SCALAR_TYPE, TIME_TYPE >( condition,
-                                                                                                     setId,
-                                                                                                     observableType,
-                                                                                                     linkDefinition,
-                                                                                                     linkEndType,
-                                                                                                     linkEnd,
-                                                                                                     timeBounds,
-                                                                                                     active,
-                                                                                                     rejected,
-                                                                                                     residualAbsoluteValueGreaterThan,
-                                                                                                     observationAbsoluteValueGreaterThan,
-                                                                                                     dependentVariableGreaterThan );
-                            if( selector.useSetId )
-                            {
-                                dataset.setConstantSingleObservationMatrixWeightForSet( selector.setId, weight );
-                            }
-                            else
-                            {
-                                dataset.setConstantSingleObservationMatrixWeight( selector.condition, weight );
-                            }
-                        },
-                        py::arg( "weight" ),
-                        py::kw_only( ),
-                        py::arg( "condition" ) = py::none( ),
-                        py::arg( "set_id" ) = py::none( ),
-                        py::arg( "observable_type" ) = py::none( ),
-                        py::arg( "link_definition" ) = py::none( ),
-                        py::arg( "link_end_type" ) = py::none( ),
-                        py::arg( "link_end" ) = py::none( ),
-                        py::arg( "time_bounds" ) = py::none( ),
-                        py::arg( "active" ) = py::none( ),
-                        py::arg( "rejected" ) = py::none( ),
-                        py::arg( "residual_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "observation_absolute_value_greater_than" ) = py::none( ),
-                        py::arg( "dependent_variable_greater_than" ) = py::none( ) )
-                .def( "set_constant_matrix_weight",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationMatrixWeight,
-                      py::arg( "condition" ),
-                      py::arg( "weight" ),
-                      observationDatasetDoc( "set_constant_matrix_weight" ) )
                 .def( "set_weight_vector_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightVectorForSet,
                       py::arg( "set_id" ),
@@ -1581,9 +1205,9 @@ dataset-centric representation.
                       py::arg( "column_components" ) = std::vector< unsigned int >( ),
                       py::arg( "make_symmetric" ) = false,
                       observationDatasetDoc( "set_weight_block" ) )
-                .def( "extra_weight_blocks",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getExtraWeightBlocks,
-                      R"doc(Return the advanced scalar-component weight blocks stored on this dataset.)doc" )
+                .def_property_readonly( "extra_weight_blocks",
+                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getExtraWeightBlocks,
+                                        R"doc(Return the advanced scalar-component weight blocks stored on this dataset.)doc" )
                 .def_property_readonly( "has_extra_weight_blocks",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
                                         R"doc(True when the dataset stores advanced scalar-component weight blocks.)doc" )
@@ -1606,22 +1230,13 @@ dataset-centric representation.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservations,
                       py::arg( "condition" ),
                       observationDatasetDoc( "remove_observations" ) )
-                .def( "delete_rejected_observations",
+                .def( "remove_rejected_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeRejectedObservations,
-                      observationDatasetDoc( "delete_rejected_observations" ) )
-                .def( "filtered_observation_indices",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getFilteredObservationIndices,
-                      py::arg( "set_id" ),
-                      py::arg( "observation_filter" ) )
+                      observationDatasetDoc( "remove_rejected_observations" ) )
                 .def( "time_bounds_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsForSet,
                       py::arg( "set_id" ),
                       observationDatasetDoc( "time_bounds_for_set" ) )
-                .def( "erase_duplicate_observations_from_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::eraseDuplicateObservationsFromSet,
-                      py::arg( "set_id" ),
-                      py::arg( "print_warning" ) = true,
-                      observationDatasetDoc( "erase_duplicate_observations_from_set" ) )
                 .def( "computed_observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservationsForSet,
                       py::arg( "set_id" ),

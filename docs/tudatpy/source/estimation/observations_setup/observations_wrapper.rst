@@ -7,8 +7,8 @@ The functionality in this module is used to either load or simulate observations
 
 This module supports the loading of the following data types:
 
-* ODF files: Data files produced by NASA Deep Space Network (DSN) according to the  `TRK 2-18 format <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/DSN_TRK-2-18/dsn_trk-2-18.2008-02-29.pdf>`_. ODF files are binary files, which can be read by Tudat using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.process_odf_data_multiple_files`. The ODF files also contain information on station transmission frequencies (ramp tables) which can be automatically set in the ground station objects in Tudat from the data in the ODF files using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.set_odf_information_in_bodies` function. At the moment, only two- and three-way Doppler data, and two-way sequential ranging data are supported in the file reading of ODF files
-* IFMS files: Data files produced by ESA's ESTRACK tracking network, see `generic documentation <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-PRM-0131-V1.0/DOCUMENT/ESA_DOC/IFMS_OCCFTP_10_3_1.PDF>`_ and `mission-specific documentation <https://pdssbn.astro.umd.edu/holdings/ro-x-rsi-1_2_3-cvp1-0008-v1.0/document/rsi_doc/ros_rsi_igm_ds_3118.pdf>`_. IFMS files are text files containing the radio tracking data and station transmission frequencies.
+* ODF files: Data files produced by NASA Deep Space Network (DSN) according to the  `TRK 2-18 format <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/DSN_TRK-2-18/dsn_trk-2-18.2008-02-29.pdf>`_. ODF files are binary files, which can be read by Tudat using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.process_odf_data_multiple_files` and converted into an :class:`~tudatpy.estimation.observations.ObservationDataset` using :func:`~tudatpy.estimation.observations_setup.observations_wrapper.create_odf_observed_observation_dataset`. The ODF files also contain information on station transmission frequencies (ramp tables) which can be automatically set in the ground station objects in Tudat from the data in the ODF files using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.set_odf_information_in_bodies` function. As a function of convenience, :func:`~tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_odf_files` takes care of each of these steps. At the moment, only two- and three-way Doppler data, and two-way sequential ranging data are supported in the file reading of ODF files
+* IFMS files: Data files produced by ESA's ESTRACK tracking network, see `generic documentation <https://archives.esac.esa.int/psa/ftp/MARS-EXPRESS/MRS/MEX-M-MRS-1-2-3-PRM-0131-V1.0/DOCUMENT/ESA_DOC/IFMS_OCCFTP_10_3_1.PDF>`_ and `mission-specific documentation <https://pdssbn.astro.umd.edu/holdings/ro-x-rsi-1_2_3-cvp1-0008-v1.0/document/rsi_doc/ros_rsi_igm_ds_3118.pdf>`_. IFMS files are text files containing the radio tracking data and station transmission frequencies. Use :func:`~tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_ifms_files` for a single station, or :func:`~tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_multi_station_ifms_files` when each IFMS file is associated with a station.
 * Fdets files: Data files containing open-loop Doppler data produced using the Planetary Radio Interferometry and Doppler Experiment (PRIDE), see `data processing description <https://www.cambridge.org/core/journals/publications-of-the-astronomical-society-of-australia/article/high-spectral-resolution-multitone-spacecraft-doppler-tracking-software-algorithms-and-implementations/629B2AC90B0C233C0B43D0AEF897FCA6>`_ . These data files contain frequency observations, typically from a spacecraft downlink that is retransmitted from an uplink. The Fdets files only contain the frequency detections. To use these data in an orbit estimation, the transmitter frequency needs to be defined, or loaded from another data source (such as ODF or IFMS files).
 
 We also provide interfaces for creating pseudo-observations (Cartesian position observations from existing ephemerides, see :func:`~tudatpy.estimation.observations_setup.observations_wrapper.create_pseudo_observation_dataset_and_models`). Finally, the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observation_dataset` function can be used to simulate observations inside Tudat.
@@ -27,11 +27,25 @@ Functions
 
    set_odf_information_in_bodies
 
+   create_odf_observed_observation_dataset
+
+   observation_dataset_from_odf_files
+
+   observation_dataset_from_ifms_files
+
+   observation_dataset_from_multi_station_ifms_files
+
+   observation_dataset_from_fdets_files
+
    create_pseudo_observation_dataset_and_models
 
    create_pseudo_observation_dataset_and_models_from_observation_times
 
+   set_existing_observation_dataset
+
    simulate_observation_dataset
+
+   single_type_observation_dataset
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.process_odf_data_single_file
    
@@ -39,11 +53,25 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.set_odf_information_in_bodies
 
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.create_odf_observed_observation_dataset
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_odf_files
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_ifms_files
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_multi_station_ifms_files
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.observation_dataset_from_fdets_files
+
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.create_pseudo_observation_dataset_and_models
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.create_pseudo_observation_dataset_and_models_from_observation_times
 
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.set_existing_observation_dataset
+
 .. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.simulate_observation_dataset
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_wrapper.single_type_observation_dataset
 
 Classes
 -------

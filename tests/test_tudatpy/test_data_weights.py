@@ -1,6 +1,5 @@
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
-from tudatpy.estimation import estimation_analysis
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.interface import spice
 
@@ -24,9 +23,11 @@ weights_test_combinations = [
 @pytest.mark.parametrize(
     "observatories_to_filter,use_single_observation", weights_test_combinations
 )
-@pytest.mark.parametrize("use_dummy_weights", [(True,), (False,)])
-def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_single_observation):
-    """Test if the weights are transfered correctly to observation collection"""
+@pytest.mark.parametrize("use_dummy_weights", [True, False])
+def test_MPC_weights_to_observation_dataset(
+    observatories_to_filter, use_dummy_weights, use_single_observation
+):
+    """Test if the weights are transferred correctly to the observation dataset."""
     target_mpc_code = "433"
     mpc_codes = [target_mpc_code]
 
@@ -59,14 +60,14 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
         # sets the weights to be a list in ascending order from 0, 1, 2,...
         batch.set_weights(np.array(list(range(0, batch.size))))
 
-    observation_collection = batch.to_tudat(
+    observation_dataset = batch.to_tudat(
         bodies=bodies,
         included_satellites=None,
         apply_star_catalog_debias=True,
         apply_weights_VFCC17=True,
     )
 
-    # tudat's observationcollection sorts by observatory then time
+    # Tudat's ordered flattened dataset data sorts by observatory then time.
     temp_table = batch._table.query("observatory != @batch.space_telescopes").sort_values(
         ["observatory", "epoch_seconds_TDB"], ascending=True
     )
@@ -75,10 +76,11 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
     batch_weights = np.ravel(2 * [temp_table.weight.to_numpy()], "F")
     batch_times = np.ravel(2 * [temp_table.epoch_seconds_TDB.to_numpy()], "F")
 
-    # check if lengths match and if the difference is zero
-    assert len(batch_weights) == len(observation_collection.concatenated_weights)
-    total_diff = np.sum(batch_weights - np.array(observation_collection.concatenated_weights))
-    total_diff_time = np.sum(batch_times - np.array(observation_collection.concatenated_times))
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
 
-    assert total_diff_time == 0
-    assert total_diff == 0
+    # The flattened dataset must preserve every expected weight in ordered-output order.
+    assert len(batch_weights) == len(flattened_data.weight_vector)
+    np.testing.assert_allclose(np.array(flattened_data.weight_vector), batch_weights)
+
+    # Times are checked entry-by-entry so an ordering regression cannot be hidden by cancellation.
+    np.testing.assert_allclose(np.array(flattened_data.times), batch_times)

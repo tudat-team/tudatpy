@@ -360,7 +360,28 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             py::arg( "observable_types_to_process" ),
             py::arg( "start_and_end_times_to_process" ),
             py::arg( "allow_duplicate_observations_within_single_set" ) = true,
-            R"doc(Create an ODF-backed :class:`~tudatpy.estimation.observations.ObservationDataset`.)doc" );
+            R"doc(
+Creates an observation dataset containing the provided ODF data.
+
+Only the specified observable types are loaded from the processed ODF data into
+the observation dataset.
+
+Parameters
+----------
+processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+    Processed ODF data.
+observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
+    Observable types to process.
+start_and_end_times_to_process : tuple[float, float]
+    Start and end times of the data to process.
+allow_duplicate_observations_within_single_set : bool, default = True
+    Whether duplicate observations are allowed within a single observation set.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the selected ODF observations.
+)doc" );
 
     m.def(
             "observations_from_odf_files",
@@ -438,7 +459,32 @@ void expose_observations_wrapper_io_bindings( py::module& m )
                        tss::getApproximateDsnGroundStationPositions( ),
                        "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
             py::arg( "allow_duplicate_observations_within_single_set" ) = true,
-            R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from ODF files.)doc" );
+            R"doc(
+Create an observation dataset from ODF files.
+
+This function processes ODF files, sets the required information in the bodies,
+and creates an observation dataset.
+
+Parameters
+----------
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    System of bodies.
+odf_file_names : list[str]
+    List of ODF file names.
+target_name : str
+    Name of the target spacecraft.
+verbose_output : bool, default = True
+    Whether to print verbose output during processing.
+earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
+    Approximate ground-station positions in the Earth-fixed frame.
+allow_duplicate_observations_within_single_set : bool, default = True
+    Whether duplicate observations are allowed within a single observation set.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the ODF observations.
+)doc" );
 
     m.def(
             "observations_from_ifms_files",
@@ -518,7 +564,35 @@ void expose_observations_wrapper_io_bindings( py::module& m )
                       tss::getCombinedApproximateGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            py::arg( "remove_invalid_lines" ) = true,
-           R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from IFMS files.)doc" );
+           R"doc(
+Create an observation dataset from IFMS files for a single station.
+
+Parameters
+----------
+ifms_file_names : list[str]
+    List of IFMS file names.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    System of bodies.
+target_name : str
+    Name of the target spacecraft.
+ground_station_name : str
+    Name of the ground station.
+reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Reception frequency band.
+transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Transmission frequency band.
+apply_troposphere_correction : bool, default = True
+    Whether to apply troposphere correction.
+earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
+    Approximate ground-station positions in the Earth-fixed frame.
+remove_invalid_lines : bool, default = True
+    Whether to skip lines with undefined transmit frequency, observed frequency, or troposphere correction.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the IFMS observations.
+)doc" );
 
     m.def(
             "observations_from_multi_station_ifms_files",
@@ -600,7 +674,35 @@ void expose_observations_wrapper_io_bindings( py::module& m )
                       tss::getCombinedApproximateGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            py::arg( "remove_invalid_lines" ) = true,
-           R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from multi-station IFMS files.)doc" );
+           R"doc(
+Create an observation dataset from IFMS files for multiple stations.
+
+Parameters
+----------
+ifms_file_names : list[str]
+    List of IFMS file names.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    System of bodies.
+target_name : str
+    Name of the target spacecraft.
+ground_station_names : list[str]
+    Ground-station name for each IFMS file.
+reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Reception frequency band.
+transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Transmission frequency band.
+apply_troposphere_correction : bool, default = True
+    Whether to apply troposphere correction.
+earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
+    Approximate ground-station positions in the Earth-fixed frame.
+remove_invalid_lines : bool, default = True
+    Whether to skip lines with undefined transmit frequency, observed frequency, or troposphere correction.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the multi-station IFMS observations.
+)doc" );
 
     m.def(
             "observations_from_fdets_files",
@@ -685,7 +787,35 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg_v( "earth_fixed_station_positions",
                       tss::getCombinedApproximateGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from an FDETS file.)doc" );
+           R"doc(
+Create an observation dataset from an FDETS file.
+
+Parameters
+----------
+fdets_file_name : str
+    FDETS file name.
+base_frequency : float
+    Base frequency for Doppler observables.
+date_format : tudatpy.data.FdetDateFormat
+    Date format used in the FDETS file.
+target_name : str
+    Name of the target spacecraft.
+transmitting_station_name : str
+    Name of the transmitting station.
+receiving_station_name : str
+    Name of the receiving station.
+reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Reception frequency band.
+transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Transmission frequency band.
+earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
+    Approximate ground-station positions in the Earth-fixed frame.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the FDETS observations.
+)doc" );
 
     m.def(
             "observations_from_fdets_files",
@@ -750,7 +880,35 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg_v( "earth_fixed_station_positions",
                       tss::getCombinedApproximateGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from an FDETS file.)doc" );
+           R"doc(
+Create an observation dataset from an FDETS file using explicit column identifiers.
+
+Parameters
+----------
+fdets_file_name : str
+    FDETS file name.
+base_frequency : float
+    Base frequency for Doppler observables.
+column_types : list[str]
+    Column identifiers used to parse the FDETS file.
+target_name : str
+    Name of the target spacecraft.
+transmitting_station_name : str
+    Name of the transmitting station.
+receiving_station_name : str
+    Name of the receiving station.
+reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Reception frequency band.
+transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+    Transmission frequency band.
+earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
+    Approximate ground-station positions in the Earth-fixed frame.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing the FDETS observations.
+)doc" );
 
     m.def(
             "create_compressed_doppler_collection",

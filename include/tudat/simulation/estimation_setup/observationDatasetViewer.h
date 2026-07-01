@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <unordered_set>
 #include <vector>
 
 #include <Eigen/Core>
@@ -114,7 +115,17 @@ public:
             const bool includeInactive = true ) const
     {
         checkValidity( );
-        return dataset( ).createFlattenedObservationDataFromObservationIds( observationIds_, includeInactive );
+        const std::unordered_set< unsigned int > selectedObservationIds( observationIds_.begin( ), observationIds_.end( ) );
+        std::vector< unsigned int > orderedSelectedObservationIds;
+        orderedSelectedObservationIds.reserve( observationIds_.size( ) );
+        for( const unsigned int observationId : dataset( ).getObservationIdsInOrderedFlattenedDataOrder( ) )
+        {
+            if( selectedObservationIds.count( observationId ) > 0 )
+            {
+                orderedSelectedObservationIds.push_back( observationId );
+            }
+        }
+        return dataset( ).createFlattenedObservationDataFromObservationIds( orderedSelectedObservationIds, includeInactive );
     }
 
 private:

@@ -58,7 +58,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::copyObservati
     observationRows_.at( targetObservationId ).isActive_ = sourceDataset.observationRows_.at( sourceObservationId ).isActive_;
     observationRows_.at( targetObservationId ).rejectionReason_ = sourceDataset.observationRows_.at( sourceObservationId ).rejectionReason_;
     observationWeights_.setObservationWeight( targetObservationId,
-                                              sourceDataset.observationWeights_.getObservationWeight( sourceObservationId ) );
+                                              sourceDataset.observationWeights_.getObservationWeight( sourceObservationId ),
+                                              sourceDataset.observationWeights_.hasExplicitObservationWeight( sourceObservationId ) );
 }
 
 template< typename ObservationScalarType,
@@ -159,12 +160,17 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::replaceObserv
         const std::vector< Eigen::VectorXd >& dependentVariables,
         const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-        const std::vector< unsigned int >& sourceObservationIdsForReplacement )
+        const std::vector< unsigned int >& sourceObservationIdsForReplacement,
+        const std::vector< bool >& explicitWeightsForReplacement )
 {
     validateObservationSetData( setId, observations, times, dependentVariables, weights, residuals );
     if( !sourceObservationIdsForReplacement.empty( ) && sourceObservationIdsForReplacement.size( ) != observations.size( ) )
     {
         throw std::runtime_error( "Error when rebuilding observation dataset, source-row map size is inconsistent." );
+    }
+    if( !explicitWeightsForReplacement.empty( ) && explicitWeightsForReplacement.size( ) != observations.size( ) )
+    {
+        throw std::runtime_error( "Error when rebuilding observation dataset, explicit-weight map size is inconsistent." );
     }
 
     const ObservationDataset< ObservationScalarType, TimeType > sourceDataset = *this;
@@ -203,6 +209,13 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::replaceObserv
             const unsigned int sourceObservationId = sourceObservationIdsToPreserve.at( i );
             if( sourceObservationId == invalidObservationId( ) )
             {
+                if( !explicitWeightsForReplacement.empty( ) && !explicitWeightsForReplacement.at( i ) )
+                {
+                    rebuiltDataset.observationWeights_.setObservationWeight(
+                            targetObservationIds.at( i ),
+                            rebuiltDataset.observationWeights_.getObservationWeight( targetObservationIds.at( i ) ),
+                            false );
+                }
                 continue;
             }
 

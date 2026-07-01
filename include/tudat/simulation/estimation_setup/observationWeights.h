@@ -244,47 +244,53 @@ class ObservationWeights
 {
 public:
     //! Append one scalar weight for a newly inserted observation row.
-    void appendScalarWeight( const double scalarWeight )
+    void appendScalarWeight( const double scalarWeight, const bool isExplicit = true )
     {
         perObservationWeights_.push_back( PerObservationWeight( scalarWeight ) );
+        explicitObservationWeights_.push_back( isExplicit );
     }
 
     //! Append one diagonal component-wise weight vector for a newly inserted observation row.
-    void appendDiagonalWeightVector( const Eigen::VectorXd& diagonalWeight )
+    void appendDiagonalWeightVector( const Eigen::VectorXd& diagonalWeight, const bool isExplicit = true )
     {
         perObservationWeights_.push_back( PerObservationWeight( diagonalWeight ) );
+        explicitObservationWeights_.push_back( isExplicit );
     }
 
     //! Append one observable-size dense weight block for a newly inserted observation row.
-    void appendWeightBlock( const Eigen::MatrixXd& blockWeight )
+    void appendWeightBlock( const Eigen::MatrixXd& blockWeight, const bool isExplicit = true )
     {
         if( blockWeight.rows( ) != blockWeight.cols( ) )
         {
             throw std::runtime_error( "Error when adding observation weight block, block is not square." );
         }
         perObservationWeights_.push_back( PerObservationWeight( blockWeight ) );
+        explicitObservationWeights_.push_back( isExplicit );
     }
 
     //! Replace the weight of an existing observation row by one scalar value.
-    void setScalarWeight( const std::size_t observationId, const double scalarWeight )
+    void setScalarWeight( const std::size_t observationId, const double scalarWeight, const bool isExplicit = true )
     {
         perObservationWeights_.at( observationId ) = PerObservationWeight( scalarWeight );
+        explicitObservationWeights_.at( observationId ) = isExplicit;
     }
 
     //! Replace the weight of an existing observation row by a diagonal component-wise vector.
-    void setDiagonalWeightVector( const std::size_t observationId, const Eigen::VectorXd& diagonalWeight )
+    void setDiagonalWeightVector( const std::size_t observationId, const Eigen::VectorXd& diagonalWeight, const bool isExplicit = true )
     {
         perObservationWeights_.at( observationId ) = PerObservationWeight( diagonalWeight );
+        explicitObservationWeights_.at( observationId ) = isExplicit;
     }
 
     //! Replace the weight of an existing observation row by a dense observable-size block.
-    void setWeightBlock( const std::size_t observationId, const Eigen::MatrixXd& blockWeight )
+    void setWeightBlock( const std::size_t observationId, const Eigen::MatrixXd& blockWeight, const bool isExplicit = true )
     {
         if( blockWeight.rows( ) != blockWeight.cols( ) )
         {
             throw std::runtime_error( "Error when setting observation weight block, block is not square." );
         }
         perObservationWeights_.at( observationId ) = PerObservationWeight( blockWeight );
+        explicitObservationWeights_.at( observationId ) = isExplicit;
     }
 
     const PerObservationWeight& getObservationWeight( const std::size_t observationId ) const
@@ -293,15 +299,25 @@ public:
     }
 
     //! Append one existing compact per-observation representation without materializing it.
-    void appendObservationWeight( const PerObservationWeight& observationWeight )
+    void appendObservationWeight( const PerObservationWeight& observationWeight, const bool isExplicit = true )
     {
         perObservationWeights_.push_back( observationWeight );
+        explicitObservationWeights_.push_back( isExplicit );
     }
 
     //! Replace one existing compact per-observation representation without materializing it.
-    void setObservationWeight( const std::size_t observationId, const PerObservationWeight& observationWeight )
+    void setObservationWeight( const std::size_t observationId,
+                               const PerObservationWeight& observationWeight,
+                               const bool isExplicit = true )
     {
         perObservationWeights_.at( observationId ) = observationWeight;
+        explicitObservationWeights_.at( observationId ) = isExplicit;
+    }
+
+    //! Return whether the observation-row weight was explicitly set by the user or an ingestion policy.
+    bool hasExplicitObservationWeight( const std::size_t observationId ) const
+    {
+        return explicitObservationWeights_.at( observationId );
     }
 
     //! Return whether the row stores a dense block instead of compact scalar/diagonal weights.
@@ -340,7 +356,7 @@ public:
         return perObservationWeights_.size( );
     }
 
-    //! Store a full set-level block that replaces per-row weights in flattened data for this set.
+    //! Store a full set-level block that provides the baseline flattened weight matrix for this set.
     void setSetWeightBlock( const std::size_t setId, const Eigen::MatrixXd& setWeightBlock )
     {
         if( setWeightBlock.rows( ) != setWeightBlock.cols( ) )
@@ -412,6 +428,9 @@ public:
 private:
     //! Per-observation compact weights, aligned one-to-one with observation rows.
     std::vector< PerObservationWeight > perObservationWeights_;
+
+    //! Flags indicating whether a per-observation weight should override a set-level block.
+    std::vector< bool > explicitObservationWeights_;
 
     //! Optional full M x M blocks for complete observation sets/batches.
     std::vector< std::optional< Eigen::MatrixXd > > setWeightBlocks_;

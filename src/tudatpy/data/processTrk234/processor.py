@@ -22,7 +22,7 @@ class Trk234Processor:
     For a given set of requested observables types (e.g. ['doppler', 'range']),
     this processor iterates file-by-file, uses each converter’s extract method to obtain per-file data,
     merges the outputs, and then calls each converter’s process method to produce final observation
-    collection. If simulation bodies are provided, ramp data are processed and used to set the
+    dataset. If simulation bodies are provided, ramp data are processed and used to set the
     stations' frequency interpolator with the set_tnf_information_in_bodies() method.
 
     Examples
@@ -43,7 +43,7 @@ class Trk234Processor:
         )
 
         # Process observations
-        observations = tnf_processor.process()
+        observation_dataset = tnf_processor.process()
 
         # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
         tnf_processor.set_tnf_information_in_bodies(bodies)
@@ -80,7 +80,7 @@ class Trk234Processor:
         # Initialize ramp converter if needed.
         self.ramp_converter = cnv.RampConverter()
 
-    def process(self) -> ObservationCollection:
+    def process(self) -> ObservationDataset:
         """
         Process all TNF files provided at initialization. For each file, decode the SFDU data,
         and for each requested radiometric data type, extract data via the converter's extract method.
@@ -89,8 +89,9 @@ class Trk234Processor:
 
         Returns
         -------
-        ObservationCollection
-            An ObservationCollection containing all radiometric observation sets, if none were extracted, an empty collection is returned.
+        ObservationDataset
+            Dataset containing all radiometric observation sets. If no observations were extracted,
+            an empty dataset is returned.
         """
         # Accumulate outputs for radiometric converters.
         extracted_data = {key: [] for key in self.converters.keys()}
@@ -118,7 +119,18 @@ class Trk234Processor:
                             converter_dataset, set_id
                         )
 
-        return create_observation_collection_from_dataset(observation_dataset)
+        return observation_dataset
+
+    def process_observation_collection(self) -> ObservationCollection:
+        """
+        Process all TNF files and return the result as a legacy ObservationCollection.
+
+        Returns
+        -------
+        ObservationCollection
+            Backwards-compatible collection facade created from the processed dataset.
+        """
+        return create_observation_collection_from_dataset(self.process())
 
     def set_tnf_information_in_bodies(
         self,

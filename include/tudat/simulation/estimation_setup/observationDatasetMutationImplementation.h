@@ -299,11 +299,11 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
 
         if( preparedWeights.empty( ) )
         {
-            observationWeights_.appendScalarWeight( 1.0 );
+            observationWeights_.appendScalarWeight( 1.0, false );
         }
         else
         {
-            observationWeights_.appendDiagonalWeightVector( preparedWeights.at( i ) );
+            observationWeights_.appendDiagonalWeightVector( preparedWeights.at( i ), true );
         }
     }
 
@@ -331,20 +331,30 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                sourceDataset.getAncillarySettings( sourceMetadata.ancillarySettingsId_ ),
                                sourceDataset.getWeightsForSet( sourceSetId ),
                                sourceDataset.getResidualsForSet( sourceSetId ) );
+
+    const std::vector< unsigned int >& sourceObservationIds = sourceDataset.getObservationIdsForSet( sourceSetId );
+    const std::vector< unsigned int >& targetObservationIds = getObservationIdsForSet( newSetId );
+    std::map< unsigned int, unsigned int > scalarComponentIdMap;
+    for( std::size_t i = 0; i < sourceObservationIds.size( ); ++i )
+    {
+        const unsigned int sourceObservationId = sourceObservationIds.at( i );
+        const unsigned int targetObservationId = targetObservationIds.at( i );
+        copyObservationStateAndWeightFrom( sourceDataset, sourceObservationId, targetObservationId );
+
+        // Extra weight blocks are keyed by global scalar-component ids, so copy by remapping the ids of the cloned rows.
+        const ObservationDatasetRow< TimeType >& sourceRow = sourceDataset.observationRows_.at( sourceObservationId );
+        const ObservationDatasetRow< TimeType >& targetRow = observationRows_.at( targetObservationId );
+        for( unsigned int componentIndex = 0; componentIndex < sourceRow.scalarSize_; ++componentIndex )
+        {
+            scalarComponentIdMap[ sourceRow.firstScalarComponent_ + componentIndex ] = targetRow.firstScalarComponent_ + componentIndex;
+        }
+    }
+
     if( sourceDataset.hasWeightMatrixForSet( sourceSetId ) )
     {
         setWeightMatrixForSet( newSetId, sourceDataset.getWeightMatrixForSet( sourceSetId ) );
     }
-    else
-    {
-        const std::vector< unsigned int >& sourceObservationIds = sourceDataset.getObservationIdsForSet( sourceSetId );
-        const std::vector< unsigned int >& targetObservationIds = getObservationIdsForSet( newSetId );
-        for( std::size_t i = 0; i < sourceObservationIds.size( ); ++i )
-        {
-            observationWeights_.setObservationWeight(
-                    targetObservationIds.at( i ), sourceDataset.observationWeights_.getObservationWeight( sourceObservationIds.at( i ) ) );
-        }
-    }
+    copyRemappedExtraWeightBlocksFrom( sourceDataset, scalarComponentIdMap );
     return newSetId;
 }
 
@@ -488,12 +498,19 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservatio
     std::vector< Eigen::VectorXd > updatedDependentVariables = getDependentVariablesForSet( setId );
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > updatedWeights = getWeightsForSet( setId );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedResiduals = getResidualsForSet( setId );
+    std::vector< bool > updatedExplicitWeights;
+    updatedExplicitWeights.reserve( updatedSourceObservationIds.size( ) + observations.size( ) );
+    for( const unsigned int observationId : updatedSourceObservationIds )
+    {
+        updatedExplicitWeights.push_back( observationWeights_.hasExplicitObservationWeight( observationId ) );
+    }
 
     updatedObservations.insert( updatedObservations.end( ), observations.begin( ), observations.end( ) );
     updatedTimes.insert( updatedTimes.end( ), times.begin( ), times.end( ) );
     updatedSourceObservationIds.insert( updatedSourceObservationIds.end( ), observations.size( ), invalidObservationId( ) );
     updatedWeights.insert( updatedWeights.end( ), weights.begin( ), weights.end( ) );
     updatedResiduals.insert( updatedResiduals.end( ), residuals.begin( ), residuals.end( ) );
+    updatedExplicitWeights.insert( updatedExplicitWeights.end( ), observations.size( ), !weights.empty( ) );
 
     if( !dependentVariables.empty( ) || !updatedDependentVariables.empty( ) )
     {
@@ -536,6 +553,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservatio
         reorderVector( updatedSourceObservationIds, permutation );
         reorderVector( updatedWeights, permutation );
         reorderVector( updatedResiduals, permutation );
+        reorderVector( updatedExplicitWeights, permutation );
         if( !updatedDependentVariables.empty( ) )
         {
             reorderVector( updatedDependentVariables, permutation );
@@ -548,7 +566,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservatio
                                              updatedDependentVariables,
                                              updatedWeights,
                                              updatedResiduals,
-                                             updatedSourceObservationIds );
+                                             updatedSourceObservationIds,
+                                             updatedExplicitWeights );
 }
 
 template< typename ObservationScalarType,

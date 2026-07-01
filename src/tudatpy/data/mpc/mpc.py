@@ -591,7 +591,7 @@ class BatchMPC:
     Transform to Tudat format:
     >>> ...
     >>> bodies = environment_setup.create_system_of_bodies(body_settings)
-    >>> observation_collection = batch.to_tudat(bodies=bodies, included_satellites=None)
+    >>> observation_dataset = batch.to_tudat(bodies=bodies, included_satellites=None)
 
     """
 
@@ -1150,7 +1150,7 @@ class BatchMPC:
         weights: list | np.ndarray | pd.Series,
     ):
         """Manually set weights per observation. Weights are passed to
-        observation collection when `.to_tudat()` is called. Set the
+        the observation dataset when `.to_tudat()` is called. Set the
         `apply_weights_VFCC17` parameter in `.to_tudat()` to `False` to avoid
         overwriting. The order of the weights should match the order found in
         the `.table` parameter.
@@ -1320,7 +1320,7 @@ class BatchMPC:
             )
             return new
 
-    def create_observations_from_astropy_table(
+    def create_observation_dataset_from_astropy_table(
         self,
         table,
         station_body: str = "Earth",
@@ -1328,19 +1328,19 @@ class BatchMPC:
         apply_star_catalog_debias: bool = False,
         debias_kwargs: dict = dict(),
         in_degrees: bool = True,
-    ) -> observations.ObservationCollection:
+    ) -> observations.ObservationDataset:
         """
-        Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
+        Just like to_tudat(), creates a Tudat ObservationDataset from an Astropy table or pandas DataFrame.
         Unlike to_tudat(), it does not require a SystemOfBodies object as input.
         Unlike to_tudat(), apply_weights_VFCC17 and apply_star_catalog_debias flags are set to False by default,
         as users might have minimal tables available, which do not necessary contain all the fields required
         by the batchMPC class (e.g. note1,note2, catalog, etc...)
 
-        This method is useful for creating observation collections when the environment
+        This method is useful for creating observation datasets when the environment
         is not defined. Note that, when performing a simulation,
         you must manually ensure that the ground stations (observatory codes)
         and bodies (MPC numbers) referenced in this
-        collection are added to your simulation environment.
+        dataset are added to your simulation environment.
 
         Parameters
         ----------
@@ -1350,11 +1350,20 @@ class BatchMPC:
         station_body : str, optional
             The name of the body to which the ground stations (observatories)
             are attached, by default "Earth".
+        apply_weights_VFCC17 : bool, optional
+            Whether to apply the VFCC17 weighting model, by default False.
+        apply_star_catalog_debias : bool, optional
+            Whether to apply EFCC18 star catalog debiasing, by default False.
+        debias_kwargs : dict, optional
+            Extra keyword arguments passed to the EFCC18 debiasing routine, by default dict().
+        in_degrees : bool, optional
+            If True, RA and DEC columns are interpreted as degrees. If False, they are
+            interpreted as radians. Defaults to True.
 
         Returns
         -------
-        observations.ObservationCollection
-            A collection of observation sets grouped by link.
+        observations.ObservationDataset
+            Dataset containing observation sets grouped by link.
         """
 
         # 1. Initialize internal table handling
@@ -1420,6 +1429,54 @@ class BatchMPC:
                 weights_flat = np.ravel([weights, weights], "F")
                 observation_dataset.set_weight_vector_for_set(set_id, weights_flat)
 
+        return observation_dataset
+
+    def create_observations_from_astropy_table(
+        self,
+        table,
+        station_body: str = "Earth",
+        apply_weights_VFCC17: bool = False,
+        apply_star_catalog_debias: bool = False,
+        debias_kwargs: dict = dict(),
+        in_degrees: bool = True,
+    ) -> observations.ObservationCollection:
+        """
+        Create a legacy ObservationCollection from an Astropy table or pandas DataFrame.
+
+        This backwards-compatible wrapper uses
+        :meth:`create_observation_dataset_from_astropy_table` for the actual conversion
+        and converts the resulting dataset to an ObservationCollection facade.
+
+        Parameters
+        ----------
+        table : astropy.table.Table | pd.DataFrame
+            The input table containing observations. Must include 'number',
+            'observatory', 'epoch', 'RA', and 'DEC' columns.
+        station_body : str, optional
+            The name of the body to which the ground stations are attached, by default "Earth".
+        apply_weights_VFCC17 : bool, optional
+            Whether to apply the VFCC17 weighting model, by default False.
+        apply_star_catalog_debias : bool, optional
+            Whether to apply EFCC18 star catalog debiasing, by default False.
+        debias_kwargs : dict, optional
+            Extra keyword arguments passed to the EFCC18 debiasing routine, by default dict().
+        in_degrees : bool, optional
+            If True, RA and DEC columns are interpreted as degrees. If False, they are
+            interpreted as radians. Defaults to True.
+
+        Returns
+        -------
+        observations.ObservationCollection
+            Backwards-compatible collection facade created from the dataset.
+        """
+        observation_dataset = self.create_observation_dataset_from_astropy_table(
+            table,
+            station_body=station_body,
+            apply_weights_VFCC17=apply_weights_VFCC17,
+            apply_star_catalog_debias=apply_star_catalog_debias,
+            debias_kwargs=debias_kwargs,
+            in_degrees=in_degrees,
+        )
         return observations.create_observation_collection_from_dataset(observation_dataset)
 
     def to_tudat(
@@ -1431,7 +1488,7 @@ class BatchMPC:
         apply_weights_VFCC17: bool = True,
         apply_star_catalog_debias: bool = True,
         debias_kwargs: dict = dict(),
-    ) -> observations.ObservationCollection:
+    ) -> observations.ObservationDataset:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
@@ -1451,7 +1508,7 @@ class BatchMPC:
             includes all observations for that link.\\
             8. (By Default) Add the relevant weights to the observation set
             per observation.\\
-            8. Returns the observations
+            9. Returns the observations as an ObservationDataset
 
 
         Parameters
@@ -1469,7 +1526,7 @@ class BatchMPC:
         station_body : str, optional
             Body to attach ground stations to. Does not need to be changed unless the
             `Earth` body has been renamed, by default "Earth"
-        station_body : bool, optional
+        add_sbdb_gravity_model : bool, optional
             Adds a central_sbdb gravity model to the object, generated using JPL's small body database.
             This option is only available for a limited number of bodies and raises an error if unavailable.
             See tudatpy.dynamics.environment_setup.gravity_field.central_sbdb for more info.
@@ -1488,8 +1545,8 @@ class BatchMPC:
 
         Returns
         -------
-        observations.ObservationCollection
-            ObservationCollection with the observations found in the batch
+        observations.ObservationDataset
+            ObservationDataset with the observations found in the batch
 
         Examples
         ----------
@@ -1663,10 +1720,58 @@ class BatchMPC:
 
                 observation_dataset.set_weight_vector_for_set(set_id, observation_weights)
 
-        observation_collection = observations.create_observation_collection_from_dataset(
-            observation_dataset
+        return observation_dataset
+
+    def to_tudat_observation_collection(
+        self,
+        bodies: environment.SystemOfBodies,
+        included_satellites: dict[str, str] | None,
+        station_body: str = "Earth",
+        add_sbdb_gravity_model: bool = False,
+        apply_weights_VFCC17: bool = True,
+        apply_star_catalog_debias: bool = True,
+        debias_kwargs: dict = dict(),
+    ) -> observations.ObservationCollection:
+        """Convert the batch to a legacy Tudat ObservationCollection.
+
+        This backwards-compatible wrapper calls :meth:`to_tudat` to create the
+        primary ObservationDataset, then returns an ObservationCollection facade.
+
+        Parameters
+        ----------
+        bodies : environment.SystemOfBodies
+            SystemOfBodies containing at least the Earth, or the body named by
+            ``station_body``, to allow placement of terrestrial telescopes.
+        included_satellites : dict[str, str] | None
+            Mapping from MPC space-telescope observatory codes to body names in
+            ``bodies``. Use None when no space-telescope observations are included.
+        station_body : str, optional
+            Body to attach ground stations to, by default "Earth".
+        add_sbdb_gravity_model : bool, optional
+            Whether to add central SBDB gravity models for created minor-planet bodies,
+            by default False.
+        apply_weights_VFCC17 : bool, optional
+            Whether to apply the VFCC17 weighting model, by default True.
+        apply_star_catalog_debias : bool, optional
+            Whether to apply EFCC18 star catalog debiasing, by default True.
+        debias_kwargs : dict, optional
+            Extra keyword arguments passed to the EFCC18 debiasing routine, by default dict().
+
+        Returns
+        -------
+        observations.ObservationCollection
+            Backwards-compatible collection facade created from the dataset.
+        """
+        observation_dataset = self.to_tudat(
+            bodies=bodies,
+            included_satellites=included_satellites,
+            station_body=station_body,
+            add_sbdb_gravity_model=add_sbdb_gravity_model,
+            apply_weights_VFCC17=apply_weights_VFCC17,
+            apply_star_catalog_debias=apply_star_catalog_debias,
+            debias_kwargs=debias_kwargs,
         )
-        return observation_collection
+        return observations.create_observation_collection_from_dataset(observation_dataset)
 
     def plot_observations_temporal(
         self,
