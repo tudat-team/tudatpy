@@ -21,6 +21,7 @@ import astropy
 import copy
 import os
 import re
+import warnings
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
@@ -68,6 +69,31 @@ DEFAULT_CATALOG_FLAGS = [
     "U",
     "Y",
 ]
+
+
+def _add_mpc_observation_set_to_dataset(
+    observation_dataset: observations.ObservationDataset,
+    observable_type: model_settings.ObservableType,
+    link_ends: dict,
+    observation_values,
+    observation_times,
+    reference_link_end: links.LinkEndType,
+) -> int:
+    """Append MPC observation arrays through the legacy-compatible interface."""
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        single_observation_set = observations.create_single_observation_set(
+            observable_type,
+            link_ends,
+            observation_values,
+            observation_times,
+            reference_link_end,
+        )
+        single_set_dataset = observations.create_observation_dataset_from_single_observation_set(
+            single_observation_set
+        )
+
+    return observation_dataset.add_observation_set_from_dataset(single_set_dataset, 0)
 
 
 def load_bias_file(
@@ -1400,23 +1426,23 @@ class BatchMPC:
         observation_dataset = observations.ObservationDataset()
 
         for (mpc_code, observatory_code), group in unique_links:
+            group = group.sort_values("epoch_seconds_TDB", kind="stable")
             # --- A. Define Link Ends ---
             link_ends = dict()
             link_ends[links.transmitter] = links.body_origin_link_end_id(str(mpc_code))
             link_ends[links.receiver] = links.body_reference_point_link_end_id(
                 station_body, str(observatory_code)
             )
-            link_definition = links.link_definition(link_ends)
-
             # --- B. Extract Data ---
             # Use the pre-calculated TDB seconds from the internal processing
             times = group["epoch_seconds_TDB"].to_numpy()
             observables = group[[RA_col, DEC_col]].to_numpy()
 
             # --- C. Add observation set ---
-            set_id = observation_dataset.add_observation_set(
+            set_id = _add_mpc_observation_set_to_dataset(
+                observation_dataset,
                 model_settings.angular_position_type,
-                link_definition,
+                link_ends,
                 observables,
                 times,
                 links.receiver,
@@ -1684,17 +1710,17 @@ class BatchMPC:
                 # link for a satellite
                 sat_name = included_satellites[station_name]
                 link_ends[links.receiver] = links.body_origin_link_end_id(sat_name)
-                link_definition = links.link_definition(link_ends)
             else:
                 # link for a ground station
                 link_ends[links.receiver] = links.body_reference_point_link_end_id(
                     station_body, station_name
                 )
-                link_definition = links.link_definition(link_ends)
 
             # get observations, angles and times for this specific link
-            observations_for_this_link = observations_table.query("number == @MPC_number").query(
-                "observatory == @station_name"
+            observations_for_this_link = (
+                observations_table.query("number == @MPC_number")
+                .query("observatory == @station_name")
+                .sort_values("epoch_seconds_TDB", kind="stable")
             )
 
             observation_angles = observations_for_this_link.loc[:, [RA_col, DEC_col]].to_numpy()
@@ -1704,9 +1730,10 @@ class BatchMPC:
             ]
 
             # create a set of obs for this link
-            set_id = observation_dataset.add_observation_set(
+            set_id = _add_mpc_observation_set_to_dataset(
+                observation_dataset,
                 model_settings.angular_position_type,
-                link_definition,
+                link_ends,
                 observation_angles,
                 observation_times,
                 links.receiver,

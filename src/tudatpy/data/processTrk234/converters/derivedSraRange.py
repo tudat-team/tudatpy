@@ -1,16 +1,49 @@
 from tudatpy.estimation.observations_setup.ancillary_settings import (
     dsn_n_way_range_ancillary_settings,
 )
-from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
+from tudatpy.estimation.observable_models_setup.links import receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 
-from tudatpy.estimation.observations import ObservationDataset
+from tudatpy.estimation import observations
 
 from . import RadioBase
 from trk234 import SFDU
 from pandas import DataFrame
 import numpy as _np
 from datetime import datetime, timedelta
+import warnings
+
+
+def _add_observation_set_to_dataset(
+    observation_dataset: observations.ObservationDataset,
+    observable_type: ObservableType,
+    link_ends: dict,
+    observation_values,
+    observation_times,
+    reference_link_end,
+    ancillary_settings=None,
+) -> int:
+    """Append TRK observations through the legacy-compatible conversion path."""
+    observation_list = [
+        _np.asarray(observation_value, dtype=float).reshape(-1)
+        for observation_value in observation_values
+    ]
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        single_observation_set = observations.create_single_observation_set(
+            observable_type,
+            link_ends,
+            observation_list,
+            observation_times,
+            reference_link_end,
+            ancillary_settings,
+        )
+        single_set_dataset = observations.create_observation_dataset_from_single_observation_set(
+            single_observation_set
+        )
+
+    return observation_dataset.add_observation_set_from_dataset(single_set_dataset, 0)
 
 
 class DerivedSraRangeConverter(RadioBase):
@@ -48,12 +81,13 @@ class DerivedSraRangeConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> ObservationDataset:
+    def process(
+        self, range_df: DataFrame, spacecraftName: str | None = None
+    ) -> observations.ObservationDataset:
 
-        observation_dataset = ObservationDataset()
+        observation_dataset = observations.ObservationDataset()
         for link_end in range_df["link_ends"].unique():
             link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
-            link_def = link_definition(link_ends_dict)
             df_le = range_df[range_df["link_ends"] == link_end]
             for band in df_le["band"].unique():
                 df_band = df_le[df_le["band"] == band]
@@ -77,9 +111,10 @@ class DerivedSraRangeConverter(RadioBase):
                             obs_values = [_np.array([row["obs"]], dtype=float).reshape((-1, 1))]
                             station = link_end[2] if len(link_end) == 3 else link_end[1]
                             epoch_seconds = [self.from_datetime_UTC_to_TDB(row["epoch"], station)]
-                            observation_dataset.add_observation_set(
+                            _add_observation_set_to_dataset(
+                                observation_dataset,
                                 ObservableType.dsn_n_way_range_type,
-                                link_def,
+                                link_ends_dict,
                                 obs_values,
                                 epoch_seconds,
                                 receiver,

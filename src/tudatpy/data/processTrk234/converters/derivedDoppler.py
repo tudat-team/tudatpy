@@ -1,13 +1,47 @@
 from tudatpy.estimation.observations_setup.ancillary_settings import (
     dsn_n_way_doppler_ancillary_settings,
 )
-from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
+from tudatpy.estimation.observable_models_setup.links import receiver, reflector1
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import ObservationDataset
+from tudatpy.estimation import observations
 
 from trk234 import SFDU
 from . import RadioBase
 from pandas import DataFrame
+import numpy as _np
+import warnings
+
+
+def _add_observation_set_to_dataset(
+    observation_dataset: observations.ObservationDataset,
+    observable_type: ObservableType,
+    link_ends: dict,
+    observation_values,
+    observation_times,
+    reference_link_end,
+    ancillary_settings=None,
+) -> int:
+    """Append TRK observations through the legacy-compatible conversion path."""
+    observation_list = [
+        _np.asarray(observation_value, dtype=float).reshape(-1)
+        for observation_value in observation_values
+    ]
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        single_observation_set = observations.create_single_observation_set(
+            observable_type,
+            link_ends,
+            observation_list,
+            observation_times,
+            reference_link_end,
+            ancillary_settings,
+        )
+        single_set_dataset = observations.create_observation_dataset_from_single_observation_set(
+            single_observation_set
+        )
+
+    return observation_dataset.add_observation_set_from_dataset(single_set_dataset, 0)
 
 
 class DerivedDopplerConverter(RadioBase):
@@ -39,12 +73,11 @@ class DerivedDopplerConverter(RadioBase):
 
     def process(
         self, doppler_df: DataFrame, spacecraftName: str | None = None
-    ) -> ObservationDataset:
+    ) -> observations.ObservationDataset:
 
-        observation_dataset = ObservationDataset()
+        observation_dataset = observations.ObservationDataset()
         for link_end in doppler_df["link_ends"].unique():
             link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
-            link_def = link_definition(link_ends_dict)
             df_le = doppler_df[doppler_df["link_ends"] == link_end]
             for band in df_le["band"].unique():
                 df_band = df_le[df_le["band"] == band]
@@ -69,9 +102,10 @@ class DerivedDopplerConverter(RadioBase):
                             .apply(lambda t: self.from_datetime_UTC_to_TDB(t, station))
                             .tolist()
                         )
-                        observation_dataset.add_observation_set(
+                        _add_observation_set_to_dataset(
+                            observation_dataset,
                             ObservableType.dsn_n_way_averaged_doppler_type,
-                            link_def,
+                            link_ends_dict,
                             obs_values,
                             epoch_seconds,
                             receiver,

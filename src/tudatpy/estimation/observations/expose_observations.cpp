@@ -153,6 +153,151 @@ Eigen::VectorXd castObservationSelectionConditionVectorLimit( const py::object& 
     return value.cast< Eigen::VectorXd >( );
 }
 
+template< typename ScalarType >
+std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > castObservationVectorList( const py::object& value,
+                                                                                         const std::string& argumentName,
+                                                                                         const int expectedObservationCount = -1 )
+{
+    if( value.is_none( ) )
+    {
+        return std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >( );
+    }
+
+    py::array_t< ScalarType, py::array::c_style | py::array::forcecast > array =
+            py::array_t< ScalarType, py::array::c_style | py::array::forcecast >::ensure( value );
+    if( array )
+    {
+        const py::buffer_info buffer = array.request( );
+        std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > result;
+
+        if( buffer.ndim == 1 )
+        {
+            const auto scalarCount = static_cast< int >( buffer.shape.at( 0 ) );
+            const ScalarType* data = static_cast< const ScalarType* >( buffer.ptr );
+            if( scalarCount == 0 )
+            {
+                return result;
+            }
+            if( expectedObservationCount >= 0 && scalarCount == expectedObservationCount )
+            {
+                result.reserve( scalarCount );
+                for( int i = 0; i < scalarCount; ++i )
+                {
+                    Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > scalarObservation( 1 );
+                    scalarObservation( 0 ) = data[ i ];
+                    result.push_back( scalarObservation );
+                }
+                return result;
+            }
+
+            Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > observation( scalarCount );
+            for( int i = 0; i < scalarCount; ++i )
+            {
+                observation( i ) = data[ i ];
+            }
+            result.push_back( observation );
+            return result;
+        }
+        else if( buffer.ndim == 2 )
+        {
+            const auto rowCount = static_cast< int >( buffer.shape.at( 0 ) );
+            const auto columnCount = static_cast< int >( buffer.shape.at( 1 ) );
+            const ScalarType* data = static_cast< const ScalarType* >( buffer.ptr );
+            result.reserve( rowCount );
+            for( int i = 0; i < rowCount; ++i )
+            {
+                Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > observation( columnCount );
+                for( int j = 0; j < columnCount; ++j )
+                {
+                    observation( j ) = data[ i * columnCount + j ];
+                }
+                result.push_back( observation );
+            }
+            return result;
+        }
+        else if( buffer.ndim == 3 && buffer.shape.at( 2 ) == 1 )
+        {
+            const auto rowCount = static_cast< int >( buffer.shape.at( 0 ) );
+            const auto columnCount = static_cast< int >( buffer.shape.at( 1 ) );
+            const ScalarType* data = static_cast< const ScalarType* >( buffer.ptr );
+            result.reserve( rowCount );
+            for( int i = 0; i < rowCount; ++i )
+            {
+                Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > observation( columnCount );
+                for( int j = 0; j < columnCount; ++j )
+                {
+                    observation( j ) = data[ i * columnCount + j ];
+                }
+                result.push_back( observation );
+            }
+            return result;
+        }
+
+        throw py::type_error( argumentName +
+                              " must be a 1D array, a 2D array with one observation per row, "
+                              "a 3D array with trailing singleton dimension, or a sequence of vectors." );
+    }
+
+    try
+    {
+        return value.cast< std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > >( );
+    }
+    catch( const py::cast_error& )
+    {
+        throw py::type_error( argumentName + " must be convertible to a sequence of Eigen-compatible vectors." );
+    }
+}
+
+template< typename TimeType >
+TimeType castObservationTime( const py::object& value )
+{
+    if( py::isinstance< py::float_ >( value ) || py::isinstance< py::int_ >( value ) )
+    {
+        return TimeType( value.cast< double >( ) );
+    }
+    return value.cast< TimeType >( );
+}
+
+template< typename TimeType >
+std::vector< TimeType > castObservationTimeList( const py::object& value, const std::string& argumentName )
+{
+    if( value.is_none( ) )
+    {
+        return std::vector< TimeType >( );
+    }
+
+    py::array_t< double, py::array::c_style | py::array::forcecast > array =
+            py::array_t< double, py::array::c_style | py::array::forcecast >::ensure( value );
+    if( array )
+    {
+        const py::buffer_info buffer = array.request( );
+        const double* data = static_cast< const double* >( buffer.ptr );
+        std::vector< TimeType > result;
+        result.reserve( static_cast< std::size_t >( buffer.size ) );
+        for( py::ssize_t i = 0; i < buffer.size; ++i )
+        {
+            result.emplace_back( data[ i ] );
+        }
+        return result;
+    }
+
+    try
+    {
+        py::sequence sequence = value.cast< py::sequence >( );
+        std::vector< TimeType > result;
+        result.reserve( static_cast< std::size_t >( py::len( sequence ) ) );
+        for( py::handle item : sequence )
+        {
+            result.push_back( castObservationTime< TimeType >( py::reinterpret_borrow< py::object >( item ) ) );
+        }
+        return result;
+    }
+    catch( const py::cast_error& )
+    {
+        throw py::type_error( argumentName + " must be convertible to a sequence of Time objects or numeric epochs." );
+    }
+}
+
 struct ObservationDocSpec {
     std::string signature;
     std::string returnType;
@@ -839,8 +984,17 @@ property materializes the sparse diagonal matrix.
                                         R"doc(bool: True when the weight matrix contains off-diagonal entries.)doc" )
                 .def_property_readonly(
                         "times",
-                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimes,
-                        R"doc(list[tudatpy.astro.time_representation.Time] or list[float]: Observation time associated with each scalar component.)doc" )
+                        []( const tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >& flattenedData ) {
+                            const std::vector< TIME_TYPE > rawTimes = flattenedData.getTimes( );
+                            std::vector< double > convertedTimes;
+                            convertedTimes.reserve( rawTimes.size( ) );
+                            for( const TIME_TYPE& time : rawTimes )
+                            {
+                                convertedTimes.push_back( static_cast< double >( time ) );
+                            }
+                            return convertedTimes;
+                        },
+                        R"doc(list[float]: Observation time associated with each scalar component, in seconds since J2000 TDB.)doc" )
                 .def_property_readonly( "observation_ids",
                                         &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
                                         R"doc(list[int]: Observation row identifier associated with each scalar component.)doc" )
@@ -1100,49 +1254,114 @@ dependent variables, set metadata and link/ancillary registries in a single
 dataset-centric representation.
 )doc" )
                 .def( py::init<>( ), R"doc(Create an empty observation dataset.)doc" )
-                .def( "add_observation_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationSet,
-                      py::arg( "observable_type" ),
-                      py::arg( "link_definition" ),
-                      py::arg( "observations" ),
-                      py::arg( "times" ),
-                      py::arg( "reference_link_end" ),
-                      py::arg( "dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                      py::arg( "dependent_variable_bookkeeping" ) = nullptr,
-                      py::arg( "ancillary_settings" ) = nullptr,
-                      py::arg( "weights" ) = std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
-                      py::arg( "residuals" ) = std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >( ),
-                      py::arg( "sort_observations" ) = false,
-                      py::arg( "erase_duplicate_observations" ) = false,
-                      observationDatasetDoc( "add_observation_set" ) )
+                .def(
+                        "add_observation_set",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const tom::ObservableType observableType,
+                            const tom::LinkDefinition& linkDefinition,
+                            py::object observations,
+                            py::object times,
+                            const tom::LinkEndType referenceLinkEnd,
+                            py::object dependentVariables,
+                            std::shared_ptr< tss::ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                            std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings,
+                            py::object weights,
+                            py::object residuals,
+                            const bool sortObservations,
+                            const bool eraseDuplicateObservations ) {
+                            const std::vector< TIME_TYPE > convertedTimes = castObservationTimeList< TIME_TYPE >( times, "times" );
+                            const int observationCount = static_cast< int >( convertedTimes.size( ) );
+                            return self.addObservationSet(
+                                    observableType,
+                                    linkDefinition,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( observations, "observations", observationCount ),
+                                    convertedTimes,
+                                    referenceLinkEnd,
+                                    castObservationVectorList< double >( dependentVariables, "dependent_variables", observationCount ),
+                                    dependentVariableBookkeeping,
+                                    ancillarySettings,
+                                    castObservationVectorList< double >( weights, "weights", observationCount ),
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( residuals, "residuals", observationCount ),
+                                    sortObservations,
+                                    eraseDuplicateObservations );
+                        },
+                        py::arg( "observable_type" ),
+                        py::arg( "link_definition" ),
+                        py::arg( "observations" ),
+                        py::arg( "times" ),
+                        py::arg( "reference_link_end" ),
+                        py::arg( "dependent_variables" ) = py::list( ),
+                        py::arg( "dependent_variable_bookkeeping" ) = nullptr,
+                        py::arg( "ancillary_settings" ) = nullptr,
+                        py::arg( "weights" ) = py::list( ),
+                        py::arg( "residuals" ) = py::list( ),
+                        py::arg( "sort_observations" ) = false,
+                        py::arg( "erase_duplicate_observations" ) = false,
+                        observationDatasetDoc( "add_observation_set" ) )
                 .def( "add_observation_set_from_dataset",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationSetFromDataset,
                       py::arg( "source_dataset" ),
                       py::arg( "source_set_id" ),
                       observationDatasetDoc( "add_observation_set_from_dataset" ) )
-                .def( "add_observation_set_with_weights",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationSetWithWeights,
-                      py::arg( "observable_type" ),
-                      py::arg( "link_definition" ),
-                      py::arg( "observations" ),
-                      py::arg( "times" ),
-                      py::arg( "reference_link_end" ),
-                      py::arg( "weight_settings" ),
-                      py::arg( "dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                      py::arg( "dependent_variable_bookkeeping" ) = nullptr,
-                      py::arg( "ancillary_settings" ) = nullptr,
-                      py::arg( "residuals" ) = std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >( ),
-                      observationDatasetDoc( "add_observation_set_with_weights" ) )
-                .def( "set_observations_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationsForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "observations" ),
-                      observationDatasetDoc( "set_observations_for_set" ) )
-                .def( "set_residuals_for_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setResidualsForSet,
-                      py::arg( "set_id" ),
-                      py::arg( "residuals" ),
-                      observationDatasetDoc( "set_residuals_for_set" ) )
+                .def(
+                        "add_observation_set_with_weights",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const tom::ObservableType observableType,
+                            const tom::LinkDefinition& linkDefinition,
+                            py::object observations,
+                            py::object times,
+                            const tom::LinkEndType referenceLinkEnd,
+                            const tom::ObservationWeightSettings& weightSettings,
+                            py::object dependentVariables,
+                            std::shared_ptr< tss::ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                            std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings,
+                            py::object residuals ) {
+                            const std::vector< TIME_TYPE > convertedTimes = castObservationTimeList< TIME_TYPE >( times, "times" );
+                            const int observationCount = static_cast< int >( convertedTimes.size( ) );
+                            return self.addObservationSetWithWeights(
+                                    observableType,
+                                    linkDefinition,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( observations, "observations", observationCount ),
+                                    convertedTimes,
+                                    referenceLinkEnd,
+                                    weightSettings,
+                                    castObservationVectorList< double >( dependentVariables, "dependent_variables", observationCount ),
+                                    dependentVariableBookkeeping,
+                                    ancillarySettings,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( residuals, "residuals", observationCount ) );
+                        },
+                        py::arg( "observable_type" ),
+                        py::arg( "link_definition" ),
+                        py::arg( "observations" ),
+                        py::arg( "times" ),
+                        py::arg( "reference_link_end" ),
+                        py::arg( "weight_settings" ),
+                        py::arg( "dependent_variables" ) = py::list( ),
+                        py::arg( "dependent_variable_bookkeeping" ) = nullptr,
+                        py::arg( "ancillary_settings" ) = nullptr,
+                        py::arg( "residuals" ) = py::list( ),
+                        observationDatasetDoc( "add_observation_set_with_weights" ) )
+                .def(
+                        "set_observations_for_set",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const unsigned int setId,
+                            py::object observations ) {
+                            self.setObservationsForSet( setId,
+                                                        castObservationVectorList< STATE_SCALAR_TYPE >( observations, "observations" ) );
+                        },
+                        py::arg( "set_id" ),
+                        py::arg( "observations" ),
+                        observationDatasetDoc( "set_observations_for_set" ) )
+                .def(
+                        "set_residuals_for_set",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const unsigned int setId,
+                            py::object residuals ) {
+                            self.setResidualsForSet( setId, castObservationVectorList< STATE_SCALAR_TYPE >( residuals, "residuals" ) );
+                        },
+                        py::arg( "set_id" ),
+                        py::arg( "residuals" ),
+                        observationDatasetDoc( "set_residuals_for_set" ) )
                 .def( "set_constant_single_observation_scalar_weight_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservationScalarWeightForSet,
                       py::arg( "set_id" ),
@@ -1211,16 +1430,35 @@ dataset-centric representation.
                 .def_property_readonly( "has_extra_weight_blocks",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
                                         R"doc(True when the dataset stores advanced scalar-component weight blocks.)doc" )
-                .def( "add_observations_to_set",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationsToSet,
-                      py::arg( "set_id" ),
-                      py::arg( "observations" ),
-                      py::arg( "times" ),
-                      py::arg( "dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                      py::arg( "weights" ) = std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
-                      py::arg( "residuals" ) = std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >( ),
-                      py::arg( "sort_observations" ) = true,
-                      observationDatasetDoc( "add_observations_to_set" ) )
+                .def(
+                        "add_observations_to_set",
+                        []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                            const unsigned int setId,
+                            py::object observations,
+                            py::object times,
+                            py::object dependentVariables,
+                            py::object weights,
+                            py::object residuals,
+                            const bool sortObservations ) {
+                            const std::vector< TIME_TYPE > convertedTimes = castObservationTimeList< TIME_TYPE >( times, "times" );
+                            const int observationCount = static_cast< int >( convertedTimes.size( ) );
+                            self.addObservationsToSet(
+                                    setId,
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( observations, "observations", observationCount ),
+                                    convertedTimes,
+                                    castObservationVectorList< double >( dependentVariables, "dependent_variables", observationCount ),
+                                    castObservationVectorList< double >( weights, "weights", observationCount ),
+                                    castObservationVectorList< STATE_SCALAR_TYPE >( residuals, "residuals", observationCount ),
+                                    sortObservations );
+                        },
+                        py::arg( "set_id" ),
+                        py::arg( "observations" ),
+                        py::arg( "times" ),
+                        py::arg( "dependent_variables" ) = py::list( ),
+                        py::arg( "weights" ) = py::list( ),
+                        py::arg( "residuals" ) = py::list( ),
+                        py::arg( "sort_observations" ) = true,
+                        observationDatasetDoc( "add_observations_to_set" ) )
                 .def( "remove_observations_from_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservationsFromSet,
                       py::arg( "set_id" ),
