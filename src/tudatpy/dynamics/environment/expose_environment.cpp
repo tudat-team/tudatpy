@@ -2744,6 +2744,189 @@ bool
 
      )doc" );
 
+    py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
+            m, "TransmittingFrequencyCalculator", R"doc(
+            
+            Object that computes the current transmitting frequency of a ground station.
+
+            )doc" );
+
+    py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
+            .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
+            .value( "throw_exception_at_gaps", tgs::throw_exception_at_gaps )
+            .value( "print_error_at_gaps", tgs::print_error_at_gaps )
+            .value( "print_error_once_at_gaps", tgs::print_error_once_at_gaps )
+            .export_values( );
+
+    py::class_< tgs::ConstantFrequencyInterpolator,
+                std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
+                tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
+            .def( py::init< double >( ), py::arg( "frequency" ) );
+
+    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
+                std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+                tgs::StationFrequencyInterpolator >( m,
+                                                     "PiecewiseLinearFrequencyInterpolator",
+                                                     R"doc(
+                
+                Object that computes the current transmitting frequency of a ground station, using a piecewise linear interpolation of the frequency over defined intervals.
+
+                If multiple intervals are defined at the same time, the frequency of the interval with the latest start time is used. If no interval is defined at the current time, the frequency is computed using the strategy defined by ``gap_handling``.
+                )doc" )
+            .def( py::init< const std::vector< tudat::Time >&,
+                            const std::vector< tudat::Time >&,
+                            const std::vector< double >&,
+                            const std::vector< double >&,
+                            const tgs::FrequencyGapHandling >( ),
+                  py::arg( "start_times" ),
+                  py::arg( "end_times" ),
+                  py::arg( "ramp_rates" ),
+                  py::arg( "start_frequency" ),
+                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps,
+                  R"doc(
+                                    
+                Initialize the piecewise linear frequency interpolator.
+
+                Parameters
+                ----------
+                start_times : numpy.ndarray
+                    Start times of the piecewise linear frequency intervals.
+                end_times : numpy.ndarray
+                    End times of the piecewise linear frequency intervals.
+                ramp_rates : numpy.ndarray
+                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+                start_frequency : float
+                    Frequencies of the piecewise linear frequency interval at the start epoch.
+                gap_handling : FrequencyGapHandling, default = FrequencyGapHandling.extrapolate_at_gaps
+                    Strategy for handling frequency gaps.                          
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes,
+                                    R"doc(
+                                    
+                                    Start times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "end_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes,
+                                    R"doc(
+                                    
+                                    End times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "ramp_rates",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates,
+                                    R"doc(
+                                    
+                                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_frequencies",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies,
+                                    R"doc(
+                                    
+                                    Frequencies of the piecewise linear frequency interval at the start epoch.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def( "compute_current_frequency",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
+                  py::arg( "lookup_time_original" ) )
+            .def( "add_frequency_interpolator",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
+                  py::arg( "frequency_interpolator_to_add" ),
+                  R"doc(
+                       
+                     Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
+     
+                     Parameters
+                     ----------
+                     frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
+                         The frequency interpolator to add to the current interpolator.
+                       
+                       )doc" );
+
+    py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
+            .def( "calculate_elevation_angle",
+                  py::overload_cast< const Eigen::Vector3d&, const double >(
+                          &tgs::PointingAnglesCalculator::calculateElevationAngleFromInertialVector ),
+                  py::arg( "inertial_vector_to_target" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+         Calculate the elevation angle of a target object.
+
+         Parameters
+         ----------
+         inertial_vector_to_target : numpy.ndarray
+             Vector from ground station to target in inertial frame
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+
+         Returns
+         -------
+         float
+             Elevation angle in radians
+
+         )doc" )
+            .def( "calculate_azimuth_angle",
+                  py::overload_cast< const Eigen::Vector3d&, const double >(
+                          &tgs::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector ),
+                  py::arg( "inertial_vector_to_target" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+         Calculate the azimuth angle of a target object.
+
+         Parameters
+         ----------
+         inertial_vector_to_target : numpy.ndarray
+             Vector from ground station to target in inertial frame
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+
+         Returns
+         -------
+         float
+             Azimuth angle in radians
+
+         )doc" )
+            .def( "convert_inertial_vector_to_topocentric",
+                  &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
+                  py::arg( "inertial_vector" ),
+                  py::arg( "time" ) );
+
+    py::enum_< tudat::ground_stations::MeteoDataEntries >( m, "MeteoDataEntries" )
+            .value( "temperature_meteo_data", tudat::ground_stations::temperature_meteo_data )
+            .value( "pressure_meteo_data", tudat::ground_stations::pressure_meteo_data )
+            .value( "water_vapor_pressure_meteo_data", tudat::ground_stations::water_vapor_pressure_meteo_data )
+            .value( "relative_humidity_meteo_data", tudat::ground_stations::relative_humidity_meteo_data )
+            .value( "dew_point_meteo_data", tudat::ground_stations::dew_point_meteo_data )
+            .export_values( );
+
+    py::class_< tudat::ground_stations::StationMeteoData, std::shared_ptr< tudat::ground_stations::StationMeteoData > >(
+            m, "StationMeteoData" );
+
+    py::class_< tudat::ground_stations::ContinuousInterpolatedMeteoData,
+                std::shared_ptr< tudat::ground_stations::ContinuousInterpolatedMeteoData >,
+                tudat::ground_stations::StationMeteoData >( m, "ContinuousInterpolatedMeteoData" )
+            .def( py::init< std::shared_ptr< tudat::interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > >,
+                            std::map< tudat::ground_stations::MeteoDataEntries, int > >( ),
+                  py::arg( "interpolator" ),
+                  py::arg( "vector_entries" ) );
+
     py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >( m, "GroundStation", R"doc(
 
          Object used to define and store properties of a ground station.
@@ -2753,7 +2936,21 @@ bool
      )doc" )
             .def( "set_transmitting_frequency_calculator",
                   &tgs::GroundStation::setTransmittingFrequencyCalculator,
-                  py::arg( "transmitting_frequency_calculator" ) )
+                  py::arg( "transmitting_frequency_calculator" ),
+                  R"doc(
+
+         Set the transmitting frequency calculator for the ground station.
+
+         .. note::
+
+            This will override any previously set transmitting frequency calculator. To check if a frequency calculator is set, use the :meth:`~GroundStation.has_frequency_calculator` method. To merge multiple piecewise linear frequency interpolators, use the :meth:`~PiecewiseLinearFrequencyInterpolator.add_frequency_interpolator` function.
+
+         Parameters
+         ----------
+         transmitting_frequency_calculator : TransmittingFrequencyCalculator
+             The transmitting frequency calculator to set.
+
+     )doc" )
             .def( "has_frequency_calculator", &tgs::GroundStation::hasFrequencyCalculator, R"doc(
 
          Check if the ground station has a frequency calculator.
@@ -2830,124 +3027,6 @@ bool
             .def( "set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg( "timing_system" ) )
 
             .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ) );
-
-    py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
-            m, "TransmittingFrequencyCalculator", R"doc(No documentation found.)doc" );
-
-    py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
-            .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
-            .value( "throw_exception_at_gaps", tgs::throw_exception_at_gaps )
-            .value( "print_error_at_gaps", tgs::print_error_at_gaps )
-            .value( "print_error_once_at_gaps", tgs::print_error_once_at_gaps )
-            .export_values( );
-
-    py::class_< tgs::ConstantFrequencyInterpolator,
-                std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
-                tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
-            .def( py::init< double >( ), py::arg( "frequency" ) );
-
-    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
-                std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
-                tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
-            .def( py::init< const std::vector< tudat::Time >&,
-                            const std::vector< tudat::Time >&,
-                            const std::vector< double >&,
-                            const std::vector< double >&,
-                            const tgs::FrequencyGapHandling >( ),
-                  py::arg( "start_times" ),
-                  py::arg( "end_times" ),
-                  py::arg( "ramp_rates" ),
-                  py::arg( "start_frequency" ),
-                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps )
-            .def_property_readonly( "start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
-            .def_property_readonly( "end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
-            .def_property_readonly( "ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
-            .def_property_readonly( "start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies )
-            .def( "compute_current_frequency",
-                  &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
-                  py::arg( "lookup_time_original" ) )
-            .def( "add_frequency_interpolator",
-                  &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
-                  py::arg( "frequency_interpolator_to_add" ),
-                  R"doc(
-                  
-                Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
-
-                Parameters
-                ----------
-                frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
-                    The frequency interpolator to add to the current interpolator.
-                  
-                  )doc" );
-
-    py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
-            .def( "calculate_elevation_angle",
-                  py::overload_cast< const Eigen::Vector3d&, const double >(
-                          &tgs::PointingAnglesCalculator::calculateElevationAngleFromInertialVector ),
-                  py::arg( "inertial_vector_to_target" ),
-                  py::arg( "time" ),
-                  R"doc(
-
-         Calculate the elevation angle of a target object.
-
-         Parameters
-         ----------
-         inertial_vector_to_target : numpy.ndarray
-             Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
-
-         Returns
-         -------
-         float
-             Elevation angle in radians
-
-         )doc" )
-            .def( "calculate_azimuth_angle",
-                  py::overload_cast< const Eigen::Vector3d&, const double >(
-                          &tgs::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector ),
-                  py::arg( "inertial_vector_to_target" ),
-                  py::arg( "time" ),
-                  R"doc(
-
-         Calculate the azimuth angle of a target object.
-
-         Parameters
-         ----------
-         inertial_vector_to_target : numpy.ndarray
-             Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
-
-         Returns
-         -------
-         float
-             Azimuth angle in radians
-
-         )doc" )
-            .def( "convert_inertial_vector_to_topocentric",
-                  &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
-                  py::arg( "inertial_vector" ),
-                  py::arg( "time" ) );
-
-    py::enum_< tudat::ground_stations::MeteoDataEntries >( m, "MeteoDataEntries" )
-            .value( "temperature_meteo_data", tudat::ground_stations::temperature_meteo_data )
-            .value( "pressure_meteo_data", tudat::ground_stations::pressure_meteo_data )
-            .value( "water_vapor_pressure_meteo_data", tudat::ground_stations::water_vapor_pressure_meteo_data )
-            .value( "relative_humidity_meteo_data", tudat::ground_stations::relative_humidity_meteo_data )
-            .value( "dew_point_meteo_data", tudat::ground_stations::dew_point_meteo_data )
-            .export_values( );
-
-    py::class_< tudat::ground_stations::StationMeteoData, std::shared_ptr< tudat::ground_stations::StationMeteoData > >(
-            m, "StationMeteoData" );
-
-    py::class_< tudat::ground_stations::ContinuousInterpolatedMeteoData,
-                std::shared_ptr< tudat::ground_stations::ContinuousInterpolatedMeteoData >,
-                tudat::ground_stations::StationMeteoData >( m, "ContinuousInterpolatedMeteoData" )
-            .def( py::init< std::shared_ptr< tudat::interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > >,
-                            std::map< tudat::ground_stations::MeteoDataEntries, int > >( ),
-                  py::arg( "interpolator" ),
-                  py::arg( "vector_entries" ) );
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY
