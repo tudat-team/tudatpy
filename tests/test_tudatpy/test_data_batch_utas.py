@@ -373,54 +373,58 @@ class TestBatchUTASErrors:
             BatchUTAS([str(file_path)])
 
     def test_multiple_targets_across_files(self, tmp_path):
-        data1 = [{
-            "frequency": 2260760000,
-            "tdoa": 0.004,
-            "tdoaUnc": 0.0,
-            "fdoa": 100.0,
-            "fdoaUnc": 0.0,
-            "obTime": "2025-01-02 00:40:00.611999988555908Z",
-            "senlat": -14.375,
-            "senlon": 132.152,
-            "senalt": 0.1893,
-            "sen2lat": -42.803,
-            "sen2lon": 147.440,
-            "sen2alt": 0.0,
-            "origSensorId1": "A",
-            "origSensorId2": "B",
-            "ucts": 0,
-            "sensor1Delay": 0.0,
-            "sensor2Delay": 0.0,
-            "bandwidth": 0.0,
-            "source": "Unknown",
-            "dataMode": "REAL",
-            "origin": "Test",
-            "satNo": 11111,
-        }]
-        data2 = [{
-            "frequency": 2260760000,
-            "tdoa": 0.005,
-            "tdoaUnc": 0.0,
-            "fdoa": 200.0,
-            "fdoaUnc": 0.0,
-            "obTime": "2025-01-02 00:40:01.611999988555908Z",
-            "senlat": -14.375,
-            "senlon": 132.152,
-            "senalt": 0.1893,
-            "sen2lat": -42.803,
-            "sen2lon": 147.440,
-            "sen2alt": 0.0,
-            "origSensorId1": "A",
-            "origSensorId2": "B",
-            "ucts": 0,
-            "sensor1Delay": 0.0,
-            "sensor2Delay": 0.0,
-            "bandwidth": 0.0,
-            "source": "Unknown",
-            "dataMode": "REAL",
-            "origin": "Test",
-            "satNo": 22222,
-        }]
+        data1 = [
+            {
+                "frequency": 2260760000,
+                "tdoa": 0.004,
+                "tdoaUnc": 0.0,
+                "fdoa": 100.0,
+                "fdoaUnc": 0.0,
+                "obTime": "2025-01-02 00:40:00.611999988555908Z",
+                "senlat": -14.375,
+                "senlon": 132.152,
+                "senalt": 0.1893,
+                "sen2lat": -42.803,
+                "sen2lon": 147.440,
+                "sen2alt": 0.0,
+                "origSensorId1": "A",
+                "origSensorId2": "B",
+                "ucts": 0,
+                "sensor1Delay": 0.0,
+                "sensor2Delay": 0.0,
+                "bandwidth": 0.0,
+                "source": "Unknown",
+                "dataMode": "REAL",
+                "origin": "Test",
+                "satNo": 11111,
+            }
+        ]
+        data2 = [
+            {
+                "frequency": 2260760000,
+                "tdoa": 0.005,
+                "tdoaUnc": 0.0,
+                "fdoa": 200.0,
+                "fdoaUnc": 0.0,
+                "obTime": "2025-01-02 00:40:01.611999988555908Z",
+                "senlat": -14.375,
+                "senlon": 132.152,
+                "senalt": 0.1893,
+                "sen2lat": -42.803,
+                "sen2lon": 147.440,
+                "sen2alt": 0.0,
+                "origSensorId1": "A",
+                "origSensorId2": "B",
+                "ucts": 0,
+                "sensor1Delay": 0.0,
+                "sensor2Delay": 0.0,
+                "bandwidth": 0.0,
+                "source": "Unknown",
+                "dataMode": "REAL",
+                "origin": "Test",
+                "satNo": 22222,
+            }
+        ]
         file1 = tmp_path / "target1.json"
         file2 = tmp_path / "target2.json"
         _write_json(str(file1), data1)
@@ -463,9 +467,7 @@ def test_to_tudat_returns_valid_collection(single_pair_file):
 
     spice.load_standard_kernels()
 
-    body_settings = environment_setup.get_default_body_settings(
-        ["Earth"], "SSB", "J2000"
-    )
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     batch = BatchUTAS([single_pair_file])
