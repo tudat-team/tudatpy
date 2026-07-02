@@ -31,8 +31,7 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
                                               const std::pair< int, int > observableStartAndSize,
                                               const observation_models::ObservableType observableType )
 {
-    if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable ||
-        observableType == observation_models::relative_angular_position )
+    if( observation_models::isResidualWrappingRequired( observableType ) )
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
                 residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
@@ -78,25 +77,12 @@ void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dyna
     int observationCount = observableSize / observation_models::getObservableSize( observableType );
     int singleObsSize = observation_models::getObservableSize( observableType );
 
-    // Determine which components are periodic and their periods
+    // Determine which components are periodic and their wrapping ranges
     // based on the observable type
-    std::vector< double > componentPeriods( singleObsSize, 0.0 );
-    switch( observableType )
+    std::vector< observation_models::ResidualWrappingRange > wrappingRanges;
+    if( observation_models::isResidualWrappingRequired( observableType ) )
     {
-        case observation_models::angular_position:
-        case observation_models::relative_angular_position:
-        case observation_models::azimuth_elevation_angle:
-            // Component 0 (RA / azimuth) is periodic with period 2*pi
-            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
-            break;
-        case observation_models::euler_angle_313_observable:
-            // All 3 components are periodic with period 2*pi
-            componentPeriods[ 0 ] = 2.0 * mathematical_constants::PI;
-            componentPeriods[ 1 ] = 2.0 * mathematical_constants::PI;
-            componentPeriods[ 2 ] = 2.0 * mathematical_constants::PI;
-            break;
-        default:
-            break;
+        wrappingRanges = observation_models::getResidualWrappingRanges( observableType );
     }
 
     // Wrap each periodic component per observation
@@ -104,12 +90,13 @@ void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dyna
     {
         for( int compIdx = 0; compIdx < singleObsSize; compIdx++ )
         {
-            if( componentPeriods[ compIdx ] > 0.0 )
+            if( compIdx < static_cast< int >( wrappingRanges.size( ) ) && wrappingRanges[ compIdx ].period( ) > 0.0 )
             {
                 int linearIdx = obsIdx * singleObsSize + compIdx;
-                double period = componentPeriods[ compIdx ];
+                double period = wrappingRanges[ compIdx ].period( );
+                double center = wrappingRanges[ compIdx ].center( );
                 residualsBlock( linearIdx, 0 ) =
-                        residualsBlock( linearIdx, 0 ) - period * std::round( residualsBlock( linearIdx, 0 ) / period );
+                        residualsBlock( linearIdx, 0 ) - period * std::round( ( residualsBlock( linearIdx, 0 ) - center ) / period );
             }
         }
     }

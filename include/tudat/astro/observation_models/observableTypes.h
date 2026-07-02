@@ -187,6 +187,60 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         const ObservableType observableType,
         const LinkEnds& linkEnds );
 
+//! Struct for defining wrapping range for residual components (e.g. angular residuals)
+/*!
+ * Struct for defining wrapping range for residual components (e.g. angular residuals).
+ * Provides the minimum and maximum of the range to which a residual component should be
+ * wrapped (e.g. [-pi, pi] or [0, 2*pi]).
+ */
+struct ResidualWrappingRange {
+    //! Default constructor (no wrapping).
+    ResidualWrappingRange( ): minimumRange( 0.0 ), maximumRange( 0.0 ) {}
+
+    //! Constructor with explicit range.
+    ResidualWrappingRange( const double minimumRange, const double maximumRange ):
+        minimumRange( minimumRange ), maximumRange( maximumRange )
+    {}
+
+    //! Minimum of wrapping range.
+    double minimumRange;
+
+    //! Maximum of wrapping range.
+    double maximumRange;
+
+    //! Period of wrapping (convenience).
+    double period( ) const
+    {
+        return maximumRange - minimumRange;
+    }
+
+    //! Center of wrapping range (convenience).
+    double center( ) const
+    {
+        return ( maximumRange + minimumRange ) / 2.0;
+    }
+};
+
+//! Function to check if an observable type requires residual wrapping.
+/*!
+ * Function to check if an observable type requires residual wrapping (e.g. for angular
+ * observable types where residuals may have 2*pi discontinuities).
+ * \param observableType Type of observable.
+ * \return True if wrapping is required, false otherwise.
+ */
+bool isResidualWrappingRequired( const ObservableType observableType );
+
+//! Function to get the wrapping ranges per component for an observable type.
+/*!
+ * Function to get the wrapping ranges per component for an observable type. Returns
+ * an empty vector if no wrapping is needed. Each component has its own range
+ * specification (period, center) so that different components of the same observable
+ * can have different wrapping behavior.
+ * \param observableType Type of observable.
+ * \return Vector of wrapping ranges, one per component.
+ */
+std::vector< ResidualWrappingRange > getResidualWrappingRanges( const ObservableType observableType );
+
 }  // namespace observation_models
 
 }  // namespace tudat
