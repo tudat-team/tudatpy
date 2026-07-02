@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 import os
 import pytest
-import warnings
 import numpy as np
 from tudatpy.interface import spice
 from tudatpy.dynamics.environment_setup import (
@@ -16,33 +15,6 @@ from tudatpy.estimation.observable_models_setup import links
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.data.processTrk234 import converters as cnv
 from tudatpy.data.processTrk234 import OpenRampHandling
-
-
-def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
-    """Check that the compatibility collection preserves the dataset projection."""
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        # Scalar observation values must match the dataset ordered projection exactly.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_observations),
-            np.array(flattened_data.observation_vector),
-        )
-        # Scalar-component times must match the dataset ordered projection exactly.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_times),
-            np.array(flattened_data.times),
-        )
-        # Scalar-component weights must match the dataset ordered projection exactly.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_weights),
-            np.array(flattened_data.weight_vector),
-        )
-        # The wrapper must preserve one facade per dataset observation set.
-        assert len(legacy_collection.get_single_observation_sets()) == (
-            observation_dataset.number_of_observation_sets
-        )
 
 
 # -----------------------------------------------------------------------------
@@ -456,25 +428,6 @@ def test_reader():
     assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
-
-    legacy_collection = trkProcessor.process_observation_collection()
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        first_legacy_set = legacy_collection.get_single_observation_sets()[0]
-
-        # The compatibility set must preserve the same ancillary settings used by the dataset set.
-        legacyDopplerCount = first_legacy_set.ancillary_settings.get_float_settings(
-            ancillary_settings.doppler_integration_time
-        )
-        assert legacyDopplerCount == pytest.approx(dopplerCount)
-
-        # The compatibility set must preserve the same link definition as the dataset set.
-        legacyLinkEndType = first_legacy_set.link_definition
-        assert legacyLinkEndType.link_end_id(links.transmitter).reference_point == transmitter
-        assert legacyLinkEndType.link_end_id(links.reflector1).body_name == sc
-        assert legacyLinkEndType.link_end_id(links.receiver).reference_point == rcv
 
     os.remove(local_filename)
 

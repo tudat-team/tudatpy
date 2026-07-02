@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import pytest
 
@@ -14,24 +12,23 @@ def _link_ends(receiver_body):
     }
 
 
-def _converted_single_set(observable_type, receiver_body, observation_values, times):
-    """Create a dataset through the legacy facade to exercise compatibility paths."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        observation_set = observations.create_single_observation_set(
-            observable_type,
-            _link_ends(receiver_body),
-            [np.asarray(value, dtype=float) for value in observation_values],
-            times,
-            observations.receiver,
-        )
-        return observations.create_observation_dataset_from_single_observation_set(observation_set)
+def _new_dataset_single_set(observable_type, receiver_body, observation_values, times):
+    """Create a one-set ObservationDataset using the dataset-native API."""
+    dataset = observations.ObservationDataset()
+    dataset.add_observation_set(
+        observable_type,
+        observations.LinkDefinition(_link_ends(receiver_body)),
+        [np.asarray(value, dtype=float) for value in observation_values],
+        times,
+        observations.receiver,
+    )
+    return dataset
 
 
 @pytest.fixture
 def sample_dataset():
     """Build a deterministic two-set dataset with scalar and vector observables."""
-    dataset = _converted_single_set(
+    dataset = _new_dataset_single_set(
         observations.one_way_range,
         "Earth",
         [[10.0], [20.0], [30.0]],
@@ -42,7 +39,7 @@ def sample_dataset():
         [np.array([0.1]), np.array([5.0]), np.array([-0.2])],
     )
 
-    angular_dataset = _converted_single_set(
+    angular_dataset = _new_dataset_single_set(
         observations.angular_position,
         "Mars",
         [[1.0, 2.0], [3.0, 4.0]],
@@ -429,13 +426,13 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 
 def test_python_viewer_ordered_flattening_reorders_selected_rows():
     """Check Python viewer ordered flattening against dataset-row flattening."""
-    angular_dataset = _converted_single_set(
+    angular_dataset = _new_dataset_single_set(
         observations.angular_position,
         "Mars",
         [[1.0, 2.0], [3.0, 4.0]],
         [3.0, 4.0],
     )
-    range_dataset = _converted_single_set(
+    range_dataset = _new_dataset_single_set(
         observations.one_way_range,
         "Earth",
         [[10.0], [20.0]],
@@ -557,14 +554,32 @@ def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
     np.testing.assert_allclose(sample_dataset.weight_value(2), [6.0])
 
 
-def test_redundant_weight_aliases_and_legacy_dataset_methods_are_not_public(sample_dataset):
-    """Check that the primary ObservationDataset Python surface contains no removed aliases."""
+def test_dataset_remove_observations_with_residual_condition(sample_dataset):
+    """Check physical removal with the residual condition used by MPC-style examples."""
+    observations_before = sample_dataset.number_of_observations
+    scalar_size_before = sample_dataset.total_scalar_size
 
-    # Short ambiguous aliases should not be available beside the explicit scalar/diagonal/matrix names.
-    assert not hasattr(sample_dataset, "set_constant_weight")
-    # The diagonal alias should not be available beside set_constant_single_observation_diagonal_weight.
+    sample_dataset.remove_observations(
+        observations.ObservationSelectionCondition.residual_absolute_value_greater_than(
+            np.array([1.0])
+        )
+    )
+
+    assert sample_dataset.number_of_observations == observations_before - 2
+    assert sample_dataset.total_scalar_size == scalar_size_before - 3
+    assert (
+        sample_dataset.observation_ids_matching_condition(
+            observations.observation_query.residual.abs_greater_than(np.array([1.0]))
+        )
+        == []
+    )
+
+
+def test_redundant_dataset_only_aliases_are_not_public(sample_dataset):
+    """Check that non-legacy dataset-only aliases are not public."""
+
+    # Dataset-only short aliases should not be available beside the explicit scalar/diagonal/matrix names.
     assert not hasattr(sample_dataset, "set_constant_diagonal_weight")
-    # The matrix alias should not be available beside set_constant_single_observation_matrix_weight.
     assert not hasattr(sample_dataset, "set_constant_matrix_weight")
 
     # Keyword selector overloads were removed; selection should go through ObservationSelectionCondition objects.

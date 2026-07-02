@@ -5,7 +5,6 @@ from tudatpy.interface import spice
 import numpy as np
 import datetime
 import pytest
-import warnings
 
 spice.load_standard_kernels()
 
@@ -75,33 +74,6 @@ def _flattened_radec_and_times(observation_dataset):
     return obs_radec, obs_times
 
 
-def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
-    """Check that compatibility collection output matches the dataset ordered projection."""
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        # The compatibility collection must expose the same scalar observation order.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_observations),
-            np.array(flattened_data.observation_vector),
-        )
-        # The compatibility collection must expose the same scalar-component times.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_times),
-            np.array(flattened_data.times),
-        )
-        # The compatibility collection must expose the same scalar-component weights.
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_weights),
-            np.array(flattened_data.weight_vector),
-        )
-        # The number of single-set facades must match the number of dataset sets.
-        assert len(legacy_collection.get_single_observation_sets()) == (
-            observation_dataset.number_of_observation_sets
-        )
-
-
 # @pytest.mark.parametrize("inp,expected", get_observations_input)
 # def test_BatchMPC_getobservations(inp, expected):
 #    query = BatchMPC()
@@ -144,11 +116,6 @@ def test_create_observation_dataset_from_astropy_table(mpc_code):
     # Full-array comparisons catch ordering regressions that max/sum checks can hide.
     np.testing.assert_allclose(dataset_times, times)
     np.testing.assert_allclose(dataset_RADEC, RADEC)
-
-    legacy_collection = query.create_observations_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
-    )
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -201,11 +168,6 @@ def test_BatchMPC_to_tudat(mpc_code):
     # Full-array comparisons catch ordering regressions that max/sum checks can hide.
     np.testing.assert_allclose(dataset_times, times)
     np.testing.assert_allclose(dataset_RADEC, RADEC)
-
-    legacy_collection = query.to_tudat_observation_collection(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
