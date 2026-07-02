@@ -25,7 +25,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio,
         std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     if( compressionRatio == 0 )
     {
@@ -138,7 +138,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const unsigned int minNumberObservations = 10,
         const double maxArcGap = 300.0,
         std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     // Split Doppler observation sets into arcs
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
