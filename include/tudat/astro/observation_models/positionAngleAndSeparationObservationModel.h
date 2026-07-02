@@ -153,7 +153,7 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > u1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
         Eigen::Matrix< ObservationScalarType, 3, 1 > u2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
 
-        // Compute position angle directly from unit vectors.
+        // Compute position angle directly from unit vectors
         // Position angle is measured from north through east in the tangent plane at u1.
         // e_perp = z_hat × u1 / ||z_hat × u1||  (east direction in tangent plane)
         // e_para = u1 × e_perp                   (north direction in tangent plane)
