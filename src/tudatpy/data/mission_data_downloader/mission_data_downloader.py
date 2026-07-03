@@ -3590,7 +3590,7 @@ class LoadPDS:
             input_mission=input_mission,
             url=url_clock_files,
             wanted_files=wanted_clock_files,
-            custom_output="./grail_archive",
+            custom_output=local_folder,
         )
 
         if clock_files_to_load:
@@ -3609,7 +3609,7 @@ class LoadPDS:
             input_mission=input_mission,
             url=url_frame_files,
             wanted_files=wanted_frame_files,
-            custom_output="./grail_archive",
+            custom_output=local_folder,
         )
 
         if frame_files_to_load:
@@ -3626,7 +3626,7 @@ class LoadPDS:
             input_mission=input_mission,
             url=url_man_files,
             wanted_files=wanted_man_files,
-            custom_output="./grail_archive",
+            custom_output=local_folder,
         )
 
         if man_files_to_load:
