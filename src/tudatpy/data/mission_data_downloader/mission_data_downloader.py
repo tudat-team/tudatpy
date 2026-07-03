@@ -1768,7 +1768,7 @@ class LoadPDS:
                         meta_kernels.append(
                             (year, version, base_url + link["href"])
                         )  # iterating through the past list of meta kernels
-                    except:
+                    except (IndexError, ValueError):
                         self.latest_kernel = (
                             base_url + link["href"]
                         )  # there is just one exact name for juice and mex (no-brainer)
