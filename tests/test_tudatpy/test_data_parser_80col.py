@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.mpc.parser_80col.parsers import (
     parse_80cols_data,
@@ -154,6 +155,42 @@ def test_80cols_line_parser_logic():
     assert ids[1] == "433"  # Asteroid Unpacking
     assert ids[2] == "134341"  # 'D4341' -> 134341 Unpacking
     assert ids[3] == "2025 FA22"  # Provisional Unpacking
+
+    eros_row = parsed_table[1]
+    assert int(eros_row["spacecraft_parallax_type"]) == 1
+    np.testing.assert_allclose(eros_row["spacecraft_position_x"], -198301940.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_y"], 198171039.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_z"], 56287985.0)
+
+
+def test_80cols_parser_splits_concatenated_satellite_records():
+    """Astroquery returns S/s pairs as one 160-character string; parser splits them."""
+    combined_satellite_record = (
+        "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+        "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
+    )
+
+    parsed_table = parse_80cols_data([combined_satellite_record])
+
+    assert len(parsed_table) == 1
+    assert str(parsed_table["number"][0]) == "433"
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], -198301940.0)
+
+
+def test_80cols_parser_handles_satellite_parallax_spacing():
+    """Parse the blank-padded sign style used by MPC satellite type-1 records."""
+    line_hst_valid = (
+        "     T1S1222  S1995 10 19.53839 23 45 35.737+09 09 38.13                     250"
+    )
+    line_hst_parallax = (
+        "     T1S1222  s1995 10 19.53839 1 + 5530.3041 - 4255.1515 -  550.2319        250"
+    )
+
+    parsed_table = parse_80cols_data([line_hst_valid, line_hst_parallax])
+
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], 5530304.1)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_y"][0], -4255151.5)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_z"][0], -550231.9)
 
 
 def test_80cols_malformed_lines():

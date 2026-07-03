@@ -24,7 +24,7 @@ import re
 import warnings
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
-from tudatpy.data.mpc.parser_80col import parse_80cols_file
+from tudatpy.data.mpc.parser_80col import parse_80cols_data, parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
 
 # do not remove this line, even if it looks liek an unused import line
@@ -646,6 +646,15 @@ class BatchMPC:
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
 
+    @staticmethod
+    def _spacecraft_state_columns() -> list[str]:
+        return [
+            "spacecraft_parallax_type",
+            "spacecraft_position_x",
+            "spacecraft_position_y",
+            "spacecraft_position_z",
+        ]
+
     def __copy__(self):
         new = BatchMPC()
 
@@ -864,6 +873,89 @@ class BatchMPC:
 
         return augmented_table
 
+    def _ensure_spacecraft_position_columns(self, table: pd.DataFrame) -> pd.DataFrame:
+        """Internal helper to ensure optional MPC spacecraft-position columns exist."""
+        augmented_table = table.copy()
+        for column in self._spacecraft_state_columns():
+            if column not in augmented_table.columns:
+                augmented_table[column] = np.nan
+        return augmented_table
+
+    def _add_spacecraft_positions_from_mpc80(
+        self, table: pd.DataFrame, mpc_code: str | int, id_type: str | None
+    ) -> pd.DataFrame:
+        """Internal helper to merge satellite positions from raw MPC 80-column records."""
+        augmented_table = self._ensure_spacecraft_position_columns(table)
+
+        try:
+            if id_type is not None:
+                raw_observations = MPC.get_observations(
+                    mpc_code, id_type=id_type, get_mpcformat=True
+                )
+            else:
+                raw_observations = MPC.get_observations(mpc_code, get_mpcformat=True)
+            raw_records = [str(row) for row in raw_observations["obs"]]
+        except Exception as exception:
+            warnings.warn(
+                "Could not retrieve raw MPC 80-column records for spacecraft positions: "
+                f"{exception}",
+                RuntimeWarning,
+            )
+            return augmented_table
+
+        satellite_records = []
+        table_indices = []
+        table_index = 0
+        raw_index = 0
+        while raw_index < len(raw_records):
+            record = raw_records[raw_index]
+            note2 = record[14] if len(record) >= 15 else ""
+
+            if note2 == "S":
+                table_indices.append(table_index)
+                satellite_records.append(record)
+                if (
+                    len(record) == 80
+                    and raw_index + 1 < len(raw_records)
+                    and len(raw_records[raw_index + 1]) >= 15
+                    and raw_records[raw_index + 1][14] == "s"
+                ):
+                    satellite_records.append(raw_records[raw_index + 1])
+                    raw_index += 1
+                table_index += 1
+            elif note2 != "s":
+                table_index += 1
+
+            raw_index += 1
+
+        if not satellite_records:
+            return augmented_table
+
+        try:
+            raw_table = parse_80cols_data(satellite_records).to_pandas()
+        except Exception as exception:
+            warnings.warn(
+                "Could not parse raw MPC satellite records for spacecraft positions: "
+                f"{exception}",
+                RuntimeWarning,
+            )
+            return augmented_table
+
+        if len(raw_table) != len(table_indices) or max(table_indices) >= len(augmented_table):
+            warnings.warn(
+                "Could not merge spacecraft positions from raw MPC satellite records "
+                f"because parsed row counts differ ({len(raw_table)} vs {len(table_indices)}) "
+                "or raw records do not align with the parsed MPC table.",
+                RuntimeWarning,
+            )
+            return augmented_table
+
+        for column in self._spacecraft_state_columns():
+            column_index = augmented_table.columns.get_loc(column)
+            augmented_table.iloc[table_indices, column_index] = raw_table[column].to_numpy()
+
+        return augmented_table
+
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
 
         augmented_table = table.copy()
@@ -991,6 +1083,13 @@ class BatchMPC:
                 RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
                 DEC=lambda x: np.radians(x.DEC),
             )
+            has_satellite_observations = obs["observatory"].isin(
+                self._MPC_space_telescopes
+            ).any() or ("note2" in obs and (obs["note2"] == "S").any())
+            if has_satellite_observations:
+                obs = self._add_spacecraft_positions_from_mpc80(obs, code, id_type)
+            else:
+                obs = self._ensure_spacecraft_position_columns(obs)
 
             identifier = None
             if drop_misc_observations:
@@ -1059,6 +1158,7 @@ class BatchMPC:
         obs = table
         obs = self._add_time_columns(obs)
         obs = self._add_custom_name_column(obs, custom_name)
+        obs = self._ensure_spacecraft_position_columns(obs)
         if in_degrees:
             obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
                 DEC=lambda x: np.radians(x.DEC)
@@ -1504,6 +1604,171 @@ class BatchMPC:
             in_degrees=in_degrees,
         )
         return observations.create_observation_collection_from_dataset(observation_dataset)
+
+    def _resolve_spacecraft_observatory_code(self, satellite_name: str) -> str:
+        """Internal helper to resolve an MPC spacecraft observatory code from code or name."""
+        satellite_name = str(satellite_name).strip()
+        candidate_code = satellite_name.zfill(3)
+        position_columns = [
+            "spacecraft_position_x",
+            "spacecraft_position_y",
+            "spacecraft_position_z",
+        ]
+        table_spacecraft_codes = set()
+        if set(position_columns).issubset(self._table.columns):
+            table_spacecraft_codes = set(
+                self._table.loc[
+                    self._table[position_columns].notna().all(axis=1),
+                    "observatory",
+                ]
+                .astype(str)
+                .str.strip()
+                .str.zfill(3)
+            )
+
+        if candidate_code in self._space_telescopes or candidate_code in table_spacecraft_codes:
+            return candidate_code
+
+        if self._observatory_info is not None and "Name" in self._observatory_info.columns:
+            station_info = self._observatory_info.copy()
+            station_info["Code"] = station_info["Code"].astype(str).str.strip().str.zfill(3)
+            station_info["Name"] = station_info["Name"].astype(str).str.strip()
+            matching_rows = station_info[
+                (station_info["Code"] == candidate_code)
+                | (station_info["Name"].str.lower() == satellite_name.lower())
+            ]
+            if not matching_rows.empty:
+                resolved_code = matching_rows.iloc[0]["Code"]
+                if (
+                    resolved_code in self._space_telescopes
+                    or resolved_code in table_spacecraft_codes
+                ):
+                    return resolved_code
+
+        raise ValueError(
+            f"Satellite '{satellite_name}' is not a space-telescope observatory in this batch. "
+            "Available space-telescope observatory codes are: "
+            f"{sorted(set(self._space_telescopes) | table_spacecraft_codes)}."
+        )
+
+    def get_satellite_state_history(
+        self,
+        satellite_name: str,
+        add_finite_difference_velocity: bool = True,
+    ) -> dict[float, np.ndarray]:
+        """Return the MPC-derived state history for one satellite observatory.
+
+        The returned dictionary maps observation epochs in seconds since J2000 TDB
+        to Cartesian states. Positions are the MPC geocentre-to-spacecraft vectors
+        converted to metres in equatorial J2000. Velocities are finite-difference
+        estimates by default, because the MPC 80-column satellite records provide
+        positions only.
+
+        Parameters
+        ----------
+        satellite_name : str
+            MPC observatory code (for example ``"C51"``) or exact observatory name
+            present in the MPC observatory-code table.
+        add_finite_difference_velocity : bool, optional
+            If True, append finite-difference velocities to the tabulated positions.
+            If False, append zero velocities, by default True.
+
+        Returns
+        -------
+        dict[float, np.ndarray]
+            Mapping from TDB epoch to six-element Cartesian state.
+        """
+        spacecraft_code = self._resolve_spacecraft_observatory_code(satellite_name)
+        position_columns = [
+            "spacecraft_position_x",
+            "spacecraft_position_y",
+            "spacecraft_position_z",
+        ]
+        missing_columns = [column for column in position_columns if column not in self._table]
+        if missing_columns:
+            raise ValueError(
+                "This batch does not contain MPC spacecraft-position columns. "
+                "Load observations with a recent BatchMPC parser or from MPC 80-column records."
+            )
+
+        spacecraft_table = self._table.loc[
+            (self._table["observatory"] == spacecraft_code)
+            & self._table[position_columns].notna().all(axis=1),
+            ["epoch_seconds_TDB", *position_columns],
+        ]
+        if spacecraft_table.empty:
+            raise ValueError(
+                f"No MPC spacecraft positions are available for satellite '{satellite_name}' "
+                f"(resolved observatory code '{spacecraft_code}')."
+            )
+
+        spacecraft_table = (
+            spacecraft_table.groupby("epoch_seconds_TDB", as_index=True)[position_columns]
+            .mean()
+            .sort_index()
+        )
+
+        epochs = spacecraft_table.index.to_numpy(dtype=float)
+        positions = spacecraft_table.to_numpy(dtype=float)
+        if add_finite_difference_velocity and len(epochs) > 1:
+            velocities = np.gradient(
+                positions,
+                epochs,
+                axis=0,
+                edge_order=2 if len(epochs) > 2 else 1,
+            )
+        else:
+            velocities = np.zeros_like(positions)
+
+        states = np.hstack((positions, velocities))
+        return {float(epoch): state for epoch, state in zip(epochs, states)}
+
+    @staticmethod
+    def satellite_state_history_to_ephemeris_settings(
+        state_history: dict[float, np.ndarray],
+        frame_origin: str = "Earth",
+        frame_orientation: str = "J2000",
+    ):
+        """Convert an MPC satellite state history to tabulated ephemeris settings.
+
+        Parameters
+        ----------
+        state_history : dict[float, np.ndarray]
+            Mapping from TDB epoch to six-element Cartesian state.
+        frame_origin : str, optional
+            Frame origin for the tabulated states. MPC satellite vectors are
+            geocentric, so the default is ``"Earth"``.
+        frame_orientation : str, optional
+            Frame orientation for the tabulated states. MPC satellite vectors are
+            equatorial J2000, so the default is ``"J2000"``.
+
+        Returns
+        -------
+        environment_setup.ephemeris.EphemerisSettings
+            Tabulated ephemeris settings.
+        """
+        return environment_setup.ephemeris.tabulated(
+            body_state_history=state_history,
+            frame_origin=frame_origin,
+            frame_orientation=frame_orientation,
+        )
+
+    def get_satellite_ephemeris_settings(
+        self,
+        satellite_name: str,
+        frame_origin: str = "Earth",
+        frame_orientation: str = "J2000",
+        add_finite_difference_velocity: bool = True,
+    ):
+        """Return tabulated ephemeris settings from MPC satellite observations."""
+        return self.satellite_state_history_to_ephemeris_settings(
+            self.get_satellite_state_history(
+                satellite_name,
+                add_finite_difference_velocity=add_finite_difference_velocity,
+            ),
+            frame_origin=frame_origin,
+            frame_orientation=frame_orientation,
+        )
 
     def to_tudat(
         self,

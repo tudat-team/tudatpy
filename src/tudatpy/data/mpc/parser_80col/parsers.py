@@ -6,6 +6,20 @@ from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import unpackers
 import os
 
+ASTRONOMICAL_UNIT_METERS = 1.49597870700e11
+
+
+def _split_80_column_records(lines: list[str]) -> list[str]:
+    """Split raw MPC records, including Astroquery's concatenated satellite pairs."""
+    records = []
+    for line in lines:
+        clean_line = str(line).replace("\n", "").replace("\r", "")
+        if len(clean_line) > 80 and len(clean_line) % 80 == 0:
+            records.extend(clean_line[i : i + 80] for i in range(0, len(clean_line), 80))
+        else:
+            records.append(clean_line)
+    return records
+
 
 def get_first_failure_reason(row: pd.Series) -> str:
     """
@@ -103,7 +117,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
     if not lines:
         raise ValueError("Input list is empty.")
 
-    df = pd.DataFrame({"raw_line": lines})
+    df = pd.DataFrame({"raw_line": _split_80_column_records(lines)})
     # Remove newlines regardless of input method
     df["clean_line"] = (
         df["raw_line"]
@@ -146,6 +160,13 @@ def parse_80cols_data(lines: list[str]) -> Table:
         "observatory": slice(77, 80),
     }
 
+    satellite_col_map = {
+        "satellite_parallax_type": slice(32, 33),
+        "satellite_x": slice(34, 45),
+        "satellite_y": slice(46, 57),
+        "satellite_z": slice(58, 69),
+    }
+
     sep_map = {
         "sep_ra_hm": slice(34, 35),
         "sep_ra_ms": slice(37, 38),
@@ -153,7 +174,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
         "sep_dec_ms": slice(50, 51),
     }
 
-    for name, sl in {**col_map, **sep_map}.items():
+    for name, sl in {**col_map, **sep_map, **satellite_col_map}.items():
         df[name] = df["clean_line"].str[sl]
 
     # 3. NUMERIC COERCION
@@ -197,6 +218,58 @@ def parse_80cols_data(lines: list[str]) -> Table:
                 f"Observation 'S' not followed by Parallax 's'."
             )
 
+        parallax_rows = df.loc[is_sat_par].copy()
+        parallax_rows["satellite_parallax_type_n"] = pd.to_numeric(
+            parallax_rows["satellite_parallax_type"], errors="coerce"
+        )
+        if (~parallax_rows["satellite_parallax_type_n"].isin([1, 2])).any():
+            bad_idx = parallax_rows.index[~parallax_rows["satellite_parallax_type_n"].isin([1, 2])][
+                0
+            ]
+            raise ValueError(
+                f"Satellite Structure Error at Line {bad_idx + 1}.\n"
+                "Parallax line must specify parallax type '1' or '2' in column 33."
+            )
+
+        for component in ["satellite_x", "satellite_y", "satellite_z"]:
+            parallax_rows[f"{component}_n"] = pd.to_numeric(
+                parallax_rows[component].astype(str).str.replace(" ", "", regex=False),
+                errors="coerce",
+            )
+
+        invalid_component = (
+            parallax_rows[["satellite_x_n", "satellite_y_n", "satellite_z_n"]].isna().any(axis=1)
+        )
+        if invalid_component.any():
+            bad_idx = parallax_rows.index[invalid_component][0]
+            raise ValueError(
+                f"Satellite Structure Error at Line {bad_idx + 1}.\n"
+                "Could not parse one or more satellite parallax vector components."
+            )
+
+        type_1 = parallax_rows["satellite_parallax_type_n"] == 1
+        scale = np.where(type_1, 1000.0, ASTRONOMICAL_UNIT_METERS)
+        for component in ["satellite_x", "satellite_y", "satellite_z"]:
+            parallax_rows[f"{component}_m"] = parallax_rows[f"{component}_n"] * scale
+
+        satellite_state_columns = [
+            "satellite_parallax_type_n",
+            "satellite_x_m",
+            "satellite_y_m",
+            "satellite_z_m",
+        ]
+        satellite_parallax_data = parallax_rows.loc[:, satellite_state_columns].copy()
+        satellite_parallax_data.index = satellite_parallax_data.index - 1
+    else:
+        satellite_parallax_data = pd.DataFrame(
+            columns=[
+                "satellite_parallax_type_n",
+                "satellite_x_m",
+                "satellite_y_m",
+                "satellite_z_m",
+            ]
+        )
+
     # 5. VALIDATION LOGIC
     is_valid_structure = (
         (df["sep_ra_hm"] == " ")
@@ -236,6 +309,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
         )
 
     df_obs = df[is_valid_obs & (~is_drop_flag)].copy()
+    df_obs = df_obs.join(satellite_parallax_data, how="left")
     if df_obs.empty:
         raise ValueError("No valid observation lines found.")
     str_cols = [
@@ -305,6 +379,10 @@ def parse_80cols_data(lines: list[str]) -> Table:
             "note1": df_obs["note1"],
             "note2": df_obs["note2"],
             "catalog": None,
+            "spacecraft_parallax_type": df_obs["satellite_parallax_type_n"],
+            "spacecraft_position_x": df_obs["satellite_x_m"],
+            "spacecraft_position_y": df_obs["satellite_y_m"],
+            "spacecraft_position_z": df_obs["satellite_z_m"],
         }
     )
     return Table.from_pandas(final_df)
@@ -394,7 +472,9 @@ def identify_object(row: pd.Series) -> pd.Series:
 
     # --- PATH B: ONLY PROVISIONAL ID IS PRESENT ---
     elif prov_id:
-        if len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]:
+        if prov_id[0:3] in unpackers.SURVEY_MAP or (
+            len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]
+        ):
             result["obj_type"] = "Minor Planet"
             result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
         else:
@@ -457,7 +537,9 @@ def identify_object(row: pd.Series) -> pd.Series:
 
     # --- PATH B: ONLY PROVISIONAL ID IS PRESENT ---
     elif prov_id:
-        if len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]:
+        if prov_id[0:3] in unpackers.SURVEY_MAP or (
+            len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]
+        ):
             result["obj_type"] = "Minor Planet"
             result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
         else:

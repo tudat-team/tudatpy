@@ -1,10 +1,16 @@
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
+from tudatpy.estimation import observable_models_setup, observations
 from tudatpy.interface import spice
+from astropy.table import Table
 import numpy as np
 import datetime
+import os
+import pandas as pd
 import pytest
+import warnings
+import tudatpy.data.mpc.mpc as mpc_module
 
 spice.load_standard_kernels()
 
@@ -205,6 +211,244 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     # Full-array comparisons catch ordering regressions that max/sum checks can hide.
     np.testing.assert_allclose(dataset_times, times)
     np.testing.assert_allclose(dataset_RADEC, RADEC)
+
+
+def test_BatchMPC_get_satellite_state_history():
+    batch = BatchMPC()
+    batch._MPC_space_telescopes = []
+    batch._table = pd.DataFrame(
+        {
+            "number": ["433", "433", "433"],
+            "epoch_seconds_TDB": [0.0, 10.0, 20.0],
+            "epoch_seconds_UTC": [0.0, 10.0, 20.0],
+            "epoch": [2451545.0, 2451545.0 + 10.0 / 86400.0, 2451545.0 + 20.0 / 86400.0],
+            "RA": [0.0, 0.0, 0.0],
+            "DEC": [0.0, 0.0, 0.0],
+            "band": ["V", "V", "V"],
+            "observatory": ["C51", "C51", "C51"],
+            "spacecraft_position_x": [0.0, 10.0, 20.0],
+            "spacecraft_position_y": [10.0, 10.0, 10.0],
+            "spacecraft_position_z": [0.0, -10.0, -20.0],
+        }
+    )
+    batch._refresh_metadata()
+
+    state_history = batch.get_satellite_state_history("C51")
+    epochs = sorted(state_history)
+    states = np.array([state_history[epoch] for epoch in epochs])
+
+    assert epochs == [0.0, 10.0, 20.0]
+    np.testing.assert_allclose(
+        states[:, :3], [[0.0, 10.0, 0.0], [10.0, 10.0, -10.0], [20.0, 10.0, -20.0]]
+    )
+    np.testing.assert_allclose(
+        states[:, 3:], [[1.0, 0.0, -1.0], [1.0, 0.0, -1.0], [1.0, 0.0, -1.0]]
+    )
+
+
+def test_BatchMPC_get_observations_skips_raw_query_without_satellite_data(monkeypatch):
+    calls = []
+
+    def fake_get_observations(*args, **kwargs):
+        calls.append(kwargs)
+        if kwargs.get("get_mpcformat", False):
+            raise AssertionError("Raw MPC query should be skipped for ground-based data.")
+        return Table(
+            {
+                "number": [433],
+                "epoch": [2451545.0],
+                "RA": [0.0],
+                "DEC": [0.0],
+                "band": ["V"],
+                "observatory": ["T08"],
+                "note2": ["C"],
+                "catalog": ["G"],
+                "desig": [None],
+            }
+        )
+
+    monkeypatch.setattr(mpc_module.MPC, "get_observations", fake_get_observations)
+    batch = BatchMPC()
+    batch._MPC_space_telescopes = ["C51"]
+
+    batch.get_observations([433])
+
+    assert len(calls) == 1
+    assert "spacecraft_position_x" in batch.table
+
+
+def test_BatchMPC_merges_split_raw_satellite_records(monkeypatch):
+    raw_ground = "00433         C2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    raw_satellite = (
+        "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    )
+    raw_parallax = (
+        "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
+    )
+
+    def fake_get_observations(*args, **kwargs):
+        return Table({"obs": [raw_ground, raw_satellite, raw_parallax]})
+
+    monkeypatch.setattr(mpc_module.MPC, "get_observations", fake_get_observations)
+    batch = BatchMPC()
+    parsed_table = pd.DataFrame(
+        {
+            "observatory": ["500", "500"],
+            "epoch_seconds_TDB": [0.0, 1.0],
+            "RA": [0.0, 0.0],
+            "DEC": [0.0, 0.0],
+        }
+    )
+
+    table = batch._add_spacecraft_positions_from_mpc80(parsed_table, 433, None)
+
+    assert np.isnan(table.loc[0, "spacecraft_position_x"])
+    np.testing.assert_allclose(table.loc[1, "spacecraft_position_x"], -198301940.0)
+    np.testing.assert_allclose(table.loc[1, "spacecraft_position_y"], 198171039.0)
+    np.testing.assert_allclose(table.loc[1, "spacecraft_position_z"], 56287985.0)
+
+
+def _horizons_cartesian_states(horizons_id, epochs):
+    query = HorizonsQuery(
+        query_id=horizons_id,
+        location="500@SSB",
+        epoch_list=list(sorted(set(float(epoch) for epoch in epochs))),
+        extended_query=True,
+    )
+    return query.cartesian(frame_orientation="J2000")
+
+
+def _local_target_ephemeris_settings(batch, horizons_id, observatory_code):
+    speed_of_light = 299792458.0
+    epochs = batch.table.sort_values("epoch_seconds_TDB", kind="stable")[
+        "epoch_seconds_TDB"
+    ].to_numpy(dtype=float)
+    spacecraft_history = batch.get_satellite_state_history(observatory_code)
+    spacecraft_positions = np.array([spacecraft_history[float(epoch)][:3] for epoch in epochs])
+    earth_positions = np.array(
+        [
+            spice.get_body_cartesian_state_at_epoch(
+                "Earth",
+                "SSB",
+                "J2000",
+                "NONE",
+                float(epoch),
+            )[:3]
+            for epoch in epochs
+        ]
+    )
+    target_states_at_receive = _horizons_cartesian_states(horizons_id, epochs)[:, 1:7]
+    receiver_positions = earth_positions + spacecraft_positions
+    transmit_epochs = epochs - (
+        np.linalg.norm(target_states_at_receive[:, :3] - receiver_positions, axis=1)
+        / speed_of_light
+    )
+
+    sample_epochs = []
+    for epoch_array in (epochs, transmit_epochs):
+        for offset in (-600.0, -300.0, 0.0, 300.0, 600.0):
+            sample_epochs.extend(epoch_array + offset)
+
+    target_table = _horizons_cartesian_states(horizons_id, sample_epochs)
+    return environment_setup.ephemeris.tabulated(
+        {float(row[0]): row[1:7] for row in target_table},
+        "SSB",
+        "J2000",
+    )
+
+
+def _angular_position_observation_settings(observation_dataset):
+    observation_settings = []
+    links_done = []
+    for set_metadata in observation_dataset.observation_set_metadata:
+        if (
+            set_metadata.observable_type
+            != observable_models_setup.model_settings.angular_position_type
+        ):
+            continue
+        link = observation_dataset.link_definition(set_metadata.link_definition_id)
+        if link not in links_done:
+            links_done.append(link)
+            observation_settings.append(
+                observable_models_setup.model_settings.angular_position(
+                    link,
+                    bias_settings=None,
+                )
+            )
+    return observation_settings
+
+
+def _compute_hst_prefit_residuals(target, horizons_id):
+    hst_observatory_code = "250"
+    batch = BatchMPC()
+    batch.get_observations([target])
+    batch.filter(
+        epoch_start=datetime.datetime(1990, 1, 1),
+        epoch_end=datetime.datetime(2026, 1, 1),
+        observatories=[hst_observatory_code],
+    )
+
+    target_body = batch.MPC_objects[0]
+    hst_body = f"HST_{target.replace(' ', '_')}"
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth"],
+        "SSB",
+        "J2000",
+    )
+    body_settings.add_empty_settings(target_body)
+    body_settings.get(target_body).ephemeris_settings = _local_target_ephemeris_settings(
+        batch,
+        horizons_id,
+        hst_observatory_code,
+    )
+    body_settings.add_empty_settings(hst_body)
+    body_settings.get(hst_body).ephemeris_settings = batch.get_satellite_ephemeris_settings(
+        hst_observatory_code,
+        frame_origin="Earth",
+        frame_orientation="J2000",
+    )
+
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    observation_dataset = batch.to_tudat(
+        bodies=bodies,
+        included_satellites={hst_observatory_code: hst_body},
+        apply_star_catalog_debias=False,
+        apply_weights_VFCC17=False,
+    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        from tudatpy.numerical_simulation import estimation_setup
+
+        observation_simulators = estimation_setup.create_observation_simulators(
+            _angular_position_observation_settings(observation_dataset),
+            bodies,
+        )
+    observations.compute_residuals_and_dependent_variables_for_dataset(
+        observation_dataset,
+        observation_simulators,
+        bodies,
+    )
+    flattened = observation_dataset.ordered_flattened_observation_data()
+    return np.array(flattened.residual_vector).reshape(2, -1, order="F").T
+
+
+@pytest.mark.skipif(
+    os.environ.get("TUDATPY_RUN_NETWORK_TESTS") != "1",
+    reason="requires live MPC and Horizons queries",
+)
+def test_mpc_hst_space_astrometry_prefit_residuals():
+    """Check HST MPC spacecraft astrometry against Tudat-computed residuals."""
+    rad_to_arcsec = 180.0 / np.pi * 3600.0
+    cases = [
+        ("2003 BF91", "2003 BF91;"),
+        ("2003 BH91", "2003 BH91;"),
+        ("2020 KP11", "2020 KP11;"),
+    ]
+
+    for target, horizons_id in cases:
+        residuals_arcsec = _compute_hst_prefit_residuals(target, horizons_id) * rad_to_arcsec
+        assert np.max(np.abs(residuals_arcsec)) < 0.1, target
+        assert np.max(np.sqrt(np.mean(residuals_arcsec**2, axis=0))) < 0.05, target
 
 
 def test_compare_mpc_horizons_eph():
