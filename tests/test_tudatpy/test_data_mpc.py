@@ -1,16 +1,20 @@
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.astro import element_conversion, time_representation
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observable_models_setup, observations
 from tudatpy.interface import spice
 from astropy.table import Table
 import numpy as np
 import datetime
+import json
 import os
 import pandas as pd
 import pytest
 import warnings
+from pathlib import Path
 import tudatpy.data.mpc.mpc as mpc_module
+from tudatpy.data.mpc.parser_80col import parse_80cols_data
 
 spice.load_standard_kernels()
 
@@ -70,6 +74,18 @@ weights_test_combinations = [
     (observatory_set_multi, False),
     (None, False),  # all data
 ]
+
+WGS84_EQUATORIAL_RADIUS = 6378137.0
+WGS84_FLATTENING = 1.0 / 298.257223563
+
+RADAR_STATION_GEODETIC = {
+    "251": np.array([453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)]),
+    "253": np.array([1001.39, np.deg2rad(35.4259009), np.deg2rad(243.1104618)]),
+}
+
+APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
+    Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
+)
 
 
 def _flattened_radec_and_times(observation_dataset):
@@ -378,6 +394,130 @@ def _angular_position_observation_settings(observation_dataset):
     return observation_settings
 
 
+def _radar_observation_settings(observation_dataset):
+    observation_settings = []
+    links_done = []
+    light_time_corrections = [
+        observable_models_setup.light_time_corrections.first_order_relativistic_light_time_correction(
+            ["Sun"]
+        )
+    ]
+    for set_metadata in observation_dataset.observation_set_metadata:
+        link = observation_dataset.link_definition(set_metadata.link_definition_id)
+        link_key = (set_metadata.observable_type, link)
+        if link_key in links_done:
+            continue
+        links_done.append(link_key)
+        if set_metadata.observable_type == observable_models_setup.model_settings.n_way_range_type:
+            observation_settings.append(
+                observable_models_setup.model_settings.n_way_range(
+                    link,
+                    light_time_corrections,
+                    bias_settings=None,
+                    time_scale_for_observable=time_representation.utc_scale,
+                )
+            )
+        elif (
+            set_metadata.observable_type
+            == observable_models_setup.model_settings.doppler_measured_frequency_type
+        ):
+            observation_settings.append(
+                observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency(
+                    link,
+                    light_time_corrections,
+                    bias_settings=None,
+                )
+            )
+    return observation_settings
+
+
+def _load_apophis_figure2_radar_fixture_cases():
+    with APOPHIS_FIGURE2_RADAR_FIXTURE_PATH.open() as fixture_file:
+        fixture = json.load(fixture_file)
+    return fixture["cases"]
+
+
+def _target_horizons_ephemeris_from_fixture(case):
+    ephemeris_data = case["target_ephemeris"]
+    return environment_setup.ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:7], dtype=float) for row in ephemeris_data["states"]},
+        ephemeris_data["frame_origin"],
+        ephemeris_data["frame_orientation"],
+    )
+
+
+def _add_radar_geodetic_ground_stations(bodies, station_body="Earth"):
+    for station_code, geodetic_position in RADAR_STATION_GEODETIC.items():
+        if station_code in bodies.get(station_body).ground_station_list:
+            continue
+        station_settings = environment_setup.ground_station.basic_station(
+            station_code,
+            geodetic_position,
+            element_conversion.geodetic_position_type,
+        )
+        environment_setup.add_ground_station(
+            bodies.get_body(station_body),
+            station_settings,
+        )
+
+
+def _compute_fixture_radar_prefit_residual(case):
+    radar_table = parse_80cols_data(case["mpc_80col_records"])
+    batch = BatchMPC()
+    batch.from_astropy(radar_table, in_degrees=False)
+
+    target_body = batch.MPC_objects[0]
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth", "Moon"],
+        "SSB",
+        "J2000",
+    )
+    body_settings.get("Earth").shape_settings = environment_setup.shape.oblate_spherical(
+        WGS84_EQUATORIAL_RADIUS,
+        WGS84_FLATTENING,
+    )
+    body_settings.get("Earth").rotation_model_settings = (
+        environment_setup.rotation_model.gcrs_to_itrs(
+            environment_setup.rotation_model.iau_2006,
+            "J2000",
+        )
+    )
+    body_settings.add_empty_settings(target_body)
+    body_settings.get(target_body).ephemeris_settings = _target_horizons_ephemeris_from_fixture(
+        case
+    )
+
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    _add_radar_geodetic_ground_stations(bodies)
+    observation_dataset = batch.to_tudat(
+        bodies=bodies,
+        included_satellites=None,
+        apply_star_catalog_debias=False,
+        apply_weights_VFCC17=False,
+    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        from tudatpy.numerical_simulation import estimation_setup
+
+        observation_simulators = estimation_setup.create_observation_simulators(
+            _radar_observation_settings(observation_dataset),
+            bodies,
+        )
+    observations.compute_residuals_and_dependent_variables_for_dataset(
+        observation_dataset,
+        observation_simulators,
+        bodies,
+    )
+
+    flattened = observation_dataset.ordered_flattened_observation_data()
+    residual = np.asarray(flattened.residual_vector)[0]
+    if "radar_range_sigma" in batch.table and batch.table["radar_range_sigma"].notna().any():
+        sigma = batch.table["radar_range_sigma"].to_numpy(dtype=float)[0]
+    else:
+        sigma = batch.table["radar_doppler_frequency_sigma"].to_numpy(dtype=float)[0]
+    return residual, sigma, observation_dataset
+
+
 def _compute_hst_prefit_residuals(target, horizons_id):
     hst_observatory_code = "250"
     batch = BatchMPC()
@@ -449,6 +589,23 @@ def test_mpc_hst_space_astrometry_prefit_residuals():
         residuals_arcsec = _compute_hst_prefit_residuals(target, horizons_id) * rad_to_arcsec
         assert np.max(np.abs(residuals_arcsec)) < 0.1, target
         assert np.max(np.sqrt(np.mean(residuals_arcsec**2, axis=0))) < 0.05, target
+
+
+def test_mpc_apophis_figure2_radar_prefit_residuals_against_horizons():
+    """Print Apophis Figure 2 radar residuals against frozen Horizons target states."""
+    fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+    print(f"\nComparing {len(fixture_cases)} Apophis Figure 2 " "radar observations.")
+
+    for case in fixture_cases:
+        residual, sigma, _ = _compute_fixture_radar_prefit_residual(case)
+        unit = "m" if case["jpl_radar_row"]["units"] == "us" else "Hz"
+        print(
+            f"{case['epoch_utc']}  {case['jpl_radar_row']['units']:>2s}  "
+            f"station = {case['mpc_80col_records'][0][68:71]}->"
+            f"{case['mpc_80col_records'][1][68:71]}  "
+            f"residual = {residual:12.3f} {unit}  sigma = {sigma:10.3f} {unit}  "
+            f"residual/sigma = {residual / sigma:10.3f}"
+        )
 
 
 def test_compare_mpc_horizons_eph():
