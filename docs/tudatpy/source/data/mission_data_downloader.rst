@@ -25,5 +25,6 @@ Classes
 
 .. autoclass:: tudatpy.data.mission_data_downloader.LoadPDS
    :members:
+   :inherited-members:
    :special-members: __init__
 
