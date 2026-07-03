@@ -2463,23 +2463,23 @@ class LoadPDS:
 
         self.radio_science_urls = []
         volume_ID_list = self.get_mex_volume_ID(start_date_mex, end_date_mex, mapping_dict)
-        if self.get_mex_volume_ID(start_date_mex, end_date_mex, mapping_dict):
+        if volume_ID_list:
             for volume_ID in volume_ID_list:
                 for radio_science_base_url in radio_science_base_urls:
                     try:
                         volume_ID_url = radio_science_base_url + volume_ID + "/"
                         response = requests.head(
-                            volume_ID_url
+                            volume_ID_url, timeout=_REQUEST_TIMEOUT
                         )  # Use HEAD to check existence without downloading the content
                         if response.status_code == 200:
                             print(f"URL Exists: {volume_ID_url}")
                             self.radio_science_urls.append(volume_ID_url)
                         else:
                             print(f"URL does not exist: {volume_ID_url}")
-
-                        self.radio_science_urls.append(volume_ID_url)
-                    except:
-                        # print(f"Error occurred for radio science base url {radio_science_base_url} and volume ID {volume_ID}: {e}")
+                    except requests.exceptions.RequestException as e:
+                        print(
+                            f"Error occurred for radio science base url {radio_science_base_url} and volume ID {volume_ID}: {e}"
+                        )
                         continue
 
         if len(self.radio_science_urls) > 0:
