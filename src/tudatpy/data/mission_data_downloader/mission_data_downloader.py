@@ -2291,7 +2291,8 @@ class LoadPDS:
                     )
                     key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
                     self.radio_science_files_to_load[key] = files
-                except:
+                except Exception as e:
+                    print(f"Error downloading {closed_loop_type} radio science files from {url_radio_science_file}: {e}")
                     continue
 
         # Clock files
@@ -2843,7 +2844,8 @@ class LoadPDS:
                     url=url_radio_science_file,
                 )
                 self.radio_science_files_to_load[key] = files
-            except:
+            except Exception as e:
+                print(f"Error downloading mro radio science file from {url_radio_science_file}: {e}")
                 continue
 
         if not self.radio_science_files_to_load:
@@ -3250,8 +3252,11 @@ class LoadPDS:
                                 local_file_path
                             )
 
-                    except:
-                        print(f"Error downloading {filename.lower()}: {e}")
+                    except Exception as e_lower:
+                        print(
+                            f"Error downloading {filename}: {e}. "
+                            f"Retry with {filename.lower()} also failed: {e_lower}"
+                        )
 
         # Frame Kernels
         print("================================================================")
@@ -3573,7 +3578,8 @@ class LoadPDS:
                 )
                 key = "odf"
                 self.radio_science_files_to_load[key] = files
-            except:
+            except Exception as e:
+                print(f"Error downloading grail-a odf file from {url_radio_science_file}: {e}")
                 continue
 
         if not self.radio_science_files_to_load:
@@ -3809,7 +3815,8 @@ class LoadPDS:
                 )
                 key = "odf"
                 self.radio_science_files_to_load[key] = files
-            except:
+            except Exception as e:
+                print(f"Error downloading grail-b odf file from {url_radio_science_file}: {e}")
                 continue
 
         if not self.radio_science_files_to_load:
