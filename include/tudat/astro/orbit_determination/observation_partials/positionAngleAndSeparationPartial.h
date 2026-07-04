@@ -23,13 +23,19 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Derived class for scaling three-dimensional position partial to position angle observable partial (size 1)
+// Forward declaration for PS scaling, used by PositionAngleScaling and SeparationScaling
+class PositionAngleAndSeparationScaling;
+
+//! Derived class for scaling three-dimensional position partial to position angle observable partial (size 1).
+/*!
+ *  Delegates to an internal PositionAngleAndSeparationScaling and extracts the first row (position angle).
+ */
 class PositionAngleScaling : public DirectPositionPartialScaling< 1 >
 {
 public:
-    PositionAngleScaling( ): DirectPositionPartialScaling< 1 >( observation_models::position_angle ) {}
+    PositionAngleScaling( );
 
-    ~PositionAngleScaling( ) {}
+    ~PositionAngleScaling( );
 
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
@@ -63,15 +69,21 @@ private:
     Eigen::Matrix< double, 1, 3 > referenceScalingFactorSecondTransmitter_;
     Eigen::Matrix< double, 1, 1 > referenceLightTimeCorrectionScaling_;
     observation_models::LinkEndType currentLinkEndType_;
+
+    //! Internal PS scaling that performs the full computation
+    std::shared_ptr< PositionAngleAndSeparationScaling > psScaling_;
 };
 
-//! Derived class for scaling three-dimensional position partial to angular separation observable partial (size 1)
+//! Derived class for scaling three-dimensional position partial to angular separation observable partial (size 1).
+/*!
+ *  Delegates to an internal PositionAngleAndSeparationScaling and extracts the second row (angular separation).
+ */
 class SeparationScaling : public DirectPositionPartialScaling< 1 >
 {
 public:
-    SeparationScaling( ): DirectPositionPartialScaling< 1 >( observation_models::separation ) {}
+    SeparationScaling( );
 
-    ~SeparationScaling( ) {}
+    ~SeparationScaling( );
 
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
@@ -105,9 +117,12 @@ private:
     Eigen::Matrix< double, 1, 3 > referenceScalingFactorSecondTransmitter_;
     Eigen::Matrix< double, 1, 1 > referenceLightTimeCorrectionScaling_;
     observation_models::LinkEndType currentLinkEndType_;
+
+    //! Internal PS scaling that performs the full computation
+    std::shared_ptr< PositionAngleAndSeparationScaling > psScaling_;
 };
 
-//! Derived class for scaling three-dimensional position partial to position angle and separation observable partial (size 2)
+//! Derived class for scaling three-dimensional position partial to position angle and separation observable partial (size 2).
 class PositionAngleAndSeparationScaling : public DirectPositionPartialScaling< 2 >
 {
 public:

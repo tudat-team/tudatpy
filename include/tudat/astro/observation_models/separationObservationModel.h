@@ -17,6 +17,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 
 namespace tudat
 {
@@ -33,10 +34,10 @@ inline double getSeparationScalingFactor( const observation_models::LinkEndType 
     return 1.0;
 }
 
-//! Class for simulating angular separation observables.
+//! Class for simulating angular separation observables, derived from the combined PS model.
 /*!
- *  Class for simulating angular separation observables, using light-time (with light-time corrections)
- *  to determine the states of the link ends (two transmitters and receiver).
+ *  Class for simulating angular separation observables, using the PositionAngleAndSeparationObservationModel
+ *  internally and extracting the angular separation component (second element).
  *  The angular separation is the great-circle angle between the two transmitters as seen from the receiver.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
@@ -87,21 +88,21 @@ public:
                 linkEnds,
                 observationBiasCalculator,
                 createFullLinkLightTimeCalculators( lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter ) )
-    {}
+    {
+        // Create internal PS model with no bias (bias is handled at this level)
+        psModel_ = std::make_shared< PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
+                linkEnds, lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter, nullptr );
+    }
 
     //! Destructor
     ~SeparationObservationModel( ) {}
 
     //! Function to compute ideal angular separation observation at given time, between two transmitters.
     /*!
-     *  This function compute ideal angular separation observation at a given time, between two transmitters. The time argument can
-     * be either the reception or transmission time (defined by linkEndAssociatedWithTime input). Note that this observable does include
-     * e.g. light-time corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement. The
-     * times and states of the link ends are also returned in full precision (determined by class template arguments). These states and
-     * times are returned by reference.
+     *  This function computes the ideal angular separation observation by delegating to the internal
+     *  PositionAngleAndSeparationObservationModel and extracting the second element (angular separation).
      *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     *  is kept constant (to input value)
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid
      *  \param linkEndTimes List of times at each link end during observation (returned by reference).
      *  \param linkEndStates List of states at each link end during observation (returned by reference).
      *  \return Calculated angular separation observable value.
@@ -113,86 +114,21 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettingsInput = nullptr ) override
     {
-        // Check link end associated with input time and compute observable.
-        if( linkEndAssociatedWithTime != receiver )
-        {
-            throw std::runtime_error( "Error when calculating separation observation, link end associated with time is not receiver." );
-        }
+        // Delegate computation to the internal PS model
+        Eigen::Matrix< ObservationScalarType, 2, 1 > psObs = psModel_->computeIdealObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettingsInput );
 
-        // Compute light-times and receiver/transmitters states.
-        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings;
-        std::vector< double > firstLinkEndTimes;
-        std::vector< double > secondLinkEndTimes;
-        std::vector< Eigen::Matrix< double, 6, 1 > > firstLinkEndStates;
-        std::vector< Eigen::Matrix< double, 6, 1 > > secondLinkEndStates;
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorFirstTransmitter =
-                getLightTimeCalculatorFirstTransmitter( );
-        std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculatorSecondTransmitter =
-                getLightTimeCalculatorSecondTransmitter( );
-        this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter, ancillarySettingsInput, ancillarySettings );
-        this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, firstLinkEndTimes, firstLinkEndStates, ancillarySettings );
-
-        this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter, ancillarySettingsInput, ancillarySettings );
-        this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, secondLinkEndTimes, secondLinkEndStates, ancillarySettings );
-
-        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState = firstLinkEndStates.at( 1 ).template cast< ObservationScalarType >( );
-        Eigen::Matrix< ObservationScalarType, 6, 1 > firstTransmitterState =
-                firstLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
-        Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState =
-                secondLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
-
-        // Compute relative position vectors
-        Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter1 =
-                firstTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
-        Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter2 =
-                secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
-
-        // Compute unit vectors from receiver to each transmitter
-        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
-        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVector2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
-
-        // Compute angular separation using numerically stable atan2 formulation:
-        // θ = atan2(||u1 × u2||, u1 · u2)
-        Eigen::Matrix< ObservationScalarType, 3, 1 > crossProduct = unitVector1.cross( unitVector2 );
-        ObservationScalarType dotProduct = unitVector1.dot( unitVector2 );
-
-        double separation = std::atan2( static_cast< double >( crossProduct.norm( ) ), static_cast< double >( dotProduct ) );
-
-        // Set link end times and states.
-        linkEndTimes.clear( );
-        linkEndStates.clear( );
-
-        linkEndStates.push_back( firstLinkEndStates.at( 0 ) );
-        linkEndStates.push_back( secondLinkEndStates.at( 0 ) );
-        linkEndStates.push_back( firstLinkEndStates.at( 1 ) );
-
-        linkEndTimes.push_back( firstLinkEndTimes.at( 0 ) );
-        linkEndTimes.push_back( secondLinkEndTimes.at( 0 ) );
-        linkEndTimes.push_back( firstLinkEndTimes.at( 1 ) );
-
-        // Return observable
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << separation ).finished( );
+        // Extract angular separation (second component)
+        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << psObs( 1 ) ).finished( );
     }
 
     //! Function to get the object to calculate light time between first transmitter and receiver.
-    /*!
-     * Function to get the object to calculate light time between first transmitter and receiver.
-     * \return Object to calculate light time between first transmitter and receiver.
-     */
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculatorFirstTransmitter( )
     {
         return this->getSingleLegLightTimeCalculator( 0, 0 );
     }
 
     //! Function to get the object to calculate light time between second transmitter and receiver.
-    /*!
-     * Function to get the object to calculate light time between second transmitter and receiver.
-     * \return Object to calculate light time between second transmitter and receiver.
-     */
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculatorSecondTransmitter( )
     {
         return this->getSingleLegLightTimeCalculator( 1, 0 );
@@ -220,6 +156,10 @@ public:
         return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( 0, 0 ) } },
                  { std::make_pair( transmitter2, receiver ), { this->getSingleLegLightTimeCalculator( 1, 0 ) } } };
     }
+
+private:
+    //! Internal PS model that performs the full computation
+    std::shared_ptr< PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > > psModel_;
 };
 
 }  // namespace observation_models
