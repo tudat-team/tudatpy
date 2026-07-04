@@ -94,9 +94,9 @@ BOOST_AUTO_TEST_CASE( testAngularPositionWrappingRanges )
     std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( angular_position );
     BOOST_CHECK_EQUAL( ranges.size( ), 2 );
 
-    // Component 0: RA wraps to [0, 2*pi]
-    BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, 0.0, 1.0e-15 );
-    BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, 2.0 * PI, 1.0e-15 );
+    // Component 0: RA wraps to [-pi, pi]
+    BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, -PI, 1.0e-15 );
+    BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, PI, 1.0e-15 );
 
     // Component 1: DEC wraps to [-pi/2, pi/2]
     BOOST_CHECK_CLOSE( ranges[ 1 ].minimumRange, -0.5 * PI, 1.0e-15 );
@@ -121,19 +121,19 @@ BOOST_AUTO_TEST_CASE( testWrappingOfAngularPositionResiduals )
 
     std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( angular_position );
 
-    // Test RA component wrapping: wrap to [0, 2*pi]
-    double raResidual = 3.0 * PI;  // Should wrap to PI (since 3*pi - 2*pi = pi)
+    // Test RA component wrapping: wrap to [-pi, pi]
+    double raResidual = 3.0 * PI;  // Should wrap to -PI (since 3*pi - 2*pi*round(1.5) = 3*pi - 4*pi = -pi)
     double period = ranges[ 0 ].period( );
     double center = ranges[ 0 ].center( );
     double wrappedRa = raResidual - period * std::round( ( raResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedRa, PI, 1.0e-15 );
+    BOOST_CHECK_CLOSE( wrappedRa, -PI, 1.0e-15 );
     BOOST_CHECK( wrappedRa >= ranges[ 0 ].minimumRange - 1.0e-12 );
     BOOST_CHECK( wrappedRa <= ranges[ 0 ].maximumRange + 1.0e-12 );
 
     // Test RA with negative value
-    raResidual = -0.5 * PI;  // Should wrap to 1.5*pi (since -0.5*pi + 2*pi = 1.5*pi)
+    raResidual = -0.5 * PI;  // Already in [-pi, pi], should stay at -0.5*pi
     wrappedRa = raResidual - period * std::round( ( raResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedRa, 1.5 * PI, 1.0e-15 );
+    BOOST_CHECK_CLOSE( wrappedRa, -0.5 * PI, 1.0e-15 );
     BOOST_CHECK( wrappedRa >= ranges[ 0 ].minimumRange - 1.0e-12 );
     BOOST_CHECK( wrappedRa <= ranges[ 0 ].maximumRange + 1.0e-12 );
 
