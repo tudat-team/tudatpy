@@ -1,3 +1,6 @@
+from collections.abc import Iterable
+from typing import Any
+
 import numpy as np
 
 from tudatpy.astro import element_conversion
@@ -19,6 +22,7 @@ RADAR_STATION_GEODETIC = {
 
 
 def normalize_radar_station_id(source: str, raw_station_id: str | int) -> str:
+    """Return the canonical station ID used by the radar interface."""
     source = str(source).strip().upper()
     station_id = str(raw_station_id).strip()
     if ":" in station_id:
@@ -29,15 +33,22 @@ def normalize_radar_station_id(source: str, raw_station_id: str | int) -> str:
 
 
 def get_radar_station_geodetic_positions() -> dict[str, np.ndarray]:
+    """Return known radar station geodetic positions as copied arrays."""
     return {station: position.copy() for station, position in RADAR_STATION_GEODETIC.items()}
 
 
 def add_radar_ground_stations(
-    bodies,
-    station_ids,
+    bodies: Any,
+    station_ids: Iterable[str | int],
     station_body: str = "Earth",
     station_positions: dict[str, np.ndarray] | None = None,
 ) -> None:
+    """Add known radar ground stations to a Tudat body environment.
+
+    Positions are geodetic ``[altitude, latitude, longitude]`` entries. Built-in
+    JPL and MPC station positions can be overridden or extended with
+    ``station_positions``.
+    """
     positions = get_radar_station_geodetic_positions()
     if station_positions is not None:
         positions.update(station_positions)

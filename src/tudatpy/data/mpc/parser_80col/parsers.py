@@ -4,6 +4,7 @@ import pandas as pd
 from astropy.table import Table
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
+from tudatpy.constants import ASTRONOMICAL_UNIT, SPEED_OF_LIGHT
 from tudatpy.data.radar import (
     DOPPLER_OBSERVABLE,
     RANGE_OBSERVABLE,
@@ -12,9 +13,6 @@ from tudatpy.data.radar import (
 )
 from tudatpy.data.mpc.parser_80col import unpackers
 import os
-
-ASTRONOMICAL_UNIT_METERS = 1.49597870700e11
-SPEED_OF_LIGHT_METERS_PER_SECOND = 299792458.0
 
 
 def _parse_implicit_decimal(field: str, integer_width: int) -> float:
@@ -33,7 +31,8 @@ def _parse_implicit_decimal(field: str, integer_width: int) -> float:
     return float(f"{sign}{integer_part}.{fractional_part}")
 
 
-def _parse_mpc_datetime(year, month, day_frac):
+def _parse_mpc_datetime(year: str, month: str, day_frac: str) -> pd.Timestamp:
+    """Convert MPC year/month/fractional-day fields to a pandas timestamp."""
     day_integer = int(float(day_frac))
     day_remainder = float(day_frac) - day_integer
     timestamp = pd.to_datetime(
@@ -47,10 +46,13 @@ def _parse_mpc_datetime(year, month, day_frac):
     return timestamp + pd.to_timedelta(day_remainder, unit="D")
 
 
-def _utc_datetime_to_tdb_epoch(timestamp):
+def _utc_datetime_to_tdb_epoch(
+    timestamp: pd.Timestamp, time_scale_converter
+) -> tuple[float, float, float]:
+    """Return Julian day, UTC seconds, and TDB seconds for a UTC timestamp."""
     date_time = DateTime.from_iso_string(timestamp.isoformat(sep=" "))
     epoch_utc = date_time.to_epoch()
-    epoch_tdb = time_representation.default_time_scale_converter().convert_time(
+    epoch_tdb = time_scale_converter.convert_time(
         input_scale=time_representation.utc_scale,
         output_scale=time_representation.tdb_scale,
         input_value=epoch_utc,
@@ -59,7 +61,13 @@ def _utc_datetime_to_tdb_epoch(timestamp):
 
 
 def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
-    """Parse MPC two-line radar observations and return center-of-mass rows."""
+    """Parse MPC two-line radar observations into radar-native rows.
+
+    The returned table is intentionally not BatchMPC-shaped: it contains range
+    or Doppler values in Tudat units, link-end station IDs, and both UTC/TDB
+    epochs. A separate compatibility conversion adds RA/DEC and legacy MPC
+    radar columns only at the parser output boundary.
+    """
     radar_rows = []
     radar_line_mask = pd.Series(False, index=df.index)
     time_scale_converter = time_representation.default_time_scale_converter()
@@ -71,6 +79,7 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             index += 1
             continue
 
+        # MPC radar records are stored as fixed two-line pairs: R/r or V/v.
         if index + 1 >= len(df):
             raise ValueError(f"Radar Structure Error at Line {index + 1}: missing second record.")
 
@@ -86,6 +95,7 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
         radar_line_mask.iloc[index] = True
         radar_line_mask.iloc[index + 1] = True
 
+        # Surface returns are explicitly ignored for now; only center-of-mass returns are loaded.
         target_point = second_record[32]
         if target_point != "C":
             index += 2
@@ -97,6 +107,7 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             index += 2
             continue
 
+        # Unpack the MPC target ID and convert the UTC observation epoch to TDB.
         ident_info = identify_object(
             pd.Series(
                 {
@@ -111,13 +122,7 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             first_record[20:22],
             first_record[23:32],
         )
-        date_time = DateTime.from_iso_string(timestamp.isoformat(sep=" "))
-        epoch_utc = date_time.to_epoch()
-        epoch_tdb = time_scale_converter.convert_time(
-            input_scale=time_representation.utc_scale,
-            output_scale=time_representation.tdb_scale,
-            input_value=epoch_utc,
-        )
+        epoch_jd, epoch_utc, epoch_tdb = _utc_datetime_to_tdb_epoch(timestamp, time_scale_converter)
 
         transmitter = first_record[68:71].strip().zfill(3)
         receiver = first_record[77:80].strip().zfill(3)
@@ -125,18 +130,15 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             first_record[62:68],
             integer_width=5,
         )
+        # Convert MPC units to Tudat observable units: meters for range, hertz for Doppler.
         is_range = record_type == "R"
         transmitter_frequency_hz = np.nan if is_range else radar_frequency_mhz * 1.0e6
         value = (
-            SPEED_OF_LIGHT_METERS_PER_SECOND * measurement * 1.0e-6
+            SPEED_OF_LIGHT * measurement * 1.0e-6
             if is_range
             else transmitter_frequency_hz + measurement
         )
-        sigma = (
-            SPEED_OF_LIGHT_METERS_PER_SECOND * measurement_sigma * 1.0e-6
-            if is_range
-            else measurement_sigma
-        )
+        sigma = SPEED_OF_LIGHT * measurement_sigma * 1.0e-6 if is_range else measurement_sigma
         radar_row = {
             "target_body": number,
             "observable_type": RANGE_OBSERVABLE if is_range else DOPPLER_OBSERVABLE,
@@ -149,7 +151,7 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             "source": "MPC",
             "epoch_seconds_UTC": epoch_utc,
             "epoch_seconds_TDB": epoch_tdb,
-            "epoch": date_time.to_julian_day(),
+            "epoch": epoch_jd,
             "radar_frequency_mhz": radar_frequency_mhz,
         }
         radar_rows.append(radar_row)
@@ -403,7 +405,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
             )
 
         type_1 = parallax_rows["satellite_parallax_type_n"] == 1
-        scale = np.where(type_1, 1000.0, ASTRONOMICAL_UNIT_METERS)
+        scale = np.where(type_1, 1000.0, ASTRONOMICAL_UNIT)
         for component in ["satellite_x", "satellite_y", "satellite_z"]:
             parallax_rows[f"{component}_m"] = parallax_rows[f"{component}_n"] * scale
 
@@ -507,18 +509,12 @@ def parse_80cols_data(lines: list[str]) -> Table:
     ) * dec_sign_mult
     dec_rad = np.deg2rad(dec_deg)
 
-    obs_times_utc_iso_string = [t.isoformat(sep=" ") for t in obs_times_utc_datetime]
-    dt_objects = [DateTime.from_iso_string(t_iso) for t_iso in obs_times_utc_iso_string]
-    float_epochs_utc = [dt.to_epoch() for dt in dt_objects]
     time_scale_converter = time_representation.default_time_scale_converter()
-    float_epochs_tdb = [
-        time_scale_converter.convert_time(
-            input_scale=time_representation.utc_scale,
-            output_scale=time_representation.tdb_scale,
-            input_value=float_epoch_utc,
-        )
-        for float_epoch_utc in float_epochs_utc
+    epoch_data = [
+        _utc_datetime_to_tdb_epoch(timestamp, time_scale_converter)
+        for timestamp in obs_times_utc_datetime
     ]
+    julian_days, float_epochs_utc, float_epochs_tdb = map(list, zip(*epoch_data))
 
     final_df = pd.DataFrame()
     if not df_obs.empty:
@@ -527,7 +523,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
                 "number": df_obs["number"],  # Now contains human-readable string
                 "provisional_designation": df_obs["provisional_designation"],
                 "discovery": df_obs["discovery"].eq("*"),
-                "epoch": [t.to_julian_day() for t in dt_objects],
+                "epoch": julian_days,
                 "epoch_seconds_UTC": float_epochs_utc,
                 "epoch_seconds_TDB": float_epochs_tdb,
                 "RA": ra_rad,

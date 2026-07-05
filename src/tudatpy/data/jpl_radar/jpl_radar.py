@@ -4,6 +4,7 @@ import datetime
 import json
 import urllib.parse
 import urllib.request
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -21,14 +22,18 @@ from tudatpy.data.radar.stations import JPL_TO_MPC_RADAR_STATIONS, normalize_rad
 
 
 class JPLRadarQuery:
+    """Query and convert JPL small-body radar tracking data."""
+
     API_URL = "https://ssd-api.jpl.nasa.gov/sb_radar.api"
 
-    def __init__(self, target: str | int, timeout: float = 30.0):
+    def __init__(self, target: str | int, timeout: float = 30.0) -> None:
+        """Create a query for a JPL small-body target designation."""
         self.target = str(target)
         self.timeout = timeout
         self._response_cache = None
 
-    def _validate_response(self, response) -> dict:
+    def _validate_response(self, response: Any) -> dict[str, Any]:
+        """Validate the decoded API response before row extraction."""
         if not isinstance(response, dict):
             raise RuntimeError(
                 "JPL radar API returned an unexpected response for target "
@@ -48,7 +53,8 @@ class JPLRadarQuery:
             validated_response[key] = value
         return validated_response
 
-    def _fetch_json(self) -> dict:
+    def _fetch_json(self) -> dict[str, Any]:
+        """Fetch and cache the raw JPL radar API JSON response."""
         if self._response_cache is not None:
             return self._validate_response(self._response_cache)
 
@@ -70,6 +76,13 @@ class JPLRadarQuery:
         include_doppler: bool = True,
         station_id_mode: str = "jpl",
     ) -> RadarTrackingData:
+        """Return JPL radar data as a generic ``RadarTrackingData`` object.
+
+        JPL range rows in microseconds are converted to meters. Doppler rows are
+        converted from frequency shift to measured received frequency by adding
+        the transmitter frequency. Epochs are retained in UTC and converted to
+        TDB for Tudat observation processing.
+        """
         response = self._validate_response(self._fetch_json())
         fields = response.get("fields", [])
         rows = []
@@ -77,6 +90,7 @@ class JPLRadarQuery:
 
         for raw_row in response.get("data", []):
             row = dict(zip(fields, raw_row))
+            # Filter by target point, epoch, and observable type before unit conversion.
             if target_point is not None and row.get("bp") != target_point:
                 continue
 
@@ -87,11 +101,11 @@ class JPLRadarQuery:
                 continue
 
             units = row.get("units")
-            if units == "us" and not include_range:
-                continue
-            if units == "Hz" and not include_doppler:
-                continue
-            if units not in {"us", "Hz"}:
+            if (
+                units not in {"us", "Hz"}
+                or (units == "us" and not include_range)
+                or (units == "Hz" and not include_doppler)
+            ):
                 continue
 
             date_time = DateTime.from_iso_string(row["epoch"])
@@ -107,6 +121,7 @@ class JPLRadarQuery:
             frequency_mhz = float(row["freq"])
             transmitter = self._station_id(row["xmit"], station_id_mode)
             receiver = self._station_id(row["rcvr"], station_id_mode)
+            # Keep raw JPL values for traceability while storing Tudat-ready values.
             radar_row = {
                 "target_body": target_body,
                 "epoch_seconds_UTC": epoch_utc,
@@ -152,6 +167,7 @@ class JPLRadarQuery:
 
     @staticmethod
     def _station_id(raw_station_id: str | int, station_id_mode: str) -> str:
+        """Normalize a JPL station ID or map it to MPC compatibility mode."""
         station_id_mode = station_id_mode.lower()
         raw_station_id = str(raw_station_id).strip()
         if station_id_mode == "jpl":

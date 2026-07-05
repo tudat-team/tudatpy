@@ -79,7 +79,6 @@ def _add_mpc_observation_set_to_dataset(
     observation_values,
     observation_times,
     reference_link_end: links.LinkEndType,
-    ancillary_observation_settings=None,
 ) -> int:
     """Append MPC observation arrays through the legacy-compatible interface."""
     with warnings.catch_warnings():
@@ -90,7 +89,6 @@ def _add_mpc_observation_set_to_dataset(
             observation_values,
             observation_times,
             reference_link_end,
-            ancillary_observation_settings,
         )
         single_set_dataset = observations.create_observation_dataset_from_single_observation_set(
             single_observation_set
@@ -624,6 +622,13 @@ class BatchMPC:
 
     """
 
+    _SPACECRAFT_STATE_COLUMNS = (
+        "spacecraft_parallax_type",
+        "spacecraft_position_x",
+        "spacecraft_position_y",
+        "spacecraft_position_z",
+    )
+
     def __init__(self) -> None:
         """Create an empty MPC batch."""
         self._table: pd.DataFrame = pd.DataFrame()
@@ -648,15 +653,6 @@ class BatchMPC:
 
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
-
-    @staticmethod
-    def _spacecraft_state_columns() -> list[str]:
-        return [
-            "spacecraft_parallax_type",
-            "spacecraft_position_x",
-            "spacecraft_position_y",
-            "spacecraft_position_z",
-        ]
 
     def __copy__(self):
         new = BatchMPC()
@@ -820,10 +816,7 @@ class BatchMPC:
             pass
         else:
             angular_mask = self.table["RA"].notna() & self.table["DEC"].notna()
-            self._table = self._table.assign(RA_EFCC18=np.nan)
-            self._table = self._table.assign(DEC_EFCC18=np.nan)
-            self._table = self._table.assign(corr_RA_EFCC18=np.nan)
-            self._table = self._table.assign(corr_DEC_EFCC18=np.nan)
+            self._table["RA_EFCC18 DEC_EFCC18 corr_RA_EFCC18 corr_DEC_EFCC18".split()] = np.nan
             if not angular_mask.any():
                 self._EFCC18_applied = True
                 return
@@ -891,25 +884,50 @@ class BatchMPC:
 
     def _ensure_spacecraft_position_columns(self, table: pd.DataFrame) -> pd.DataFrame:
         """Internal helper to ensure optional MPC spacecraft-position columns exist."""
-        augmented_table = table.copy()
-        for column in self._spacecraft_state_columns():
-            if column not in augmented_table.columns:
-                augmented_table[column] = np.nan
-        return augmented_table
+        return table.assign(
+            **{column: np.nan for column in self._SPACECRAFT_STATE_COLUMNS if column not in table}
+        )
+
+    @staticmethod
+    def _mpc80_records_for_spacecraft_merge(
+        raw_records: list[str],
+    ) -> tuple[list[str], list[int]]:
+        """Return satellite MPC80 records and the table rows they augment."""
+        satellite_records = []
+        table_indices = []
+        table_index = 0
+        raw_index = 0
+
+        while raw_index < len(raw_records):
+            record = raw_records[raw_index]
+            note2 = record[14] if len(record) >= 15 else ""
+
+            # Astroquery omits lowercase parallax rows from the parsed table, so
+            # they must not advance the table index used for merging.
+            if note2 == "S":
+                table_indices.append(table_index)
+                satellite_records.append(record)
+                if raw_index + 1 < len(raw_records) and raw_records[raw_index + 1][14:15] == "s":
+                    satellite_records.append(raw_records[raw_index + 1])
+                    raw_index += 1
+                table_index += 1
+            elif note2 != "s":
+                table_index += 1
+            raw_index += 1
+
+        return satellite_records, table_indices
 
     def _add_spacecraft_positions_from_mpc80(
         self, table: pd.DataFrame, mpc_code: str | int, id_type: str | None
     ) -> pd.DataFrame:
-        """Internal helper to merge satellite positions from raw MPC 80-column records."""
+        """Merge satellite positions from raw MPC 80-column records."""
         augmented_table = self._ensure_spacecraft_position_columns(table)
 
         try:
+            query_kwargs = {"get_mpcformat": True}
             if id_type is not None:
-                raw_observations = MPC.get_observations(
-                    mpc_code, id_type=id_type, get_mpcformat=True
-                )
-            else:
-                raw_observations = MPC.get_observations(mpc_code, get_mpcformat=True)
+                query_kwargs["id_type"] = id_type
+            raw_observations = MPC.get_observations(mpc_code, **query_kwargs)
             raw_records = [str(row) for row in raw_observations["obs"]]
         except Exception as exception:
             warnings.warn(
@@ -919,31 +937,7 @@ class BatchMPC:
             )
             return augmented_table
 
-        satellite_records = []
-        table_indices = []
-        table_index = 0
-        raw_index = 0
-        while raw_index < len(raw_records):
-            record = raw_records[raw_index]
-            note2 = record[14] if len(record) >= 15 else ""
-
-            if note2 == "S":
-                table_indices.append(table_index)
-                satellite_records.append(record)
-                if (
-                    len(record) == 80
-                    and raw_index + 1 < len(raw_records)
-                    and len(raw_records[raw_index + 1]) >= 15
-                    and raw_records[raw_index + 1][14] == "s"
-                ):
-                    satellite_records.append(raw_records[raw_index + 1])
-                    raw_index += 1
-                table_index += 1
-            elif note2 != "s":
-                table_index += 1
-
-            raw_index += 1
-
+        satellite_records, table_indices = self._mpc80_records_for_spacecraft_merge(raw_records)
         if not satellite_records:
             return augmented_table
 
@@ -966,7 +960,9 @@ class BatchMPC:
             )
             return augmented_table
 
-        for column in self._spacecraft_state_columns():
+        # The parsed satellite rows are aligned with the non-parallax rows in the
+        # Astroquery table; copy only the spacecraft position columns.
+        for column in self._SPACECRAFT_STATE_COLUMNS:
             column_index = augmented_table.columns.get_loc(column)
             augmented_table.iloc[table_indices, column_index] = raw_table[column].to_numpy()
 
@@ -1621,50 +1617,47 @@ class BatchMPC:
         )
         return observations.create_observation_collection_from_dataset(observation_dataset)
 
+    def _spacecraft_codes_with_positions(self) -> set[str]:
+        """Return observatory codes that have MPC spacecraft position rows."""
+        position_columns = list(self._SPACECRAFT_STATE_COLUMNS[1:])
+        if not set(position_columns).issubset(self._table.columns):
+            return set()
+
+        return set(
+            self._table.loc[
+                self._table[position_columns].notna().all(axis=1),
+                "observatory",
+            ]
+            .astype(str)
+            .str.strip()
+            .str.zfill(3)
+        )
+
     def _resolve_spacecraft_observatory_code(self, satellite_name: str) -> str:
-        """Internal helper to resolve an MPC spacecraft observatory code from code or name."""
+        """Resolve a requested spacecraft observatory to a code present in this batch."""
         satellite_name = str(satellite_name).strip()
         candidate_code = satellite_name.zfill(3)
-        position_columns = [
-            "spacecraft_position_x",
-            "spacecraft_position_y",
-            "spacecraft_position_z",
-        ]
-        table_spacecraft_codes = set()
-        if set(position_columns).issubset(self._table.columns):
-            table_spacecraft_codes = set(
-                self._table.loc[
-                    self._table[position_columns].notna().all(axis=1),
-                    "observatory",
-                ]
-                .astype(str)
-                .str.strip()
-                .str.zfill(3)
-            )
+        available_codes = set(self._space_telescopes) | self._spacecraft_codes_with_positions()
 
-        if candidate_code in self._space_telescopes or candidate_code in table_spacecraft_codes:
+        if candidate_code in available_codes:
             return candidate_code
 
         if self._observatory_info is not None and "Name" in self._observatory_info.columns:
-            station_info = self._observatory_info.copy()
-            station_info["Code"] = station_info["Code"].astype(str).str.strip().str.zfill(3)
-            station_info["Name"] = station_info["Name"].astype(str).str.strip()
-            matching_rows = station_info[
-                (station_info["Code"] == candidate_code)
-                | (station_info["Name"].str.lower() == satellite_name.lower())
+            station_info = self._observatory_info
+            codes = station_info["Code"].astype(str).str.strip().str.zfill(3)
+            names = station_info["Name"].astype(str).str.strip().str.lower()
+            matching_rows = station_info.loc[
+                (codes == candidate_code) | (names == satellite_name.lower())
             ]
             if not matching_rows.empty:
-                resolved_code = matching_rows.iloc[0]["Code"]
-                if (
-                    resolved_code in self._space_telescopes
-                    or resolved_code in table_spacecraft_codes
-                ):
+                resolved_code = str(matching_rows.iloc[0]["Code"]).strip().zfill(3)
+                if resolved_code in available_codes:
                     return resolved_code
 
         raise ValueError(
             f"Satellite '{satellite_name}' is not a space-telescope observatory in this batch. "
             "Available space-telescope observatory codes are: "
-            f"{sorted(set(self._space_telescopes) | table_spacecraft_codes)}."
+            f"{sorted(available_codes)}."
         )
 
     def get_satellite_state_history(
@@ -1695,11 +1688,7 @@ class BatchMPC:
             Mapping from TDB epoch to six-element Cartesian state.
         """
         spacecraft_code = self._resolve_spacecraft_observatory_code(satellite_name)
-        position_columns = [
-            "spacecraft_position_x",
-            "spacecraft_position_y",
-            "spacecraft_position_z",
-        ]
+        position_columns = list(self._SPACECRAFT_STATE_COLUMNS[1:])
         missing_columns = [column for column in position_columns if column not in self._table]
         if missing_columns:
             raise ValueError(
@@ -1885,26 +1874,13 @@ class BatchMPC:
             self._table.loc[:, "weight"] = temp_table.loc[:, "weight"]
         else:
             temp_table = self.table.copy()
-        if "radar_range_sigma" in temp_table.columns:
-            radar_weight_mask = temp_table["radar_range_sigma"].notna()
-            temp_table.loc[radar_weight_mask, "weight"] = (
-                1.0 / temp_table.loc[radar_weight_mask, "radar_range_sigma"].to_numpy() ** 2
-            )
-            self._table.loc[radar_weight_mask, "weight"] = temp_table.loc[
-                radar_weight_mask, "weight"
-            ]
-        if "radar_doppler_frequency_sigma" in temp_table.columns:
-            radar_doppler_weight_mask = temp_table["radar_doppler_frequency_sigma"].notna()
-            temp_table.loc[radar_doppler_weight_mask, "weight"] = (
-                1.0
-                / temp_table.loc[
-                    radar_doppler_weight_mask, "radar_doppler_frequency_sigma"
-                ].to_numpy()
-                ** 2
-            )
-            self._table.loc[radar_doppler_weight_mask, "weight"] = temp_table.loc[
-                radar_doppler_weight_mask, "weight"
-            ]
+        for radar_sigma_column in ["radar_range_sigma", "radar_doppler_frequency_sigma"]:
+            if radar_sigma_column in temp_table.columns:
+                radar_mask = temp_table[radar_sigma_column].notna()
+                temp_table.loc[radar_mask, "weight"] = (
+                    1.0 / temp_table.loc[radar_mask, radar_sigma_column].to_numpy() ** 2
+                )
+                self._table.loc[radar_mask, "weight"] = temp_table.loc[radar_mask, "weight"]
 
         # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
