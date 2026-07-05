@@ -5,10 +5,10 @@ from tudatpy.estimation.observable_models_setup import (
     model_settings,
     links,
 )
-from tudatpy.estimation.observations_setup import ancillary_settings
 from astropy.table import Table
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
+from tudatpy.data.radar import radar_tracking_data_from_mpc_table
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -97,18 +97,6 @@ def _add_mpc_observation_set_to_dataset(
         )
 
     return observation_dataset.add_observation_set_from_dataset(single_set_dataset, 0)
-
-
-def _radar_frequency_band_from_mhz(frequency_mhz: float):
-    if 2000.0 <= frequency_mhz <= 4000.0:
-        return ancillary_settings.FrequencyBands.s_band
-    if 8000.0 <= frequency_mhz <= 12000.0:
-        return ancillary_settings.FrequencyBands.x_band
-    if 26000.0 <= frequency_mhz <= 40000.0:
-        return ancillary_settings.FrequencyBands.ka_band
-    if 12000.0 <= frequency_mhz <= 18000.0:
-        return ancillary_settings.FrequencyBands.ku_band
-    raise ValueError(f"Unsupported radar Doppler transmitter frequency: {frequency_mhz} MHz")
 
 
 def load_bias_file(
@@ -2013,53 +2001,6 @@ class BatchMPC:
                     bodies.get_body(station_body), ground_station_settings
                 )
 
-        if {
-            "radar_doppler_frequency",
-            "radar_frequency_mhz",
-            "radar_transmitter",
-        }.issubset(observations_table.columns):
-            radar_doppler_transmitters = observations_table.loc[
-                observations_table["radar_doppler_frequency"].notna()
-                & observations_table["radar_frequency_mhz"].notna()
-                & observations_table["radar_transmitter"].notna(),
-                ["radar_transmitter", "radar_frequency_mhz"],
-            ].copy()
-            radar_doppler_transmitters.loc[:, "radar_transmitter"] = (
-                radar_doppler_transmitters["radar_transmitter"].astype(str).str.strip().str.zfill(3)
-            )
-            for transmitter_code, transmitter_rows in radar_doppler_transmitters.groupby(
-                "radar_transmitter"
-            ):
-                transmitter_frequencies_hz = (
-                    transmitter_rows["radar_frequency_mhz"].dropna().unique() * 1.0e6
-                )
-                if len(transmitter_frequencies_hz) != 1:
-                    raise ValueError(
-                        "MPC radar Doppler conversion currently supports one "
-                        f"transmitter frequency per station; station {transmitter_code} "
-                        f"has {len(transmitter_frequencies_hz)} frequencies."
-                    )
-                bodies.get_body(station_body).get_ground_station(
-                    transmitter_code
-                ).set_transmitting_frequency_calculator(
-                    environment.ConstantTransmittingFrequencyCalculator(
-                        float(transmitter_frequencies_hz[0])
-                    )
-                )
-            radar_doppler_targets = observations_table.loc[
-                observations_table["radar_doppler_frequency"].notna()
-                & observations_table["radar_frequency_mhz"].notna(),
-                ["number", "radar_frequency_mhz"],
-            ].copy()
-            for target_body, target_rows in radar_doppler_targets.groupby("number"):
-                turnaround_ratios = {}
-                for frequency_mhz in target_rows["radar_frequency_mhz"].dropna().unique():
-                    frequency_band = _radar_frequency_band_from_mhz(float(frequency_mhz))
-                    turnaround_ratios[(frequency_band, frequency_band)] = 1.0
-                vehicle_systems = environment.VehicleSystems()
-                vehicle_systems.set_transponder_turnaround_ratio(turnaround_ratios)
-                bodies.get_body(str(target_body)).system_models = vehicle_systems
-
         # get unique combinations of mpc bodies and observatories
         angular_observations_table = observations_table.loc[
             observations_table[RA_col].notna() & observations_table[DEC_col].notna()
@@ -2120,139 +2061,13 @@ class BatchMPC:
 
                 observation_dataset.set_weight_vector_for_set(set_id, observation_weights)
 
-        radar_columns = {
-            "radar_range",
-            "radar_range_sigma",
-            "radar_transmitter",
-            "radar_receiver",
-            "radar_target_point",
-        }
-        if radar_columns.issubset(observations_table.columns):
-            radar_observations_table = observations_table.loc[
-                (observations_table["radar_target_point"] == "C")
-                & observations_table["radar_range"].notna()
-                & observations_table["radar_transmitter"].notna()
-                & observations_table["radar_receiver"].notna()
-            ].copy()
-
-            radar_observations_table.loc[:, "radar_transmitter"] = (
-                radar_observations_table["radar_transmitter"].astype(str).str.strip().str.zfill(3)
-            )
-            radar_observations_table.loc[:, "radar_receiver"] = (
-                radar_observations_table["radar_receiver"].astype(str).str.strip().str.zfill(3)
-            )
-            unique_radar_link_combos = radar_observations_table.loc[
-                :, ["number", "radar_transmitter", "radar_receiver"]
-            ].drop_duplicates()
-
-            for MPC_number, transmitter_code, receiver_code in unique_radar_link_combos.values:
-                radar_observations_for_this_link = (
-                    radar_observations_table.query("number == @MPC_number")
-                    .query("radar_transmitter == @transmitter_code")
-                    .query("radar_receiver == @receiver_code")
-                    .sort_values("epoch_seconds_TDB", kind="stable")
-                )
-                link_ends = dict()
-                link_ends[links.transmitter] = links.body_reference_point_link_end_id(
-                    station_body, transmitter_code
-                )
-                link_ends[links.retransmitter] = links.body_origin_link_end_id(MPC_number)
-                link_ends[links.receiver] = links.body_reference_point_link_end_id(
-                    station_body, receiver_code
-                )
-
-                set_id = _add_mpc_observation_set_to_dataset(
-                    observation_dataset,
-                    model_settings.n_way_range_type,
-                    link_ends,
-                    radar_observations_for_this_link.loc[:, ["radar_range"]].to_numpy(),
-                    radar_observations_for_this_link.loc[:, "epoch_seconds_TDB"].to_numpy(),
-                    links.receiver,
-                )
-                observation_dataset.set_weight_vector_for_set(
-                    set_id,
-                    radar_observations_for_this_link.loc[:, "weight"].to_numpy(),
-                )
-
-        radar_doppler_columns = {
-            "radar_doppler_frequency",
-            "radar_doppler_frequency_sigma",
-            "radar_transmitter",
-            "radar_receiver",
-            "radar_target_point",
-            "radar_frequency_mhz",
-        }
-        if radar_doppler_columns.issubset(observations_table.columns):
-            radar_doppler_observations_table = observations_table.loc[
-                (observations_table["radar_target_point"] == "C")
-                & observations_table["radar_doppler_frequency"].notna()
-                & observations_table["radar_doppler_frequency_sigma"].notna()
-                & observations_table["radar_transmitter"].notna()
-                & observations_table["radar_receiver"].notna()
-                & observations_table["radar_frequency_mhz"].notna()
-            ].copy()
-
-            radar_doppler_observations_table.loc[:, "radar_transmitter"] = (
-                radar_doppler_observations_table["radar_transmitter"]
-                .astype(str)
-                .str.strip()
-                .str.zfill(3)
-            )
-            radar_doppler_observations_table.loc[:, "radar_receiver"] = (
-                radar_doppler_observations_table["radar_receiver"]
-                .astype(str)
-                .str.strip()
-                .str.zfill(3)
-            )
-            unique_radar_doppler_link_combos = radar_doppler_observations_table.loc[
-                :, ["number", "radar_transmitter", "radar_receiver", "radar_frequency_mhz"]
-            ].drop_duplicates()
-
-            for (
-                MPC_number,
-                transmitter_code,
-                receiver_code,
-                transmitter_frequency_mhz,
-            ) in unique_radar_doppler_link_combos.values:
-                radar_doppler_observations_for_this_link = (
-                    radar_doppler_observations_table.query("number == @MPC_number")
-                    .query("radar_transmitter == @transmitter_code")
-                    .query("radar_receiver == @receiver_code")
-                    .query("radar_frequency_mhz == @transmitter_frequency_mhz")
-                    .sort_values("epoch_seconds_TDB", kind="stable")
-                )
-                link_ends = dict()
-                link_ends[links.transmitter] = links.body_reference_point_link_end_id(
-                    station_body, transmitter_code
-                )
-                link_ends[links.retransmitter] = links.body_origin_link_end_id(MPC_number)
-                link_ends[links.receiver] = links.body_reference_point_link_end_id(
-                    station_body, receiver_code
-                )
-                transmitter_frequency_band = _radar_frequency_band_from_mhz(
-                    float(transmitter_frequency_mhz)
-                )
-                doppler_ancillary_settings = (
-                    ancillary_settings.doppler_measured_frequency_ancillary_settings(
-                        [transmitter_frequency_band, transmitter_frequency_band]
-                    )
-                )
-
-                set_id = _add_mpc_observation_set_to_dataset(
-                    observation_dataset,
-                    model_settings.doppler_measured_frequency_type,
-                    link_ends,
-                    radar_doppler_observations_for_this_link.loc[
-                        :, ["radar_doppler_frequency"]
-                    ].to_numpy(),
-                    radar_doppler_observations_for_this_link.loc[:, "epoch_seconds_TDB"].to_numpy(),
-                    links.receiver,
-                    doppler_ancillary_settings,
-                )
-                observation_dataset.set_weight_vector_for_set(
-                    set_id,
-                    radar_doppler_observations_for_this_link.loc[:, "weight"].to_numpy(),
-                )
+        radar_tracking_data = radar_tracking_data_from_mpc_table(observations_table)
+        radar_tracking_data.add_to_observation_dataset(
+            observation_dataset,
+            bodies,
+            station_body=station_body,
+            add_ground_stations=False,
+        )
 
         return observation_dataset
 
