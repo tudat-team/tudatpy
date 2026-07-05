@@ -11,7 +11,12 @@ import pandas as pd
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.constants import SPEED_OF_LIGHT
-from tudatpy.data.radar import DOPPLER_OBSERVABLE, RANGE_OBSERVABLE, RadarTrackingData
+from tudatpy.data.radar import (
+    DOPPLER_OBSERVABLE,
+    RANGE_OBSERVABLE,
+    RadarTrackingData,
+    empty_radar_table,
+)
 from tudatpy.data.radar.stations import JPL_TO_MPC_RADAR_STATIONS, normalize_radar_station_id
 
 
@@ -23,16 +28,36 @@ class JPLRadarQuery:
         self.timeout = timeout
         self._response_cache = None
 
+    def _validate_response(self, response) -> dict:
+        if not isinstance(response, dict):
+            raise RuntimeError(
+                "JPL radar API returned an unexpected response for target "
+                f"{self.target}: expected a JSON object, got {type(response).__name__}."
+            )
+
+        validated_response = dict(response)
+        for key in ["fields", "data"]:
+            value = validated_response.get(key, [])
+            if value is None:
+                value = []
+            if not isinstance(value, list):
+                raise RuntimeError(
+                    f"JPL radar API returned invalid '{key}' for target {self.target}: "
+                    f"expected a list, got {type(value).__name__}."
+                )
+            validated_response[key] = value
+        return validated_response
+
     def _fetch_json(self) -> dict:
         if self._response_cache is not None:
-            return self._response_cache
+            return self._validate_response(self._response_cache)
 
         query = urllib.parse.urlencode({"des": self.target})
         with urllib.request.urlopen(
             f"{self.API_URL}?{query}",
             timeout=self.timeout,
         ) as response:
-            self._response_cache = json.load(response)
+            self._response_cache = self._validate_response(json.load(response))
         return self._response_cache
 
     def to_radar_tracking_data(
@@ -45,7 +70,7 @@ class JPLRadarQuery:
         include_doppler: bool = True,
         station_id_mode: str = "jpl",
     ) -> RadarTrackingData:
-        response = self._fetch_json()
+        response = self._validate_response(self._fetch_json())
         fields = response.get("fields", [])
         rows = []
         target_body = str(target_body or self.target)
@@ -122,23 +147,7 @@ class JPLRadarQuery:
             rows.append(radar_row)
 
         if not rows:
-            return RadarTrackingData(
-                pd.DataFrame(
-                    columns=[
-                        "target_body",
-                        "epoch_seconds_UTC",
-                        "epoch_seconds_TDB",
-                        "observable_type",
-                        "value",
-                        "sigma",
-                        "transmitter",
-                        "receiver",
-                        "target_point",
-                        "transmitter_frequency_hz",
-                        "source",
-                    ]
-                )
-            )
+            return RadarTrackingData(empty_radar_table())
         return RadarTrackingData(pd.DataFrame(rows))
 
     @staticmethod

@@ -5,6 +5,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from tudatpy.constants import SPEED_OF_LIGHT
 from tudatpy.dynamics import environment
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import links, model_settings
@@ -15,19 +16,35 @@ from .stations import add_radar_ground_stations
 RANGE_OBSERVABLE = "n_way_range"
 DOPPLER_OBSERVABLE = "two_way_doppler_frequency"
 
-REQUIRED_RADAR_COLUMNS = {
-    "target_body",
-    "epoch_seconds_UTC",
-    "epoch_seconds_TDB",
-    "observable_type",
-    "value",
-    "sigma",
-    "transmitter",
-    "receiver",
-    "target_point",
-    "transmitter_frequency_hz",
-    "source",
-}
+RADAR_COLUMNS = tuple(
+    "target_body epoch_seconds_UTC epoch_seconds_TDB observable_type value sigma "
+    "transmitter receiver target_point transmitter_frequency_hz source".split()
+)
+
+MPC_RADAR_COLUMNS = tuple(
+    "number provisional_designation discovery epoch epoch_seconds_UTC epoch_seconds_TDB "
+    "RA DEC observatory magnitude band note1 note2 catalog spacecraft_parallax_type "
+    "spacecraft_position_x spacecraft_position_y spacecraft_position_z radar_target_point "
+    "radar_delay_us radar_delay_sigma_us radar_range radar_range_sigma "
+    "radar_doppler_shift radar_doppler_frequency radar_doppler_frequency_sigma "
+    "radar_transmitter radar_receiver radar_frequency_mhz".split()
+)
+
+MPC_RADAR_SPECS = (
+    (RANGE_OBSERVABLE, "radar_range", "radar_range_sigma", None),
+    (
+        DOPPLER_OBSERVABLE,
+        "radar_doppler_frequency",
+        "radar_doppler_frequency_sigma",
+        "radar_frequency_mhz",
+    ),
+)
+
+REQUIRED_RADAR_COLUMNS = set(RADAR_COLUMNS)
+
+
+def empty_radar_table() -> pd.DataFrame:
+    return pd.DataFrame(columns=RADAR_COLUMNS)
 
 
 def _add_observation_set_to_dataset(
@@ -206,8 +223,22 @@ class RadarTrackingData:
                 bodies.create_empty_body(target_body)
 
         self._configure_doppler_environment(radar_table, bodies, station_body)
-        self._add_range_sets(radar_table, observation_dataset, station_body)
-        self._add_doppler_sets(radar_table, observation_dataset, station_body)
+        for radar_type, tudat_type, ancillary_factory in [
+            (RANGE_OBSERVABLE, model_settings.n_way_range_type, None),
+            (
+                DOPPLER_OBSERVABLE,
+                model_settings.doppler_measured_frequency_type,
+                self._doppler_ancillary_settings,
+            ),
+        ]:
+            self._add_radar_sets(
+                radar_table,
+                observation_dataset,
+                station_body,
+                radar_type,
+                tudat_type,
+                ancillary_factory,
+            )
 
     @staticmethod
     def _configure_doppler_environment(radar_table, bodies, station_body):
@@ -246,182 +277,187 @@ class RadarTrackingData:
             bodies.get_body(str(target_body)).system_models = vehicle_systems
 
     @staticmethod
-    def _add_range_sets(radar_table, observation_dataset, station_body):
-        range_table = radar_table.loc[radar_table["observable_type"] == RANGE_OBSERVABLE].copy()
-        if range_table.empty:
-            return
-
-        unique_link_combos = range_table.loc[
-            :, ["target_body", "transmitter", "receiver"]
-        ].drop_duplicates()
-        for target_body, transmitter, receiver in unique_link_combos.values:
-            observations_for_link = (
-                range_table.query("target_body == @target_body")
-                .query("transmitter == @transmitter")
-                .query("receiver == @receiver")
-                .sort_values("epoch_seconds_TDB", kind="stable")
-            )
-            link_ends = {
-                links.transmitter: links.body_reference_point_link_end_id(
-                    station_body, transmitter
-                ),
-                links.retransmitter: links.body_origin_link_end_id(target_body),
-                links.receiver: links.body_reference_point_link_end_id(station_body, receiver),
-            }
-            set_id = _add_observation_set_to_dataset(
-                observation_dataset,
-                model_settings.n_way_range_type,
-                link_ends,
-                observations_for_link.loc[:, ["value"]].to_numpy(),
-                observations_for_link.loc[:, "epoch_seconds_TDB"].to_numpy(),
-                links.receiver,
-            )
-            observation_dataset.set_weight_vector_for_set(
-                set_id,
-                1.0 / observations_for_link.loc[:, "sigma"].to_numpy() ** 2,
-            )
+    def _doppler_ancillary_settings(group: dict):
+        transmitter_frequency_band = _radar_frequency_band_from_hz(
+            float(group["transmitter_frequency_hz"])
+        )
+        return ancillary_settings.doppler_measured_frequency_ancillary_settings(
+            [transmitter_frequency_band, transmitter_frequency_band]
+        )
 
     @staticmethod
-    def _add_doppler_sets(radar_table, observation_dataset, station_body):
-        doppler_table = radar_table.loc[radar_table["observable_type"] == DOPPLER_OBSERVABLE].copy()
-        if doppler_table.empty:
+    def _add_radar_sets(
+        radar_table,
+        observation_dataset,
+        station_body,
+        radar_observable_type,
+        tudat_observable_type,
+        ancillary_factory=None,
+    ):
+        observable_table = radar_table.loc[
+            radar_table["observable_type"] == radar_observable_type
+        ].copy()
+        if observable_table.empty:
             return
 
-        unique_link_combos = doppler_table.loc[
-            :,
-            ["target_body", "transmitter", "receiver", "transmitter_frequency_hz"],
-        ].drop_duplicates()
-        for (
-            target_body,
-            transmitter,
-            receiver,
-            transmitter_frequency_hz,
-        ) in unique_link_combos.values:
-            observations_for_link = (
-                doppler_table.query("target_body == @target_body")
-                .query("transmitter == @transmitter")
-                .query("receiver == @receiver")
-                .query("transmitter_frequency_hz == @transmitter_frequency_hz")
-                .sort_values("epoch_seconds_TDB", kind="stable")
-            )
-            transmitter_frequency_band = _radar_frequency_band_from_hz(
-                float(transmitter_frequency_hz)
-            )
-            doppler_ancillary_settings = (
-                ancillary_settings.doppler_measured_frequency_ancillary_settings(
-                    [transmitter_frequency_band, transmitter_frequency_band]
-                )
+        group_columns = ["target_body", "transmitter", "receiver"] + (
+            ["transmitter_frequency_hz"] if radar_observable_type == DOPPLER_OBSERVABLE else []
+        )
+
+        for group_values, observations_for_link in observable_table.groupby(
+            group_columns, sort=False
+        ):
+            if not isinstance(group_values, tuple):
+                group_values = (group_values,)
+            group = dict(zip(group_columns, group_values))
+            observations_for_link = observations_for_link.sort_values(
+                "epoch_seconds_TDB", kind="stable"
             )
             link_ends = {
                 links.transmitter: links.body_reference_point_link_end_id(
-                    station_body, transmitter
+                    station_body, group["transmitter"]
                 ),
-                links.retransmitter: links.body_origin_link_end_id(target_body),
-                links.receiver: links.body_reference_point_link_end_id(station_body, receiver),
+                links.retransmitter: links.body_origin_link_end_id(group["target_body"]),
+                links.receiver: links.body_reference_point_link_end_id(
+                    station_body, group["receiver"]
+                ),
             }
+            ancillary_observation_settings = (
+                ancillary_factory(group) if ancillary_factory is not None else None
+            )
             set_id = _add_observation_set_to_dataset(
                 observation_dataset,
-                model_settings.doppler_measured_frequency_type,
+                tudat_observable_type,
                 link_ends,
                 observations_for_link.loc[:, ["value"]].to_numpy(),
                 observations_for_link.loc[:, "epoch_seconds_TDB"].to_numpy(),
                 links.receiver,
-                doppler_ancillary_settings,
+                ancillary_observation_settings,
             )
             observation_dataset.set_weight_vector_for_set(
                 set_id,
                 1.0 / observations_for_link.loc[:, "sigma"].to_numpy() ** 2,
             )
+
+
+def _normalize_mpc_station_series(station_series: pd.Series) -> pd.Series:
+    return station_series.astype(str).str.strip().str.zfill(3)
+
+
+def _column_or_default(table: pd.DataFrame, column: str, default):
+    return table[column] if column in table else default
+
+
+def _mpc_radar_frame(
+    table: pd.DataFrame, observable_type, value_column, sigma_column, frequency_column
+):
+    required_columns = {
+        "number",
+        "epoch_seconds_UTC",
+        "epoch_seconds_TDB",
+        "radar_target_point",
+        "radar_transmitter",
+        "radar_receiver",
+        value_column,
+        sigma_column,
+    }
+    if frequency_column is not None:
+        required_columns.add(frequency_column)
+    if not required_columns.issubset(table.columns):
+        return empty_radar_table()
+
+    required_observation_columns = [
+        "radar_target_point",
+        "radar_transmitter",
+        "radar_receiver",
+        value_column,
+        sigma_column,
+    ]
+    if frequency_column is not None:
+        required_observation_columns.append(frequency_column)
+    rows = table.loc[table.loc[:, required_observation_columns].notna().all(axis=1)].copy()
+    if rows.empty:
+        return empty_radar_table()
+
+    return pd.DataFrame(
+        {
+            "target_body": rows["number"].astype(str),
+            "epoch_seconds_UTC": rows["epoch_seconds_UTC"],
+            "epoch_seconds_TDB": rows["epoch_seconds_TDB"],
+            "observable_type": observable_type,
+            "value": rows[value_column],
+            "sigma": rows[sigma_column],
+            "transmitter": _normalize_mpc_station_series(rows["radar_transmitter"]),
+            "receiver": _normalize_mpc_station_series(rows["radar_receiver"]),
+            "target_point": rows["radar_target_point"],
+            "transmitter_frequency_hz": (
+                pd.to_numeric(rows[frequency_column]) * 1.0e6
+                if frequency_column is not None
+                else np.nan
+            ),
+            "source": "MPC",
+        }
+    )
 
 
 def radar_tracking_data_from_mpc_table(table: pd.DataFrame) -> RadarTrackingData:
-    rows = []
-    if {
-        "number",
-        "epoch_seconds_UTC",
-        "epoch_seconds_TDB",
-        "radar_target_point",
-        "radar_transmitter",
-        "radar_receiver",
-        "radar_range",
-        "radar_range_sigma",
-    }.issubset(table.columns):
-        range_rows = table.loc[
-            table["radar_target_point"].notna()
-            & table["radar_range"].notna()
-            & table["radar_range_sigma"].notna()
-            & table["radar_transmitter"].notna()
-            & table["radar_receiver"].notna()
-        ]
-        for _, row in range_rows.iterrows():
-            rows.append(
-                {
-                    "target_body": str(row["number"]),
-                    "epoch_seconds_UTC": row["epoch_seconds_UTC"],
-                    "epoch_seconds_TDB": row["epoch_seconds_TDB"],
-                    "observable_type": RANGE_OBSERVABLE,
-                    "value": row["radar_range"],
-                    "sigma": row["radar_range_sigma"],
-                    "transmitter": str(row["radar_transmitter"]).strip().zfill(3),
-                    "receiver": str(row["radar_receiver"]).strip().zfill(3),
-                    "target_point": row["radar_target_point"],
-                    "transmitter_frequency_hz": np.nan,
-                    "source": "MPC",
-                }
-            )
+    frames = [_mpc_radar_frame(table, *spec) for spec in MPC_RADAR_SPECS]
+    frames = [frame for frame in frames if not frame.empty]
+    table = pd.concat(frames, ignore_index=True, sort=False) if frames else empty_radar_table()
+    return RadarTrackingData(table)
 
-    if {
-        "number",
-        "epoch_seconds_UTC",
-        "epoch_seconds_TDB",
-        "radar_target_point",
-        "radar_transmitter",
-        "radar_receiver",
-        "radar_doppler_frequency",
-        "radar_doppler_frequency_sigma",
-        "radar_frequency_mhz",
-    }.issubset(table.columns):
-        doppler_rows = table.loc[
-            table["radar_target_point"].notna()
-            & table["radar_doppler_frequency"].notna()
-            & table["radar_doppler_frequency_sigma"].notna()
-            & table["radar_frequency_mhz"].notna()
-            & table["radar_transmitter"].notna()
-            & table["radar_receiver"].notna()
-        ]
-        for _, row in doppler_rows.iterrows():
-            rows.append(
-                {
-                    "target_body": str(row["number"]),
-                    "epoch_seconds_UTC": row["epoch_seconds_UTC"],
-                    "epoch_seconds_TDB": row["epoch_seconds_TDB"],
-                    "observable_type": DOPPLER_OBSERVABLE,
-                    "value": row["radar_doppler_frequency"],
-                    "sigma": row["radar_doppler_frequency_sigma"],
-                    "transmitter": str(row["radar_transmitter"]).strip().zfill(3),
-                    "receiver": str(row["radar_receiver"]).strip().zfill(3),
-                    "target_point": row["radar_target_point"],
-                    "transmitter_frequency_hz": float(row["radar_frequency_mhz"]) * 1.0e6,
-                    "source": "MPC",
-                }
-            )
 
-    if not rows:
-        return RadarTrackingData(
-            pd.DataFrame(
-                columns=[
-                    "target_body",
-                    "epoch_seconds_UTC",
-                    "epoch_seconds_TDB",
-                    "observable_type",
-                    "value",
-                    "sigma",
-                    "transmitter",
-                    "receiver",
-                    "target_point",
-                    "transmitter_frequency_hz",
-                    "source",
-                ]
-            )
+def mpc_batch_table_from_radar_tracking_table(radar_table: pd.DataFrame) -> pd.DataFrame:
+    if radar_table.empty:
+        return pd.DataFrame(columns=MPC_RADAR_COLUMNS)
+
+    table = radar_table.copy()
+    range_mask = table["observable_type"] == RANGE_OBSERVABLE
+    doppler_mask = table["observable_type"] == DOPPLER_OBSERVABLE
+
+    batch_table = (
+        pd.DataFrame(index=table.index)
+        .assign(
+            number=_column_or_default(table, "number", table["target_body"]),
+            provisional_designation=_column_or_default(table, "provisional_designation", None),
+            discovery=_column_or_default(table, "discovery", False),
+            epoch=_column_or_default(table, "epoch", np.nan),
+            epoch_seconds_UTC=table["epoch_seconds_UTC"],
+            epoch_seconds_TDB=table["epoch_seconds_TDB"],
+            observatory=_column_or_default(table, "observatory", table["receiver"]),
+            note1=_column_or_default(table, "note1", None),
+            note2=_column_or_default(
+                table,
+                "note2",
+                pd.Series(
+                    np.where(range_mask, "R", np.where(doppler_mask, "V", None)),
+                    index=table.index,
+                ),
+            ),
+            radar_target_point=table["target_point"],
+            radar_delay_us=_column_or_default(
+                table, "radar_delay_us", table["value"] / SPEED_OF_LIGHT * 1.0e6
+            ),
+            radar_delay_sigma_us=_column_or_default(
+                table, "radar_delay_sigma_us", table["sigma"] / SPEED_OF_LIGHT * 1.0e6
+            ),
+            radar_doppler_shift=_column_or_default(
+                table, "radar_doppler_shift", table["value"] - table["transmitter_frequency_hz"]
+            ),
+            radar_transmitter=table["transmitter"],
+            radar_receiver=table["receiver"],
+            radar_frequency_mhz=_column_or_default(
+                table, "radar_frequency_mhz", table["transmitter_frequency_hz"] / 1.0e6
+            ),
         )
-    return RadarTrackingData(pd.DataFrame(rows))
+        .reindex(columns=MPC_RADAR_COLUMNS)
+    )
+    batch_table.loc[~range_mask, ["radar_delay_us", "radar_delay_sigma_us"]] = np.nan
+    batch_table.loc[range_mask, "radar_range"] = table.loc[range_mask, "value"]
+    batch_table.loc[range_mask, "radar_range_sigma"] = table.loc[range_mask, "sigma"]
+    batch_table.loc[~doppler_mask, "radar_doppler_shift"] = np.nan
+    batch_table.loc[doppler_mask, "radar_doppler_frequency"] = table.loc[doppler_mask, "value"]
+    batch_table.loc[doppler_mask, "radar_doppler_frequency_sigma"] = table.loc[
+        doppler_mask, "sigma"
+    ]
+    return batch_table

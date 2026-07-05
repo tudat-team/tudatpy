@@ -4,6 +4,12 @@ import pandas as pd
 from astropy.table import Table
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
+from tudatpy.data.radar import (
+    DOPPLER_OBSERVABLE,
+    RANGE_OBSERVABLE,
+    empty_radar_table,
+    mpc_batch_table_from_radar_tracking_table,
+)
 from tudatpy.data.mpc.parser_80col import unpackers
 import os
 
@@ -119,51 +125,38 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
             first_record[62:68],
             integer_width=5,
         )
+        is_range = record_type == "R"
+        transmitter_frequency_hz = np.nan if is_range else radar_frequency_mhz * 1.0e6
+        value = (
+            SPEED_OF_LIGHT_METERS_PER_SECOND * measurement * 1.0e-6
+            if is_range
+            else transmitter_frequency_hz + measurement
+        )
+        sigma = (
+            SPEED_OF_LIGHT_METERS_PER_SECOND * measurement_sigma * 1.0e-6
+            if is_range
+            else measurement_sigma
+        )
         radar_row = {
-            "number": number,
-            "provisional_designation": first_record[5:12].strip() or None,
-            "discovery": first_record[12] == "*",
-            "epoch": date_time.to_julian_day(),
+            "target_body": number,
+            "observable_type": RANGE_OBSERVABLE if is_range else DOPPLER_OBSERVABLE,
+            "value": value,
+            "sigma": sigma,
+            "transmitter": transmitter,
+            "receiver": receiver,
+            "target_point": target_point,
+            "transmitter_frequency_hz": transmitter_frequency_hz,
+            "source": "MPC",
             "epoch_seconds_UTC": epoch_utc,
             "epoch_seconds_TDB": epoch_tdb,
-            "RA": np.nan,
-            "DEC": np.nan,
-            "observatory": receiver,
-            "magnitude": np.nan,
-            "band": None,
-            "note1": first_record[13].strip() or None,
-            "note2": record_type,
-            "catalog": None,
-            "spacecraft_parallax_type": np.nan,
-            "spacecraft_position_x": np.nan,
-            "spacecraft_position_y": np.nan,
-            "spacecraft_position_z": np.nan,
-            "radar_target_point": target_point,
-            "radar_delay_us": np.nan,
-            "radar_delay_sigma_us": np.nan,
-            "radar_range": np.nan,
-            "radar_range_sigma": np.nan,
-            "radar_doppler_shift": np.nan,
-            "radar_doppler_frequency": np.nan,
-            "radar_doppler_frequency_sigma": np.nan,
-            "radar_transmitter": transmitter,
-            "radar_receiver": receiver,
+            "epoch": date_time.to_julian_day(),
             "radar_frequency_mhz": radar_frequency_mhz,
         }
-        if record_type == "R":
-            radar_row["radar_delay_us"] = measurement
-            radar_row["radar_delay_sigma_us"] = measurement_sigma
-            radar_row["radar_range"] = SPEED_OF_LIGHT_METERS_PER_SECOND * measurement * 1.0e-6
-            radar_row["radar_range_sigma"] = (
-                SPEED_OF_LIGHT_METERS_PER_SECOND * measurement_sigma * 1.0e-6
-            )
-        else:
-            radar_row["radar_doppler_shift"] = measurement
-            radar_row["radar_doppler_frequency"] = radar_frequency_mhz * 1.0e6 + measurement
-            radar_row["radar_doppler_frequency_sigma"] = measurement_sigma
         radar_rows.append(radar_row)
         index += 2
 
+    if not radar_rows:
+        return empty_radar_table(), radar_line_mask
     return pd.DataFrame(radar_rows), radar_line_mask
 
 
@@ -295,6 +288,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
         )
 
     radar_table, radar_line_mask = _parse_radar_observation_pairs(df)
+    radar_batch_table = mpc_batch_table_from_radar_tracking_table(radar_table)
     df = df.loc[~radar_line_mask].copy()
 
     # 2. SLICE COLUMNS
@@ -471,10 +465,10 @@ def parse_80cols_data(lines: list[str]) -> Table:
 
     df_obs = df[is_valid_obs & (~is_drop_flag)].copy()
     df_obs = df_obs.join(satellite_parallax_data, how="left")
-    if df_obs.empty and radar_table.empty:
+    if df_obs.empty and radar_batch_table.empty:
         raise ValueError("No valid observation lines found.")
     if df_obs.empty:
-        return Table.from_pandas(radar_table)
+        return Table.from_pandas(radar_batch_table)
     str_cols = [
         "number",
         "provisional_designation",
@@ -551,8 +545,8 @@ def parse_80cols_data(lines: list[str]) -> Table:
             }
         )
 
-    if not radar_table.empty:
-        final_df = pd.concat([final_df, radar_table], ignore_index=True, sort=False)
+    if not radar_batch_table.empty:
+        final_df = pd.concat([final_df, radar_batch_table], ignore_index=True, sort=False)
     return Table.from_pandas(final_df)
 
 
