@@ -2,23 +2,26 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tudatpy.data.jpl_radar import JPLRadarQuery
+from tudatpy.data.jpl_radar import JPLRadarQuery, get_available_radar_targets
+import tudatpy.data.jpl_radar.jpl_radar as jpl_radar_module
+from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.mpc.parser_80col import parse_80cols_data
 from tudatpy.data.radar import (
     DOPPLER_OBSERVABLE,
     RADAR_COLUMNS,
+    RADAR_TABLE_META_KEY,
     RANGE_OBSERVABLE,
     RadarTrackingData,
     empty_radar_table,
     radar_tracking_data_from_mpc_table,
 )
+from tudatpy.data.radar.radar import _radar_frequency_band_from_hz
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation.observable_models_setup import model_settings
+from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.constants import SPEED_OF_LIGHT
 from tudatpy.interface import spice
-
-WGS84_EQUATORIAL_RADIUS = 6378137.0
-WGS84_FLATTENING = 1.0 / 298.257223563
+from test_tudatpy.shared_constants import WGS84_EQUATORIAL_RADIUS, WGS84_FLATTENING
 
 spice.load_standard_kernels()
 
@@ -50,6 +53,7 @@ def _jpl_radar_response():
     return {
         "fields": [
             "epoch",
+            "des",
             "value",
             "sigma",
             "units",
@@ -61,6 +65,7 @@ def _jpl_radar_response():
         "data": [
             [
                 "2005-01-29 00:00:00",
+                "99942",
                 "4000.0",
                 "0.025",
                 "us",
@@ -71,6 +76,7 @@ def _jpl_radar_response():
             ],
             [
                 "2005-01-29 00:00:01",
+                "99942",
                 "-3.5",
                 "0.1",
                 "Hz",
@@ -81,6 +87,7 @@ def _jpl_radar_response():
             ],
             [
                 "2005-01-29 00:00:02",
+                "99942",
                 "123.0",
                 "1.0",
                 "us",
@@ -108,6 +115,23 @@ def test_jpl_radar_query_rejects_non_object_response():
         query.to_radar_tracking_data()
 
 
+def test_get_available_radar_targets_returns_sorted_unique_designations(monkeypatch):
+    monkeypatch.setattr(
+        jpl_radar_module,
+        "_fetch_json",
+        lambda query_parameters, timeout, context: {
+            "fields": ["des", "epoch"],
+            "data": [
+                ["99942", "2005-01-29 00:00:00"],
+                ["433", "1975-01-01 00:00:00"],
+                ["99942", "2005-01-29 00:00:01"],
+            ],
+        },
+    )
+
+    assert get_available_radar_targets() == ["433", "99942"]
+
+
 def test_jpl_radar_query_returns_generic_radar_tracking_data(monkeypatch):
     query = JPLRadarQuery("99942")
     monkeypatch.setattr(query, "_fetch_json", _jpl_radar_response)
@@ -118,6 +142,8 @@ def test_jpl_radar_query_returns_generic_radar_tracking_data(monkeypatch):
     assert len(table) == 2
     assert "RA" not in table
     assert "DEC" not in table
+    assert "raw_value" not in table
+    assert "raw_sigma" not in table
     assert set(table["observable_type"]) == {RANGE_OBSERVABLE, DOPPLER_OBSERVABLE}
     assert set(table["transmitter"]) == {"JPL:-14"}
     assert set(table["receiver"]) == {"JPL:-14"}
@@ -132,16 +158,29 @@ def test_jpl_radar_query_returns_generic_radar_tracking_data(monkeypatch):
     assert doppler_row["transmitter_frequency_hz"] == pytest.approx(8560.0e6)
 
 
-def test_mpc_radar_parser_keeps_batchmpc_compatibility_at_boundary():
-    parsed_table = parse_80cols_data(_mpc_radar_record_pair()).to_pandas()
+def test_jpl_radar_query_rejects_unknown_measurement_units(monkeypatch):
+    response = _jpl_radar_response()
+    response["data"] = [response["data"][0].copy()]
+    response["data"][0][response["fields"].index("units")] = "km"
+    query = JPLRadarQuery("99942")
+    monkeypatch.setattr(query, "_fetch_json", lambda: response)
 
-    assert len(parsed_table) == 1
-    assert "RA" in parsed_table
-    assert "DEC" in parsed_table
-    assert np.isnan(parsed_table.loc[0, "RA"])
+    with pytest.raises(RuntimeError, match="Unsupported JPL radar measurement unit"):
+        query.to_radar_tracking_data(target_body="99942")
 
-    radar_data = radar_tracking_data_from_mpc_table(parsed_table)
-    radar_table = radar_data.table
+
+def test_radar_frequency_band_boundary_uses_ku_at_12_ghz():
+    assert _radar_frequency_band_from_hz(12.0e9) == ancillary_settings.FrequencyBands.ku_band
+
+
+def test_mpc_radar_parser_stores_native_radar_metadata():
+    parsed_table = parse_80cols_data(_mpc_radar_record_pair())
+    angular_table = parsed_table.to_pandas()
+
+    assert angular_table.empty
+    assert RADAR_TABLE_META_KEY in parsed_table.meta
+
+    radar_table = RadarTrackingData(parsed_table.meta[RADAR_TABLE_META_KEY]).table
 
     assert tuple(empty_radar_table().columns) == RADAR_COLUMNS
     assert len(radar_table) == 1
@@ -149,6 +188,25 @@ def test_mpc_radar_parser_keeps_batchmpc_compatibility_at_boundary():
     assert "DEC" not in radar_table
     assert radar_table.loc[0, "observable_type"] == RANGE_OBSERVABLE
     assert radar_table.loc[0, "value"] == pytest.approx(SPEED_OF_LIGHT * 4000.0e-6)
+
+
+def test_batchmpc_ingests_mpc_radar_metadata_without_flat_radar_rows():
+    parsed_table = parse_80cols_data(_mpc_radar_record_pair())
+    batch = BatchMPC()
+
+    batch.from_astropy(parsed_table, in_degrees=False)
+
+    assert batch.table.empty
+    assert len(batch.radar_table) == 1
+    assert batch.size == 1
+    assert batch.MPC_objects == ["99942"]
+    assert batch.observatories == ["253"]
+
+    range_batch = batch.filter(observation_types=["R"], in_place=False)
+    doppler_batch = batch.filter(observation_types=["V"], in_place=False)
+
+    assert len(range_batch.radar_table) == 1
+    assert doppler_batch.radar_table.empty
 
 
 def test_jpl_radar_query_can_use_mpc_station_compatibility_mode(monkeypatch):
@@ -161,7 +219,7 @@ def test_jpl_radar_query_can_use_mpc_station_compatibility_mode(monkeypatch):
     assert set(table["receiver"]) == {"253"}
 
 
-def test_radar_tracking_data_rejects_angular_columns():
+def test_radar_tracking_data_rejects_unsupported_columns():
     table = pd.DataFrame(
         {
             "target_body": ["99942"],
@@ -179,7 +237,7 @@ def test_radar_tracking_data_rejects_angular_columns():
         }
     )
 
-    with pytest.raises(ValueError, match="must not contain angular astrometry"):
+    with pytest.raises(ValueError, match="unsupported columns"):
         RadarTrackingData(table)
 
 

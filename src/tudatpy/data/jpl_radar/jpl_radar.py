@@ -20,11 +20,59 @@ from tudatpy.data.radar import (
 )
 from tudatpy.data.radar.stations import JPL_TO_MPC_RADAR_STATIONS, normalize_radar_station_id
 
+_API_URL = "https://ssd-api.jpl.nasa.gov/sb_radar.api"
+
+
+def _validate_response(response: Any, context: str) -> dict[str, Any]:
+    """Validate the decoded API response before row extraction."""
+    if not isinstance(response, dict):
+        raise RuntimeError(
+            f"JPL radar API returned an unexpected response for {context}: "
+            f"expected a JSON object, got {type(response).__name__}."
+        )
+
+    validated_response = dict(response)
+    for key in ["fields", "data"]:
+        value = validated_response.get(key, [])
+        if value is None:
+            value = []
+        if not isinstance(value, list):
+            raise RuntimeError(
+                f"JPL radar API returned invalid '{key}' for {context}: "
+                f"expected a list, got {type(value).__name__}."
+            )
+        validated_response[key] = value
+    return validated_response
+
+
+def _fetch_json(query_parameters: dict[str, str] | None, timeout: float, context: str) -> dict:
+    """Fetch and validate a JPL radar API JSON response."""
+    query = urllib.parse.urlencode(query_parameters or {})
+    url = f"{_API_URL}?{query}" if query else _API_URL
+    with urllib.request.urlopen(url, timeout=timeout) as response:
+        return _validate_response(json.load(response), context)
+
+
+def get_available_radar_targets(timeout: float = 30.0) -> list[str]:
+    """Return unique JPL designations for small bodies with radar data."""
+    response = _fetch_json(None, timeout, "all radar targets")
+    fields = response.get("fields", [])
+    if "des" not in fields:
+        raise RuntimeError("JPL radar API response does not contain a 'des' field.")
+
+    designation_index = fields.index("des")
+    designations = {
+        str(row[designation_index]).strip()
+        for row in response.get("data", [])
+        if len(row) > designation_index and str(row[designation_index]).strip()
+    }
+    return sorted(designations)
+
 
 class JPLRadarQuery:
     """Query and convert JPL small-body radar tracking data."""
 
-    API_URL = "https://ssd-api.jpl.nasa.gov/sb_radar.api"
+    API_URL = _API_URL
 
     def __init__(self, target: str | int, timeout: float = 30.0) -> None:
         """Create a query for a JPL small-body target designation."""
@@ -34,36 +82,18 @@ class JPLRadarQuery:
 
     def _validate_response(self, response: Any) -> dict[str, Any]:
         """Validate the decoded API response before row extraction."""
-        if not isinstance(response, dict):
-            raise RuntimeError(
-                "JPL radar API returned an unexpected response for target "
-                f"{self.target}: expected a JSON object, got {type(response).__name__}."
-            )
-
-        validated_response = dict(response)
-        for key in ["fields", "data"]:
-            value = validated_response.get(key, [])
-            if value is None:
-                value = []
-            if not isinstance(value, list):
-                raise RuntimeError(
-                    f"JPL radar API returned invalid '{key}' for target {self.target}: "
-                    f"expected a list, got {type(value).__name__}."
-                )
-            validated_response[key] = value
-        return validated_response
+        return _validate_response(response, f"target {self.target}")
 
     def _fetch_json(self) -> dict[str, Any]:
         """Fetch and cache the raw JPL radar API JSON response."""
         if self._response_cache is not None:
             return self._validate_response(self._response_cache)
 
-        query = urllib.parse.urlencode({"des": self.target})
-        with urllib.request.urlopen(
-            f"{self.API_URL}?{query}",
-            timeout=self.timeout,
-        ) as response:
-            self._response_cache = self._validate_response(json.load(response))
+        self._response_cache = _fetch_json(
+            {"des": self.target},
+            self.timeout,
+            f"target {self.target}",
+        )
         return self._response_cache
 
     def to_radar_tracking_data(
@@ -83,7 +113,7 @@ class JPLRadarQuery:
         the transmitter frequency. Epochs are retained in UTC and converted to
         TDB for Tudat observation processing.
         """
-        response = self._validate_response(self._fetch_json())
+        response = self._fetch_json()
         fields = response.get("fields", [])
         rows = []
         target_body = str(target_body or self.target)
@@ -100,13 +130,20 @@ class JPLRadarQuery:
             if epoch_end is not None and epoch_datetime > epoch_end:
                 continue
 
-            units = row.get("units")
-            if (
-                units not in {"us", "Hz"}
-                or (units == "us" and not include_range)
-                or (units == "Hz" and not include_doppler)
-            ):
-                continue
+            units = str(row.get("units", "")).strip()
+            if units == "us":
+                if not include_range:
+                    continue
+                observable_type = RANGE_OBSERVABLE
+            elif units == "Hz":
+                if not include_doppler:
+                    continue
+                observable_type = DOPPLER_OBSERVABLE
+            else:
+                raise RuntimeError(
+                    f"Unsupported JPL radar measurement unit '{units}' for target "
+                    f"{self.target} at epoch {row.get('epoch')}. Expected 'us' or 'Hz'."
+                )
 
             date_time = DateTime.from_iso_string(row["epoch"])
             epoch_utc = date_time.to_epoch()
@@ -131,14 +168,12 @@ class JPLRadarQuery:
                 "target_point": row.get("bp"),
                 "transmitter_frequency_hz": np.nan,
                 "source": "JPL",
-                "raw_value": measurement,
-                "raw_sigma": sigma,
                 "raw_units": units,
                 "jpl_transmitter": str(row["xmit"]).strip(),
                 "jpl_receiver": str(row["rcvr"]).strip(),
             }
 
-            if units == "us":
+            if observable_type == RANGE_OBSERVABLE:
                 radar_row.update(
                     {
                         "observable_type": RANGE_OBSERVABLE,

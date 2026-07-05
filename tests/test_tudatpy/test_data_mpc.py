@@ -1,6 +1,6 @@
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
-from tudatpy.astro import element_conversion, time_representation
+from tudatpy.astro import time_representation
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observable_models_setup, observations
 from tudatpy.interface import spice
@@ -8,13 +8,13 @@ from astropy.table import Table
 import numpy as np
 import datetime
 import json
-import os
 import pandas as pd
 import pytest
 import warnings
 from pathlib import Path
 import tudatpy.data.mpc.mpc as mpc_module
 from tudatpy.data.mpc.parser_80col import parse_80cols_data
+from test_tudatpy.shared_constants import WGS84_EQUATORIAL_RADIUS, WGS84_FLATTENING
 
 spice.load_standard_kernels()
 
@@ -75,17 +75,10 @@ weights_test_combinations = [
     (None, False),  # all data
 ]
 
-WGS84_EQUATORIAL_RADIUS = 6378137.0
-WGS84_FLATTENING = 1.0 / 298.257223563
-
-RADAR_STATION_GEODETIC = {
-    "251": np.array([453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)]),
-    "253": np.array([1001.39, np.deg2rad(35.4259009), np.deg2rad(243.1104618)]),
-}
-
 APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
     Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
 )
+APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL = 6.0
 
 
 def _flattened_radec_and_times(observation_dataset):
@@ -446,21 +439,6 @@ def _target_horizons_ephemeris_from_fixture(case):
     )
 
 
-def _add_radar_geodetic_ground_stations(bodies, station_body="Earth"):
-    for station_code, geodetic_position in RADAR_STATION_GEODETIC.items():
-        if station_code in bodies.get(station_body).ground_station_list:
-            continue
-        station_settings = environment_setup.ground_station.basic_station(
-            station_code,
-            geodetic_position,
-            element_conversion.geodetic_position_type,
-        )
-        environment_setup.add_ground_station(
-            bodies.get_body(station_body),
-            station_settings,
-        )
-
-
 def _compute_fixture_radar_prefit_residual(case):
     radar_table = parse_80cols_data(case["mpc_80col_records"])
     batch = BatchMPC()
@@ -488,7 +466,6 @@ def _compute_fixture_radar_prefit_residual(case):
     )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    _add_radar_geodetic_ground_stations(bodies)
     observation_dataset = batch.to_tudat(
         bodies=bodies,
         included_satellites=None,
@@ -511,10 +488,7 @@ def _compute_fixture_radar_prefit_residual(case):
 
     flattened = observation_dataset.ordered_flattened_observation_data()
     residual = np.asarray(flattened.residual_vector)[0]
-    if "radar_range_sigma" in batch.table and batch.table["radar_range_sigma"].notna().any():
-        sigma = batch.table["radar_range_sigma"].to_numpy(dtype=float)[0]
-    else:
-        sigma = batch.table["radar_doppler_frequency_sigma"].to_numpy(dtype=float)[0]
+    sigma = batch.radar_table["sigma"].to_numpy(dtype=float)[0]
     return residual, sigma, observation_dataset
 
 
@@ -572,10 +546,6 @@ def _compute_hst_prefit_residuals(target, horizons_id):
     return np.array(flattened.residual_vector).reshape(2, -1, order="F").T
 
 
-@pytest.mark.skipif(
-    os.environ.get("TUDATPY_RUN_NETWORK_TESTS") != "1",
-    reason="requires live MPC and Horizons queries",
-)
 def test_mpc_hst_space_astrometry_prefit_residuals():
     """Check HST MPC spacecraft astrometry against Tudat-computed residuals."""
     rad_to_arcsec = 180.0 / np.pi * 3600.0
@@ -592,20 +562,25 @@ def test_mpc_hst_space_astrometry_prefit_residuals():
 
 
 def test_mpc_apophis_figure2_radar_prefit_residuals_against_horizons():
-    """Print Apophis Figure 2 radar residuals against frozen Horizons target states."""
+    """Check Apophis Figure 2 radar residuals against frozen Horizons target states."""
     fixture_cases = _load_apophis_figure2_radar_fixture_cases()
-    print(f"\nComparing {len(fixture_cases)} Apophis Figure 2 " "radar observations.")
+    assert len(fixture_cases) == 50
+    print(f"\nComparing {len(fixture_cases)} Apophis Figure 2 radar observations.")
 
     for case in fixture_cases:
         residual, sigma, _ = _compute_fixture_radar_prefit_residual(case)
         unit = "m" if case["jpl_radar_row"]["units"] == "us" else "Hz"
-        print(
+        normalized_residual = residual / sigma
+        diagnostic = (
             f"{case['epoch_utc']}  {case['jpl_radar_row']['units']:>2s}  "
             f"station = {case['mpc_80col_records'][0][68:71]}->"
             f"{case['mpc_80col_records'][1][68:71]}  "
             f"residual = {residual:12.3f} {unit}  sigma = {sigma:10.3f} {unit}  "
-            f"residual/sigma = {residual / sigma:10.3f}"
+            f"residual/sigma = {normalized_residual:10.3f}"
         )
+        if abs(normalized_residual) >= APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL:
+            print(diagnostic)
+        assert abs(normalized_residual) < APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL, diagnostic
 
 
 def test_compare_mpc_horizons_eph():

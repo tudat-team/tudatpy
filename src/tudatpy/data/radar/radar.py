@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from tudatpy.constants import SPEED_OF_LIGHT
 from tudatpy.dynamics import environment
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import links, model_settings
@@ -17,19 +16,15 @@ from .stations import add_radar_ground_stations
 
 RANGE_OBSERVABLE = "n_way_range"
 DOPPLER_OBSERVABLE = "two_way_doppler_frequency"
+RADAR_TABLE_META_KEY = "tudatpy_radar_tracking_table"
 
 RADAR_COLUMNS = tuple(
     "target_body epoch_seconds_UTC epoch_seconds_TDB observable_type value sigma "
     "transmitter receiver target_point transmitter_frequency_hz source".split()
 )
-
-MPC_RADAR_COLUMNS = tuple(
-    "number provisional_designation discovery epoch epoch_seconds_UTC epoch_seconds_TDB "
-    "RA DEC observatory magnitude band note1 note2 catalog spacecraft_parallax_type "
-    "spacecraft_position_x spacecraft_position_y spacecraft_position_z radar_target_point "
-    "radar_delay_us radar_delay_sigma_us radar_range radar_range_sigma "
-    "radar_doppler_shift radar_doppler_frequency radar_doppler_frequency_sigma "
-    "radar_transmitter radar_receiver radar_frequency_mhz".split()
+RADAR_OPTIONAL_COLUMNS = tuple(
+    "epoch radar_frequency_mhz raw_units raw_delay_us raw_delay_sigma_us "
+    "raw_doppler_shift_hz jpl_transmitter jpl_receiver".split()
 )
 
 MPC_RADAR_SPECS = (
@@ -43,11 +38,34 @@ MPC_RADAR_SPECS = (
 )
 
 REQUIRED_RADAR_COLUMNS = set(RADAR_COLUMNS)
+ALLOWED_RADAR_COLUMNS = REQUIRED_RADAR_COLUMNS | set(RADAR_OPTIONAL_COLUMNS)
 
 
 def empty_radar_table() -> pd.DataFrame:
     """Return an empty table with the canonical radar-tracking schema."""
     return pd.DataFrame(columns=RADAR_COLUMNS)
+
+
+def _as_string_list(value: str | int | Iterable[str | int] | None) -> list[str] | None:
+    """Normalize optional scalar/list filters to strings."""
+    if value is None:
+        return None
+    if isinstance(value, (str, int)):
+        return [str(value)]
+    return [str(item) for item in value]
+
+
+def _normalize_station_filter(value: str | int) -> str:
+    """Normalize station IDs used for radar table filtering."""
+    station_id = str(value).strip()
+    return station_id if ":" in station_id else station_id.zfill(3)
+
+
+def _to_pandas(table: Any) -> pd.DataFrame:
+    """Return a pandas copy for pandas/Astropy-like table inputs."""
+    if hasattr(table, "to_pandas"):
+        return table.to_pandas()
+    return table.copy()
 
 
 def _add_observation_set_to_dataset(
@@ -82,7 +100,8 @@ def _radar_frequency_band_from_hz(frequency_hz: float) -> Any:
     frequency_mhz = frequency_hz / 1.0e6
     if 2000.0 <= frequency_mhz <= 4000.0:
         return ancillary_settings.FrequencyBands.s_band
-    if 8000.0 <= frequency_mhz <= 12000.0:
+    # IEEE radar-band tables define Ku as starting at 12 GHz, so X is half-open.
+    if 8000.0 <= frequency_mhz < 12000.0:
         return ancillary_settings.FrequencyBands.x_band
     if 26000.0 <= frequency_mhz <= 40000.0:
         return ancillary_settings.FrequencyBands.ka_band
@@ -96,11 +115,10 @@ def _validate_radar_table(table: pd.DataFrame) -> pd.DataFrame:
     if not isinstance(table, pd.DataFrame):
         raise TypeError("Radar tracking data must be provided as a pandas DataFrame.")
 
-    forbidden_columns = {"RA", "DEC"}.intersection(table.columns)
-    if forbidden_columns:
+    unsupported_columns = set(table.columns).difference(ALLOWED_RADAR_COLUMNS)
+    if unsupported_columns:
         raise ValueError(
-            "Radar tracking data must not contain angular astrometry columns: "
-            f"{sorted(forbidden_columns)}."
+            "Radar tracking data contains unsupported columns: " f"{sorted(unsupported_columns)}."
         )
 
     missing_columns = REQUIRED_RADAR_COLUMNS.difference(table.columns)
@@ -148,6 +166,19 @@ class RadarTrackingData:
         """Create a radar data container from a table with ``RADAR_COLUMNS``."""
         self._table = _validate_radar_table(table)
 
+    @classmethod
+    def empty(cls) -> "RadarTrackingData":
+        """Return an empty radar data container."""
+        return cls(empty_radar_table())
+
+    @classmethod
+    def concatenate(cls, radar_data_sets: Iterable["RadarTrackingData"]) -> "RadarTrackingData":
+        """Concatenate multiple radar data containers."""
+        frames = [radar_data.table for radar_data in radar_data_sets if len(radar_data) > 0]
+        if not frames:
+            return cls.empty()
+        return cls(pd.concat(frames, ignore_index=True, sort=False))
+
     @property
     def table(self) -> pd.DataFrame:
         """Return a copy of the stored radar observation table."""
@@ -161,14 +192,16 @@ class RadarTrackingData:
         *,
         epoch_start: float | None = None,
         epoch_end: float | None = None,
-        target_body: str | None = None,
-        target_point: str | None = None,
-        observable_type: str | None = None,
+        target_body: str | Iterable[str] | None = None,
+        target_point: str | Iterable[str] | None = None,
+        observable_type: str | Iterable[str] | None = None,
+        station_ids: Iterable[str | int] | None = None,
+        exclude_station_ids: Iterable[str | int] | None = None,
     ) -> "RadarTrackingData":
         """Return a filtered radar data container.
 
         Epoch filters are applied to TDB seconds since J2000. The remaining
-        filters are exact string matches after normalizing the requested value.
+        filters are exact string matches after normalizing the requested values.
         """
         filtered = self._table.copy()
         for column, value in {
@@ -176,13 +209,61 @@ class RadarTrackingData:
             "target_point": target_point,
             "observable_type": observable_type,
         }.items():
-            if value is not None:
-                filtered = filtered.loc[filtered[column] == str(value)]
+            allowed_values = _as_string_list(value)
+            if allowed_values is not None:
+                filtered = filtered.loc[filtered[column].isin(allowed_values)]
+
+        for station_filter, keep_matches in [
+            (station_ids, True),
+            (exclude_station_ids, False),
+        ]:
+            if station_filter is None:
+                continue
+            normalized_ids = {_normalize_station_filter(station) for station in station_filter}
+            station_mask = filtered["transmitter"].isin(normalized_ids) | filtered["receiver"].isin(
+                normalized_ids
+            )
+            filtered = filtered.loc[station_mask if keep_matches else ~station_mask]
+
         if epoch_start is not None:
             filtered = filtered.loc[filtered["epoch_seconds_TDB"] >= epoch_start]
         if epoch_end is not None:
             filtered = filtered.loc[filtered["epoch_seconds_TDB"] <= epoch_end]
         return RadarTrackingData(filtered.reset_index(drop=True))
+
+    def with_target_body(self, target_body: str) -> "RadarTrackingData":
+        """Return a copy with all rows assigned to one target body name."""
+        table = self.table
+        if table.empty:
+            return RadarTrackingData.empty()
+        table["target_body"] = str(target_body)
+        return RadarTrackingData(table)
+
+    def station_id_list(self) -> list[str]:
+        """Return transmitter/receiver station IDs in first-appearance order."""
+        if self._table.empty:
+            return []
+        station_ids = self._table[["transmitter", "receiver"]].stack().dropna().astype(str)
+        return list(dict.fromkeys(station_ids))
+
+    def target_body_list(self) -> list[str]:
+        """Return target-body names in first-appearance order."""
+        return list(dict.fromkeys(self._table["target_body"].dropna().astype(str)))
+
+    def station_observation_counts(self) -> pd.DataFrame:
+        """Return per-station observation counts, counting each radar row once per station."""
+        if self._table.empty:
+            return pd.DataFrame(columns=["observatory", "count"])
+        return (
+            self._table.loc[:, ["transmitter", "receiver"]]
+            .reset_index()
+            .melt(id_vars="index", value_name="observatory")
+            .drop_duplicates(["index", "observatory"])
+            .groupby("observatory")
+            .size()
+            .rename("count")
+            .reset_index(drop=False)
+        )
 
     def required_station_ids(self) -> set[str]:
         """Return all transmitter and receiver station IDs used by the data."""
@@ -375,11 +456,6 @@ def _normalize_mpc_station_series(station_series: pd.Series) -> pd.Series:
     return station_series.astype(str).str.strip().str.zfill(3)
 
 
-def _column_or_default(table: pd.DataFrame, column: str, default: Any) -> Any:
-    """Return a table column if present, otherwise return a broadcastable default."""
-    return table[column] if column in table else default
-
-
 def _mpc_radar_frame(
     table: pd.DataFrame,
     observable_type: str,
@@ -439,60 +515,37 @@ def radar_tracking_data_from_mpc_table(table: pd.DataFrame) -> RadarTrackingData
     return RadarTrackingData(table)
 
 
-def mpc_batch_table_from_radar_tracking_table(radar_table: pd.DataFrame) -> pd.DataFrame:
-    """Convert radar-native MPC rows back to the BatchMPC-compatible table shape."""
-    if radar_table.empty:
-        return pd.DataFrame(columns=MPC_RADAR_COLUMNS)
+def radar_tracking_data_from_table(table: Any) -> RadarTrackingData:
+    """Extract radar tracking data from radar-native, metadata, or legacy MPC tables."""
+    if hasattr(table, "meta") and RADAR_TABLE_META_KEY in table.meta:
+        radar_table = table.meta[RADAR_TABLE_META_KEY]
+        if isinstance(radar_table, pd.DataFrame):
+            return RadarTrackingData(radar_table)
+        return RadarTrackingData(_to_pandas(radar_table))
 
-    table = radar_table.copy()
-    range_mask = table["observable_type"] == RANGE_OBSERVABLE
-    doppler_mask = table["observable_type"] == DOPPLER_OBSERVABLE
+    dataframe = _to_pandas(table)
+    if any(column in dataframe.columns for column in ["radar_range", "radar_doppler_frequency"]):
+        return radar_tracking_data_from_mpc_table(dataframe)
+    if set(RADAR_COLUMNS).issubset(dataframe.columns) and not {"RA", "DEC"}.intersection(
+        dataframe.columns
+    ):
+        return RadarTrackingData(dataframe)
+    return RadarTrackingData.empty()
 
-    # Start from radar-native columns and derive the legacy BatchMPC radar columns.
-    batch_table = (
-        pd.DataFrame(index=table.index)
-        .assign(
-            number=_column_or_default(table, "number", table["target_body"]),
-            provisional_designation=_column_or_default(table, "provisional_designation", None),
-            discovery=_column_or_default(table, "discovery", False),
-            epoch=_column_or_default(table, "epoch", np.nan),
-            epoch_seconds_UTC=table["epoch_seconds_UTC"],
-            epoch_seconds_TDB=table["epoch_seconds_TDB"],
-            observatory=_column_or_default(table, "observatory", table["receiver"]),
-            note1=_column_or_default(table, "note1", None),
-            note2=_column_or_default(
-                table,
-                "note2",
-                pd.Series(
-                    np.where(range_mask, "R", np.where(doppler_mask, "V", None)),
-                    index=table.index,
-                ),
-            ),
-            radar_target_point=table["target_point"],
-            radar_delay_us=_column_or_default(
-                table, "radar_delay_us", table["value"] / SPEED_OF_LIGHT * 1.0e6
-            ),
-            radar_delay_sigma_us=_column_or_default(
-                table, "radar_delay_sigma_us", table["sigma"] / SPEED_OF_LIGHT * 1.0e6
-            ),
-            radar_doppler_shift=_column_or_default(
-                table, "radar_doppler_shift", table["value"] - table["transmitter_frequency_hz"]
-            ),
-            radar_transmitter=table["transmitter"],
-            radar_receiver=table["receiver"],
-            radar_frequency_mhz=_column_or_default(
-                table, "radar_frequency_mhz", table["transmitter_frequency_hz"] / 1.0e6
-            ),
-        )
-        .reindex(columns=MPC_RADAR_COLUMNS)
-    )
-    # Keep range-only and Doppler-only legacy columns empty for the other observable.
-    batch_table.loc[~range_mask, ["radar_delay_us", "radar_delay_sigma_us"]] = np.nan
-    batch_table.loc[range_mask, "radar_range"] = table.loc[range_mask, "value"]
-    batch_table.loc[range_mask, "radar_range_sigma"] = table.loc[range_mask, "sigma"]
-    batch_table.loc[~doppler_mask, "radar_doppler_shift"] = np.nan
-    batch_table.loc[doppler_mask, "radar_doppler_frequency"] = table.loc[doppler_mask, "value"]
-    batch_table.loc[doppler_mask, "radar_doppler_frequency_sigma"] = table.loc[
-        doppler_mask, "sigma"
+
+def remove_radar_tracking_data_from_table(table: Any) -> pd.DataFrame:
+    """Return table rows that are not legacy flat radar observations."""
+    dataframe = _to_pandas(table)
+    if set(RADAR_COLUMNS).issubset(dataframe.columns) and not {"RA", "DEC"}.intersection(
+        dataframe.columns
+    ):
+        return pd.DataFrame()
+
+    radar_columns = [
+        column
+        for column in ["radar_target_point", "radar_range", "radar_doppler_frequency"]
+        if column in dataframe
     ]
-    return batch_table
+    if not radar_columns:
+        return dataframe
+    return dataframe.loc[~dataframe.loc[:, radar_columns].notna().any(axis=1)].copy()

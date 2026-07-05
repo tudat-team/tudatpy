@@ -7,9 +7,9 @@ from tudatpy.astro.time_representation import DateTime
 from tudatpy.constants import ASTRONOMICAL_UNIT, SPEED_OF_LIGHT
 from tudatpy.data.radar import (
     DOPPLER_OBSERVABLE,
+    RADAR_TABLE_META_KEY,
     RANGE_OBSERVABLE,
     empty_radar_table,
-    mpc_batch_table_from_radar_tracking_table,
 )
 from tudatpy.data.mpc.parser_80col import unpackers
 import os
@@ -65,8 +65,8 @@ def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.S
 
     The returned table is intentionally not BatchMPC-shaped: it contains range
     or Doppler values in Tudat units, link-end station IDs, and both UTC/TDB
-    epochs. A separate compatibility conversion adds RA/DEC and legacy MPC
-    radar columns only at the parser output boundary.
+    epochs. The parser attaches this table to the returned Astropy table
+    metadata so BatchMPC can ingest radar data without fake RA/DEC rows.
     """
     radar_rows = []
     radar_line_mask = pd.Series(False, index=df.index)
@@ -290,7 +290,6 @@ def parse_80cols_data(lines: list[str]) -> Table:
         )
 
     radar_table, radar_line_mask = _parse_radar_observation_pairs(df)
-    radar_batch_table = mpc_batch_table_from_radar_tracking_table(radar_table)
     df = df.loc[~radar_line_mask].copy()
 
     # 2. SLICE COLUMNS
@@ -467,57 +466,78 @@ def parse_80cols_data(lines: list[str]) -> Table:
 
     df_obs = df[is_valid_obs & (~is_drop_flag)].copy()
     df_obs = df_obs.join(satellite_parallax_data, how="left")
-    if df_obs.empty and radar_batch_table.empty:
+    if df_obs.empty and radar_table.empty:
         raise ValueError("No valid observation lines found.")
-    if df_obs.empty:
-        return Table.from_pandas(radar_batch_table)
-    str_cols = [
+
+    final_columns = [
         "number",
         "provisional_designation",
         "discovery",
+        "epoch",
+        "epoch_seconds_UTC",
+        "epoch_seconds_TDB",
+        "RA",
+        "DEC",
+        "observatory",
+        "magnitude",
+        "band",
         "note1",
         "note2",
-        "band",
-        "observatory",
+        "catalog",
+        "spacecraft_parallax_type",
+        "spacecraft_position_x",
+        "spacecraft_position_y",
+        "spacecraft_position_z",
     ]
-    for col in str_cols:
-        df_obs[col] = df_obs[col].str.strip().replace({"": None, np.nan: None})
+    final_df = pd.DataFrame(columns=final_columns)
 
-    ident_info = df_obs.apply(identify_object, axis=1)
-
-    human_readable_number = ident_info["unpacked_number"].fillna(ident_info["unpacked_name"])
-    df_obs["number"] = human_readable_number.fillna(df_obs["number"])
-
-    # -------------------------------------------------------------------------
-    # 8. FINAL CALCULATIONS
-    # -------------------------------------------------------------------------
-    day_int = df_obs["day_frac_n"].astype(int)
-    day_remainder = df_obs["day_frac_n"] - day_int
-
-    timestamps = pd.to_datetime(
-        {"year": df_obs["year_n"], "month": df_obs["month_n"], "day": day_int}, errors="coerce"
-    )
-
-    obs_times_utc_datetime = timestamps + pd.to_timedelta(day_remainder, unit="D")
-
-    ra_deg = (df_obs["ra_h_n"] + df_obs["ra_m_n"] / 60.0 + df_obs["ra_s_n"] / 3600.0) * 15.0
-    ra_rad = np.deg2rad(ra_deg)
-
-    dec_sign_mult = np.where(df_obs["dec_sign"] == "-", -1, 1)
-    dec_deg = (
-        df_obs["dec_d_n"] + df_obs["dec_m_n"] / 60.0 + df_obs["dec_s_n"] / 3600.0
-    ) * dec_sign_mult
-    dec_rad = np.deg2rad(dec_deg)
-
-    time_scale_converter = time_representation.default_time_scale_converter()
-    epoch_data = [
-        _utc_datetime_to_tdb_epoch(timestamp, time_scale_converter)
-        for timestamp in obs_times_utc_datetime
-    ]
-    julian_days, float_epochs_utc, float_epochs_tdb = map(list, zip(*epoch_data))
-
-    final_df = pd.DataFrame()
     if not df_obs.empty:
+        str_cols = [
+            "number",
+            "provisional_designation",
+            "discovery",
+            "note1",
+            "note2",
+            "band",
+            "observatory",
+        ]
+        for col in str_cols:
+            df_obs[col] = df_obs[col].str.strip().replace({"": None, np.nan: None})
+
+        ident_info = df_obs.apply(identify_object, axis=1)
+
+        human_readable_number = ident_info["unpacked_number"].fillna(ident_info["unpacked_name"])
+        df_obs["number"] = human_readable_number.fillna(df_obs["number"])
+
+        # -------------------------------------------------------------------------
+        # 8. FINAL CALCULATIONS
+        # -------------------------------------------------------------------------
+        day_int = df_obs["day_frac_n"].astype(int)
+        day_remainder = df_obs["day_frac_n"] - day_int
+
+        timestamps = pd.to_datetime(
+            {"year": df_obs["year_n"], "month": df_obs["month_n"], "day": day_int},
+            errors="coerce",
+        )
+
+        obs_times_utc_datetime = timestamps + pd.to_timedelta(day_remainder, unit="D")
+
+        ra_deg = (df_obs["ra_h_n"] + df_obs["ra_m_n"] / 60.0 + df_obs["ra_s_n"] / 3600.0) * 15.0
+        ra_rad = np.deg2rad(ra_deg)
+
+        dec_sign_mult = np.where(df_obs["dec_sign"] == "-", -1, 1)
+        dec_deg = (
+            df_obs["dec_d_n"] + df_obs["dec_m_n"] / 60.0 + df_obs["dec_s_n"] / 3600.0
+        ) * dec_sign_mult
+        dec_rad = np.deg2rad(dec_deg)
+
+        time_scale_converter = time_representation.default_time_scale_converter()
+        epoch_data = [
+            _utc_datetime_to_tdb_epoch(timestamp, time_scale_converter)
+            for timestamp in obs_times_utc_datetime
+        ]
+        julian_days, float_epochs_utc, float_epochs_tdb = map(list, zip(*epoch_data))
+
         final_df = pd.DataFrame(
             {
                 "number": df_obs["number"],  # Now contains human-readable string
@@ -541,9 +561,10 @@ def parse_80cols_data(lines: list[str]) -> Table:
             }
         )
 
-    if not radar_batch_table.empty:
-        final_df = pd.concat([final_df, radar_batch_table], ignore_index=True, sort=False)
-    return Table.from_pandas(final_df)
+    parsed_table = Table.from_pandas(final_df)
+    if not radar_table.empty:
+        parsed_table.meta[RADAR_TABLE_META_KEY] = radar_table
+    return parsed_table
 
 
 def parse_80cols_file(filename: str | list[str]) -> Table:
@@ -579,70 +600,11 @@ def parse_80cols_file(filename: str | list[str]) -> Table:
     return parse_80cols_data(all_lines)
 
 
-# ... [identify_object and enrich_observations remain exactly the same] ...
-def identify_object(row: pd.Series) -> pd.Series:
-    """
-    Internal helper to apply unpacking logic row-by-row.
-
-    Returns unpacked_number (preferred for asteroids) and unpacked_name (for others).
-
-    Parameters
-    ----------
-    row : pd.Series
-        A row from the observations DataFrame containing 'number' and
-        'provisional_designation' columns.
-
-    Returns
-    -------
-    pd.Series
-        A Series containing 'obj_type', 'unpacked_name', and 'unpacked_number'.
-    """
-    # Safely extract strings
-    raw_number = row["number"]
-    perm_id = str(raw_number).strip() if pd.notna(raw_number) and raw_number else ""
-
-    raw_prov = row["provisional_designation"]
-    prov_id = str(raw_prov).strip() if pd.notna(raw_prov) and raw_prov else ""
-
-    result = {"obj_type": "Unknown", "unpacked_name": None, "unpacked_number": None}
-
-    # --- PATH A: PERMANENT ID IS PRESENT ---
-    if perm_id:
-        if re.match(r"^[JSUND]\d{3}S$", perm_id):
-            result["obj_type"] = "Natural Satellite"
-            if perm_id[0] in unpackers.PLANET_MAP:
-                result["unpacked_name"] = unpackers.unpack_permanent_natural_satellite(perm_id)
-
-        elif re.match(r"^\d{4}[PD]$", perm_id):
-            result["obj_type"] = "Comet"
-            num_val = int(perm_id[0:4])
-            result["unpacked_number"] = str(num_val)
-            result["unpacked_name"] = f"{num_val}{perm_id[4]}"
-
-        elif re.match(r"^\d{4}I$", perm_id):
-            result["obj_type"] = "Interstellar"
-            result["unpacked_name"] = f"{int(perm_id[0:4])}I"
-
-        else:
-            result["obj_type"] = "Minor Planet"
-            result["unpacked_number"] = unpackers.unpack_permanent_minor_planet(perm_id)
-            result["unpacked_name"] = f"({result['unpacked_number']})"
-
-    # --- PATH B: ONLY PROVISIONAL ID IS PRESENT ---
-    elif prov_id:
-        if prov_id[0:3] in unpackers.SURVEY_MAP or (
-            len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]
-        ):
-            result["obj_type"] = "Minor Planet"
-            result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
-        else:
-            result["obj_type"] = "Comet/Satellite"
-            result["unpacked_name"] = unpackers.unpack_provisional_comet_or_satellite(prov_id)
-
-    else:
-        raise ValueError("Observation line does not have permanent nor provisional ID.")
-
-    return pd.Series(result)
+def _is_minor_planet_provisional_designation(prov_id: str) -> bool:
+    """Return whether a packed provisional ID represents a minor planet."""
+    return prov_id[0:3] in unpackers.SURVEY_MAP or (
+        len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -695,9 +657,7 @@ def identify_object(row: pd.Series) -> pd.Series:
 
     # --- PATH B: ONLY PROVISIONAL ID IS PRESENT ---
     elif prov_id:
-        if prov_id[0:3] in unpackers.SURVEY_MAP or (
-            len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]
-        ):
+        if _is_minor_planet_provisional_designation(prov_id):
             result["obj_type"] = "Minor Planet"
             result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
         else:

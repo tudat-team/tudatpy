@@ -11,13 +11,18 @@ JPL_TO_MPC_RADAR_STATIONS = {
     "-14": "253",
 }
 
-RADAR_STATION_GEODETIC = {
-    "JPL:-1": np.array([453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)]),
-    "JPL:-14": np.array([1001.39, np.deg2rad(35.4259009), np.deg2rad(243.1104618)]),
-    "MPC:251": np.array([453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)]),
-    "MPC:253": np.array([1001.39, np.deg2rad(35.4259009), np.deg2rad(243.1104618)]),
+_POSITIONS_BY_MPC_CODE = {
     "251": np.array([453.34, np.deg2rad(18.3442199), np.deg2rad(293.2473068)]),
     "253": np.array([1001.39, np.deg2rad(35.4259009), np.deg2rad(243.1104618)]),
+}
+
+RADAR_STATION_GEODETIC = {
+    **_POSITIONS_BY_MPC_CODE,
+    **{f"MPC:{code}": position for code, position in _POSITIONS_BY_MPC_CODE.items()},
+    **{
+        f"JPL:{jpl_code}": _POSITIONS_BY_MPC_CODE[mpc_code]
+        for jpl_code, mpc_code in JPL_TO_MPC_RADAR_STATIONS.items()
+    },
 }
 
 

@@ -8,7 +8,13 @@ from tudatpy.estimation.observable_models_setup import (
 from astropy.table import Table
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
-from tudatpy.data.radar import radar_tracking_data_from_mpc_table
+from tudatpy.data.radar import (
+    DOPPLER_OBSERVABLE,
+    RANGE_OBSERVABLE,
+    RadarTrackingData,
+    radar_tracking_data_from_table,
+    remove_radar_tracking_data_from_table,
+)
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -632,6 +638,7 @@ class BatchMPC:
     def __init__(self) -> None:
         """Create an empty MPC batch."""
         self._table: pd.DataFrame = pd.DataFrame()
+        self._radar_tracking_data = RadarTrackingData.empty()
         self._observatories: list[str] = []
         self._space_telescopes: list[str] = []
         self._bands: list[str] = []
@@ -658,6 +665,7 @@ class BatchMPC:
         new = BatchMPC()
 
         new._table = copy.deepcopy(self._table)
+        new._radar_tracking_data = RadarTrackingData(self._radar_tracking_data.table)
         new._refresh_metadata()
 
         return new
@@ -677,6 +685,11 @@ class BatchMPC:
     def table(self) -> pd.DataFrame:
         """Pandas dataframe with observation data."""
         return self._table
+
+    @property
+    def radar_table(self) -> pd.DataFrame:
+        """Pandas dataframe with radar tracking data in radar-native columns."""
+        return self._radar_tracking_data.table
 
     @property
     def observatories(self) -> list[str]:
@@ -724,10 +737,11 @@ class BatchMPC:
     def __add__(self, other):
         temp = BatchMPC()
 
-        temp._table = (
-            pd.concat([self._table, other._table])
-            .sort_values("epoch")  # this is expressed in Julian Days
-            .drop_duplicates()
+        temp._table = pd.concat([self._table, other._table]).drop_duplicates()
+        if "epoch" in temp._table:
+            temp._table = temp._table.sort_values("epoch")  # this is expressed in Julian Days
+        temp._radar_tracking_data = RadarTrackingData.concatenate(
+            [self._radar_tracking_data, other._radar_tracking_data]
         )
 
         temp._refresh_metadata()
@@ -739,20 +753,47 @@ class BatchMPC:
         """Internal. Update batch metadata."""
         self._table.drop_duplicates()
 
-        self._observatories = list(self._table.observatory.unique())
+        angular_observatories = (
+            self._table["observatory"].dropna().astype(str).tolist()
+            if "observatory" in self._table
+            else []
+        )
+        self._observatories = list(
+            dict.fromkeys(angular_observatories + self._radar_tracking_data.station_id_list())
+        )
         self._space_telescopes = [x for x in self._observatories if x in self._MPC_space_telescopes]
-        if "bands" in self._table.columns:
+        if "band" in self._table.columns:
             self._bands = list(self._table.band.unique())
 
         # if user gives custom name, set that as body name, else MPC code
         if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
-            self._MPC_codes = list(self._table["custom_name"].unique())
+            angular_targets = self._table["custom_name"].dropna().astype(str).tolist()
         else:
-            self._MPC_codes = list(self._table.number.unique())
-        self._size = len(self._table)
+            angular_targets = (
+                self._table["number"].dropna().astype(str).tolist()
+                if "number" in self._table
+                else []
+            )
+        self._MPC_codes = list(
+            dict.fromkeys(angular_targets + self._radar_tracking_data.target_body_list())
+        )
+        self._size = len(self._table) + len(self._radar_tracking_data)
 
-        self._epoch_start = self._table.epoch_seconds_TDB.min()
-        self._epoch_end = self._table.epoch_seconds_TDB.max()
+        epoch_sources = []
+        if "epoch_seconds_TDB" in self._table and not self._table.empty:
+            epoch_sources.extend(
+                [self._table.epoch_seconds_TDB.min(), self._table.epoch_seconds_TDB.max()]
+            )
+        radar_table = self._radar_tracking_data.table
+        if not radar_table.empty:
+            epoch_sources.extend(
+                [
+                    radar_table.epoch_seconds_TDB.min(),
+                    radar_table.epoch_seconds_TDB.max(),
+                ]
+            )
+        self._epoch_start = min(epoch_sources) if epoch_sources else 0.0
+        self._epoch_end = max(epoch_sources) if epoch_sources else 0.0
 
     def _get_station_info(self) -> None:
         """Internal. Retrieve data on MPC listed observatories."""
@@ -802,6 +843,37 @@ class BatchMPC:
 
         return df
 
+    @staticmethod
+    def _filter_epoch_to_tdb(epoch: float | datetime.datetime | None) -> float | None:
+        """Internal helper to normalize float/datetime filter epochs to TDB seconds."""
+        if epoch is None:
+            return None
+        if isinstance(epoch, (float, int)):
+            return float(epoch)
+        if isinstance(epoch, datetime.datetime):
+            epoch_utc = DateTime.from_iso_string(epoch.isoformat(sep=" ")).to_epoch()
+            return time_representation.default_time_scale_converter().convert_time(
+                input_scale=time_representation.utc_scale,
+                output_scale=time_representation.tdb_scale,
+                input_value=epoch_utc,
+            )
+        return None
+
+    @staticmethod
+    def _radar_observable_types_from_mpc_filter(
+        observation_types: list[str] | None,
+    ) -> list[str] | None:
+        """Internal helper to map MPC observation-type filters to radar observable names."""
+        if observation_types is not None:
+            type_map = {
+                "R": RANGE_OBSERVABLE,
+                RANGE_OBSERVABLE: RANGE_OBSERVABLE,
+                "V": DOPPLER_OBSERVABLE,
+                DOPPLER_OBSERVABLE: DOPPLER_OBSERVABLE,
+            }
+            return [type_map.get(str(value), str(value)) for value in observation_types]
+        return None
+
     def _apply_EFCC18(
         self,
         bias_file=None,
@@ -815,6 +887,9 @@ class BatchMPC:
         if self._EFCC18_applied:
             pass
         else:
+            if "RA" not in self._table or "DEC" not in self._table:
+                self._EFCC18_applied = True
+                return
             angular_mask = self.table["RA"].notna() & self.table["DEC"].notna()
             self._table["RA_EFCC18 DEC_EFCC18 corr_RA_EFCC18 corr_DEC_EFCC18".split()] = np.nan
             if not angular_mask.any():
@@ -923,6 +998,9 @@ class BatchMPC:
         """Merge satellite positions from raw MPC 80-column records."""
         augmented_table = self._ensure_spacecraft_position_columns(table)
 
+        # Keep the normal Astroquery parsed table as the source of angular astrometry.
+        # The raw MPC80 fetch is a narrowly scoped second request that recovers the
+        # lowercase spacecraft-parallax rows Astroquery does not expose.
         try:
             query_kwargs = {"get_mpcformat": True}
             if id_type is not None:
@@ -1165,19 +1243,31 @@ class BatchMPC:
 
         self._refresh_metadata()
 
-    def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
+    def _add_table(
+        self,
+        table: astropy.table.QTable | astropy.table.Table | pd.DataFrame,
+        custom_name: str | None,
+        in_degrees: bool = True,
+    ):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
-        obs = table
-        obs = self._add_time_columns(obs)
-        obs = self._add_custom_name_column(obs, custom_name)
-        obs = self._ensure_spacecraft_position_columns(obs)
-        if in_degrees:
-            obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
-                DEC=lambda x: np.radians(x.DEC)
-            )
+        radar_data = radar_tracking_data_from_table(table)
+        obs = remove_radar_tracking_data_from_table(table)
+        if not obs.empty:
+            obs = self._add_time_columns(obs)
+            obs = self._add_custom_name_column(obs, custom_name)
+            obs = self._ensure_spacecraft_position_columns(obs)
+            if in_degrees:
+                obs = obs.assign(
+                    RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi
+                ).assign(DEC=lambda x: np.radians(x.DEC))
 
-        # convert object mpc code to string
-        self._table = pd.concat([self._table, obs])
+            # convert object mpc code to string
+            self._table = pd.concat([self._table, obs])
+        if custom_name is not None:
+            radar_data = radar_data.with_target_body(custom_name)
+        self._radar_tracking_data = RadarTrackingData.concatenate(
+            [self._radar_tracking_data, radar_data]
+        )
         self._refresh_metadata()
 
     def _validate_table(
@@ -1205,10 +1295,11 @@ class BatchMPC:
         else:
             raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
-        if not set(self._req_cols).issubset(set(colnames)):
+        has_radar_data = len(radar_tracking_data_from_table(table)) > 0
+        if nrows > 0 and not has_radar_data and not set(self._req_cols).issubset(set(colnames)):
             raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
 
-        if nrows == 0:
+        if nrows == 0 and not has_radar_data:
             raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
     def from_astropy(
@@ -1246,7 +1337,7 @@ class BatchMPC:
             raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
 
         self._validate_table(table, frame)
-        self._add_table(table=table.to_pandas(), in_degrees=in_degrees, custom_name=custom_name)
+        self._add_table(table=table, in_degrees=in_degrees, custom_name=custom_name)
 
     def from_pandas(
         self,
@@ -1397,51 +1488,34 @@ class BatchMPC:
             raise ValueError(txt)
 
         if in_place:
-            if bands is not None:
+            if bands is not None and "band" in self._table:
                 self._table = self._table.query("band == @bands")
-            if catalogs is not None:
+            if catalogs is not None and "catalog" in self._table:
                 self._table = self._table.query("catalog == @catalogs")
-            if observation_types is not None:
+            if observation_types is not None and "note2" in self._table:
                 self._table = self._table.query("note2 == @observation_types")
-            if observatories is not None:
+            if observatories is not None and "observatory" in self._table:
                 self._table = self._table.query("observatory == @observatories")
-            if observatories_exclude is not None:
+            if observatories_exclude is not None and "observatory" in self._table:
                 self._table = self._table.query("observatory != @observatories_exclude")
 
-            timescale_converter_needed = isinstance(epoch_start, datetime.datetime) or isinstance(
-                epoch_end, datetime.datetime
-            )
+            epoch_start_tdb = self._filter_epoch_to_tdb(epoch_start)
+            epoch_end_tdb = self._filter_epoch_to_tdb(epoch_end)
+            if epoch_start_tdb is not None and "epoch_seconds_TDB" in self._table:
+                self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
+            if epoch_end_tdb is not None and "epoch_seconds_TDB" in self._table:
+                self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
 
-            if timescale_converter_needed:
-                # This loads necessary kernels/tables
-                time_scale_converter = time_representation.default_time_scale_converter()
+            if bands is not None or catalogs is not None:
+                self._radar_tracking_data = RadarTrackingData.empty()
             else:
-                time_scale_converter = None
-            if epoch_start is not None:
-                if isinstance(epoch_start, float) or isinstance(epoch_start, int):
-                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start")
-                elif isinstance(epoch_start, datetime.datetime):
-                    epoch_start_iso_string = epoch_start.isoformat(sep=" ")
-                    epoch_start_utc = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
-                    epoch_start_tdb = time_scale_converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=epoch_start_utc,
-                    )
-                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
-            if epoch_end is not None:
-                if isinstance(epoch_end, float) or isinstance(epoch_end, int):
-                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end")
-                elif isinstance(epoch_end, datetime.datetime):
-                    epoch_end_iso_string = epoch_end.isoformat(sep=" ")
-                    epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
-                    epoch_end_tdb = time_scale_converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=epoch_end_utc,
-                    )
-                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
-
+                self._radar_tracking_data = self._radar_tracking_data.filter(
+                    epoch_start=epoch_start_tdb,
+                    epoch_end=epoch_end_tdb,
+                    observable_type=self._radar_observable_types_from_mpc_filter(observation_types),
+                    station_ids=observatories,
+                    exclude_station_ids=observatories_exclude,
+                )
             self._refresh_metadata()
             return None
         else:
@@ -1866,7 +1940,7 @@ class BatchMPC:
             DEC_col = "DEC"
 
         # Calculate observation weights and update table:
-        if apply_weights_VFCC17 and not self._custom_weights_set:
+        if apply_weights_VFCC17 and not self._custom_weights_set and not self._table.empty:
             temp_table: pd.DataFrame = get_weights_VFCC17(
                 mpc_table=self.table,
                 return_full_table=True,
@@ -1874,13 +1948,6 @@ class BatchMPC:
             self._table.loc[:, "weight"] = temp_table.loc[:, "weight"]
         else:
             temp_table = self.table.copy()
-        for radar_sigma_column in ["radar_range_sigma", "radar_doppler_frequency_sigma"]:
-            if radar_sigma_column in temp_table.columns:
-                radar_mask = temp_table[radar_sigma_column].notna()
-                temp_table.loc[radar_mask, "weight"] = (
-                    1.0 / temp_table.loc[radar_mask, radar_sigma_column].to_numpy() ** 2
-                )
-                self._table.loc[radar_mask, "weight"] = temp_table.loc[radar_mask, "weight"]
 
         # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
@@ -1917,30 +1984,29 @@ class BatchMPC:
         # end user input validation
 
         # get relevant stations positions
-        station_codes = set(self.observatories)
-        for radar_station_column in ["radar_transmitter", "radar_receiver"]:
-            if radar_station_column in temp_table.columns:
-                station_codes.update(
-                    temp_table.loc[temp_table[radar_station_column].notna(), radar_station_column]
-                    .astype(str)
-                    .str.strip()
-                    .str.zfill(3)
-                    .to_list()
-                )
+        station_codes = (
+            set(temp_table["observatory"].dropna().astype(str))
+            if "observatory" in temp_table
+            else set()
+        )
         tempStations = self._observatory_info.loc[
             self._observatory_info["Code"].isin(station_codes), :
         ].loc[:, ["Code", "X", "Y", "Z"]]
 
-        # add station positions to the observations
-        observations_table = pd.merge(
-            left=temp_table,
-            right=tempStations,
-            left_on="observatory",
-            right_on="Code",
-            how="left",
-        )
-        # remove the observations from unused satellite observatories
-        observations_table = observations_table.query("Code != @sat_obs_codes_excluded")
+        if "observatory" in temp_table:
+            # add station positions to the angular observations
+            observations_table = pd.merge(
+                left=temp_table,
+                right=tempStations,
+                left_on="observatory",
+                right_on="Code",
+                how="left",
+            )
+            # remove the observations from unused satellite observatories
+            observations_table = observations_table.query("Code != @sat_obs_codes_excluded")
+        else:
+            observations_table = temp_table.copy()
+            observations_table["Code"] = pd.Series(dtype=object)
 
         # add asteroid bodies to SystemOfBodies object
         for body in self._MPC_codes:
@@ -1978,9 +2044,12 @@ class BatchMPC:
                 )
 
         # get unique combinations of mpc bodies and observatories
-        angular_observations_table = observations_table.loc[
-            observations_table[RA_col].notna() & observations_table[DEC_col].notna()
-        ]
+        if RA_col in observations_table and DEC_col in observations_table:
+            angular_observations_table = observations_table.loc[
+                observations_table[RA_col].notna() & observations_table[DEC_col].notna()
+            ]
+        else:
+            angular_observations_table = pd.DataFrame(columns=["number", "observatory"])
         unique_link_combos = (
             angular_observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
@@ -2037,12 +2106,11 @@ class BatchMPC:
 
                 observation_dataset.set_weight_vector_for_set(set_id, observation_weights)
 
-        radar_tracking_data = radar_tracking_data_from_mpc_table(observations_table)
-        radar_tracking_data.add_to_observation_dataset(
+        self._radar_tracking_data.add_to_observation_dataset(
             observation_dataset,
             bodies,
             station_body=station_body,
-            add_ground_stations=False,
+            add_ground_stations=True,
         )
 
         return observation_dataset
@@ -2283,19 +2351,23 @@ class BatchMPC:
         print("   Batch Summary:")
         print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
         print("  ", self.MPC_objects)
-        satObs = len(self._table.query("observatory == @self.space_telescopes"))
+        satObs = (
+            len(self._table.query("observatory == @self.space_telescopes"))
+            if "observatory" in self._table
+            else 0
+        )
         print(
             f"2. Batch includes {self.size} observations, including {satObs} "
             + "observations from space telescopes"
         )
-        print(
-            f"3. The observations range from {self._table.epoch_seconds_TDB.min()} "
-            + f"to {self._table.epoch_seconds_TDB.max()}"
-        )
+        print(f"3. The observations range from {self.epoch_start} " + f"to {self.epoch_end}")
         print(f"   In seconds TDB since J2000: {self.epoch_start} to {self.epoch_end}")
-        print(
-            f"   In Julian Days: " + f"{self._table.epoch.min()}" + f" to {self._table.epoch.max()}"
-        )
+        if "epoch" in self._table and not self._table.empty:
+            print(
+                f"   In Julian Days: "
+                + f"{self._table.epoch.min()}"
+                + f" to {self._table.epoch.max()}"
+            )
         print(
             f"4. The batch contains observations from {len(self.observatories)} "
             + f"observatories, including {len(self.space_telescopes)} space telescopes"
@@ -2330,15 +2402,28 @@ class BatchMPC:
             Dataframe with information about the observatories.
         """
         temp = self._observatory_info.copy()
-        temp2 = self._table
+        count_tables = []
+        if "observatory" in self._table and not self._table.empty:
+            count_tables.append(
+                self._table.groupby("observatory")
+                .count()
+                .rename(columns={"number": "count"})
+                .reset_index(drop=False)
+                .loc[:, ["observatory", "count"]]
+            )
 
-        count_observations = (
-            temp2.groupby("observatory")
-            .count()
-            .rename(columns={"number": "count"})
-            .reset_index(drop=False)
-            .loc[:, ["observatory", "count"]]
-        )
+        radar_station_counts = self._radar_tracking_data.station_observation_counts()
+        if not radar_station_counts.empty:
+            count_tables.append(radar_station_counts)
+
+        if count_tables:
+            count_observations = (
+                pd.concat(count_tables, ignore_index=True)
+                .groupby("observatory", as_index=False)["count"]
+                .sum()
+            )
+        else:
+            count_observations = pd.DataFrame(columns=["observatory", "count"])
 
         temp = temp.copy()
         count_observations = count_observations.copy()
