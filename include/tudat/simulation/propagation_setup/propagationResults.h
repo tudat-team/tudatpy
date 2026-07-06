@@ -21,6 +21,7 @@
 #include <cereal/types/tuple.hpp>
 
 #include "tudat/basics/timeType.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -428,6 +429,18 @@ public:
         return solutionIsCleared_;
     }
 
+    //! Save dynamics results to a binary file
+    void saveToBinary( const std::string& path ) const
+    {
+        tudat::serialization::saveToBinaryFile( *this, path );
+    }
+
+    //! Load dynamics results from a binary file (static factory)
+    static SingleArcSimulationResults loadFromBinary( const std::string& path )
+    {
+        return tudat::serialization::loadFromBinaryFile< SingleArcSimulationResults >( path );
+    }
+
     bool isPropagatedAndProcessedStateEqual( )
     {
         bool areEqual = true;
@@ -755,6 +768,18 @@ public:
     std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
     {
         return getSingleArcDependentVariablesInterface( );
+    }
+
+    //! Save variational results to a binary file
+    void saveToBinary( const std::string& path ) const
+    {
+        tudat::serialization::saveToBinaryFile( *this, path );
+    }
+
+    //! Load variational results from a binary file (static factory)
+    static SingleArcVariationalSimulationResults loadFromBinary( const std::string& path )
+    {
+        return tudat::serialization::loadFromBinaryFile< SingleArcVariationalSimulationResults >( path );
     }
 
 protected:
@@ -1113,6 +1138,18 @@ public:
         dependentVariableInterface_->updateDependentVariablesInterpolators( dependentVariablesInterpolators, arcStartTimes_, arcEndTimes_ );
     }
 
+    //! Save multi-arc results to a binary file
+    void saveToBinary( const std::string& path ) const
+    {
+        tudat::serialization::saveToBinaryFile( *this, path );
+    }
+
+    //! Load multi-arc results from a binary file (static factory)
+    static MultiArcSimulationResults loadFromBinary( const std::string& path )
+    {
+        return tudat::serialization::loadFromBinaryFile< MultiArcSimulationResults >( path );
+    }
+
 private:
     const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
 
@@ -1334,6 +1371,18 @@ public:
     {
         singleArcResults_->updateDependentVariableInterface( );
         multiArcResults_->updateDependentVariableInterface( );
+    }
+
+    //! Save hybrid-arc results to a binary file
+    void saveToBinary( const std::string& path ) const
+    {
+        tudat::serialization::saveToBinaryFile( *this, path );
+    }
+
+    //! Load hybrid-arc results from a binary file (static factory)
+    static HybridArcSimulationResults loadFromBinary( const std::string& path )
+    {
+        return tudat::serialization::loadFromBinaryFile< HybridArcSimulationResults >( path );
     }
 
 protected:

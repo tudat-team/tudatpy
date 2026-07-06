@@ -473,6 +473,42 @@ void expose_propagation_results_bindings( py::module& m )
 
          :type: int
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
+                        object.saveToBinary( path );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         SingleArcSimulationResults
+             The deserialized propagation results.
+      )doc" )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
                   R"doc(
@@ -538,6 +574,42 @@ void expose_propagation_results_bindings( py::module& m )
 
          :type: SingleArcSimulationResults
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
+                        object.saveToBinary( path );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the variational propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load variational propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         SingleArcVariationalSimulationResults
+             The deserialized variational propagation results.
+      )doc" )
             .def( "__eq__", &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
             .def( tse::make_pickle_polymorphic< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                                                 tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >( ) );
@@ -594,6 +666,43 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: int
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& object,
+                        const std::string& path ) { object.saveToBinary( path ); },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the multi-arc dynamics propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared<
+                                tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::
+                                        loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load multi-arc dynamics propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         MultiArcSimulationResults
+             The deserialized multi-arc dynamics propagation results.
+      )doc" )
             .def( "__eq__",
                   &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
                   py::arg( "rhs" ) )
@@ -635,6 +744,44 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: int
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >&
+                                object,
+                        const std::string& path ) { object.saveToBinary( path ); },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the multi-arc variational propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared<
+                                tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::
+                                        loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load multi-arc variational propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         MultiArcVariationalSimulationResults
+             The deserialized multi-arc variational propagation results.
+      )doc" )
             .def( "__eq__",
                   &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
                   py::arg( "rhs" ) )
@@ -672,6 +819,43 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: MultiArcSimulationResults
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >& object,
+                        const std::string& path ) { object.saveToBinary( path ); },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the hybrid-arc dynamics propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared<
+                                tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::
+                                        loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load hybrid-arc dynamics propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         HybridArcSimulationResults
+             The deserialized hybrid-arc dynamics propagation results.
+      )doc" )
             .def( "__eq__",
                   &tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
                   py::arg( "rhs" ) )
@@ -712,6 +896,44 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 
          :type: MultiArcVariationalSimulationResults
 )doc" )
+            .def(
+                    "save_binary",
+                    []( const tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >&
+                                object,
+                        const std::string& path ) { object.saveToBinary( path ); },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Save the hybrid-arc variational propagation results to a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem for the output file (the ``.tudat`` extension is appended automatically).
+      )doc" )
+            .def_static(
+                    "load_binary",
+                    []( const std::string& path ) {
+                        return std::make_shared<
+                                tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >(
+                                tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::
+                                        loadFromBinary( path ) );
+                    },
+                    py::arg( "path" ),
+                    R"doc(
+
+         Load hybrid-arc variational propagation results from a binary file.
+
+         Parameters
+         ----------
+         path : str
+             Path stem of the input file (the ``.tudat`` extension is appended automatically).
+
+         Returns
+         -------
+         HybridArcVariationalSimulationResults
+             The deserialized hybrid-arc variational propagation results.
+      )doc" )
             .def( "__eq__",
                   &tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >::operator==,
                   py::arg( "rhs" ) )

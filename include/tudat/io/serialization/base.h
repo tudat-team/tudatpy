@@ -23,6 +23,7 @@
 
 // Cereal archive types
 #include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 
 // Cereal type support
 #include <cereal/types/base_class.hpp>
@@ -149,13 +150,15 @@ void deserializeFromBinaryString( const std::string& data, T& object )
 }
 
 //! Helper function to serialize an object to a binary file
+//! Appends ".tudat" extension automatically.
 template< typename T >
 void saveToBinaryFile( const T& object, const std::string& path )
 {
-    std::ofstream outputStream( path, std::ios::binary );
+    std::string filePath = path + ".tudat";
+    std::ofstream outputStream( filePath, std::ios::binary );
     if( !outputStream )
     {
-        throw std::runtime_error( "Unable to open file for binary save: " + path );
+        throw std::runtime_error( "Unable to open file for binary save: " + filePath );
     }
 
     cereal::BinaryOutputArchive archive( outputStream );
@@ -163,13 +166,15 @@ void saveToBinaryFile( const T& object, const std::string& path )
 }
 
 //! Helper function to deserialize an object from a binary file
+//! Appends ".tudat" extension automatically.
 template< typename T >
 T loadFromBinaryFile( const std::string& path )
 {
-    std::ifstream inputStream( path, std::ios::binary );
+    std::string filePath = path + ".tudat";
+    std::ifstream inputStream( filePath, std::ios::binary );
     if( !inputStream )
     {
-        throw std::runtime_error( "Unable to open file for binary load: " + path );
+        throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
     cereal::BinaryInputArchive archive( inputStream );
@@ -179,17 +184,96 @@ T loadFromBinaryFile( const std::string& path )
 }
 
 //! Helper function to deserialize from a binary file into an existing object
+//! Appends ".tudat" extension automatically.
 template< typename T >
 void loadFromBinaryFile( const std::string& path, T& object )
 {
-    std::ifstream inputStream( path, std::ios::binary );
+    std::string filePath = path + ".tudat";
+    std::ifstream inputStream( filePath, std::ios::binary );
     if( !inputStream )
     {
-        throw std::runtime_error( "Unable to open file for binary load: " + path );
+        throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
     cereal::BinaryInputArchive archive( inputStream );
     archive( object );
+}
+
+// =====================================================================
+//  JSON helpers
+// =====================================================================
+
+//! Helper function to serialize an object to a JSON file
+//! Appends ".json" extension automatically.
+template< typename T >
+void saveToJsonFile( const T& object, const std::string& path )
+{
+    std::string filePath = path + ".json";
+    std::ofstream outputStream( filePath );
+    if( !outputStream )
+    {
+        throw std::runtime_error( "Unable to open file for JSON save: " + filePath );
+    }
+
+    cereal::JSONOutputArchive archive( outputStream );
+    archive( cereal::make_nvp( "root", object ) );
+}
+
+//! Helper function to deserialize an object from a JSON file
+//! Appends ".json" extension automatically.
+template< typename T >
+T loadFromJsonFile( const std::string& path )
+{
+    std::string filePath = path + ".json";
+    std::ifstream inputStream( filePath );
+    if( !inputStream )
+    {
+        throw std::runtime_error( "Unable to open file for JSON load: " + filePath );
+    }
+
+    cereal::JSONInputArchive archive( inputStream );
+    T object;
+    archive( cereal::make_nvp( "root", object ) );
+    return object;
+}
+
+//! Helper function to deserialize from a JSON file into an existing object
+//! Appends ".json" extension automatically.
+template< typename T >
+void loadFromJsonFile( const std::string& path, T& object )
+{
+    std::string filePath = path + ".json";
+    std::ifstream inputStream( filePath );
+    if( !inputStream )
+    {
+        throw std::runtime_error( "Unable to open file for JSON load: " + filePath );
+    }
+
+    cereal::JSONInputArchive archive( inputStream );
+    archive( cereal::make_nvp( "root", object ) );
+}
+
+//! Helper function to serialize an object to a JSON string
+template< typename T >
+std::string serializeToJsonString( const T& object )
+{
+    std::ostringstream oss;
+    {
+        cereal::JSONOutputArchive oa( oss );
+        oa( cereal::make_nvp( "root", object ) );
+    }
+    return oss.str( );
+}
+
+//! Helper function to deserialize an object from a JSON string
+template< typename T >
+T deserializeFromJsonString( const std::string& data )
+{
+    std::istringstream iss( data );
+    cereal::JSONInputArchive ia( iss );
+    T object;
+    ia( cereal::make_nvp( "root", object ) );
+    return object;
 }
 
 }  // namespace serialization
