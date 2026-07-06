@@ -21,7 +21,6 @@
 #include <cereal/types/tuple.hpp>
 
 #include "tudat/basics/timeType.h"
-#include "tudat/io/serialization/class_versions.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
@@ -1421,15 +1420,6 @@ using SimulationResultsDT = SimulationResults< double, Time >;
 }  // namespace propagators
 
 }  // namespace tudat
-
-CEREAL_CLASS_VERSION( tudat::propagators::SimulationResultsDD, tudat::serialization::ClassVersions::simulation_results_dd )
-CEREAL_CLASS_VERSION( tudat::propagators::SimulationResultsDT, tudat::serialization::ClassVersions::simulation_results_dt )
-CEREAL_CLASS_VERSION( tudat::propagators::SingleArcDynamicsResults, tudat::serialization::ClassVersions::single_arc_dynamics_results )
-CEREAL_CLASS_VERSION( tudat::propagators::SingleArcVariationalResults, tudat::serialization::ClassVersions::single_arc_variational_results )
-CEREAL_CLASS_VERSION( tudat::propagators::MultiArcDynamicsResults, tudat::serialization::ClassVersions::multi_arc_dynamics_results )
-CEREAL_CLASS_VERSION( tudat::propagators::MultiArcVariationalResults, tudat::serialization::ClassVersions::multi_arc_variational_results )
-CEREAL_CLASS_VERSION( tudat::propagators::HybridArcDynamicsResults, tudat::serialization::ClassVersions::hybrid_arc_dynamics_results )
-CEREAL_CLASS_VERSION( tudat::propagators::HybridArcVariationalResults, tudat::serialization::ClassVersions::hybrid_arc_variational_results )
 
 // Register all concrete SimulationResults types for polymorphic serialization
 CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResults )
