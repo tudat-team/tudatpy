@@ -1403,12 +1403,6 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 
 }  // namespace tudat
 
-// Register all class versions for serialization
-CEREAL_CLASS_VERSION( tudat::simulation_setup::CovarianceAnalysisOutputDD,
-                      tudat::serialization::ClassVersions::covariance_analysis_output_dd )
-CEREAL_CLASS_VERSION( tudat::simulation_setup::EstimationOutputDD, tudat::serialization::ClassVersions::estimation_output_dd )
-CEREAL_CLASS_VERSION( tudat::simulation_setup::EstimationOutputDT, tudat::serialization::ClassVersions::estimation_output_dt )
-
 // Register all polymorphic types
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDD )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDD )
