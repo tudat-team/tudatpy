@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
 #include <Eigen/LU>
+#include <Eigen/SparseCholesky>
 #include <Eigen/SparseCore>
 
 #include "tudat/basics/timeType.h"
@@ -1131,16 +1132,39 @@ struct CovarianceAnalysisOutput {
             throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix size is inconsistent." );
         }
 
-        const Eigen::MatrixXd denseWeights( weightsMatrix_ );
-        const Eigen::LLT< Eigen::MatrixXd > weightCholesky( denseWeights );
-        if( weightCholesky.info( ) != Eigen::Success )
-        {
-            throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix is not positive definite." );
-        }
-        const Eigen::MatrixXd lowerWeightSquareRoot = weightCholesky.matrixL( );
-        return lowerWeightSquareRoot.transpose( ) * designMatrix;
+        updateSparseWeightCholeskyFactorIfNeeded( );
+        return sparseWeightCholeskyFactor_.matrixL( ).transpose( ) * designMatrix;
     }
 
+    void updateSparseWeightCholeskyFactorIfNeeded( ) const
+    {
+        if( isSparseWeightCholeskyFactorStale( ) )
+        {
+            sparseWeightCholeskyFactor_.compute( weightsMatrix_ );
+            if( sparseWeightCholeskyFactor_.info( ) != Eigen::Success )
+            {
+                throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix is not positive definite." );
+            }
+            factorizedWeightsMatrix_ = weightsMatrix_;
+            isSparseWeightCholeskyFactorCurrent_ = true;
+        }
+    }
+
+    bool isSparseWeightCholeskyFactorCurrent( ) const
+    {
+        return !isSparseWeightCholeskyFactorStale( );
+    }
+
+private:
+    bool isSparseWeightCholeskyFactorStale( ) const
+    {
+        return !isSparseWeightCholeskyFactorCurrent_ || weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) ||
+                weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
+                weightsMatrix_.nonZeros( ) != factorizedWeightsMatrix_.nonZeros( ) ||
+                !weightsMatrix_.isApprox( factorizedWeightsMatrix_, 0.0 );
+    }
+
+public:
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     Eigen::MatrixXd normalizedDesignMatrix_;
 
@@ -1149,6 +1173,15 @@ struct CovarianceAnalysisOutput {
 
     //! Full sparse weights matrix used in the estimation when off-diagonal weights are present.
     Eigen::SparseMatrix< double > weightsMatrix_;
+
+    //! Cached sparse Cholesky factor for full weight matrix accessors.
+    mutable Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > sparseWeightCholeskyFactor_;
+
+    //! Sparse snapshot of the matrix represented by sparseWeightCholeskyFactor_.
+    mutable Eigen::SparseMatrix< double > factorizedWeightsMatrix_;
+
+    //! Boolean denoting whether sparseWeightCholeskyFactor_ contains a valid factorization.
+    mutable bool isSparseWeightCholeskyFactorCurrent_ = false;
 
     //! Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries.
     Eigen::VectorXd designMatrixTransformationDiagonal_;

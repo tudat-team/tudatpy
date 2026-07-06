@@ -56,6 +56,7 @@ public:
 
     const Eigen::SparseMatrix< double >& getSparseWeightMatrix( ) const
     {
+        // This lazy materialization mutates cached storage and is not safe for concurrent const access.
         if( weightMatrix_.rows( ) == 0 && weights_.size( ) > 0 )
         {
             // Diagonal-only data keep only the vector form until a matrix is explicitly requested.
@@ -71,11 +72,6 @@ public:
             weightMatrix_.makeCompressed( );
         }
         return weightMatrix_;
-    }
-
-    const Eigen::SparseMatrix< double >& getWeightMatrix( ) const
-    {
-        return getSparseWeightMatrix( );
     }
 
     bool isDiagonalWeightOnly( ) const

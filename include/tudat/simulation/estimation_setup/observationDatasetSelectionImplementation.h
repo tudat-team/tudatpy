@@ -69,6 +69,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const std::string& reason )
 {
+    // Row status changes do not alter row indexing, so existing viewers remain index-stable.
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
     {
         if( condition( *this, observationId ) )
@@ -85,6 +86,7 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObservations(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
+    // Row status changes do not alter row indexing, so existing viewers remain index-stable.
     for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
     {
         if( condition( *this, observationId ) )

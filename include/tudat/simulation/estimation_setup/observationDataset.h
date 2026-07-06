@@ -176,16 +176,15 @@ public:
      * the corresponding row or column selection. Observation ids are converted
      * to scalar-component ids immediately, so the block remains valid under
      * later flattened observation data as long as the dataset structure is unchanged.
-     * If makeSymmetric is true, a transposed block is added for different row
-     * and column selections; identical selections must already define a
-     * symmetric block.
+     * The public interface always preserves a symmetric total weight matrix:
+     * a transposed block is added for different row and column selections, and
+     * identical selections must already define a symmetric block.
      */
     void setWeightBlock( const std::vector< unsigned int >& rowObservationIds,
                          const std::vector< unsigned int >& columnObservationIds,
                          const Eigen::MatrixXd& weightBlock,
                          const std::vector< unsigned int >& rowComponents = std::vector< unsigned int >( ),
-                         const std::vector< unsigned int >& columnComponents = std::vector< unsigned int >( ),
-                         const bool makeSymmetric = false );
+                         const std::vector< unsigned int >& columnComponents = std::vector< unsigned int >( ) );
 
     //! Return the advanced scalar-component weight blocks stored on the dataset.
     const std::vector< ObservationWeightBlock >& getExtraWeightBlocks( ) const;

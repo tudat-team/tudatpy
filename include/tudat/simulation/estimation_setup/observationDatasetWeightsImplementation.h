@@ -144,8 +144,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
                                                                                    const std::vector< unsigned int >& columnObservationIds,
                                                                                    const Eigen::MatrixXd& weightBlock,
                                                                                    const std::vector< unsigned int >& rowComponents,
-                                                                                   const std::vector< unsigned int >& columnComponents,
-                                                                                   const bool makeSymmetric )
+                                                                                   const std::vector< unsigned int >& columnComponents )
 {
     // Resolve observation ids plus optional component selections to scalar-component ids.
     const std::vector< unsigned int > rowScalarComponentIds =
@@ -160,27 +159,23 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
         throw std::runtime_error( "Error when setting dataset weight block, matrix size is inconsistent with selected observations." );
     }
 
-    if( makeSymmetric )
+    if( rowScalarComponentIds == columnScalarComponentIds )
     {
-        if( rowScalarComponentIds == columnScalarComponentIds )
+        if( weightBlock.rows( ) != weightBlock.cols( ) || !weightBlock.isApprox( weightBlock.transpose( ) ) )
         {
-            if( weightBlock.rows( ) != weightBlock.cols( ) || !weightBlock.isApprox( weightBlock.transpose( ) ) )
-            {
-                throw std::runtime_error(
-                        "Error when setting symmetric dataset weight block, block with identical row and column selection is not "
-                        "symmetric." );
-            }
+            throw std::runtime_error(
+                    "Error when setting symmetric dataset weight block, block with identical row and column selection is not symmetric." );
         }
     }
 
-    // Store the requested block and optionally its transpose for distinct row/column selections.
+    // Store the requested block and its transpose for distinct row/column selections.
     ObservationWeightBlock datasetWeightBlock;
     datasetWeightBlock.rowScalarComponentIds_ = rowScalarComponentIds;
     datasetWeightBlock.columnScalarComponentIds_ = columnScalarComponentIds;
     datasetWeightBlock.weightBlock_ = weightBlock;
     addExtraWeightBlock( datasetWeightBlock );
 
-    if( makeSymmetric && rowScalarComponentIds != columnScalarComponentIds )
+    if( rowScalarComponentIds != columnScalarComponentIds )
     {
         ObservationWeightBlock transposedWeightBlock;
         transposedWeightBlock.rowScalarComponentIds_ = columnScalarComponentIds;

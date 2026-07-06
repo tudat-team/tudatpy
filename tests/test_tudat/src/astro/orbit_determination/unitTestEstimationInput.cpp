@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     };
     Eigen::Matrix2d crossSetWeightBlock;
     crossSetWeightBlock << 0.35, 0.04, 0.06, 0.31;
-    simulatedObservations->setWeightBlock( rowBlockObservationIds, columnBlockObservationIds, crossSetWeightBlock, {}, {}, true );
+    simulatedObservations->setWeightBlock( rowBlockObservationIds, columnBlockObservationIds, crossSetWeightBlock );
 
     auto getOrderedFlattenedDataIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
                                                                                            const unsigned int componentIndex ) {
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     // Dataset flattened data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
     BOOST_CHECK( weightData.hasOffDiagonalWeights( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightVector( ), expectedFullWeightsMatrix.diagonal( ), 1.0E-15 );
 
     const Eigen::VectorXd truthStateVector = parametersToEstimate->template getFullParameterValues< double >( );
@@ -425,7 +425,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
     const Eigen::VectorXd expectedSingleStepParameterUpdate =
             linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    singleStepDesignMatrix, singleStepResiduals, weightData.getWeightMatrix( ) )
+                    singleStepDesignMatrix, singleStepResiduals, weightData.getSparseWeightMatrix( ) )
                     .first.cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualSingleStepParameterUpdate =
             singleStepEstimationOutput->parameterHistory_.at( 1 ) - singleStepEstimationOutput->parameterHistory_.at( 0 );

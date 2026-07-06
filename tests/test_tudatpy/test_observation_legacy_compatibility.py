@@ -146,6 +146,75 @@ def test_legacy_single_observation_set_conversion_matches_dataset():
     )
 
 
+def test_dataset_add_observation_set_accepts_single_observation_set_object():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        observation_set = observations.create_single_observation_set(
+            observations.angular_position,
+            _link_ends("Mars"),
+            [np.array([1.0, 2.0]), np.array([3.0, 4.0])],
+            [3.0, 5.0],
+            observations.receiver,
+        )
+
+    dataset = observations.ObservationDataset()
+    assert dataset.add_observation_set(observation_set) == 0
+
+    np.testing.assert_allclose(dataset.observation_vector_for_set(0), [1.0, 2.0, 3.0, 4.0])
+    np.testing.assert_allclose(
+        [float(time) for time in dataset.observation_times_for_set(0)],
+        [3.0, 5.0],
+    )
+
+
+def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
+    link_definition = observations.LinkDefinition(_link_ends("Earth"))
+    observation_values = [np.array([10.0]), np.array([20.0])]
+    observation_times = [1.0, 2.0]
+
+    positional_dataset = observations.ObservationDataset()
+    assert (
+        positional_dataset.add_observation_set(
+            observations.one_way_range,
+            link_definition,
+            observation_values,
+            observation_times,
+            observations.receiver,
+        )
+        == 0
+    )
+
+    keyword_dataset = observations.ObservationDataset()
+    assert (
+        keyword_dataset.add_observation_set(
+            observable_type=observations.one_way_range,
+            link_definition=link_definition,
+            observation_values=observation_values,
+            observation_times=observation_times,
+            reference_link_end=observations.receiver,
+        )
+        == 0
+    )
+
+    np.testing.assert_allclose(
+        positional_dataset.ordered_flattened_observation_data().observation_vector,
+        keyword_dataset.ordered_flattened_observation_data().observation_vector,
+    )
+    np.testing.assert_allclose(
+        positional_dataset.ordered_flattened_observation_data().times,
+        keyword_dataset.ordered_flattened_observation_data().times,
+    )
+
+
+def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
+    with pytest.raises(TypeError) as exception_info:
+        observations.ObservationDataset().add_observation_set(object())
+
+    error_message = str(exception_info.value)
+    assert "add_observation_set(single_observation_set)" in error_message
+    assert "add_observation_set(observable_type, link_definition" in error_message
+
+
 def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
     legacy_collection = _legacy_collection(sample_dataset)
 

@@ -341,7 +341,6 @@ std::string observationArgumentType( const std::string& argumentName )
         { "weight_block", "numpy.ndarray" },
         { "row_components", "list[int], optional" },
         { "column_components", "list[int], optional" },
-        { "make_symmetric", "bool, optional" },
         { "indices_to_remove", "list[int]" },
         { "print_warning", "bool, optional" },
         { "observation_vector", "numpy.ndarray" },
@@ -397,7 +396,6 @@ std::string observationArgumentDescription( const std::string& argumentName )
         { "weight_block", "Dense block to insert into the sparse weight matrix." },
         { "row_components", "Component indices selected from each row observation. Empty selects all components." },
         { "column_components", "Component indices selected from each column observation. Empty selects all components." },
-        { "make_symmetric", "Whether to also store the transposed block." },
         { "indices_to_remove", "Indices within the selected observation set to remove." },
         { "print_warning", "Whether to print a warning when duplicate observations are removed." },
         { "observation_vector", "Concatenated observation vector for one set." },
@@ -592,9 +590,9 @@ const char* observationDatasetDoc( const std::string& methodName )
         { "has_weight_matrix_for_observation",
           { "(observation_id)", "bool", "Return whether one observation row has an explicitly stored dense weight matrix." } },
         { "set_weight_block",
-          { "(row_observation_ids, column_observation_ids, weight_block, row_components=[], column_components=[], make_symmetric=False)",
+          { "(row_observation_ids, column_observation_ids, weight_block, row_components=[], column_components=[])",
             "None",
-            "Store an advanced dense weight block selected by observation ids." } },
+            "Store a symmetrized advanced dense weight block selected by observation ids." } },
         { "observation_row",
           { "(observation_id)", "tudatpy.estimation.observations.ObservationDatasetRow", "Return row metadata for one observation." } },
         { "scalar_component_row",
@@ -958,16 +956,6 @@ matrix and is only needed when off-diagonal terms are present.
                 .def_property_readonly( "weight_vector",
                                         &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
                                         R"doc(numpy.ndarray: Concatenated vector of scalar observation weights.)doc" )
-                .def_property_readonly( "weight_matrix",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightMatrix,
-                                        R"doc(
-scipy.sparse.spmatrix: Sparse weight matrix in the same order as :attr:`observation_vector`.
-
-For diagonal-only weights this matrix is generated from :attr:`weight_vector`.
-For off-diagonal weights it contains the materialized sparse matrix assembled
-from per-observation blocks, set-level blocks and advanced scalar-component
-blocks.
-)doc" )
                 .def_property_readonly( "sparse_weight_matrix",
                                         &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
                                         R"doc(
@@ -1166,7 +1154,7 @@ public builders.
                     py::arg( "dependent_variable_settings" ),
                     py::arg( "limit" ),
                     py::arg( "return_first_compatible_settings" ) = false,
-                    R"doc(Return a condition selecting rows where a compatible dependent-variable component exceeds the limit.)doc" )
+                    R"doc(Return a condition selecting rows where any compatible dependent-variable component is greater than the signed limit.)doc" )
             .def(
                     "__and__",
                     []( const tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >& lhs,
@@ -1422,7 +1410,6 @@ dataset-centric representation.
                       py::arg( "weight_block" ),
                       py::arg( "row_components" ) = std::vector< unsigned int >( ),
                       py::arg( "column_components" ) = std::vector< unsigned int >( ),
-                      py::arg( "make_symmetric" ) = false,
                       observationDatasetDoc( "set_weight_block" ) )
                 .def_property_readonly( "extra_weight_blocks",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getExtraWeightBlocks,

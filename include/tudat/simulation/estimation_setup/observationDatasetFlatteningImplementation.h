@@ -281,6 +281,7 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObs
                                                           const double weight ) {
         if( previousEntry.source_ != source && previousEntry.weight_ != weight )
         {
+            // Keep warning text stable for tests; large override sets can emit one line per conflicting entry.
             std::cerr << "[WARNING] Conflicting observation weight entry at flattened matrix row " << rowIndex << ", column " << columnIndex
                       << " (scalar component ids " << rowScalarComponentId << ", " << columnScalarComponentId
                       << "): " << previousEntry.source_ << " value " << previousEntry.weight_ << " overwritten by " << source << " value "

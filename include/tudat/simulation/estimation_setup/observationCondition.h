@@ -359,6 +359,7 @@ public:
 
     static ObservationSelectionCondition residualAbsoluteValueGreaterThan( const Eigen::VectorXd& residualLimit )
     {
+        // Selects a row when any scalar residual component exceeds the absolute limit.
         ObservationSelectionCondition condition;
         condition.type_ = ObservationSelectionConditionType::residual_absolute_value_greater_than;
         condition.vectorLimit_ = residualLimit;
@@ -372,6 +373,7 @@ public:
 
     static ObservationSelectionCondition observationAbsoluteValueGreaterThan( const Eigen::VectorXd& observationLimit )
     {
+        // Selects a row when any scalar observation component exceeds the absolute limit.
         ObservationSelectionCondition condition;
         condition.type_ = ObservationSelectionConditionType::observation_absolute_value_greater_than;
         condition.vectorLimit_ = observationLimit;
@@ -388,6 +390,7 @@ public:
             const Eigen::VectorXd& dependentVariableLimit,
             const bool returnFirstCompatibleSettings = false )
     {
+        // Selects a row when any compatible dependent-variable component is greater than the signed limit.
         ObservationSelectionCondition condition;
         condition.type_ = ObservationSelectionConditionType::dependent_variable_greater_than;
         condition.dependentVariableSettings_ = dependentVariableSettings;
