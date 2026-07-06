@@ -1,6 +1,6 @@
 # Serialization Design
 
-Status: draft for team alignment
+Status: Updated for second PR
 
 ## Purpose
 
@@ -21,8 +21,6 @@ The repository already has a partial cereal-based serialization stack:
 
 At the same time, a few pieces are still missing or inconsistent:
 
-- A centralized class version manifest does not yet exist in `src/` or `include/`.
-- `CEREAL_CLASS_VERSION` declarations are not yet present in the source tree.
 - A unified `save` / `load` convention is not yet enforced everywhere: some classes currently implement a single `serialize(archive ar)` method instead.
 - Polymorphic registration is currently handled in binding code for some Python-exposed types, but not yet as a clearly centralized per-submodule policy.
 
@@ -32,13 +30,13 @@ That means the project already has working pieces, but not yet a single serializ
 
 1. Use cereal as the single serialization library.
 2. Every serializable class SHALL implement explicit `save` and `load` methods. A generic `serialize` method must not be used.
-3. Use XML for non-tabulated settings objects.
+3. Use JSON for non-tabulated settings objects.
 4. Use regular binary serialization for tabulated settings and other data-heavy objects.
-5. Every serializable class SHALL declare a version number using `CEREAL_CLASS_VERSION`.
-6. The software SHALL maintain a central manifest listing the current serialization version of every serializable class.
-7. Register polymorphic cereal types in one place per submodule.
-8. Treat roundtrip survival plus equality as the primary correctness check.
-9. Expose the same roundtrip behavior to Python through pybind11.
+5. No class-level version numbers. Serialization compatibility is determined by the exact commit hash used to produce the file. Incompatible formats should fail loudly on load.
+6. Register polymorphic cereal types in one place per submodule.
+7. Treat roundtrip survival plus equality as the primary correctness check.
+8. Expose the same roundtrip behavior to Python through pybind11.
+9. Loading is done through a static method of the class. Saving is done through a method per format type.
 
 ### Why `save` and `load` instead of `serialize`
 
@@ -50,15 +48,15 @@ Using `save` / `load` everywhere also ensures consistency across the codebase: p
 
 The file format choice should follow the nature of the data:
 
-- Non-tabulated settings: XML.
+- Non-tabulated settings: JSON.
 - Tabulated settings: binary.
 
 The reason for this split is practical:
 
-- XML is readable, diffable, and suitable for small structured settings.
+- JSON is readable, diffable, and suitable for small structured settings.
 - Binary is better for large numeric tables, avoids huge text files, and preserves floating-point data without text conversion.
 
-The file format is a persistence concern. It should not be confused with Python pickle. Python pickle is an in-memory transport mechanism and does not need to use the on-disk XML format.
+The file format is a persistence concern. It should not be confused with Python pickle. Python pickle is an in-memory transport mechanism and does not need to use the on-disk JSON format.
 
 ### Adding A New Archive Type
 
@@ -112,41 +110,38 @@ Each serializable class should follow the same pattern:
 
 - Implement `save` and `load` methods.
 - Never use a single generic `serialize` method.
-- Include version-aware branching inside the class methods when the format changes.
+- Every serialized field shall be wrapped in `cereal::make_nvp("field_name", value)` so that all fields are named in the archive. Bare `archive(value)` without a name is not allowed.
 - Keep transient or runtime-only members out of the serialized state unless they can be reconstructed safely.
+- Loading is exposed via a static method on the class, e.g. `MySettings::load_from_json(path)`.
+  For polymorphic hierarchies, calling `BaseType::load_from_json(path)` returns the correct
+  derived-class instance automatically thanks to cereal's polymorphic registration (the
+  `CEREAL_REGISTER_TYPE` and `CEREAL_REGISTER_POLYMORPHIC_RELATION` declarations tell cereal
+  which derived type to instantiate). You may also call `DerivedType::load_from_json(path)`
+  directly if you know the exact type and want to be explicit about it.
+- Saving is exposed via one method per format, e.g. `save_to_json(path)`, `save_to_bin(path)`, `save_to_yaml(path)`.
 
 This is especially important for classes whose deserialization requires some members to be constructed before the rest of the state can be restored.
 
-### Versioning
+### Versioning and Compatibility
 
-Every serializable class must declare a version identifier using the `CEREAL_CLASS_VERSION` macro.
+Serialized files carry no class version numbers. Compatibility is determined by the exact Tudat commit hash used to create the file.
 
-The version scheme is: `TUDATVERSION::CLASSVERSION.CLASSPATCH`
+If a file was created with an incompatible commit — i.e. the on-disk format has changed — loading it should fail with a clear error. The failure should look like:
 
-For example, all new classes at initial release would carry something like `1.0.0::1.0`. The Tudat/tudatpy version prefix ties the class version to the software release it was introduced in, while the class-level `CLASSVERSION.CLASSPATCH` tracks independent evolution of that class's serialized format.
+> "Could not deserialize this object. This file was created with commit `<hash>`."
 
-```cpp
-// example version declaration
-CEREAL_CLASS_VERSION( MySettings, /* version integer registered with cereal */ )
-```
-
-The current version for all classes is published in one central manifest (see below). The version number is written into the file metadata and used by class `load` methods to branch when reading older files.
-
-### Central Version Manifest
-
-The software SHALL maintain a single, centralized manifest that lists every serializable class and its current declared version. This makes it immediately visible when a class version changes, which matters because such a change may break compatibility with files users have already saved.
-
-When a version does change, the team must decide whether to provide a migration path or require users to regenerate their files. There is no generic migration mechanism: every version bump that affects the on-disk format will require a custom conversion solution, which may sometimes be straightforward (field reordering) and sometimes require additional user input (new required fields with no default). For this reason the manifest is the canonical place to track and review such changes.
+The Tudat releasing schedule is the mechanism for providing conversion scripts. When a breaking change to the serialized format is introduced between releases, the team may provide a migration script alongside the release notes. There is no built-in version branching inside `load` methods.
 
 ### Metadata
 
 Every serialized file should carry metadata that identifies:
 
-- The object or class version.
-- The Tudat / tudatpy version used to generate the file.
+- The exact commit hash of Tudat / tudatpy used to generate the file.
 - The serialization format family, if needed for future debugging.
 
 This metadata should be stored in the serialized file itself, not in operating-system file properties. Cross-platform file contents are the only reliable place for it.
+
+If the metadata commit hash does not match a known compatible set, the loader reports the mismatch and refuses to proceed.
 
 ## Polymorphism
 
@@ -172,7 +167,7 @@ Minimal example:
 #pragma once
 
 #include <cereal/types/polymorphic.hpp>
-#include <cereal/archives/xml.hpp>
+#include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
 
 #include "my_settings.h"
@@ -202,7 +197,7 @@ Recommended policy:
 
 - Use pickle for roundtrips, multiprocessing, caching, and tests.
 - Use explicit file-oriented save/load methods for durable storage.
-- Expose XML-saving methods for non-tabulated settings.
+- Expose JSON-saving methods for non-tabulated settings.
 - Expose binary-saving methods for tabulated or data-heavy objects.
 
 This keeps the Python API honest about what format is being used and avoids presenting pickle as the canonical file format.
@@ -233,11 +228,11 @@ Recommended policy:
 
 This matches the existing pattern in several parts of the codebase and keeps the test surface compact.
 
-### XML Settings and Python Pickle
+### JSON Settings and Python Pickle
 
-Python pickle should not be coupled to XML file encoding. Pickle should serialize the in-memory C++ object state directly, using cereal through pybind11. XML remains the on-disk interchange format for settings files.
+Python pickle should not be coupled to JSON file encoding. Pickle should serialize the in-memory C++ object state directly, using cereal through pybind11. JSON remains the on-disk interchange format for settings files.
 
-This separation keeps pickle simple, avoids forcing XML parsing into Python roundtrips, and allows future changes to the file format without breaking Python pickle semantics.
+This separation keeps pickle simple, avoids forcing JSON parsing into Python roundtrips, and allows future changes to the file format without breaking Python pickle semantics.
 
 If a class needs a Python-visible persistence API beyond pickle, add explicit file export/import functions instead of overloading pickle with file-format concerns.
 
@@ -247,9 +242,12 @@ The preferred Python-facing persistence API should be explicit and format-specif
 
 Recommended method names:
 
-- `save_xml(path)` / `load_xml(path)` for XML-backed settings objects.
-- `save_binary(path)` / `load_binary(path)` for binary-backed objects.
-- `to_xml_string()` / `from_xml_string()` only if an in-memory XML representation is genuinely useful.
+- `save_to_json(path)` / static `load_from_json(path)` for JSON-backed settings objects.
+- `save_to_binary(path)` / static `load_from_binary(path)` for binary-backed objects.
+- `save_to_yaml(path)` / static `load_from_yaml(path)` for YAML-backed objects.
+- `to_json_string()` / `from_json_string()` only if an in-memory JSON representation is genuinely useful.
+
+The file suffix (`.json`, `.bin`, `.yaml`, etc.) should be appended automatically by the file writer — the caller provides a stem or full path without needing to specify the extension.
 
 Pickle should remain available, but it should not be the method users are told to use when they want to save a file for later reuse.
 
@@ -274,46 +272,52 @@ public:
 		archive( cereal::make_nvp( "value", value_ ) );
 	}
 
+	// Static factory method for loading
+	static MySettings load_from_json( const std::string& path )
+	{
+		std::ifstream stream( path );
+		cereal::JSONInputArchive archive( stream );
+		MySettings obj;
+		archive( obj );
+		return obj;
+	}
+
+	static MySettings load_from_binary( const std::string& path )
+	{
+		std::ifstream stream( path, std::ios::binary );
+		cereal::BinaryInputArchive archive( stream );
+		MySettings obj;
+		archive( obj );
+		return obj;
+	}
+
+	// Per-format save methods
+	void save_to_json( const std::string& path ) const
+	{
+		std::ofstream stream( path );
+		cereal::JSONOutputArchive archive( stream );
+		archive( cereal::make_nvp( "MySettings", *this ) );
+	}
+
+	void save_to_binary( const std::string& path ) const
+	{
+		std::ofstream stream( path, std::ios::binary );
+		cereal::BinaryOutputArchive archive( stream );
+		archive( cereal::make_nvp( "MySettings", *this ) );
+	}
+
 	int value_ = 0;
 };
-
-CEREAL_CLASS_VERSION( MySettings, /* version integer */ )
 ```
 
 ```cpp
 // Python exposure: explicit file methods, implemented as thin wrappers.
 py::class_< MySettings, std::shared_ptr< MySettings > >( m, "MySettings" )
 	.def( py::init<>() )
-	.def( "save_xml", []( const MySettings& obj, const std::string& path )
-	{
-		std::ofstream stream( path );
-		cereal::XMLOutputArchive archive( stream );
-		archive( cereal::make_nvp( "MySettings", obj ) );
-	} )
-	.def_static( "load_xml", []( const std::string& path )
-	{
-		std::ifstream stream( path );
-		cereal::XMLInputArchive archive( stream );
-
-		MySettings obj;
-		archive( obj );
-		return obj;
-	} )
-	.def( "save_binary", []( const MySettings& obj, const std::string& path )
-	{
-		std::ofstream stream( path, std::ios::binary );
-		cereal::BinaryOutputArchive archive( stream );
-		archive( cereal::make_nvp( "MySettings", obj ) );
-	} )
-	.def_static( "load_binary", []( const std::string& path )
-	{
-		std::ifstream stream( path, std::ios::binary );
-		cereal::BinaryInputArchive archive( stream );
-
-		MySettings obj;
-		archive( obj );
-		return obj;
-	} )
+	.def( "save_to_json", &MySettings::save_to_json )
+	.def( "save_to_binary", &MySettings::save_to_binary )
+	.def_static( "load_from_json", &MySettings::load_from_json )
+	.def_static( "load_from_binary", &MySettings::load_from_binary )
 	.def( py::pickle(
 		[]( const MySettings& obj )
 		{
@@ -325,18 +329,22 @@ py::class_< MySettings, std::shared_ptr< MySettings > >( m, "MySettings" )
 		} ) );
 ```
 
-The rule this example demonstrates is simple:
+The rules this example demonstrates are:
 
-- cereal `save` / `load` live on the C++ class,
-- Python file persistence is an explicit wrapper around the archive type,
+- cereal `save` / `load` live on the C++ class.
+- Loading is exposed as a static method of the class.
+- Saving is exposed as one method per format type.
 - pickle stays a separate binary convenience path.
 
 ## File Extensions
 
 Recommended policy:
 
-- Use `.xml` for non-tabulated settings files.
+- Use `.json` for non-tabulated settings files.
 - Use `.bin` for binary tabulated files.
+- Use `.yaml` for YAML settings files.
+
+The suffix should be appended automatically by the file writer. The caller passes a path or stem, and the writer adds the appropriate extension based on the format method called.
 
 If the team wants a more explicit binary extension, a domain-specific suffix such as `.tudatbin` is acceptable, but it is not required.
 
@@ -381,8 +389,8 @@ This keeps the tests simple and makes version mismatches or missing registration
 
 The current codebase still needs a few follow-up decisions and implementation passes:
 
-- A central version manifest does not yet exist.
 - A standardized `save` / `load` pattern is not yet enforced everywhere; some classes use `serialize`.
+- Static `load_from_*` and per-format `save_to_*` methods are not yet implemented.
 - Type registration is not yet visibly centralized across all submodules.
 - Some classes still need a final decision on whether they are serializable at all if they contain callbacks or other non-serializable runtime state.
 
@@ -390,23 +398,21 @@ One concrete example is callback-heavy or function-heavy settings objects. Those
 
 ## Rollout Plan
 
-1. Add the central version manifest, using the `TUDATVERSION::CLASSVERSION.CLASSPATCH` scheme.
-2. Convert all remaining classes that use `serialize` to explicit `save` / `load` methods.
-3. Add `CEREAL_CLASS_VERSION` declarations to all serializable classes.
+1. Convert all remaining classes that use `serialize` to explicit `save` / `load` methods.
+2. Add static `load_from_*` methods and per-format `save_to_*` methods to all serializable classes.
+3. Add commit-hash metadata to serialized output.
 4. Move polymorphic registration into one header per submodule.
-5. Add file metadata support for version and Tudat/tudatpy version.
-6. Expand C++ roundtrip tests for the remaining classes.
-7. Expand Python pickle tests to cover the remaining exposed types.
-8. Add migration tests for at least one older file format version per major object family.
+5. Expand C++ roundtrip tests for the remaining classes.
+6. Expand Python pickle tests to cover the remaining exposed types.
 
 ## Acceptance Criteria
 
 The serialization feature is ready when:
 
-- Every intended serializable class has a versioned `save` / `load` implementation using `CEREAL_CLASS_VERSION`.
-- The central version manifest exists and lists every serializable class.
+- Every intended serializable class has a `save` / `load` implementation.
+- Every intended serializable class exposes static `load_from_*` and per-format `save_to_*` methods.
 - Every intended polymorphic type is registered in the correct submodule registration header.
 - Every public serializable class has a roundtrip equality test in C++.
 - Every Python-exposed serializable class has a pickle roundtrip test.
-- Old files can be loaded according to their declared version.
-- File metadata records both the file version and the Tudat/tudatpy version used to create the file.
+- File metadata records the exact commit hash used to create the file.
+- Loading a file created with an incompatible commit produces a clear error message identifying the source commit.
