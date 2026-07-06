@@ -425,7 +425,7 @@ class GaiaAstrometry:
         table.loc[:, pos_names] *= ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION
         vel_names = ['vx_gaia', 'vy_gaia', 'vz_gaia', 'vx_gaia_geocentric', 'vy_gaia_geocentric',
                      'vz_gaia_geocentric']
-        table.loc[:, vel_names] *= ASTRONOMICAL_UNIT / DAY_IN_S
+        table.loc[:, vel_names] *= ASTRONOMICAL_UNIT / JULIAN_DAY
 
         return table
 
