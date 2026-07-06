@@ -44,69 +44,59 @@ _ASTEROID_CATALOG_NAMES = {'DR2': 'gaiadr2.sso_source',
                  'FPR': 'gaiafpr.sso_source'}
 
 class GaiaAstrometry:
-
-    def __init__(self,):
-        """
-        Create a Gaia query object
-        """
+    """Handles retrieval and processing of Gaia solar-system astrometry."""
+    def __init__(self) -> None:
+        """Create an empty GaiaAstrometry object."""
         self._table = pd.DataFrame() # Holds astrometry and metadata after calling retrieve_data
         self._measurement_covariance = {}
         self._corrected = False # Indicates if corrections have been applied
 
     @property
-    def table(self):
-        """
-        Return a copy of the observation table
-
-        :return:
-        """
+    def table(self) -> pd.DataFrame:
+        """Copy of the observation table."""
         return self._table.copy()
 
     @property
-    def epoch_start(self):
-        """
-        Return first epoch in the observation table (any object)
-
-        :return:
-        """
+    def epoch_start(self) -> float:
+        """First epoch in the observation table (any object)."""
         return self.table['epoch'].iloc[0] # Table is ordered by epoch
 
     @property
-    def epoch_end(self):
-        """
-        Return last epoch in the observation table (any object)
-
-        :return:
-        """
+    def epoch_end(self) -> float:
+        """Last epoch in the observation table (any object)."""
         return self.table['epoch'].iloc[-1] # Table is ordered by epoch
 
     @property
-    def mpc_numbers(self):
-        """
-        Which asteroid MPC numbers appear in the observations table
-        """
+    def mpc_numbers(self) -> np.ndarray:
+        """Array of asteroid MPC numbers that appear in the observation table."""
         return pd.unique(self._table['number_mp'])
 
-    def copy(self):
-        """
-        Return a copy of the query object
+    def copy(self) -> "GaiaAstrometry":
+        """Get a copy of the GaiaAstrometry object.
 
-        Returns:
-            GaiaAstrometry: Deep copy of the object
+        Returns
+        -------
+        GaiaAstrometry
+            Deep copy of the current GaiaAstrometry object.
         """
         return copy.deepcopy(self)
 
     def copy_for_mpc(self,
-                     mpc_numbers: int|list|tuple):
-        """
-        Return a copy of the query object for a selection of asteroids. Can be useful to create multiple query
-        objects of individual asteroids without calling retrieve_data every time.
+                     mpc_numbers: int | list | tuple) -> "GaiaAstrometry":
+        """Return a copy of the query object for a selection of asteroids.
 
-        Args:
-            mpc_numbers (list): MPC numbers to keep in copy
+        Useful to create query objects for individual asteroids without calling
+        retrieve_data every time.
 
-        Returns:
-            GaiaAstrometry: Copy containing only data for mpc_numbers given
+        Parameters
+        ----------
+        mpc_numbers : int | list | tuple
+            MPC numbers to keep in the copy.
+
+        Returns
+        -------
+        GaiaAstrometry
+            Copy containing only data for the given mpc_numbers.
         """
         if isinstance(mpc_numbers, int):
             mpc_numbers = [mpc_numbers]
@@ -121,15 +111,23 @@ class GaiaAstrometry:
         return new
 
     def to_tudat(self,
-                 bodies: SystemOfBodies):
-        """
-        Convert observations into Tudat ObservationCollection
+                 bodies: SystemOfBodies) -> observations.ObservationCollection:
+        """Collect all Gaia observations into an ObservationCollection and apply the
+        observation weights according to the Gaia weighting scheme.
 
-        Args:
-            bodies: SystemOfBodies object
+        Observations must be retrieved via retrieve_data or retrieve_data_locally before
+        calling.
 
-        Returns:
-            ObservationCollection: Tudat ObservationCollection containing observations of all asteroids
+        Parameters
+        ----------
+        bodies : SystemOfBodies
+            The SystemOfBodies object. Must have the object 'Gaia' loaded along with its
+            ephemeris, retrieved from get_gaia_ephemeris.
+
+        Returns
+        -------
+        ObservationCollection
+            Tudat ObservationCollection containing observations of all asteroids.
         """
         if self._table.empty:
             raise RuntimeError('No observations loaded')
@@ -226,18 +224,24 @@ class GaiaAstrometry:
                              mpc_numbers: list[int],
                              bodies: SystemOfBodies,
                              light_deflection: tuple | list = ('Sun',),
-                             correct_photocenter: bool = True):
-        """
-        Apply corrections to the observations (in-place).
+                             correct_photocenter: bool = True) -> None:
+        """Apply photocenter and/or light-deflection corrections to the observations.
 
-        Args:
-            mpc_numbers: List of asteroids to apply corrections to
-            bodies (SystemOfBodies): Bodies object which must have appropriate ephemerides loaded
-            light_deflection (list or tuple): Body objects which exert relativistic light bending
-            correct_photocenter (bool): Apply a photocenter correction
+        Corrections are made in-place, modifying the object itself. Can only be called
+        once per object.
 
-        Returns:
-            None
+        Parameters
+        ----------
+        mpc_numbers : list[int]
+            List of asteroids to apply corrections to.
+        bodies : SystemOfBodies
+            Bodies object. Must have the Gaia body and its ephemeris loaded, and a
+            reference ephemeris loaded for the asteroids over the complete timespan of
+            observations.
+        light_deflection : tuple | list, optional
+            Body names causing relativistic light bending, by default ('Sun',).
+        correct_photocenter : bool, optional
+            Whether photocenter-barycenter corrections should be applied, by default True.
         """
         if self._corrected: # Check if this function has already been used for current object
             raise RuntimeError('Observations: corrections already applied.')
@@ -273,18 +277,24 @@ class GaiaAstrometry:
     def retrieve_data(self,
                       mpc_numbers: tuple[int] | list[int],
                       catalog: str = 'FPR',
-                      username:str = None,
-                      password:str = None,):
+                      username: str | None = None,
+                      password: str | None = None) -> None:
 
-        """
-        Retrieve the astrometric observations through astroquery. Observations are stored in the observation table
-        attribute.
+        """Retrieve the astrometric observations through astroquery.
 
-        Args:
-            mpc_numbers (tuple, list): List of asteroid MPC numbers to retrieve
-            catalog (str): Which catalog to use. Options: DR2, DR3, FPR
-            username (str): Username for the Gaia archives (optional)
-            password (str): Password for the Gaia archives (optional)
+        Requires an internet connection. Login to the Gaia archive website is optional.
+        Data is stored on the table attribute.
+
+        Parameters
+        ----------
+        mpc_numbers : tuple[int] | list[int]
+            MPC numbers of the asteroids to retrieve data for.
+        catalog : str, optional
+            Gaia DR catalog to retrieve data from. Options: DR2, DR3, FPR, by default 'FPR'.
+        username : str, optional
+            Username for the Gaia archives, by default None.
+        password : str, optional
+            Password for the Gaia archives, by default None.
         """
         if not isinstance(mpc_numbers, (list,tuple)):
             mpc_numbers = [mpc_numbers]
@@ -331,13 +341,18 @@ class GaiaAstrometry:
 
     def retrieve_data_locally(self,
                               mpc_numbers: tuple[int] | list[int],
-                              archive_file_path: str | Path):
-        """
-        Retrieve astrometry locally from .parquet file (generated by generate_parquet). Mirrors retrieve_data.
+                              archive_file_path: str | Path) -> None:
+        """Retrieve astrometry locally from a .parquet file (generated by generate_parquet).
 
-        Args:
-            mpc_numbers (tuple, list): List of asteroid MPC numbers to retrieve
-            archive_file_path (str, Path): Path to archive .parquet file
+        Mirrors retrieve_data. This method of loading data can be faster when loading a lot of data or when the Gaia
+        archive is slow.
+
+        Parameters
+        ----------
+        mpc_numbers : tuple[int] | list[int]
+            List of asteroid MPC numbers to retrieve data for.
+        archive_file_path : str | Path
+            Path to the .parquet file.
         """
         if not isinstance(mpc_numbers, (list,tuple)):
             mpc_numbers = [mpc_numbers]
@@ -364,16 +379,18 @@ class GaiaAstrometry:
 
     @staticmethod
     def generate_parquet(archive_dir: Path | str,
-                         dir_to_save: Path | str):
-        """
-        Generate a parquet file from CSV files
+                         dir_to_save: Path | str) -> None:
+        """Generate a .parquet file of the Gaia archive, to be used to retrieve data locally.
 
-        Args:
-            archive_dir (Path | str): Path to the archive directory
-            dir_to_save (Path | str): Path to the directory to save the parquet file
+        Requires all .csv files to be stored in the same directory. CSV files can be
+        downloaded from: https://cdn.gea.esac.esa.int/?prefix=Gaia/
 
-        Returns:
-            None
+        Parameters
+        ----------
+        archive_dir : Path | str
+            Path to the archive directory where the CSV files are stored.
+        dir_to_save : Path | str
+            Directory where the .parquet file should be saved.
         """
         print('Loading archive from CSV files\n')
 
@@ -396,11 +413,7 @@ class GaiaAstrometry:
 
     def _convert_units(self,
                        table: pd.DataFrame) -> pd.DataFrame:
-        """
-        Convert the table columns into correct format for Tudat
-
-        :return:
-        """
+        """Convert raw table values into a tudat-compatible format."""
         # Convert epoch to seconds since J2000
         func = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
         table['epoch'] = table['epoch'].apply(func)
@@ -433,9 +446,14 @@ class GaiaAstrometry:
     def filter(self,
                epoch_start: float | datetime | DateTime,
                epoch_end: float | datetime | DateTime) -> None:
-        """
-        Filter the observations after they have been loaded (in-place)
-        :return:
+        """Filter observations (in-place) by epoch.
+
+        Parameters
+        ----------
+        epoch_start : float | datetime | DateTime
+            Lower bound for epoch.
+        epoch_end : float | datetime | DateTime
+            Upper bound for epoch.
         """
         # Check if observations have been loaded
         if len(self._table) == 0:
@@ -461,10 +479,7 @@ class GaiaAstrometry:
 
 
     def summary(self) -> None:
-        """
-        Print a convenient summary of the astrometric observations
-        :return:
-        """
+        """Print a summary of the loaded observations."""
         if len(self._table) == 0:
             print('Observations not loaded')
 
@@ -494,15 +509,21 @@ class GaiaAstrometry:
 
 
     def get_gaia_ephemeris(self,
-                           geocentric = True):
-        """
-        Get tabulated ephemeris settings generated from the achived Gaia state vectors
+                           geocentric: bool = True) -> ephemeris.EphemerisSettings:
+        """Get tabulated ephemeris settings generated from the archived Gaia state vectors.
 
-        Args:
-            geocentric (bool): If true, use geocentric Gaia states (recommended). If false, use barycentric states
+        Uses all reported state vectors in the loaded observation table.
 
-        Returns:
-            EphemerisSettings: Tabulated ephemeris settings
+        Parameters
+        ----------
+        geocentric : bool, optional
+            If True, use the geocentric variant of the Gaia state vectors. Recommended
+            because it reduces the dependency on the adopted planetary ephemeris model, by default True.
+
+        Returns
+        -------
+        TabulatedEphemerisSettings
+            Tabulated ephemeris settings of Gaia.
         """
         # Variable names for the state vector
         state_vector_labels = ['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']
@@ -525,30 +546,31 @@ class GaiaAstrometry:
 
 class GaiaAsteroids:
 
-    def __init__(self):
-        """
-        GaiaOrbits collects states and covariance as calculated by Gaia DPAC
-        """
+    def __init__(self) -> None:
+        """Create an empty GaiaAsteroids object, collecting states and covariance as
+        calculated by Gaia DPAC."""
         self._table = pd.DataFrame()
 
     @property
     def table(self) -> pd.DataFrame:
-        """
-        Return a copy of orbits table
-        """
+        """Copy of the orbits table."""
         return self._table.copy()
 
     def get_state_for_mpc(self,
-                          mpc_number: int):
-        """
-        Retrieve state vector from the table for a single MPC number
+                          mpc_number: int) -> tuple[float, np.ndarray]:
+        """Retrieve the state vector from the table for a single MPC number.
 
-        Args:
-            mpc_number (int): Asteroid to retrieve data for
+        Parameters
+        ----------
+        mpc_number : int
+            Asteroid to retrieve data for.
 
-        Returns:
-            float: epoch,
-            np.ndarray: State vector (heliocentric J2000)
+        Returns
+        -------
+        float
+            Epoch of the state vector.
+        np.ndarray
+            State vector (heliocentric J2000).
         """
         filtered = self.table.query('number_mp == @mpc_number').iloc[0]
         return filtered.epoch_state_vector, filtered.h_state_vector
@@ -556,16 +578,15 @@ class GaiaAsteroids:
 
     def retrieve_data(self,
                       mpc_numbers: int | list | tuple,
-                      catalog: str = 'FPR'):
-        """
-        Retrieve orbital solutions from astroquery (SLOW)
+                      catalog: str = 'FPR') -> None:
+        """Retrieve orbital solutions from astroquery. Requires an internet connection.
 
-        Args:
-            mpc_numbers (int, list, tuple): MPC numbers to retrieve orbits for
-            catalog (str): Catalog to retrieve data from
-
-        Returns:
-            None
+        Parameters
+        ----------
+        mpc_numbers : int | list | tuple
+            MPC numbers to retrieve orbits for.
+        catalog : str, optional
+            Catalog to retrieve data from. Options: DR2, DR3, FPR, by default 'FPR'.
         """
         if not isinstance(mpc_numbers, (list, tuple)):
             mpc_numbers = [mpc_numbers]
@@ -596,17 +617,19 @@ class GaiaAsteroids:
 
     def retrieve_data_locally(self,
                               archive_file_path: Path | str,
-                              mpc_numbers: int | list | tuple = None,):
-        """
-        Retrieve orbit data locally from .parquet file. Mirrors retrieve_data, but mpc_numbers can be empty, in which
-        case all data is retrieved.
+                              mpc_numbers: int | list | tuple | None = None) -> None:
+        """Retrieve orbit data locally from a .parquet file of the Gaia archive.
 
-        Args:
-            archive_file_path (Path | str): Path to the archive .parquet file.
-            mpc_numbers (int, list, tuple): MPC numbers to retrieve orbits for. If none, select all objects in catalog
+        Mirrors retrieve_data, but mpc_numbers can be empty, in which case all data is
+        retrieved.
 
-        Returns:
-            None
+        Parameters
+        ----------
+        archive_file_path : Path | str
+            Path to the archive .parquet file.
+        mpc_numbers : int | list | tuple, optional
+            MPC numbers to retrieve orbits for. If None, select all objects in the
+            catalog, by default None.
         """
         if isinstance(mpc_numbers, int): # Convert single mpc to list
             mpc_numbers = [mpc_numbers]
@@ -637,16 +660,17 @@ class GaiaAsteroids:
 
     @staticmethod
     def generate_parquet(archive_dir: Path | str,
-                         dir_to_save: Path | str,):
-        """
-        Generate a parquet file from CSV files
+                         dir_to_save: Path | str) -> None:
+        """Generate a .parquet file from CSV files. This file can be passed to retrieve_data_locally. All CSV files
+        labeled SsoSource_ must be in the archive directory. Files can be downloaded from
+        https://cdn.gea.esac.esa.int/?prefix=Gaia/
 
-        Args:
-            archive_dir (Path | str): Path to the archive directory
-            dir_to_save (Path | str): Path to the directory to save the parquet file
-
-        Returns:
-            None
+        Parameters
+        ----------
+        archive_dir : Path | str
+            Path to the archive directory.
+        dir_to_save : Path | str
+            Path to the directory to save the parquet file.
         """
         print('Loading archive from CSV files...\n')
 
@@ -667,16 +691,9 @@ class GaiaAsteroids:
         table.to_parquet(Path(dir_to_save) / 'gaia_source_archive.parquet')
 
     def _to_tudat_format(self,
-                         table):
-        """
-        Convert units and format to a tudat compatible format and apply scaling corrections to state vectors.
-
-        Args:
-            table (pd.DataFrame): Dataframe to format
-
-        Returns:
-            pd.DataFrame: Formatted dataframe
-        """
+                         table: pd.DataFrame) -> pd.DataFrame:
+        """Convert units and format to a tudat-compatible format and apply scaling
+        corrections to state vectors."""
         # Convert epoch to seconds since J2000
         jd_to_s = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
         table['epoch_state_vector'] = table['epoch_state_vector'].apply(jd_to_s)
@@ -721,16 +738,8 @@ class GaiaAsteroids:
 
         return table
 
-    def _add_orbital_elements(self, table):
-        """
-        Calculate and add orbital elements (heliocentric ecliptic)
-
-        Args:
-            table (pd.DataFrame): Table
-
-        Returns:
-            pd.DataFrame: Table with added orbital elements as [a,e,i,w,node,nu]
-        """
+    def _add_orbital_elements(self, table: pd.DataFrame) -> pd.DataFrame:
+        """Calculate and add orbital elements (heliocentric ecliptic)"""
         to_ecliptic = lambda x: np.concatenate((j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:]))
 
         table = table.assign(
@@ -742,10 +751,8 @@ class GaiaAsteroids:
         return table
 
 
-    def _add_convenience_columns(self, table) -> pd.DataFrame:
-        """
-        Add some columns for to make accessing elements more convenient
-        """
+    def _add_convenience_columns(self, table: pd.DataFrame) -> pd.DataFrame:
+        """Add some columns to make accessing elements more convenient."""
         # Important orbital elements
         orbital_elements = np.vstack(table.orbital_elements)
         a, e, i, _, _, _ = orbital_elements.T
