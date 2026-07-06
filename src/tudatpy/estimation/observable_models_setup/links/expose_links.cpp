@@ -337,15 +337,11 @@ Examples
 
 
       )doc" )
-            .def( py::pickle(
-                    []( const tom::LinkEndId& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                    },
-                    []( py::bytes data ) {
-                        return tudat::serialization::deserializeFromBinaryString< tom::LinkEndId >(
-                                data.cast< std::string >( ) );
-                    } ),
-                  R"doc(Pickle support for LinkEndId.)doc" );
+            .def( py::pickle( []( const tom::LinkEndId& obj ) { return py::bytes( tudat::serialization::serializeToBinaryString( obj ) ); },
+                              []( py::bytes data ) {
+                                  return tudat::serialization::deserializeFromBinaryString< tom::LinkEndId >( data.cast< std::string >( ) );
+                              } ),
+                  R"doc(Pickle support for LinkEndId.)doc" )
             .def_property_readonly( "station_name",
                                     &tom::LinkEndId::getReferencePointName,
                                     R"doc(
@@ -525,13 +521,13 @@ Examples
 
           )doc" )
             .def( py::pickle(
-                    []( const tom::LinkDefinition& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                    },
-                    []( py::bytes data ) {
-                        return tudat::serialization::deserializeFromBinaryString< tom::LinkDefinition >(
-                                data.cast< std::string >( ) );
-                    } ),
+                          []( const tom::LinkDefinition& obj ) {
+                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                          },
+                          []( py::bytes data ) {
+                              return tudat::serialization::deserializeFromBinaryString< tom::LinkDefinition >(
+                                      data.cast< std::string >( ) );
+                          } ),
                   R"doc(Pickle support for LinkDefinition.)doc" );
 
     m.def( "link_definition",
