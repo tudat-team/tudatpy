@@ -79,20 +79,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
 
     // Compute inverse of updated covariance
+    Eigen::MatrixXd estimatedParametersDesignMatrix =
+            designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ );
+    std::optional< Eigen::MatrixXd > constraintStateMultiplierOptional =
+            constraintStateMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::MatrixXd >( constraintStateMultiplier );
+    std::optional< Eigen::VectorXd > constraintRightHandSideOptional =
+            constraintStateMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::VectorXd >( constraintRightHandSide );
     Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
-            designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
+            estimatedParametersDesignMatrix,
             estimationInput->getWeightsMatrixDiagonals( ),
             normalizedInverseAprioriCovarianceMatrix,
-            constraintStateMultiplier,
-            constraintRightHandSide,
+            constraintStateMultiplierOptional,
+            constraintRightHandSideOptional,
             estimationInput->getLimitConditionNumberForWarning( ) );
 
     // Compute contribution consider parameters
     Eigen::MatrixXd covarianceContributionConsiderParameters;
     if( considerParametersIncluded_ )
     {
+        Eigen::MatrixXd normalizedCovariance = inverseNormalizedCovariance.inverse( );
         covarianceContributionConsiderParameters =
-                linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                linear_algebra::calculateConsiderParametersCovarianceContribution( normalizedCovariance,
                                                                                    designMatrixEstimatedParameters,
                                                                                    estimationInput->getWeightsMatrixDiagonals( ),
                                                                                    designMatrixConsiderParameters,

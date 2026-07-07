@@ -144,9 +144,9 @@ M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
 
         // TODO: Figure out what this does and replace with sparse compatible operations
         inverseOfCovarianceMatrix.conservativeResize( numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
-        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) = constraintMultiplier;
+        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) = *constraintMultiplier;
         inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) =
-                constraintMultiplier.transpose( );
+                constraintMultiplier->transpose( );
         inverseOfCovarianceMatrix.block( numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
     }
 
@@ -171,7 +171,13 @@ M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarian
                                                      const M& designMatrix,
                                                      const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
                                                      const M& considerDesignMatrix,
-                                                     const M& considerCovariance );
+                                                     const M& considerCovariance )
+{
+    M covarianceTimesWeightedPartials =
+            normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( );
+    return ( covarianceTimesWeightedPartials * considerDesignMatrix ) * considerCovariance *
+            ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
+}
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
@@ -197,12 +203,53 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
         const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
         const M& inverseOfAPrioriCovarianceMatrix,
         typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8,
-        const M& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const M& constraintMultiplier = M( 0, 0 ),
         const typename from_eigen<M>::dense_vector_type& constraintRightHandside =
-            from_eigen<M>::dense_vector_type(0),
+            typename from_eigen<M>::dense_vector_type(0),
         const M& designMatrixConsiderParameters = M( 0, 0 ),
         const typename from_eigen<M>::dense_vector_type& considerParametersDeviations =
-            from_eigen<M>::dense_vector_type(0));
+            typename from_eigen<M>::dense_vector_type(0))
+{
+    typename from_eigen<M>::dense_vector_type rightHandSide =
+            from_eigen<M>::dense_vector_type::Zero( observationResiduals.size( ) );
+    if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
+    {
+        rightHandSide = designMatrix.transpose( ) *
+                ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals +
+                                                       designMatrixConsiderParameters * considerParametersDeviations ) );
+    }
+    else
+    {
+        rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    }
+
+    M inverseOfCovarianceMatrix;
+    if( constraintMultiplier.rows( ) != 0 )
+    {
+        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< M >(
+                designMatrix,
+                diagonalOfWeightMatrix,
+                inverseOfAPrioriCovarianceMatrix,
+                constraintMultiplier,
+                constraintRightHandside );
+
+        int numberOfConstraints = constraintMultiplier.rows( );
+        int numberOfParameters = constraintMultiplier.cols( );
+
+        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+    }
+    else
+    {
+        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< M >(
+                designMatrix,
+                diagonalOfWeightMatrix,
+                inverseOfAPrioriCovarianceMatrix );
+    }
+
+    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
+                           inverseOfCovarianceMatrix );
+}
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!

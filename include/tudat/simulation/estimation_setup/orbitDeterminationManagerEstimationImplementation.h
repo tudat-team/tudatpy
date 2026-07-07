@@ -204,8 +204,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
         {
+            Eigen::MatrixXd normalizedCovariance = leastSquaresOutput.second.inverse( );
             covarianceContributionConsiderParameters =
-                    linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( normalizedCovariance,
                                                                                        designMatrixEstimatedParameters,
                                                                                        weightsMatrixDiagonals,
                                                                                        designMatrixConsiderParameters,
