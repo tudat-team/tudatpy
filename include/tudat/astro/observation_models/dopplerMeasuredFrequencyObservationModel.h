@@ -89,7 +89,14 @@ public:
                 linkEnds,
                 observationBiasCalculator,
                 std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                        twoWayDopplerModel->getFullLinkLightTimeCalculator( ) } ),
+                        [ &twoWayDopplerModel ]( ) {
+                            if( twoWayDopplerModel == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error when defining Doppler Measured Frequency Model: two-way Doppler model is nullptr." );
+                            }
+                            return twoWayDopplerModel->getFullLinkLightTimeCalculator( );
+                        }( ) } ),
         twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
@@ -123,7 +130,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -217,6 +224,12 @@ public:
     std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > getTwoWayDopplerModel( )
     {
         return twoWayDopplerModel_;
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return twoWayDopplerModel_->getLegLightTimeCalculators( );
     }
 
     std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )

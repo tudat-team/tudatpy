@@ -39,7 +39,7 @@ namespace electromagnetism
 class RadiationPressureTargetModel
 {
 public:
-    explicit RadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    explicit RadiationPressureTargetModel( const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         sourceToTargetOccultingBodies_( sourceToTargetOccultingBodies ), computeTorques_( false ), centerOfMassFunction_( nullptr )
     {}
 
@@ -138,18 +138,16 @@ public:
      * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
      *      to occult sources as seen from this target
      */
-    CannonballRadiationPressureTargetModel(
-            double area,
-            double coefficient,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    CannonballRadiationPressureTargetModel( double area,
+                                            double coefficient,
+                                            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), area_( area ), coefficientFunction_( nullptr ),
         currentCoefficient_( coefficient )
     {}
 
-    CannonballRadiationPressureTargetModel(
-            double area,
-            std::function< double( const double ) > coefficientFunction,
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+    CannonballRadiationPressureTargetModel( double area,
+                                            std::function< double( const double ) > coefficientFunction,
+                                            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {} ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), area_( area ), coefficientFunction_( coefficientFunction ),
         currentCoefficient_( TUDAT_NAN )
     {}
@@ -241,8 +239,8 @@ public:
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
-            const std::map< std::string, int > maximumNumberOfPixelsPerSource = { },
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = {},
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = {},
             bool panelGeometryDefined = false ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
         segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),

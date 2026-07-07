@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testEihPropagation )
         Eigen::Vector6d rmsDifference = Eigen::Vector6d::Zero( );
         Eigen::Vector6d maximumDifference = Eigen::Vector6d::Zero( );
 
-        for( auto it: integrationResult )
+        for( auto it : integrationResult )
         {
             currentDifference = ( it.second - getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, it.first ) );
             rmsDifference += currentDifference.cwiseProduct( currentDifference );

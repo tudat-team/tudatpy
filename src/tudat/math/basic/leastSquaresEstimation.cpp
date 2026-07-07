@@ -21,6 +21,46 @@ namespace tudat
 namespace linear_algebra
 {
 
+//! Function to get condition number of matrix (using SVD decomposition)
+double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix )
+{
+    return getConditionNumberOfDecomposedMatrix( ( designMatrix.jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeFullV >( ) ) );
+}
+
+//! Solve system of equations with SVD decomposition, checking condition number in the process
+Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
+                                               const Eigen::VectorXd rightHandSideVector,
+                                               const double limitConditionNumberForWarning )
+{
+    Eigen::JacobiSVD< Eigen::MatrixXd, Eigen::ComputeThinU | Eigen::ComputeThinV > svdDecomposition =
+            matrixToInvert.jacobiSvd< Eigen::ComputeThinU | Eigen::ComputeThinV >( );
+    if( limitConditionNumberForWarning == limitConditionNumberForWarning )
+    {
+        double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
+
+        if( conditionNumber > limitConditionNumberForWarning )
+        {
+            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
+        }
+    }
+    return svdDecomposition.solve( rightHandSideVector );
+}
+
+//! Function to multiply information matrix by diagonal weights matrix
+Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
+                                                            const Eigen::VectorXd& diagonalOfWeightMatrix )
+{
+    Eigen::MatrixXd weightedDesignMatrix = Eigen::MatrixXd::Zero( designMatrix.rows( ), designMatrix.cols( ) );
+
+    for( int i = 0; i < designMatrix.cols( ); i++ )
+    {
+        weightedDesignMatrix.block( 0, i, designMatrix.rows( ), 1 ) =
+                designMatrix.block( 0, i, designMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
+    }
+
+    return weightedDesignMatrix;
+}
+
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
                                                            const Eigen::VectorXd& diagonalOfWeightMatrix,
                                                            const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,

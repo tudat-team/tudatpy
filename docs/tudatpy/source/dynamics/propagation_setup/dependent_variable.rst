@@ -56,7 +56,11 @@ Functions
 
    body_fixed_groundspeed_velocity
 
+   local_wind_velocity
+
    density
+
+   number_density
 
    temperature
 
@@ -84,6 +88,14 @@ Functions
 
    total_acceleration
 
+   acceleration_partial_wrt_body_translational_state
+
+   total_acceleration_partial_wrt_body_translational_state
+
+   acceleration_derivative_partial_wrt_parameter
+
+   total_acceleration_derivative_partial_wrt_parameter
+
    single_torque_norm
 
    single_torque
@@ -105,6 +117,8 @@ Functions
    geodetic_latitude
 
    longitude
+
+   solar_longitude
 
    heading_angle
 
@@ -221,7 +235,11 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.local_wind_velocity
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.density
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.number_density
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.temperature
 
@@ -249,6 +267,14 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.acceleration_partial_wrt_body_translational_state
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration_partial_wrt_body_translational_state
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.acceleration_derivative_partial_wrt_parameter
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration_derivative_partial_wrt_parameter
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.single_torque_norm
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.single_torque
@@ -270,6 +296,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.geodetic_latitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.longitude
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.solar_longitude
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.heading_angle
 

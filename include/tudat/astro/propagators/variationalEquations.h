@@ -305,6 +305,12 @@ public:
         return statePartialAdditionIndices_;
     }
 
+    const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& getStateDerivativePartialList( )
+            const
+    {
+        return stateDerivativePartialList_;
+    }
+
     void suppressParameterCoupling( const int couplingEntriesToSuppress )
     {
         couplingEntriesToSuppress_ = couplingEntriesToSuppress;

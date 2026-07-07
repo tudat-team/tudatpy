@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
             std::pair< int, int > vehicleSunRelativePositionIndices =
                     dependentVariablesInterface->getSingleDependentVariableIndices( relativePositionDependentVariable( "Vehicle", "Sun" ) );
 
-            for( auto it: dependentVariableHistory )
+            for( auto it : dependentVariableHistory )
             {
                 Eigen::VectorXd currentBodyFixedNormals =
                         it.second.segment( bodyFixedPanelNormalIndices.first, bodyFixedPanelNormalIndices.second );
@@ -404,7 +404,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
                 auto dependentVariables = dynamicsSimulator.getDependentVariableHistory( );
 
                 BOOST_CHECK_EQUAL( dependentVariables.size( ), singleBodyDependentVariableResults.at( test ).size( ) );
-                for( auto it: singleBodyDependentVariableResults.at( test ) )
+                for( auto it : singleBodyDependentVariableResults.at( test ) )
                 {
                     BOOST_CHECK_EQUAL( dependentVariables.count( it.first ), 1 );
                     Eigen::VectorXd testVector1 = it.second;
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
                 auto numericalResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
                 BOOST_CHECK_EQUAL( numericalResults.size( ), singleBodyNumericalResults.at( test ).size( ) );
-                for( auto it: singleBodyNumericalResults.at( test ) )
+                for( auto it : singleBodyNumericalResults.at( test ) )
                 {
                     Eigen::VectorXd testVector1 = it.second;
                     Eigen::VectorXd testVector2 = numericalResults.at( it.first );

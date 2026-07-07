@@ -27,6 +27,7 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createCameras.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
@@ -89,18 +90,18 @@ struct BodySettings {
     std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
+    std::vector< std::shared_ptr< CameraSettings > > cameraSettings;
 };
 
 class SpaceTimePropertiesSettings
 {
 public:
-    SpaceTimePropertiesSettings(
-            const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
-            const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
-                    std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
-            const double equivalencePrincipleLpiViolationParameter = 0.0 ):
-        metricSettings_( metricSettings ),
-        ppnParameterSet_( ppnParameterSet ),
+    SpaceTimePropertiesSettings( const std::shared_ptr< SpaceTimeMetricSettings >& metricSettings = nullptr,
+                                 const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet =
+                                         std::make_shared< relativity::PPNParameterSet >( 1.0, 1.0 ),
+                                 const double equivalencePrincipleLpiViolationParameter = 0.0 ):
+        metricSettings_( metricSettings ), ppnParameterSet_( ppnParameterSet ),
         equivalencePrincipleLpiViolationParameter_( equivalencePrincipleLpiViolationParameter )
     {
         if( ppnParameterSet_ == nullptr )
@@ -158,10 +159,9 @@ private:
  *  \param parameterEpsilon Second-order post-Newtonian parameter epsilon.
  *  \return Shared pointer to PPN parameter settings.
  */
-inline std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet(
-        const double parameterGamma = 1.0,
-        const double parameterBeta = 1.0,
-        const double parameterEpsilon = 0.0 )
+inline std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet( const double parameterGamma = 1.0,
+                                                                       const double parameterBeta = 1.0,
+                                                                       const double parameterEpsilon = 0.0 )
 {
     return std::make_shared< relativity::PPNParameterSet >( parameterGamma, parameterBeta, 0.0, parameterEpsilon );
 }
@@ -178,8 +178,7 @@ inline std::shared_ptr< SpaceTimePropertiesSettings > spaceTimePropertiesSetting
         const std::shared_ptr< relativity::PPNParameterSet >& ppnParameterSet = nullptr,
         const double equivalencePrincipleLpiViolationParameter = 0.0 )
 {
-    return std::make_shared< SpaceTimePropertiesSettings >(
-                metricSettings, ppnParameterSet, equivalencePrincipleLpiViolationParameter );
+    return std::make_shared< SpaceTimePropertiesSettings >( metricSettings, ppnParameterSet, equivalencePrincipleLpiViolationParameter );
 }
 
 class BodyListSettings
@@ -187,18 +186,15 @@ class BodyListSettings
 public:
     BodyListSettings( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
         bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ), frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation ),
-        spaceTimePropertiesSettings_( std::make_shared< SpaceTimePropertiesSettings >( ) )
-    { }
+        frameOrientation_( frameOrientation ), spaceTimePropertiesSettings_( std::make_shared< SpaceTimePropertiesSettings >( ) )
+    {}
 
     BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings,
                       const std::string frameOrigin = "SSB",
                       const std::string frameOrientation = "ECLIPJ2000" ):
-        bodySettings_( bodySettings ),
-        frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation ),
+        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ),
         spaceTimePropertiesSettings_( std::make_shared< SpaceTimePropertiesSettings >( ) )
-    { }
+    {}
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {

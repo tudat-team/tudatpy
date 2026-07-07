@@ -61,7 +61,7 @@ public:
                     std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     //! Destructor
-    ~SphericalHarmonicsGravityPartial( ) { }
+    ~SphericalHarmonicsGravityPartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

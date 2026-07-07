@@ -32,8 +32,7 @@ namespace tudat
 namespace spice_interface
 {
 
-void loadStandardDepracatedSpiceKernels(
-        const std::vector< std::string > alternativeEphemerisKernels )
+void loadStandardDepracatedSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
 {
     std::string kernelPath = paths::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
@@ -64,7 +63,7 @@ namespace interface
 namespace spice
 {
 
-void expose_spice( py::module &m )
+void expose_spice( py::module& m )
 {
     // time related
     m.def( "convert_julian_date_to_ephemeris_time",
@@ -94,11 +93,10 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-
     m.def( "get_approximate_utc_from_tdb",
-       &tudat::spice_interface::getApproximateUtcFromTdb,
-       py::arg( "ephemeris_time" ),
-       R"doc(
+           &tudat::spice_interface::getApproximateUtcFromTdb,
+           py::arg( "ephemeris_time" ),
+           R"doc(
 
  Get an approximate UTC time from ephemeris time (TDB).
 
@@ -373,6 +371,41 @@ void expose_spice( py::module &m )
 
      )doc" );
 
+    m.def( "compute_state_rotation_matrix_between_frames",
+           &tudat::spice_interface::computeStateRotationMatrixBetweenFrames,
+           py::arg( "original_frame" ),
+           py::arg( "new_frame" ),
+           py::arg( "ephemeris_time" ),
+           R"doc(
+
+ Computes state rotation matrix between two frames.
+
+ This function computes the 6-by-6 state rotation matrix between
+ two frames at a given time instant. Kernels defining the two frames,
+ as well as any required intermediate frames, at the requested time
+ must have been loaded. Wrapper for `sxform_c`_ spice function.
+
+ .. _`sxform_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html
+
+ Parameters
+ ----------
+ original_frame
+     Reference frame from which the rotation is made.
+ new_frame
+     Reference frame to which the rotation is made.
+ ephemeris_time
+     Value of ephemeris time at which rotation is to be determined.
+ Returns
+ -------
+ State rotation matrix from original to new frame at given time.
+
+
+
+
+
+
+     )doc" );
+
     //   m.def("compute_rotation_quaternion_between_frames",
     //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
     //         py::arg("original_frame"),
@@ -447,14 +480,6 @@ void expose_spice( py::module &m )
 
 
      )doc" );
-
-    m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
-           &tudat::spice_interface::
-                   computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
-           py::arg( "original_frame" ),
-           py::arg( "new_frame" ),
-           py::arg( "ephemeris_time" ),
-           R"doc(No documentation found.)doc" );
 
     m.def( "get_body_properties",
            &tudat::spice_interface::getBodyProperties,
@@ -608,9 +633,6 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-
-
-
     m.def( "load_standard_kernels",
            &tudat::spice_interface::loadStandardSpiceKernels,
            py::arg( "alternative_kernels" ) = std::vector< std::string >( ),  // <pybind11/stl.h>
@@ -755,13 +777,9 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-    m.def( "continue_after_errors",
-           &tudat::spice_interface::toggleErrorReturn,
-           R"doc(No documentation found.)doc" );
+    m.def( "continue_after_errors", &tudat::spice_interface::toggleErrorReturn, R"doc(No documentation found.)doc" );
 
-    m.def( "suppress_error_output",
-           &tudat::spice_interface::suppressErrorOutput,
-           R"doc(No documentation found.)doc" );
+    m.def( "suppress_error_output", &tudat::spice_interface::suppressErrorOutput, R"doc(No documentation found.)doc" );
 
     //      py::class_<tudat::ephemerides::SpiceEphemeris,
     //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m,

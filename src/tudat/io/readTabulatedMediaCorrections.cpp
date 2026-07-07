@@ -31,6 +31,8 @@ AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< s
 {
     for( unsigned int i = 0; i < cspCommand.size( ); ++i )
     {
+        boost::algorithm::trim( cspCommand.at( i ) );
+
         if( cspCommand.at( i ) == "MODEL" )
         {
             modelIdentifier_ = cspCommand.at( i + 1 );
@@ -80,7 +82,7 @@ AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< s
         }
         else
         {
-            throw std::runtime_error( "Invalid CSP command for atmospheric correction file." );
+            throw std::runtime_error( "Invalid CSP command for atmospheric correction file.:" + cspCommand.at( i ) );
         }
     }
 }
@@ -258,7 +260,7 @@ std::vector< std::string > getGroundStationsNames( const std::string& groundStat
     }
     else
     {
-        groundStations = { "DSS-" + groundStationIdentifier };
+        groundStations = { "DSS-" + std::to_string( std::stoi( groundStationIdentifier ) ) };
     }
 
     return groundStations;

@@ -82,7 +82,7 @@ public:
          const double meanAnomaly,
          const double meanMotion ):
         epoch_( epoch ), bStar_( bStar ), inclination_( inclination ), rightAscension_( rightAscension ), eccentricity_( eccentricity ),
-        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ){ };
+        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ) {};
 
     double getEpoch( ) const
     {

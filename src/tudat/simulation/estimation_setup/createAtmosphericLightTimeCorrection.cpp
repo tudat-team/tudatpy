@@ -123,12 +123,25 @@ AtmosphericCorrectionPerStationAndSpacecraftType extractAtmosphericCorrection(
         {
             std::vector< observation_models::ObservableType > observableTypes = input_output::getBaseObservableTypes( observableIt->first );
 
-            for( const std::string& groundStation: groundStations )
+            for( const std::string& groundStation : groundStations )
             {
-                for( const observation_models::ObservableType& observableType: observableTypes )
+                for( const observation_models::ObservableType& observableType : observableTypes )
                 {
-                    troposphericCorrection[ std::make_pair( groundStation, source ) ][ observableType ] =
+                    auto stationSourceKey = std::make_pair( groundStation, source );
+                    auto incomingManager =
                             correctionsPerStationsAndSourcePerType.at( stationsAndSourceIt->first ).at( observableIt->first );
+
+                    if( troposphericCorrection.count( stationSourceKey ) &&
+                        troposphericCorrection.at( stationSourceKey ).count( observableType ) )
+                    {
+                        troposphericCorrection.at( stationSourceKey ).at( observableType )->addOther( *incomingManager );
+                    }
+                    else
+                    {
+                        auto newManager = std::make_shared< observation_models::TabulatedMediaReferenceCorrectionManager >( );
+                        newManager->addOther( *incomingManager );
+                        troposphericCorrection[ stationSourceKey ][ observableType ] = newManager;
+                    }
                 }
             }
         }

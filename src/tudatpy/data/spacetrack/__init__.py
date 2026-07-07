@@ -1,4 +1,1 @@
-from .spacetrack import (
-    SpaceTrackQuery,
-    OMMUtils
-)
+from .spacetrack import SpaceTrackQuery, OMMUtils

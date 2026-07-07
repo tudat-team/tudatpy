@@ -35,6 +35,8 @@ Functions
 
    spherical_harmonic_coefficients_from_inertia
 
+   transform_spherical_harmonic_coefficients_with_wigner_d
+
 
 
 .. autofunction:: tudatpy.astro.gravitation.legendre_normalization_factor
@@ -45,9 +47,28 @@ Functions
 
 .. autofunction:: tudatpy.astro.gravitation.spherical_harmonic_coefficients_from_inertia
 
+.. autofunction:: tudatpy.astro.gravitation.transform_spherical_harmonic_coefficients_with_wigner_d
 
 
 
 
+
+Classes
+-------
+.. currentmodule:: tudatpy.astro.gravitation
+
+.. autosummary::
+
+   WignerDMatricesCache
+
+   SphericalHarmonicTransformationCache
+
+
+
+.. autoclass:: tudatpy.astro.gravitation.WignerDMatricesCache
+   :members:
+
+.. autoclass:: tudatpy.astro.gravitation.SphericalHarmonicTransformationCache
+   :members:
 
 

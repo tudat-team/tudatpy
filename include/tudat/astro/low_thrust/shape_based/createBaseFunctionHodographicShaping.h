@@ -26,10 +26,10 @@ class BaseFunctionHodographicShapingSettings
 {
 public:
     //! Default, empty constructor.
-    BaseFunctionHodographicShapingSettings( ) { }
+    BaseFunctionHodographicShapingSettings( ) {}
 
     //! Destructor.
-    virtual ~BaseFunctionHodographicShapingSettings( ) { }
+    virtual ~BaseFunctionHodographicShapingSettings( ) {}
 };
 
 //! Settings class for hodographic shaping trigonometric function (either sine or cosine).
@@ -41,7 +41,7 @@ public:
      *  Constructor to set frequency for a trigonometric function (either sine or cosine).
      *  \param frequency Frequency of the trigonometric function.
      */
-    TrigonometricFunctionHodographicShapingSettings( const double frequency ): frequency_( frequency ) { }
+    TrigonometricFunctionHodographicShapingSettings( const double frequency ): frequency_( frequency ) {}
 
     //! Frequency of the trigonometric function.
     double frequency_;
@@ -59,7 +59,7 @@ public:
      */
     ExponentialFunctionHodographicShapingSettings( const double exponent, const double scaleFactor = 1.0 ):
         exponent_( exponent ), scaleFactor_( scaleFactor )
-    { }
+    {}
 
     //! Exponent of the exponential function.
     double exponent_;
@@ -83,7 +83,7 @@ public:
                                                                      const double frequency,
                                                                      const double scaleFactor = 1.0 ):
         exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor )
-    { }
+    {}
 
     //! Exponent of the exponential function.
     double exponent_;
@@ -107,7 +107,7 @@ public:
      */
     PowerFunctionHodographicShapingSettings( const double exponent, const double scaleFactor = 1.0 ):
         exponent_( exponent ), scaleFactor_( scaleFactor )
-    { }
+    {}
 
     //! Exponent of the power function.
     double exponent_;
@@ -131,7 +131,7 @@ public:
                                                                const double frequency,
                                                                const double scaleFactor = 1.0 ):
         exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor )
-    { }
+    {}
 
     //! Exponent of the power function.
     double exponent_;

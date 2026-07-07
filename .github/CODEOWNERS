@@ -1,9 +1,26 @@
 # Codeowners file for the tudatpy repository
 
-# These owners will be the default owners for everything in the repo. 
-# Unless a later match takes precedence, they will be requested for 
+# These owners will be the default owners for everything in the repo.
+# Unless a later match takes precedence, they will be requested for
 # review when someone opens a pull request.
 * @DominicDirkx
 
 # Protect the entire .github folder (and specifically this file)
+# Request reviews for changes in the .github folder
 /.github/ @DominicDirkx
+
+# Astrometry-Dev/mpc team owns any files in the /src/tudatpy/data/mpc
+# directory at the root of the repository and any of its
+# subdirectories.
+/src/tudatpy/data/mpc/ @tudat-team/mpc
+
+# Astrometry-Dev team owns any files in the /src/tudatpy/data/horizons
+# directory at the root of the repository and any of its
+# subdirectories.
+/src/tudatpy/data/horizons/ @tudat-team/astrometry-dev
+
+# Radio-Science-Dev team owns any files in the /src/tudatpy/data/processTrk234 and /src/tudatpy/data/mission_data_downloader
+# directory at the root of the repository and any of its
+# subdirectories.
+/src/tudatpy/data/processTrk234/ @tudat-team/radio-science-dev
+/src/tudatpy/data/mission_data_downloader/ @tudat-team/radio-science-dev

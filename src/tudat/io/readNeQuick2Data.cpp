@@ -56,8 +56,7 @@ CcirData readCcirCoefficients( const std::string& dataPath )
         if( values.size( ) < expectedF2 + expectedFM3 )
         {
             throw std::runtime_error( "CCIR file " + filePath + " has insufficient data: expected " +
-                                      std::to_string( expectedF2 + expectedFM3 ) + " values, got " +
-                                      std::to_string( values.size( ) ) );
+                                      std::to_string( expectedF2 + expectedFM3 ) + " values, got " + std::to_string( values.size( ) ) );
         }
 
         // Parse F2 coefficients: F2(j, i, k) with j=1..13 (cols), i=1..76 (rows), k=1..2 (solar activity)
@@ -156,7 +155,7 @@ Eigen::MatrixXd readModipGrid( const std::string& dataPath )
     // Longitude wrapping: pmodip(i, -1) = pmodip(i, lngp-1), pmodip(i, lngp+1) = pmodip(i, 1)
     for( int i = 0; i < 184; ++i )
     {
-        pmodip( i, 0 ) = pmodip( i, lngp );   // col -1 -> col lngp-1 (with +1 offset: 0 -> lngp)
+        pmodip( i, 0 ) = pmodip( i, lngp );      // col -1 -> col lngp-1 (with +1 offset: 0 -> lngp)
         pmodip( i, lngp + 2 ) = pmodip( i, 2 );  // col lngp+1 -> col 1 (with +1 offset: lngp+2 -> 2)
     }
 

@@ -15,7 +15,7 @@ namespace tudatpy
 namespace data
 {
 
-void expose_data( py::module &m );
+void expose_data( py::module& m );
 
 }
 }  // namespace tudatpy

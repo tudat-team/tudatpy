@@ -45,11 +45,13 @@ enum AvailableAcceleration {
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
+    full_two_body_spherical_harmonic_gravity,
     polyhedron_gravity,
     ring_gravity,
     third_body_point_mass_gravity,
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
+    third_body_full_two_body_spherical_harmonic_gravity,
     third_body_polyhedron_gravity,
     third_body_ring_gravity,
     thrust_acceleration,
@@ -57,9 +59,9 @@ enum AvailableAcceleration {
     empirical_acceleration,
     direct_tidal_dissipation_in_central_body_acceleration,
     direct_tidal_dissipation_in_orbiting_body_acceleration,
-    radiation_pressure = 18,
+    radiation_pressure,
     momentum_wheel_desaturation_acceleration,
-    custom_acceleration = 20,
+    custom_acceleration,
     einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration,
     rtg_acceleration,
@@ -93,8 +95,6 @@ AvailableAcceleration getAccelerationModelType(
         const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel );
 
 bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType );
-
-
 
 // Function to identify the type of a mass rate model.
 /*

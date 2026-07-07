@@ -24,7 +24,7 @@ namespace propagation_setup
 namespace propagator
 {
 
-void expose_propagator_setup( py::module &m );
+void expose_propagator_setup( py::module& m );
 
 }  // namespace propagator
 }  // namespace propagation_setup

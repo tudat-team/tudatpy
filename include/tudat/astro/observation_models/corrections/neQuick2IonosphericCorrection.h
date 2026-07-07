@@ -46,32 +46,32 @@ namespace observation_models
 class NeQuick2IonosphericCorrection : public LightTimeCorrection
 {
 public:
-
-    NeQuick2IonosphericCorrection(
-        std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
-        std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
-        std::shared_ptr< environment::IonosphereModel > ionexModel,
-        const ObservableType observableType,
-        std::function< Eigen::Vector6d( double ) > earthStateFunction,
-        std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
-        double earthEquatorialRadius,
-        double firstOrderDelayCoefficient = 40.3,
-        int quadratureOrder = 50,
-        double ionexRmsBiasTecu = 0.0 );
+    NeQuick2IonosphericCorrection( std::shared_ptr< environment::NeQuick2Model > neQuick2Model,
+                                   std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel,
+                                   std::shared_ptr< environment::IonosphereModel > ionexModel,
+                                   const ObservableType observableType,
+                                   std::function< Eigen::Vector6d( double ) > earthStateFunction,
+                                   std::function< Eigen::Matrix3d( double ) > earthRotationToBodyFixedFunction,
+                                   double earthEquatorialRadius,
+                                   double firstOrderDelayCoefficient = 40.3,
+                                   int quadratureOrder = 50,
+                                   double ionexRmsBiasTecu = 0.0 );
 
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-        const std::vector< Eigen::Vector6d >& linkEndsStates,
-        const std::vector< double >& linkEndsTimes,
-        const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings ) override;
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     //! Get the last computed 1-sigma ionospheric correction uncertainty [seconds].
     //! Valid only after calculateLightTimeCorrectionWithMultiLegLinkEndStates has been called
     //! and IONEX RMS data is available. Returns 0 if RMS data is unavailable.
-    double getLastCorrectionUncertainty( ) const { return lastCorrectionUncertaintySigma_; }
+    double getLastCorrectionUncertainty( ) const
+    {
+        return lastCorrectionUncertaintySigma_;
+    }
 
 private:
-
     std::shared_ptr< environment::NeQuick2Model > neQuick2Model_;
     std::shared_ptr< environment::IonexConstrainedNeQuick2Model > rescaledModel_;
     std::shared_ptr< environment::IonosphereModel > ionexModel_;

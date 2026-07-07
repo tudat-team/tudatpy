@@ -82,7 +82,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AerodynamicCoef
                 const std::map< int, std::string > forceCoefficientsFilesMap =
                         fromFileAerodynamicCoefficientSettings->getForceCoefficientsFiles( );
                 jsonObject[ K::forceCoefficients ] = { "", "", "" };
-                for( auto entry: forceCoefficientsFilesMap )
+                for( auto entry : forceCoefficientsFilesMap )
                 {
                     jsonObject[ K::forceCoefficients ][ entry.first ] = boost::filesystem::path( entry.second );
                 }
@@ -92,7 +92,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AerodynamicCoef
                     const std::map< int, std::string > momentCoefficientsFilesMap =
                             fromFileAerodynamicCoefficientSettings->getMomentCoefficientsFiles( );
                     jsonObject[ K::momentCoefficients ] = { "", "", "" };
-                    for( auto entry: momentCoefficientsFilesMap )
+                    for( auto entry : momentCoefficientsFilesMap )
                     {
                         jsonObject[ K::momentCoefficients ][ entry.first ] = boost::filesystem::path( entry.second );
                     }

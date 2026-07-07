@@ -19,7 +19,7 @@ namespace tudatpy
 {
 namespace interface
 {
-void expose_interface( py::module &m );
+void expose_interface( py::module& m );
 }  // namespace interface
 }  // namespace tudatpy
 

@@ -47,10 +47,10 @@ public:
      * Constructor
      * \param correctionType Type of light-time correction for which partial is to be computed
      */
-    LightTimeCorrectionPartial( const observation_models::LightTimeCorrectionType correctionType ): correctionType_( correctionType ) { }
+    LightTimeCorrectionPartial( const observation_models::LightTimeCorrectionType correctionType ): correctionType_( correctionType ) {}
 
     //! Destructor
-    virtual ~LightTimeCorrectionPartial( ) { }
+    virtual ~LightTimeCorrectionPartial( ) {}
 
     //! Function to return type of light-time correction for which partial is to be computed
     /*!

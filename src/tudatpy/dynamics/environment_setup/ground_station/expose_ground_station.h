@@ -24,7 +24,7 @@ namespace environment_setup
 namespace ground_station
 {
 
-void expose_ground_station_setup( py::module &m );
+void expose_ground_station_setup( py::module& m );
 
 }  // namespace ground_station
 }  // namespace environment_setup

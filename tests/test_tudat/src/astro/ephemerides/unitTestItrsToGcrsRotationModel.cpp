@@ -17,6 +17,7 @@
 
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
+#include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
@@ -178,6 +179,70 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
             {
                 BOOST_CHECK_SMALL( sofaCookbookResult( i, j ) - tudatResultPrecise( i, j ), 1.0E-15 );
             }
+        }
+    }
+}
+
+//! Test rotations between IERS intermediate frames.
+BOOST_AUTO_TEST_CASE( test_RotationBetweenIntermediateFrames )
+{
+    double testTime = 1.0E8;
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ) );
+
+    std::pair< Eigen::Vector5d, double > rotationAnglesAndUt1 =
+            earthRotationModel->getAnglesCalculator( )->getRotationAnglesFromItrsToGcrs< double >( testTime, tdb_scale );
+    Eigen::Vector5d rotationAngles = rotationAnglesAndUt1.first;
+
+    Eigen::Matrix3d expectedItrsToTirs =
+            calculateRotationFromItrsToTirs( rotationAngles[ 3 ], rotationAngles[ 4 ], getApproximateTioLocator( testTime ) )
+                    .toRotationMatrix( );
+    Eigen::Matrix3d expectedTirsToCirs =
+            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesAndUt1.second ) )
+                    .toRotationMatrix( );
+    Eigen::Matrix3d expectedCirsToIcrs =
+            calculateRotationFromCirsToGcrs( rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ] ).toRotationMatrix( );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::tirs, testTime )
+                    .toRotationMatrix( ),
+            expectedItrsToTirs,
+            ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::cirs, testTime )
+                    .toRotationMatrix( ),
+            expectedTirsToCirs,
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::cirs, EarthOrientationIntermediateFrame::icrs, testTime )
+                    .toRotationMatrix( ),
+            expectedCirsToIcrs,
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::itrs, EarthOrientationIntermediateFrame::icrs, testTime )
+                    .toRotationMatrix( ),
+            earthRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
+            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+    Eigen::Matrix3d expectedTirsToItrs = expectedItrsToTirs.transpose( );
+    Eigen::Matrix3d tirsToItrs =
+            earthRotationModel
+                    ->getRotationBetweenIntermediateFrames(
+                            EarthOrientationIntermediateFrame::tirs, EarthOrientationIntermediateFrame::itrs, testTime )
+                    .toRotationMatrix( );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( tirsToItrs( i, j ) - expectedTirsToItrs( i, j ) ), 1.0E-15 );
         }
     }
 }

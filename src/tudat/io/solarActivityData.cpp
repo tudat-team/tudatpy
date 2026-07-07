@@ -42,7 +42,7 @@ SolarActivityData::SolarActivityData( const int yearInput, const int monthInput,
     centered81DaySolarRadioFlux107Adjusted( -0.0 ), last81DaySolarRadioFlux107Adjusted( -0.0 ), solarRadioFlux107Observed( -0.0 ),
     centered81DaySolarRadioFlux107Observed( -0.0 ), last81DaySolarRadioFlux107Observed( -0.0 ),
     planetaryRangeIndexVector( Eigen::VectorXd::Zero( 8 ) ), planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero( 8 ) ), dataType( 0 )
-{ }
+{}
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, SolarActivityData& solarActivityData )

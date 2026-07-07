@@ -94,7 +94,7 @@ public:
         MultiDimensionalInterpolator(
                 boundaryHandling,
                 std::vector< std::pair< DependentVariableType, DependentVariableType > >( NumberOfDimensions, defaultExtrapolationValue ) )
-    { }
+    {}
 
     //! Constructor taking single default value.
     /*!
@@ -110,13 +110,13 @@ public:
                                       std::vector< std::pair< DependentVariableType, DependentVariableType > >(
                                               NumberOfDimensions,
                                               std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) )
-    { }
+    {}
 
     //! Destructor.
     /*!
      *  Destructor.
      */
-    virtual ~MultiDimensionalInterpolator( ) { }
+    virtual ~MultiDimensionalInterpolator( ) {}
 
     //! Function to perform interpolation.
     /*!

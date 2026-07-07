@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -23,7 +22,7 @@ namespace dynamics
 namespace propagation_setup
 {
 
-void expose_propagation_setup( py::module &m );
+void expose_propagation_setup( py::module& m );
 
 }  // namespace propagation_setup
 }  // namespace dynamics
