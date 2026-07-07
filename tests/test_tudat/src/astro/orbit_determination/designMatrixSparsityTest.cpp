@@ -136,6 +136,25 @@ int main( )
         throw std::runtime_error( "Sparse design covariance test produced an inverse covariance matrix with inconsistent dimensions." );
     }
 
+    std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+            observations, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
+    estimationInput->defineEstimationSettings( true, true, false, false, false, false );
+    std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+    const Eigen::MatrixXd estimationInverseCovariance = estimationOutput->getNormalizedInverseCovarianceMatrix( );
+    if( estimationInverseCovariance.rows( ) != numberOfEstimatedParameters ||
+        estimationInverseCovariance.cols( ) != numberOfEstimatedParameters )
+    {
+        throw std::runtime_error( "Sparse design estimation test produced an inverse covariance matrix with inconsistent dimensions." );
+    }
+    if( estimationOutput->normalizedDesignMatrix_.rows( ) != 0 || estimationOutput->normalizedDesignMatrix_.cols( ) != 0 )
+    {
+        throw std::runtime_error( "Sparse design estimation test unexpectedly saved a dense design matrix." );
+    }
+    if( estimationOutput->residuals_.rows( ) != 3 * totalNumberOfObservations )
+    {
+        throw std::runtime_error( "Sparse design estimation test produced a residual vector with inconsistent dimensions." );
+    }
+
     const int numberOfDesignMatrixRows = 3 * totalNumberOfObservations;
     const int numberOfDesignMatrixColumns = numberOfEstimatedParameters;
     const long long designMatrixEntries = static_cast< long long >( numberOfDesignMatrixRows ) * numberOfDesignMatrixColumns;

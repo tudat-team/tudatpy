@@ -163,9 +163,15 @@ template< typename ObservationScalarType,
 void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovarianceDesignMatricesSparse(
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
-        Eigen::MatrixXd& designMatrixConsiderParameters )
+        Eigen::MatrixXd& designMatrixConsiderParameters,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >* residuals )
 {
     const int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+    if( residuals != nullptr )
+    {
+        *residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalNumberOfObservations, 1 );
+    }
 
     std::vector< Eigen::Triplet< double > > estimatedParameterTriplets;
     estimatedParameterTriplets.reserve( static_cast< std::size_t >( totalNumberOfObservations ) * 6 );
@@ -198,7 +204,10 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::comput
 
                 if( observationIndices.second > 0 )
                 {
-                    const std::vector< TimeType >& observationTimes = currentObservations->getObservationTimes( );
+                    const std::vector< TimeType >& observationTimes = currentObservations->getObservationTimesReference( );
+                    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservationVector =
+                            residuals == nullptr ? Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >( ) :
+                                                   currentObservations->getObservationsVector( );
                     const int rowsPerObservation = observationIndices.second / static_cast< int >( observationTimes.size( ) );
                     if( rowsPerObservation * static_cast< int >( observationTimes.size( ) ) != observationIndices.second )
                     {
@@ -225,10 +234,17 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::comput
                                                                    currentObservations->getAncillarySettings( ),
                                                                    observationsVector,
                                                                    partialsMatrix,
-                                                                   false,
+                                                                   residuals != nullptr,
                                                                    true );
 
                         const int rowOffset = observationIndices.first + firstObservation * rowsPerObservation;
+                        if( residuals != nullptr )
+                        {
+                            residuals->block( rowOffset, 0, partialsMatrix.rows( ), 1 ) =
+                                    currentObservationVector.segment( firstObservation * rowsPerObservation, partialsMatrix.rows( ) ) -
+                                    observationsVector;
+                        }
+
                         for( int row = 0; row < partialsMatrix.rows( ); row++ )
                         {
                             for( unsigned int column = 0; column < numberEstimatedParameters_; column++ )

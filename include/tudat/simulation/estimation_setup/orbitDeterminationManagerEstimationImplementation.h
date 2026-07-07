@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <type_traits>
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
@@ -106,13 +107,138 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Compute design matrices (for estimated and consider parameters) and residuals.
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-                designMatricesAndResiduals = performPreEstimationSteps(
-                        estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
-        Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
         Eigen::MatrixXd designMatrixConsiderParameters;
-        designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+        Eigen::MatrixXd designMatrixEstimatedParametersForSaving = Eigen::MatrixXd::Zero( 0, 0 );
+
+        Eigen::VectorXd normalizationTerms;
+        Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
+        Eigen::MatrixXd normalizedConsiderCovariance;
+        std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
+        Eigen::MatrixXd covarianceContributionConsiderParameters;
+
+        auto processCurrentDesignMatrix = [&]( auto& designMatrixEstimatedParameters )
+        {
+            typedef typename std::decay< decltype( designMatrixEstimatedParameters ) >::type EstimatedDesignMatrixType;
+
+            if constexpr( std::is_same< EstimatedDesignMatrixType, Eigen::SparseMatrix< double > >::value )
+            {
+                normalizationTerms = normalizeSparseDesignMatrix( designMatrixEstimatedParameters );
+            }
+            else
+            {
+                normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
+                if( estimationInput->getSaveDesignMatrix( ) )
+                {
+                    designMatrixEstimatedParametersForSaving = designMatrixEstimatedParameters;
+                }
+            }
+
+            Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
+                    estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
+
+            // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
+            if( considerParametersIncluded_ )
+            {
+                normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
+                getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
+                if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
+                {
+                    normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                }
+                else
+                {
+                    normalizedConsiderParametersDeviation =
+                            estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                }
+            }
+            else
+            {
+                normalizationTermsConsider = Eigen::VectorXd::Zero( 0 );
+                normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
+                normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( 0 );
+            }
+
+            // Perform least squares calculation for correction to parameter vector.
+            try
+            {
+                // Get constraints
+                Eigen::MatrixXd constraintStateMultiplier;
+                Eigen::VectorXd constraintRightHandSide;
+                parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+
+                double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
+                if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
+                {
+                    conditionNumberCheck = TUDAT_NAN;
+                }
+                // Perform LSQ inversion
+                leastSquaresOutput =
+                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                                  residuals.template cast< double >( ),
+                                                                                                  weightsMatrixDiagonals,
+                                                                                                  normalizedInverseAprioriCovarianceMatrix,
+                                                                                                  conditionNumberCheck,
+                                                                                                  constraintStateMultiplier,
+                                                                                                  constraintRightHandSide,
+                                                                                                  designMatrixConsiderParameters,
+                                                                                                  normalizedConsiderParametersDeviation ) );
+
+                if( constraintStateMultiplier.rows( ) > 0 )
+                {
+                    leastSquaresOutput.first.conservativeResize( numberEstimatedParameters_ );
+                }
+            }
+            catch( std::runtime_error& error )
+            {
+                std::cerr << "Error when solving normal equations during parameter estimation: " << std::endl
+                          << error.what( ) << std::endl
+                          << "Terminating estimation" << std::endl;
+                exceptionDuringInversion = true;
+                return;
+            }
+
+            // Compute contribution consider parameters
+            if( considerParametersIncluded_ )
+            {
+                Eigen::MatrixXd normalizedCovariance = leastSquaresOutput.second.inverse( );
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( normalizedCovariance,
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrixDiagonals,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
+            else
+            {
+                covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
+            }
+        };
+
+        if( estimationInput->getSaveDesignMatrix( ) )
+        {
+            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                    designMatricesAndResiduals = performPreEstimationSteps(
+                            estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            residuals = designMatricesAndResiduals.second;
+            designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+            processCurrentDesignMatrix( designMatricesAndResiduals.first.first );
+        }
+        else
+        {
+            std::pair< std::pair< Eigen::SparseMatrix< double >, Eigen::MatrixXd >,
+                       Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                    designMatricesAndResiduals = performPreEstimationSteps< Eigen::SparseMatrix< double > >(
+                            estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            residuals = designMatricesAndResiduals.second;
+            designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+            processCurrentDesignMatrix( designMatricesAndResiduals.first.first );
+        }
+
+        if( exceptionDuringInversion )
+        {
+            break;
+        }
 
         // Set simulation results
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
@@ -120,95 +246,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             simulationResultsPerIteration.push_back( simulationResults->clone( ) );
         }
 
-        // Normalise estimated parameters partials and inverse apriori covariance
-        Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
-        Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
-
-        // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
-        Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
-        Eigen::MatrixXd normalizedConsiderCovariance;
-        if( considerParametersIncluded_ )
-        {
-            normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
-            getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
-            if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
-            {
-                normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
-            }
-            else
-            {
-                normalizedConsiderParametersDeviation =
-                        estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
-            }
-        }
-        else
-        {
-            normalizationTermsConsider = Eigen::VectorXd::Zero( 0 );
-            normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
-            normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( 0 );
-        }
-
-        // Perform least squares calculation for correction to parameter vector.
-        std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
-        try
-        {
-            // Get constraints
-            Eigen::MatrixXd constraintStateMultiplier;
-            Eigen::VectorXd constraintRightHandSide;
-            parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-
-            double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
-            if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
-            {
-                conditionNumberCheck = TUDAT_NAN;
-            }
-            // Perform LSQ inversion
-            leastSquaresOutput =
-                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                              residuals.template cast< double >( ),
-                                                                                              weightsMatrixDiagonals,
-                                                                                              normalizedInverseAprioriCovarianceMatrix,
-                                                                                              conditionNumberCheck,
-                                                                                              constraintStateMultiplier,
-                                                                                              constraintRightHandSide,
-                                                                                              designMatrixConsiderParameters,
-                                                                                              normalizedConsiderParametersDeviation ) );
-
-            if( constraintStateMultiplier.rows( ) > 0 )
-            {
-                leastSquaresOutput.first.conservativeResize( numberEstimatedParameters_ );
-            }
-        }
-        catch( std::runtime_error& error )
-        {
-            std::cerr << "Error when solving normal equations during parameter estimation: " << std::endl
-                      << error.what( ) << std::endl
-                      << "Terminating estimation" << std::endl;
-            exceptionDuringInversion = true;
-            break;
-        }
-
         ParameterVectorType parameterAddition =
                 ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) )
                         .template cast< ObservationScalarType >( );
-
-        // Compute contribution consider parameters
-        Eigen::MatrixXd covarianceContributionConsiderParameters;
-        if( considerParametersIncluded_ )
-        {
-            Eigen::MatrixXd normalizedCovariance = leastSquaresOutput.second.inverse( );
-            covarianceContributionConsiderParameters =
-                    linear_algebra::calculateConsiderParametersCovarianceContribution( normalizedCovariance,
-                                                                                       designMatrixEstimatedParameters,
-                                                                                       weightsMatrixDiagonals,
-                                                                                       designMatrixConsiderParameters,
-                                                                                       normalizedConsiderCovariance );
-        }
-        else
-        {
-            covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
-        }
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
@@ -257,7 +297,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             estimationInput->getObservationCollection( )->setResiduals( residuals );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
-                bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
+                bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParametersForSaving );
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
             }
             bestWeightsMatrixDiagonal = weightsMatrixDiagonals;
@@ -470,11 +510,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
 {
     static_assert( std::is_same< EstimatedDesignMatrixType, Eigen::SparseMatrix< double > >::value,
                    "This pre-estimation overload is currently only implemented for sparse estimated-parameter design matrices." );
-    if( calculateResiduals )
-    {
-        throw std::runtime_error( "Sparse pre-estimation steps are currently only implemented for covariance analysis." );
-    }
-
     const int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
     try
@@ -508,10 +543,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
 
     EstimatedDesignMatrixType designMatrixEstimatedParameters;
     Eigen::MatrixXd designMatrixConsiderParameters;
-    computeCovarianceDesignMatricesSparse( estimationInput, designMatrixEstimatedParameters, designMatrixConsiderParameters );
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
+    computeCovarianceDesignMatricesSparse(
+            estimationInput, designMatrixEstimatedParameters, designMatrixConsiderParameters, calculateResiduals ? &residuals : nullptr );
 
-    return std::make_pair( std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters ),
-                           Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >( ) );
+    return std::make_pair( std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters ), residuals );
 }
 
 }  // namespace simulation_setup

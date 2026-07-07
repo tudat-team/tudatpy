@@ -289,7 +289,8 @@ protected:
     void computeCovarianceDesignMatricesSparse(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
-            Eigen::MatrixXd& designMatrixConsiderParameters );
+            Eigen::MatrixXd& designMatrixConsiderParameters,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >* residuals = nullptr );
 
     Eigen::VectorXd normalizeSparseDesignMatrix( Eigen::SparseMatrix< double >& observationMatrix );
 

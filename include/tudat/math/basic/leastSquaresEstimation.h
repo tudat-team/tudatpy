@@ -207,22 +207,23 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
  * \param constraintRightHandside Right-hand side estimation linear constraint
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
-template <typename M>
-std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
-        const M& designMatrix,
-        const typename from_eigen<M>::dense_vector_type& observationResiduals,
-        const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
-        const M& inverseOfAPrioriCovarianceMatrix,
-        typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8,
-        const M& constraintMultiplier = M( 0, 0 ),
-        const typename from_eigen<M>::dense_vector_type& constraintRightHandside =
-            typename from_eigen<M>::dense_vector_type(0),
-        const M& designMatrixConsiderParameters = M( 0, 0 ),
-        const typename from_eigen<M>::dense_vector_type& considerParametersDeviations =
-            typename from_eigen<M>::dense_vector_type(0))
+template <typename DesignMatrixType>
+std::pair< typename from_eigen<DesignMatrixType>::dense_vector_type, Eigen::MatrixXd >
+performLeastSquaresAdjustmentFromDesignMatrix(
+        const DesignMatrixType& designMatrix,
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& observationResiduals,
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        typename from_eigen<DesignMatrixType>::value_type limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& constraintRightHandside =
+                typename from_eigen<DesignMatrixType>::dense_vector_type( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& considerParametersDeviations =
+                typename from_eigen<DesignMatrixType>::dense_vector_type( 0 ) )
 {
-    typename from_eigen<M>::dense_vector_type rightHandSide =
-            from_eigen<M>::dense_vector_type::Zero( observationResiduals.size( ) );
+    typename from_eigen<DesignMatrixType>::dense_vector_type rightHandSide =
+            from_eigen<DesignMatrixType>::dense_vector_type::Zero( observationResiduals.size( ) );
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
         rightHandSide = designMatrix.transpose( ) *
@@ -237,12 +238,12 @@ std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performL
     Eigen::MatrixXd inverseOfCovarianceMatrix;
     if( constraintMultiplier.rows( ) != 0 )
     {
-        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< M >(
+        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< DesignMatrixType >(
                 designMatrix,
                 diagonalOfWeightMatrix,
                 inverseOfAPrioriCovarianceMatrix,
                 std::optional< Eigen::MatrixXd >( constraintMultiplier ),
-                std::optional< typename from_eigen<M>::dense_vector_type >( constraintRightHandside ) );
+                std::optional< typename from_eigen<DesignMatrixType>::dense_vector_type >( constraintRightHandside ) );
 
         int numberOfConstraints = constraintMultiplier.rows( );
         int numberOfParameters = constraintMultiplier.cols( );
@@ -252,7 +253,7 @@ std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performL
     }
     else
     {
-        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< M >(
+        inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< DesignMatrixType >(
                 designMatrix,
                 diagonalOfWeightMatrix,
                 inverseOfAPrioriCovarianceMatrix );
