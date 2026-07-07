@@ -15,13 +15,18 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <type_traits>
+#include <variant>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <Eigen/SparseCore>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/math/basic/leastSquaresTraits.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
@@ -41,7 +46,7 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
+        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true ), useSparseDesignMatrix_( false )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
         //        setConstantWeightsMatrix( 1.0 );
@@ -471,6 +476,16 @@ public:
         return printOutput_;
     }
 
+    void setUseSparseDesignMatrix( const bool useSparseDesignMatrix )
+    {
+        useSparseDesignMatrix_ = useSparseDesignMatrix;
+    }
+
+    bool getUseSparseDesignMatrix( ) const
+    {
+        return useSparseDesignMatrix_;
+    }
+
     void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
                                    const bool saveDesignMatrix = 1,
@@ -515,6 +530,9 @@ protected:
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
+
+    //! Boolean denoting whether the design matrix is assembled and processed with sparse storage.
+    bool useSparseDesignMatrix_;
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
@@ -742,11 +760,16 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
-    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+    using DenseDesignMatrix = Eigen::MatrixXd;
+    using SparseDesignMatrix = typename linear_algebra::MatrixTraits< double, linear_algebra::Sparse >::matrix_type;
+    using DesignMatrixStorage = std::variant< DenseDesignMatrix, SparseDesignMatrix >;
+
+    template< typename DesignMatrixType = Eigen::MatrixXd, typename ConsiderDesignMatrixType = Eigen::MatrixXd >
+    CovarianceAnalysisOutput( const DesignMatrixType& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
                               const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
-                              const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                              const ConsiderDesignMatrixType& normalizedDesignMatrixConsiderParameters = ConsiderDesignMatrixType( 0, 0 ),
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -758,8 +781,7 @@ struct CovarianceAnalysisOutput {
         considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
-        if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
-            ( normalizedDesignMatrixConsiderParameters.rows( ) == 0 ) && ( normalizedDesignMatrixConsiderParameters.cols( ) == 0 ) &&
+        if( isEmptyDesignMatrix( normalizedDesignMatrix_ ) && isEmptyDesignMatrix( normalizedDesignMatrixConsiderParameters_ ) &&
             !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
         {
             designMatrixSaved_ = false;
@@ -769,7 +791,7 @@ struct CovarianceAnalysisOutput {
             designMatrixSaved_ = true;
         }
         considerParametersIncluded_ = false;
-        if( normalizedDesignMatrixConsiderParameters.size( ) > 0 && considerNormalizationFactors.size( ) > 0 &&
+        if( getDesignMatrixSize( normalizedDesignMatrixConsiderParameters_ ) > 0 && considerNormalizationFactors.size( ) > 0 &&
             considerCovarianceContribution.size( ) > 0 )
         {
             considerParametersIncluded_ = true;
@@ -840,33 +862,12 @@ struct CovarianceAnalysisOutput {
         return unnormalizedCovarianceMatrix_;
     }
 
-    //! Function to retrieve the matrix of unnormalized partial derivatives
-    /*!
-     * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
-     * \return Matrix of unnormalized partial derivatives
-     */
-    Eigen::MatrixXd getUnnormalizedDesignMatrix( )
+    bool isDesignMatrixSaved( ) const
     {
-        if( designMatrixSaved_ )
-        {
-            Eigen::MatrixXd unnormalizedPartialDerivatives =
-                    Eigen::MatrixXd::Zero( normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
-
-            for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-            {
-                unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                        normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) *
-                        designMatrixTransformationDiagonal_( i );
-            }
-            return unnormalizedPartialDerivatives;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return designMatrixSaved_;
     }
 
-    Eigen::MatrixXd getNormalizedDesignMatrix( )
+    DesignMatrixStorage getNormalizedDesignMatrixVariant( )
     {
         if( designMatrixSaved_ )
         {
@@ -874,22 +875,138 @@ struct CovarianceAnalysisOutput {
         }
         else
         {
-            return returnNoDesignMatrixAvailable( );
+            return returnNoDesignMatrixAvailableVariant( normalizedDesignMatrix_ );
         }
+    }
+
+    DesignMatrixStorage getUnnormalizedDesignMatrixVariant( )
+    {
+        return applyToDesignMatrixVariant( getNormalizedDesignMatrixVariant( ),
+                                           [&]( auto designMatrix )
+                                           {
+                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
+                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+                                               DesignMatrixTraits::multiply_columns( designMatrix, designMatrixTransformationDiagonal_ );
+                                               return DesignMatrixStorage( designMatrix );
+                                           } );
+    }
+
+    DesignMatrixStorage getNormalizedWeightedDesignMatrixVariant( )
+    {
+        return applyToDesignMatrixVariant( getNormalizedDesignMatrixVariant( ),
+                                           [&]( auto designMatrix )
+                                           {
+                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
+                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+                                               DesignMatrixTraits::multiply_rows_by_sqrt( designMatrix, weightsMatrixDiagonal_ );
+                                               return DesignMatrixStorage( designMatrix );
+                                           } );
+    }
+
+    DesignMatrixStorage getUnnormalizedWeightedDesignMatrixVariant( )
+    {
+        return applyToDesignMatrixVariant( getUnnormalizedDesignMatrixVariant( ),
+                                           [&]( auto designMatrix )
+                                           {
+                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
+                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+                                               DesignMatrixTraits::multiply_rows_by_sqrt( designMatrix, weightsMatrixDiagonal_ );
+                                               return DesignMatrixStorage( designMatrix );
+                                           } );
+    }
+
+    DesignMatrixStorage getNormalizedDesignMatrixConsiderParametersVariant( )
+    {
+        if( designMatrixSaved_ )
+        {
+            return normalizedDesignMatrixConsiderParameters_;
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailableVariant( normalizedDesignMatrixConsiderParameters_ );
+        }
+    }
+
+    DesignMatrixStorage getUnnormalizedDesignMatrixConsiderParametersVariant( )
+    {
+        return applyToDesignMatrixVariant( getNormalizedDesignMatrixConsiderParametersVariant( ),
+                                           [&]( auto designMatrix )
+                                           {
+                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
+                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+                                               DesignMatrixTraits::multiply_columns( designMatrix, considerNormalizationFactors_ );
+                                               return DesignMatrixStorage( designMatrix );
+                                           } );
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getNormalizedDesignMatrix( )
+    {
+        return getDesignMatrixFromStorage< DesignMatrixType >( normalizedDesignMatrix_, "normalized design matrix" );
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getUnnormalizedDesignMatrix( )
+    {
+        DesignMatrixType unnormalizedDesignMatrix = getNormalizedDesignMatrix< DesignMatrixType >( );
+        typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+        DesignMatrixTraits::multiply_columns( unnormalizedDesignMatrix, designMatrixTransformationDiagonal_ );
+        return unnormalizedDesignMatrix;
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getNormalizedWeightedDesignMatrix( )
+    {
+        DesignMatrixType weightedDesignMatrix = getNormalizedDesignMatrix< DesignMatrixType >( );
+        typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+        DesignMatrixTraits::multiply_rows_by_sqrt( weightedDesignMatrix, weightsMatrixDiagonal_ );
+        return weightedDesignMatrix;
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getUnnormalizedWeightedDesignMatrix( )
+    {
+        DesignMatrixType weightedDesignMatrix = getUnnormalizedDesignMatrix< DesignMatrixType >( );
+        typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+        DesignMatrixTraits::multiply_rows_by_sqrt( weightedDesignMatrix, weightsMatrixDiagonal_ );
+        return weightedDesignMatrix;
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getNormalizedDesignMatrixConsiderParameters( )
+    {
+        return getDesignMatrixFromStorage< DesignMatrixType >(
+                normalizedDesignMatrixConsiderParameters_, "normalized consider-parameter design matrix" );
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getUnnormalizedDesignMatrixConsiderParameters( )
+    {
+        DesignMatrixType unnormalizedDesignMatrix =
+                getNormalizedDesignMatrixConsiderParameters< DesignMatrixType >( );
+        typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
+        DesignMatrixTraits::multiply_columns( unnormalizedDesignMatrix, considerNormalizationFactors_ );
+        return unnormalizedDesignMatrix;
+    }
+
+    //! Function to retrieve the matrix of unnormalized partial derivatives
+    /*!
+     * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
+     * \return Matrix of unnormalized partial derivatives
+     */
+    Eigen::MatrixXd getUnnormalizedDesignMatrix( )
+    {
+        return getUnnormalizedDesignMatrix< Eigen::MatrixXd >( );
+    }
+
+    Eigen::MatrixXd getNormalizedDesignMatrix( )
+    {
+        return getNormalizedDesignMatrix< Eigen::MatrixXd >( );
     }
 
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
-        if( designMatrixSaved_ )
-        {
-            Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-            scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
-            return weightedNormalizedDesignMatrix;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return getNormalizedWeightedDesignMatrix< Eigen::MatrixXd >( );
     }
 
     Eigen::MatrixXd getConsiderCovarianceContribution( )
@@ -909,14 +1026,7 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
     {
-        if( designMatrixSaved_ )
-        {
-            return normalizedDesignMatrixConsiderParameters_;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return getNormalizedDesignMatrixConsiderParameters< Eigen::MatrixXd >( );
     }
 
     Eigen::VectorXd getConsiderNormalizationFactors( )
@@ -926,16 +1036,7 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd getUnnormalizedWeightedDesignMatrix( )
     {
-        if( designMatrixSaved_ )
-        {
-            Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
-            scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
-            return weightedUnnormalizedDesignMatrix;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return getUnnormalizedWeightedDesignMatrix< Eigen::MatrixXd >( );
     }
 
     //! Function to retrieve the unnormalized formal error vector of the estimation result.
@@ -965,23 +1066,7 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
-        if( designMatrixSaved_ )
-        {
-            Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero( normalizedDesignMatrixConsiderParameters_.rows( ),
-                                                                          normalizedDesignMatrixConsiderParameters_.cols( ) );
-
-            for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
-            {
-                unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
-                        normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) *
-                        considerNormalizationFactors_( i );
-            }
-            return unnormalizedPartials;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+        return getUnnormalizedDesignMatrixConsiderParameters< Eigen::MatrixXd >( );
     }
 
     Eigen::MatrixXd returnNoDesignMatrixAvailable( )
@@ -991,8 +1076,65 @@ struct CovarianceAnalysisOutput {
                   << std::endl;
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
+
+    DesignMatrixStorage returnNoDesignMatrixAvailableVariant( const DesignMatrixStorage& storage )
+    {
+        std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
+                     "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
+                  << std::endl;
+        return applyToDesignMatrixVariant( storage,
+                                           []( const auto& designMatrix )
+                                           {
+                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
+                                               return DesignMatrixStorage( DesignMatrixType( 0, 0 ) );
+                                           } );
+    }
+
+    template< typename DesignMatrixType >
+    DesignMatrixType getDesignMatrixFromStorage( const DesignMatrixStorage& storage, const std::string& matrixName )
+    {
+        if( !designMatrixSaved_ )
+        {
+            return DesignMatrixType( 0, 0 );
+        }
+        if( std::holds_alternative< DesignMatrixType >( storage ) )
+        {
+            return std::get< DesignMatrixType >( storage );
+        }
+        throw std::runtime_error( "Error when retrieving " + matrixName +
+                                  ": requested matrix storage type does not match the stored design matrix type." );
+    }
+
+    template< typename FunctionType >
+    static DesignMatrixStorage applyToDesignMatrixVariant( const DesignMatrixStorage& storage, FunctionType function )
+    {
+        return std::visit( [&]( const auto& designMatrix )
+                           {
+                               return function( designMatrix );
+                           },
+                           storage );
+    }
+
+    static bool isEmptyDesignMatrix( const DesignMatrixStorage& storage )
+    {
+        return std::visit( []( const auto& designMatrix )
+                           {
+                               return designMatrix.rows( ) == 0 && designMatrix.cols( ) == 0;
+                           },
+                           storage );
+    }
+
+    static int getDesignMatrixSize( const DesignMatrixStorage& storage )
+    {
+        return std::visit( []( const auto& designMatrix )
+                           {
+                               return static_cast< int >( designMatrix.size( ) );
+                           },
+                           storage );
+    }
+
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
-    Eigen::MatrixXd normalizedDesignMatrix_;
+    DesignMatrixStorage normalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;
@@ -1022,7 +1164,7 @@ struct CovarianceAnalysisOutput {
     Eigen::MatrixXd unnormalizedCovarianceWithConsiderParameters_;
 
     //! Matrix of observation partials w.r.t. consider parameters (normalized)
-    Eigen::MatrixXd normalizedDesignMatrixConsiderParameters_;
+    DesignMatrixStorage normalizedDesignMatrixConsiderParameters_;
 
     //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
     Eigen::VectorXd considerNormalizationFactors_;
@@ -1059,9 +1201,10 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
      * motion (and variational equations).
      */
+    template< typename DesignMatrixType = Eigen::MatrixXd, typename ConsiderDesignMatrixType = Eigen::MatrixXd >
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
-                      const Eigen::MatrixXd& normalizedDesignMatrix,
+                      const DesignMatrixType& normalizedDesignMatrix,
                       const Eigen::VectorXd& weightsMatrixDiagonal,
                       const Eigen::VectorXd& designMatrixTransformationDiagonal,
                       const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
@@ -1070,7 +1213,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
                       const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory =
                               std::vector< Eigen::VectorXd >( ),
-                      const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const ConsiderDesignMatrixType& normalizedDesignMatrixConsiderParameters = ConsiderDesignMatrixType( 0, 0 ),
                       const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -1087,7 +1230,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( parameterEstimate.rows( ) )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix

@@ -17,6 +17,7 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/basic/leastSquaresTraits.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -123,22 +124,37 @@ int main( )
     std::shared_ptr< ObservationCollection< double, double > > observations = simulateObservations< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    // Perform covariance calculation without storing the dense design matrix in the output.
+    typedef linear_algebra::MatrixTraits< double, linear_algebra::Sparse >::matrix_type SparseDesignMatrix;
+
+    // Perform covariance calculation with sparse estimated-parameter design-matrix storage.
     std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
-    covarianceInput->defineCovarianceSettings( true, true, false, false );
+    covarianceInput->defineCovarianceSettings( true, true, true, false );
+    covarianceInput->setUseSparseDesignMatrix( true );
     std::shared_ptr< CovarianceAnalysisOutput< double, double > > output = orbitDeterminationManager.computeCovariance( covarianceInput );
 
     const int numberOfEstimatedParameters = parametersToEstimate->getFullParameterValues< double >( ).rows( );
+    const int numberOfDesignMatrixRows = 3 * totalNumberOfObservations;
+    const int numberOfDesignMatrixColumns = numberOfEstimatedParameters;
+    const long long designMatrixEntries = static_cast< long long >( numberOfDesignMatrixRows ) * numberOfDesignMatrixColumns;
+    const long long expectedNonZeroEntries = static_cast< long long >( numberOfDesignMatrixRows ) * 6;
+
     const Eigen::MatrixXd inverseCovariance = output->getNormalizedInverseCovarianceMatrix( );
     if( inverseCovariance.rows( ) != numberOfEstimatedParameters || inverseCovariance.cols( ) != numberOfEstimatedParameters )
     {
         throw std::runtime_error( "Sparse design covariance test produced an inverse covariance matrix with inconsistent dimensions." );
     }
+    const SparseDesignMatrix covarianceDesignMatrix = output->getNormalizedDesignMatrix< SparseDesignMatrix >( );
+    if( covarianceDesignMatrix.rows( ) != numberOfDesignMatrixRows || covarianceDesignMatrix.cols( ) != numberOfDesignMatrixColumns ||
+        covarianceDesignMatrix.nonZeros( ) == designMatrixEntries )
+    {
+        throw std::runtime_error( "Sparse design covariance test did not store the covariance design matrix sparsely." );
+    }
 
     std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
             observations, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
-    estimationInput->defineEstimationSettings( true, true, false, false, false, false );
+    estimationInput->defineEstimationSettings( true, true, true, false, false, false );
+    estimationInput->setUseSparseDesignMatrix( true );
     std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
     const Eigen::MatrixXd estimationInverseCovariance = estimationOutput->getNormalizedInverseCovarianceMatrix( );
     if( estimationInverseCovariance.rows( ) != numberOfEstimatedParameters ||
@@ -146,19 +162,17 @@ int main( )
     {
         throw std::runtime_error( "Sparse design estimation test produced an inverse covariance matrix with inconsistent dimensions." );
     }
-    if( estimationOutput->normalizedDesignMatrix_.rows( ) != 0 || estimationOutput->normalizedDesignMatrix_.cols( ) != 0 )
+    const SparseDesignMatrix estimationDesignMatrix = estimationOutput->getNormalizedDesignMatrix< SparseDesignMatrix >( );
+    if( estimationDesignMatrix.rows( ) != numberOfDesignMatrixRows || estimationDesignMatrix.cols( ) != numberOfDesignMatrixColumns ||
+        estimationDesignMatrix.nonZeros( ) == designMatrixEntries )
     {
-        throw std::runtime_error( "Sparse design estimation test unexpectedly saved a dense design matrix." );
+        throw std::runtime_error( "Sparse design estimation test did not store the estimation design matrix sparsely." );
     }
     if( estimationOutput->residuals_.rows( ) != 3 * totalNumberOfObservations )
     {
         throw std::runtime_error( "Sparse design estimation test produced a residual vector with inconsistent dimensions." );
     }
 
-    const int numberOfDesignMatrixRows = 3 * totalNumberOfObservations;
-    const int numberOfDesignMatrixColumns = numberOfEstimatedParameters;
-    const long long designMatrixEntries = static_cast< long long >( numberOfDesignMatrixRows ) * numberOfDesignMatrixColumns;
-    const long long expectedNonZeroEntries = static_cast< long long >( numberOfDesignMatrixRows ) * 6;
     std::cout << std::setprecision( 16 ) << std::scientific;
     std::cout << "Logical design matrix rows: " << numberOfDesignMatrixRows << "\n"
               << "Logical design matrix columns: " << numberOfDesignMatrixColumns << "\n"

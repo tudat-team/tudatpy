@@ -15,6 +15,8 @@
 #ifndef TUDAT_LEASTSQUARESTRAITS_H
 #define TUDAT_LEASTSQUARESTRAITS_H
 
+#include <cmath>
+
 #include <Eigen/SparseCore>
 #include <optional>
 #include <Eigen/Dense>
@@ -69,6 +71,7 @@ struct SolverTraits {};
 template <typename Real>
 struct MatrixTraits<Real, Dense>
 {
+    using storage_type = Dense;
     using value_type = Real;
     using matrix_type = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
 
@@ -117,8 +120,8 @@ struct MatrixTraits<Real, Dense>
 
     template <typename SparseRange>  // requires std::range<R>
     inline static void set_from_triplets(matrix_type &A, SparseRange const &rng) {
-        for (auto &[i, j, v] : rng) {
-            A(i, j) = v;
+        for (const auto& entry : rng) {
+            A(entry.row(), entry.col()) = entry.value();
         }
     }
 
@@ -160,9 +163,9 @@ struct MatrixTraits<Real, Dense>
      */
     template <typename SparseRange>
     static matrix_type from_sparse_range(unsigned rows, unsigned cols, SparseRange const &r) {
-        matrix_type result{rows, cols};  // default initializes elements to 0
-        for (auto &[i, j, v] : r) {
-            result(i, j) = v;
+        matrix_type result = matrix_type::Zero(rows, cols);
+        for (const auto& entry : r) {
+            result(entry.row(), entry.col()) = entry.value();
         }
         return result;
     }
@@ -170,11 +173,42 @@ struct MatrixTraits<Real, Dense>
     //! Function that compresses a sparse matrix. This is needed for sparse
     //! matrices, empty for dense matrices.
     inline static void make_compressed(matrix_type &A) {}
+
+    static Eigen::VectorX<Real> normalize_columns(matrix_type& A) {
+        Eigen::VectorX<Real> normalizationTerms = Eigen::VectorX<Real>::Ones(A.cols());
+        for (int column = 0; column < A.cols(); column++) {
+            Eigen::VectorX<Real> currentVector = A.block(0, column, A.rows(), 1);
+            const Real minimum = currentVector.minCoeff();
+            const Real maximum = currentVector.maxCoeff();
+            if (std::fabs(minimum) > maximum) {
+                normalizationTerms(column) = minimum;
+            }
+            else if (maximum != Real(0)) {
+                normalizationTerms(column) = maximum;
+            }
+
+            A.block(0, column, A.rows(), 1) = currentVector / normalizationTerms(column);
+        }
+        return normalizationTerms;
+    }
+
+    static void multiply_columns(matrix_type& A, const Eigen::VectorX<Real>& factors) {
+        for (int column = 0; column < A.cols(); column++) {
+            A.block(0, column, A.rows(), 1) *= factors(column);
+        }
+    }
+
+    static void multiply_rows_by_sqrt(matrix_type& A, const Eigen::VectorX<Real>& factors) {
+        for (int row = 0; row < A.rows(); row++) {
+            A.block(row, 0, 1, A.cols()) *= std::sqrt(factors(row));
+        }
+    }
 };
 
 template <typename Real>
 struct MatrixTraits<Real, Sparse>
 {
+    using storage_type = Sparse;
     using value_type = Real;
     using matrix_type = Eigen::SparseMatrix<Real>;
 
@@ -223,6 +257,49 @@ struct MatrixTraits<Real, Sparse>
         matrix_type result{rows, cols};
         result.setFromTriplets(r.begin(), r.end());
         return result;
+    }
+
+    static Eigen::VectorX<Real> normalize_columns(matrix_type& A) {
+        Eigen::VectorX<Real> normalizationTerms = Eigen::VectorX<Real>::Ones(A.cols());
+        for (int column = 0; column < A.outerSize(); column++) {
+            Real minimum = Real(0);
+            Real maximum = Real(0);
+            for (typename matrix_type::InnerIterator iterator(A, column); iterator; ++iterator) {
+                minimum = std::min(minimum, iterator.value());
+                maximum = std::max(maximum, iterator.value());
+            }
+
+            if (std::fabs(minimum) > maximum) {
+                normalizationTerms(column) = minimum;
+            }
+            else if (maximum != Real(0)) {
+                normalizationTerms(column) = maximum;
+            }
+
+            for (typename matrix_type::InnerIterator iterator(A, column); iterator; ++iterator) {
+                iterator.valueRef() /= normalizationTerms(column);
+            }
+        }
+        A.makeCompressed();
+        return normalizationTerms;
+    }
+
+    static void multiply_columns(matrix_type& A, const Eigen::VectorX<Real>& factors) {
+        for (int column = 0; column < A.outerSize(); column++) {
+            for (typename matrix_type::InnerIterator iterator(A, column); iterator; ++iterator) {
+                iterator.valueRef() *= factors(column);
+            }
+        }
+        A.makeCompressed();
+    }
+
+    static void multiply_rows_by_sqrt(matrix_type& A, const Eigen::VectorX<Real>& factors) {
+        for (int column = 0; column < A.outerSize(); column++) {
+            for (typename matrix_type::InnerIterator iterator(A, column); iterator; ++iterator) {
+                iterator.valueRef() *= std::sqrt(factors(iterator.row()));
+            }
+        }
+        A.makeCompressed();
     }
 };
 

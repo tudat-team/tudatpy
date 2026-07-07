@@ -18,6 +18,7 @@
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/math/basic/leastSquaresTraits.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 
 namespace tudat
@@ -123,49 +124,16 @@ Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dumm
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeSparseDesignMatrix(
-        Eigen::SparseMatrix< double >& observationMatrix )
-{
-    Eigen::VectorXd normalizationTerms = Eigen::VectorXd::Ones( observationMatrix.cols( ) );
-
-    for( int column = 0; column < observationMatrix.outerSize( ); column++ )
-    {
-        double minimum = 0.0;
-        double maximum = 0.0;
-        for( Eigen::SparseMatrix< double >::InnerIterator iterator( observationMatrix, column ); iterator; ++iterator )
-        {
-            minimum = std::min( minimum, iterator.value( ) );
-            maximum = std::max( maximum, iterator.value( ) );
-        }
-
-        if( std::fabs( minimum ) > maximum )
-        {
-            normalizationTerms( column ) = minimum;
-        }
-        else if( maximum != 0.0 )
-        {
-            normalizationTerms( column ) = maximum;
-        }
-
-        for( Eigen::SparseMatrix< double >::InnerIterator iterator( observationMatrix, column ); iterator; ++iterator )
-        {
-            iterator.valueRef( ) /= normalizationTerms( column );
-        }
-    }
-
-    observationMatrix.makeCompressed( );
-    return normalizationTerms;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovarianceDesignMatricesSparse(
+template< typename EstimatedDesignMatrixType >
+void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeDesignMatrices(
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-        Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
+        EstimatedDesignMatrixType& designMatrixEstimatedParameters,
         Eigen::MatrixXd& designMatrixConsiderParameters,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >* residuals )
 {
+    typedef typename linear_algebra::from_eigen< EstimatedDesignMatrixType >::traits EstimatedDesignMatrixTraits;
+    typedef typename linear_algebra::from_eigen< EstimatedDesignMatrixType >::value_type EstimatedDesignMatrixValueType;
+
     const int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
     if( residuals != nullptr )
@@ -173,7 +141,7 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::comput
         *residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalNumberOfObservations, 1 );
     }
 
-    std::vector< Eigen::Triplet< double > > estimatedParameterTriplets;
+    std::vector< Eigen::Triplet< EstimatedDesignMatrixValueType > > estimatedParameterTriplets;
     estimatedParameterTriplets.reserve( static_cast< std::size_t >( totalNumberOfObservations ) * 6 );
     if( considerParametersIncluded_ )
     {
@@ -269,9 +237,11 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::comput
         }
     }
 
-    designMatrixEstimatedParameters.resize( totalNumberOfObservations, numberEstimatedParameters_ );
-    designMatrixEstimatedParameters.setFromTriplets( estimatedParameterTriplets.begin( ), estimatedParameterTriplets.end( ) );
-    designMatrixEstimatedParameters.makeCompressed( );
+    designMatrixEstimatedParameters = EstimatedDesignMatrixTraits::from_sparse_range(
+            static_cast< unsigned int >( totalNumberOfObservations ),
+            static_cast< unsigned int >( numberEstimatedParameters_ ),
+            estimatedParameterTriplets );
+    EstimatedDesignMatrixTraits::make_compressed( designMatrixEstimatedParameters );
 }
 
 template< typename ObservationScalarType,

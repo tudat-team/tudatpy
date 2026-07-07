@@ -286,13 +286,12 @@ protected:
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
                                                                                               const int numberObservations );
 
-    void computeCovarianceDesignMatricesSparse(
+    template< typename EstimatedDesignMatrixType >
+    void computeDesignMatrices(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-            Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
+            EstimatedDesignMatrixType& designMatrixEstimatedParameters,
             Eigen::MatrixXd& designMatrixConsiderParameters,
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >* residuals = nullptr );
-
-    Eigen::VectorXd normalizeSparseDesignMatrix( Eigen::SparseMatrix< double >& observationMatrix );
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;

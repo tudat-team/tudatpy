@@ -514,6 +514,15 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
+	 )doc" )
+            .def_property( "use_sparse_design_matrix",
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getUseSparseDesignMatrix,
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setUseSparseDesignMatrix,
+                           R"doc(
+
+        Boolean denoting whether the design matrix is assembled and processed using sparse matrix storage.
+
+        :type: bool
      )doc" )
             .def_property( "weight_matrix_diagonal",
                            &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
@@ -764,7 +773,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
       )doc" )
 
             .def_property_readonly( "design_matrix",
-                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedDesignMatrix,
+                                    py::overload_cast<>(
+                                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedDesignMatrix ),
                                     R"doc(
 
          **read-only**
@@ -774,7 +784,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
             .def_property_readonly( "normalized_design_matrix",
-                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedDesignMatrix,
+                                    py::overload_cast<>(
+                                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedDesignMatrix ),
                                     R"doc(
 
          **read-only**
@@ -784,7 +795,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
             .def_property_readonly( "weighted_design_matrix",
-                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedWeightedDesignMatrix,
+                                    py::overload_cast<>(
+                                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedWeightedDesignMatrix ),
                                     R"doc(
 
          **read-only**
@@ -794,7 +806,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
             .def_property_readonly( "weighted_normalized_design_matrix",
-                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedWeightedDesignMatrix,
+                                    py::overload_cast<>(
+                                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedWeightedDesignMatrix ),
                                     R"doc(
 
          **read-only**
@@ -839,7 +852,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
       )doc" )
             .def_property_readonly(
                     "design_matrix_consider_parameters",
-                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedDesignMatrixConsiderParameters,
+                    py::overload_cast<>(
+                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedDesignMatrixConsiderParameters ),
                     R"doc(
 
          **read-only**
@@ -850,7 +864,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
       )doc" )
             .def_property_readonly(
                     "normalized_design_matrix_consider_parameters",
-                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedDesignMatrixConsiderParameters,
+                    py::overload_cast<>(
+                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getNormalizedDesignMatrixConsiderParameters ),
                     R"doc(
 
          **read-only**
