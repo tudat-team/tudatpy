@@ -87,9 +87,8 @@ void setStationFrequenciesFromTrackingData( const StationRampInformation& rampIn
 
     if( bodies.count( stationReferenceBodyName ) == 0 )
     {
-        throw std::runtime_error(
-                "Error when setting station frequencies, reference body \"" + stationReferenceBodyName +
-                "\" not found in system of bodies." );
+        throw std::runtime_error( "Error when setting station frequencies, reference body \"" + stationReferenceBodyName +
+                                  "\" not found in system of bodies." );
     }
     auto stationReferenceBody = bodies.at( stationReferenceBodyName );
 

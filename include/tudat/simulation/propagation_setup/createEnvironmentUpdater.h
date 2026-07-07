@@ -60,8 +60,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 template< typename StateScalarType, typename TimeType >
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createProperTimeEquationEnvironmentUpdaterSettings(
         const std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > stateDerivativeModel,
-         const simulation_setup::SystemOfBodies& bodyMap );
-
+        const simulation_setup::SystemOfBodies& bodyMap );
 
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
@@ -159,7 +158,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             // Iterate over all propagation settings in hybrid model
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
-            for( auto typeIterator: multiTypePropagatorSettings->propagatorSettingsMap_ )
+            for( auto typeIterator : multiTypePropagatorSettings->propagatorSettingsMap_ )
             {
                 for( unsigned int i = 0; i < typeIterator.second.size( ); i++ )
                 {

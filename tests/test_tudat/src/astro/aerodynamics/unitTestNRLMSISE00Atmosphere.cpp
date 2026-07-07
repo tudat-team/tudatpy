@@ -18,6 +18,7 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include <numeric>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <vector>
@@ -1115,6 +1116,10 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
 
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath( altitude, longitude, latitude, time ), meanFreePath, 1.0E-15 );
 
+    const std::vector< double > numberDensities = model.getNumberDensities( altitude, longitude, latitude, time );
+    const double expectedTotalNumberDensity = std::accumulate( numberDensities.begin( ), numberDensities.end( ), 0.0 );
+    BOOST_CHECK_CLOSE_FRACTION( model.getTotalNumberDensity( altitude, longitude, latitude, time ), expectedTotalNumberDensity, 1.0E-15 );
+
     // Verify using data - Logarithmic plot: physics of the Earth's space environment, Gerd W. Prolls (page 29)
     // Test using approximate values obtained from figure
     altitude = 0.0E3;
@@ -1347,7 +1352,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );
@@ -1565,7 +1570,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double altitude = it.second( 0 );
         double density = it.second( 1 );

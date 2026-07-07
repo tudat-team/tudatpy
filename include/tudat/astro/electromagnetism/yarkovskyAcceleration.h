@@ -26,7 +26,7 @@ namespace tudat
 namespace electromagnetism
 {
 
-//! Compute Yarkovsky Acceleration using a simplified tangential model.
+//! Compute Yarkovsky acceleration using the transverse direction of the RTN frame.
 /*!
  * \param yarkovskyParameter Yarkovsky Parameter N2                                          [m/s^2]
  * \param stateVector is the state vector pointing from the source to the body
@@ -38,7 +38,7 @@ Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const E
 //! Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022).
 /*!
  * Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022).
- * The acceleration is only considered in the tangential direction and is proportional to
+ * The acceleration is only considered in the transverse direction of the RTN frame and is proportional to
  * a = A2 * (r0/rS)^2, where A2 is the Yarkovsky parameter, r0 = 1AU and rS is the heliocentric
  * distance in AU.
  */

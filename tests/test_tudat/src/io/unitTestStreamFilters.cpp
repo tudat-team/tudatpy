@@ -40,7 +40,7 @@ The first header line\n\
 A line with partial comment # this is comment\n\
 # Complete comment line\n\
 -> odd data <-\n\0" )
-    { }
+    {}
 
     //! Container for the test data.
     /*!

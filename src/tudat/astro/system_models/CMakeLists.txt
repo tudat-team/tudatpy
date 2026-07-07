@@ -16,6 +16,7 @@ set(system_models_HEADERS
         "vehicleExteriorPanels.h"
         "panelGeometryUtils.h"
         "selfShadowing.h"
+        "camera.h"
         )
 
 set(system_models_SOURCES
@@ -23,6 +24,7 @@ set(system_models_SOURCES
         "timingSystem.cpp"
         "selfShadowing.cpp"
         "panelGeometryUtils.cpp"
+        "camera.cpp"
         )
 
 TUDAT_ADD_LIBRARY("system_models"

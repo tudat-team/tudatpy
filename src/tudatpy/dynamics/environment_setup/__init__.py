@@ -31,6 +31,7 @@ from tudatpy.kernel.dynamics.environment_setup import (
     add_ground_station,
     create_radiation_pressure_interface,
     get_ground_station_list,
+    add_camera,
 )
 from . import (
     aerodynamic_coefficients,

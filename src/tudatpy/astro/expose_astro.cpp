@@ -29,7 +29,7 @@ namespace tudatpy
 namespace astro
 {
 
-void expose_astro( py::module &m )
+void expose_astro( py::module& m )
 {
     auto element_conversion = m.def_submodule( "element_conversion" );
     element_conversion::expose_element_conversion( element_conversion );

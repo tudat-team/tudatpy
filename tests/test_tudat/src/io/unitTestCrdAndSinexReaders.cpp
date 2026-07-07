@@ -32,7 +32,8 @@ namespace
 
 std::string createTempPath( const std::string& suffix )
 {
-    boost::filesystem::path tempPath = boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-ilrs-%%%%%%" + suffix );
+    boost::filesystem::path tempPath =
+            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-ilrs-%%%%%%" + suffix );
     return tempPath.string( );
 }
 
@@ -139,11 +140,8 @@ BOOST_AUTO_TEST_CASE( testCrdParsingAndConversion )
     std::map< double, double > parsedNormalPoints = input_output::extractNormalPointMeasurements( crdPasses.at( 0 ) );
     BOOST_CHECK_EQUAL( parsedNormalPoints.size( ), 2 );
     BOOST_CHECK_CLOSE_FRACTION(
-            parsedNormalPoints.begin( )->second,
-            input_output::convertCrdTwoWayTimeOfFlightToSlrRange( 0.002 ),
-            1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION(
-            std::next( parsedNormalPoints.begin( ) )->first - parsedNormalPoints.begin( )->first, 2.0, 1.0E-15 );
+            parsedNormalPoints.begin( )->second, input_output::convertCrdTwoWayTimeOfFlightToSlrRange( 0.002 ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( std::next( parsedNormalPoints.begin( ) )->first - parsedNormalPoints.begin( )->first, 2.0, 1.0E-15 );
     std::map< double, double > parsedFullRate = input_output::extractFullRateMeasurements( crdPasses.at( 0 ) );
     BOOST_CHECK_EQUAL( parsedFullRate.size( ), 1 );
 

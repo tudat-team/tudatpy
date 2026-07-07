@@ -76,17 +76,17 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator )
     {
         return std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
-                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                        std::vector< std::shared_ptr<
-                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
-                                arcStartLightTimeCalculator },
-                        std::make_shared< LightTimeConvergenceCriteria >( ),
-                        false ),
-                std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
-                        std::vector< std::shared_ptr<
-                                observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{ arcEndLightTimeCalculator },
-                        std::make_shared< LightTimeConvergenceCriteria >( ),
-                        false ) };
+            std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                            arcStartLightTimeCalculator },
+                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                    false ),
+            std::make_shared< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >(
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >{
+                            arcEndLightTimeCalculator },
+                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                    false )
+        };
     }
 
     //! Constructor.
@@ -133,7 +133,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
@@ -241,6 +241,12 @@ public:
         return this->getSingleLegLightTimeCalculator( 1, 0 );
     }
 
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return { { std::make_pair( transmitter, receiver ),
+                   { this->getSingleLegLightTimeCalculator( 0, 0 ), this->getSingleLegLightTimeCalculator( 1, 0 ) } } };
+    }
 };
 
 }  // namespace observation_models

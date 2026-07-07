@@ -14,6 +14,8 @@
 #ifndef TUDAT_PROCESSODFFILE_H
 #define TUDAT_PROCESSODFFILE_H
 
+#include <cmath>
+
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
@@ -371,11 +373,11 @@ public:
                 for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
                     // Check if linkEndId is a ground station
-                    if( linkEndId.stationName_ != "" && linkEndId.bodyName_ != spacecraftName_ )
+                    if( linkEndId.getReferencePointName( ) != "" && linkEndId.bodyName_ != spacecraftName_ )
                     {
-                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.stationName_ ) )
+                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.getReferencePointName( ) ) )
                         {
-                            groundStations.push_back( linkEndId.stationName_ );
+                            groundStations.push_back( linkEndId.getReferencePointName( ) );
                         }
                     }
                 }
@@ -594,7 +596,7 @@ private:
 
         if( requiresTransmittingStation( currentObservableType ) )
         {
-            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
+            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( );
 
             // Check if transmitting station is in ramp tables
             if( rampInterpolators_.count( transmittingStation ) == 0 )
@@ -627,7 +629,7 @@ private:
         }
         if( requiresFirstReceivingStation( currentObservableType ) )
         {
-            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
+            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( );
 
             // Check if receiving station is in ramp tables
             if( rampInterpolators_.count( receivingStation ) == 0 )
@@ -727,16 +729,16 @@ private:
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileDopplerData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         case observation_models::ObservableType::dsn_n_way_range: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileSequentialRangeData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         default: {
@@ -857,15 +859,18 @@ private:
                         continue;
                     }
 
-                    // Check if adding ramp block vector to previously existing vector: add
-                    // connection point
+                    // Add a connection interval only when consecutive ODF files leave a real gap.
                     if( j == 0 && !unprocessedRampStartTimesPerStation_[ stationName ].empty( ) )
                     {
-                        unprocessedRampStartTimesPerStation_[ stationName ].push_back(
-                                unprocessedRampEndTimesPerStation_[ stationName ].back( ) );
-                        unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
-                        rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
-                        startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        Time previousRampEndTime = unprocessedRampEndTimesPerStation_[ stationName ].back( );
+                        Time currentRampStartTime = rampBlocks.at( j )->getRampStartTime( );
+                        if( previousRampEndTime < currentRampStartTime )
+                        {
+                            unprocessedRampStartTimesPerStation_[ stationName ].push_back( previousRampEndTime );
+                            unprocessedRampEndTimesPerStation_[ stationName ].push_back( currentRampStartTime );
+                            rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
+                            startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        }
                     }
 
                     unprocessedRampStartTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
@@ -1337,6 +1342,12 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio )
 {
+    if( compressionRatio == 0 )
+    {
+        throw std::runtime_error( "Error in Doppler data compression, compression ratio must be positive." );
+    }
+
+    const double cadenceTolerance = 0.01;
     ObservationScalarType floatingCompressionRatio =
             mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
 
@@ -1348,8 +1359,17 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesReference( );
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
-    Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_ );
+    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( );
+    auto approximateGroundStationPositions = simulation_setup::getCombinedApproximateGroundStationPositions( );
+    auto stationPositionIterator = approximateGroundStationPositions.find( stationName );
+    if( stationPositionIterator == approximateGroundStationPositions.end( ) )
+    {
+        throw std::runtime_error(
+                "Error in Doppler data compression, could not retrieve approximate station "
+                "position for " +
+                stationName );
+    }
+    Eigen::Vector3d stationPosition = stationPositionIterator->second;
 
     std::vector< TimeType > originalObservationTimesUtc =
             timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
@@ -1360,46 +1380,42 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
 
-    for( unsigned int i = 0; i < originalObservations.size( ); i += compressionRatio )
+    for( unsigned int runStart = 0; runStart < originalObservations.size( ); )
     {
-        if( originalObservations.size( ) - i >= compressionRatio )
+        unsigned int runEnd = runStart + 1;
+        while( runEnd < originalObservations.size( ) )
         {
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( i );
-            TimeType newTime = originalObservationTimesUtc.at( i );
-
-            bool skipObservation = false;
-            for( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
+            double currentTimeStep =
+                    static_cast< double >( originalObservationTimesUtc.at( runEnd ) - originalObservationTimesUtc.at( runEnd - 1 ) );
+            if( std::fabs( currentTimeStep - currentCompressionTime ) <= cadenceTolerance )
             {
-                if( std::fabs(
-                            static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) -
-                            currentCompressionTime ) < 0.01 )
-                {
-                    newObservable += originalObservations.at( i + j );
-                    newTime += originalObservationTimesUtc.at( i + j );
-                }
-                else
-                {
-                    skipObservation = true;
-                }
+                runEnd++;
             }
-            if( !skipObservation )
+            else
             {
-                newObservable /= floatingCompressionRatio;
-                newTime = newTime / floatingCompressionRatio;
-
-                compressedObservations.push_back( newObservable );
-                compressedObservationTimesUtc.push_back( newTime );
+                break;
             }
         }
-    }
 
-    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_;
-    if( simulation_setup::getCombinedApproximateGroundStationPositions( ).count( stationName ) == 0 )
-    {
-        throw std::runtime_error(
-                "Error in Doppler data compression, could not retrieve approximate station "
-                "position for " +
-                stationName );
+        for( unsigned int blockStart = runStart; blockStart + compressionRatio <= runEnd; blockStart += compressionRatio )
+        {
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( blockStart );
+            TimeType newTime = originalObservationTimesUtc.at( blockStart );
+
+            for( unsigned int j = 1; j < compressionRatio; j++ )
+            {
+                newObservable += originalObservations.at( blockStart + j );
+                newTime += originalObservationTimesUtc.at( blockStart + j );
+            }
+
+            newObservable /= floatingCompressionRatio;
+            newTime = newTime / floatingCompressionRatio;
+
+            compressedObservations.push_back( newObservable );
+            compressedObservationTimesUtc.push_back( newTime );
+        }
+
+        runStart = runEnd;
     }
 
     std::vector< Eigen::Vector3d > compressedEarthFixedPositions;

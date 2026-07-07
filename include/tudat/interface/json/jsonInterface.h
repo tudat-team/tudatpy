@@ -93,7 +93,7 @@ public:
         resetJsonObject( jsonObject );
     }
 
-    virtual ~JsonSimulationManager( ) { }
+    virtual ~JsonSimulationManager( ) {}
 
     //! Reset the root JSON input file.
     /*!
@@ -226,7 +226,7 @@ public:
         if( applicationOptions_->tagOutputFilesIfPropagationFails_ && !dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
-            for( std::shared_ptr< ExportSettings >& exportSettings: exportSettingsVector_ )
+            for( std::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
             {
                 exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
             }
@@ -570,7 +570,7 @@ protected:
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
         catch( std::runtime_error const& )
-        { }
+        {}
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
         if( profiling )

@@ -67,7 +67,7 @@ double calculateSecondOrderExternalScalarPotentialCorrection(
         const std::vector< double >& velocities,
         const std::vector< Eigen::Vector6d >& stateVectors,
         const Eigen::Vector3d centralBodyVelocity,
-        const std::vector< Eigen::Vector3d >& accelerations  = std::vector< Eigen::Vector3d >( ) );
+        const std::vector< Eigen::Vector3d >& accelerations = std::vector< Eigen::Vector3d >( ) );
 
 //! Function to calculate Eq. at bottom on left column of p. 2695, Soffel et al. (2003).
 /*!
@@ -118,10 +118,9 @@ Eigen::Vector3d calculateExternalVectorPotential(
  *  \param relativePosition Relative position from body to evaluation point.
  *  \return Matrix potential contribution.
  */
-Eigen::Matrix3d calculateExternalMatrixPotential(
-        const double gravitationalParameter,
-        const double distanceFromBody,
-        const Eigen::Vector3d& relativePosition );
+Eigen::Matrix3d calculateExternalMatrixPotential( const double gravitationalParameter,
+                                                  const double distanceFromBody,
+                                                  const Eigen::Vector3d& relativePosition );
 
 //! Compute anisotropic matrix potential contribution for multiple bodies.
 /*!
@@ -130,12 +129,11 @@ Eigen::Matrix3d calculateExternalMatrixPotential(
  *  \param relativePositions Relative positions from each perturbing body to evaluation point.
  *  \return Sum of matrix potential contributions.
  */
-Eigen::Matrix3d calculateExternalMatrixPotential(
-        const std::vector< double >& gravitationalParameters,
-        const std::vector< double >& distancesFromBody,
-        const std::vector< Eigen::Vector3d >& relativePositions );
-}
+Eigen::Matrix3d calculateExternalMatrixPotential( const std::vector< double >& gravitationalParameters,
+                                                  const std::vector< double >& distancesFromBody,
+                                                  const std::vector< Eigen::Vector3d >& relativePositions );
+}  // namespace relativity
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_RELATIVISTICPOTENTIALS_H
+#endif  // TUDAT_RELATIVISTICPOTENTIALS_H

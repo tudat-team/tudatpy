@@ -47,17 +47,15 @@ public:
                           const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
                           const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
                           const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
-                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
-                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
-                          const bool eraseDuplicates = false):
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
+                          const bool eraseDuplicates = false ):
 
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
         numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals )
     {
-
-
         if( dependentVariableBookkeeping_ != nullptr )
         {
             if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
@@ -98,8 +96,7 @@ public:
             if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
             {
                 throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
-                                          std::to_string( observations_.at( 0 ).rows( ) ) +
-                                          ") is inconsistent with observable type " +
+                                          std::to_string( observations_.at( 0 ).rows( ) ) + ") is inconsistent with observable type " +
                                           getObservableName( observableType ) + " (expected size " +
                                           std::to_string( singleObservationSize_ ) + ")." );
             }
@@ -123,8 +120,7 @@ public:
             {
                 if( weights.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
                 {
-                    throw std::runtime_error(
-                            "Error when creating observation set with weights; individual weight size is incompatible" );
+                    throw std::runtime_error( "Error when creating observation set with weights; individual weight size is incompatible" );
                 }
             }
         }
@@ -177,7 +173,8 @@ public:
         orderObservationsAndMetadata( );
 
         // Erase duplicate observations if requested
-        if (eraseDuplicates) {
+        if( eraseDuplicates )
+        {
             eraseDuplicateObservations( );
         }
 
@@ -733,41 +730,38 @@ public:
         }
     }
 
-
-    void eraseDuplicateObservations()
+    void eraseDuplicateObservations( )
     {
-        std::vector<unsigned int> indicesToRemove;
+        std::vector< unsigned int > indicesToRemove;
 
         // Single pass through sorted observations
-        for(unsigned int i = 1; i < numberOfObservations_; i++)
+        for( unsigned int i = 1; i < numberOfObservations_; i++ )
         {
             // Check if current observation time equals previous observation time
-            if(observationTimes_[i] == observationTimes_[i-1])
+            if( observationTimes_[ i ] == observationTimes_[ i - 1 ] )
             {
-                const double currentObsValue = observationTimes_[i];
-                const double previousObsValue = observationTimes_[i-1];
+                const double currentObsValue = observationTimes_[ i ];
+                const double previousObsValue = observationTimes_[ i - 1 ];
 
                 // Check if observation values are also identical (with relative tolerance)
-                if (std::abs(currentObsValue - previousObsValue)
-                    <= 1e-12 * std::max(std::abs(currentObsValue), std::abs(previousObsValue)))
+                if( std::abs( currentObsValue - previousObsValue ) <=
+                    1e-12 * std::max( std::abs( currentObsValue ), std::abs( previousObsValue ) ) )
                 {
                     // Mark current observation for removal
-                    indicesToRemove.push_back(i);
+                    indicesToRemove.push_back( i );
                 }
             }
         }
 
         // Remove duplicates if any were found
-        if(indicesToRemove.size() > 0)
+        if( indicesToRemove.size( ) > 0 )
         {
             int beforeCount = numberOfObservations_;
-            removeObservations(indicesToRemove);
-            std::cerr << "[WARNING] Detected and removed " << beforeCount - numberOfObservations_ << "duplicate observations when creating instance of SingleObservationSet" << std::endl;
+            removeObservations( indicesToRemove );
+            std::cerr << "[WARNING] Detected and removed " << beforeCount - numberOfObservations_
+                      << "duplicate observations when creating instance of SingleObservationSet" << std::endl;
         }
-
     }
-
-
 
     void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true )
     {
@@ -986,9 +980,9 @@ public:
 
     void addObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                           const std::vector< TimeType >& times,
-                          const std::vector< Eigen::VectorXd >& dependentVariables = { },
-                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
-                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
+                          const std::vector< Eigen::VectorXd >& dependentVariables = {},
+                          const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
                           const bool sortObservations = true )
     {
         if( ( observations.size( ) != times.size( ) ) || ( weights.size( ) > 0 && ( observations.size( ) != weights.size( ) ) ) ||

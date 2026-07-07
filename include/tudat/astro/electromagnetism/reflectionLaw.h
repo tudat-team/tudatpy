@@ -199,7 +199,7 @@ public:
      */
     explicit LambertianReflectionLaw( double diffuseReflectivity ):
         SpecularDiffuseMixReflectionLaw( 1 - diffuseReflectivity, 0, diffuseReflectivity, false )
-    { }
+    {}
 
     void setDiffuseReflectivity( double diffuseReflectivity )
     {

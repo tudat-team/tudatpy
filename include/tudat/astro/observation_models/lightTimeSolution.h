@@ -13,10 +13,12 @@
 
 #include <memory>
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <numeric>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -240,6 +242,27 @@ private:
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
 };
 
+//! Non-templated base class providing type-erased access to light-time correction data.
+/*!
+ *  Non-templated base class of `LightTimeCalculator`, exposing only the subset of the API that
+ *  does not depend on the `ObservationScalarType` / `TimeType` template parameters. This allows
+ *  callers that do not want to commit to a specific instantiation (e.g. dependent-variable
+ *  plumbing or Python bindings) to hold a pointer to any `LightTimeCalculator` and read its
+ *  per-correction breakdown from the last evaluation.
+ */
+class LightTimeCalculatorBase
+{
+public:
+    virtual ~LightTimeCalculatorBase( ) {}
+
+    //! Returns the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
+    //! Order matches `getLightTimeCorrectionList()`.
+    virtual const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const = 0;
+
+    //! Returns the list of light-time correction objects registered on this calculator.
+    virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
+};
+
 //! Class to calculate the light time between two points.
 /*!
  *  This class calculates the light time between two points, of which the state functions
@@ -248,7 +271,7 @@ private:
  *  light time is taken into account in the calculations.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class LightTimeCalculator
+class LightTimeCalculator : public LightTimeCalculatorBase
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
@@ -452,6 +475,7 @@ public:
                         ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
                 currentCorrection_ = 0.0;
+                currentCorrectionComponents_.clear( );
 
                 previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
             }
@@ -495,6 +519,7 @@ public:
             else
             {
                 currentCorrection_ = 0.0;
+                currentCorrectionComponents_.clear( );
             }
 
             // Compute new light time estimate
@@ -670,6 +695,22 @@ public:
         return currentCorrection_;
     }
 
+    //! Function to get the values of the individual light-time corrections that were summed into
+    //! `currentCorrection_` during the last call to `setTotalLightTimeCorrection`. Order matches
+    //! `correctionFunctions_` / `getLightTimeCorrection()`. Stored as `double` to match the
+    //! native return type of `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`
+    //! — the values are computed in `double` regardless of `ObservationScalarType`, so a wider
+    //! cache would not buy precision.
+    const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const override
+    {
+        return currentCorrectionComponents_;
+    }
+
+    std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override
+    {
+        return correctionFunctions_;
+    }
+
     unsigned int getNumberOfIterations( )
     {
         return iterationCounter_;
@@ -735,6 +776,11 @@ protected:
     //! Current light-time correction.
     ObservationScalarType currentCorrection_;
 
+    //! Per-correction values from the last `setTotalLightTimeCorrection` call (same order as
+    //! `correctionFunctions_`). Stored as `double` (the native type returned by
+    //! `LightTimeCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates`).
+    std::vector< double > currentCorrectionComponents_;
+
     // Number of iterations until light time convergence
     unsigned int iterationCounter_;
 
@@ -794,11 +840,16 @@ protected:
             linkEndStatesDouble.at( i ) = linkEndStates.at( i ).template cast< double >( );
         }
 
+        // Cache each correction's contribution; they are returned as `double` regardless of
+        // `ObservationScalarType`. The cumulative total is then formed by widening to the
+        // calculator's working precision.
+        currentCorrectionComponents_.resize( correctionFunctions_.size( ) );
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            totalLightTimeCorrections +=
-                    static_cast< ObservationScalarType >( correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
+            const double singleCorrection = correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings );
+            currentCorrectionComponents_[ i ] = singleCorrection;
+            totalLightTimeCorrections += static_cast< ObservationScalarType >( singleCorrection );
         }
         currentCorrection_ = totalLightTimeCorrections;
     }
@@ -832,7 +883,8 @@ public:
             const bool iterateMultiLegLightTime = true ):
         lightTimeCalculators_( lightTimeCalculators ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
-        iterateMultiLegLightTime_( iterateMultiLegLightTime )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime ),
+        ancillaryDelayOverrideWarningPrinted_( false )
     {
         initializeFullLinkLightTimeCalculator( );
     }
@@ -845,7 +897,7 @@ public:
                                  const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                          std::make_shared< LightTimeConvergenceCriteria >( ) ):
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), numberOfLinks_( 1 ), numberOfLinkEnds_( 2 ),
-        iterateMultiLegLightTime_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false ), ancillaryDelayOverrideWarningPrinted_( false )
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -864,6 +916,15 @@ public:
 
         if( !linkEndsDelays_.empty( ) )
         {
+            if( hasDefaultLinkEndDelayFunctions_ && !ancillaryDelayOverrideWarningPrinted_ )
+            {
+                std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
+                             "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
+                             "This warning is printed only once for this light-time calculator."
+                          << std::endl;
+                ancillaryDelayOverrideWarningPrinted_ = true;
+            }
+
             // Delays vector not including delays at receiving and transmitting stations: set them to 0
             if( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
             {
@@ -879,9 +940,40 @@ public:
         }
         else
         {
-            for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+            if( hasDefaultLinkEndDelayFunctions_ )
             {
-                linkEndsDelays_.push_back( 0.0 );
+                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+                {
+                    linkEndsDelays_.push_back(
+                            defaultLinkEndDelayFunctions_.at( i ) == nullptr ? 0.0 : defaultLinkEndDelayFunctions_.at( i )( ) );
+                }
+            }
+            else
+            {
+                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+                {
+                    linkEndsDelays_.push_back( 0.0 );
+                }
+            }
+        }
+    }
+
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        if( !defaultLinkEndDelayFunctions.empty( ) && defaultLinkEndDelayFunctions.size( ) != numberOfLinkEnds_ )
+        {
+            throw std::runtime_error( "Error when setting default link-end delay functions: size (" +
+                                      std::to_string( defaultLinkEndDelayFunctions.size( ) ) +
+                                      ") is inconsistent with number of link ends (" + std::to_string( numberOfLinkEnds_ ) + ")." );
+        }
+        defaultLinkEndDelayFunctions_ = defaultLinkEndDelayFunctions;
+        hasDefaultLinkEndDelayFunctions_ = false;
+        for( const auto& defaultLinkEndDelayFunction : defaultLinkEndDelayFunctions_ )
+        {
+            if( defaultLinkEndDelayFunction != nullptr )
+            {
+                hasDefaultLinkEndDelayFunctions_ = true;
+                break;
             }
         }
     }
@@ -1178,6 +1270,10 @@ private:
 
     std::vector< double > linkEndsDelays_;
 
+    std::vector< std::function< double( ) > > defaultLinkEndDelayFunctions_;
+
+    bool hasDefaultLinkEndDelayFunctions_;
+
     unsigned int startLinkEndIndex_;
 
     unsigned int iterationCounter_;
@@ -1185,6 +1281,8 @@ private:
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 
     const bool iterateMultiLegLightTime_;
+
+    bool ancillaryDelayOverrideWarningPrinted_;
 
     bool correctionsNeedFrequency_;
 };

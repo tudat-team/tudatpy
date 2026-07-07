@@ -24,7 +24,6 @@
 #include "random_noise/expose_random_noise.h"
 #include "viability/expose_viability.h"
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -34,7 +33,7 @@ namespace estimation
 namespace observations_setup
 {
 
-void expose_observations_setup( py::module &m );
+void expose_observations_setup( py::module& m );
 
 }  // namespace observations_setup
 }  // namespace estimation

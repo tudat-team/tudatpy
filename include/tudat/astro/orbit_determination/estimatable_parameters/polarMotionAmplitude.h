@@ -42,10 +42,10 @@ public:
                 rotationModel->getPlanetaryOrientationAngleCalculator( )->getXpolarMotionCoefficients( ).size( ) ),
         maxOrderYpolarMotionCoefficients_(
                 rotationModel->getPlanetaryOrientationAngleCalculator( )->getYpolarMotionCoefficients( ).size( ) )
-    { }
+    {}
 
     //! Destructor
-    ~PolarMotionAmplitude( ) { }
+    ~PolarMotionAmplitude( ) {}
 
     //! Get value of the amplitudes of the polar motion (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for the x- polar motion, and then same order

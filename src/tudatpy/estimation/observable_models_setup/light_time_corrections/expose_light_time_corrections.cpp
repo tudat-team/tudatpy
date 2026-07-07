@@ -42,6 +42,40 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
+    py::enum_< tom::LightTimeCorrectionType >( m,
+                                               "LightTimeCorrectionType",
+                                               R"doc(Enum identifying each type of light-time correction registered on a link.
+
+Used as a filter by :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_correction_components_dependent_variable`
+to select which correction contributions are saved individually.)doc" )
+            .value( "first_order_relativistic", tom::first_order_relativistic )
+            .value( "function_wrapper_light_time_correction", tom::function_wrapper_light_time_correction )
+            .value( "tabulated_tropospheric", tom::tabulated_tropospheric )
+            .value( "saastamoinen_tropospheric", tom::saastamoinen_tropospheric )
+            .value( "vmf3_tropospheric", tom::vmf3_tropospheric )
+            .value( "vmf3o_tropospheric", tom::vmf3o_tropospheric )
+            .value( "tabulated_ionospheric", tom::tabulated_ionospheric )
+            .value( "jakowski_vtec_ionospheric", tom::jakowski_vtec_ionospheric )
+            .value( "inverse_power_series_solar_corona", tom::inverse_power_series_solar_corona )
+            .value( "ionex_vtec_ionospheric", tom::ionex_vtec_ionospheric )
+            .value( "nequick2_ionospheric", tom::nequick2_ionospheric )
+            .export_values( );
+
+    py::class_< tom::LightTimeCalculatorBase, std::shared_ptr< tom::LightTimeCalculatorBase > >(
+            m,
+            "LightTimeCalculatorBase",
+            R"doc(Non-templated view over a light-time calculator, primarily exposing access to the per-correction
+breakdown from the last light-time evaluation.)doc" )
+            .def( "get_current_light_time_correction_components",
+                  &tom::LightTimeCalculatorBase::getCurrentLightTimeCorrectionComponents,
+                  py::return_value_policy::copy,
+                  R"doc(Return the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
+The returned list's order matches `get_light_time_correction_list()`.)doc" )
+            .def( "get_light_time_correction_list",
+                  &tom::LightTimeCalculatorBase::getLightTimeCorrectionList,
+                  R"doc(Return the list of light-time correction objects registered on this calculator.
+Order corresponds to the values returned by `get_current_light_time_correction_components`.)doc" );
+
     py::class_< tom::LightTimeConvergenceCriteria, std::shared_ptr< tom::LightTimeConvergenceCriteria > >( m,
                                                                                                            "LightTimeConvergenceCriteria",
                                                                                                            R"doc(
@@ -339,23 +373,76 @@ Examples
             .value( "vmf3", tom::TroposphericMappingModel::vmf3 );
 
     py::enum_< tom::WaterVaporPartialPressureModel >(
-            m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(No documentation found.)doc" )
-            .value( "tabulated", tom::WaterVaporPartialPressureModel::tabulated )
-            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton );
+            m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(Enumeration for water vapor partial pressure models.)doc" )
+            .value( "tabulated",
+                    tom::WaterVaporPartialPressureModel::tabulated,
+                    R"doc(Use the water vapor partial pressure values directly from the GroundStation's water vapor partial pressure data.)doc" )
+            .value( "bean_and_dutton",
+                    tom::WaterVaporPartialPressureModel::bean_and_dutton,
+                    R"doc(Compute the water vapor partial pressure using the Bean and Dutton (1966) model as given in Eq. 16 of Estefan and Sovers (1994), based on the GroundStation's temperature and relative humidity.)doc" );
 
     m.def( "dsn_tabulated_tropospheric_light_time_correction",
            &tom::tabulatedTroposphericCorrectionSettings,
            py::arg( "file_names" ),
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
-           R"doc(No documentation found.)doc" );
+           py::arg( "seasonal_correction_file_name" ) = "",
+           R"doc(
+
+           Function for creating settings for DSN tabulated tropospheric light-time corrections.
+
+           The tabulated tropospheric correction settings are created based on files according to the TRK-2-23 Media Calibration Interface document.
+           The tropospheric correction files contain time-series coefficients for the dry and wet tropospheric zenit delay, which are then mapped to the slant range using the specified mapping function.
+           The correction is composed of a seasonal correction and an adjustment to that, based on measured data.
+           The tropospheric corrections are spacecraft-independent.
+
+           Parameters
+           ----------
+
+           file_names : list[str]
+               List of paths to the tropospheric correction files. These files should only include the monthly adjustments to the seasonal model as given by the DSN, not the seasonal model.
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the troposphere.
+           mapping_model : TroposphericMappingModel, default = niell
+               Mapping model used to map the zenith delay to the slant range.
+           seasonal_correction_file_name : str, default = ""
+               Path to the CSP file containing the seasonal tropospheric correction model. If empty, the DSN default seasonal model from the `PDS <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-jpl_dsn_mmm/tro/1972_001_2048_001_tro.csp>`_ is used, without the constant terms.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated tropospheric corrections.
+
+           )doc" );
 
     m.def( "saastamoinen_tropospheric_light_time_correction",
            &tom::saastamoinenTroposphericCorrectionSettings,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
            py::arg( "water_vapor_partial_pressure_model" ) = tom::WaterVaporPartialPressureModel::tabulated,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+           
+           Function for creating settings for Saastamoinen tropospheric light-time corrections.
+
+           The Saastamoinen tropospheric correction compute the tropospheric zenith delay based on the local meterological conditions at the ground station.
+           This requires the meteorological data to be set in the :class:`~tudatpy.dynamics.environment.GroundStation` object.
+           The dry delay is computed according to Eq. (12,13) in Estefan and Sovers (1994), while the wet delay is computed according to Eq. (18).
+           The zenith delay is then mapped to the slant range using the specified mapping function.
+           
+           Parameters
+           ----------
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the troposphere.
+           mapping_model : TroposphericMappingModel, default = niell
+               Mapping model used to map the zenith delay to the slant range.
+           water_vapor_partial_pressure_model : WaterVaporPartialPressureModel, default = tabulated
+               Model used to compute the water vapor partial pressure required for the wet delay computation.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for Saastamoinen tropospheric corrections.
+           )doc" );
 
     m.def( "dsn_tabulated_ionospheric_light_time_correction",
            &tom::tabulatedIonosphericCorrectionSettings,
@@ -364,7 +451,33 @@ Examples
            py::arg( "quasar_name_per_id" ) = std::map< int, std::string >( ),
            py::arg( "reference_frequency" ) = 2295e6,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+           
+           Function for creating settings for DSN tabulated ionospheric light-time corrections.
+
+           The tabulated ionospheric correction settings are created based on files according to the TRK-2-23 Media Calibration Interface document.
+           The ionospheric correction files contain time-series coefficients for the delay due to charged particles in the ionosphere at the reference frequency.
+           The ionospheric corrections are spacecraft-specific.
+
+           Parameters
+           ----------
+           file_names : list[str]
+               List of paths to the ionospheric correction files.
+           spacecraft_name_per_id : dict[int, str], default = {}
+               Map with the name of the body associated with each spacecraft ID in the CSP file.
+           quasar_name_per_id : dict[int, str], default = {}
+               Map with the name of the body associated with each quasar ID in the CSP file.
+           reference_frequency : float, default = 2295e6
+               Reference frequency at which the ionospheric correction coefficients are given, in Hz. The correction is scaled to the actual frequency of the signal using the inverse-square law.
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the ionosphere.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated ionospheric corrections.
+           
+           )doc" );
 
     m.def( "jakowski_ionospheric_light_time_correction",
            &tom::jakowskiIonosphericCorrectionSettings,
@@ -441,24 +554,29 @@ first_order_delay_coefficient : float, default = 40.3
            )doc" );
 
     // NeQuick-2 path-integrated ionospheric correction
-    m.def( "nequick2_ionospheric_light_time_correction",
-           []( bool useIonexRescaling,
-               double firstOrderDelayCoefficient,
-               int quadratureOrder,
-               const std::string& ccirDataPath,
-               const std::string& solarActivityDataPath,
-               double ionexRmsBiasTecu ) {
-               return tom::nequick2IonosphericCorrectionSettings(
-                   "Earth", useIonexRescaling, firstOrderDelayCoefficient,
-                   quadratureOrder, ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
-           },
-           py::arg( "use_ionex_rescaling" ) = true,
-           py::arg( "first_order_delay_coefficient" ) = 40.3,
-           py::arg( "quadrature_order" ) = 50,
-           py::arg( "ccir_data_path" ) = "",
-           py::arg( "solar_activity_data_path" ) = "",
-           py::arg( "ionex_rms_bias_tecu" ) = 0.0,
-           R"doc(
+    m.def(
+            "nequick2_ionospheric_light_time_correction",
+            []( bool useIonexRescaling,
+                double firstOrderDelayCoefficient,
+                int quadratureOrder,
+                const std::string& ccirDataPath,
+                const std::string& solarActivityDataPath,
+                double ionexRmsBiasTecu ) {
+                return tom::nequick2IonosphericCorrectionSettings( "Earth",
+                                                                   useIonexRescaling,
+                                                                   firstOrderDelayCoefficient,
+                                                                   quadratureOrder,
+                                                                   ccirDataPath,
+                                                                   solarActivityDataPath,
+                                                                   ionexRmsBiasTecu );
+            },
+            py::arg( "use_ionex_rescaling" ) = true,
+            py::arg( "first_order_delay_coefficient" ) = 40.3,
+            py::arg( "quadrature_order" ) = 50,
+            py::arg( "ccir_data_path" ) = "",
+            py::arg( "solar_activity_data_path" ) = "",
+            py::arg( "ionex_rms_bias_tecu" ) = 0.0,
+            R"doc(
 
 Function for creating settings for NeQuick-2 path-integrated ionospheric light-time corrections.
 
@@ -590,8 +708,9 @@ This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-d
 
     py::class_< tom::GlobalIonosphereModelVtecCalculator,
                 std::shared_ptr< tom::GlobalIonosphereModelVtecCalculator >,
-                tom::VtecCalculator >( m, "GlobalIonosphereModelVtecCalculator",
-                R"doc(
+                tom::VtecCalculator >( m,
+                                       "GlobalIonosphereModelVtecCalculator",
+                                       R"doc(
 
 VTEC calculator that wraps an IonosphereModel (e.g., from IONEX data).
 

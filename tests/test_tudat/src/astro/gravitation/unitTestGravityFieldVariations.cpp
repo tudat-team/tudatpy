@@ -712,13 +712,13 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
         Eigen::MatrixXd expectedCosineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
         Eigen::MatrixXd expectedSineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
 
-        for( auto it: cosineAmplitudes )
+        for( auto it : cosineAmplitudes )
         {
             expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) +=
                     it.second * std::pow( testTime - referenceEpoch, it.first );
         }
 
-        for( auto it: sineAmplitudes )
+        for( auto it : sineAmplitudes )
         {
             expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) +=
                     it.second * std::pow( testTime - referenceEpoch, it.first );

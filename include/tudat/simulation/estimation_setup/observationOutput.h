@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
@@ -84,7 +85,14 @@ public:
         totalDependentVariableSize_ = 0;
     }
 
-    std::pair< int, int > addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings );
+    //! Register a new dependent variable entry. Returns (startIndex, size).
+    //!
+    //! When `sizeOverride` is non-negative it is used verbatim (needed for dependent variables
+    //! whose size is known by the Calculator but not by `getObservationDependentVariableSize`,
+    //! e.g. `light_time_correction_components`). Otherwise the size is resolved via
+    //! `getObservationDependentVariableSize( settings, linkEnds )`.
+    std::pair< int, int > addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings,
+                                                const int sizeOverride = -1 );
 
     void addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList );
 
@@ -117,7 +125,44 @@ public:
         settingsList_.clear( );
         dependentVariableStartIndices_.clear( );
         dependentVariableSizes_.clear( );
+        deferredSettings_.clear( );
         totalDependentVariableSize_ = 0;
+    }
+
+    //! Store a setting whose size depends on state not yet available (e.g.
+    //! `light_time_correction_components` with an empty type-filter — its size equals the
+    //! number of registered light-time corrections, which is only known once the observation
+    //! model has been built). `ObservationDependentVariableCalculator` flushes this list and
+    //! registers the settings properly once constructed with a populated leg map.
+    void addDeferredSetting( const std::shared_ptr< ObservationDependentVariableSettings > setting )
+    {
+        for( const auto& existingSetting : settingsList_ )
+        {
+            if( existingSetting->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
+        for( const auto& existingSetting : deferredSettings_ )
+        {
+            if( existingSetting->areSettingsCompatible( setting ) )
+            {
+                return;
+            }
+        }
+        deferredSettings_.push_back( setting );
+    }
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > takeDeferredSettings( )
+    {
+        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > out;
+        out.swap( deferredSettings_ );
+        return out;
+    }
+
+    const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& getDeferredSettings( ) const
+    {
+        return deferredSettings_;
     }
 
 private:
@@ -132,25 +177,42 @@ private:
     std::vector< int > dependentVariableSizes_;
 
     int totalDependentVariableSize_;
+
+    //! Settings whose layout cannot be resolved yet (see `addDeferredSetting`). Picked up and
+    //! turned into real entries by `ObservationDependentVariableCalculator` once the leg map is known.
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > deferredSettings_;
 };
 
 class ObservationDependentVariableCalculator
 {
 public:
-    ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
-                                            const observation_models::LinkDefinition& linkEnds ):
-        dependentVariableBookkeeping_( std::make_shared< ObservationDependentVariableBookkeeping >( observableType, linkEnds ) )
-    {}
-
-    ObservationDependentVariableCalculator( const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
-                                            const SystemOfBodies& bodies ): dependentVariableBookkeeping_( dependentVariableBookkeeping )
+    ObservationDependentVariableCalculator(
+            const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+            const SystemOfBodies& bodies,
+            const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >& legLightTimeCalculators ):
+        dependentVariableBookkeeping_( dependentVariableBookkeeping ), legLightTimeCalculators_( legLightTimeCalculators )
     {
+        // First, build add-functions for whatever settings already live on the bookkeeping. This
+        // covers everything previously added through `addDependentVariable` plus any
+        // `light_time_correction_components` settings whose layout was resolved on a previous
+        // Calculator instance.
         for( unsigned int i = 0; i < dependentVariableBookkeeping_->getDependentVariableSettings( ).size( ); i++ )
         {
             std::pair< int, int > indices = dependentVariableBookkeeping_->getDependentVariableIndices(
                     dependentVariableBookkeeping_->getDependentVariableSettings( ).at( i ) );
             addDependentVariableFunction(
                     dependentVariableBookkeeping_->getDependentVariableSettings( ).at( i ), bodies, indices.first, indices.second );
+        }
+
+        // Then, drain any deferred `light_time_correction_components` settings. We always drain,
+        // even if the leg map is empty (i.e. the observation model is one that the simulator does
+        // not extract leg calculators from): `registerLightTimeCorrectionComponents` will throw
+        // a clear "no LightTimeCalculator for leg X" error per entry, surfacing the unsupported
+        // observable rather than silently dropping the user's request.
+        for( const auto& settings : dependentVariableBookkeeping_->takeDeferredSettings( ) )
+        {
+            registerLightTimeCorrectionComponents( settings );
         }
     }
 
@@ -171,6 +233,13 @@ public:
         return dependentVariableBookkeeping_;
     }
 
+    const std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                    std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >&
+    getLegLightTimeCalculators( ) const
+    {
+        return legLightTimeCalculators_;
+    }
+
 private:
     void addDependentVariableFunction( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
                                        const SystemOfBodies& bodies,
@@ -185,6 +254,16 @@ private:
                                       const Eigen::VectorXd&,
                                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
+
+    //! Per-leg light-time calculators used only for `light_time_correction_components`. Populated
+    //! at simulate-time by the simulator (or left empty if no leg-specific variables are requested).
+    std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+              std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
+            legLightTimeCalculators_;
+
+    //! Worker function that registers a single `light_time_correction_components` setting. Assumes
+    //! `legLightTimeCalculators_` is already populated.
+    void registerLightTimeCorrectionComponents( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 };
 
 }  // namespace simulation_setup

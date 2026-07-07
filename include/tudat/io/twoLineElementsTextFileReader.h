@@ -68,7 +68,7 @@ public:
         absoluteDirectoryPath_( "" ), relativeDirectoryPath_( "" ), startingCharacter_( "" ), skipKeyword_( "" ),
         containerOfDataFromFile_( ), currentYear_( -0 ), numberOfObjects_( -0 ), numberOfLinesPerTwoLineElementDatum_( 3 ),
         twoLineElementData_( )
-    { }
+    {}
 
     //! Default destructor.
     virtual ~TwoLineElementsTextFileReader( )

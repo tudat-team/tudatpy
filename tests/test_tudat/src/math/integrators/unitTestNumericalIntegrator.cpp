@@ -61,7 +61,7 @@ public:
     DummyNumericalIntegrator( const double intervalStart, const Eigen::VectorXd& initialState ):
         NumericalIntegrator<>( &computeZeroStateDerivative ), numberOfSteps( 0 ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState )
-    { }
+    {}
 
     //! Get step size of the next step.
     /*!

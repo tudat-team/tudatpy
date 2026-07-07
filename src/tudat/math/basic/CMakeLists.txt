@@ -15,8 +15,11 @@ set(basic_mathematics_SOURCES
         "nearestNeighbourSearch.cpp"
         "numericalDerivative.cpp"
         "sphericalHarmonics.cpp"
+        "sphericalHarmonicTransformations.cpp"
         "polyhedron.cpp"
         "rotationAboutArbitraryAxis.cpp"
+        "cayleyKleinParameters.cpp"
+        "wignerDMatrices.cpp"
         "basicMathematicsFunctions.cpp"
         "coordinateConversions.cpp"
         "linearAlgebra.cpp"
@@ -29,6 +32,7 @@ set(basic_mathematics_SOURCES
 set(basic_mathematics_HEADERS
         "basicFunction.h"
         "convergenceException.h"
+        "cayleyKleinParameters.h"
         "coordinateConversions.h"
         "function.h"
         "functionProxy.h"
@@ -46,6 +50,8 @@ set(basic_mathematics_HEADERS
         "leastSquaresEstimation.h"
         "leastSquaresPolynomialFit.h"
         "rotationRepresentations.h"
+        "sphericalHarmonicTransformations.h"
+        "wignerDMatrices.h"
         )
 
 # Add library.

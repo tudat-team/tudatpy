@@ -421,10 +421,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             partialScalingObject->update( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutput =
-                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutput =
-                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             // Compute numerical proper time rate partials and compare to analytical results
             {
@@ -540,10 +540,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                     linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime, referenceLinkEnd, nominalObservableWithoutProperTime );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutputWithoutProperTime =
                     earthStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutputWithoutProperTime =
                     marsStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             Eigen::MatrixXd partialWrtEarthState = earthStatePartialOutput.at( 0 ).first;
             Eigen::MatrixXd partialWrtEarthStateWithoutProperTime = earthStatePartialOutputWithoutProperTime.at( 0 ).first;

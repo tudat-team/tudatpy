@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_CASE( testElectronDensityProfileTestCase1 )
     // We test at exact (45, 15) vertically, so only the F2 peak and topside should match closely.
     // Lower altitudes have different lat/lon along the ray vs our vertical evaluation.
     std::vector< TestPoint > testPoints = {
-        { 300.0,  9.58370e+11,  2.0 },   // near F2 peak, ray is close to (45, 15)
-        { 400.0,  6.93350e+11,  2.0 },
-        { 500.0,  3.55978e+11,  2.0 },
-        { 1000.0, 3.66431e+10,  3.0 },
+        { 300.0, 9.58370e+11, 2.0 },  // near F2 peak, ray is close to (45, 15)
+        { 400.0, 6.93350e+11, 2.0 },
+        { 500.0, 3.55978e+11, 2.0 },
+        { 1000.0, 3.66431e+10, 3.0 },
     };
 
     for( const auto& tp : testPoints )
@@ -76,8 +76,7 @@ BOOST_AUTO_TEST_CASE( testElectronDensityProfileTestCase1 )
         if( tp.expectedNe > 1.0e6 )  // skip near-zero values
         {
             double relError = std::abs( ne - tp.expectedNe ) / tp.expectedNe * 100.0;
-            BOOST_TEST_MESSAGE( "h=" << tp.heightKm << " km: Ne=" << ne
-                                << " expected=" << tp.expectedNe << " relErr=" << relError << "%" );
+            BOOST_TEST_MESSAGE( "h=" << tp.heightKm << " km: Ne=" << ne << " expected=" << tp.expectedNe << " relErr=" << relError << "%" );
             BOOST_CHECK_SMALL( relError, tp.tolerancePct );
         }
     }

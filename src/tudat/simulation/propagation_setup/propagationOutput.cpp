@@ -135,7 +135,7 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
 
-    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction: vectorFunctionList )
+    for( std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction : vectorFunctionList )
     {
         variableList.segment( currentIndex, vectorFunction.second ) = vectorFunction.first( );
         currentIndex += vectorFunction.second;
@@ -258,6 +258,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableSize = 9;
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            variableSize = 9;
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableSize = 9;
             break;
@@ -268,6 +271,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             variableSize = 3;
             break;
         case body_fixed_groundspeed_based_velocity_variable:
+            variableSize = 3;
+            break;
+        case local_wind_velocity_dependent_variable:
             variableSize = 3;
             break;
         case total_aerodynamic_g_load_variable:
@@ -450,6 +456,45 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case total_acceleration_partial_wrt_body_translational_state:
             variableSize = 18;
             break;
+        case acceleration_derivative_partial_wrt_parameter:
+        case total_acceleration_derivative_partial_wrt_parameter: {
+            std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialSettings =
+                    std::dynamic_pointer_cast< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings > totalPartialSettings =
+                    std::dynamic_pointer_cast< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings = ( partialSettings != nullptr )
+                    ? partialSettings->parameterSettings_
+                    : ( totalPartialSettings != nullptr ? totalPartialSettings->parameterSettings_ : nullptr );
+            int dependentVariableSize = ( partialSettings != nullptr )
+                    ? partialSettings->dependentVariableSize_
+                    : ( totalPartialSettings != nullptr ? totalPartialSettings->dependentVariableSize_ : -1 );
+            if( parameterSettings == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error, input for acceleration derivative partial w.r.t. parameter inconsistent when getting parameter size." );
+            }
+            else if( dependentVariableSize > 0 )
+            {
+                variableSize = dependentVariableSize;
+            }
+            else if( estimatable_parameters::isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
+            {
+                variableSize = 3 *
+                        getSingleIntegrationSize( getInitialStateParameterIntegratedStateType( parameterSettings->parameterType_.first ) );
+            }
+            else if( estimatable_parameters::isDoubleParameter( parameterSettings->parameterType_.first ) )
+            {
+                variableSize = 3;
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when getting size of acceleration derivative partial w.r.t. parameter dependent variable for a vector "
+                        "parameter; "
+                        "the size is resolved from the estimatable parameter set during propagation output setup." );
+            }
+            break;
+        }
         case minimum_constellation_distance:
             variableSize = 2;
             break;
@@ -475,6 +520,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             variableSize = 1;
             break;
         case solar_longitude:
+            variableSize = 1;
+            break;
+        case number_density:
             variableSize = 1;
             break;
         case vehicle_panel_inertial_surface_normals:
@@ -623,6 +671,12 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case aerodynamic_coefficients:
             variableSize = 3;
             break;
+        case proper_time_rate_kinematic_term:
+            variableSize = 1;
+            break;
+        case proper_time_rate_potential_term:
+            variableSize = 1;
+            break;
         default:
             std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -641,6 +695,9 @@ std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDe
         case inertial_to_body_fixed_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            dependentVariableShape = { 3, 3 };
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
@@ -651,8 +708,24 @@ std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDe
             dependentVariableShape = { 3, 3 };
             break;
         case acceleration_partial_wrt_body_translational_state:
-            dependentVariableShape = { 3, 3 };
+        case total_acceleration_partial_wrt_body_translational_state:
+            dependentVariableShape = { 3, 6 };
             break;
+        case acceleration_derivative_partial_wrt_parameter:
+        case total_acceleration_derivative_partial_wrt_parameter: {
+            std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialSettings =
+                    std::dynamic_pointer_cast< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings > totalPartialSettings =
+                    std::dynamic_pointer_cast< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            if( ( partialSettings == nullptr || partialSettings->parameterSettings_ == nullptr ) &&
+                ( totalPartialSettings == nullptr || totalPartialSettings->parameterSettings_ == nullptr ) )
+            {
+                throw std::runtime_error(
+                        "Error, input for acceleration derivative partial w.r.t. parameter inconsistent when getting parameter shape." );
+            }
+            dependentVariableShape = { 3, dependentVariableSize / 3 };
+            break;
+        }
         case body_inertia_tensor:
             dependentVariableShape = { 3, 3 };
             break;
@@ -710,6 +783,9 @@ bool isMatrixDependentVariable( const std::shared_ptr< SingleDependentVariableSa
         case inertial_to_body_fixed_rotation_matrix_variable:
             isMatrixVariable = true;
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            isMatrixVariable = true;
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             isMatrixVariable = true;
             break;
@@ -720,6 +796,13 @@ bool isMatrixDependentVariable( const std::shared_ptr< SingleDependentVariableSa
             isMatrixVariable = true;
             break;
         case acceleration_partial_wrt_body_translational_state:
+            isMatrixVariable = true;
+            break;
+        case total_acceleration_partial_wrt_body_translational_state:
+            isMatrixVariable = true;
+            break;
+        case acceleration_derivative_partial_wrt_parameter:
+        case total_acceleration_derivative_partial_wrt_parameter:
             isMatrixVariable = true;
             break;
         case body_inertia_tensor:

@@ -52,10 +52,10 @@ public:
     //! Default constructor.
     ReinitializableNumericalIntegrator( const typename NumericalIntegratorBase::StateDerivativeFunction& aStateDerivativeFunction ):
         NumericalIntegratorBase( aStateDerivativeFunction )
-    { }
+    {}
 
     //! Default destructor.
-    virtual ~ReinitializableNumericalIntegrator( ) { }
+    virtual ~ReinitializableNumericalIntegrator( ) {}
 
 protected:
 private:

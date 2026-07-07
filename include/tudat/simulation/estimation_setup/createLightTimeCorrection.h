@@ -52,10 +52,10 @@ public:
     /*!
      *  \param correctionType Type of light-time correction that is to be created
      */
-    LightTimeCorrectionSettings( const LightTimeCorrectionType correctionType ): correctionType_( correctionType ) { }
+    LightTimeCorrectionSettings( const LightTimeCorrectionType correctionType ): correctionType_( correctionType ) {}
 
     //! Default destructor.
-    virtual ~LightTimeCorrectionSettings( ) { }
+    virtual ~LightTimeCorrectionSettings( ) {}
 
     //! Function returning the type of light-time correction that is to be created
     /*!
@@ -88,10 +88,10 @@ public:
      */
     FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool useBending = false ):
         LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
-    { }
+    {}
 
     //! Destructor
-    ~FirstOrderRelativisticLightTimeCorrectionSettings( ) { }
+    ~FirstOrderRelativisticLightTimeCorrectionSettings( ) {}
 
     //! Function returning the list of bodies for which the point masses are used to compute the light-time correction.
     /*!
@@ -137,7 +137,7 @@ public:
         troposphericWetCorrectionAdjustment_( troposphericWetCorrectionAdjustment ),
         troposphericDryCorrection_( troposphericDryCorrection ), troposphericWetCorrection_( troposphericWetCorrection ),
         bodyWithAtmosphere_( bodyWithAtmosphere ), troposphericMappingModelType_( troposphericMappingModel )
-    { }
+    {}
 
     AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericDryCorrectionAdjustment( )
     {
@@ -191,7 +191,7 @@ public:
                                                 const WaterVaporPartialPressureModel waterVaporPartialPressureModel = tabulated ):
         LightTimeCorrectionSettings( saastamoinen_tropospheric ), bodyWithAtmosphere_( bodyWithAtmosphere ),
         troposphericMappingModelType_( troposphericMappingModel ), waterVaporPartialPressureModelType_( waterVaporPartialPressureModel )
-    { }
+    {}
 
     std::string getBodyWithAtmosphere( )
     {
@@ -279,7 +279,7 @@ public:
                                             const std::string& bodyWithAtmosphere = "Earth" ):
         LightTimeCorrectionSettings( tabulated_ionospheric ), referenceRangeCorrection_( referenceRangeCorrection ),
         referenceFrequency_( referenceFrequency ), bodyWithAtmosphere_( bodyWithAtmosphere )
-    { }
+    {}
 
     AtmosphericCorrectionPerStationAndSpacecraftType getReferenceRangeCorrection( )
     {
@@ -320,7 +320,7 @@ public:
         solarActivityData_( input_output::solar_activity::readSolarActivityData( solarActivityDataPath ) ),
         geomagneticPoleLatitude_( geomagneticPoleLatitude ), geomagneticPoleLongitude_( geomagneticPoleLongitude ),
         useUtcTimeForLocalTime_( useUtcTimeForLocalTimeComputation ), bodyWithAtmosphere_( bodyWithAtmosphere )
-    { }
+    {}
 
     double getIonosphereHeight( )
     {
@@ -418,31 +418,47 @@ private:
 class NeQuick2IonosphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    NeQuick2IonosphericCorrectionSettings(
-        const std::string& bodyWithIonosphere = "Earth",
-        bool useIonexRescaling = true,
-        double firstOrderDelayCoefficient = 40.3,
-        int quadratureOrder = 50,
-        const std::string& ccirDataPath = "",
-        const std::string& solarActivityDataPath = "",
-        double ionexRmsBiasTecu = 0.0 ):
-        LightTimeCorrectionSettings( nequick2_ionospheric ),
-        bodyWithIonosphere_( bodyWithIonosphere ),
-        useIonexRescaling_( useIonexRescaling ),
-        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
-        quadratureOrder_( quadratureOrder ),
-        ccirDataPath_( ccirDataPath ),
-        solarActivityDataPath_( solarActivityDataPath ),
+    NeQuick2IonosphericCorrectionSettings( const std::string& bodyWithIonosphere = "Earth",
+                                           bool useIonexRescaling = true,
+                                           double firstOrderDelayCoefficient = 40.3,
+                                           int quadratureOrder = 50,
+                                           const std::string& ccirDataPath = "",
+                                           const std::string& solarActivityDataPath = "",
+                                           double ionexRmsBiasTecu = 0.0 ):
+        LightTimeCorrectionSettings( nequick2_ionospheric ), bodyWithIonosphere_( bodyWithIonosphere ),
+        useIonexRescaling_( useIonexRescaling ), firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+        quadratureOrder_( quadratureOrder ), ccirDataPath_( ccirDataPath ), solarActivityDataPath_( solarActivityDataPath ),
         ionexRmsBiasTecu_( ionexRmsBiasTecu )
     {}
 
-    std::string getBodyWithIonosphere( ) const { return bodyWithIonosphere_; }
-    bool getUseIonexRescaling( ) const { return useIonexRescaling_; }
-    double getFirstOrderDelayCoefficient( ) const { return firstOrderDelayCoefficient_; }
-    int getQuadratureOrder( ) const { return quadratureOrder_; }
-    std::string getCcirDataPath( ) const { return ccirDataPath_; }
-    std::string getSolarActivityDataPath( ) const { return solarActivityDataPath_; }
-    double getIonexRmsBiasTecu( ) const { return ionexRmsBiasTecu_; }
+    std::string getBodyWithIonosphere( ) const
+    {
+        return bodyWithIonosphere_;
+    }
+    bool getUseIonexRescaling( ) const
+    {
+        return useIonexRescaling_;
+    }
+    double getFirstOrderDelayCoefficient( ) const
+    {
+        return firstOrderDelayCoefficient_;
+    }
+    int getQuadratureOrder( ) const
+    {
+        return quadratureOrder_;
+    }
+    std::string getCcirDataPath( ) const
+    {
+        return ccirDataPath_;
+    }
+    std::string getSolarActivityDataPath( ) const
+    {
+        return solarActivityDataPath_;
+    }
+    double getIonexRmsBiasTecu( ) const
+    {
+        return ionexRmsBiasTecu_;
+    }
 
 private:
     std::string bodyWithIonosphere_;
@@ -465,7 +481,7 @@ public:
         LightTimeCorrectionSettings( inverse_power_series_solar_corona ), coefficients_( coefficients ),
         positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
         sunBodyName_( sunBodyName )
-    { }
+    {}
 
     std::vector< double > getCoefficients( )
     {
@@ -507,18 +523,35 @@ inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLigh
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
         const std::vector< std::string >& troposphericCorrectionFileNames,
         const std::string& bodyWithAtmosphere = "Earth",
-        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell )
+        const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::niell,
+        const std::string& seasonalCorrectionFileName = "" )
 {
     std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
-    for( const std::string& cspFile: troposphericCorrectionFileNames )
+    for( const std::string& cspFile : troposphericCorrectionFileNames )
     {
         troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
+    }
+
+    AtmosphericCorrectionPerStationAndSpacecraftType dryCorrection;
+    AtmosphericCorrectionPerStationAndSpacecraftType wetCorrection;
+    if( seasonalCorrectionFileName.empty( ) )
+    {
+        dryCorrection = extractDefaultTroposphericDryCorrection( );
+        wetCorrection = extractDefaultTroposphericWetCorrection( );
+    }
+    else
+    {
+        auto seasonalCspFile = std::make_shared< input_output::CspRawFile >( seasonalCorrectionFileName );
+        dryCorrection = extractTroposphericDryCorrectionAdjustment( { seasonalCspFile } );
+        wetCorrection = extractTroposphericWetCorrectionAdjustment( { seasonalCspFile } );
     }
 
     return std::make_shared< TabulatedTroposphericCorrectionSettings >( extractTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
                                                                         extractTroposphericWetCorrectionAdjustment( troposphericCspFiles ),
                                                                         bodyWithAtmosphere,
-                                                                        troposphericMappingModel );
+                                                                        troposphericMappingModel,
+                                                                        dryCorrection,
+                                                                        wetCorrection );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCorrectionSettings(
@@ -538,7 +571,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrec
         const std::string& bodyWithAtmosphere = "Earth" )
 {
     std::vector< std::shared_ptr< input_output::CspRawFile > > ionosphericCspFiles;
-    for( const std::string& cspFile: ionosphericCorrectionFileNames )
+    for( const std::string& cspFile : ionosphericCorrectionFileNames )
     {
         ionosphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
     }
@@ -583,9 +616,13 @@ inline std::shared_ptr< LightTimeCorrectionSettings > nequick2IonosphericCorrect
         const std::string& solarActivityDataPath = "",
         double ionexRmsBiasTecu = 0.0 )
 {
-    return std::make_shared< NeQuick2IonosphericCorrectionSettings >(
-        bodyWithIonosphere, useIonexRescaling, firstOrderDelayCoefficient, quadratureOrder,
-        ccirDataPath, solarActivityDataPath, ionexRmsBiasTecu );
+    return std::make_shared< NeQuick2IonosphericCorrectionSettings >( bodyWithIonosphere,
+                                                                      useIonexRescaling,
+                                                                      firstOrderDelayCoefficient,
+                                                                      quadratureOrder,
+                                                                      ccirDataPath,
+                                                                      solarActivityDataPath,
+                                                                      ionexRmsBiasTecu );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(
@@ -594,11 +631,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrection
         const TroposphericMappingModel troposphericMappingModel = TroposphericMappingModel::vmf3 )
 {
     return std::make_shared< VMF3TroposphericCorrectionSettings >(
-            bodyWithAtmosphere,
-            useGradientCorrection,
-            troposphericMappingModel,
-            vmf3_tropospheric,
-            532.0 );
+            bodyWithAtmosphere, useGradientCorrection, troposphericMappingModel, vmf3_tropospheric, 532.0 );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectionSettings(
@@ -608,11 +641,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > vmf3oTroposphericCorrectio
         const double observationWavelengthNm = 532.0 )
 {
     return std::make_shared< VMF3TroposphericCorrectionSettings >(
-            bodyWithAtmosphere,
-            useGradientCorrection,
-            troposphericMappingModel,
-            vmf3o_tropospheric,
-            observationWavelengthNm );
+            bodyWithAtmosphere, useGradientCorrection, troposphericMappingModel, vmf3o_tropospheric, observationWavelengthNm );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(

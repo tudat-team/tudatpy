@@ -38,7 +38,7 @@ namespace tudatpy
 namespace estimation
 {
 
-void expose_estimation( py::module &m )
+void expose_estimation( py::module& m )
 {
     auto observable_models_setup_submodule = m.def_submodule( "observable_models_setup" );
     observable_models_setup::expose_observable_models_setup( observable_models_setup_submodule );
@@ -53,11 +53,9 @@ void expose_estimation( py::module &m )
     observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
+    estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );
-    estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
-
-
 };
 
 }  // namespace estimation
