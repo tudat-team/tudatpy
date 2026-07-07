@@ -489,6 +489,16 @@ public:
         return considerParametersIncluded_;
     }
 
+    bool getSparseDesignMatrix( ) const
+    {
+        return sparseDesignMatrix_;
+    }
+
+    void setSparseDesignMatrix( bool s )
+    {
+        sparseDesignMatrix_ = s;
+    }
+
 protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
@@ -518,6 +528,9 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
+
+    //! Boolean denoting whether to use a sparse design matrix
+    bool sparseDesignMatrix_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
@@ -740,9 +753,11 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
                                                              Eigen::VectorXd& normalisationFactors,
                                                              const bool normalise );
 
+using optionalAnyMatrix = std::variant<std::monostate, Eigen::MatrixXd, Eigen::SparseMatrix<double>>;
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
-    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
                               const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
@@ -758,9 +773,12 @@ struct CovarianceAnalysisOutput {
         considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
-        if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
-            ( normalizedDesignMatrixConsiderParameters.rows( ) == 0 ) && ( normalizedDesignMatrixConsiderParameters.cols( ) == 0 ) &&
-            !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
+        // There were some extensive checks here to see if the design matrix was non-empty.
+        // The idea was to use the empty matrix `MatrixXd(0, 0)` as a place-holder for
+        // no design matrix being saved. Where we use `std::optional` or `std::variant`
+        // instead, we have an explicit representation for the absence of a saved
+        // design matrix, and the current check should suffice.
+        if ( normalizedDesignMatrix_.index() == 0 )
         {
             designMatrixSaved_ = false;
         }
@@ -845,18 +863,20 @@ struct CovarianceAnalysisOutput {
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
      * \return Matrix of unnormalized partial derivatives
      */
-    Eigen::MatrixXd getUnnormalizedDesignMatrix( )
+    Eigen::MatrixXd getUnnormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
         {
+            auto const &A = std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
+
             Eigen::MatrixXd unnormalizedPartialDerivatives =
-                    Eigen::MatrixXd::Zero( normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
+                    Eigen::MatrixXd::Zero( A.rows( ), A.cols( ) );
 
             for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
             {
-                unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                        normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) *
-                        designMatrixTransformationDiagonal_( i );
+                unnormalizedPartialDerivatives.block( 0, i, A.rows( ), 1 ) =
+                    A.block( 0, i, A.rows( ), 1 ) *
+                    designMatrixTransformationDiagonal_( i );
             }
             return unnormalizedPartialDerivatives;
         }
@@ -866,11 +886,11 @@ struct CovarianceAnalysisOutput {
         }
     }
 
-    Eigen::MatrixXd getNormalizedDesignMatrix( )
+    Eigen::MatrixXd getNormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
         {
-            return normalizedDesignMatrix_;
+            return std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
         }
         else
         {
@@ -878,13 +898,13 @@ struct CovarianceAnalysisOutput {
         }
     }
 
-    Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
+    Eigen::MatrixXd getNormalizedWeightedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ )
+        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
         {
-            Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-            scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
-            return weightedNormalizedDesignMatrix;
+            auto A = std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
+            scaleDesignMatrixWithWeights( A, weightsMatrixDiagonal_ );
+            return A;
         }
         else
         {
@@ -992,7 +1012,7 @@ struct CovarianceAnalysisOutput {
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
-    Eigen::MatrixXd normalizedDesignMatrix_;
+    optionalAnyMatrix normalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;

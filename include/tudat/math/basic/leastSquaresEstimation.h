@@ -114,9 +114,8 @@ template <typename M>
 M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
                                              const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
                                              const M& inverseOfAPrioriCovarianceMatrix,
-                                             const Eigen::MatrixXd constraintMultiplier = Eigen::MatrixXd(0, 0),
-                                             const typename from_eigen<M>::dense_vector_type &constraintRightHandside =
-                                                from_eigen<M>::dense_vector_type(0),
+                                             const std::optional<Eigen::MatrixXd> &constraintMultiplier = std::nullopt,
+                                             const std::optional<typename from_eigen<M>::dense_vector_type> &constraintRightHandside = std::nullopt,
                                              double limitConditionNumberForWarning = 1.0E8 )
 {
     // Add constraints to inverse covariance matrix if required

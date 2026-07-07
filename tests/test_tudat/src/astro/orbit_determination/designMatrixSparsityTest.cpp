@@ -27,6 +27,13 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 
+#include "tudat/math/basic/leastSquaresTraits.h"
+
+using DesignMatrixStorageClass = tudat::linear_algebra::Sparse;
+using DesignMatrixPrecision = double;
+
+using DesignMatrixTraits = tudat::linear_algebra::MatrixTraits<DesignMatrixPrecision, DesignMatrixStorageClass>;
+
 // Tunable sparsity/size parameters
 const int numberOfArcs = 100;
 const int totalNumberOfObservations = 10000;
@@ -139,11 +146,14 @@ int main( )
             std::make_shared< EstimationInput< double, double > >( observations );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
     estimationInput->defineEstimationSettings( true, true, true, true );
+
+    // ask to use sparse matrix solvers
+    estimationInput->setSparseDesignMatrix( true );
+
     std::shared_ptr< EstimationOutput< double, double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
 
-
     // Test sparsity
-    const Eigen::MatrixXd designMatrix = output->getUnnormalizedDesignMatrix( );
+    const DesignMatrixTraits::matrix_type designMatrix = output->getUnnormalizedDesignMatrix( );
     const double tolerance = 1.0E-20;
     const int nonZeroCount = ( designMatrix.array( ).abs( ) > tolerance ).count( );
     std::cout << std::setprecision( 16 ) << std::scientific;
