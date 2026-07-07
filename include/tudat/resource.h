@@ -42,11 +42,6 @@ static inline std::string get_homedir( void )
     return std::string( homedir );
 }
 
-static inline std::string get_prefix_path( )
-{
-    return std::string( TUDAT_RESOURCE_PREFIX ).c_str( );
-}
-
 static inline std::string get_hidden_path( )
 {
     return std::string( get_homedir( ) + "/.tudat" ).c_str( );
