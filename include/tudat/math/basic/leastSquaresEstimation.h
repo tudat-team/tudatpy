@@ -16,6 +16,7 @@
 #define TUDAT_LEASTSQUARESESTIMATION_H
 
 #include <iostream>
+#include <type_traits>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -110,18 +111,24 @@ M multiplyDesignMatrixByDiagonalWeightMatrix( const M& designMatrix,
  * (warning printed when exceeded)
  * \return Inverse of covariance matrix at current iteration
  */
-template <typename M>
-M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
-                                             const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
-                                             const M& inverseOfAPrioriCovarianceMatrix,
-                                             const Eigen::MatrixXd constraintMultiplier = Eigen::MatrixXd(0, 0),
-                                             const typename from_eigen<M>::dense_vector_type &constraintRightHandside =
-                                                from_eigen<M>::dense_vector_type(0),
-                                             double limitConditionNumberForWarning = 1.0E8 )
+template <typename DesignMatrixType>
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
+        const DesignMatrixType& designMatrix,
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const std::optional< Eigen::MatrixXd >& constraintMultiplier = std::nullopt,
+        const std::optional< typename from_eigen<DesignMatrixType>::dense_vector_type >& constraintRightHandside = std::nullopt,
+        typename from_eigen<DesignMatrixType>::value_type limitConditionNumberForWarning = 1.0E8 )
 {
     // Add constraints to inverse covariance matrix if required
+    auto weightedDesignMatrix = multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix );
+    static_assert( std::is_same< typename std::decay< decltype( weightedDesignMatrix ) >::type, DesignMatrixType >::value,
+                   "Weighting the design matrix must preserve its storage type." );
+    auto normalMatrixContribution = designMatrix.transpose( ) * weightedDesignMatrix;
+    static_assert( !std::is_same< typename std::decay< decltype( normalMatrixContribution ) >::type, Eigen::MatrixXd >::value,
+                   "The design-matrix normal product must stay as an Eigen expression until the dense covariance boundary." );
     Eigen::MatrixXd inverseOfCovarianceMatrix = inverseOfAPrioriCovarianceMatrix +
-            designMatrix.transpose( ) * diagonalOfWeightMatrix.asDiagonal( ) * designMatrix;
+            Eigen::MatrixXd( normalMatrixContribution );
 
     if ( constraintMultiplier )
     {
@@ -163,18 +170,22 @@ M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
  */
 template <typename M>
 M calculateInverseOfUpdatedCovarianceMatrix( const M& designMatrix,
-                                             const typename from_eigen<M>::dense_vector& diagonalOfWeightMatrix,
+                                             const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
                                              typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );
 
-template <typename M>
-M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarianceMatrix,
-                                                     const M& designMatrix,
-                                                     const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
-                                                     const M& considerDesignMatrix,
-                                                     const M& considerCovariance )
+template <typename DesignMatrixType>
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
+        const Eigen::MatrixXd& normalisedCovarianceMatrix,
+        const DesignMatrixType& designMatrix,
+        const typename from_eigen<DesignMatrixType>::dense_vector_type& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& considerDesignMatrix,
+        const Eigen::MatrixXd& considerCovariance )
 {
-    M covarianceTimesWeightedPartials =
-            normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( );
+    auto weightedDesignMatrix = multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix );
+    static_assert( std::is_same< typename std::decay< decltype( weightedDesignMatrix ) >::type, DesignMatrixType >::value,
+                   "Weighting the design matrix must preserve its storage type." );
+    Eigen::MatrixXd covarianceTimesWeightedPartials =
+            normalisedCovarianceMatrix * weightedDesignMatrix.transpose( );
     return ( covarianceTimesWeightedPartials * considerDesignMatrix ) * considerCovariance *
             ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
 }
@@ -197,7 +208,7 @@ M calculateConsiderParametersCovarianceContribution( const M& normalisedCovarian
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 template <typename M>
-std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const M& designMatrix,
         const typename from_eigen<M>::dense_vector_type& observationResiduals,
         const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
@@ -223,15 +234,15 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
         rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     }
 
-    M inverseOfCovarianceMatrix;
+    Eigen::MatrixXd inverseOfCovarianceMatrix;
     if( constraintMultiplier.rows( ) != 0 )
     {
         inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< M >(
                 designMatrix,
                 diagonalOfWeightMatrix,
                 inverseOfAPrioriCovarianceMatrix,
-                constraintMultiplier,
-                constraintRightHandside );
+                std::optional< Eigen::MatrixXd >( constraintMultiplier ),
+                std::optional< typename from_eigen<M>::dense_vector_type >( constraintRightHandside ) );
 
         int numberOfConstraints = constraintMultiplier.rows( );
         int numberOfParameters = constraintMultiplier.cols( );
@@ -264,7 +275,7 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 template <typename M>
-std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const M& designMatrix,
         const M& observationResiduals,
         const typename from_eigen<M>::dense_vector_type& diagonalOfWeightMatrix,
@@ -282,7 +293,7 @@ std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdj
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 template <typename M>
-std::pair< typename from_eigen<M>::dense_vector_type, M > performLeastSquaresAdjustmentFromDesignMatrix(
+std::pair< typename from_eigen<M>::dense_vector_type, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const M& designMatrix,
         const typename from_eigen<M>::dense_vector_type& observationResiduals,
         typename from_eigen<M>::value_type limitConditionNumberForWarning = 1.0E8 );

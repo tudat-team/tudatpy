@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -28,11 +29,8 @@
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 
 // Tunable sparsity/size parameters
-const int numberOfArcs = 100;
-const int totalNumberOfObservations = 10000;
-
-// Set to 4 to test proper convergence behaviour
-const int numberOfIterations = 1;
+const int numberOfArcs = 200;
+const int totalNumberOfObservations = 20000;
 
 int main( )
 {
@@ -125,30 +123,30 @@ int main( )
     std::shared_ptr< ObservationCollection< double, double > > observations = simulateObservations< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    // Perturb parameter estimation
-    Eigen::VectorXd initialEstimate = parametersToEstimate->getFullParameterValues< double >( );
-    for( int i = 0; i < numberOfArcs; ++i )
+    // Perform covariance calculation without storing the dense design matrix in the output.
+    std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
+    covarianceInput->defineCovarianceSettings( true, true, false, false );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > output = orbitDeterminationManager.computeCovariance( covarianceInput );
+
+    const int numberOfEstimatedParameters = parametersToEstimate->getFullParameterValues< double >( ).rows( );
+    const Eigen::MatrixXd inverseCovariance = output->getNormalizedInverseCovarianceMatrix( );
+    if( inverseCovariance.rows( ) != numberOfEstimatedParameters || inverseCovariance.cols( ) != numberOfEstimatedParameters )
     {
-        initialEstimate.segment( 6 * i, 3 ).array( ) += 1.0;
-        initialEstimate.segment( 6 * i + 3, 3 ).array( ) += 1.0E-5;
+        throw std::runtime_error( "Sparse design covariance test produced an inverse covariance matrix with inconsistent dimensions." );
     }
-    parametersToEstimate->resetParameterValues( initialEstimate );
 
-    // Perform estimation
-    std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( observations );
-    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
-    estimationInput->defineEstimationSettings( true, true, true, true );
-    std::shared_ptr< EstimationOutput< double, double > > output = orbitDeterminationManager.estimateParameters( estimationInput );
-
-
-    // Test sparsity
-    const Eigen::MatrixXd designMatrix = output->getUnnormalizedDesignMatrix( );
-    const double tolerance = 1.0E-20;
-    const int nonZeroCount = ( designMatrix.array( ).abs( ) > tolerance ).count( );
+    const int numberOfDesignMatrixRows = 3 * totalNumberOfObservations;
+    const int numberOfDesignMatrixColumns = numberOfEstimatedParameters;
+    const long long designMatrixEntries = static_cast< long long >( numberOfDesignMatrixRows ) * numberOfDesignMatrixColumns;
+    const long long expectedNonZeroEntries = static_cast< long long >( numberOfDesignMatrixRows ) * 6;
     std::cout << std::setprecision( 16 ) << std::scientific;
-    std::cout << "Design matrix entries: " << designMatrix.rows( ) * designMatrix.cols( ) << "\n"
-              << "Nonzeros > " << tolerance << ": " << nonZeroCount << "\n"
-              << "Density: " << static_cast< double >( nonZeroCount ) / static_cast< double >( designMatrix.size( ) ) << "\n";
+    std::cout << "Logical design matrix rows: " << numberOfDesignMatrixRows << "\n"
+              << "Logical design matrix columns: " << numberOfDesignMatrixColumns << "\n"
+              << "Logical design matrix entries: " << designMatrixEntries << "\n"
+              << "Expected structural nonzeros: " << expectedNonZeroEntries << "\n"
+              << "Expected structural density: "
+              << static_cast< double >( expectedNonZeroEntries ) / static_cast< double >( designMatrixEntries ) << "\n"
+              << "Dense covariance matrix entries: " << inverseCovariance.size( ) << "\n";
 
 }

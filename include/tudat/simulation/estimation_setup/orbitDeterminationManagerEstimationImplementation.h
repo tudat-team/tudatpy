@@ -455,6 +455,65 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     return std::make_pair( designMatrices, residuals );
 }
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+template< typename EstimatedDesignMatrixType >
+std::pair< std::pair< EstimatedDesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreEstimationSteps(
+        std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+        const ParameterVectorType& newParameterEstimate,
+        const bool calculateResiduals,
+        const int numberOfIterations,
+        bool& exceptionDuringPropagation,
+        std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
+{
+    static_assert( std::is_same< EstimatedDesignMatrixType, Eigen::SparseMatrix< double > >::value,
+                   "This pre-estimation overload is currently only implemented for sparse estimated-parameter design matrices." );
+    if( calculateResiduals )
+    {
+        throw std::runtime_error( "Sparse pre-estimation steps are currently only implemented for covariance analysis." );
+    }
+
+    const int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+    try
+    {
+        if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
+        {
+            resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
+        }
+
+        if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
+        {
+            if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )
+                        ->getSaveStateHistoryForEachIteration( ) )
+            {
+                simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
+            }
+        }
+    }
+    catch( std::runtime_error& error )
+    {
+        std::cerr << "Error when resetting parameters during parameter estimation: " << std::endl
+                  << error.what( ) << std::endl
+                  << "Terminating estimation" << std::endl;
+        exceptionDuringPropagation = true;
+    }
+
+    if( estimationInput->getPrintOutput( ) )
+    {
+        std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
+    }
+
+    EstimatedDesignMatrixType designMatrixEstimatedParameters;
+    Eigen::MatrixXd designMatrixConsiderParameters;
+    computeCovarianceDesignMatricesSparse( estimationInput, designMatrixEstimatedParameters, designMatrixConsiderParameters );
+
+    return std::make_pair( std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters ),
+                           Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >( ) );
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

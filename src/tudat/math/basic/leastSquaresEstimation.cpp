@@ -142,8 +142,16 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     }
 
+    std::optional< Eigen::MatrixXd > constraintMultiplierOptional =
+            constraintMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::MatrixXd >( constraintMultiplier );
+    std::optional< Eigen::VectorXd > constraintRightHandsideOptional =
+            constraintMultiplier.rows( ) == 0 ? std::nullopt : std::optional< Eigen::VectorXd >( constraintRightHandside );
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix< Eigen::MatrixXd >(
-            designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
+            designMatrix,
+            diagonalOfWeightMatrix,
+            inverseOfAPrioriCovarianceMatrix,
+            constraintMultiplierOptional,
+            constraintRightHandsideOptional );
 
     // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )

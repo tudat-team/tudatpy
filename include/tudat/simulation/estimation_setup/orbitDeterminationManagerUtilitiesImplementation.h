@@ -14,6 +14,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
@@ -117,6 +118,144 @@ Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dumm
     }
 
     return normalizationTerms;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::VectorXd OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::normalizeSparseDesignMatrix(
+        Eigen::SparseMatrix< double >& observationMatrix )
+{
+    Eigen::VectorXd normalizationTerms = Eigen::VectorXd::Ones( observationMatrix.cols( ) );
+
+    for( int column = 0; column < observationMatrix.outerSize( ); column++ )
+    {
+        double minimum = 0.0;
+        double maximum = 0.0;
+        for( Eigen::SparseMatrix< double >::InnerIterator iterator( observationMatrix, column ); iterator; ++iterator )
+        {
+            minimum = std::min( minimum, iterator.value( ) );
+            maximum = std::max( maximum, iterator.value( ) );
+        }
+
+        if( std::fabs( minimum ) > maximum )
+        {
+            normalizationTerms( column ) = minimum;
+        }
+        else if( maximum != 0.0 )
+        {
+            normalizationTerms( column ) = maximum;
+        }
+
+        for( Eigen::SparseMatrix< double >::InnerIterator iterator( observationMatrix, column ); iterator; ++iterator )
+        {
+            iterator.valueRef( ) /= normalizationTerms( column );
+        }
+    }
+
+    observationMatrix.makeCompressed( );
+    return normalizationTerms;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovarianceDesignMatricesSparse(
+        std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+        Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
+        Eigen::MatrixXd& designMatrixConsiderParameters )
+{
+    const int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+    std::vector< Eigen::Triplet< double > > estimatedParameterTriplets;
+    estimatedParameterTriplets.reserve( static_cast< std::size_t >( totalNumberOfObservations ) * 6 );
+    if( considerParametersIncluded_ )
+    {
+        designMatrixConsiderParameters = Eigen::MatrixXd::Zero( totalNumberOfObservations, numberConsiderParameters_ );
+    }
+    else
+    {
+        designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
+    }
+
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations =
+            estimationInput->getObservationCollection( )->getObservationsSets( );
+
+    for( auto observableIt : sortedObservations )
+    {
+        observation_models::ObservableType currentObservableType = observableIt.first;
+
+        for( auto linkEndIt : observableIt.second )
+        {
+            observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
+            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
+            {
+                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
+                        linkEndIt.second.at( i );
+                std::pair< int, int > observationIndices =
+                        estimationInput->getObservationCollection( )->getObservationSetStartAndSize( ).at( currentObservableType ).at(
+                                currentLinkEnds ).at( i );
+
+                if( observationIndices.second > 0 )
+                {
+                    const std::vector< TimeType >& observationTimes = currentObservations->getObservationTimes( );
+                    const int rowsPerObservation = observationIndices.second / static_cast< int >( observationTimes.size( ) );
+                    if( rowsPerObservation * static_cast< int >( observationTimes.size( ) ) != observationIndices.second )
+                    {
+                        throw std::runtime_error( "Error when computing sparse covariance design matrix: observation size is inconsistent." );
+                    }
+
+                    const int maximumNumberOfObservationsPerBatch = 100;
+                    for( int firstObservation = 0; firstObservation < static_cast< int >( observationTimes.size( ) );
+                         firstObservation += maximumNumberOfObservationsPerBatch )
+                    {
+                        const int currentBatchSize =
+                                std::min( maximumNumberOfObservationsPerBatch,
+                                          static_cast< int >( observationTimes.size( ) ) - firstObservation );
+                        std::vector< TimeType > currentObservationTimes(
+                                observationTimes.begin( ) + firstObservation,
+                                observationTimes.begin( ) + firstObservation + currentBatchSize );
+
+                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
+                        Eigen::MatrixXd partialsMatrix;
+                        observationManagers_.at( currentObservableType )
+                                ->computeObservationsWithPartials( currentObservationTimes,
+                                                                   currentLinkEnds,
+                                                                   currentObservations->getReferenceLinkEnd( ),
+                                                                   currentObservations->getAncillarySettings( ),
+                                                                   observationsVector,
+                                                                   partialsMatrix,
+                                                                   false,
+                                                                   true );
+
+                        const int rowOffset = observationIndices.first + firstObservation * rowsPerObservation;
+                        for( int row = 0; row < partialsMatrix.rows( ); row++ )
+                        {
+                            for( unsigned int column = 0; column < numberEstimatedParameters_; column++ )
+                            {
+                                const double value = partialsMatrix( row, column );
+                                if( value != 0.0 )
+                                {
+                                    estimatedParameterTriplets.emplace_back( rowOffset + row, column, value );
+                                }
+                            }
+                        }
+
+                        if( considerParametersIncluded_ )
+                        {
+                            designMatrixConsiderParameters.block(
+                                    rowOffset, 0, partialsMatrix.rows( ), numberConsiderParameters_ ) =
+                                    partialsMatrix.block( 0, numberEstimatedParameters_, partialsMatrix.rows( ), numberConsiderParameters_ );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    designMatrixEstimatedParameters.resize( totalNumberOfObservations, numberEstimatedParameters_ );
+    designMatrixEstimatedParameters.setFromTriplets( estimatedParameterTriplets.begin( ), estimatedParameterTriplets.end( ) );
+    designMatrixEstimatedParameters.makeCompressed( );
 }
 
 template< typename ObservationScalarType,

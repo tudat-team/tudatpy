@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -273,8 +274,24 @@ protected:
                                bool& exceptionDuringPropagation,
                                std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
 
+    template< typename EstimatedDesignMatrixType >
+    std::pair< std::pair< EstimatedDesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+    performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+                               const ParameterVectorType& newParameterEstimate,
+                               const bool calculateResiduals,
+                               const int numberOfIterations,
+                               bool& exceptionDuringPropagation,
+                               std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
+
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
                                                                                               const int numberObservations );
+
+    void computeCovarianceDesignMatricesSparse(
+            std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+            Eigen::SparseMatrix< double >& designMatrixEstimatedParameters,
+            Eigen::MatrixXd& designMatrixConsiderParameters );
+
+    Eigen::VectorXd normalizeSparseDesignMatrix( Eigen::SparseMatrix< double >& observationMatrix );
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;
