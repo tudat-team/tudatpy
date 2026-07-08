@@ -2839,7 +2839,7 @@ observation_models::LinkEnds getLinkEndsFromTrackingData(
         LinkEndId id = LinkEndId( linkEnd.first );
         if( !linkEnds.emplace( type, id ).second )
         {
-            throw std::runtime_error( "Duplicate link-end role '" + entry.second + "' in tracking data." );
+            throw std::runtime_error( "Duplicate link-end type '" + entry.second + "' in tracking data." );
         }
     }
     return linkEnds;
@@ -2862,26 +2862,62 @@ template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
-        const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData )
+        const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const bool applyCorrections = false )
 {
     // Identify observable type from tracking data object
     observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType );
 
     // Identify link ends from tracking data object
-    LinkDefinition linkEnds = getLinkEndsFromTrackingData( trackingdata->getLinkEnds( ) );
+    LinkDefinition linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
+
+    // Identify link end reference from tracking data object
 
     // Get observations from tracking data
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
-    // Apply corrections if necessary
+    // Apply corrections if requested (and if they exist)
+    if( applyCorrections )
+    {
+        // Check if corrections are available in the TrackingData object
+        if( trackingData->getObservationCorrections( ).empty( ) )
+        {
+            std::cerr << "Warning when applying corrections to observations when creating a single observation set from tracking data: 
+                         no such corrections available in the tracking data object." << std::endl;
+        }
 
-    //
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
+
+        // Check size consistency
+        if( corrections.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Error when creating single observation set from tracking data, the size of the corrections (" +
+                                      std::to_string( corrections.size( ) ) + ") is inconsistent with the number of observations (" +
+                                      std::to_string( observations.size( ) ) + ")." );
+        }
+
+        // Apply corrections
+        for( unsigned int i = 0; i < observations.size( ); i++ )
+        {
+            // Check size consistency of single correction
+            if( corrections[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error("Error when creating single observation set from tracking data, size of single observation 
+                    correction (" + std::to_string(corrections[i].size( )) + ") does not match the single observation size 
+                    (" + std::to_string(observations[i].size( )) + ").");
+            }
+            observations[ i ] += corrections[ i ];
+        }
+    }
+
+    // Convert ancillary settings information from tracking data object to ObservationAncillarySimulationSettings
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingdata );
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
             std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
                                                                                          linkEnds,
-                                                                                         trackingData->getObservations( ),
+                                                                                         observations,
                                                                                          trackingData->getObservationEpochs( ),
                                                                                          trackingData->getReferenceLinkEnd( ),
                                                                                          ancillarySettings );
