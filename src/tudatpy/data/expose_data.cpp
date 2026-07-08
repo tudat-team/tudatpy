@@ -31,8 +31,8 @@
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/readVariousPdsFiles.h"
 #include "tudat/io/solarActivityData.h"
-
 #include "coma_model/expose_coma_model.h"
+#include "tudat/io/trackingData.h"
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -885,6 +885,16 @@ Read a mapping from DOMES id to station name.
            fdets_contents : TrackingTxtFileContents
                Dictionary with contents of the Fdets file as lists of strings
            )doc" );
+
+    py::class_< tio::TrackingData >( m, "TrackingData", R"doc(
+ Tracking Data Class container.
+    )doc" )
+            .def( py::init<>( ) )
+            .def_readonly( "observable_type", &tio::TrackingData::observable_type )
+            .def_readonly( "link_ends", &tio::TrackingData::linkEnds )
+            .def_readonly( "observations", &tio::TrackingData::observations )
+            .def_readonly( "epochs", &tio::TrackingData::epochs )
+            .def_readonly( "reference_link_end", &tio::TrackingData::referenceLinkEnd )
 };
 
 }  // namespace data
