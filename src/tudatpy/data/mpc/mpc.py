@@ -250,73 +250,53 @@ class BatchMPC:
         augmented_table["custom_name"] = [custom_name] * len(augmented_table)
         return augmented_table
 
-    ################################################################################
-    # DATA RETRIEVAL OPTION 1): from_file: allows external observations to be added
-    ################################################################################
-    def from_file(
-        self,
-        filename: str,
-        in_degrees: bool = False,
-        frame: str = "J2000",
-        custom_name: str | None = None,
+    def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
+        """Internal. Formats a table of observations, used in from_astropy and in from_pandas."""
+        obs = table
+        obs = self._add_time_columns(obs)
+        obs = self._add_custom_name_column(obs, custom_name)
+        if in_degrees:
+            obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
+                DEC=lambda x: np.radians(x.DEC)
+            )
+
+        # convert object mpc code to string
+        self._table = pd.concat([self._table, obs])
+        self._refresh_metadata()
+
+    def _validate_table(
+        self, table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str
     ) -> None:
-        """
-        Loads observations from a local MPC 80-column text file.
-
-        This method serves as a high-level convenience function that orchestrates the
-        parsing of a raw 80-column file and loading the data into the batch. It uses
-        the `tudatpy.data.mpc.parser_80col.parse_80cols_file` function internally.
-
-        The parser returns an Astropy Table with RA/DEC values in radians, so this
-        method subsequently calls `from_astropy` to ingest the data. The `in_degrees`
-        parameter should therefore be `False` (the default).
-
-        Note
-        ----
-        If you wish to perform intermediate operations on the parsed data using
-        pandas, you can call the parser directly and then use the `from_pandas`
-        method:
-
-        .. code-block:: python
-
-            from tudatpy.data.mpc.parser_80col import parse_80cols_file
-
-            # 1. Parse the file to an Astropy Table
-            astropy_table = parse_80cols_file("my_obs.txt")
-
-            # 2. Convert to a pandas DataFrame for manipulation
-            pandas_df = astropy_table.to_pandas()
-            # ... perform custom pandas operations on pandas_df ...
-
-            # 3. Load the processed DataFrame into the batch
-            batch = BatchMPC()
-            batch.from_pandas(pandas_df, in_degrees=False)
-
+        """Internal helper to validate the frame and required columns of a table.
 
         Parameters
         ----------
-        filename : str
-            The path to the MPC 80-column formatted text file.
-        in_degrees : bool, optional
-            Specifies the unit of RA/DEC in the file. Since the internal parser
-            handles the conversion to radians, this should be left as `False`.
-            Defaults to False.
-        frame : str, optional
-            The reference frame of the observations. Currently, only "J2000" is
-            supported. Defaults to "J2000".
+        table : astropy.table.QTable | astropy.table.Table | pd.DataFrame
+            The table to validate.
+        frame : str
+            The reference frame to check.
         """
-        # Use the dedicated parser submodule to parse the external file.
-        # This function returns an astropy.Table with RA/DEC in radians.
-        astropy_table = parse_80cols_file(filename)
+        if frame != "J2000":
+            raise NotImplementedError("Only observations in J2000 are supported currently")
 
-        # Use the from_astropy method to validate and add the data.
-        # in_degrees is False because the parser has already converted to radians.
-        self.from_astropy(
-            astropy_table, in_degrees=in_degrees, frame=frame, custom_name=custom_name
-        )
+        # Get column names depending on table type
+        if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+            colnames = table.colnames
+            nrows = len(table)
+        elif isinstance(table, pd.DataFrame):
+            colnames = table.columns
+            nrows = len(table)
+        else:
+            raise TypeError(f"Unsupported table type: {type(table).__name__}")
+
+        if not set(self._req_cols).issubset(set(colnames)):
+            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+
+        if nrows == 0:
+            raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
     ###########################################################################################
-    # DATA RETRIEVAL OPTION 2): get_observations: retrieves data from mpc through astroquery.
+    # MPC Astroquery Data Retrieval: get_observations
     ###########################################################################################
     def get_observations(
         self,
@@ -447,50 +427,70 @@ class BatchMPC:
 
         self._refresh_metadata()
 
-    def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
-        obs = table
-        obs = self._add_time_columns(obs)
-        obs = self._add_custom_name_column(obs, custom_name)
-        if in_degrees:
-            obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
-                DEC=lambda x: np.radians(x.DEC)
-            )
-
-        # convert object mpc code to string
-        self._table = pd.concat([self._table, obs])
-        self._refresh_metadata()
-
-    def _validate_table(
-        self, table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str
+    ################################################################################
+    # Allow external observations to be added: from_file
+    ################################################################################
+    def from_file(
+        self,
+        filename: str,
+        in_degrees: bool = False,
+        frame: str = "J2000",
+        custom_name: str | None = None,
     ) -> None:
-        """Internal helper to validate the frame and required columns of a table.
+        """
+        Loads observations from a local MPC 80-column text file.
+
+        This method serves as a high-level convenience function that orchestrates the
+        parsing of a raw 80-column file and loading the data into the batch. It uses
+        the `tudatpy.data.mpc.parser_80col.parse_80cols_file` function internally.
+
+        The parser returns an Astropy Table with RA/DEC values in radians, so this
+        method subsequently calls `from_astropy` to ingest the data. The `in_degrees`
+        parameter should therefore be `False` (the default).
+
+        Note
+        ----
+        If you wish to perform intermediate operations on the parsed data using
+        pandas, you can call the parser directly and then use the `from_pandas`
+        method:
+
+        .. code-block:: python
+
+            from tudatpy.data.mpc.parser_80col import parse_80cols_file
+
+            # 1. Parse the file to an Astropy Table
+            astropy_table = parse_80cols_file("my_obs.txt")
+
+            # 2. Convert to a pandas DataFrame for manipulation
+            pandas_df = astropy_table.to_pandas()
+            # ... perform custom pandas operations on pandas_df ...
+
+            # 3. Load the processed DataFrame into the batch
+            batch = BatchMPC()
+            batch.from_pandas(pandas_df, in_degrees=False)
+
 
         Parameters
         ----------
-        table : astropy.table.QTable | astropy.table.Table | pd.DataFrame
-            The table to validate.
-        frame : str
-            The reference frame to check.
+        filename : str
+            The path to the MPC 80-column formatted text file.
+        in_degrees : bool, optional
+            Specifies the unit of RA/DEC in the file. Since the internal parser
+            handles the conversion to radians, this should be left as `False`.
+            Defaults to False.
+        frame : str, optional
+            The reference frame of the observations. Currently, only "J2000" is
+            supported. Defaults to "J2000".
         """
-        if frame != "J2000":
-            raise NotImplementedError("Only observations in J2000 are supported currently")
+        # Use the dedicated parser submodule to parse the external file.
+        # This function returns an astropy.Table with RA/DEC in radians.
+        astropy_table = parse_80cols_file(filename)
 
-        # Get column names depending on table type
-        if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
-            colnames = table.colnames
-            nrows = len(table)
-        elif isinstance(table, pd.DataFrame):
-            colnames = table.columns
-            nrows = len(table)
-        else:
-            raise TypeError(f"Unsupported table type: {type(table).__name__}")
-
-        if not set(self._req_cols).issubset(set(colnames)):
-            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
-
-        if nrows == 0:
-            raise ValueError("Table contains zero rows: no valid observations were parsed.")
+        # Use the from_astropy method to validate and add the data.
+        # in_degrees is False because the parser has already converted to radians.
+        self.from_astropy(
+            astropy_table, in_degrees=in_degrees, frame=frame, custom_name=custom_name
+        )
 
     #########################################################
     # FROM ASTROPY OBJECT INTO Tudat BatchMPC: from_astropy
@@ -504,8 +504,8 @@ class BatchMPC:
     ) -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
 
-        This method provides a convenient way to import observation data that has been
-        processed or filtered and is stored in an Astropy Table or QTable. It serves
+        This method provides a convenient way to import observation data that
+        is stored in an Astropy Table or QTable. It serves
         as a wrapper that validates the input before converting it to a pandas DataFrame
         for internal processing.
 
