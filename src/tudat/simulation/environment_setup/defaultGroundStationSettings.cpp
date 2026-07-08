@@ -8,8 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <memory>
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readSinexFile.h"
@@ -204,10 +206,28 @@ std::shared_ptr< GroundStationSettings > getDsnStationSetting( const std::string
     Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
             ( Eigen::Vector6d( ) << stationPositionItrf93, stationVelocityItrf93 ).finished( ), stationPositionsReferenceEpoch, "ITRF93" );
 
+    auto stationSettings = std::make_shared< GroundStationSettings >( stationName, stationStateItrf2014.segment( 0, 3 ) );
+
+    if( stationName == "DSS-65" )
+    {
+        // DSS-65 was moved in 2005 to its current new location
+        // define piecewise-constant displacement according to
+        // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/earthstns_itrf93_050714.cmt
+        auto const& dss65Pre2005Position = ( Eigen::Vector3d( ) << 4849336.6176, -360488.6349, 4114748.9218 ).finished( );
+        const std::map< double, Eigen::Vector3d > displacementList = {
+            { basic_astrodynamics::DateTime( 1987, 1, 1, 0, 0, 0 ).epoch< double >( ),
+              dss65Pre2005Position - stationStateItrf2014.segment( 0, 3 ) },
+            { basic_astrodynamics::DateTime( 2005, 7, 3, 0, 0, 0 ).epoch< double >( ), Eigen::Vector3d::Zero( ) }
+        };
+
+        std::shared_ptr< GroundStationMotionSettings > dss65Displacement =
+                std::make_shared< PiecewiseConstantGroundStationMotionSettings >( displacementList );
+        stationSettings->addStationMotionSettings( dss65Displacement );
+    }
+
     std::shared_ptr< GroundStationMotionSettings > stationMotion =
             std::make_shared< LinearGroundStationMotionSettings >( stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
 
-    auto stationSettings = std::make_shared< GroundStationSettings >( stationName, stationStateItrf2014.segment( 0, 3 ) );
     stationSettings->addStationMotionSettings( stationMotion );
 
     return stationSettings;
