@@ -139,6 +139,70 @@ inline void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHisto
     }
 }
 
+inline std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVelocity(
+        const data::TranslationalStateSupplementaryData& translationalStateSupplementaryData )
+{
+    std::map< double, Eigen::Vector6d > stateHistory = translationalStateSupplementaryData.getStateHistory( );
+
+    if( stateHistory.size( ) > 0 && !translationalStateSupplementaryData.isVelocityDefined( ) )
+    {
+        if( stateHistory.size( ) == 1 )
+        {
+            stateHistory.begin( )->second.segment( 3, 3 ).setZero( );
+        }
+        else
+        {
+            for( auto stateIterator = stateHistory.begin( ); stateIterator != stateHistory.end( ); ++stateIterator )
+            {
+                Eigen::Vector3d velocity = Eigen::Vector3d::Zero( );
+
+                auto nextStateIterator = stateIterator;
+                ++nextStateIterator;
+
+                if( stateIterator == stateHistory.begin( ) )
+                {
+                    velocity = ( nextStateIterator->second.segment( 0, 3 ) - stateIterator->second.segment( 0, 3 ) ) /
+                            ( nextStateIterator->first - stateIterator->first );
+                }
+                else if( nextStateIterator == stateHistory.end( ) )
+                {
+                    auto previousStateIterator = stateIterator;
+                    --previousStateIterator;
+
+                    velocity = ( stateIterator->second.segment( 0, 3 ) - previousStateIterator->second.segment( 0, 3 ) ) /
+                            ( stateIterator->first - previousStateIterator->first );
+                }
+                else
+                {
+                    auto previousStateIterator = stateIterator;
+                    --previousStateIterator;
+
+                    const double previousTime = previousStateIterator->first;
+                    const double currentTime = stateIterator->first;
+                    const double nextTime = nextStateIterator->first;
+
+                    const double previousCoefficient =
+                            ( currentTime - nextTime ) / ( ( previousTime - currentTime ) * ( previousTime - nextTime ) );
+                    const double currentCoefficient =
+                            ( 2.0 * currentTime - previousTime - nextTime ) /
+                            ( ( currentTime - previousTime ) * ( currentTime - nextTime ) );
+                    const double nextCoefficient =
+                            ( currentTime - previousTime ) / ( ( nextTime - previousTime ) * ( nextTime - currentTime ) );
+
+                    velocity = previousCoefficient * previousStateIterator->second.segment( 0, 3 ) +
+                            currentCoefficient * stateIterator->second.segment( 0, 3 ) +
+                            nextCoefficient * nextStateIterator->second.segment( 0, 3 );
+                }
+
+                stateIterator->second.segment( 3, 3 ) = velocity;
+            }
+        }
+    }
+
+    return stateHistory;
+}
+
+
 inline void setTranslationalStateSupplementaryDataInBodies(
     simulation_setup::SystemOfBodies& bodies,
     const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
@@ -170,7 +234,8 @@ inline void setTranslationalStateSupplementaryDataInBodies(
                                           frameOrigin + "." );
             }
 
-            const std::map< double, Eigen::Vector6d >& currentStateHistory = it->second.at( i ).getStateHistory( );
+            std::map< double, Eigen::Vector6d > currentStateHistory =
+                    getTranslationalStateHistoryWithVelocity( it->second.at( i ) );
             for( auto stateIterator = currentStateHistory.begin( ); stateIterator != currentStateHistory.end( ); ++stateIterator )
             {
                 if( stateHistory.count( stateIterator->first ) == 0 )

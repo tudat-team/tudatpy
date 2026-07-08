@@ -218,13 +218,18 @@ public:
         return frameOrigin_;
     }
 
+    bool isVelocityDefined( ) const
+    {
+        return isVelocityDefined_;
+    }
+
 private:
 
     std::map< double, Eigen::Vector6d > stateHistory_;
 
     std::string frameOrigin_;
 
-    bool isVelocityDefined_;
+    bool isVelocityDefined_ = false;
 
 };
 
