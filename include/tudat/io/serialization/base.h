@@ -37,9 +37,8 @@
 
 #include <Eigen/Core>
 
-#include "tudat/basics/timeType.h"
-
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -112,9 +111,9 @@ T deserializeFromBinaryString( const std::string& data )
 {
     std::istringstream iss( data, std::ios::binary );
     cereal::BinaryInputArchive ia( iss );
-    T object;
-    ia( object );
-    return object;
+    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+    ia( *objectPtr );
+    return std::move( *objectPtr );
 }
 
 //! Helper function to serialize a shared_ptr to a binary string (for polymorphic types)
@@ -178,9 +177,9 @@ T loadFromBinaryFile( const std::string& path )
     }
 
     cereal::BinaryInputArchive archive( inputStream );
-    T object;
-    archive( object );
-    return object;
+    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+    archive( *objectPtr );
+    return std::move( *objectPtr );
 }
 
 //! Helper function to deserialize from a binary file into an existing object
@@ -232,9 +231,9 @@ T loadFromJsonFile( const std::string& path )
     }
 
     cereal::JSONInputArchive archive( inputStream );
-    T object;
-    archive( cereal::make_nvp( "root", object ) );
-    return object;
+    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+    archive( cereal::make_nvp( "root", *objectPtr ) );
+    return std::move( *objectPtr );
 }
 
 //! Helper function to deserialize from a JSON file into an existing object
@@ -251,6 +250,38 @@ void loadFromJsonFile( const std::string& path, T& object )
 
     cereal::JSONInputArchive archive( inputStream );
     archive( cereal::make_nvp( "root", object ) );
+}
+
+//! Helper function to serialize a shared_ptr to a JSON file (for polymorphic types)
+//! Appends ".json" extension automatically.
+template< typename T >
+void saveSharedPtrToJsonFile( const std::shared_ptr< T >& object, const std::string& path )
+{
+    saveToJsonFile< std::shared_ptr< T > >( object, path );
+}
+
+//! Helper function to deserialize a shared_ptr from a JSON file (for polymorphic types)
+//! Appends ".json" extension automatically.
+template< typename T >
+std::shared_ptr< T > loadSharedPtrFromJsonFile( const std::string& path )
+{
+    return loadFromJsonFile< std::shared_ptr< T > >( path );
+}
+
+//! Helper function to serialize a shared_ptr to a binary file (for polymorphic types)
+//! Appends ".tudat" extension automatically.
+template< typename T >
+void saveSharedPtrToBinaryFile( const std::shared_ptr< T >& object, const std::string& path )
+{
+    saveToBinaryFile< std::shared_ptr< T > >( object, path );
+}
+
+//! Helper function to deserialize a shared_ptr from a binary file (for polymorphic types)
+//! Appends ".tudat" extension automatically.
+template< typename T >
+std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
+{
+    return loadFromBinaryFile< std::shared_ptr< T > >( path );
 }
 
 //! Helper function to serialize an object to a JSON string
@@ -271,9 +302,9 @@ T deserializeFromJsonString( const std::string& data )
 {
     std::istringstream iss( data );
     cereal::JSONInputArchive ia( iss );
-    T object;
-    ia( cereal::make_nvp( "root", object ) );
-    return object;
+    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+    ia( cereal::make_nvp( "root", *objectPtr ) );
+    return std::move( *objectPtr );
 }
 
 }  // namespace serialization
