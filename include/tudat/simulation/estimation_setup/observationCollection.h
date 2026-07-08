@@ -2871,8 +2871,6 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     // Identify link ends from tracking data object
     LinkDefinition linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
 
-    // Identify link end reference from tracking data object
-
     // Get observations from tracking data
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
@@ -2915,15 +2913,41 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingdata );
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
-                                                                                         linkEnds,
-                                                                                         observations,
-                                                                                         trackingData->getObservationEpochs( ),
-                                                                                         trackingData->getReferenceLinkEnd( ),
-                                                                                         ancillarySettings );
+            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                    observableType,
+                    linkEnds,
+                    observations,
+                    trackingData->getObservationEpochs( ),
+                    getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ),
+                    ancillarySettings );
 
-    // Check and add weights if necessary
-    // observationSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
+    // Check and add weights to single observation set if stored in TrackingData object
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > weights = trackingData->getObservationWeights( );
+
+    if( !weights.empty( ) > 0 )
+    {
+        // Check size consistency for weights
+        if( weights.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Error when creating single observation set from tracking data, the number of weights (" +
+                                      std::to_string( weights.size( ) ) + ") is inconsistent with the number of observations (" +
+                                      std::to_string( observations.size( ) ) + ")." );
+        }
+
+        for( unsigned int i = 0; i < weights.size( ); i++ )
+        {
+            // Check size consistency of each single weight entry
+            if( weights[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error("Error when creating single observation set from tracking data, size of single weight 
+                    (" + std::to_string(weights[i].size( )) + ") does not match the single observation size 
+                    (" + std::to_string(weights[i].size( )) + ").");
+            }
+        }
+
+        // Set weights in single observation set object
+        observationSet->setWeights( trackingData->getObservationWeights( ) );
+    }
 
     return observationSet;
 }

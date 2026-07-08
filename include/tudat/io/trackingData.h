@@ -281,13 +281,13 @@ public:
     }
 
     //! Function that returns a vector of observation weights (empty if observation weights are not provided)
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationWeights( ) const
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservationWeights( ) const
     {
         return weights_;
     }
 
     //! Function that returns a concatenated vector of observation weights (size zero if no observation weights provided)
-    Eigen::VectorXd getWeightsVector( ) const
+    Eigen::VectorXd getObservationWeightsVector( ) const
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( weights_.size( ) * singleObservationSize_, 1 );
