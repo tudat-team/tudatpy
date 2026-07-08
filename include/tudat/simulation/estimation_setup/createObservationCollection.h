@@ -23,11 +23,15 @@
 
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createCameras.h"
 
 namespace tudat
 {
@@ -308,6 +312,11 @@ inline void setFrequencySupplementaryDataInBodies(
         std::string bodyName = it->first.first;
         std::string referencePointName = it->first.second;
 
+        if( it->second.empty( ) )
+        {
+            continue;
+        }
+
         std::vector< data::RampedFrequencySupplementaryData::FrequencyRamp > frequencyRamps;
         std::vector< std::map< double, double > > piecewiseConstantFrequencyHistories;
 
@@ -355,6 +364,86 @@ inline void setFrequencySupplementaryDataInBodies(
                 piecewiseConstantFrequencyHistories.push_back( piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) );
             }
         }
+
+        if( it->second.at( 0 )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
+        {
+            if( frequencyRamps.empty( ) )
+            {
+                throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
+                                          ", reference point " + referencePointName + ": no frequency ramps were found." );
+            }
+
+            std::vector< Time > startTimes;
+            std::vector< Time > endTimes;
+            std::vector< double > rampRates;
+            std::vector< double > startFrequencies;
+
+            for( unsigned int i = 0; i < frequencyRamps.size( ); ++i )
+            {
+                startTimes.push_back( Time( frequencyRamps.at( i ).startTime_ ) );
+                endTimes.push_back( Time( frequencyRamps.at( i ).endTime_ ) );
+                rampRates.push_back( frequencyRamps.at( i ).frequencyRate_ );
+                startFrequencies.push_back( frequencyRamps.at( i ).startFrequency_ );
+            }
+
+            std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > frequencyInterpolator =
+                    std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                            startTimes, endTimes, rampRates, startFrequencies );
+
+            if( referencePointName != "" )
+            {
+                if( bodies.at( bodyName )->getGroundStationMap( ).count( referencePointName ) == 0 )
+                {
+                    throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
+                                              ", ground station " + referencePointName + " was not found." );
+                }
+
+                std::shared_ptr< ground_stations::GroundStation > groundStation =
+                        bodies.at( bodyName )->getGroundStation( referencePointName );
+                if( !groundStation->hasFrequencyCalculator( ) )
+                {
+                    groundStation->setTransmittingFrequencyCalculator( frequencyInterpolator );
+                }
+                else
+                {
+                    std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
+                            std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                                    groundStation->getTransmittingFrequencyCalculator( ) );
+                    if( existingFrequencyInterpolator == nullptr )
+                    {
+                        throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
+                                                  ", ground station " + referencePointName +
+                                                  " already has a non-ramped frequency calculator." );
+                    }
+                    existingFrequencyInterpolator->addFrequencyInterpolator( frequencyInterpolator );
+                }
+            }
+            else
+            {
+                if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+                {
+                    bodies.at( bodyName )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+                }
+
+                std::shared_ptr< ground_stations::StationFrequencyInterpolator > existingFrequencyCalculator =
+                        bodies.at( bodyName )->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+                if( existingFrequencyCalculator == nullptr )
+                {
+                    bodies.at( bodyName )->getVehicleSystems( )->setTransmittedFrequencyCalculator( frequencyInterpolator );
+                }
+                else
+                {
+                    std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
+                            std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( existingFrequencyCalculator );
+                    if( existingFrequencyInterpolator == nullptr )
+                    {
+                        throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
+                                                  ", vehicle systems already contain a non-ramped frequency calculator." );
+                    }
+                    existingFrequencyInterpolator->addFrequencyInterpolator( frequencyInterpolator );
+                }
+            }
+        }
     }
 }
 
@@ -364,7 +453,72 @@ inline void setInstrumentSupplementaryDataInBodies(
             instrumentSupplementaryData )
 {
     for( auto it = instrumentSupplementaryData.begin( ); it != instrumentSupplementaryData.end( ); ++it )
-    { }
+    {
+        std::string bodyName = it->first.first;
+        std::string referencePointName = it->first.second;
+
+        for( unsigned int i = 0; i < it->second.size( ); ++i )
+        {
+            if( it->second.at( i ) == nullptr )
+            {
+                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName +
+                                          ", reference point " + referencePointName + ": instrument data entry is null." );
+            }
+
+            if( it->second.at( i )->getInstrumentSupplementaryDataType( ) == data::InstrumentSupplementaryDataType::camera_settings )
+            {
+                std::shared_ptr< data::CameraInstrumentSupplementaryData > cameraSupplementaryData =
+                        std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( it->second.at( i ) );
+                if( cameraSupplementaryData == nullptr )
+                {
+                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName +
+                                              ", reference point " + referencePointName +
+                                              ": instrument data type is camera, but derived object type is inconsistent." );
+                }
+
+                if( referencePointName != "" && referencePointName != cameraSupplementaryData->getCameraId( ) )
+                {
+                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName +
+                                              ", reference point " + referencePointName + " does not match camera id " +
+                                              cameraSupplementaryData->getCameraId( ) + "." );
+                }
+
+                if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+                {
+                    bodies.at( bodyName )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+                }
+
+                if( bodies.at( bodyName )
+                            ->getVehicleSystems( )
+                            ->getCameraMap( )
+                            .count( cameraSupplementaryData->getCameraId( ) ) != 0 )
+                {
+                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName + ", camera " +
+                                              cameraSupplementaryData->getCameraId( ) +
+                                              " already exists. Overriding camera settings is not allowed." );
+                }
+
+                std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel =
+                        std::make_shared< system_models::PsfCameraProjectionModel >(
+                                cameraSupplementaryData->getFocalLength( ),
+                                cameraSupplementaryData->getPrincipalPoint( ),
+                                cameraSupplementaryData->getKMatrix( ),
+                                cameraSupplementaryData->getDistortionCoefficients( ),
+                                cameraSupplementaryData->getMountingOffsets( ),
+                                cameraSupplementaryData->getFieldOfViewBounds( ) );
+
+                std::shared_ptr< simulation_setup::CameraSettings > cameraSettings =
+                        std::make_shared< simulation_setup::CameraSettings >(
+                                cameraSupplementaryData->getCameraId( ), Eigen::Vector3d::Zero( ), projectionModel );
+                simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName +
+                                          ", reference point " + referencePointName + ": unsupported instrument data type." );
+            }
+        }
+    }
 }
 
 inline void setTrackingSupplementaryDataInBodies(
