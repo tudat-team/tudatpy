@@ -2816,20 +2816,7 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > merg
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( combinedObservationSets );
 }
 
-observation_models::ObservableType getObservableTypeFromTrackingDataString( const std::string& observableTypeString )
-{
-    try
-    {
-        return observation_models::getObservableType( observableTypeString );
-    }
-    catch( const std::exception& e )
-    {
-        throw std::runtime_error( "Error when creating ObservationCollection from TrackingData: observable type '" + observableTypeString +
-                                  "' is not recognised. Underlying error: " + e.what( ) );
-    }
-}
-
-observation_models::LinkEnds getLinkEndsFromTrackingData(
+inline observation_models::LinkEnds getLinkEndsFromTrackingData(
         const std::vector< std::pair< std::pair< std::string, std::string >, std::string > >& rawLinkEnds )
 {
     observation_models::LinkEnds linkEnds;
@@ -2864,8 +2851,17 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
         const bool applyCorrections = false )
 {
-    // Identify observable type from tracking data object
-    observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType );
+    observation_models::ObservableType observableType;
+    try
+    {
+        // Identify observable type from tracking data object
+        observableType = getObservableType( trackingData->getObservableType( ) );
+    }
+    catch( const std::exception& e )
+    {
+        throw std::runtime_error( "Error when creating ObservationCollection from TrackingData: observable type '" +
+                                  trackingData->getObservableType( ) + "' is not recognised. Underlying error: " + e.what( ) );
+    }
 
     // Identify link ends from tracking data object
     LinkDefinition linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
