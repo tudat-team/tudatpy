@@ -26,6 +26,7 @@
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
+#include "tudat/io/trackingData.h"
 
 namespace tudat
 {
@@ -2813,6 +2814,158 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > merg
         }
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( combinedObservationSets );
+}
+
+observation_models::ObservableType getObservableTypeFromTrackingDataString( const std::string& observableTypeString )
+{
+    try
+    {
+        return observation_models::getObservableType( observableTypeString );
+    }
+    catch( const std::exception& e )
+    {
+        throw std::runtime_error( "Error when creating ObservationCollection from TrackingData: observable type '" + observableTypeString +
+                                  "' is not recognised. Underlying error: " + e.what( ) );
+    }
+}
+
+observation_models::LinkEnds getLinkEndsFromTrackingData(
+        const std::vector< std::pair< std::pair< std::string, std::string >, std::string > >& rawLinkEnds )
+{
+    observation_models::LinkEnds linkEnds;
+    for( const auto& linkEnd : rawLinkEnds )
+    {
+        LinkEndType type = getLinkEndTypeFromString( linkEnd.second );
+        LinkEndId id = LinkEndId( linkEnd.first );
+        if( !linkEnds.emplace( type, id ).second )
+        {
+            throw std::runtime_error( "Duplicate link-end type '" + entry.second + "' in tracking data." );
+        }
+    }
+    return linkEnds;
+}
+
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >(
+        const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData )
+{
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings;
+
+    return ancillarySettings;
+}
+
+// Create single observation set object from tracking data object
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
+        const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const bool applyCorrections = false )
+{
+    // Identify observable type from tracking data object
+    observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType );
+
+    // Identify link ends from tracking data object
+    LinkDefinition linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
+
+    // Get observations from tracking data
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
+
+    // Apply corrections if requested (and if they exist)
+    if( applyCorrections )
+    {
+        // Check if corrections are available in the TrackingData object
+        if( trackingData->getObservationCorrections( ).empty( ) )
+        {
+            std::cerr << "Warning when applying corrections to observations when creating a single observation set from tracking data: 
+                         no such corrections available in the tracking data object." << std::endl;
+        }
+
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
+
+        // Check size consistency
+        if( corrections.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Error when creating single observation set from tracking data, the size of the corrections (" +
+                                      std::to_string( corrections.size( ) ) + ") is inconsistent with the number of observations (" +
+                                      std::to_string( observations.size( ) ) + ")." );
+        }
+
+        // Apply corrections
+        for( unsigned int i = 0; i < observations.size( ); i++ )
+        {
+            // Check size consistency of single correction
+            if( corrections[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error("Error when creating single observation set from tracking data, size of single observation 
+                    correction (" + std::to_string(corrections[i].size( )) + ") does not match the single observation size 
+                    (" + std::to_string(observations[i].size( )) + ").");
+            }
+            observations[ i ] += corrections[ i ];
+        }
+    }
+
+    // Convert ancillary settings information from tracking data object to ObservationAncillarySimulationSettings
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
+            getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingdata );
+
+    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
+            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                    observableType,
+                    linkEnds,
+                    observations,
+                    trackingData->getObservationEpochs( ),
+                    getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ),
+                    ancillarySettings );
+
+    // Check and add weights to single observation set if stored in TrackingData object
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > weights = trackingData->getObservationWeights( );
+
+    if( !weights.empty( ) > 0 )
+    {
+        // Check size consistency for weights
+        if( weights.size( ) != observations.size( ) )
+        {
+            throw std::runtime_error( "Error when creating single observation set from tracking data, the number of weights (" +
+                                      std::to_string( weights.size( ) ) + ") is inconsistent with the number of observations (" +
+                                      std::to_string( observations.size( ) ) + ")." );
+        }
+
+        for( unsigned int i = 0; i < weights.size( ); i++ )
+        {
+            // Check size consistency of each single weight entry
+            if( weights[ i ].size( ) != observations[ i ].size( ) )
+            {
+                throw std::runtime_error("Error when creating single observation set from tracking data, size of single weight 
+                    (" + std::to_string(weights[i].size( )) + ") does not match the single observation size 
+                    (" + std::to_string(weights[i].size( )) + ").");
+            }
+        }
+
+        // Set weights in single observation set object
+        observationSet->setWeights( trackingData->getObservationWeights( ) );
+    }
+
+    return observationSet;
+}
+
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
+        const std::vector< std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > > trackingDataList )
+{
+    // Create list of single observation sets
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets;
+    for( auto trackingData : trackingDataList )
+    {
+        // Convert single tracking data object to a single observation set
+        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData ) );
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }
 
 }  // namespace observation_models

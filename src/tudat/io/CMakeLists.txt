@@ -91,6 +91,7 @@ set(io_HEADERS
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
         "comaModelInputOutput.h"
+        "trackingData.h"
         )
 
 # Add library.
