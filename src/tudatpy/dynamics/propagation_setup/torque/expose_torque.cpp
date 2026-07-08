@@ -128,7 +128,9 @@ void expose_torque_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( "__eq__", &tss::TorqueSettings::operator==, py::arg( "rhs" ) )
+            .def( "__ne__", []( const tss::TorqueSettings& self, const tss::TorqueSettings& other ) { return self != other; } );
 
     py::class_< tss::SphericalHarmonicTorqueSettings, std::shared_ptr< tss::SphericalHarmonicTorqueSettings >, tss::TorqueSettings >(
             m,

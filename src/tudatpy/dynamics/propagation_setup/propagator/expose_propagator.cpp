@@ -987,7 +987,11 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" )
+            .def( "__eq__", &tp::PropagationTerminationSettings::operator==, py::arg( "rhs" ) )
+            .def( "__ne__", []( const tp::PropagationTerminationSettings& self, const tp::PropagationTerminationSettings& other ) {
+                return self != other;
+            } );
 
     py::class_< tp::PropagationDependentVariableTerminationSettings,
                 std::shared_ptr< tp::PropagationDependentVariableTerminationSettings >,

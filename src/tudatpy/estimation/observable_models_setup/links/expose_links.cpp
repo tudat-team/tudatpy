@@ -349,7 +349,9 @@ Examples
       )doc" )
             .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
             .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
-            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) );
+            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) )
+            .def( "__eq__", []( const tom::LinkEndId& self, const tom::LinkEndId& other ) { return self == other; } )
+            .def( "__ne__", []( const tom::LinkEndId& self, const tom::LinkEndId& other ) { return self != other; } );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -528,7 +530,9 @@ Examples
                               return tudat::serialization::deserializeFromBinaryString< tom::LinkDefinition >(
                                       data.cast< std::string >( ) );
                           } ),
-                  R"doc(Pickle support for LinkDefinition.)doc" );
+                  R"doc(Pickle support for LinkDefinition.)doc" )
+            .def( "__eq__", []( const tom::LinkDefinition& self, const tom::LinkDefinition& other ) { return self == other; } )
+            .def( "__ne__", []( const tom::LinkDefinition& self, const tom::LinkDefinition& other ) { return self != other; } );
 
     m.def( "link_definition",
            &tom::linkDefinition,

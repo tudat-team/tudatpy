@@ -106,17 +106,21 @@ void expose_observations_dependent_variables( py::module& m )
 
       )doc" )
             .def( py::pickle(
-                    []( const tss::ObservationDependentVariableSettings& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString(
-                                std::make_shared< tss::ObservationDependentVariableSettings >( obj ) ) );
-                    },
-                    []( py::bytes data ) {
-                        auto ptr = tudat::serialization::deserializeFromBinaryString<
-                                std::shared_ptr< tss::ObservationDependentVariableSettings > >(
-                                data.cast< std::string >( ) );
-                        return *ptr;
-                    } ),
-                  R"doc(Pickle support for ObservationDependentVariableSettings.)doc" );
+                          []( const tss::ObservationDependentVariableSettings& obj ) {
+                              return py::bytes( tudat::serialization::serializeToBinaryString(
+                                      std::make_shared< tss::ObservationDependentVariableSettings >( obj ) ) );
+                          },
+                          []( py::bytes data ) {
+                              auto ptr = tudat::serialization::deserializeFromBinaryString<
+                                      std::shared_ptr< tss::ObservationDependentVariableSettings > >( data.cast< std::string >( ) );
+                              return *ptr;
+                          } ),
+                  R"doc(Pickle support for ObservationDependentVariableSettings.)doc" )
+            .def( "__eq__", &tss::ObservationDependentVariableSettings::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tss::ObservationDependentVariableSettings& self, const tss::ObservationDependentVariableSettings& other ) {
+                      return self != other;
+                  } );
 
     m.def( "add_dependent_variables_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,

@@ -932,7 +932,11 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                               return tudat::serialization::deserializeFromBinaryString<
                                       tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
                           } ),
-                  R"doc(Pickle support for CovarianceAnalysisOutput.)doc" );
+                  R"doc(Pickle support for CovarianceAnalysisOutput.)doc" )
+            .def( "__eq__", &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                      const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -1048,7 +1052,11 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                               return tudat::serialization::deserializeFromBinaryString<
                                       tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
                           } ),
-                  R"doc(Pickle support for EstimationOutput.)doc" );
+                  R"doc(Pickle support for EstimationOutput.)doc" )
+            .def( "__eq__", &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                      const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 

@@ -549,18 +549,18 @@ numpy.ndarray
     A matrix where each row corresponds to an observation and columns to dependent variables.
 )doc" )
             .def( py::pickle(
-                    []( const tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                        // Serialize to binary string
-                        return py::bytes( tudat::serialization::serializeToBinaryString(
-                                std::make_shared< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >( obj ) ) );
-                    },
-                    []( py::bytes data ) {
-                        // Deserialize from binary string
-                        auto ptr = tudat::serialization::deserializeFromBinaryString<
-                                std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-                                data.cast< std::string >( ) );
-                        return *ptr;
-                    } ),
+                          []( const tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                              // Serialize to binary string
+                              return py::bytes( tudat::serialization::serializeToBinaryString(
+                                      std::make_shared< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >( obj ) ) );
+                          },
+                          []( py::bytes data ) {
+                              // Deserialize from binary string
+                              auto ptr = tudat::serialization::deserializeFromBinaryString<
+                                      std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+                                      data.cast< std::string >( ) );
+                              return *ptr;
+                          } ),
                   R"doc(
 Pickle support for SingleObservationSet.
 
@@ -568,7 +568,11 @@ This enables the object to be serialized for multiprocessing and persistence.
 Note: The dependent variable calculator (if any) is not serialized and will be
 nullptr after unpickling. All observation data, weights, residuals, and ancillary
 settings are preserved.
-)doc" );
+)doc" )
+            .def( "__eq__", &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                      const tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
 
     m.def( "single_observation_set",
            &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1819,18 +1823,18 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              A map from time to dependent variable value, with times as Time objects.
      )doc" )
             .def( py::pickle(
-                    []( const tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                        // Serialize to binary string
-                        return py::bytes( tudat::serialization::serializeToBinaryString(
-                                std::make_shared< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >( obj ) ) );
-                    },
-                    []( py::bytes data ) {
-                        // Deserialize from binary string
-                        auto ptr = tudat::serialization::deserializeFromBinaryString<
-                                std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-                                data.cast< std::string >( ) );
-                        return *ptr;
-                    } ),
+                          []( const tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
+                              // Serialize to binary string
+                              return py::bytes( tudat::serialization::serializeToBinaryString(
+                                      std::make_shared< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >( obj ) ) );
+                          },
+                          []( py::bytes data ) {
+                              // Deserialize from binary string
+                              auto ptr = tudat::serialization::deserializeFromBinaryString<
+                                      std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+                                      data.cast< std::string >( ) );
+                              return *ptr;
+                          } ),
                   R"doc(
 Pickle support for ObservationCollection.
 
@@ -1838,7 +1842,11 @@ This enables the object to be serialized for multiprocessing and persistence.
 All observation data, weights, residuals, ancillary settings, and dependent
 variable bookkeeping are preserved. The internal index structures are
 automatically reconstructed after unpickling.
-)doc" );
+)doc" )
+            .def( "__eq__", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& self,
+                      const tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
 
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,

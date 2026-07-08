@@ -268,14 +268,19 @@ void expose_ancillary_settings( py::module& m )
 
      )doc" )
             .def( py::pickle(
-                    []( const tom::ObservationAncillarySimulationSettings& obj ) {
-                        return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                    },
-                    []( py::bytes data ) {
-                        return tudat::serialization::deserializeFromBinaryString<
-                                tom::ObservationAncillarySimulationSettings >( data.cast< std::string >( ) );
-                    } ),
-                  R"doc(Pickle support for ObservationAncillarySimulationSettings.)doc" );
+                          []( const tom::ObservationAncillarySimulationSettings& obj ) {
+                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
+                          },
+                          []( py::bytes data ) {
+                              return tudat::serialization::deserializeFromBinaryString< tom::ObservationAncillarySimulationSettings >(
+                                      data.cast< std::string >( ) );
+                          } ),
+                  R"doc(Pickle support for ObservationAncillarySimulationSettings.)doc" )
+            .def( "__eq__", &tom::ObservationAncillarySimulationSettings::operator==, py::arg( "rhs" ) )
+            .def( "__ne__",
+                  []( const tom::ObservationAncillarySimulationSettings& self, const tom::ObservationAncillarySimulationSettings& other ) {
+                      return self != other;
+                  } );
 
     py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
                                                                                        "ObservationIntermediateSimulationVariable",
