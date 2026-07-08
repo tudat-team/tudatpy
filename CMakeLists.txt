@@ -105,7 +105,7 @@ option(
 )
 option(
     TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
-    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time of tests."
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
     ON
 )
 option(
