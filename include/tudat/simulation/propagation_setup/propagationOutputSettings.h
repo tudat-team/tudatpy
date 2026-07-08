@@ -19,6 +19,9 @@
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include <cereal/access.hpp>
 #include <cereal/types/string.hpp>
+
+#include "tudat/io/serialization/base.h"
+
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 #endif
@@ -76,6 +79,21 @@ protected:
     virtual bool equals( const VariableSettings& rhs ) const
     {
         return variableType_ == rhs.variableType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::make_nvp( "variableType_", variableType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::make_nvp( "variableType_", variableType_ ) );
     }
 };
 
@@ -220,8 +238,9 @@ public:
 protected:
     //! Default constructor for cereal deserialization
     SingleDependentVariableSaveSettings( ):
-        VariableSettings( dependentVariable ), dependentVariableType_( mach_number_dependent_variable ),
-        associatedBody_( "" ), secondaryBody_( "" ), componentIndex_( -1 ) { }
+        VariableSettings( dependentVariable ), dependentVariableType_( mach_number_dependent_variable ), associatedBody_( "" ),
+        secondaryBody_( "" ), componentIndex_( -1 )
+    {}
 
 public:
     // Type of dependent variable that is to be saved.
@@ -260,9 +279,23 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( variableType_, dependentVariableType_, associatedBody_, secondaryBody_, componentIndex_ );
+        ar( cereal::base_class< VariableSettings >( this ) );
+        ar( cereal::make_nvp( "dependentVariableType_", dependentVariableType_ ),
+            cereal::make_nvp( "associatedBody_", associatedBody_ ),
+            cereal::make_nvp( "secondaryBody_", secondaryBody_ ),
+            cereal::make_nvp( "componentIndex_", componentIndex_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< VariableSettings >( this ) );
+        ar( cereal::make_nvp( "dependentVariableType_", dependentVariableType_ ),
+            cereal::make_nvp( "associatedBody_", associatedBody_ ),
+            cereal::make_nvp( "secondaryBody_", secondaryBody_ ),
+            cereal::make_nvp( "componentIndex_", componentIndex_ ) );
     }
 };
 
@@ -319,6 +352,28 @@ protected:
             return false;
         }
         return accelerationModelType_ == rhsCast->accelerationModelType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleAccelerationDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_acceleration_norm_dependent_variable, "", "" ),
+        accelerationModelType_( basic_astrodynamics::undefined_acceleration )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
     }
 };
 
@@ -396,6 +451,27 @@ protected:
         }
         return componentIndices_ == rhsCast->componentIndices_;
     }
+
+private:
+    friend class cereal::access;
+
+    SphericalHarmonicAccelerationTermsDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( spherical_harmonic_acceleration_terms_dependent_variable, "", "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+    }
 };
 
 // Class to define settings for saving a single torque (norm or vector) during propagation.
@@ -441,6 +517,28 @@ protected:
             return false;
         }
         return torqueModelType_ == rhsCast->torqueModelType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleTorqueDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_torque_norm_dependent_variable, "", "" ),
+        torqueModelType_( basic_astrodynamics::underfined_torque )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "torqueModelType_", torqueModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "torqueModelType_", torqueModelType_ ) );
     }
 };
 
@@ -489,6 +587,30 @@ protected:
         }
         return baseFrame_ == rhsCast->baseFrame_ && targetFrame_ == rhsCast->targetFrame_;
     }
+
+private:
+    friend class cereal::access;
+
+    IntermediateAerodynamicRotationVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, "", "" ),
+        baseFrame_( reference_frames::inertial_frame ), targetFrame_( reference_frames::inertial_frame )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "baseFrame_", baseFrame_ ) );
+        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "baseFrame_", baseFrame_ ) );
+        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+    }
 };
 
 // Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
@@ -527,6 +649,28 @@ protected:
         }
         return angle_ == rhsCast->angle_;
     }
+
+private:
+    friend class cereal::access;
+
+    BodyAerodynamicAngleVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, "", "" ),
+        angle_( reference_frames::latitude_angle )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "angle_", angle_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "angle_", angle_ ) );
+    }
 };
 
 // Class to define settings for saving local wind velocity in a specified reference frame.
@@ -553,6 +697,28 @@ public:
 
     // Frame in which the wind velocity is to be expressed.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+private:
+    friend class cereal::access;
+
+    LocalWindVelocityDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable, "", "" ),
+        targetFrame_( reference_frames::corotating_frame )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+    }
 };
 
 class ControlSurfaceCoefficientDependentVariableSettings : public SingleDependentVariableSaveSettings
@@ -588,6 +754,28 @@ protected:
             return false;
         }
         return controlSurfaceName_ == rhsCast->controlSurfaceName_;
+    }
+
+private:
+    friend class cereal::access;
+
+    ControlSurfaceCoefficientDependentVariableSettings( ):
+        SingleDependentVariableSaveSettings( aerodynamic_control_surface_force_coefficients_increment_dependent_variable, "", "" ),
+        controlSurfaceName_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "controlSurfaceName_", controlSurfaceName_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "controlSurfaceName_", controlSurfaceName_ ) );
     }
 };
 
@@ -632,6 +820,30 @@ protected:
             return false;
         }
         return deformationType_ == rhsCast->deformationType_ && identifier_ == rhsCast->identifier_;
+    }
+
+private:
+    friend class cereal::access;
+
+    SingleVariationSphericalHarmonicAccelerationSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration, "", "" ),
+        deformationType_( gravitation::basic_solid_body ), identifier_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "deformationType_", deformationType_ ) );
+        ar( cereal::make_nvp( "identifier_", identifier_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "deformationType_", deformationType_ ) );
+        ar( cereal::make_nvp( "identifier_", identifier_ ) );
     }
 };
 
@@ -759,6 +971,30 @@ protected:
         }
         return accelerationModelType_ == rhsCast->accelerationModelType_ && derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
     }
+
+private:
+    friend class cereal::access;
+
+    AccelerationPartialWrtStateSaveSettings( ):
+        SingleDependentVariableSaveSettings( acceleration_partial_wrt_body_translational_state, "", "" ),
+        accelerationModelType_( basic_astrodynamics::undefined_acceleration ), derivativeWrtBody_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
+        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
+        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+    }
 };
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
@@ -791,10 +1027,32 @@ protected:
             return false;
         }
         const auto* rhsCast = dynamic_cast< const TotalAccelerationPartialWrtStateSaveSettings* >( &rhs );
-        if( rhsCast == nullptr )        {
+        if( rhsCast == nullptr )
+        {
             return false;
         }
         return derivativeWrtBody_ == rhsCast->derivativeWrtBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    TotalAccelerationPartialWrtStateSaveSettings( ):
+        SingleDependentVariableSaveSettings( total_acceleration_partial_wrt_body_translational_state, "" ), derivativeWrtBody_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
     }
 };
 
@@ -817,10 +1075,31 @@ protected:
             return false;
         }
         const auto* rhsCast = dynamic_cast< const MinimumConstellationDistanceDependentVariableSaveSettings* >( &rhs );
-        if( rhsCast == nullptr )        {
+        if( rhsCast == nullptr )
+        {
             return false;
         }
         return bodiesToCheck_ == rhsCast->bodiesToCheck_;
+    }
+
+private:
+    friend class cereal::access;
+
+    MinimumConstellationDistanceDependentVariableSaveSettings( ): SingleDependentVariableSaveSettings( minimum_constellation_distance, "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
     }
 };
 
@@ -847,10 +1126,34 @@ protected:
             return false;
         }
         const auto* rhsCast = dynamic_cast< const MinimumConstellationStationDistanceDependentVariableSaveSettings* >( &rhs );
-        if( rhsCast == nullptr )        {
+        if( rhsCast == nullptr )
+        {
             return false;
         }
         return bodiesToCheck_ == rhsCast->bodiesToCheck_ && elevationAngleLimit_ == rhsCast->elevationAngleLimit_;
+    }
+
+private:
+    friend class cereal::access;
+
+    MinimumConstellationStationDistanceDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( minimum_constellation_ground_station_distance, "", "" ), elevationAngleLimit_( 0.0 )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
+        ar( cereal::make_nvp( "elevationAngleLimit_", elevationAngleLimit_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
+        ar( cereal::make_nvp( "elevationAngleLimit_", elevationAngleLimit_ ) );
     }
 };
 
@@ -865,11 +1168,12 @@ public:
 
     const std::function< Eigen::VectorXd( ) > customDependentVariableFunction_;
 
-    const int dependentVariableSize_;
+    int dependentVariableSize_;
 
 protected:
     bool equals( const VariableSettings& rhs ) const override
-    {        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
         {
             return false;
         }
@@ -879,8 +1183,30 @@ protected:
             return false;
         }
         // Warn user that function cannot be compared
-        std::cerr << "Warning, comparing custom dependent variable settings, but function cannot be compared. Only size is compared." << std::endl;
+        std::cerr << "Warning, comparing custom dependent variable settings, but function cannot be compared. Only size is compared."
+                  << std::endl;
         return dependentVariableSize_ == rhsCast->dependentVariableSize_;
+    }
+
+private:
+    friend class cereal::access;
+
+    CustomDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( custom_dependent_variable, "", "" ), dependentVariableSize_( 0 )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "dependentVariableSize_", dependentVariableSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "dependentVariableSize_", dependentVariableSize_ ) );
     }
 };
 
@@ -931,7 +1257,7 @@ public:
     }
 
     std::vector< std::pair< int, int > > componentIndices_;
-    
+
 protected:
     bool equals( const VariableSettings& rhs ) const override
     {
@@ -945,6 +1271,27 @@ protected:
             return false;
         }
         return componentIndices_ == rhsCast->componentIndices_;
+    }
+
+private:
+    friend class cereal::access;
+
+    TotalGravityFieldVariationSettings( ):
+        SingleDependentVariableSaveSettings( total_spherical_harmonic_cosine_coefficient_variation, "", "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
     }
 };
 
@@ -973,6 +1320,27 @@ protected:
         }
         return panelTypeId_ == rhsCast->panelTypeId_;
     }
+
+private:
+    friend class cereal::access;
+
+    IlluminatedPanelFractionDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( illuminated_panel_fraction, "", "" ), panelTypeId_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "panelTypeId_", panelTypeId_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "panelTypeId_", panelTypeId_ ) );
+    }
 };
 
 class CrossSectionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -1000,6 +1368,27 @@ protected:
             return false;
         }
         return accelerationType_ == rhsCast->accelerationType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    CrossSectionDependentVariableSaveSettings( ):
+        SingleDependentVariableSaveSettings( cross_section_change, "", "" ), accelerationType_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationType_", accelerationType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( cereal::make_nvp( "accelerationType_", accelerationType_ ) );
     }
 };
 
@@ -1804,5 +2193,92 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePote
 }  // namespace propagators
 
 }  // namespace tudat
+
+// Register derived classes for polymorphic serialization
+CEREAL_REGISTER_TYPE( tudat::propagators::VariableSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleTorqueDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::AccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::CustomDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::TotalGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::CrossSectionDependentVariableSaveSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::SingleDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::SingleTorqueDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::AccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::CustomDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::TotalGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings,
+                                      tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::VariableSettings, tudat::propagators::CrossSectionDependentVariableSaveSettings )
+
+// Intermediate polymorphic relations (SingleDependentVariableSaveSettings -> derived)
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::SingleAccelerationDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::SingleTorqueDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::BodyAerodynamicAngleVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::LocalWindVelocityDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::ControlSurfaceCoefficientDependentVariableSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::AccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::TotalAccelerationPartialWrtStateSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::MinimumConstellationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::MinimumConstellationStationDistanceDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::CustomDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::TotalGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::IlluminatedPanelFractionDependentVariableSaveSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SingleDependentVariableSaveSettings,
+                                      tudat::propagators::CrossSectionDependentVariableSaveSettings )
 
 #endif  // TUDAT_PROPAGATIONOUTPUTSETTINGS_H

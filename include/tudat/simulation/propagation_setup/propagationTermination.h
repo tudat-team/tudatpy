@@ -20,6 +20,7 @@
 
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -716,10 +717,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( propagationTerminationReason_ );
-        ar( terminationOnExactCondition_ );
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( terminationOnExactCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( terminationOnExactCondition_ ) );
     }
 };
 
@@ -766,7 +774,7 @@ protected:
         {
             return false;
         }
-        
+
         const auto* rhsCast = dynamic_cast< const PropagationTerminationDetailsFromHybridCondition* >( &rhs );
         if( rhsCast == nullptr )
         {
@@ -782,14 +790,20 @@ private:
 
     friend class cereal::access;
 
-    PropagationTerminationDetailsFromHybridCondition( ):
-        PropagationTerminationDetails( ) {}
+    PropagationTerminationDetailsFromHybridCondition( ): PropagationTerminationDetails( ) {}
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< PropagationTerminationDetails >( this ) );
-        ar( isConditionMetWhenStopping_ );
+        ar( CEREAL_NVP( isConditionMetWhenStopping_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationDetails >( this ) );
+        ar( CEREAL_NVP( isConditionMetWhenStopping_ ) );
     }
 };
 

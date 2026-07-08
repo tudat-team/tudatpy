@@ -587,23 +587,23 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( equationsOfMotionNumericalSolution_ );
-        ar( equationsOfMotionNumericalSolutionRaw_ );
-        ar( dependentVariableHistory_ );
-        ar( cumulativeComputationTimeHistory_ );
-        ar( cumulativeNumberOfFunctionEvaluations_ );
-        ar( processedStateIds_ );
-        ar( propagatedStateIds_ );
-        ar( integratedStateAndBodyList_ );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolution_ ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolutionRaw_ ) );
+        ar( CEREAL_NVP( dependentVariableHistory_ ) );
+        ar( CEREAL_NVP( cumulativeComputationTimeHistory_ ) );
+        ar( CEREAL_NVP( cumulativeNumberOfFunctionEvaluations_ ) );
+        ar( CEREAL_NVP( processedStateIds_ ) );
+        ar( CEREAL_NVP( propagatedStateIds_ ) );
+        ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
         // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
-        ar( sequentialPropagation_ );
+        ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
-        ar( propagationIsPerformed_ );
-        ar( solutionIsCleared_ );
-        ar( onlyProcessedSolutionSet_ );
-        ar( propagationTerminationReason_ );
-        ar( isPropagationOngoing_ );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( isPropagationOngoing_ ) );
     }
 
     template< class Archive >
@@ -611,23 +611,23 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( equationsOfMotionNumericalSolution_ );
-        ar( equationsOfMotionNumericalSolutionRaw_ );
-        ar( dependentVariableHistory_ );
-        ar( cumulativeComputationTimeHistory_ );
-        ar( cumulativeNumberOfFunctionEvaluations_ );
-        ar( processedStateIds_ );
-        ar( propagatedStateIds_ );
-        ar( integratedStateAndBodyList_ );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolution_ ) );
+        ar( CEREAL_NVP( equationsOfMotionNumericalSolutionRaw_ ) );
+        ar( CEREAL_NVP( dependentVariableHistory_ ) );
+        ar( CEREAL_NVP( cumulativeComputationTimeHistory_ ) );
+        ar( CEREAL_NVP( cumulativeNumberOfFunctionEvaluations_ ) );
+        ar( CEREAL_NVP( processedStateIds_ ) );
+        ar( CEREAL_NVP( propagatedStateIds_ ) );
+        ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
         // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
-        ar( sequentialPropagation_ );
+        ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
-        ar( propagationIsPerformed_ );
-        ar( solutionIsCleared_ );
-        ar( onlyProcessedSolutionSet_ );
-        ar( propagationTerminationReason_ );
-        ar( isPropagationOngoing_ );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
+        ar( CEREAL_NVP( propagationTerminationReason_ ) );
+        ar( CEREAL_NVP( isPropagationOngoing_ ) );
     }
 };
 
@@ -821,11 +821,11 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( singleArcDynamicsResults_ );
-        ar( stateTransitionMatrixSize_ );
-        ar( sensitivityMatrixSize_ );
-        ar( stateTransitionSolution_ );
-        ar( sensitivitySolution_ );
+        ar( CEREAL_NVP( singleArcDynamicsResults_ ) );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
+        ar( CEREAL_NVP( stateTransitionSolution_ ) );
+        ar( CEREAL_NVP( sensitivitySolution_ ) );
     }
 
     template< class Archive >
@@ -835,11 +835,13 @@ private:
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         // const_cast needed because members are declared const for runtime safety,
         // but deserialization must populate them
-        ar( const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ ) );
-        ar( const_cast< int& >( stateTransitionMatrixSize_ ) );
-        ar( const_cast< int& >( sensitivityMatrixSize_ ) );
-        ar( stateTransitionSolution_ );
-        ar( sensitivitySolution_ );
+        ar( cereal::make_nvp(
+                "singleArcDynamicsResults_",
+                const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ ) ) );
+        ar( cereal::make_nvp( "stateTransitionMatrixSize_", const_cast< int& >( stateTransitionMatrixSize_ ) ) );
+        ar( cereal::make_nvp( "sensitivityMatrixSize_", const_cast< int& >( sensitivityMatrixSize_ ) ) );
+        ar( CEREAL_NVP( stateTransitionSolution_ ) );
+        ar( CEREAL_NVP( sensitivitySolution_ ) );
     }
 };
 
@@ -1214,22 +1216,24 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( singleArcResults_ );
-        ar( propagationIsPerformed_ );
-        ar( solutionIsCleared_ );
-        ar( arcStartTimes_ );
-        ar( arcEndTimes_ );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( arcStartTimes_ ) );
+        ar( CEREAL_NVP( arcEndTimes_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ ) );
-        ar( propagationIsPerformed_ );
-        ar( solutionIsCleared_ );
-        ar( arcStartTimes_ );
-        ar( arcEndTimes_ );
+        ar( cereal::make_nvp(
+                "singleArcResults_",
+                const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ ) ) );
+        ar( CEREAL_NVP( propagationIsPerformed_ ) );
+        ar( CEREAL_NVP( solutionIsCleared_ ) );
+        ar( CEREAL_NVP( arcStartTimes_ ) );
+        ar( CEREAL_NVP( arcEndTimes_ ) );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
         // Reconstruct dependentVariableInterface_ from single-arc interfaces if possible
         if( dependentVariableInterface_ == nullptr )
@@ -1421,8 +1425,8 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( singleArcResults_ );
-        ar( multiArcResults_ );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( multiArcResults_ ) );
     }
 
     template< class Archive >
@@ -1430,8 +1434,8 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( singleArcResults_ );
-        ar( multiArcResults_ );
+        ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( multiArcResults_ ) );
         // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
         // Reconstruct hybrid dependentVariableInterface_ from constituent interfaces if possible
         if( dependentVariableInterface_ == nullptr )

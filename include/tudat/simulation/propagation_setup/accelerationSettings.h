@@ -85,9 +85,15 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( accelerationType_ );
+        ar( CEREAL_NVP( accelerationType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( accelerationType_ ) );
     }
 };
 
@@ -132,10 +138,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( targetModelType_ );
+        ar( CEREAL_NVP( targetModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( targetModelType_ ) );
     }
 };
 
@@ -221,12 +234,21 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( maximumDegree_ );
-        ar( maximumOrder_ );
-        ar( removePointMass_ );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
+        ar( CEREAL_NVP( removePointMass_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
+        ar( CEREAL_NVP( removePointMass_ ) );
     }
 };
 
@@ -316,15 +338,27 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( maximumDegreeOfBodyExertingAcceleration_ );
-        ar( maximumOrderOfBodyExertingAcceleration_ );
-        ar( maximumDegreeOfBodyUndergoingAcceleration_ );
-        ar( maximumOrderOfBodyUndergoingAcceleration_ );
-        ar( maximumDegreeOfCentralBody_ );
-        ar( maximumOrderOfCentralBody_ );
+        ar( CEREAL_NVP( maximumDegreeOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+        ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+        ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
     }
 };
 
@@ -433,14 +467,25 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( calculateSchwarzschildCorrection_ );
-        ar( calculateLenseThirringCorrection_ );
-        ar( calculateDeSitterCorrection_ );
-        ar( primaryBody_ );
-        ar( centralBodyAngularMomentum_ );
+        ar( CEREAL_NVP( calculateSchwarzschildCorrection_ ) );
+        ar( CEREAL_NVP( calculateLenseThirringCorrection_ ) );
+        ar( CEREAL_NVP( calculateDeSitterCorrection_ ) );
+        ar( CEREAL_NVP( primaryBody_ ) );
+        ar( CEREAL_NVP( centralBodyAngularMomentum_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( calculateSchwarzschildCorrection_ ) );
+        ar( CEREAL_NVP( calculateLenseThirringCorrection_ ) );
+        ar( CEREAL_NVP( calculateDeSitterCorrection_ ) );
+        ar( CEREAL_NVP( primaryBody_ ) );
+        ar( CEREAL_NVP( centralBodyAngularMomentum_ ) );
     }
 };
 
@@ -496,7 +541,8 @@ protected:
     // Default constructor for serialization
     EmpiricalAccelerationSettings( int ):
         constantAcceleration_( Eigen::Vector3d::Zero( ) ), sineAcceleration_( Eigen::Vector3d::Zero( ) ),
-        cosineAcceleration_( Eigen::Vector3d::Zero( ) ) {}
+        cosineAcceleration_( Eigen::Vector3d::Zero( ) )
+    {}
     //! Zero-arg default constructor for cereal
     // (constructor with default parameters above is already default-constructible)
 
@@ -516,12 +562,21 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( constantAcceleration_ );
-        ar( sineAcceleration_ );
-        ar( cosineAcceleration_ );
+        ar( CEREAL_NVP( constantAcceleration_ ) );
+        ar( CEREAL_NVP( sineAcceleration_ ) );
+        ar( CEREAL_NVP( cosineAcceleration_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( constantAcceleration_ ) );
+        ar( CEREAL_NVP( sineAcceleration_ ) );
+        ar( CEREAL_NVP( cosineAcceleration_ ) );
     }
 };
 
@@ -572,10 +627,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( yarkovskyParameter_ );
+        ar( CEREAL_NVP( yarkovskyParameter_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( yarkovskyParameter_ ) );
     }
 };
 
@@ -734,11 +796,19 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( engineIds_ );
-        ar( useAllEngines_ );
+        ar( CEREAL_NVP( engineIds_ ) );
+        ar( CEREAL_NVP( useAllEngines_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( engineIds_ ) );
+        ar( CEREAL_NVP( useAllEngines_ ) );
     }
 
 public:
@@ -857,8 +927,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& )
+    void save( Archive& ar ) const
     {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomAccelerationSettings cannot be serialized: std::function member 'accelerationFunction_' is not serializable." );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        static_cast< void >( ar );
         throw std::runtime_error(
                 "CustomAccelerationSettings cannot be serialized: std::function member 'accelerationFunction_' is not serializable." );
     }
@@ -898,7 +977,8 @@ public:
 protected:
     // Default constructor for serialization
     RTGAccelerationSettings( int ):
-        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 ) {}
+        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 )
+    {}
     //! Zero-arg default constructor for cereal
     RTGAccelerationSettings( ):
         bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 )
@@ -920,12 +1000,22 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( const_cast< Eigen::Vector3d& >( bodyFixedForceVectorAtReferenceEpoch_ ) );
-        ar( const_cast< double& >( decayScaleFactor_ ) );
-        ar( const_cast< double& >( referenceEpoch_ ) );
+        ar( CEREAL_NVP( bodyFixedForceVectorAtReferenceEpoch_ ) );
+        ar( CEREAL_NVP( decayScaleFactor_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( cereal::make_nvp( "bodyFixedForceVectorAtReferenceEpoch_",
+                              const_cast< Eigen::Vector3d& >( bodyFixedForceVectorAtReferenceEpoch_ ) ) );
+        ar( cereal::make_nvp( "decayScaleFactor_", const_cast< double& >( decayScaleFactor_ ) ) );
+        ar( cereal::make_nvp( "referenceEpoch_", const_cast< double& >( referenceEpoch_ ) ) );
     }
 };
 
@@ -1023,7 +1113,8 @@ protected:
     // Default constructor for serialization
     DirectTidalDissipationAccelerationSettings( int ):
         k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
-        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false ) {}
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false )
+    {}
     //! Zero-arg default constructor for cereal
     DirectTidalDissipationAccelerationSettings( ):
         k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
@@ -1054,16 +1145,29 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( k2LoveNumber_ );
-        ar( timeLag_ );
-        ar( inverseTidalQualityFactor_ );
-        ar( tidalPeriod_ );
-        ar( includeDirectRadialComponent_ );
-        ar( useTideRaisedOnPlanet_ );
-        ar( explicitLibraionalTideOnSatellite_ );
+        ar( CEREAL_NVP( k2LoveNumber_ ) );
+        ar( CEREAL_NVP( timeLag_ ) );
+        ar( CEREAL_NVP( inverseTidalQualityFactor_ ) );
+        ar( CEREAL_NVP( tidalPeriod_ ) );
+        ar( CEREAL_NVP( includeDirectRadialComponent_ ) );
+        ar( CEREAL_NVP( useTideRaisedOnPlanet_ ) );
+        ar( CEREAL_NVP( explicitLibraionalTideOnSatellite_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( k2LoveNumber_ ) );
+        ar( CEREAL_NVP( timeLag_ ) );
+        ar( CEREAL_NVP( inverseTidalQualityFactor_ ) );
+        ar( CEREAL_NVP( tidalPeriod_ ) );
+        ar( CEREAL_NVP( includeDirectRadialComponent_ ) );
+        ar( CEREAL_NVP( useTideRaisedOnPlanet_ ) );
+        ar( CEREAL_NVP( explicitLibraionalTideOnSatellite_ ) );
     }
 };
 
@@ -1154,13 +1258,23 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( thrustMidTimes_ );
-        ar( deltaVValues_ );
-        ar( totalManeuverTime_ );
-        ar( maneuverRiseTime_ );
+        ar( CEREAL_NVP( thrustMidTimes_ ) );
+        ar( CEREAL_NVP( deltaVValues_ ) );
+        ar( CEREAL_NVP( totalManeuverTime_ ) );
+        ar( CEREAL_NVP( maneuverRiseTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( thrustMidTimes_ ) );
+        ar( CEREAL_NVP( deltaVValues_ ) );
+        ar( CEREAL_NVP( totalManeuverTime_ ) );
+        ar( CEREAL_NVP( maneuverRiseTime_ ) );
     }
 };
 
@@ -1209,12 +1323,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSetti
                                       tudat::simulation_setup::EmpiricalAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
                                       tudat::simulation_setup::YarkovskyAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::ThrustAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::CustomAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::RTGAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::ThrustAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::CustomAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::RTGAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
                                       tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,

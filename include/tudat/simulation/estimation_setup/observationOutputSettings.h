@@ -199,13 +199,23 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( variableType_ );
-        ar( linkEndId_ );
-        ar( linkEndType_ );
-        ar( originatingLinkEndId_ );
-        ar( originatingLinkEndType_ );
+        ar( CEREAL_NVP( variableType_ ) );
+        ar( CEREAL_NVP( linkEndId_ ) );
+        ar( CEREAL_NVP( linkEndType_ ) );
+        ar( CEREAL_NVP( originatingLinkEndId_ ) );
+        ar( CEREAL_NVP( originatingLinkEndType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( variableType_ ) );
+        ar( CEREAL_NVP( linkEndId_ ) );
+        ar( CEREAL_NVP( linkEndType_ ) );
+        ar( CEREAL_NVP( originatingLinkEndId_ ) );
+        ar( CEREAL_NVP( originatingLinkEndType_ ) );
     }
 };
 
@@ -279,11 +289,19 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( integratedObservableHandling_ );
-        ar( isLinkEndDefined_ );
+        ar( CEREAL_NVP( integratedObservableHandling_ ) );
+        ar( CEREAL_NVP( isLinkEndDefined_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( CEREAL_NVP( integratedObservableHandling_ ) );
+        ar( CEREAL_NVP( isLinkEndDefined_ ) );
     }
 };
 
@@ -368,11 +386,19 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( integratedObservableHandling_ );
-        ar( relativeBody_ );
+        ar( CEREAL_NVP( integratedObservableHandling_ ) );
+        ar( CEREAL_NVP( relativeBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( CEREAL_NVP( integratedObservableHandling_ ) );
+        ar( CEREAL_NVP( relativeBody_ ) );
     }
 };
 
@@ -449,14 +475,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( observableType_ );
+        ar( CEREAL_NVP( observableType_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( observableType_ );
+        ar( CEREAL_NVP( observableType_ ) );
         // Reconstruct the function after loading
         isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType_ );
     }

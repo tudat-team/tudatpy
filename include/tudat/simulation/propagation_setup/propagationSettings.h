@@ -62,22 +62,29 @@ struct PropagatorType {
 private:
     friend class cereal::access;
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( translationalPropagatorType_ );
-        ar( rotationalPropagatorType_ );
-        ar( otherPropagator_ );
-        ar( customStateSize_ );
+        ar( cereal::make_nvp( "translationalPropagatorType_", translationalPropagatorType_ ) );
+        ar( cereal::make_nvp( "rotationalPropagatorType_", rotationalPropagatorType_ ) );
+        ar( cereal::make_nvp( "otherPropagator_", otherPropagator_ ) );
+        ar( cereal::make_nvp( "customStateSize_", customStateSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::make_nvp( "translationalPropagatorType_", translationalPropagatorType_ ) );
+        ar( cereal::make_nvp( "rotationalPropagatorType_", rotationalPropagatorType_ ) );
+        ar( cereal::make_nvp( "otherPropagator_", otherPropagator_ ) );
+        ar( cereal::make_nvp( "customStateSize_", customStateSize_ ) );
     }
 };
 
 //! Equality comparison for PropagatorType
 inline bool operator==( const PropagatorType& a, const PropagatorType& b )
 {
-    return a.translationalPropagatorType_ == b.translationalPropagatorType_ &&
-           a.rotationalPropagatorType_ == b.rotationalPropagatorType_ &&
-           a.otherPropagator_ == b.otherPropagator_ &&
-           a.customStateSize_ == b.customStateSize_;
+    return a.translationalPropagatorType_ == b.translationalPropagatorType_ && a.rotationalPropagatorType_ == b.rotationalPropagatorType_ &&
+            a.otherPropagator_ == b.otherPropagator_ && a.customStateSize_ == b.customStateSize_;
 }
 
 inline bool operator!=( const PropagatorType& a, const PropagatorType& b )

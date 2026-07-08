@@ -171,21 +171,33 @@ public:
 
 protected:
     // Default constructor for serialization
-    ObservationDependentVariableBookkeeping( ): observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 ) {}
-
+    ObservationDependentVariableBookkeeping( ):
+        observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 )
+    {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( observableType_ );
-        ar( linkEnds_ );
-        ar( settingsList_ );
-        ar( dependentVariableStartIndices_ );
-        ar( dependentVariableSizes_ );
-        ar( totalDependentVariableSize_ );
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( settingsList_ ) );
+        ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
+        ar( CEREAL_NVP( dependentVariableSizes_ ) );
+        ar( CEREAL_NVP( totalDependentVariableSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( settingsList_ ) );
+        ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
+        ar( CEREAL_NVP( dependentVariableSizes_ ) );
+        ar( CEREAL_NVP( totalDependentVariableSize_ ) );
     }
 
     observation_models::ObservableType observableType_;

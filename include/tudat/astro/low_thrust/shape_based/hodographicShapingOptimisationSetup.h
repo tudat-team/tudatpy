@@ -75,9 +75,15 @@ struct FixedTimeHodographicShapingOptimisationProblem {
     }
 
     template< typename Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( problemBounds_ );
+        ar( CEREAL_NVP( problemBounds_ ) );
+    }
+
+    template< typename Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::make_nvp( "problemBounds_", const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
     }
 
     vector_double::size_type get_nobj( ) const
@@ -135,9 +141,15 @@ struct HodographicShapingOptimisationProblem {
     }
 
     template< typename Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( problemBounds_ );
+        ar( CEREAL_NVP( problemBounds_ ) );
+    }
+
+    template< typename Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::make_nvp( "problemBounds_", const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
     }
 
     vector_double::size_type get_nobj( ) const

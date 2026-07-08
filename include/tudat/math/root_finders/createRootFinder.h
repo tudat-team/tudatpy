@@ -22,7 +22,6 @@
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 
-
 namespace tudat
 {
 
@@ -69,20 +68,38 @@ public:
     unsigned int maximumNumberOfIterations_;
 
     MaximumIterationHandling maximumIterationHandling_;
+
 protected:
     //! Default constructor for cereal deserialization
-    RootFinderSettings( ): rootFinderType_( bisection_root_finder ), relativeIndependentVariableTolerance_( TUDAT_NAN ),
+    RootFinderSettings( ):
+        rootFinderType_( bisection_root_finder ), relativeIndependentVariableTolerance_( TUDAT_NAN ),
         absoluteIndependentVariableTolerance_( TUDAT_NAN ), rootFunctionTolerance_( TUDAT_NAN ), maximumNumberOfIterations_( 0 ),
-        maximumIterationHandling_( throw_exception ) { }
+        maximumIterationHandling_( throw_exception )
+    {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( rootFinderType_, relativeIndependentVariableTolerance_, absoluteIndependentVariableTolerance_, rootFunctionTolerance_,
-            maximumNumberOfIterations_, maximumIterationHandling_ );
+        ar( CEREAL_NVP_( "rootFinderType_", rootFinderType_ ),
+            CEREAL_NVP_( "relativeIndependentVariableTolerance_", relativeIndependentVariableTolerance_ ),
+            CEREAL_NVP_( "absoluteIndependentVariableTolerance_", absoluteIndependentVariableTolerance_ ),
+            CEREAL_NVP_( "rootFunctionTolerance_", rootFunctionTolerance_ ),
+            CEREAL_NVP_( "maximumNumberOfIterations_", maximumNumberOfIterations_ ),
+            CEREAL_NVP_( "maximumIterationHandling_", maximumIterationHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( rootFinderType_ ),
+            CEREAL_NVP( relativeIndependentVariableTolerance_ ),
+            CEREAL_NVP( absoluteIndependentVariableTolerance_ ),
+            CEREAL_NVP( rootFunctionTolerance_ ),
+            CEREAL_NVP( maximumNumberOfIterations_ ),
+            CEREAL_NVP( maximumIterationHandling_ ) );
     }
 };
 

@@ -1064,10 +1064,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( fullPeriods_ );
-        ar( secondsIntoFullPeriod_ );
+        ar( CEREAL_NVP( fullPeriods_ ) );
+        ar( CEREAL_NVP( secondsIntoFullPeriod_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( fullPeriods_ ) );
+        ar( CEREAL_NVP( secondsIntoFullPeriod_ ) );
     }
 };
 

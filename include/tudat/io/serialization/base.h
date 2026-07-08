@@ -54,14 +54,14 @@ void save( Archive& ar, const Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRow
     Eigen::Index rows = matrix.rows( );
     Eigen::Index cols = matrix.cols( );
 
-    ar( rows );
-    ar( cols );
+    ar( make_nvp( "rows", rows ) );
+    ar( make_nvp( "cols", cols ) );
 
     for( Eigen::Index i = 0; i < rows; ++i )
     {
         for( Eigen::Index j = 0; j < cols; ++j )
         {
-            ar( matrix( i, j ) );
+            ar( make_nvp( "element", matrix( i, j ) ) );
         }
     }
 }
@@ -72,8 +72,8 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
 {
     Eigen::Index rows, cols;
 
-    ar( rows );
-    ar( cols );
+    ar( make_nvp( "rows", rows ) );
+    ar( make_nvp( "cols", cols ) );
 
     matrix.resize( rows, cols );
 
@@ -81,7 +81,7 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
     {
         for( Eigen::Index j = 0; j < cols; ++j )
         {
-            ar( matrix( i, j ) );
+            ar( make_nvp( "element", matrix( i, j ) ) );
         }
     }
 }

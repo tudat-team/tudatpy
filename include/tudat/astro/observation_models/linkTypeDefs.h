@@ -127,10 +127,17 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( bodyName_ );
-        ar( stationName_ );
+        ar( CEREAL_NVP( bodyName_ ) );
+        ar( CEREAL_NVP( stationName_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( bodyName_ ) );
+        ar( CEREAL_NVP( stationName_ ) );
     }
 };
 
@@ -241,14 +248,22 @@ struct LinkDefinition {
     {
         return !operator==( linkEnds1, linkEnds2 );
     }
+
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( linkEnds_ );
-    }};
+        ar( CEREAL_NVP( linkEnds_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( linkEnds_ ) );
+    }
+};
 
 inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )
 {

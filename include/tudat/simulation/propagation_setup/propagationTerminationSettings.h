@@ -74,17 +74,21 @@ public:
 
 protected:
     //! Default constructor for cereal deserialization
-    PropagationTerminationSettings( ):
-        terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false )
-    { }
+    PropagationTerminationSettings( ): terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( terminationType_, checkTerminationToExactCondition_ );
+        ar( CEREAL_NVP( terminationType_ ), CEREAL_NVP( checkTerminationToExactCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( terminationType_ ), CEREAL_NVP( checkTerminationToExactCondition_ ) );
     }
 };
 
@@ -115,18 +119,23 @@ public:
 
 protected:
     //! Default constructor for cereal deserialization
-    PropagationTimeTerminationSettings( ):
-        PropagationTerminationSettings( ), terminationTime_( 0.0 )
-    { }
+    PropagationTimeTerminationSettings( ): PropagationTerminationSettings( ), terminationTime_( 0.0 ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ),
-            terminationTime_ );
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationTime_ ) );
     }
 };
 
@@ -155,18 +164,23 @@ public:
 
 protected:
     //! Default constructor for cereal deserialization
-    PropagationCPUTimeTerminationSettings( ):
-        PropagationTerminationSettings( ), cpuTerminationTime_( 0.0 )
-    { }
+    PropagationCPUTimeTerminationSettings( ): PropagationTerminationSettings( ), cpuTerminationTime_( 0.0 ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ),
-            cpuTerminationTime_ );
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( cpuTerminationTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( cpuTerminationTime_ ) );
     }
 };
 
@@ -229,19 +243,31 @@ public:
 protected:
     //! Default constructor for cereal deserialization
     PropagationDependentVariableTerminationSettings( ):
-        PropagationTerminationSettings( ), dependentVariableSettings_( nullptr ),
-        limitValue_( 0.0 ), useAsLowerLimit_( false ), terminationRootFinderSettings_( nullptr )
-    { }
+        PropagationTerminationSettings( ), dependentVariableSettings_( nullptr ), limitValue_( 0.0 ), useAsLowerLimit_( false ),
+        terminationRootFinderSettings_( nullptr )
+    {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ),
-            dependentVariableSettings_, limitValue_, useAsLowerLimit_,
-            terminationRootFinderSettings_ );
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableSettings_ ) );
+        ar( CEREAL_NVP( limitValue_ ) );
+        ar( CEREAL_NVP( useAsLowerLimit_ ) );
+        ar( CEREAL_NVP( terminationRootFinderSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( dependentVariableSettings_ ) );
+        ar( CEREAL_NVP( limitValue_ ) );
+        ar( CEREAL_NVP( useAsLowerLimit_ ) );
+        ar( CEREAL_NVP( terminationRootFinderSettings_ ) );
     }
 };
 
@@ -276,15 +302,21 @@ public:
 
 protected:
     //! Default constructor for cereal deserialization
-    PropagationCustomTerminationSettings( ):
-        PropagationTerminationSettings( ), checkStopCondition_( nullptr )
-    { }
+    PropagationCustomTerminationSettings( ): PropagationTerminationSettings( ), checkStopCondition_( nullptr ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        std::cerr << "Warning: serializing/deserializing PropagationCustomTerminationSettings, "
+                  << "std::function member 'checkStopCondition_' will not be preserved." << std::endl;
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
     {
         ar( cereal::base_class< PropagationTerminationSettings >( this ) );
         std::cerr << "Warning: serializing/deserializing PropagationCustomTerminationSettings, "
@@ -335,18 +367,25 @@ public:
 
 protected:
     //! Default constructor for cereal deserialization
-    PropagationHybridTerminationSettings( ):
-        PropagationTerminationSettings( ), terminationSettings_( ), fulfillSingleCondition_( false )
-    { }
+    PropagationHybridTerminationSettings( ): PropagationTerminationSettings( ), terminationSettings_( ), fulfillSingleCondition_( false ) {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ),
-            terminationSettings_, fulfillSingleCondition_ );
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationSettings_ ) );
+        ar( CEREAL_NVP( fulfillSingleCondition_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( terminationSettings_ ) );
+        ar( CEREAL_NVP( fulfillSingleCondition_ ) );
     }
 };
 
@@ -384,18 +423,26 @@ public:
 protected:
     //! Default constructor for cereal deserialization
     NonSequentialPropagationTerminationSettings( ):
-        PropagationTerminationSettings( ), forwardTerminationSettings_( nullptr ),
-        backwardTerminationSettings_( nullptr )
-    { }
+        PropagationTerminationSettings( ), forwardTerminationSettings_( nullptr ), backwardTerminationSettings_( nullptr )
+    {}
 
 private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ),
-            forwardTerminationSettings_, backwardTerminationSettings_ );
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( forwardTerminationSettings_ ) );
+        ar( CEREAL_NVP( backwardTerminationSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
+        ar( CEREAL_NVP( forwardTerminationSettings_ ) );
+        ar( CEREAL_NVP( backwardTerminationSettings_ ) );
     }
 };
 
@@ -460,11 +507,17 @@ CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCustomTerminationSettings )
 CEREAL_REGISTER_TYPE( tudat::propagators::PropagationHybridTerminationSettings )
 CEREAL_REGISTER_TYPE( tudat::propagators::NonSequentialPropagationTerminationSettings )
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationCPUTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationDependentVariableTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationCustomTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::PropagationHybridTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings, tudat::propagators::NonSequentialPropagationTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::PropagationTimeTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::PropagationCPUTimeTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::PropagationDependentVariableTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::PropagationCustomTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::PropagationHybridTerminationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
+                                      tudat::propagators::NonSequentialPropagationTerminationSettings )
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

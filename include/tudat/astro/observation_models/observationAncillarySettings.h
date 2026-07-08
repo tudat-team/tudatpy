@@ -275,11 +275,19 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( doubleData_ );
-        ar( doubleVectorData_ );
-        ar( doubleIntermediateData_ );
+        ar( cereal::make_nvp( "doubleData_", doubleData_ ) );
+        ar( cereal::make_nvp( "doubleVectorData_", doubleVectorData_ ) );
+        ar( cereal::make_nvp( "doubleIntermediateData_", doubleIntermediateData_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::make_nvp( "doubleData_", doubleData_ ) );
+        ar( cereal::make_nvp( "doubleVectorData_", doubleVectorData_ ) );
+        ar( cereal::make_nvp( "doubleIntermediateData_", doubleIntermediateData_ ) );
     }
 };
 

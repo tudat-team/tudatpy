@@ -18,6 +18,8 @@
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
 
+#include "tudat/io/serialization/base.h"
+
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
 namespace tudat
@@ -63,9 +65,15 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
-        ar( torqueType_ );
+        ar( CEREAL_NVP( torqueType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( torqueType_ ) );
     }
 };
 
@@ -99,11 +107,19 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< TorqueSettings >( this ) );
-        ar( maximumDegree_ );
-        ar( maximumOrder_ );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
     }
 };
 
@@ -138,11 +154,23 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void save( Archive& ar ) const
     {
         ar( cereal::base_class< TorqueSettings >( this ) );
         // Warning: std::function member cannot be serialized
-        std::cerr << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved." << std::endl;
+        std::cerr
+                << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved."
+                << std::endl;
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        // Warning: std::function member cannot be serialized
+        std::cerr
+                << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved."
+                << std::endl;
     }
 };
 
@@ -198,9 +226,7 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::TorqueSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicTorqueSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomTorqueSettings )
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
-                                      tudat::simulation_setup::SphericalHarmonicTorqueSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
-                                      tudat::simulation_setup::CustomTorqueSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::SphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::CustomTorqueSettings )
 
 #endif  // TUDAT_TORQUESETTINGS_H

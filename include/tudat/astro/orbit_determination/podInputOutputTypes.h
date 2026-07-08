@@ -1094,44 +1094,44 @@ private:
     void save( Archive& ar, const std::uint32_t version ) const
     {
         static_cast< void >( version );
-        ar( normalizedDesignMatrix_ );
-        ar( weightsMatrixDiagonal_ );
-        ar( designMatrixTransformationDiagonal_ );
-        ar( inverseNormalizedCovarianceMatrix_ );
-        ar( inverseUnnormalizedCovarianceMatrix_ );
-        ar( normalizedCovarianceMatrix_ );
-        ar( unnormalizedCovarianceMatrix_ );
-        ar( considerCovarianceContribution_ );
-        ar( normalizedCovarianceWithConsiderParameters_ );
-        ar( unnormalizedCovarianceWithConsiderParameters_ );
-        ar( normalizedDesignMatrixConsiderParameters_ );
-        ar( considerNormalizationFactors_ );
-        ar( considerCovariance_ );
-        ar( designMatrixSaved_ );
-        ar( exceptionDuringPropagation_ );
-        ar( considerParametersIncluded_ );
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
         static_cast< void >( version );
-        ar( normalizedDesignMatrix_ );
-        ar( weightsMatrixDiagonal_ );
-        ar( designMatrixTransformationDiagonal_ );
-        ar( inverseNormalizedCovarianceMatrix_ );
-        ar( inverseUnnormalizedCovarianceMatrix_ );
-        ar( normalizedCovarianceMatrix_ );
-        ar( unnormalizedCovarianceMatrix_ );
-        ar( considerCovarianceContribution_ );
-        ar( normalizedCovarianceWithConsiderParameters_ );
-        ar( unnormalizedCovarianceWithConsiderParameters_ );
-        ar( normalizedDesignMatrixConsiderParameters_ );
-        ar( considerNormalizationFactors_ );
-        ar( considerCovariance_ );
-        ar( designMatrixSaved_ );
-        ar( exceptionDuringPropagation_ );
-        ar( considerParametersIncluded_ );
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
     }
 };
 
@@ -1357,15 +1357,15 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
-        ar( parameterEstimate_ );
-        ar( residuals_ );
-        ar( bestIteration_ );
-        ar( residualStandardDeviation_ );
-        ar( residualHistory_ );
-        ar( parameterHistory_ );
-        ar( exceptionDuringInversion_ );
-        ar( numberOfParameters_ );
-        ar( simulationResultsPerIteration_ );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
     }
 
     template< class Archive >
@@ -1373,15 +1373,15 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
-        ar( parameterEstimate_ );
-        ar( residuals_ );
-        ar( bestIteration_ );
-        ar( residualStandardDeviation_ );
-        ar( residualHistory_ );
-        ar( parameterHistory_ );
-        ar( exceptionDuringInversion_ );
-        ar( numberOfParameters_ );
-        ar( simulationResultsPerIteration_ );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
     }
 };
 
