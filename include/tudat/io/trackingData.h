@@ -16,24 +16,16 @@
 #include <memory>
 #include <vector>
 
-// #include "tudat/astro/observation_models/linkTypeDefs.h"
-// #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-// #include "tudat/simulation/estimation_setup/observationOutput.h"
-// #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
 namespace tudat
 {
 
 namespace data
 {
-
-std::vector< std::string > observableTypeStrings = {};
-
-// using namespace simulation_setup;
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -45,11 +37,9 @@ public:
                   const std::vector< std::pair< std::pair< std::string, std::string >, std::string > >& linkEnds,
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
-                  const std::string referenceLinkEnd,
-                  const unsigned int singleObservationSize ):
+                  const std::string referenceLinkEnd ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), numberOfObservations_( observations.size( ) ),
-        singleObservationSize_( singleObservationSize )
+        referenceLinkEnd_( referenceLinkEnd ), numberOfObservations_( observations.size( ) )
     {
         // Check inputs size consistency
         if( observations_.size( ) != epochs_.size( ) )
@@ -66,83 +56,54 @@ public:
                 throw std::runtime_error( "Error when making TrackingData, input observables not of consistent size." );
             }
         }
+
+        // Set size of a single observation (zero is observations vector is empty)
+        singleObservationSize_ = ( !observations.empty( ) ? observations[ 0 ].size( ) : 0 );
     }
 
-    bool checkTrackingDataValidity( ) {}
-
-    std::string getObservableType( )
-    {
-        return observableType_;
-    }
-
-    std::vector< std::pair< std::pair< std::string, std::string >, std::string > > getLinkEnds( )
-    {
-        return linkEnds_;
-    }
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
-    {
-        return observations_;
-    }
-
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservationsReference( )
-    {
-        return observations_;
-    }
-
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservation( const unsigned int index )
-    {
-        if( index >= numberOfObservations_ )
-        {
-            throw std::runtime_error( "Error when retrieving single observation, index is out of bounds" );
-        }
-        return observations_.at( index );
-    }
-
-    void setObservation( const unsigned int index, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observation )
-    {
-        if( index >= numberOfObservations_ )
-        {
-            throw std::runtime_error( "Error when setting single observation value in tracking data, index is out of bounds" );
-        }
-        if( observation.size( ) != singleObservationSize_ )
-        {
-            throw std::runtime_error(
-                    "Error when setting single observation value in tracking data, the observation size is inconsistent." );
-        }
-        observations_.at( index ) = observation;
-    }
-
-    std::vector< TimeType > getObservationEpochs( )
-    {
-        return epochs_;
-    }
-
-    const std::vector< TimeType >& getObservationEpochs( )
-    {
-        return epochs_;
-    }
-
-    LinkEndType getReferenceLinkEnd( )
-    {
-        return referenceLinkEnd_;
-    }
-
-    unsigned int getNumberOfObservables( )
+    //! Function that returns the number of observations
+    unsigned int getNumberOfObservations( )
     {
         return numberOfObservations_;
     }
 
-    unsigned int getSingleObservableSize( ) const
+    //! Function that returns the size of a single observation
+    unsigned int getSingleObservationSize( ) const
     {
         return singleObservationSize_;
     }
 
+    //! Function that returns the total size of the observations contained in the TrackingData object
     unsigned int getTotalObservationSetSize( ) const
     {
         return numberOfObservations_ * singleObservationSize_;
     }
 
+    //! Function that returns the observable type
+    std::string getObservableType( )
+    {
+        return observableType_;
+    }
+
+    //! Function that returns the link ends description
+    std::vector< std::pair< std::pair< std::string, std::string >, std::string > > getLinkEnds( )
+    {
+        return linkEnds_;
+    }
+
+    //! Function that returns the link end used as reference
+    std::string getReferenceLinkEnd( )
+    {
+        return referenceLinkEnd_;
+    }
+
+    //! Function that returns observation values
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
+    {
+        return observations_;
+    }
+
+    //! Function that returns a concatenated vector of observations
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationsVector( )
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector =
@@ -154,48 +115,81 @@ public:
         return observationsVector;
     }
 
-    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsHistory( )
+    //! Function that overwrites the full observation vector
+    void resetObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& newObservations )
     {
-        return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( observationTimes_,
-                                                                                                                       observations_ );
-    }
-
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
-    {
-        return weights_;
-    }
-
-    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
-    {
-        return weights_;
-    }
-
-    Eigen::VectorXd getWeightsVector( ) const
-    {
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
-                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        // Check that the number of observations is consistent
+        if( newObservations.size( ) != numberOfObservations_ )
         {
-            weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
+            throw std::runtime_error("Error when resetting the observation values in TrackingData object, the new number of 
+                observations (" + std::to_string(newObservations.size( )) + ") is inconsistent with original number of observations
+                (" + std::to_string(numberOfObservations_) +")." );
         }
-        return weightsVector;
+
+        // Check that the size of each single observation is consistent
+        for( auto obs : newObservations )
+        {
+            if( obs.size( ) != singleObservationSize_ )
+            {
+                throw std::runtime_error("Error when resetting the observation values in TrackingData object, the size of a 
+                    single new observation (" + std::to_string(newObservations.size( )) + ") is inconsistent with the 
+                    original single observation size (" + std::to_string(singleObservationSize_) +")." );
+            }
+        }
+
+        // Overwrite observation values
+        observations_ = newObservations;
     }
 
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeight( unsigned int index ) const
+    //! Function that overwrites a single observation value
+    void resetObservation( const unsigned int index, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observation )
     {
+        // Check that the index of the observation that needs overwriting does not exceed the size of the observation vector
         if( index >= numberOfObservations_ )
         {
-            throw std::runtime_error(
-                    "Error when retrieving single observation weight, required index incompatible "
-                    "with number of observations." );
+            throw std::runtime_error( "Error when resetting single observation value in TrackingData object, index exceeds 
+                number of observations contained in TrackingData object." );
         }
-        return weights_.at( index );
+
+        // Check size consistency
+        if( observation.size( ) != singleObservationSize_ )
+        {
+            throw std::runtime_error(
+                    "Error when resetting single observation value in TrackingData object, the observation size is inconsistent." );
+        }
+
+        // Overwrites specific observation entry
+        observations_.at( index ) = observation;
+    }
+
+    //! Function that returns the observation epochs
+    std::vector< TimeType > getObservationEpochs( )
+    {
+        return epochs_;
+    }
+
+    //! Function that returns a concatenated vector of observation epochs
+    Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > getObservationEpochsVector( )
+    {
+        Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > epochsVector =
+                Eigen::Matrix< TimeType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
+        for( unsigned int i = 0; i < epochs_.size( ); i++ )
+        {
+            epochsVector.segment( i * singleObservationSize_, singleObservationSize_ ) = epochs_.at( i );
+        }
+        return epochsVector;
     }
 
     // Add ancillary settings (string type)
-    void addAncillarySettings( const std::string ancillarySettingsType, const std::string ancillarySettingsValue )
+    void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< std::string > ancillarySettingsValue )
     {
-        ancillarySettingsString_[ ancillarySettingsType ] = ancillarySettingsValue;
+        ancillarySettingsStringVector_[ ancillarySettingsType ] = ancillarySettingsValue;
+    }
+
+    //! Function that returns map of ancillary settings (string type)
+    std::map< std::string, std::vector< std::string > > getAncillarySettingsStringVector( ) const
+    {
+        return ancillarySettingsStringVector_;
     }
 
     // Add ancillary settings (double type)
@@ -204,14 +198,26 @@ public:
         ancillarySettingsDouble_[ ancillarySettingsType ] = ancillarySettingsValue;
     }
 
+    //! Function that returns map of ancillary settings (double type)
+    std::map< std::string, double > getAncillarySettingsDouble( ) const
+    {
+        return ancillarySettingsDouble_;
+    }
+
     // Add ancillary settings (vector type)
     void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< double > ancillarySettingsValue )
     {
-        ancillarySettingsVector_[ ancillarySettingsType ] = ancillarySettingsValue;
+        ancillarySettingsDoubleVector_[ ancillarySettingsType ] = ancillarySettingsValue;
     }
 
-    //! Add observation weights to the tracking data object (optional)
-    void addObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
+    //! Function that returns map of ancillary settings (vector type)
+    std::map< std::string, vector< double > > getAncillarySettingsDoubleVector( ) const
+    {
+        return ancillarySettingsDoubleVector_;
+    }
+
+    //! Set observation weights to the tracking data object (optional)
+    void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
     {
         // Check if observation weights already existed and overwrite them if they did (+throw a warning)
         if( !weights_.empty( ) )
@@ -245,14 +251,55 @@ public:
         weights_ = observationWeights;
     }
 
-    //! Function that return a vector of observation weights (empty of observation weights are not provided)
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationWeights( ) const
+    //! Function that reset a specific observation weight (only possible if weights are already available)
+    void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
+    {
+        // Check if weights are already available
+        if( weights.empty( ) )
+        {
+            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weights not 
+                yet defined." );
+        }
+
+        // Check that the observation index for which the weight needs resetting does not exceed the size of the observation vector
+        if( index >= numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, index exceeds 
+                number of observations contained in TrackingData object." );
+        }
+
+        // Check size consistency
+        if( observationWeight.size( ) != singleObservationSize_ )
+        {
+            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weight size (" +
+                                      std::to_string( observationWeight.size( ) ) + ") inconsistent with observation size (" +
+                                      std::to_string( singleObservationSize_ ) + ")." );
+        }
+
+        // Overwrites specific weight entry
+        weights_.at( index ) = observationWeight;
+    }
+
+    //! Function that returns a vector of observation weights (empty if observation weights are not provided)
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservationWeights( ) const
     {
         return weights_;
     }
 
-    //! Add corrections to the observations (optional)
-    void addObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
+    //! Function that returns a concatenated vector of observation weights (size zero if no observation weights provided)
+    Eigen::VectorXd getObservationWeightsVector( ) const
+    {
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
+                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( weights_.size( ) * singleObservationSize_, 1 );
+        for( unsigned int i = 0; i < weights_; i++ )
+        {
+            weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
+        }
+        return weightsVector;
+    }
+
+    //! Set corrections to the observations (optional)
+    void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
     {
         // Check if observation corrections already existed and clear them if they did + throw a warning (overwritten)
         if( !observationCorrections_.empty( ) )
@@ -286,28 +333,70 @@ public:
         observationCorrections_ = observationCorrections;
     }
 
+    //! Function that (re-)sets a single observation correction
+    void setSingleObservationCorrection( const unsigned int index,
+                                         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationCorrection )
+    {
+        // Check that observation corrections are already defined
+        if( observationCorrections_.empty( ) )
+        {
+            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, corrections not 
+                yet defined." );
+        }
+
+        // Check that the index of the observation correction that needs overwriting does not exceed the size of the observation vector
+        if( index >= numberOfObservations_ )
+        {
+            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, index exceeds 
+                number of observations contained in TrackingData object." );
+        }
+
+        // Check size consistency
+        if( observationCorrection.size( ) != singleObservationSize_ )
+        {
+            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, new correction size (" +
+                                      std::to_string( observationCorrection.size( ) ) + " inconsistent with observation size (" +
+                                      std::to_string( singleObservationSize_ ) + ")." );
+        }
+
+        // Overwrites specific correction entry
+        observationCorrections_.at( index ) = observationCorrection;
+    }
+
     //! Function that return a vector of observation corrections (empty of observation corrections are not provided)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationCorrections( ) const
     {
         return observationCorrections_;
     }
 
-    //! Function that returns map of ancillary settings (string type)
-    std::map< std::string, std::string > getAncillarySettingsString( ) const
+    //! Function that remove a single observation entry
+    void removeSingleObservationEntry( const unsigned int index )
     {
-        return ancillarySettingsString_;
-    }
+        // Check that the index of the observation that needs deleting does not exceed the size of the observation vector
+        if( index >= numberOfObservations_ )
+        {
+            throw std::runtime_error(
+                    "Error when removing single observation in TrackingData object, index exceeds number of observations." );
+        }
 
-    //! Function that returns map of ancillary settings (double type)
-    std::map< std::string, double > getAncillarySettingsDouble( ) const
-    {
-        return ancillarySettingsDouble_;
-    }
+        // Remove observation value and associated epoch
+        observations_.erase( observations_.begin( ) + index );
+        epochs_.erase( epochs_.begin( ) + index );
 
-    //! Function that returns map of ancillary settings (vector type)
-    std::map< std::string, vector< double > > getAncillarySettingsVector( ) const
-    {
-        return ancillarySettingsVector_;
+        // Remove associated weight (if it exists)
+        if( !weights_.empty( ) )
+        {
+            weights_.erase( weights_.begin( ) + index );
+        }
+
+        // Remove associated correction (if it exists)
+        if( !observationCorrections_.empty( ) )
+        {
+            observationCorrections_.erase( observationCorrections_.begin( ) + index );
+        }
+
+        // Update total number of observations contained in TrackingData object
+        numberOfObservations_ = observations_.size( );
     }
 
 private:
@@ -317,11 +406,11 @@ private:
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
-    const std::vector< TimeType > epochs_;
+    std::vector< TimeType > epochs_;
 
-    const std::string referenceLinkEndIndex_;
+    const std::string referenceLinkEnd_;
 
-    const unsigned int numberOfObservations_;
+    unsigned int numberOfObservations_;
 
     const unsigned int singleObservationSize_;
 
@@ -329,11 +418,11 @@ private:
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
 
-    const std::map< std::string, std::string > ancillarySettingsString_;
+    std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
 
-    const std::map< std::string, double > ancillarySettingsDouble_;
+    std::map< std::string, double > ancillarySettingsDouble_;
 
-    const std::map< std::string, vector< double > > ancillarySettingsVector_;
+    std::map< std::string, vector< double > > ancillarySettingsDoubleVector_;
 };
 
 }  // namespace data
