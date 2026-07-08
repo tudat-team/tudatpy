@@ -17,7 +17,6 @@
 #include <memory>
 #include <string>
 #include <type_traits>
-#include <variant>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -762,7 +761,7 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
     using DenseDesignMatrix = Eigen::MatrixXd;
     using SparseDesignMatrix = typename linear_algebra::MatrixTraits< double, linear_algebra::Sparse >::matrix_type;
-    using DesignMatrixStorage = std::variant< DenseDesignMatrix, SparseDesignMatrix >;
+    enum class DesignMatrixKind { dense, sparse };
 
     template< typename DesignMatrixType = Eigen::MatrixXd, typename ConsiderDesignMatrixType = Eigen::MatrixXd >
     CovarianceAnalysisOutput( const DesignMatrixType& normalizedDesignMatrix,
@@ -774,14 +773,21 @@ struct CovarianceAnalysisOutput {
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                               const bool exceptionDuringPropagation = false ):
-        normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
-        designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
+        weightsMatrixDiagonal_( weightsMatrixDiagonal ), designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
-        normalizedDesignMatrixConsiderParameters_( normalizedDesignMatrixConsiderParameters ),
         considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
-        exceptionDuringPropagation_( exceptionDuringPropagation )
+        exceptionDuringPropagation_( exceptionDuringPropagation ), considerParametersIncluded_( false ), designMatrixSaved_( false )
     {
-        if( isEmptyDesignMatrix( normalizedDesignMatrix_ ) && isEmptyDesignMatrix( normalizedDesignMatrixConsiderParameters_ ) &&
+        storeDesignMatrix( normalizedDesignMatrixKind_,
+                           denseNormalizedDesignMatrix_,
+                           sparseNormalizedDesignMatrix_,
+                           normalizedDesignMatrix );
+        storeDesignMatrix( normalizedDesignMatrixConsiderParametersKind_,
+                           denseNormalizedDesignMatrixConsiderParameters_,
+                           sparseNormalizedDesignMatrixConsiderParameters_,
+                           normalizedDesignMatrixConsiderParameters );
+
+        if( isNormalizedDesignMatrixEmpty( ) && isConsiderDesignMatrixEmpty( ) &&
             !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
         {
             designMatrixSaved_ = false;
@@ -790,8 +796,7 @@ struct CovarianceAnalysisOutput {
         {
             designMatrixSaved_ = true;
         }
-        considerParametersIncluded_ = false;
-        if( getDesignMatrixSize( normalizedDesignMatrixConsiderParameters_ ) > 0 && considerNormalizationFactors.size( ) > 0 &&
+        if( considerDesignMatrixSize( ) > 0 && considerNormalizationFactors.size( ) > 0 &&
             considerCovarianceContribution.size( ) > 0 )
         {
             considerParametersIncluded_ = true;
@@ -867,82 +872,14 @@ struct CovarianceAnalysisOutput {
         return designMatrixSaved_;
     }
 
-    DesignMatrixStorage getNormalizedDesignMatrixVariant( )
-    {
-        if( designMatrixSaved_ )
-        {
-            return normalizedDesignMatrix_;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailableVariant( normalizedDesignMatrix_ );
-        }
-    }
-
-    DesignMatrixStorage getUnnormalizedDesignMatrixVariant( )
-    {
-        return applyToDesignMatrixVariant( getNormalizedDesignMatrixVariant( ),
-                                           [&]( auto designMatrix )
-                                           {
-                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
-                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
-                                               DesignMatrixTraits::multiply_columns( designMatrix, designMatrixTransformationDiagonal_ );
-                                               return DesignMatrixStorage( designMatrix );
-                                           } );
-    }
-
-    DesignMatrixStorage getNormalizedWeightedDesignMatrixVariant( )
-    {
-        return applyToDesignMatrixVariant( getNormalizedDesignMatrixVariant( ),
-                                           [&]( auto designMatrix )
-                                           {
-                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
-                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
-                                               DesignMatrixTraits::multiply_rows_by_sqrt( designMatrix, weightsMatrixDiagonal_ );
-                                               return DesignMatrixStorage( designMatrix );
-                                           } );
-    }
-
-    DesignMatrixStorage getUnnormalizedWeightedDesignMatrixVariant( )
-    {
-        return applyToDesignMatrixVariant( getUnnormalizedDesignMatrixVariant( ),
-                                           [&]( auto designMatrix )
-                                           {
-                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
-                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
-                                               DesignMatrixTraits::multiply_rows_by_sqrt( designMatrix, weightsMatrixDiagonal_ );
-                                               return DesignMatrixStorage( designMatrix );
-                                           } );
-    }
-
-    DesignMatrixStorage getNormalizedDesignMatrixConsiderParametersVariant( )
-    {
-        if( designMatrixSaved_ )
-        {
-            return normalizedDesignMatrixConsiderParameters_;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailableVariant( normalizedDesignMatrixConsiderParameters_ );
-        }
-    }
-
-    DesignMatrixStorage getUnnormalizedDesignMatrixConsiderParametersVariant( )
-    {
-        return applyToDesignMatrixVariant( getNormalizedDesignMatrixConsiderParametersVariant( ),
-                                           [&]( auto designMatrix )
-                                           {
-                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
-                                               typedef typename linear_algebra::from_eigen< DesignMatrixType >::traits DesignMatrixTraits;
-                                               DesignMatrixTraits::multiply_columns( designMatrix, considerNormalizationFactors_ );
-                                               return DesignMatrixStorage( designMatrix );
-                                           } );
-    }
-
     template< typename DesignMatrixType >
     DesignMatrixType getNormalizedDesignMatrix( )
     {
-        return getDesignMatrixFromStorage< DesignMatrixType >( normalizedDesignMatrix_, "normalized design matrix" );
+        return selectDesignMatrix< DesignMatrixType >(
+                normalizedDesignMatrixKind_,
+                denseNormalizedDesignMatrix_,
+                sparseNormalizedDesignMatrix_,
+                "normalized design matrix" );
     }
 
     template< typename DesignMatrixType >
@@ -975,8 +912,11 @@ struct CovarianceAnalysisOutput {
     template< typename DesignMatrixType >
     DesignMatrixType getNormalizedDesignMatrixConsiderParameters( )
     {
-        return getDesignMatrixFromStorage< DesignMatrixType >(
-                normalizedDesignMatrixConsiderParameters_, "normalized consider-parameter design matrix" );
+        return selectDesignMatrix< DesignMatrixType >(
+                normalizedDesignMatrixConsiderParametersKind_,
+                denseNormalizedDesignMatrixConsiderParameters_,
+                sparseNormalizedDesignMatrixConsiderParameters_,
+                "normalized consider-parameter design matrix" );
     }
 
     template< typename DesignMatrixType >
@@ -1077,64 +1017,78 @@ struct CovarianceAnalysisOutput {
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
 
-    DesignMatrixStorage returnNoDesignMatrixAvailableVariant( const DesignMatrixStorage& storage )
+    template< typename MatrixType >
+    static void storeDesignMatrix( DesignMatrixKind& kind,
+                                   DenseDesignMatrix& dense,
+                                   SparseDesignMatrix& sparse,
+                                   const MatrixType& matrix )
     {
-        std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
-                     "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
-                  << std::endl;
-        return applyToDesignMatrixVariant( storage,
-                                           []( const auto& designMatrix )
-                                           {
-                                               typedef typename std::decay< decltype( designMatrix ) >::type DesignMatrixType;
-                                               return DesignMatrixStorage( DesignMatrixType( 0, 0 ) );
-                                           } );
+        if constexpr( std::is_same< MatrixType, SparseDesignMatrix >::value )
+        {
+            kind = DesignMatrixKind::sparse;
+            sparse = matrix;
+            dense = DenseDesignMatrix( 0, 0 );
+        }
+        else
+        {
+            kind = DesignMatrixKind::dense;
+            dense = matrix;
+            sparse = SparseDesignMatrix( 0, 0 );
+        }
     }
 
     template< typename DesignMatrixType >
-    DesignMatrixType getDesignMatrixFromStorage( const DesignMatrixStorage& storage, const std::string& matrixName )
+    DesignMatrixType selectDesignMatrix( const DesignMatrixKind kind,
+                                         const DenseDesignMatrix& dense,
+                                         const SparseDesignMatrix& sparse,
+                                         const std::string& matrixName ) const
     {
         if( !designMatrixSaved_ )
         {
             return DesignMatrixType( 0, 0 );
         }
-        if( std::holds_alternative< DesignMatrixType >( storage ) )
+        if constexpr( std::is_same< DesignMatrixType, SparseDesignMatrix >::value )
         {
-            return std::get< DesignMatrixType >( storage );
+            if( kind == DesignMatrixKind::sparse )
+            {
+                return sparse;
+            }
+            throw std::runtime_error( "Error when retrieving " + matrixName +
+                                      ": a sparse matrix was requested but a dense matrix is stored." );
         }
-        throw std::runtime_error( "Error when retrieving " + matrixName +
-                                  ": requested matrix storage type does not match the stored design matrix type." );
+        else
+        {
+            return kind == DesignMatrixKind::sparse ? DenseDesignMatrix( sparse ) : dense;
+        }
     }
 
-    template< typename FunctionType >
-    static DesignMatrixStorage applyToDesignMatrixVariant( const DesignMatrixStorage& storage, FunctionType function )
+    bool isNormalizedDesignMatrixEmpty( ) const
     {
-        return std::visit( [&]( const auto& designMatrix )
-                           {
-                               return function( designMatrix );
-                           },
-                           storage );
+        return normalizedDesignMatrixKind_ == DesignMatrixKind::sparse
+                ? ( sparseNormalizedDesignMatrix_.rows( ) == 0 && sparseNormalizedDesignMatrix_.cols( ) == 0 )
+                : ( denseNormalizedDesignMatrix_.rows( ) == 0 && denseNormalizedDesignMatrix_.cols( ) == 0 );
     }
 
-    static bool isEmptyDesignMatrix( const DesignMatrixStorage& storage )
+    bool isConsiderDesignMatrixEmpty( ) const
     {
-        return std::visit( []( const auto& designMatrix )
-                           {
-                               return designMatrix.rows( ) == 0 && designMatrix.cols( ) == 0;
-                           },
-                           storage );
+        return normalizedDesignMatrixConsiderParametersKind_ == DesignMatrixKind::sparse
+                ? ( sparseNormalizedDesignMatrixConsiderParameters_.rows( ) == 0 &&
+                    sparseNormalizedDesignMatrixConsiderParameters_.cols( ) == 0 )
+                : ( denseNormalizedDesignMatrixConsiderParameters_.rows( ) == 0 &&
+                    denseNormalizedDesignMatrixConsiderParameters_.cols( ) == 0 );
     }
 
-    static int getDesignMatrixSize( const DesignMatrixStorage& storage )
+    long long considerDesignMatrixSize( ) const
     {
-        return std::visit( []( const auto& designMatrix )
-                           {
-                               return static_cast< int >( designMatrix.size( ) );
-                           },
-                           storage );
+        return normalizedDesignMatrixConsiderParametersKind_ == DesignMatrixKind::sparse
+                ? static_cast< long long >( sparseNormalizedDesignMatrixConsiderParameters_.size( ) )
+                : static_cast< long long >( denseNormalizedDesignMatrixConsiderParameters_.size( ) );
     }
 
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
-    DesignMatrixStorage normalizedDesignMatrix_;
+    DesignMatrixKind normalizedDesignMatrixKind_ = DesignMatrixKind::dense;
+    DenseDesignMatrix denseNormalizedDesignMatrix_;
+    SparseDesignMatrix sparseNormalizedDesignMatrix_;
 
     //! Diagonal of weights matrix used in the estimation
     Eigen::VectorXd weightsMatrixDiagonal_;
@@ -1164,7 +1118,9 @@ struct CovarianceAnalysisOutput {
     Eigen::MatrixXd unnormalizedCovarianceWithConsiderParameters_;
 
     //! Matrix of observation partials w.r.t. consider parameters (normalized)
-    DesignMatrixStorage normalizedDesignMatrixConsiderParameters_;
+    DesignMatrixKind normalizedDesignMatrixConsiderParametersKind_ = DesignMatrixKind::dense;
+    DenseDesignMatrix denseNormalizedDesignMatrixConsiderParameters_;
+    SparseDesignMatrix sparseNormalizedDesignMatrixConsiderParameters_;
 
     //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
     Eigen::VectorXd considerNormalizationFactors_;

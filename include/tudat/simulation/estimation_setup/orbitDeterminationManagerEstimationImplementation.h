@@ -61,8 +61,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
     Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-    typename CovarianceAnalysisOutput< ObservationScalarType, TimeType >::DesignMatrixStorage bestDesignMatrixEstimatedParameters =
-            Eigen::MatrixXd::Zero( 0, 0 );
+    typedef typename linear_algebra::MatrixTraits< double, linear_algebra::Sparse >::matrix_type SparseDesignMatrixType;
+    bool bestDesignMatrixIsSparse = false;
+    Eigen::MatrixXd bestDenseDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
+    SparseDesignMatrixType bestSparseDesignMatrixEstimatedParameters = SparseDesignMatrixType( 0, 0 );
     Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
     Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
             Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -110,8 +112,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
         Eigen::MatrixXd designMatrixConsiderParameters;
-        typename CovarianceAnalysisOutput< ObservationScalarType, TimeType >::DesignMatrixStorage designMatrixEstimatedParametersForSaving =
-                Eigen::MatrixXd::Zero( 0, 0 );
+        bool currentDesignMatrixIsSparse = false;
+        Eigen::MatrixXd currentDenseDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
+        SparseDesignMatrixType currentSparseDesignMatrixEstimatedParameters = SparseDesignMatrixType( 0, 0 );
 
         Eigen::VectorXd normalizationTerms;
         Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
@@ -125,11 +128,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             typedef typename linear_algebra::from_eigen< EstimatedDesignMatrixType >::traits EstimatedDesignMatrixTraits;
 
             normalizationTerms = EstimatedDesignMatrixTraits::normalize_columns( designMatrixEstimatedParameters );
-            designMatrixEstimatedParametersForSaving = estimationInput->getSaveDesignMatrix( ) ?
-                    typename CovarianceAnalysisOutput< ObservationScalarType, TimeType >::DesignMatrixStorage(
-                            designMatrixEstimatedParameters ) :
-                    typename CovarianceAnalysisOutput< ObservationScalarType, TimeType >::DesignMatrixStorage(
-                            EstimatedDesignMatrixType( 0, 0 ) );
+            constexpr bool isSparseDesignMatrix = std::is_same< EstimatedDesignMatrixType, SparseDesignMatrixType >::value;
+            currentDesignMatrixIsSparse = isSparseDesignMatrix;
+            currentDenseDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
+            currentSparseDesignMatrixEstimatedParameters = SparseDesignMatrixType( 0, 0 );
+            if( estimationInput->getSaveDesignMatrix( ) )
+            {
+                if constexpr( isSparseDesignMatrix )
+                {
+                    currentSparseDesignMatrixEstimatedParameters = designMatrixEstimatedParameters;
+                }
+                else
+                {
+                    currentDenseDesignMatrixEstimatedParameters = designMatrixEstimatedParameters;
+                }
+            }
 
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
                     estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
@@ -137,7 +150,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
             if( considerParametersIncluded_ )
             {
-                normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
+                normalizationTermsConsider =
+                        linear_algebra::MatrixTraits< double, linear_algebra::Dense >::normalize_columns( designMatrixConsiderParameters );
                 getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
                 if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
                 {
@@ -214,8 +228,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         if( !estimationInput->getUseSparseDesignMatrix( ) )
         {
-            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-                    designMatricesAndResiduals = performPreEstimationSteps(
+            typedef Eigen::MatrixXd EstimatedDesignMatrixType;
+            std::pair< std::pair< EstimatedDesignMatrixType, Eigen::MatrixXd >,
+                       Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                    designMatricesAndResiduals = performPreEstimationSteps< EstimatedDesignMatrixType >(
                             estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
             residuals = designMatricesAndResiduals.second;
             designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
@@ -293,7 +309,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
             estimationInput->getObservationCollection( )->setResiduals( residuals );
-            bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParametersForSaving );
+            bestDesignMatrixIsSparse = currentDesignMatrixIsSparse;
+            bestDenseDesignMatrixEstimatedParameters = std::move( currentDenseDesignMatrixEstimatedParameters );
+            bestSparseDesignMatrixEstimatedParameters = std::move( currentSparseDesignMatrixEstimatedParameters );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
@@ -350,28 +368,47 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     }
 
     // Create estimation output object
-    std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
-            std::visit( [&]( const auto& bestDesignMatrix )
-                        {
-                            return std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
-                                    bestParameterEstimate,
-                                    bestResiduals,
-                                    bestDesignMatrix,
-                                    bestWeightsMatrixDiagonal,
-                                    bestTransformationData,
-                                    bestInverseNormalizedCovarianceMatrix,
-                                    bestRmsResidual,
-                                    bestIteration,
-                                    residualHistory,
-                                    parameterHistory,
-                                    bestDesignMatrixConsiderParameters,
-                                    bestConsiderTransformationData,
-                                    bestConsiderCovarianceContribution,
-                                    estimationInput->getConsiderCovariance( ),
-                                    exceptionDuringInversion,
-                                    exceptionDuringPropagation );
-                        },
-                        bestDesignMatrixEstimatedParameters );
+    std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput;
+    if( bestDesignMatrixIsSparse )
+    {
+        estimationOutput = std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
+                bestParameterEstimate,
+                bestResiduals,
+                bestSparseDesignMatrixEstimatedParameters,
+                bestWeightsMatrixDiagonal,
+                bestTransformationData,
+                bestInverseNormalizedCovarianceMatrix,
+                bestRmsResidual,
+                bestIteration,
+                residualHistory,
+                parameterHistory,
+                bestDesignMatrixConsiderParameters,
+                bestConsiderTransformationData,
+                bestConsiderCovarianceContribution,
+                estimationInput->getConsiderCovariance( ),
+                exceptionDuringInversion,
+                exceptionDuringPropagation );
+    }
+    else
+    {
+        estimationOutput = std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
+                bestParameterEstimate,
+                bestResiduals,
+                bestDenseDesignMatrixEstimatedParameters,
+                bestWeightsMatrixDiagonal,
+                bestTransformationData,
+                bestInverseNormalizedCovarianceMatrix,
+                bestRmsResidual,
+                bestIteration,
+                residualHistory,
+                parameterHistory,
+                bestDesignMatrixConsiderParameters,
+                bestConsiderTransformationData,
+                bestConsiderCovarianceContribution,
+                estimationInput->getConsiderCovariance( ),
+                exceptionDuringInversion,
+                exceptionDuringPropagation );
+    }
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
@@ -422,80 +459,6 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::resetP
     }
 
     currentParameterEstimate_ = newParameterEstimate;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreEstimationSteps(
-        std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-        const ParameterVectorType& newParameterEstimate,
-        const bool calculateResiduals,
-        const int numberOfIterations,
-        bool& exceptionDuringPropagation,
-        std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
-{
-    // Get number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
-
-    // Re-integrate equations of motion and variational equations with new parameter estimate.
-    try
-    {
-        if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
-        {
-            resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
-        }
-
-        if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
-        {
-            if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )
-                        ->getSaveStateHistoryForEachIteration( ) )
-            {
-                simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
-            }
-        }
-    }
-    catch( std::runtime_error& error )
-    {
-        std::cerr << "Error when resetting parameters during parameter estimation: " << std::endl
-                  << error.what( ) << std::endl
-                  << "Terminating estimation" << std::endl;
-        exceptionDuringPropagation = true;
-    }
-
-    if( estimationInput->getPrintOutput( ) )
-    {
-        std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
-    }
-
-    // Calculate residuals and observation matrix for current parameter estimate.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
-    Eigen::MatrixXd designMatrix;
-    if( calculateResiduals )
-    {
-        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
-                                                                              observationManagers_,
-                                                                              totalNumberParameters_,
-                                                                              totalNumberOfObservations,
-                                                                              designMatrix,
-                                                                              residuals,
-                                                                              true );
-    }
-    else
-    {
-        calculateDesignMatrix< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
-                                                                  observationManagers_,
-                                                                  totalNumberParameters_,
-                                                                  totalNumberOfObservations,
-                                                                  designMatrix );
-    }
-
-    // Divide partials matrix between estimated and consider parameters
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices =
-            separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
-
-    return std::make_pair( designMatrices, residuals );
 }
 
 template< typename ObservationScalarType,

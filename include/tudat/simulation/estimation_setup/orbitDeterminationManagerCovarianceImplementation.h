@@ -64,7 +64,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
         Eigen::MatrixXd normalizedConsiderCovariance;
         if( considerParametersIncluded_ )
         {
-            considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
+            considerNormalizationTerms =
+                    linear_algebra::MatrixTraits< double, linear_algebra::Dense >::normalize_columns( designMatrixConsiderParameters );
             getNormalizedConsiderCovariance( estimationInput, considerNormalizationTerms, normalizedConsiderCovariance );
         }
         else
@@ -136,8 +137,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     }
     else
     {
-        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-                designMatricesAndResiduals = performPreEstimationSteps(
+        typedef Eigen::MatrixXd EstimatedDesignMatrixType;
+        std::pair< std::pair< EstimatedDesignMatrixType, Eigen::MatrixXd >,
+                   Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                designMatricesAndResiduals = performPreEstimationSteps< EstimatedDesignMatrixType >(
                         estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
         return createOutputFromDesignMatrices( designMatricesAndResiduals.first.first, designMatricesAndResiduals.first.second );
     }

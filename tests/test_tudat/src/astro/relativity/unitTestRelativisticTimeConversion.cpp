@@ -37,6 +37,7 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/io/readInpopEphemerisFile.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/basic/leastSquaresPolynomialFit.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"

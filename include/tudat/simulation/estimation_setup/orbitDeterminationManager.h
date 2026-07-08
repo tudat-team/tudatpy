@@ -266,14 +266,6 @@ protected:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true );
 
-    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-    performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-                               const ParameterVectorType& newParameterEstimate,
-                               const bool calculateResiduals,
-                               const int numberOfIterations,
-                               bool& exceptionDuringPropagation,
-                               std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
-
     template< typename EstimatedDesignMatrixType >
     std::pair< std::pair< EstimatedDesignMatrixType, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
@@ -282,9 +274,6 @@ protected:
                                const int numberOfIterations,
                                bool& exceptionDuringPropagation,
                                std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
-
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
-                                                                                              const int numberObservations );
 
     template< typename EstimatedDesignMatrixType >
     void computeDesignMatrices(

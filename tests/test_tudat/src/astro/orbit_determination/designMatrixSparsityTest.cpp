@@ -9,10 +9,12 @@
  */
 
 #include <cstdlib>
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -105,6 +107,7 @@ int main( )
             getInitialMultiArcParameterSettings( propagatorSettings, bodies, arcStartTimes );
     std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterSettings, bodies, propagatorSettings );
+    const Eigen::VectorXd initialParameterEstimate = parametersToEstimate->getFullParameterValues< double >( );
 
     // Create obsevation model settings
     LinkEnds linkEnds;
@@ -125,6 +128,19 @@ int main( )
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     typedef linear_algebra::MatrixTraits< double, linear_algebra::Sparse >::matrix_type SparseDesignMatrix;
+    auto checkMatrixClose = []( const Eigen::MatrixXd& lhs, const Eigen::MatrixXd& rhs, const std::string& matrixName )
+    {
+        if( lhs.rows( ) != rhs.rows( ) || lhs.cols( ) != rhs.cols( ) )
+        {
+            throw std::runtime_error( matrixName + " dimensions differ between sparse and dense runs." );
+        }
+        const double referenceScale = rhs.size( ) == 0 ? 1.0 : std::max( 1.0, rhs.cwiseAbs( ).maxCoeff( ) );
+        const double difference = lhs.size( ) == 0 ? 0.0 : ( lhs - rhs ).cwiseAbs( ).maxCoeff( );
+        if( difference > 1.0e-8 * referenceScale )
+        {
+            throw std::runtime_error( matrixName + " differs between sparse and dense runs beyond tolerance." );
+        }
+    };
 
     // Perform covariance calculation with sparse estimated-parameter design-matrix storage.
     std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
@@ -146,11 +162,27 @@ int main( )
     }
     const SparseDesignMatrix covarianceDesignMatrix = output->getNormalizedDesignMatrix< SparseDesignMatrix >( );
     if( covarianceDesignMatrix.rows( ) != numberOfDesignMatrixRows || covarianceDesignMatrix.cols( ) != numberOfDesignMatrixColumns ||
-        covarianceDesignMatrix.nonZeros( ) == designMatrixEntries )
+        covarianceDesignMatrix.nonZeros( ) != expectedNonZeroEntries )
     {
         throw std::runtime_error( "Sparse design covariance test did not store the covariance design matrix sparsely." );
     }
+    const Eigen::MatrixXd covarianceDesignMatrixFromDenseGetter = output->getNormalizedDesignMatrix( );
+    const Eigen::MatrixXd covarianceDesignMatrixDensified = Eigen::MatrixXd( covarianceDesignMatrix );
+    if( ( covarianceDesignMatrixFromDenseGetter - covarianceDesignMatrixDensified ).cwiseAbs( ).maxCoeff( ) != 0.0 )
+    {
+        throw std::runtime_error( "Dense covariance design-matrix getter did not match densified sparse storage." );
+    }
 
+    std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInputDense =
+            std::make_shared< CovarianceAnalysisInput< double, double > >( observations );
+    covarianceInputDense->defineCovarianceSettings( true, true, true, false );
+    covarianceInputDense->setUseSparseDesignMatrix( false );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > outputDense =
+            orbitDeterminationManager.computeCovariance( covarianceInputDense );
+    checkMatrixClose(
+            inverseCovariance, outputDense->getNormalizedInverseCovarianceMatrix( ), "Normalized inverse covariance matrix" );
+
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
     std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
             observations, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
     estimationInput->defineEstimationSettings( true, true, true, false, false, false );
@@ -164,14 +196,35 @@ int main( )
     }
     const SparseDesignMatrix estimationDesignMatrix = estimationOutput->getNormalizedDesignMatrix< SparseDesignMatrix >( );
     if( estimationDesignMatrix.rows( ) != numberOfDesignMatrixRows || estimationDesignMatrix.cols( ) != numberOfDesignMatrixColumns ||
-        estimationDesignMatrix.nonZeros( ) == designMatrixEntries )
+        estimationDesignMatrix.nonZeros( ) != expectedNonZeroEntries )
     {
         throw std::runtime_error( "Sparse design estimation test did not store the estimation design matrix sparsely." );
+    }
+    const Eigen::MatrixXd estimationDesignMatrixFromDenseGetter = estimationOutput->getNormalizedDesignMatrix( );
+    const Eigen::MatrixXd estimationDesignMatrixDensified = Eigen::MatrixXd( estimationDesignMatrix );
+    if( ( estimationDesignMatrixFromDenseGetter - estimationDesignMatrixDensified ).cwiseAbs( ).maxCoeff( ) != 0.0 )
+    {
+        throw std::runtime_error( "Dense estimation design-matrix getter did not match densified sparse storage." );
     }
     if( estimationOutput->residuals_.rows( ) != 3 * totalNumberOfObservations )
     {
         throw std::runtime_error( "Sparse design estimation test produced a residual vector with inconsistent dimensions." );
     }
+
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+    std::shared_ptr< EstimationInput< double, double > > estimationInputDense = std::make_shared< EstimationInput< double, double > >(
+            observations, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
+    estimationInputDense->defineEstimationSettings( true, true, true, false, false, false );
+    estimationInputDense->setUseSparseDesignMatrix( false );
+    std::shared_ptr< EstimationOutput< double, double > > estimationOutputDense =
+            orbitDeterminationManager.estimateParameters( estimationInputDense );
+    checkMatrixClose( estimationInverseCovariance,
+                      estimationOutputDense->getNormalizedInverseCovarianceMatrix( ),
+                      "Estimation normalized inverse covariance matrix" );
+    checkMatrixClose( estimationOutput->parameterEstimate_.template cast< double >( ),
+                      estimationOutputDense->parameterEstimate_.template cast< double >( ),
+                      "Estimated parameter vector" );
+    checkMatrixClose( estimationOutput->residuals_, estimationOutputDense->residuals_, "Postfit residual vector" );
 
     std::cout << std::setprecision( 16 ) << std::scientific;
     std::cout << "Logical design matrix rows: " << numberOfDesignMatrixRows << "\n"

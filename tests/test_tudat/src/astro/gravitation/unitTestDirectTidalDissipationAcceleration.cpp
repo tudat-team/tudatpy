@@ -23,7 +23,7 @@
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
-#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/basic/leastSquaresPolynomialFit.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat

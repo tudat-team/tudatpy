@@ -284,22 +284,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::getObservat
     return observationManagers_.at( observableType );
 }
 
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
-OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::separateEstimatedAndConsiderDesignMatrices(
-        const Eigen::MatrixXd& designMatrix,
-        const int numberObservations )
-{
-    Eigen::MatrixXd designMatrixEstimatedParameters = designMatrix.block( 0, 0, numberObservations, numberEstimatedParameters_ );
-
-    Eigen::MatrixXd designMatrixConsiderParameters =
-            designMatrix.block( 0, numberEstimatedParameters_, numberObservations, numberConsiderParameters_ );
-
-    return std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters );
-}
-
 }  // namespace simulation_setup
 
 }  // namespace tudat

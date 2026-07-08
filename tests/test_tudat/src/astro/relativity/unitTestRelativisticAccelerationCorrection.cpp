@@ -19,7 +19,7 @@
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 
-#include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/math/basic/leastSquaresPolynomialFit.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/statistics/basicStatistics.h"
 
