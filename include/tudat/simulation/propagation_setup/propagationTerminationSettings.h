@@ -82,6 +82,14 @@ public:
     {
         return !equals( rhs );
     }
+
+    //! Save termination settings to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load termination settings from a JSON file (static factory, preserves polymorphic type)
+    static std::shared_ptr< PropagationTerminationSettings > loadFromJson( const std::string& path );
+
+public:
     //! Default constructor for cereal deserialization
     PropagationTerminationSettings( ): terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false ) {}
 

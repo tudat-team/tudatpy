@@ -20,6 +20,8 @@
 #include <cereal/types/map.hpp>
 #include <cereal/types/string.hpp>
 
+#include "tudat/io/serialization/base.h"
+
 namespace tudat
 {
 
@@ -79,6 +81,18 @@ struct LinkEndId {
     {
         return !operator==( linkEnd1, linkEnd2 );
     }
+
+    //! Save link end ID to a binary file
+    void saveToBinary( const std::string& path ) const;
+
+    //! Load link end ID from a binary file
+    static LinkEndId loadFromBinary( const std::string& path );
+
+    //! Save link end ID to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load link end ID from a JSON file
+    static LinkEndId loadFromJson( const std::string& path );
 
     friend bool operator<( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
@@ -249,6 +263,18 @@ struct LinkDefinition {
         return !operator==( linkEnds1, linkEnds2 );
     }
 
+    //! Save link definition to a binary file
+    void saveToBinary( const std::string& path ) const;
+
+    //! Load link definition from a binary file
+    static LinkDefinition loadFromBinary( const std::string& path );
+
+    //! Save link definition to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load link definition from a JSON file
+    static LinkDefinition loadFromJson( const std::string& path );
+
 private:
     friend class cereal::access;
 
@@ -357,5 +383,48 @@ bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch 
 }  // namespace observation_models
 
 }  // namespace tudat
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::observation_models::LinkDefinition::saveToBinary( const std::string& path ) const
+{
+    tudat::serialization::saveToBinaryFile( *this, path );
+}
+
+inline tudat::observation_models::LinkDefinition tudat::observation_models::LinkDefinition::loadFromBinary( const std::string& path )
+{
+    return tudat::serialization::loadFromBinaryFile< tudat::observation_models::LinkDefinition >( path );
+}
+
+inline void tudat::observation_models::LinkDefinition::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline tudat::observation_models::LinkDefinition tudat::observation_models::LinkDefinition::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadFromJsonFile< tudat::observation_models::LinkDefinition >( path );
+}
+
+inline void tudat::observation_models::LinkEndId::saveToBinary( const std::string& path ) const
+{
+    tudat::serialization::saveToBinaryFile( *this, path );
+}
+
+inline tudat::observation_models::LinkEndId tudat::observation_models::LinkEndId::loadFromBinary( const std::string& path )
+{
+    return tudat::serialization::loadFromBinaryFile< tudat::observation_models::LinkEndId >( path );
+}
+
+inline void tudat::observation_models::LinkEndId::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline tudat::observation_models::LinkEndId tudat::observation_models::LinkEndId::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadFromJsonFile< tudat::observation_models::LinkEndId >( path );
+}
 
 #endif  // TUDAT_LINKTYPEDEFS_H

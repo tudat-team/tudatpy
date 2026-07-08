@@ -19,6 +19,7 @@
 #include <tudat/math/root_finders/secantRootFinder.h>
 #include <tudat/math/root_finders/terminationConditions.h>
 
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 
@@ -55,6 +56,12 @@ public:
 
     //! Destructor
     ~RootFinderSettings( ) {}
+
+    //! Save root finder settings to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load root finder settings from a JSON file
+    static RootFinderSettings loadFromJson( const std::string& path );
 
     //! Type of root finder to be used
     RootFinderType rootFinderType_;
@@ -227,6 +234,29 @@ std::shared_ptr< RootFinder< DataType > > createRootFinder( const std::shared_pt
             throw std::runtime_error( "Error when creating root finder, did not recognize root finder type" );
     }
     return rootFinder;
+}
+
+}  // namespace root_finders
+
+}  // namespace tudat
+
+#include "tudat/io/serialization/base.h"
+
+namespace tudat
+{
+
+namespace root_finders
+{
+
+// Out-of-line file-IO method implementations
+inline void RootFinderSettings::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline RootFinderSettings RootFinderSettings::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadFromJsonFile< RootFinderSettings >( path );
 }
 
 }  // namespace root_finders

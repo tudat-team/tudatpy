@@ -28,6 +28,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -52,6 +53,12 @@ public:
     ObservationAncillarySimulationSettings( ) {}
 
     virtual ~ObservationAncillarySimulationSettings( ) {}
+
+    //! Save ancillary settings to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load ancillary settings from a JSON file
+    static ObservationAncillarySimulationSettings loadFromJson( const std::string& path );
 
     void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {
@@ -405,4 +412,19 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDefaultAncil
 }  // namespace observation_models
 
 }  // namespace tudat
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::observation_models::ObservationAncillarySimulationSettings::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline tudat::observation_models::ObservationAncillarySimulationSettings
+tudat::observation_models::ObservationAncillarySimulationSettings::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadFromJsonFile< tudat::observation_models::ObservationAncillarySimulationSettings >( path );
+}
+
 #endif  // TUDAT_ANCILLARYSETTINGS_H

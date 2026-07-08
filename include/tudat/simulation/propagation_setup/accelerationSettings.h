@@ -15,6 +15,7 @@
 #include <iostream>
 #include <memory>
 
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
@@ -27,6 +28,7 @@
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/io/serialization/base.h"
 
 // #include "tudat/math/interpolators/createInterpolator.h"
 
@@ -69,6 +71,12 @@ public:
     {
         return !equals( rhs );
     }
+
+    //! Save acceleration settings to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load acceleration settings from a JSON file (static factory, preserves polymorphic type)
+    static std::shared_ptr< AccelerationSettings > loadFromJson( const std::string& path );
 
 protected:
     // Default constructor for serialization
@@ -1330,5 +1338,19 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSetti
                                       tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
                                       tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings )
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::simulation_setup::AccelerationSettings::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline std::shared_ptr< tudat::simulation_setup::AccelerationSettings > tudat::simulation_setup::AccelerationSettings::loadFromJson(
+        const std::string& path )
+{
+    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::simulation_setup::AccelerationSettings >( path );
+}
 
 #endif  // TUDAT_ACCELERATIONSETTINGS_H

@@ -21,8 +21,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -1060,6 +1060,12 @@ protected:
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
 
+    //! Save time to a binary file
+    void saveToBinary( const std::string& path ) const;
+
+    //! Load time from a binary file
+    static Time loadFromBinary( const std::string& path );
+
 private:
     friend class cereal::access;
 
@@ -1076,7 +1082,25 @@ private:
         ar( CEREAL_NVP( fullPeriods_ ) );
         ar( CEREAL_NVP( secondsIntoFullPeriod_ ) );
     }
-};
+};  // class Time
+
+}  // namespace tudat
+
+// Serialization file-IO (must be outside namespace and after template save/load)
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::Time::saveToBinary( const std::string& path ) const
+{
+    tudat::serialization::saveToBinaryFile( *this, path );
+}
+
+inline tudat::Time tudat::Time::loadFromBinary( const std::string& path )
+{
+    return tudat::serialization::loadFromBinaryFile< tudat::Time >( path );
+}
+
+namespace tudat
+{
 
 //! The Time at JD0
 constexpr static Time TIME_AT_JD0 = Time( -basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * tudat::TIME_NORMALIZATION_TERMS_PER_DAY, 0.0L );

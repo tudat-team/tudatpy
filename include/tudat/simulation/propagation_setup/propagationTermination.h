@@ -713,6 +713,12 @@ protected:
                 ( terminationOnExactCondition_ == rhs.terminationOnExactCondition_ );
     }
 
+    //! Save termination details to a binary file
+    void saveToBinary( const std::string& path ) const;
+
+    //! Load termination details from a binary file (returns pointer to base, preserves dynamic type)
+    static std::shared_ptr< PropagationTerminationDetails > loadFromBinary( const std::string& path );
+
 private:
     friend class cereal::access;
 
@@ -815,5 +821,19 @@ CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetails )
 CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationDetails,
                                       tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::propagators::PropagationTerminationDetails::saveToBinary( const std::string& path ) const
+{
+    tudat::serialization::saveToBinaryFile( *this, path );
+}
+
+inline std::shared_ptr< tudat::propagators::PropagationTerminationDetails >
+tudat::propagators::PropagationTerminationDetails::loadFromBinary( const std::string& path )
+{
+    return tudat::serialization::loadSharedPtrFromBinaryFile< tudat::propagators::PropagationTerminationDetails >( path );
+}
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

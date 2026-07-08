@@ -11,6 +11,7 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
@@ -23,6 +24,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -201,6 +203,12 @@ public:
 
     //! Link end type (originating end of the link)
     LinkEndType originatingLinkEndType_;
+
+    //! Save dependent variable settings to a JSON file
+    void saveToJson( const std::string& path ) const;
+
+    //! Load dependent variable settings from a JSON file (static factory, preserves polymorphic type)
+    static std::shared_ptr< ObservationDependentVariableSettings > loadFromJson( const std::string& path );
 
 protected:
     // Default constructor for serialization
@@ -760,5 +768,19 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDepend
                                       tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
                                       tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::simulation_setup::ObservationDependentVariableSettings::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline std::shared_ptr< tudat::simulation_setup::ObservationDependentVariableSettings >
+tudat::simulation_setup::ObservationDependentVariableSettings::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::simulation_setup::ObservationDependentVariableSettings >( path );
+}
 
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS
