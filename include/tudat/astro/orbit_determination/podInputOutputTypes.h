@@ -20,6 +20,7 @@
 #include <Eigen/LU>
 
 #include "tudat/basics/timeType.h"
+#include "tudat/math/basic/leastSquaresTraits.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
@@ -30,6 +31,10 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+using linear_algebra::MatrixTraits;
+using linear_algebra::Dense;
+using linear_algebra::Sparse;
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
@@ -858,6 +863,21 @@ CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
         return unnormalizedCovarianceMatrix_;
     }
 
+    template <typename S>
+    typename MatrixTraits<double, S>::matrix_type getUnnormalizedDesignMatrixGeneric( ) const
+    {
+        using matrix_t = typename MatrixTraits<double, S>::matrix_type;
+        if( designMatrixSaved_ && std::holds_alternative<matrix_t>(normalizedDesignMatrix_) )
+        {
+            auto const &A = std::get<matrix_t>(normalizedDesignMatrix_);
+            return A * designMatrixTransformationDiagonal_.asDiagonal();
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailableGeneric<S>( );
+        }
+    }
+
     //! Function to retrieve the matrix of unnormalized partial derivatives
     /*!
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
@@ -865,25 +885,17 @@ CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
      */
     Eigen::MatrixXd getUnnormalizedDesignMatrix( ) const
     {
-        if( designMatrixSaved_ && std::holds_alternative<Eigen::MatrixXd>(normalizedDesignMatrix_) )
-        {
-            auto const &A = std::get<Eigen::MatrixXd>(normalizedDesignMatrix_);
+        return getUnnormalizedDesignMatrixGeneric<Dense>();
+    }
 
-            Eigen::MatrixXd unnormalizedPartialDerivatives =
-                    Eigen::MatrixXd::Zero( A.rows( ), A.cols( ) );
-
-            for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-            {
-                unnormalizedPartialDerivatives.block( 0, i, A.rows( ), 1 ) =
-                    A.block( 0, i, A.rows( ), 1 ) *
-                    designMatrixTransformationDiagonal_( i );
-            }
-            return unnormalizedPartialDerivatives;
-        }
-        else
-        {
-            return returnNoDesignMatrixAvailable( );
-        }
+    //! Function to retrieve the sparse matrix of unnormalized partial derivatives
+    /*!
+     * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
+     * \return Sparse Matrix of unnormalized partial derivatives
+     */
+    Eigen::SparseMatrix<double> getUnnormalizedDesignMatrixSparse( ) const
+    {
+        return getUnnormalizedDesignMatrixGeneric<Sparse>();
     }
 
     Eigen::MatrixXd getNormalizedDesignMatrix( ) const
@@ -1004,13 +1016,21 @@ CovarianceAnalysisOutput(     const optionalAnyMatrix& normalizedDesignMatrix,
         }
     }
 
-    Eigen::MatrixXd returnNoDesignMatrixAvailable( )
+    template <typename S>
+    typename MatrixTraits<double, S>::matrix_type returnNoDesignMatrixAvailableGeneric( ) const
     {
+        using matrix_t = typename MatrixTraits<double, S>::matrix_type;
         std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
                      "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
                   << std::endl;
-        return Eigen::MatrixXd::Zero( 0, 0 );
+        return matrix_t( 0, 0 );
     }
+
+    Eigen::MatrixXd returnNoDesignMatrixAvailable( ) const
+    {
+        return returnNoDesignMatrixAvailableGeneric<Dense>();
+    }
+
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     optionalAnyMatrix normalizedDesignMatrix_;
 

@@ -29,7 +29,7 @@
 
 #include "tudat/math/basic/leastSquaresTraits.h"
 
-using DesignMatrixStorageClass = tudat::linear_algebra::Sparse;
+using DesignMatrixStorageClass = tudat::linear_algebra::Dense;
 using DesignMatrixPrecision = double;
 
 using DesignMatrixTraits = tudat::linear_algebra::MatrixTraits<DesignMatrixPrecision, DesignMatrixStorageClass>;
