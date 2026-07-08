@@ -598,7 +598,7 @@ std::string getObservableName( const ObservableType observableType, const int nu
             break;
         }
         case dsn_n_way_range: {
-            observableName = "DSN " + getNWayString( numberOfLinkEnds ) + "WayRange";
+            observableName = "Dsn " + getNWayString( numberOfLinkEnds ) + "WayRange";
             break;
         }
         case euler_angle_313_observable:

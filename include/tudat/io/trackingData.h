@@ -27,6 +27,8 @@ namespace tudat
 namespace data
 {
 
+using PlainLinkDefinition = std::vector< std::pair< std::pair< std::string, std::string >, std::string > >;
+
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -34,7 +36,7 @@ class TrackingData
 {
 public:
     TrackingData( const std::string observableType,
-                  const std::vector< std::pair< std::pair< std::string, std::string >, std::string > >& linkEnds,
+                  const PlainLinkDefinition& linkEnds,
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd ):
@@ -44,9 +46,8 @@ public:
         // Check inputs size consistency
         if( observations_.size( ) != epochs_.size( ) )
         {
-            throw std::runtime_error( "Error when creating TrackingData object, 
-                numbers of epochs ("+std::to_string( epochs_.size( ) )+") 
-                and observations ("+std::to_string( observations_.size( ) )+") are inconsistent." );
+            throw std::runtime_error( "Error when creating TrackingData object, numbers of epochs (" + std::to_string( epochs_.size( ) ) +
+                                      ") and observations (" + std::to_string( observations_.size( ) ) + ") are inconsistent." );
         }
 
         for( unsigned int i = 1; i < observations.size( ); i++ )
@@ -121,9 +122,10 @@ public:
         // Check that the number of observations is consistent
         if( newObservations.size( ) != numberOfObservations_ )
         {
-            throw std::runtime_error("Error when resetting the observation values in TrackingData object, the new number of 
-                observations (" + std::to_string(newObservations.size( )) + ") is inconsistent with original number of observations
-                (" + std::to_string(numberOfObservations_) +")." );
+            throw std::runtime_error(
+                    "Error when resetting the observation values in TrackingData object, the new number of observations (" +
+                    std::to_string( newObservations.size( ) ) + ") is inconsistent with original number of observations (" +
+                    std::to_string( numberOfObservations_ ) + ")." );
         }
 
         // Check that the size of each single observation is consistent
@@ -131,9 +133,10 @@ public:
         {
             if( obs.size( ) != singleObservationSize_ )
             {
-                throw std::runtime_error("Error when resetting the observation values in TrackingData object, the size of a 
-                    single new observation (" + std::to_string(newObservations.size( )) + ") is inconsistent with the 
-                    original single observation size (" + std::to_string(singleObservationSize_) +")." );
+                throw std::runtime_error(
+                        "Error when resetting the observation values in TrackingData object, the size of a single new observation (" +
+                        std::to_string( newObservations.size( ) ) + ") is inconsistent with the original single observation size (" +
+                        std::to_string( singleObservationSize_ ) + ")." );
             }
         }
 
@@ -147,8 +150,9 @@ public:
         // Check that the index of the observation that needs overwriting does not exceed the size of the observation vector
         if( index >= numberOfObservations_ )
         {
-            throw std::runtime_error( "Error when resetting single observation value in TrackingData object, index exceeds 
-                number of observations contained in TrackingData object." );
+            throw std::runtime_error(
+                    "Error when resetting single observation value in TrackingData object, index exceeds number of observations contained "
+                    "in TrackingData object." );
         }
 
         // Check size consistency
@@ -211,7 +215,7 @@ public:
     }
 
     //! Function that returns map of ancillary settings (vector type)
-    std::map< std::string, vector< double > > getAncillarySettingsDoubleVector( ) const
+    std::map< std::string, std::vector< double > > getAncillarySettingsDoubleVector( ) const
     {
         return ancillarySettingsDoubleVector_;
     }
@@ -222,10 +226,9 @@ public:
         // Check if observation weights already existed and overwrite them if they did (+throw a warning)
         if( !weights_.empty( ) )
         {
-            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and 
-                         are overwritten
-                                 ." << std::endl;
-                         weights_.clear( );
+            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
+                      << std::endl;
+            weights_.clear( );
         }
 
         // Check size consistency (for the total number of observations)
@@ -233,7 +236,7 @@ public:
         {
             throw std::runtime_error( "Error when adding observation weights to tracking data object, size of weights (" +
                                       std::to_string( observationWeights.size( ) ) + ") does not match number of observations (" +
-                                      std::to_string( numberOfObservations_ ) ")." );
+                                      std::to_string( numberOfObservations_ ) + ")." );
         }
 
         // Check size consistency (for a single observable)
@@ -243,7 +246,7 @@ public:
             {
                 throw std::runtime_error( "Error when adding observation weights to tracking data object, size of single weight (" +
                                           std::to_string( weight.size( ) ) + ") does not match single observable size (should be " +
-                                          std::to_string( singleObservationSize_ ) ")." );
+                                          std::to_string( singleObservationSize_ ) + ")." );
             }
         }
 
@@ -255,17 +258,17 @@ public:
     void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
     {
         // Check if weights are already available
-        if( weights.empty( ) )
+        if( weights_.empty( ) )
         {
-            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weights not 
-                yet defined." );
+            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, weights not yet defined." );
         }
 
         // Check that the observation index for which the weight needs resetting does not exceed the size of the observation vector
         if( index >= numberOfObservations_ )
         {
-            throw std::runtime_error( "Error when resetting single observation weight in TrackingData object, index exceeds 
-                number of observations contained in TrackingData object." );
+            throw std::runtime_error(
+                    "Error when resetting single observation weight in TrackingData object, index exceeds number of observations contained "
+                    "in TrackingData object." );
         }
 
         // Check size consistency
@@ -291,7 +294,7 @@ public:
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( weights_.size( ) * singleObservationSize_, 1 );
-        for( unsigned int i = 0; i < weights_; i++ )
+        for( unsigned int i = 0; i < weights_.size( ); i++ )
         {
             weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
         }
@@ -304,10 +307,10 @@ public:
         // Check if observation corrections already existed and clear them if they did + throw a warning (overwritten)
         if( !observationCorrections_.empty( ) )
         {
-            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and 
-                         are overwritten
-                                 ." << std::endl;
-                         observationCorrections_.clear( );
+            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
+                         "overwritten ."
+                      << std::endl;
+            observationCorrections_.clear( );
         }
 
         // Check size consistency (for the total number of observations)
@@ -315,7 +318,7 @@ public:
         {
             throw std::runtime_error( "Error when adding observation corrections to tracking data object, size of corrections (" +
                                       std::to_string( observationCorrections.size( ) ) + ") does not match number of observations (" +
-                                      std::to_string( numberOfObservations_ ) ")." );
+                                      std::to_string( numberOfObservations_ ) + ")." );
         }
 
         // Check size consistency (for a single observable)
@@ -325,7 +328,7 @@ public:
             {
                 throw std::runtime_error( "Error when adding observation corrections to tracking data object, size of single correction (" +
                                           std::to_string( correction.size( ) ) + ") does not match single observable size (should be " +
-                                          std::to_string( singleObservationSize_ ) ")." );
+                                          std::to_string( singleObservationSize_ ) + ")." );
             }
         }
 
@@ -340,22 +343,23 @@ public:
         // Check that observation corrections are already defined
         if( observationCorrections_.empty( ) )
         {
-            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, corrections not 
-                yet defined." );
+            throw std::runtime_error(
+                    "Error when resetting single observation correction in TrackingData object, corrections not yet defined." );
         }
 
         // Check that the index of the observation correction that needs overwriting does not exceed the size of the observation vector
         if( index >= numberOfObservations_ )
         {
-            throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, index exceeds 
-                number of observations contained in TrackingData object." );
+            throw std::runtime_error(
+                    "Error when resetting single observation correction in TrackingData object, index exceeds number of observations "
+                    "contained in TrackingData object." );
         }
 
         // Check size consistency
         if( observationCorrection.size( ) != singleObservationSize_ )
         {
             throw std::runtime_error( "Error when resetting single observation correction in TrackingData object, new correction size (" +
-                                      std::to_string( observationCorrection.size( ) ) + " inconsistent with observation size (" +
+                                      std::to_string( observationCorrection.size( ) ) + ") inconsistent with observation size (" +
                                       std::to_string( singleObservationSize_ ) + ")." );
         }
 
@@ -402,7 +406,7 @@ public:
 private:
     const std::string observableType_;
 
-    const std::vector< std::pair< std::pair< std::string, std::string >, std::string > > linkEnds_;
+    const PlainLinkDefinition linkEnds_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
@@ -422,7 +426,7 @@ private:
 
     std::map< std::string, double > ancillarySettingsDouble_;
 
-    std::map< std::string, vector< double > > ancillarySettingsDoubleVector_;
+    std::map< std::string, std::vector< double > > ancillarySettingsDoubleVector_;
 };
 
 }  // namespace data
