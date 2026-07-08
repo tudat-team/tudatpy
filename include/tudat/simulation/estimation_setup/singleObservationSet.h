@@ -52,10 +52,8 @@ public:
                           const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
                           const bool eraseDuplicates = false ):
 
-        observableType_( observableType ), linkEnds_( linkEnds ), observations_( ), observationTimes_( ),
-        referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( ),
-        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ), numberOfObservations_( 0 ),
-        singleObservationSize_( getObservableSize( observableType ) ), weights_( ), residuals_( ), filteredObservationSet_( nullptr ),
+        observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
+        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ), filteredObservationSet_( nullptr ),
         dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) ), setId_( 0 )
     {
         if( dependentVariableBookkeeping_ != nullptr )
@@ -114,24 +112,20 @@ public:
                                               residuals,
                                               true,
                                               eraseDuplicates );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
         observableType_( dataset->getObservationSetMetadata( setId ).observableType_ ),
-        linkEnds_( dataset->getLinkDefinition( dataset->getObservationSetMetadata( setId ).linkDefinitionId_ ) ), observations_( ),
-        observationTimes_( ), referenceLinkEnd_( dataset->getObservationSetMetadata( setId ).referenceLinkEnd_ ),
-        observationsDependentVariables_( ), dependentVariableBookkeeping_( dataset->getDependentVariableBookkeeping(
-                                                    dataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ ) ),
+        referenceLinkEnd_( dataset->getObservationSetMetadata( setId ).referenceLinkEnd_ ),
+        dependentVariableBookkeeping_( dataset->getDependentVariableBookkeeping(
+                dataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ ) ),
         ancillarySettings_( dataset->getAncillarySettings( dataset->getObservationSetMetadata( setId ).ancillarySettingsId_ ) ),
-        numberOfObservations_( 0 ), singleObservationSize_( dataset->getObservationSetMetadata( setId ).observableSize_ ), weights_( ),
-        residuals_( ), filteredObservationSet_( nullptr ), dataset_( dataset ), setId_( setId )
+        filteredObservationSet_( nullptr ), dataset_( dataset ), setId_( setId )
     {
         if( dataset_ == nullptr )
         {
             throw std::runtime_error( "Error when creating SingleObservationSet wrapper, input dataset is null." );
         }
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     ObservableType getObservableType( )
@@ -147,7 +141,6 @@ public:
     void setLinkEnds( LinkDefinition& linkEnds )
     {
         dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
@@ -158,36 +151,32 @@ public:
     void setObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations )
     {
         dataset_->setObservationsForSet( setId_, observations );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setObservations( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
     {
         dataset_->setObservationVectorForSet( setId_, observationsVector );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setResiduals( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
     {
         dataset_->setResidualsForSet( setId_, residuals );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setResiduals( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualsVector )
     {
         dataset_->setResidualVectorForSet( setId_, residualsVector );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservationsReference( )
     {
-        synchronizeLegacyCacheFromObservationDataset( );
+        observations_ = dataset_->getObservationsForSet( setId_ );
         return observations_;
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservation( const unsigned int index )
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error( "Error when retrieving single observation, index is out of bounds" );
         }
@@ -196,11 +185,11 @@ public:
 
     void setObservation( const unsigned int index, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observation )
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error( "Error when setting single observation value, index is out of bounds" );
         }
-        if( observation.size( ) != singleObservationSize_ )
+        if( observation.size( ) != dataset_->getObservationSetMetadata( setId_ ).observableSize_ )
         {
             throw std::runtime_error(
                     "Error when setting single observation value, the observation size is "
@@ -219,7 +208,7 @@ public:
 
     TimeType getObservationTime( unsigned int index ) const
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error(
                     "Error when retrieving single observation time, required index incompatible "
@@ -230,7 +219,7 @@ public:
 
     const std::vector< TimeType >& getObservationTimesReference( )
     {
-        synchronizeLegacyCacheFromObservationDataset( );
+        observationTimes_ = dataset_->getObservationTimesForSet( setId_ );
         return observationTimes_;
     }
 
@@ -283,7 +272,8 @@ public:
     {
         const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
         Eigen::MatrixXd dependentVariablesMatrix =
-                Eigen::MatrixXd::Zero( numberOfObservations_, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
+                Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
+                                       dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables.size( ); i++ )
         {
             dependentVariablesMatrix.block( i, 0, 1, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) =
@@ -295,7 +285,7 @@ public:
     //! Function returning the dependent variable values for a single observation (indicated by index)
     Eigen::VectorXd getDependentVariablesForSingleObservation( unsigned int index ) const
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error(
                     "Error when retrieving observation dependent variables for single observation, "
@@ -329,7 +319,7 @@ public:
 
     std::vector< Eigen::VectorXd >& getObservationsDependentVariablesReference( )
     {
-        synchronizeLegacyCacheFromObservationDataset( );
+        observationsDependentVariables_ = dataset_->getDependentVariablesForSet( setId_ );
         return observationsDependentVariables_;
     }
 
@@ -338,7 +328,7 @@ public:
     {
         if( dependentVariables.size( ) > 0 )
         {
-            if( dependentVariables.size( ) != numberOfObservations_ )
+            if( dependentVariables.size( ) != dataset_->getNumberOfObservationsForSet( setId_ ) )
             {
                 throw std::runtime_error(
                         "Error when resetting observation dependent variables in "
@@ -360,7 +350,6 @@ public:
         {
             dataset_->clearDependentVariablesForSet( setId_ );
         }
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > getDependentVariableBookkeeping( )
@@ -384,7 +373,7 @@ public:
         Eigen::MatrixXd singleDependentVariableValues =
                 getSingleDependentVariable( dependentVariableSettings, returnFirstCompatibleSettings );
         std::map< TimeType, Eigen::VectorXd > singleDependentVariableMap;
-        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        for( unsigned int i = 0; i < dataset_->getNumberOfObservationsForSet( setId_ ); i++ )
         {
             Eigen::VectorXd dependentVariableCurrentTime =
                     singleDependentVariableValues.block( i, 0, 1, singleDependentVariableValues.cols( ) ).transpose( );
@@ -417,7 +406,6 @@ public:
         }
         dataset_ = dataset;
         setId_ = setId;
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
@@ -427,7 +415,7 @@ public:
 
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
     {
-        synchronizeLegacyCacheFromObservationDataset( );
+        weights_ = dataset_->getWeightsForSet( setId_ );
         return weights_;
     }
 
@@ -438,7 +426,7 @@ public:
 
     Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeight( unsigned int index ) const
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error(
                     "Error when retrieving single observation weight, required index incompatible "
@@ -459,13 +447,13 @@ public:
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getResidualsReference( )
     {
-        synchronizeLegacyCacheFromObservationDataset( );
+        residuals_ = dataset_->getResidualsForSet( setId_ );
         return residuals_;
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidual( unsigned int index ) const
     {
-        if( index >= numberOfObservations_ )
+        if( index >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error(
                     "Error when retrieving single observation residual, required index "
@@ -487,19 +475,16 @@ public:
     void setConstantWeight( const double weight )
     {
         dataset_->setConstantSingleObservationScalarWeightForSet( setId_, weight );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setConstantWeight( const Eigen::Matrix< double, Eigen::Dynamic, 1 >& weight )
     {
         dataset_->setConstantSingleObservationDiagonalWeightForSet( setId_, weight );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
     {
         dataset_->setWeightVectorForSet( setId_, weightsVector );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservations( ) const
@@ -529,7 +514,7 @@ public:
 
     void removeSingleObservation( unsigned int indexToRemove )
     {
-        if( indexToRemove >= numberOfObservations_ )
+        if( indexToRemove >= dataset_->getNumberOfObservationsForSet( setId_ ) )
         {
             throw std::runtime_error(
                     "Error when removing single observation from SingleObservationSet, index "
@@ -537,19 +522,16 @@ public:
         }
 
         dataset_->removeObservationsFromSet( setId_, std::vector< unsigned int >( { indexToRemove } ) );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void removeObservations( const std::vector< unsigned int >& indicesToRemove )
     {
         dataset_->removeObservationsFromSet( setId_, indicesToRemove );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void eraseDuplicateObservations( )
     {
         dataset_->eraseDuplicateObservationsFromSet( setId_ );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true )
@@ -579,7 +561,6 @@ public:
             if( saveFilteredObservations )
             {
                 dataset_->moveObservationsToSet( setId_, *filteredObservationSet_->getObservationDataset( ), 0, indicesToRemove, true );
-                filteredObservationSet_->synchronizeLegacyCacheFromObservationDataset( );
             }
             else
             {
@@ -591,9 +572,7 @@ public:
             const std::vector< unsigned int > indicesToRemove =
                     filteredObservationSet_->getObservationDataset( )->getFilteredObservationIndices( 0, observationFilter );
             filteredObservationSet_->getObservationDataset( )->moveObservationsToSet( 0, *dataset_, setId_, indicesToRemove, true );
-            filteredObservationSet_->synchronizeLegacyCacheFromObservationDataset( );
         }
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void addObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
@@ -604,7 +583,6 @@ public:
                           const bool sortObservations = true )
     {
         dataset_->addObservationsToSet( setId_, observations, times, dependentVariables, weights, residuals, sortObservations );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
     void addDependentVariables(
@@ -628,22 +606,9 @@ public:
     void clearDependentVariableValues( )
     {
         dataset_->clearDependentVariablesForSet( setId_ );
-        synchronizeLegacyCacheFromObservationDataset( );
     }
 
 private:
-    void synchronizeLegacyCacheFromObservationDataset( )
-    {
-        linkEnds_ = dataset_->getLinkDefinition( dataset_->getObservationSetMetadata( setId_ ).linkDefinitionId_ );
-        observations_ = dataset_->getObservationsForSet( setId_ );
-        observationTimes_ = dataset_->getObservationTimesForSet( setId_ );
-        weights_ = dataset_->getWeightsForSet( setId_ );
-        residuals_ = dataset_->getResidualsForSet( setId_ );
-        observationsDependentVariables_ = dataset_->getDependentVariablesForSet( setId_ );
-        numberOfObservations_ = static_cast< unsigned int >( dataset_->getNumberOfObservationsForSet( setId_ ) );
-        singleObservationSize_ = dataset_->getObservationSetMetadata( setId_ ).observableSize_;
-    }
-
     //! Function extracting the values of a single dependent variable
     Eigen::MatrixXd getSingleDependentVariable( std::pair< int, int > dependentVariableIndexAndSize ) const
     {
@@ -651,8 +616,6 @@ private:
     }
 
     const ObservableType observableType_;
-
-    LinkDefinition linkEnds_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
@@ -665,10 +628,6 @@ private:
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
-
-    unsigned int numberOfObservations_;
-
-    unsigned int singleObservationSize_;
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 

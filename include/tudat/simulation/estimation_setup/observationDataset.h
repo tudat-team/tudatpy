@@ -212,6 +212,10 @@ public:
                                const bool sortObservations = true );
 
     //! Remove observation events from a set by per-set observation index.
+    /*!
+     * This rebuilds the affected dataset storage once per call. Prefer passing
+     * all rows to remove in one call instead of looping over single indices.
+     */
     void removeObservationsFromSet( const unsigned int setId, std::vector< unsigned int > indicesToRemove );
 
     //! Remove all observation events matching a row-level condition.
@@ -591,6 +595,11 @@ private:
     //! Copy arbitrary scalar-component weight blocks that survive a structural rebuild.
     void copyRemappedExtraWeightBlocksFrom( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
                                             const std::map< unsigned int, unsigned int >& scalarComponentIdMap );
+
+    //! Return a dense block selected by arbitrary row and column index lists.
+    static Eigen::MatrixXd selectSubmatrix( const Eigen::MatrixXd& matrix,
+                                            const std::vector< std::size_t >& rows,
+                                            const std::vector< std::size_t >& columns );
 
     //! Replace one set while preserving old rows explicitly listed in sourceObservationIds.
     void replaceObservationSetDataWithSourceRows(

@@ -579,6 +579,86 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
                                    expectedExternallyMutatedTimes.end( ) );
 }
 
+BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+
+    const auto createManualObservationSet =
+            []( const ObservableType observableType,
+                const LinkDefinition& linkDefinition,
+                const std::vector< Eigen::VectorXd >& observations,
+                const std::vector< double >& times ) -> std::shared_ptr< SingleObservationSet< double, double > > {
+        return std::make_shared< SingleObservationSet< double, double > >( observableType, linkDefinition, observations, times, receiver );
+    };
+
+    std::shared_ptr< SingleObservationSet< double, double > > rangeSet =
+            createManualObservationSet( one_way_range,
+                                        linkDefinition,
+                                        { Eigen::Vector1d::Constant( 10.0 ),
+                                          Eigen::Vector1d::Constant( 20.0 ),
+                                          Eigen::Vector1d::Constant( 30.0 ) },
+                                        { 1.0, 2.0, 3.0 } );
+    std::shared_ptr< SingleObservationSet< double, double > > angularSet =
+            createManualObservationSet( angular_position,
+                                        linkDefinition,
+                                        { ( Eigen::Vector2d( ) << 40.0, 41.0 ).finished( ),
+                                          ( Eigen::Vector2d( ) << 50.0, 51.0 ).finished( ) },
+                                        { 4.0, 5.0 } );
+
+    ObservationCollection< double, double > observationCollection(
+            std::vector< std::shared_ptr< SingleObservationSet< double, double > > >( { angularSet, rangeSet } ) );
+    std::shared_ptr< ObservationDataset< double, double > > dataset = observationCollection.getObservationDataset( );
+
+    const auto checkWeights = [ & ]( const Eigen::VectorXd& expectedWeights ) {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), expectedWeights, 1.0E-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                dataset->createOrderedFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+                expectedWeights.asDiagonal( ),
+                1.0E-15 );
+    };
+
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > constantWeights;
+    constantWeights[ observationParser( one_way_range ) ] = 4.0;
+    constantWeights[ observationParser( angular_position ) ] = 9.0;
+    observationCollection.setConstantWeightPerObservable( constantWeights );
+
+    Eigen::VectorXd expectedConstantWeights( 7 );
+    expectedConstantWeights << 4.0, 4.0, 4.0, 9.0, 9.0, 9.0, 9.0;
+
+    // Parser-map constant weights must update the legacy vector and the backing dataset in the same ordered layout.
+    checkWeights( expectedConstantWeights );
+
+    Eigen::VectorXd rangeTabulatedWeights( 3 );
+    rangeTabulatedWeights << 1.1, 1.2, 1.3;
+    Eigen::VectorXd angularTabulatedWeights( 4 );
+    angularTabulatedWeights << 2.1, 2.2, 2.3, 2.4;
+
+    std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > tabulatedWeights;
+    tabulatedWeights[ observationParser( one_way_range ) ] = rangeTabulatedWeights;
+    tabulatedWeights[ observationParser( angular_position ) ] = angularTabulatedWeights;
+    observationCollection.setTabulatedWeights( tabulatedWeights );
+
+    Eigen::VectorXd expectedTabulatedWeights( 7 );
+    expectedTabulatedWeights << 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4;
+
+    // Parser-map tabulated weights must remain diagonal and agree with the dataset flattened sparse matrix.
+    checkWeights( expectedTabulatedWeights );
+
+    const ObservationDatasetViewer< double, double > staleViewer =
+            dataset->createViewer( ObservationSelectionCondition< double, double >::all( ) );
+    observationCollection.removeSingleObservationSets( observationParser( one_way_range ) );
+
+    // Removing sets through the legacy collection must structurally mutate the shared dataset and invalidate old viewers.
+    BOOST_CHECK_THROW( staleViewer.getNumberOfObservations( ), std::runtime_error );
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 1 );
+    BOOST_CHECK_EQUAL( dataset->getObservationSetMetadata( 0 ).observableType_, angular_position );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), angularTabulatedWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), angularTabulatedWeights, 1.0E-15 );
+}
+
 /*!
  * Verifies the legacy ObservationCollection observation-set splitters.
  *
@@ -931,9 +1011,12 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservationsForSet( sourceSetId ), 3 );
     BOOST_CHECK_EQUAL( targetDataset.getNumberOfObservationsForSet( targetSetId ), 2 );
 
+    const ObservationDatasetViewer< double, double > staleMoveViewer =
+            dataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
     dataset.moveObservationsToSet( sourceSetId, targetDataset, targetSetId, std::vector< unsigned int >( { 1 } ), true );
 
     // Moving rows must shrink the source set while appending the moved observation to the target set.
+    BOOST_CHECK_THROW( staleMoveViewer.getNumberOfObservations( ), std::runtime_error );
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservationsForSet( sourceSetId ), 2 );
     BOOST_CHECK_EQUAL( targetDataset.getNumberOfObservationsForSet( targetSetId ), 3 );
 
@@ -943,6 +1026,45 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
 
     // Copied and moved observations must retain their values and append order in the target dataset.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetObservationVector, expectedTargetObservationVector, 1.0E-15 );
+
+    ObservationDataset< double, double > duplicateDataset;
+    const unsigned int duplicateSetId =
+            duplicateDataset.addObservationSet( one_way_range,
+                                                linkDefinition,
+                                                { Eigen::Vector1d::Constant( 1.0 ),
+                                                  Eigen::Vector1d::Constant( 2.0 ),
+                                                  Eigen::Vector1d::Constant( 3.0 ) },
+                                                { 1.0, 1.0, 2.0 },
+                                                receiver );
+    const ObservationDatasetViewer< double, double > staleDuplicateViewer =
+            duplicateDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
+    std::ostringstream duplicateWarningStream;
+    std::streambuf* originalWarningBuffer = std::cerr.rdbuf( duplicateWarningStream.rdbuf( ) );
+    duplicateDataset.eraseDuplicateObservationsFromSet( duplicateSetId, false );
+    std::cerr.rdbuf( originalWarningBuffer );
+
+    // Direct duplicate erasure must remove adjacent duplicate epochs, optionally suppress warnings, and invalidate old viewers.
+    BOOST_CHECK_EQUAL( duplicateDataset.getNumberOfObservationsForSet( duplicateSetId ), 2 );
+    BOOST_CHECK( duplicateWarningStream.str( ).empty( ) );
+    BOOST_CHECK_THROW( staleDuplicateViewer.getNumberOfObservations( ), std::runtime_error );
+
+    ObservationDataset< double, double > warningDuplicateDataset;
+    const unsigned int warningDuplicateSetId =
+            warningDuplicateDataset.addObservationSet( one_way_range,
+                                                       linkDefinition,
+                                                       { Eigen::Vector1d::Constant( 1.0 ),
+                                                         Eigen::Vector1d::Constant( 2.0 ),
+                                                         Eigen::Vector1d::Constant( 3.0 ) },
+                                                       { 1.0, 1.0, 2.0 },
+                                                       receiver );
+    duplicateWarningStream.str( "" );
+    duplicateWarningStream.clear( );
+    originalWarningBuffer = std::cerr.rdbuf( duplicateWarningStream.rdbuf( ) );
+    warningDuplicateDataset.eraseDuplicateObservationsFromSet( warningDuplicateSetId, true );
+    std::cerr.rdbuf( originalWarningBuffer );
+
+    BOOST_CHECK( duplicateWarningStream.str( ).find( "Detected and removed 1" ) != std::string::npos );
+    BOOST_CHECK( duplicateWarningStream.str( ).find( "duplicate observations" ) != std::string::npos );
 }
 
 /*!
@@ -1286,6 +1408,21 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
 
     // Structural dataset mutations must invalidate previously created viewers.
     BOOST_CHECK_THROW( invalidatedViewer.getNumberOfObservations( ), std::runtime_error );
+
+    ObservationDataset< double, double > linkMutationDataset;
+    linkMutationDataset.addObservationSet(
+            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
+    const ObservationDatasetViewer< double, double > linkMutationViewer =
+            linkMutationDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
+    linkMutationDataset.setLinkEndReferencePoint( "Earth", "StationX", transmitter );
+
+    // Updating link-end reference points changes set metadata and must invalidate old viewers.
+    BOOST_CHECK_THROW( linkMutationViewer.getNumberOfObservations( ), std::runtime_error );
+    BOOST_CHECK_EQUAL(
+            linkMutationDataset.getLinkDefinition( linkMutationDataset.getObservationSetMetadata( 0 ).linkDefinitionId_ )
+                    .linkEnds_.at( transmitter )
+                    .getReferencePointName( ),
+            "StationX" );
 }
 
 /*!

@@ -50,6 +50,24 @@ unsigned int ObservationDataset< ObservationScalarType, TimeType, Dummy >::inval
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::selectSubmatrix( const Eigen::MatrixXd& matrix,
+                                                                                               const std::vector< std::size_t >& rows,
+                                                                                               const std::vector< std::size_t >& columns )
+{
+    Eigen::MatrixXd submatrix = Eigen::MatrixXd::Zero( rows.size( ), columns.size( ) );
+    for( std::size_t rowIndex = 0; rowIndex < rows.size( ); ++rowIndex )
+    {
+        for( std::size_t columnIndex = 0; columnIndex < columns.size( ); ++columnIndex )
+        {
+            submatrix( rowIndex, columnIndex ) = matrix( rows.at( rowIndex ), columns.at( columnIndex ) );
+        }
+    }
+    return submatrix;
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::copyObservationStateAndWeightFrom(
         const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
         const unsigned int sourceObservationId,
@@ -82,16 +100,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::copySetWeight
     }
 
     const Eigen::MatrixXd& sourceSetWeightMatrix = sourceDataset.observationWeights_.getSetWeightBlock( sourceSetId );
-    Eigen::MatrixXd targetSetWeightMatrix = Eigen::MatrixXd::Zero( selectedSetScalarIndices.size( ), selectedSetScalarIndices.size( ) );
-    for( std::size_t rowIndex = 0; rowIndex < selectedSetScalarIndices.size( ); ++rowIndex )
-    {
-        for( std::size_t columnIndex = 0; columnIndex < selectedSetScalarIndices.size( ); ++columnIndex )
-        {
-            targetSetWeightMatrix( rowIndex, columnIndex ) =
-                    sourceSetWeightMatrix( selectedSetScalarIndices.at( rowIndex ), selectedSetScalarIndices.at( columnIndex ) );
-        }
-    }
-    setWeightMatrixForSet( targetSetId, targetSetWeightMatrix );
+    setWeightMatrixForSet( targetSetId, selectSubmatrix( sourceSetWeightMatrix, selectedSetScalarIndices, selectedSetScalarIndices ) );
 }
 
 template< typename ObservationScalarType,
@@ -132,20 +141,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::copyRemappedE
             continue;
         }
 
-        Eigen::MatrixXd targetWeightBlock = Eigen::MatrixXd::Zero( selectedRowIndices.size( ), selectedColumnIndices.size( ) );
-        for( std::size_t rowIndex = 0; rowIndex < selectedRowIndices.size( ); ++rowIndex )
-        {
-            for( std::size_t columnIndex = 0; columnIndex < selectedColumnIndices.size( ); ++columnIndex )
-            {
-                targetWeightBlock( rowIndex, columnIndex ) =
-                        sourceWeightBlock.weightBlock_( selectedRowIndices.at( rowIndex ), selectedColumnIndices.at( columnIndex ) );
-            }
-        }
-
         ObservationWeightBlock targetObservationWeightBlock;
         targetObservationWeightBlock.rowScalarComponentIds_ = targetRowScalarComponentIds;
         targetObservationWeightBlock.columnScalarComponentIds_ = targetColumnScalarComponentIds;
-        targetObservationWeightBlock.weightBlock_ = targetWeightBlock;
+        targetObservationWeightBlock.weightBlock_ =
+                selectSubmatrix( sourceWeightBlock.weightBlock_, selectedRowIndices, selectedColumnIndices );
         observationWeights_.addExtraWeightBlock( targetObservationWeightBlock );
     }
 }

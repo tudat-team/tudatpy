@@ -182,8 +182,10 @@ Off-diagonal blocks
        row_observation_ids=ids_a,
        column_observation_ids=ids_b,
        weight_block=block,
-       make_symmetric=True,
    )
+
+Blocks are symmetrized automatically; the transposed block is stored for the
+opposite row/column selection.
 
 Weight API
 ~~~~~~~~~~

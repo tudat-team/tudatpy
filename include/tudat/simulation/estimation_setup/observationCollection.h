@@ -2021,6 +2021,8 @@ private:
     void refreshLegacyConcatenatedDataFromObservationDataset( )
     {
         refreshFromDatasetIfNeeded( );
+        // Value/status changes do not change the dataset structural version, so
+        // concatenated legacy vectors must be refreshed even when wrappers are current.
         setLegacyConcatenatedDataFromObservationSets( );
     }
 

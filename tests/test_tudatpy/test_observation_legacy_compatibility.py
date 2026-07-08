@@ -9,6 +9,7 @@ from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
+from tudatpy.estimation.observations import observations_processing
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.interface import spice
@@ -123,6 +124,10 @@ def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dat
         assert len(legacy_collection.get_single_observation_sets()) == (
             observation_dataset.number_of_observation_sets
         )
+
+
+def _to_dense_matrix(matrix):
+    return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
 
 
 def test_legacy_single_observation_set_conversion_matches_dataset():
@@ -354,6 +359,69 @@ def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
     updated = sample_dataset.ordered_flattened_observation_data()
     np.testing.assert_allclose(updated.observation_vector, new_observations)
     np.testing.assert_allclose(updated.residual_vector, new_residuals)
+
+
+def test_legacy_weight_setters_match_dataset(sample_dataset):
+    legacy_collection = _legacy_collection(sample_dataset)
+    range_parser = observations_processing.observation_parser(observations.one_way_range)
+    angular_parser = observations_processing.observation_parser(observations.angular_position)
+
+    def assert_weights_match(expected_weights):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            np.testing.assert_allclose(
+                np.asarray(legacy_collection.concatenated_weights),
+                expected_weights,
+            )
+        flattened = sample_dataset.ordered_flattened_observation_data()
+        np.testing.assert_allclose(flattened.weight_vector, expected_weights)
+        np.testing.assert_allclose(
+            _to_dense_matrix(flattened.sparse_weight_matrix),
+            np.diag(expected_weights),
+        )
+        if hasattr(legacy_collection, "get_full_weights_matrix"):
+            np.testing.assert_allclose(
+                np.asarray(legacy_collection.get_full_weights_matrix()),
+                np.diag(expected_weights),
+            )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.set_constant_weight_per_observation_parser(
+            {range_parser: 4.0, angular_parser: 9.0}
+        )
+    assert_weights_match(np.array([4.0, 4.0, 4.0, 9.0, 9.0, 9.0, 9.0]))
+
+    tabulated_weights = {
+        range_parser: np.array([1.1, 1.2, 1.3]),
+        angular_parser: np.array([2.1, 2.2, 2.3, 2.4]),
+    }
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.set_tabulated_weights(tabulated_weights)
+    assert_weights_match(np.array([1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4]))
+
+    stale_viewer = sample_dataset.create_viewer(observations.observation_query.active)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.remove_single_observation_sets(range_parser)
+    with pytest.raises(RuntimeError):
+        stale_viewer.number_of_observations
+
+    assert sample_dataset.number_of_observation_sets == 1
+    assert sample_dataset.get_observation_set_metadata(0).observable_type == (
+        observations.angular_position
+    )
+    np.testing.assert_allclose(
+        sample_dataset.ordered_flattened_observation_data().weight_vector,
+        [2.1, 2.2, 2.3, 2.4],
+    )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        np.testing.assert_allclose(
+            np.asarray(legacy_collection.concatenated_weights),
+            [2.1, 2.2, 2.3, 2.4],
+        )
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
