@@ -57,9 +57,27 @@ public:
     // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
 
+    // Used for serialization testing
+    bool operator==( const TorqueSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const TorqueSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     // Default constructor for serialization
     TorqueSettings( ): torqueType_( basic_astrodynamics::underfined_torque ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const TorqueSettings& rhs ) const
+    {
+        return torqueType_ == rhs.torqueType_;
+    }
 
 private:
     friend class cereal::access;
@@ -102,6 +120,14 @@ public:
 protected:
     // Default constructor for serialization
     SphericalHarmonicTorqueSettings( ): maximumDegree_( 0 ), maximumOrder_( 0 ) {}
+
+    bool equals( const TorqueSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const SphericalHarmonicTorqueSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !TorqueSettings::equals( rhs ) ) return false;
+        return maximumDegree_ == derived->maximumDegree_ && maximumOrder_ == derived->maximumOrder_;
+    }
 
 private:
     friend class cereal::access;
@@ -149,6 +175,15 @@ public:
 protected:
     // Default constructor for serialization
     CustomTorqueSettings( ): torqueFunction_( nullptr ) {}
+
+    bool equals( const TorqueSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const CustomTorqueSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !TorqueSettings::equals( rhs ) ) return false;
+        // std::function cannot be compared; always return false for custom torque
+        return false;
+    }
 
 private:
     friend class cereal::access;

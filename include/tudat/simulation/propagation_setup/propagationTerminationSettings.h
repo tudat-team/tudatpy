@@ -72,9 +72,25 @@ public:
     //! on the first step where it is violated.
     bool checkTerminationToExactCondition_;
 
-protected:
+    // Used for serialization testing
+    bool operator==( const PropagationTerminationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const PropagationTerminationSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
     //! Default constructor for cereal deserialization
     PropagationTerminationSettings( ): terminationType_( time_stopping_condition ), checkTerminationToExactCondition_( false ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const PropagationTerminationSettings& rhs ) const
+    {
+        return terminationType_ == rhs.terminationType_ && checkTerminationToExactCondition_ == rhs.checkTerminationToExactCondition_;
+    }
 
 private:
     friend class cereal::access;
@@ -121,6 +137,14 @@ protected:
     //! Default constructor for cereal deserialization
     PropagationTimeTerminationSettings( ): PropagationTerminationSettings( ), terminationTime_( 0.0 ) {}
 
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationTimeTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        return terminationTime_ == derived->terminationTime_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -165,6 +189,14 @@ public:
 protected:
     //! Default constructor for cereal deserialization
     PropagationCPUTimeTerminationSettings( ): PropagationTerminationSettings( ), cpuTerminationTime_( 0.0 ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationCPUTimeTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        return cpuTerminationTime_ == derived->cpuTerminationTime_;
+    }
 
 private:
     friend class cereal::access;
@@ -247,6 +279,26 @@ protected:
         terminationRootFinderSettings_( nullptr )
     {}
 
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationDependentVariableTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        if( limitValue_ != derived->limitValue_ ) return false;
+        if( useAsLowerLimit_ != derived->useAsLowerLimit_ ) return false;
+        // Compare shared_ptr: both null → equal; both non-null → compare raw pointers
+        if( static_cast< bool >( terminationRootFinderSettings_ ) != static_cast< bool >( derived->terminationRootFinderSettings_ ) )
+            return false;
+        if( terminationRootFinderSettings_ && derived->terminationRootFinderSettings_ &&
+            terminationRootFinderSettings_.get( ) != derived->terminationRootFinderSettings_.get( ) )
+            return false;
+        if( static_cast< bool >( dependentVariableSettings_ ) != static_cast< bool >( derived->dependentVariableSettings_ ) ) return false;
+        if( dependentVariableSettings_ && derived->dependentVariableSettings_ &&
+            dependentVariableSettings_.get( ) != derived->dependentVariableSettings_.get( ) )
+            return false;
+        return true;
+    }
+
 private:
     friend class cereal::access;
 
@@ -303,6 +355,13 @@ public:
 protected:
     //! Default constructor for cereal deserialization
     PropagationCustomTerminationSettings( ): PropagationTerminationSettings( ), checkStopCondition_( nullptr ) {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        // Custom termination settings contain std::function (lambdas) which cannot be compared.
+        // Always return false, as two instances are never guaranteed to be equal.
+        return false;
+    }
 
 private:
     friend class cereal::access;
@@ -369,6 +428,24 @@ protected:
     //! Default constructor for cereal deserialization
     PropagationHybridTerminationSettings( ): PropagationTerminationSettings( ), terminationSettings_( ), fulfillSingleCondition_( false ) {}
 
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const PropagationHybridTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        if( fulfillSingleCondition_ != derived->fulfillSingleCondition_ ) return false;
+        if( terminationSettings_.size( ) != derived->terminationSettings_.size( ) ) return false;
+        for( std::size_t i = 0; i < terminationSettings_.size( ); ++i )
+        {
+            if( static_cast< bool >( terminationSettings_[ i ] ) != static_cast< bool >( derived->terminationSettings_[ i ] ) )
+                return false;
+            if( terminationSettings_[ i ] && derived->terminationSettings_[ i ] &&
+                !( *terminationSettings_[ i ] == *derived->terminationSettings_[ i ] ) )
+                return false;
+        }
+        return true;
+    }
+
 private:
     friend class cereal::access;
 
@@ -425,6 +502,26 @@ protected:
     NonSequentialPropagationTerminationSettings( ):
         PropagationTerminationSettings( ), forwardTerminationSettings_( nullptr ), backwardTerminationSettings_( nullptr )
     {}
+
+    bool equals( const PropagationTerminationSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const NonSequentialPropagationTerminationSettings* >( &rhs );
+        if( !derived ) return false;
+        if( !PropagationTerminationSettings::equals( rhs ) ) return false;
+        // Compare forward termination settings
+        if( static_cast< bool >( forwardTerminationSettings_ ) != static_cast< bool >( derived->forwardTerminationSettings_ ) )
+            return false;
+        if( forwardTerminationSettings_ && derived->forwardTerminationSettings_ &&
+            !( *forwardTerminationSettings_ == *derived->forwardTerminationSettings_ ) )
+            return false;
+        // Compare backward termination settings
+        if( static_cast< bool >( backwardTerminationSettings_ ) != static_cast< bool >( derived->backwardTerminationSettings_ ) )
+            return false;
+        if( backwardTerminationSettings_ && derived->backwardTerminationSettings_ &&
+            !( *backwardTerminationSettings_ == *derived->backwardTerminationSettings_ ) )
+            return false;
+        return true;
+    }
 
 private:
     friend class cereal::access;
@@ -519,5 +616,19 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTermination
                                       tudat::propagators::PropagationHybridTerminationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
                                       tudat::propagators::NonSequentialPropagationTerminationSettings )
+
+// Out-of-line file-IO method implementations
+#include "tudat/io/serialization/base.h"
+
+inline void tudat::propagators::PropagationTerminationSettings::saveToJson( const std::string& path ) const
+{
+    tudat::serialization::saveToJsonFile( *this, path );
+}
+
+inline std::shared_ptr< tudat::propagators::PropagationTerminationSettings >
+tudat::propagators::PropagationTerminationSettings::loadFromJson( const std::string& path )
+{
+    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::propagators::PropagationTerminationSettings >( path );
+}
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

@@ -1329,6 +1329,17 @@ public:
         exceptionDuringInversion_( false ), numberOfParameters_( 0 )
     {}
 
+    // Used for serialization testing
+    bool operator==( const EstimationOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const EstimationOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     bool equals( const EstimationOutput& rhs ) const
     {

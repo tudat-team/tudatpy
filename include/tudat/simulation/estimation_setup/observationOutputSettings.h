@@ -91,6 +91,17 @@ public:
 
     ObservationDependentVariables variableType_;
 
+    // Used for serialization testing
+    bool operator==( const ObservationDependentVariableSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ObservationDependentVariableSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
     //! Get identifier for base dependent variable settings
     std::string getBaseIdentifier( )
     {
@@ -194,6 +205,14 @@ public:
 protected:
     // Default constructor for serialization
     ObservationDependentVariableSettings( ): variableType_( station_elevation_angle ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const ObservationDependentVariableSettings& rhs ) const
+    {
+        return variableType_ == rhs.variableType_ && linkEndId_ == rhs.linkEndId_ && linkEndType_ == rhs.linkEndType_ &&
+                originatingLinkEndId_ == rhs.originatingLinkEndId_ && originatingLinkEndType_ == rhs.originatingLinkEndType_;
+    }
 
 private:
     friend class cereal::access;
