@@ -181,15 +181,15 @@ public:
     }
 
     // Add ancillary settings (string type)
-    void addAncillarySettings( const std::string ancillarySettingsType, const std::string ancillarySettingsValue )
+    void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< std::string > ancillarySettingsValue )
     {
-        ancillarySettingsString_[ ancillarySettingsType ] = ancillarySettingsValue;
+        ancillarySettingsStringVector_[ ancillarySettingsType ] = ancillarySettingsValue;
     }
 
     //! Function that returns map of ancillary settings (string type)
-    std::map< std::string, std::string > getAncillarySettingsString( ) const
+    std::map< std::string, std::vector< std::string > > getAncillarySettingsStringVector( ) const
     {
-        return ancillarySettingsString_;
+        return ancillarySettingsStringVector_;
     }
 
     // Add ancillary settings (double type)
@@ -207,13 +207,13 @@ public:
     // Add ancillary settings (vector type)
     void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< double > ancillarySettingsValue )
     {
-        ancillarySettingsVector_[ ancillarySettingsType ] = ancillarySettingsValue;
+        ancillarySettingsDoubleVector_[ ancillarySettingsType ] = ancillarySettingsValue;
     }
 
     //! Function that returns map of ancillary settings (vector type)
-    std::map< std::string, vector< double > > getAncillarySettingsVector( ) const
+    std::map< std::string, vector< double > > getAncillarySettingsDoubleVector( ) const
     {
-        return ancillarySettingsVector_;
+        return ancillarySettingsDoubleVector_;
     }
 
     //! Set observation weights to the tracking data object (optional)
@@ -418,11 +418,11 @@ private:
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
 
-    std::map< std::string, std::string > ancillarySettingsString_;
+    std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
 
     std::map< std::string, double > ancillarySettingsDouble_;
 
-    std::map< std::string, vector< double > > ancillarySettingsVector_;
+    std::map< std::string, vector< double > > ancillarySettingsDoubleVector_;
 };
 
 }  // namespace data
