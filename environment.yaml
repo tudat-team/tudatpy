@@ -7,7 +7,6 @@ dependencies:
   - make
   - eigen
   - libboost-headers >=1.84
-  - tudat-resources
   - sofa-cmake
   - nrlmsise-00
   - cspice
