@@ -64,19 +64,19 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::make_nvp( "translationalPropagatorType_", translationalPropagatorType_ ) );
-        ar( cereal::make_nvp( "rotationalPropagatorType_", rotationalPropagatorType_ ) );
-        ar( cereal::make_nvp( "otherPropagator_", otherPropagator_ ) );
-        ar( cereal::make_nvp( "customStateSize_", customStateSize_ ) );
+        ar( CEREAL_NVP( translationalPropagatorType_ ) );
+        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
+        ar( CEREAL_NVP( otherPropagator_ ) );
+        ar( CEREAL_NVP( customStateSize_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::make_nvp( "translationalPropagatorType_", translationalPropagatorType_ ) );
-        ar( cereal::make_nvp( "rotationalPropagatorType_", rotationalPropagatorType_ ) );
-        ar( cereal::make_nvp( "otherPropagator_", otherPropagator_ ) );
-        ar( cereal::make_nvp( "customStateSize_", customStateSize_ ) );
+        ar( CEREAL_NVP( translationalPropagatorType_ ) );
+        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
+        ar( CEREAL_NVP( otherPropagator_ ) );
+        ar( CEREAL_NVP( customStateSize_ ) );
     }
 };
 

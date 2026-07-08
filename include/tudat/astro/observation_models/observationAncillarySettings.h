@@ -277,17 +277,17 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::make_nvp( "doubleData_", doubleData_ ) );
-        ar( cereal::make_nvp( "doubleVectorData_", doubleVectorData_ ) );
-        ar( cereal::make_nvp( "doubleIntermediateData_", doubleIntermediateData_ ) );
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::make_nvp( "doubleData_", doubleData_ ) );
-        ar( cereal::make_nvp( "doubleVectorData_", doubleVectorData_ ) );
-        ar( cereal::make_nvp( "doubleIntermediateData_", doubleIntermediateData_ ) );
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
     }
 };
 

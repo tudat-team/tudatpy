@@ -87,13 +87,13 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::make_nvp( "variableType_", variableType_ ) );
+        ar( CEREAL_NVP( variableType_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::make_nvp( "variableType_", variableType_ ) );
+        ar( CEREAL_NVP( variableType_ ) );
     }
 };
 
@@ -282,20 +282,20 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< VariableSettings >( this ) );
-        ar( cereal::make_nvp( "dependentVariableType_", dependentVariableType_ ),
-            cereal::make_nvp( "associatedBody_", associatedBody_ ),
-            cereal::make_nvp( "secondaryBody_", secondaryBody_ ),
-            cereal::make_nvp( "componentIndex_", componentIndex_ ) );
+        ar( CEREAL_NVP( dependentVariableType_ ),
+            CEREAL_NVP( associatedBody_ ),
+            CEREAL_NVP( secondaryBody_ ),
+            CEREAL_NVP( componentIndex_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< VariableSettings >( this ) );
-        ar( cereal::make_nvp( "dependentVariableType_", dependentVariableType_ ),
-            cereal::make_nvp( "associatedBody_", associatedBody_ ),
-            cereal::make_nvp( "secondaryBody_", secondaryBody_ ),
-            cereal::make_nvp( "componentIndex_", componentIndex_ ) );
+        ar( CEREAL_NVP( dependentVariableType_ ),
+            CEREAL_NVP( associatedBody_ ),
+            CEREAL_NVP( secondaryBody_ ),
+            CEREAL_NVP( componentIndex_ ) );
     }
 };
 
@@ -366,14 +366,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
     }
 };
 
@@ -463,14 +463,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
     }
 };
 
@@ -531,14 +531,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "torqueModelType_", torqueModelType_ ) );
+        ar( CEREAL_NVP( torqueModelType_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "torqueModelType_", torqueModelType_ ) );
+        ar( CEREAL_NVP( torqueModelType_ ) );
     }
 };
 
@@ -600,16 +600,16 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "baseFrame_", baseFrame_ ) );
-        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+        ar( CEREAL_NVP( baseFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "baseFrame_", baseFrame_ ) );
-        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+        ar( CEREAL_NVP( baseFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
     }
 };
 
@@ -662,14 +662,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "angle_", angle_ ) );
+        ar( CEREAL_NVP( angle_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "angle_", angle_ ) );
+        ar( CEREAL_NVP( angle_ ) );
     }
 };
 
@@ -710,14 +710,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "targetFrame_", targetFrame_ ) );
+        ar( CEREAL_NVP( targetFrame_ ) );
     }
 };
 
@@ -768,14 +768,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "controlSurfaceName_", controlSurfaceName_ ) );
+        ar( CEREAL_NVP( controlSurfaceName_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "controlSurfaceName_", controlSurfaceName_ ) );
+        ar( CEREAL_NVP( controlSurfaceName_ ) );
     }
 };
 
@@ -834,16 +834,16 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "deformationType_", deformationType_ ) );
-        ar( cereal::make_nvp( "identifier_", identifier_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "deformationType_", deformationType_ ) );
-        ar( cereal::make_nvp( "identifier_", identifier_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
     }
 };
 
@@ -984,16 +984,16 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
-        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationModelType_", accelerationModelType_ ) );
-        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+        ar( CEREAL_NVP( accelerationModelType_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
     }
 };
 
@@ -1045,14 +1045,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "derivativeWrtBody_", derivativeWrtBody_ ) );
+        ar( CEREAL_NVP( derivativeWrtBody_ ) );
     }
 };
 
@@ -1092,14 +1092,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
     }
 };
 
@@ -1144,16 +1144,16 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
-        ar( cereal::make_nvp( "elevationAngleLimit_", elevationAngleLimit_ ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+        ar( CEREAL_NVP( elevationAngleLimit_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "bodiesToCheck_", bodiesToCheck_ ) );
-        ar( cereal::make_nvp( "elevationAngleLimit_", elevationAngleLimit_ ) );
+        ar( CEREAL_NVP( bodiesToCheck_ ) );
+        ar( CEREAL_NVP( elevationAngleLimit_ ) );
     }
 };
 
@@ -1199,14 +1199,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "dependentVariableSize_", dependentVariableSize_ ) );
+        ar( CEREAL_NVP( dependentVariableSize_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "dependentVariableSize_", dependentVariableSize_ ) );
+        ar( CEREAL_NVP( dependentVariableSize_ ) );
     }
 };
 
@@ -1284,14 +1284,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "componentIndices_", componentIndices_ ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
     }
 };
 
@@ -1332,14 +1332,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "panelTypeId_", panelTypeId_ ) );
+        ar( CEREAL_NVP( panelTypeId_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "panelTypeId_", panelTypeId_ ) );
+        ar( CEREAL_NVP( panelTypeId_ ) );
     }
 };
 
@@ -1381,14 +1381,14 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationType_", accelerationType_ ) );
+        ar( CEREAL_NVP( accelerationType_ ) );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
         ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( cereal::make_nvp( "accelerationType_", accelerationType_ ) );
+        ar( CEREAL_NVP( accelerationType_ ) );
     }
 };
 
