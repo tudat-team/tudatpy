@@ -934,6 +934,32 @@ protected:
         return componentIndices_ == rhsCast->componentIndices_ && deformationType_ == rhsCast->deformationType_ &&
                 identifier_ == rhsCast->identifier_;
     }
+
+private:
+    friend class cereal::access;
+
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings( ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, "", "" ),
+        deformationType_( gravitation::basic_solid_body ), identifier_( "" )
+    {}
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
+        ar( CEREAL_NVP( componentIndices_ ) );
+        ar( CEREAL_NVP( deformationType_ ) );
+        ar( CEREAL_NVP( identifier_ ) );
+    }
 };
 
 // Class to define .
