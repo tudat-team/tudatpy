@@ -10,6 +10,8 @@ from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
+from tudatpy.data import TrackingData
+from tudatpy.data.mpc import weights
 
 # do not remove this line, even if it looks liek an unused import line
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
@@ -569,3 +571,46 @@ class BatchMPC:
 
         self._validate_table(table, frame)
         self._add_table(table=table, in_degrees=in_degrees, custom_name=custom_name)
+
+    def to_tracking_dataset(self, apply_weights_VFCC17: bool = True):
+
+        if "epoch_seconds_TDB" not in self._table.columns:
+            self._table = self._add_time_columns(self._table)
+            self._refresh_metadata()
+
+        table = self._table
+        if apply_weights_VFCC17:
+            table = table.assign(weight=weights.get_weights_VFCC17(mpc_table=table))
+
+        tracking_data_objects = []
+        for (target, observatory), group in table.groupby(["number", "observatory"]):
+            link_ends = [
+                ((str(target), ""), "transmitter"),
+                (("Earth", str(observatory)), reference_link_end_type),
+            ]
+            observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
+            epochs = list(group["epoch_seconds_TDB"])
+
+            ###############################################################################
+            # TODO: to be changed with a function that actually
+            # retrieves reference_link_end_type and observable_type
+            # for each entry in table
+            observable_type, reference_link_end_type = "angular_position_type", "receiver"
+            ###############################################################################
+
+            tracking_data_object = TrackingData(
+                observable_type=observable_type,
+                link_ends=link_ends,
+                observations=observations,
+                epochs=epochs,
+                reference_link_end=reference_link_end_type,
+            )
+
+            if apply_weights_VFCC17:
+                weights_list = [np.array([w, w]) for w in group["weight"]]
+                print(f"{weights_list} \n")
+                tracking_data_object.set_observation_weights(weights_list)
+
+            tracking_data_objects.append(tracking_data_object)
+
+        return tracking_data_objects
