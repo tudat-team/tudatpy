@@ -887,7 +887,7 @@ Read a mapping from DOMES id to station name.
            )doc" );
 
     py::class_< tudat::data::TrackingData<> >( m, "TrackingData", R"doc(
- Tracking Data Class container.
+ TrackingData Class container.
     )doc" )
             .def_property_readonly( "observable_type", &tudat::data::TrackingData<>::getObservableType )
             .def_property_readonly( "link_ends", &tudat::data::TrackingData<>::getLinkEnds )
@@ -899,17 +899,17 @@ Read a mapping from DOMES id to station name.
                           &tudat::data::TrackingData<>::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object.)doc" )
+                  R"doc(Adds ancillary settings to the TrackingData object (optional).)doc" )
             .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const double >( &tudat::data::TrackingData<>::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object (double type).)doc" )
+                  R"doc(Adds ancillary settings to the TrackingData object (double type), (optional).)doc" )
             .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< double > >( &tudat::data::TrackingData<>::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object (double vector type).)doc" )
+                  R"doc(Adds ancillary settings to the TrackingData object (double vector type), (optional).)doc" )
             .def( "get_ancillary_settings_string_vector",
                   &tudat::data::TrackingData<>::getAncillarySettingsStringVector,
                   R"doc(Returns the ancillary settings in the TrackingData object as a vector of strings.)doc" )
@@ -918,7 +918,42 @@ Read a mapping from DOMES id to station name.
                   R"doc(Returns the ancillary settings in the TrackingData object as a double.)doc" )
             .def( "get_ancillary_settings_double_vector",
                   &tudat::data::TrackingData<>::getAncillarySettingsDoubleVector,
-                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" );
+                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
+            .def( "get_ancillary_settings_double_vector",
+                  &tudat::data::TrackingData<>::getAncillarySettingsDoubleVector,
+                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
+            .def( "set_observation_weights",
+                  ( &tudat::data::TrackingData<>::setObservationWeights ),
+                  py::arg( "observationWeights" ),
+                  R"doc(Adds (sets) observation weights to the TrackingData object (optional).
+						It also perfroms some necessary consistency checks  (size, pre-existence) on the weights.)doc" )
+            .def( "reset_single_observation_weight",
+                  ( &tudat::data::TrackingData<>::setSingleObservationWeight ),
+                  py::arg( "index" ),
+                  py::arg( "observationWeight" ),
+                  R"doc(Allows resetting of a single observation weight (specified by index i)  into the TrackingData object.
+						It also perfroms some necessary consistency checks.)doc" )
+            .def( "get_observation_weights",
+                  &tudat::data::TrackingData<>::getObservationWeights,
+                  R"doc(Returns the list (of arrays) of observation weights stored in the TrackingData object.)doc" )
+            .def( "get_concatenated_observation_weights",
+                  &tudat::data::TrackingData<>::getObservationWeightsVector,
+                  R"doc(Returns the concatenated list of observation weights stored in the TrackingData object.)doc" )
+            .def( "set_observation_corrections",
+                  &tudat::data::TrackingData<>::setObservationCorrections,
+                  py::arg( "observationCorrections" ),
+                  R"doc(Adds corrections to the TrackingData object (optional).
+					It also perfroms some necessary consistency checks.)doc" )
+            .def( "reset_single_observation_correction",
+                  ( &tudat::data::TrackingData<>::setSingleObservationCorrection ),
+                  py::arg( "index" ),
+                  py::arg( "observationCorrection" ),
+                  R"doc(Allows resetting of a single observation correction (specified by index i)  into the TrackingData object.
+						It also perfroms some necessary consistency checks.)doc" )
+            .def( "remove_single_observation_entry",
+                  ( &tudat::data::TrackingData<>::removeSingleObservationEntry ),
+                  py::arg( "index" ),
+                  R"doc(Removes a single observation entry from the TrackingData object.)doc" );
 };
 
 }  // namespace data
