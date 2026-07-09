@@ -377,17 +377,19 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
-        std::cerr << "Warning: serializing/deserializing PropagationCustomTerminationSettings, "
-                  << "std::function member 'checkStopCondition_' will not be preserved." << std::endl;
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "PropagationCustomTerminationSettings cannot be serialized: "
+                "std::function member 'checkStopCondition_' is not serializable." );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::base_class< PropagationTerminationSettings >( this ) );
-        std::cerr << "Warning: serializing/deserializing PropagationCustomTerminationSettings, "
-                  << "std::function member 'checkStopCondition_' will not be preserved." << std::endl;
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "PropagationCustomTerminationSettings cannot be serialized: "
+                "std::function member 'checkStopCondition_' is not serializable." );
     }
 };
 

@@ -1283,15 +1283,19 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( CEREAL_NVP( dependentVariableSize_ ) );
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomDependentVariableSaveSettings cannot be serialized: "
+                "std::function member 'customDependentVariableFunction_' is not serializable." );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::base_class< SingleDependentVariableSaveSettings >( this ) );
-        ar( CEREAL_NVP( dependentVariableSize_ ) );
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomDependentVariableSaveSettings cannot be serialized: "
+                "std::function member 'customDependentVariableFunction_' is not serializable." );
     }
 };
 

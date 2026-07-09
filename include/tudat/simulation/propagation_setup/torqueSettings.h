@@ -218,21 +218,17 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( cereal::base_class< TorqueSettings >( this ) );
-        // Warning: std::function member cannot be serialized
-        std::cerr
-                << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved."
-                << std::endl;
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomTorqueSettings cannot be serialized: std::function member 'torqueFunction_' is not serializable." );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( cereal::base_class< TorqueSettings >( this ) );
-        // Warning: std::function member cannot be serialized
-        std::cerr
-                << "Warning: serializing/deserializing CustomTorqueSettings, std::function member 'torqueFunction_' will not be preserved."
-                << std::endl;
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomTorqueSettings cannot be serialized: std::function member 'torqueFunction_' is not serializable." );
     }
 };
 
