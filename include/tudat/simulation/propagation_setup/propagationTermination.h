@@ -713,6 +713,7 @@ protected:
                 ( terminationOnExactCondition_ == rhs.terminationOnExactCondition_ );
     }
 
+public:
     //! Save termination details to a binary file
     void saveToBinary( const std::string& path ) const;
 

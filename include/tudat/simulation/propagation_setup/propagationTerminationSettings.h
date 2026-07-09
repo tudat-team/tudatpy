@@ -298,11 +298,11 @@ protected:
         if( static_cast< bool >( terminationRootFinderSettings_ ) != static_cast< bool >( derived->terminationRootFinderSettings_ ) )
             return false;
         if( terminationRootFinderSettings_ && derived->terminationRootFinderSettings_ &&
-            terminationRootFinderSettings_.get( ) != derived->terminationRootFinderSettings_.get( ) )
+            *terminationRootFinderSettings_ != *derived->terminationRootFinderSettings_ )
             return false;
         if( static_cast< bool >( dependentVariableSettings_ ) != static_cast< bool >( derived->dependentVariableSettings_ ) ) return false;
         if( dependentVariableSettings_ && derived->dependentVariableSettings_ &&
-            dependentVariableSettings_.get( ) != derived->dependentVariableSettings_.get( ) )
+            *dependentVariableSettings_ != *derived->dependentVariableSettings_ )
             return false;
         return true;
     }
