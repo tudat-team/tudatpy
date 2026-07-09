@@ -121,14 +121,13 @@ protected:
     bool setIntegratedVariationalResult_;
 
 protected:
-    virtual bool equals( const PropagatorProcessingSettings& rhs ) const {
-        return clearNumericalSolutions_ == rhs.clearNumericalSolutions_ &&
-               setIntegratedResult_ == rhs.setIntegratedResult_ &&
-               createStateProcessors_ == rhs.createStateProcessors_ &&
-               updateDependentVariableInterpolator_ == rhs.updateDependentVariableInterpolator_ &&
-               setIntegratedVariationalResult_ == rhs.setIntegratedVariationalResult_;
+    virtual bool equals( const PropagatorProcessingSettings& rhs ) const
+    {
+        return clearNumericalSolutions_ == rhs.clearNumericalSolutions_ && setIntegratedResult_ == rhs.setIntegratedResult_ &&
+                createStateProcessors_ == rhs.createStateProcessors_ &&
+                updateDependentVariableInterpolator_ == rhs.updateDependentVariableInterpolator_ &&
+                setIntegratedVariationalResult_ == rhs.setIntegratedVariationalResult_;
     }
-
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
@@ -333,11 +332,9 @@ private:
                 ( printSettings_ != nullptr && rhs->printSettings_ != nullptr && ( *printSettings_ == *rhs->printSettings_ ) );
 
         return resultsSaveFrequencyInSteps_ == rhs->resultsSaveFrequencyInSteps_ &&
-               resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ &&
-               printSettingsAreEqual &&
-               isPartOfMultiArc_ == rhs->isPartOfMultiArc_ &&
-               arcIndex_ == rhs->arcIndex_ &&
-               saveWarningPrinted_ == rhs->saveWarningPrinted_;
+                resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ && printSettingsAreEqual &&
+                isPartOfMultiArc_ == rhs->isPartOfMultiArc_ && arcIndex_ == rhs->arcIndex_ &&
+                saveWarningPrinted_ == rhs->saveWarningPrinted_;
     }
 
     friend class MultiArcPropagatorProcessingSettings;
@@ -545,17 +542,13 @@ private:
             return false;
         }
 
-        const bool consistentPrintSettingsAreEqual =
-                ( consistentSingleArcPrintSettings_ == rhs->consistentSingleArcPrintSettings_ ) ||
+        const bool consistentPrintSettingsAreEqual = ( consistentSingleArcPrintSettings_ == rhs->consistentSingleArcPrintSettings_ ) ||
                 ( consistentSingleArcPrintSettings_ != nullptr && rhs->consistentSingleArcPrintSettings_ != nullptr &&
                   ( *consistentSingleArcPrintSettings_ == *rhs->consistentSingleArcPrintSettings_ ) );
 
-        if( !consistentPrintSettingsAreEqual ||
-            useIdenticalSettings_ != rhs->useIdenticalSettings_ ||
-            printFirstArcOnly_ != rhs->printFirstArcOnly_ ||
-            printCurrentArcIndex_ != rhs->printCurrentArcIndex_ ||
-            areSingleArcSettingsSet_ != rhs->areSingleArcSettingsSet_ ||
-            isPartOfHybridArc_ != rhs->isPartOfHybridArc_ ||
+        if( !consistentPrintSettingsAreEqual || useIdenticalSettings_ != rhs->useIdenticalSettings_ ||
+            printFirstArcOnly_ != rhs->printFirstArcOnly_ || printCurrentArcIndex_ != rhs->printCurrentArcIndex_ ||
+            areSingleArcSettingsSet_ != rhs->areSingleArcSettingsSet_ || isPartOfHybridArc_ != rhs->isPartOfHybridArc_ ||
             singleArcSettings_ != rhs->singleArcSettings_ )
         {
             return false;
@@ -757,15 +750,11 @@ private:
                 ( singleArcSettings_ != nullptr && rhs->singleArcSettings_ != nullptr &&
                   ( *singleArcSettings_ == *rhs->singleArcSettings_ ) );
         const bool multiArcSettingsAreEqual = ( multiArcSettings_ == rhs->multiArcSettings_ ) ||
-                ( multiArcSettings_ != nullptr && rhs->multiArcSettings_ != nullptr &&
-                  ( *multiArcSettings_ == *rhs->multiArcSettings_ ) );
+                ( multiArcSettings_ != nullptr && rhs->multiArcSettings_ != nullptr && ( *multiArcSettings_ == *rhs->multiArcSettings_ ) );
 
-        return consistentPrintSettingsAreEqual &&
-               useIdenticalSettings_ == rhs->useIdenticalSettings_ &&
-               printStateTypeStart_ == rhs->printStateTypeStart_ &&
-               singleArcSettingsAreEqual &&
-               multiArcSettingsAreEqual &&
-               areArcSettingsSet_ == rhs->areArcSettingsSet_;
+        return consistentPrintSettingsAreEqual && useIdenticalSettings_ == rhs->useIdenticalSettings_ &&
+                printStateTypeStart_ == rhs->printStateTypeStart_ && singleArcSettingsAreEqual && multiArcSettingsAreEqual &&
+                areArcSettingsSet_ == rhs->areArcSettingsSet_;
     }
 
     template< typename StateScalarType, typename TimeType >

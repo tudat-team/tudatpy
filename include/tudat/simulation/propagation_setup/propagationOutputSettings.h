@@ -710,6 +710,21 @@ public:
     // Frame in which the wind velocity is to be expressed.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
 
+protected:
+    bool equals( const VariableSettings& rhs ) const override
+    {
+        if( SingleDependentVariableSaveSettings::equals( rhs ) == false )
+        {
+            return false;
+        }
+        const auto* rhsCast = dynamic_cast< const LocalWindVelocityDependentVariableSaveSettings* >( &rhs );
+        if( rhsCast == nullptr )
+        {
+            return false;
+        }
+        return targetFrame_ == rhsCast->targetFrame_;
+    }
+
 private:
     friend class cereal::access;
 

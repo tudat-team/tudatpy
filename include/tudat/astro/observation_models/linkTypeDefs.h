@@ -74,12 +74,18 @@ struct LinkEndId {
 
     friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
-        return ( ( linkEnd1.bodyName_ == linkEnd2.bodyName_ ) && ( linkEnd1.stationName_ == linkEnd2.stationName_ ) );
+        return linkEnd1.equals( linkEnd2 );
     }
 
     friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
         return !operator==( linkEnd1, linkEnd2 );
+    }
+
+    //! Equality comparison for LinkEndId
+    bool equals( const LinkEndId& rhs ) const
+    {
+        return bodyName_ == rhs.bodyName_ && stationName_ == rhs.stationName_;
     }
 
     //! Save link end ID to a binary file
@@ -223,9 +229,25 @@ struct LinkDefinition {
 
     friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
     {
+        return linkEnds1.equals( linkEnds2 );
+    }
+
+    friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    {
+        return !operator==( linkEnds1, linkEnds2 );
+    }
+
+    //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    //    {
+    //        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
+    //    }
+
+    //! Equality comparison for LinkDefinition
+    bool equals( const LinkDefinition& rhs ) const
+    {
         bool isEqual = true;
-        std::map< LinkEndType, LinkEndId > firstLinkEnds = linkEnds1.linkEnds_;
-        std::map< LinkEndType, LinkEndId > secondLinkEnds = linkEnds2.linkEnds_;
+        std::map< LinkEndType, LinkEndId > firstLinkEnds = linkEnds_;
+        std::map< LinkEndType, LinkEndId > secondLinkEnds = rhs.linkEnds_;
 
         std::map< LinkEndType, LinkEndId >::iterator firstLinkEndIterator = firstLinkEnds.begin( );
         std::map< LinkEndType, LinkEndId >::iterator secondLinkEndIterator = secondLinkEnds.begin( );
@@ -251,16 +273,6 @@ struct LinkDefinition {
         }
 
         return isEqual;
-    }
-
-    //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
-    //    {
-    //        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
-    //    }
-
-    friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
-    {
-        return !operator==( linkEnds1, linkEnds2 );
     }
 
     //! Save link definition to a binary file

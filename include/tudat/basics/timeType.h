@@ -510,8 +510,7 @@ public:
      */
     friend bool operator==( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
-        return ( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
-                 ( timeToCompare1.getSecondsIntoFullPeriod( ) == timeToCompare2.getSecondsIntoFullPeriod( ) ) );
+        return timeToCompare1.equals( timeToCompare2 );
     }
 
     //! Inequality operator for two Time objects
@@ -524,6 +523,12 @@ public:
     friend bool operator!=( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         return !operator==( timeToCompare1, timeToCompare2 );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const Time& rhs ) const
+    {
+        return getFullPeriods( ) == rhs.getFullPeriods( ) && getSecondsIntoFullPeriod( ) == rhs.getSecondsIntoFullPeriod( );
     }
 
     //! Equality operator for a Time object with an integer.

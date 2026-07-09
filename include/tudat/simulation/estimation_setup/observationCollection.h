@@ -2641,6 +2641,22 @@ private:
 
     int totalNumberOfObservables_;
 
+    bool operator==( const ObservationCollection& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ObservationCollection& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationCollection& rhs ) const
+    {
+        return observationSetList_ == rhs.observationSetList_;
+    }
+
 private:
     friend class cereal::access;
 

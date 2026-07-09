@@ -1279,12 +1279,31 @@ private:
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
 
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
+                observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
+                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
+                dependentVariableBookkeeping_ == rhs.dependentVariableBookkeeping_ && ancillarySettings_ == rhs.ancillarySettings_ &&
+                numberOfObservations_ == rhs.numberOfObservations_ && singleObservationSize_ == rhs.singleObservationSize_ &&
+                weights_ == rhs.weights_ && residuals_ == rhs.residuals_ && filteredObservationSet_ == rhs.filteredObservationSet_;
+    }
+
 protected:
     // Default constructor for serialization
     SingleObservationSet( ):
-        observableType_( undefined_observation_model ),
-        referenceLinkEnd_( unidentified_link_end ),
-        numberOfObservations_( 0 ),
+        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), numberOfObservations_( 0 ),
         singleObservationSize_( 0 )
     {}
 
@@ -1292,7 +1311,27 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void serialize( Archive& ar )
+    void load( Archive& ar )
+    {
+        // Use const_cast for const members (safe during deserialization into default-constructed object)
+        ar( const_cast< ObservableType& >( observableType_ ) );
+        ar( linkEnds_ );
+        ar( timeBounds_ );
+        ar( observations_ );
+        ar( observationTimes_ );
+        ar( const_cast< LinkEndType& >( referenceLinkEnd_ ) );
+        ar( observationsDependentVariables_ );
+        ar( dependentVariableBookkeeping_ );
+        ar( const_cast< std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& >( ancillarySettings_ ) );
+        ar( numberOfObservations_ );
+        ar( singleObservationSize_ );
+        ar( weights_ );
+        ar( residuals_ );
+        ar( filteredObservationSet_ );
+    }
+
+    template< class Archive >
+    void save( Archive& ar )
     {
         // Use const_cast for const members (safe during deserialization into default-constructed object)
         ar( const_cast< ObservableType& >( observableType_ ) );

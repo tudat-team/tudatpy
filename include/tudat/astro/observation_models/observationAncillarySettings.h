@@ -259,7 +259,19 @@ public:
 
     bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
+        return equals( rightSettings );
+    }
+
+    bool operator!=( const ObservationAncillarySimulationSettings& rightSettings ) const
+    {
+        return !( *this == rightSettings );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationAncillarySimulationSettings& rhs ) const
+    {
+        return doubleData_ == rhs.doubleData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
+                doubleIntermediateData_ == rhs.doubleIntermediateData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const

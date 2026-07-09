@@ -1022,6 +1022,19 @@ protected:
     //! Zero-arg default constructor for cereal
     CustomAccelerationSettings( ): accelerationFunction_( nullptr ) {}
 
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const CustomAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        // std::function does not support equality comparison.
+        // Check that both are either null or both non-null.
+        return ( !accelerationFunction_ && !rhs->accelerationFunction_ ) || ( accelerationFunction_ && rhs->accelerationFunction_ );
+    }
+
 private:
     friend class cereal::access;
 

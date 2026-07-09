@@ -312,6 +312,18 @@ protected:
     // Default constructor for serialization
     StationAngleObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ), isLinkEndDefined_( false ) {}
 
+    // Used for serialization testing
+    bool equals( const ObservationDependentVariableSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const StationAngleObservationDependentVariableSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return ObservationDependentVariableSettings::equals( other ) &&
+                integratedObservableHandling_ == rhs->integratedObservableHandling_ && isLinkEndDefined_ == rhs->isLinkEndDefined_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -409,6 +421,18 @@ protected:
     // Default constructor for serialization
     InterlinkObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ) {}
 
+    // Used for serialization testing
+    bool equals( const ObservationDependentVariableSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const InterlinkObservationDependentVariableSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return ObservationDependentVariableSettings::equals( other ) &&
+                integratedObservableHandling_ == rhs->integratedObservableHandling_ && relativeBody_ == rhs->relativeBody_;
+    }
+
 private:
     friend class cereal::access;
 
@@ -494,6 +518,18 @@ public:
 protected:
     // Default constructor for serialization
     AncillaryObservationDependentVariableSettings( ): observableType_( undefined_observation_model ) {}
+
+    // Used for serialization testing
+    bool equals( const ObservationDependentVariableSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const AncillaryObservationDependentVariableSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        // isObservableTypeCompatible_ is a std::function (not comparable) — compare only scalar members
+        return ObservationDependentVariableSettings::equals( other ) && observableType_ == rhs->observableType_;
+    }
 
 private:
     friend class cereal::access;

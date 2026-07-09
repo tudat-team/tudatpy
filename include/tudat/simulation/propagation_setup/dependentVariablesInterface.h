@@ -266,7 +266,8 @@ protected:
         {
             if( dependentVariablesSettings_.at( i )->dependentVariableType_ !=
                         rhsSingleArc->dependentVariablesSettings_.at( i )->dependentVariableType_ ||
-                dependentVariablesSettings_.at( i )->associatedBody_ != rhsSingleArc->dependentVariablesSettings_.at( i )->associatedBody_ ||
+                dependentVariablesSettings_.at( i )->associatedBody_ !=
+                        rhsSingleArc->dependentVariablesSettings_.at( i )->associatedBody_ ||
                 dependentVariablesSettings_.at( i )->secondaryBody_ != rhsSingleArc->dependentVariablesSettings_.at( i )->secondaryBody_ ||
                 dependentVariablesSettings_.at( i )->componentIndex_ != rhsSingleArc->dependentVariablesSettings_.at( i )->componentIndex_ )
             {

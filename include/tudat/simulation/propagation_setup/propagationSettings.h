@@ -82,14 +82,20 @@ private:
     //! Equality comparison for PropagatorType
     friend bool operator==( const PropagatorType& a, const PropagatorType& b )
     {
-        return a.translationalPropagatorType_ == b.translationalPropagatorType_ &&
-                a.rotationalPropagatorType_ == b.rotationalPropagatorType_ && a.otherPropagator_ == b.otherPropagator_ &&
-                a.customStateSize_ == b.customStateSize_;
+        return a.equals( b );
     }
 
     friend bool operator!=( const PropagatorType& a, const PropagatorType& b )
     {
         return !( a == b );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const PropagatorType& rhs ) const
+    {
+        return translationalPropagatorType_ == rhs.translationalPropagatorType_ &&
+                rotationalPropagatorType_ == rhs.rotationalPropagatorType_ && otherPropagator_ == rhs.otherPropagator_ &&
+                customStateSize_ == rhs.customStateSize_;
     }
 };
 

@@ -114,17 +114,23 @@ private:
 public:
     bool operator==( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
     {
+        return equals( rhs );
+    }
+
+    bool operator!=( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
+    {
         return initialState_ == rhs.initialState_ && finalState_ == rhs.finalState_ && timeOfFlight_ == rhs.timeOfFlight_ &&
                 centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
                 numberOfRevolutions_ == rhs.numberOfRevolutions_ &&
                 radialVelocityFunctionComponents_ == rhs.radialVelocityFunctionComponents_ &&
                 normalVelocityFunctionComponents_ == rhs.normalVelocityFunctionComponents_ &&
                 axialVelocityFunctionComponents_ == rhs.axialVelocityFunctionComponents_ && problemBounds_ == rhs.problemBounds_;
-    }
-
-    bool operator!=( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
-    {
-        return !( *this == rhs );
     }
 };
 
@@ -194,14 +200,20 @@ private:
 public:
     bool operator==( const HodographicShapingOptimisationProblem& rhs ) const
     {
-        return centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
-                numberOfRevolutions_ == rhs.numberOfRevolutions_ && problemBounds_ == rhs.problemBounds_ &&
-                minimizeMaximumThrust_ == rhs.minimizeMaximumThrust_ && initialMass_ == rhs.initialMass_;
+        return equals( rhs );
     }
 
     bool operator!=( const HodographicShapingOptimisationProblem& rhs ) const
     {
         return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const HodographicShapingOptimisationProblem& rhs ) const
+    {
+        return centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
+                numberOfRevolutions_ == rhs.numberOfRevolutions_ && problemBounds_ == rhs.problemBounds_ &&
+                minimizeMaximumThrust_ == rhs.minimizeMaximumThrust_ && initialMass_ == rhs.initialMass_;
     }
 };
 
