@@ -694,10 +694,10 @@ class LightTimeCorrectionComponentsDependentVariableSettings : public Observatio
 {
 public:
     LightTimeCorrectionComponentsDependentVariableSettings(
-            const LinkEndType transmitterLinkEndType = unidentified_link_end,
-            const LinkEndType receiverLinkEndType = unidentified_link_end,
-            const LinkEndId transmitterLinkEndId = LinkEndId( "", "" ),
-            const LinkEndId receiverLinkEndId = LinkEndId( "", "" ),
+            const LinkEndType transmitterLinkEndType,
+            const LinkEndType receiverLinkEndType,
+            const LinkEndId transmitterLinkEndId,
+            const LinkEndId receiverLinkEndId,
             const std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter =
                     std::vector< observation_models::LightTimeCorrectionType >( ) ):
         ObservationDependentVariableSettings( light_time_correction_components,
@@ -730,6 +730,43 @@ public:
     //! Size resolved from the actual LightTimeCalculator on the selected leg. A negative value
     //! means the settings have not yet been registered with an observation model.
     int resolvedSize_;
+
+protected:
+    // Default constructor for serialization
+    LightTimeCorrectionComponentsDependentVariableSettings( ): resolvedSize_( -1 ) {}
+
+    bool equals( const ObservationDependentVariableSettings& rhs ) const override
+    {
+        if( !ObservationDependentVariableSettings::equals( rhs ) )
+        {
+            return false;
+        }
+        const auto* derived = dynamic_cast< const LightTimeCorrectionComponentsDependentVariableSettings* >( &rhs );
+        if( !derived )
+        {
+            return false;
+        }
+        return correctionTypeFilter_ == derived->correctionTypeFilter_ && resolvedSize_ == derived->resolvedSize_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( CEREAL_NVP( correctionTypeFilter_ ) );
+        ar( CEREAL_NVP( resolvedSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
+        ar( CEREAL_NVP( correctionTypeFilter_ ) );
+        ar( CEREAL_NVP( resolvedSize_ ) );
+    }
 };
 
 //! Function to create a dependent variable saving the individual light-time correction
@@ -761,6 +798,7 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::ObservationDependentVariableSetti
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::LightTimeCorrectionComponentsDependentVariableSettings )
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
                                       tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
@@ -768,6 +806,8 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDepend
                                       tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
                                       tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
+                                      tudat::simulation_setup::LightTimeCorrectionComponentsDependentVariableSettings )
 
 // Out-of-line file-IO method implementations
 #include "tudat/io/serialization/base.h"
