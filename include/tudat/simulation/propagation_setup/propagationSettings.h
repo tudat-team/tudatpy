@@ -78,19 +78,20 @@ private:
         ar( CEREAL_NVP( otherPropagator_ ) );
         ar( CEREAL_NVP( customStateSize_ ) );
     }
+
+    //! Equality comparison for PropagatorType
+    friend bool operator==( const PropagatorType& a, const PropagatorType& b )
+    {
+        return a.translationalPropagatorType_ == b.translationalPropagatorType_ &&
+                a.rotationalPropagatorType_ == b.rotationalPropagatorType_ && a.otherPropagator_ == b.otherPropagator_ &&
+                a.customStateSize_ == b.customStateSize_;
+    }
+
+    friend bool operator!=( const PropagatorType& a, const PropagatorType& b )
+    {
+        return !( a == b );
+    }
 };
-
-//! Equality comparison for PropagatorType
-inline bool operator==( const PropagatorType& a, const PropagatorType& b )
-{
-    return a.translationalPropagatorType_ == b.translationalPropagatorType_ && a.rotationalPropagatorType_ == b.rotationalPropagatorType_ &&
-            a.otherPropagator_ == b.otherPropagator_ && a.customStateSize_ == b.customStateSize_;
-}
-
-inline bool operator!=( const PropagatorType& a, const PropagatorType& b )
-{
-    return !( a == b );
-}
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
 template< typename StateScalarType = double >
