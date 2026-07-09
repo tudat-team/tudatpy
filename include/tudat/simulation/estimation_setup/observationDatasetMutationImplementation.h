@@ -151,11 +151,10 @@ int addObservationSetAndApplyWeights(
 }
 
 template< typename ObservationScalarType >
-Eigen::VectorXd accumulateResidualStatistic(
-        const unsigned int observableSize,
-        const std::size_t numberOfObservations,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-        const bool rootMeanSquare )
+Eigen::VectorXd accumulateResidualStatistic( const unsigned int observableSize,
+                                             const std::size_t numberOfObservations,
+                                             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+                                             const bool rootMeanSquare )
 {
     Eigen::VectorXd statistic = Eigen::VectorXd::Zero( observableSize );
     for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )

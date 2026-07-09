@@ -224,11 +224,10 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            compressDopplerData< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ),
-                    originalDopplerData->getObservationSetId( ),
-                    compressionRatio,
-                    approximateGroundStationPositions ) );
+            compressDopplerData< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
+                                                                    originalDopplerData->getObservationSetId( ),
+                                                                    compressionRatio,
+                                                                    approximateGroundStationPositions ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -241,12 +240,11 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                 simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createCompressedDopplerDataset< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ),
-                    compressionRatio,
-                    minNumberObservations,
-                    maxArcGap,
-                    approximateGroundStationPositions ) );
+            createCompressedDopplerDataset< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
+                                                                               compressionRatio,
+                                                                               minNumberObservations,
+                                                                               maxArcGap,
+                                                                               approximateGroundStationPositions ) );
 }
 
 }  // namespace observation_models

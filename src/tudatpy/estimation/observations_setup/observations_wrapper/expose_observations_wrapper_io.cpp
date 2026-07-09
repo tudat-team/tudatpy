@@ -919,12 +919,11 @@ tudatpy.estimation.observations.ObservationDataset
                 const double maxArcGap,
                 const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions ) {
                 warnLegacyObservationIoInterface( "create_compressed_doppler_collection", "create_compressed_doppler_dataset" );
-                return tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        originalObservationCollection,
-                        compressionRatio,
-                        minimumNumberOfObservations,
-                        maxArcGap,
-                        earthFixedGroundStationPositions );
+                return tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >( originalObservationCollection,
+                                                                                               compressionRatio,
+                                                                                               minimumNumberOfObservations,
+                                                                                               maxArcGap,
+                                                                                               earthFixedGroundStationPositions );
             },
             py::arg( "original_observation_collection" ),
             py::arg( "compression_ratio" ),

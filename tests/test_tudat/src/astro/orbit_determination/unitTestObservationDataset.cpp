@@ -591,19 +591,16 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
         return std::make_shared< SingleObservationSet< double, double > >( observableType, linkDefinition, observations, times, receiver );
     };
 
-    std::shared_ptr< SingleObservationSet< double, double > > rangeSet =
-            createManualObservationSet( one_way_range,
-                                        linkDefinition,
-                                        { Eigen::Vector1d::Constant( 10.0 ),
-                                          Eigen::Vector1d::Constant( 20.0 ),
-                                          Eigen::Vector1d::Constant( 30.0 ) },
-                                        { 1.0, 2.0, 3.0 } );
-    std::shared_ptr< SingleObservationSet< double, double > > angularSet =
-            createManualObservationSet( angular_position,
-                                        linkDefinition,
-                                        { ( Eigen::Vector2d( ) << 40.0, 41.0 ).finished( ),
-                                          ( Eigen::Vector2d( ) << 50.0, 51.0 ).finished( ) },
-                                        { 4.0, 5.0 } );
+    std::shared_ptr< SingleObservationSet< double, double > > rangeSet = createManualObservationSet(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
+            { 1.0, 2.0, 3.0 } );
+    std::shared_ptr< SingleObservationSet< double, double > > angularSet = createManualObservationSet(
+            angular_position,
+            linkDefinition,
+            { ( Eigen::Vector2d( ) << 40.0, 41.0 ).finished( ), ( Eigen::Vector2d( ) << 50.0, 51.0 ).finished( ) },
+            { 4.0, 5.0 } );
 
     ObservationCollection< double, double > observationCollection(
             std::vector< std::shared_ptr< SingleObservationSet< double, double > > >( { angularSet, rangeSet } ) );
@@ -611,12 +608,10 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
 
     const auto checkWeights = [ & ]( const Eigen::VectorXd& expectedWeights ) {
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), expectedWeights, 1.0E-15 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                dataset->createOrderedFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                expectedWeights.asDiagonal( ),
-                1.0E-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+                                           expectedWeights.asDiagonal( ),
+                                           1.0E-15 );
     };
 
     std::map< std::shared_ptr< ObservationCollectionParser >, double > constantWeights;
@@ -1028,14 +1023,12 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( targetObservationVector, expectedTargetObservationVector, 1.0E-15 );
 
     ObservationDataset< double, double > duplicateDataset;
-    const unsigned int duplicateSetId =
-            duplicateDataset.addObservationSet( one_way_range,
-                                                linkDefinition,
-                                                { Eigen::Vector1d::Constant( 1.0 ),
-                                                  Eigen::Vector1d::Constant( 2.0 ),
-                                                  Eigen::Vector1d::Constant( 3.0 ) },
-                                                { 1.0, 1.0, 2.0 },
-                                                receiver );
+    const unsigned int duplicateSetId = duplicateDataset.addObservationSet(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ), Eigen::Vector1d::Constant( 3.0 ) },
+            { 1.0, 1.0, 2.0 },
+            receiver );
     const ObservationDatasetViewer< double, double > staleDuplicateViewer =
             duplicateDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
     std::ostringstream duplicateWarningStream;
@@ -1049,14 +1042,12 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
     BOOST_CHECK_THROW( staleDuplicateViewer.getNumberOfObservations( ), std::runtime_error );
 
     ObservationDataset< double, double > warningDuplicateDataset;
-    const unsigned int warningDuplicateSetId =
-            warningDuplicateDataset.addObservationSet( one_way_range,
-                                                       linkDefinition,
-                                                       { Eigen::Vector1d::Constant( 1.0 ),
-                                                         Eigen::Vector1d::Constant( 2.0 ),
-                                                         Eigen::Vector1d::Constant( 3.0 ) },
-                                                       { 1.0, 1.0, 2.0 },
-                                                       receiver );
+    const unsigned int warningDuplicateSetId = warningDuplicateDataset.addObservationSet(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ), Eigen::Vector1d::Constant( 3.0 ) },
+            { 1.0, 1.0, 2.0 },
+            receiver );
     duplicateWarningStream.str( "" );
     duplicateWarningStream.clear( );
     originalWarningBuffer = std::cerr.rdbuf( duplicateWarningStream.rdbuf( ) );
@@ -1410,19 +1401,17 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
     BOOST_CHECK_THROW( invalidatedViewer.getNumberOfObservations( ), std::runtime_error );
 
     ObservationDataset< double, double > linkMutationDataset;
-    linkMutationDataset.addObservationSet(
-            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
+    linkMutationDataset.addObservationSet( one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
     const ObservationDatasetViewer< double, double > linkMutationViewer =
             linkMutationDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
     linkMutationDataset.setLinkEndReferencePoint( "Earth", "StationX", transmitter );
 
     // Updating link-end reference points changes set metadata and must invalidate old viewers.
     BOOST_CHECK_THROW( linkMutationViewer.getNumberOfObservations( ), std::runtime_error );
-    BOOST_CHECK_EQUAL(
-            linkMutationDataset.getLinkDefinition( linkMutationDataset.getObservationSetMetadata( 0 ).linkDefinitionId_ )
-                    .linkEnds_.at( transmitter )
-                    .getReferencePointName( ),
-            "StationX" );
+    BOOST_CHECK_EQUAL( linkMutationDataset.getLinkDefinition( linkMutationDataset.getObservationSetMetadata( 0 ).linkDefinitionId_ )
+                               .linkEnds_.at( transmitter )
+                               .getReferencePointName( ),
+                       "StationX" );
 }
 
 /*!

@@ -53,8 +53,9 @@ public:
                           const bool eraseDuplicates = false ):
 
         observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
-        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ), filteredObservationSet_( nullptr ),
-        dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) ), setId_( 0 )
+        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
+        filteredObservationSet_( nullptr ), dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) ),
+        setId_( 0 )
     {
         if( dependentVariableBookkeeping_ != nullptr )
         {
@@ -117,8 +118,8 @@ public:
     SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
         observableType_( dataset->getObservationSetMetadata( setId ).observableType_ ),
         referenceLinkEnd_( dataset->getObservationSetMetadata( setId ).referenceLinkEnd_ ),
-        dependentVariableBookkeeping_( dataset->getDependentVariableBookkeeping(
-                dataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ ) ),
+        dependentVariableBookkeeping_(
+                dataset->getDependentVariableBookkeeping( dataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ ) ),
         ancillarySettings_( dataset->getAncillarySettings( dataset->getObservationSetMetadata( setId ).ancillarySettingsId_ ) ),
         filteredObservationSet_( nullptr ), dataset_( dataset ), setId_( setId )
     {
@@ -271,9 +272,8 @@ public:
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
         const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
-        Eigen::MatrixXd dependentVariablesMatrix =
-                Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
-                                       dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
+        Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
+                                                                          dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables.size( ); i++ )
         {
             dependentVariablesMatrix.block( i, 0, 1, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) =
