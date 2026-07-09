@@ -886,15 +886,39 @@ Read a mapping from DOMES id to station name.
                Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 
-    py::class_< tio::TrackingData >( m, "TrackingData", R"doc(
+    py::class_< tudat::data::TrackingData<> >( m, "TrackingData", R"doc(
  Tracking Data Class container.
     )doc" )
-            .def( py::init<>( ) )
-            .def_readonly( "observable_type", &tio::TrackingData::observable_type )
-            .def_readonly( "link_ends", &tio::TrackingData::linkEnds )
-            .def_readonly( "observations", &tio::TrackingData::observations )
-            .def_readonly( "epochs", &tio::TrackingData::epochs )
-            .def_readonly( "reference_link_end", &tio::TrackingData::referenceLinkEnd )
+            .def_property_readonly( "observable_type", &tudat::data::TrackingData<>::getObservableType )
+            .def_property_readonly( "link_ends", &tudat::data::TrackingData<>::getLinkEnds )
+            .def_property_readonly( "observations", &tudat::data::TrackingData<>::getObservations )
+            .def_property_readonly( "epochs", &tudat::data::TrackingData<>::getObservationEpochs )
+            .def_property_readonly( "reference_link_end", &tudat::data::TrackingData<>::getReferenceLinkEnd )
+            .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const std::vector< std::string > >(
+                          &tudat::data::TrackingData<>::addAncillarySettings ),
+                  py::arg( "ancillarySettingsType" ),
+                  py::arg( "ancillarySettingsValue" ),
+                  R"doc(Adds ancillary settings to the TrackingData object.)doc" )
+            .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const double >( &tudat::data::TrackingData<>::addAncillarySettings ),
+                  py::arg( "ancillarySettingsType" ),
+                  py::arg( "ancillarySettingsValue" ),
+                  R"doc(Adds ancillary settings to the TrackingData object (double type).)doc" )
+            .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const std::vector< double > >( &tudat::data::TrackingData<>::addAncillarySettings ),
+                  py::arg( "ancillarySettingsType" ),
+                  py::arg( "ancillarySettingsValue" ),
+                  R"doc(Adds ancillary settings to the TrackingData object (double vector type).)doc" )
+            .def( "get_ancillary_settings_string_vector",
+                  &tudat::data::TrackingData<>::getAncillarySettingsStringVector,
+                  R"doc(Returns the ancillary settings in the TrackingData object as a vector of strings.)doc" )
+            .def( "get_ancillary_settings_double",
+                  &tudat::data::TrackingData<>::getAncillarySettingsDouble,
+                  R"doc(Returns the ancillary settings in the TrackingData object as a double.)doc" )
+            .def( "get_ancillary_settings_double_vector",
+                  &tudat::data::TrackingData<>::getAncillarySettingsDoubleVector,
+                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" );
 };
 
 }  // namespace data
