@@ -99,7 +99,7 @@ DATA_REGISTRY = {
         "earth_latest_high_prec.cmt": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/earth_latest_high_prec.cmt",
         "gm_de431.tpc": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/gm_de431.tpc",
         "inpop19a_TCB_m100_p100_asc": {
-            "__ALL__": "https://ftp.imcce.fr/pub/ephem/planets/inpop19a/inpop19a_TCB_m100_p100_asc.tar.gz"
+            "__ALL__": "https://ftp.imcce.fr/pub/ephem/planets/inpop19a/inpop19a_TCB_m100_p100_asc.tar.gz",
             "inpop19a_TCB_m100_p100_asc_header.asc": "",
             "inpop19a_TCB_m100_p100_asc_pos_Ear.asc": "",
             "inpop19a_TCB_m100_p100_asc_pos_EMB.asc": "",
@@ -130,7 +130,7 @@ DATA_REGISTRY = {
             "inpop19a_TCB_m100_p100_asc_vel_Ven.asc": ""
         },
         "inpop19a_TDB_m100_p100_asc": {
-            "__ALL__": "https://ftp.imcce.fr/pub/ephem/planets/inpop19a/inpop19a_TDB_m100_p100_asc.tar.gz"
+            "__ALL__": "https://ftp.imcce.fr/pub/ephem/planets/inpop19a/inpop19a_TDB_m100_p100_asc.tar.gz",
             "inpop19a_TDB_m100_p100_asc_header.asc": "",
             "inpop19a_TDB_m100_p100_asc_pos_Ear.asc": "",
             "inpop19a_TDB_m100_p100_asc_pos_EMB.asc": "",
@@ -165,7 +165,7 @@ DATA_REGISTRY = {
             "inpop19a_TDB_m100_p100_spice.bpc": "",
             "inpop19a_TDB_m100_p100_spice.bsp": "",
             "inpop19a_TDB_m100_p100_spice.tpc": ""
-        }
+        },
         "juice_mat_crema_4_0_20220601_20330626_v01.bsp": "https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/spk/juice_mat_crema_4_0_20220601_20330626_v01.bsp",
         "mars_iau2000_v1.tpc": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/mars_iau2000_v1.tpc",
         "moon_080317.tf": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf",
