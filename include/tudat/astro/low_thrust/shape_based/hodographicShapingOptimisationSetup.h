@@ -110,6 +110,22 @@ private:
     const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
 
     const std::vector< std::vector< double > > problemBounds_;
+
+public:
+    bool operator==( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
+    {
+        return initialState_ == rhs.initialState_ && finalState_ == rhs.finalState_ && timeOfFlight_ == rhs.timeOfFlight_ &&
+                centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
+                numberOfRevolutions_ == rhs.numberOfRevolutions_ &&
+                radialVelocityFunctionComponents_ == rhs.radialVelocityFunctionComponents_ &&
+                normalVelocityFunctionComponents_ == rhs.normalVelocityFunctionComponents_ &&
+                axialVelocityFunctionComponents_ == rhs.axialVelocityFunctionComponents_ && problemBounds_ == rhs.problemBounds_;
+    }
+
+    bool operator!=( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
+    {
+        return !( *this == rhs );
+    }
 };
 
 //! Test function for a new low-thrust trajectory class in Tudat
@@ -174,6 +190,19 @@ private:
     bool minimizeMaximumThrust_;
 
     double initialMass_;
+
+public:
+    bool operator==( const HodographicShapingOptimisationProblem& rhs ) const
+    {
+        return centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
+                numberOfRevolutions_ == rhs.numberOfRevolutions_ && problemBounds_ == rhs.problemBounds_ &&
+                minimizeMaximumThrust_ == rhs.minimizeMaximumThrust_ && initialMass_ == rhs.initialMass_;
+    }
+
+    bool operator!=( const HodographicShapingOptimisationProblem& rhs ) const
+    {
+        return !( *this == rhs );
+    }
 };
 
 }  // namespace shape_based_methods

@@ -175,11 +175,30 @@ public:
     //! Load dependent variable bookkeeping from a binary file
     static ObservationDependentVariableBookkeeping loadFromBinary( const std::string& path );
 
+    bool operator==( const ObservationDependentVariableBookkeeping& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ObservationDependentVariableBookkeeping& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
 protected:
     // Default constructor for serialization
     ObservationDependentVariableBookkeeping( ):
         observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 )
     {}
+
+    // Used for serialization testing
+    bool equals( const ObservationDependentVariableBookkeeping& other ) const
+    {
+        return observableType_ == other.observableType_ && linkEnds_ == other.linkEnds_ && settingsList_ == other.settingsList_ &&
+                dependentVariableStartIndices_ == other.dependentVariableStartIndices_ &&
+                dependentVariableSizes_ == other.dependentVariableSizes_ &&
+                totalDependentVariableSize_ == other.totalDependentVariableSize_ && deferredSettings_ == other.deferredSettings_;
+    }
 
 private:
     friend class cereal::access;
@@ -278,6 +297,19 @@ public:
     getLegLightTimeCalculators( ) const
     {
         return legLightTimeCalculators_;
+    }
+
+    bool operator==( const ObservationDependentVariableCalculator& rhs ) const
+    {
+        return ( dependentVariableBookkeeping_ == rhs.dependentVariableBookkeeping_ ||
+                 ( dependentVariableBookkeeping_ && rhs.dependentVariableBookkeeping_ &&
+                   *dependentVariableBookkeeping_ == *rhs.dependentVariableBookkeeping_ ) ) &&
+                legLightTimeCalculators_ == rhs.legLightTimeCalculators_;
+    }
+
+    bool operator!=( const ObservationDependentVariableCalculator& rhs ) const
+    {
+        return !( *this == rhs );
     }
 
 private:

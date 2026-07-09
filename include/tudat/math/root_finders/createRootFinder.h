@@ -57,6 +57,17 @@ public:
     //! Destructor
     ~RootFinderSettings( ) {}
 
+    //! @get_docstring(RootFinderSettings.__operator_equal__)
+    bool operator==( const RootFinderSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const RootFinderSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
     //! Save root finder settings to a JSON file
     void saveToJson( const std::string& path ) const;
 
@@ -83,6 +94,21 @@ protected:
         absoluteIndependentVariableTolerance_( TUDAT_NAN ), rootFunctionTolerance_( TUDAT_NAN ), maximumNumberOfIterations_( 0 ),
         maximumIterationHandling_( throw_exception )
     {}
+
+    // Used for serialization testing
+    bool equals( const RootFinderSettings& other ) const
+    {
+        const auto* rhs = dynamic_cast< const RootFinderSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return rootFinderType_ == rhs->rootFinderType_ &&
+                relativeIndependentVariableTolerance_ == rhs->relativeIndependentVariableTolerance_ &&
+                absoluteIndependentVariableTolerance_ == rhs->absoluteIndependentVariableTolerance_ &&
+                rootFunctionTolerance_ == rhs->rootFunctionTolerance_ && maximumNumberOfIterations_ == rhs->maximumNumberOfIterations_ &&
+                maximumIterationHandling_ == rhs->maximumIterationHandling_;
+    }
 
 private:
     friend class cereal::access;
