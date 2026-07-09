@@ -18,6 +18,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 using namespace tudat::input_output;
 using namespace tudat::observation_models;
@@ -229,21 +230,31 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
 
 BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
 {
-    std::shared_ptr< ObservationDataset< double, double > > compressedObservationSet = compressDopplerData(
-            createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ), 0, 3 );
+    std::shared_ptr< ObservationDataset< double, double > > originalObservationDataset =
+            createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 );
+    std::shared_ptr< ObservationDataset< double, double > > compressedObservationDataset =
+            createCompressedDopplerDataset( originalObservationDataset, 3, 1 );
 
-    checkScalarObservations( compressedObservationSet, { 10.0, 70.0, 100.0 } );
-    checkUtcOffsets( compressedObservationSet, { 10.0, 70.0, 100.0 } );
+    checkScalarObservations( compressedObservationDataset, { 10.0, 70.0, 100.0 } );
+    checkUtcOffsets( compressedObservationDataset, { 10.0, 70.0, 100.0 } );
     BOOST_CHECK_CLOSE_FRACTION(
-            compressedObservationSet->getAncillarySettings( compressedObservationSet->getObservationSetMetadata( 0 ).ancillarySettingsId_ )
+            compressedObservationDataset
+                    ->getAncillarySettings( compressedObservationDataset->getObservationSetMetadata( 0 ).ancillarySettingsId_ )
                     ->getAncillaryDoubleData( doppler_integration_time ),
             30.0,
             1.0E-14 );
 
-    std::shared_ptr< ObservationDataset< double, double > > gapFreeCompressedObservationSet =
-            compressDopplerData( createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 40.0, 50.0 }, 10.0 ), 0, 3 );
-    checkScalarObservations( gapFreeCompressedObservationSet, { 10.0, 40.0 } );
-    checkUtcOffsets( gapFreeCompressedObservationSet, { 10.0, 40.0 } );
+    std::shared_ptr< ObservationCollection< double, double > > originalObservationCollection =
+            createObservationCollection< double, double >( originalObservationDataset );
+    std::shared_ptr< ObservationCollection< double, double > > compressedObservationCollection =
+            createCompressedDopplerCollection( originalObservationCollection, 3, 1 );
+    checkScalarObservations( compressedObservationCollection->getObservationDataset( ), { 10.0, 70.0, 100.0 } );
+    checkUtcOffsets( compressedObservationCollection->getObservationDataset( ), { 10.0, 70.0, 100.0 } );
+
+    std::shared_ptr< ObservationDataset< double, double > > gapFreeCompressedObservationDataset =
+            createCompressedDopplerDataset( createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 40.0, 50.0 }, 10.0 ), 3, 1 );
+    checkScalarObservations( gapFreeCompressedObservationDataset, { 10.0, 40.0 } );
+    checkUtcOffsets( gapFreeCompressedObservationDataset, { 10.0, 40.0 } );
 
     std::shared_ptr< ObservationDataset< double, double > > shortRunCompressedObservationSet =
             compressDopplerData( createSyntheticDopplerDataset( { 0.0, 10.0 }, 10.0 ), 0, 3 );

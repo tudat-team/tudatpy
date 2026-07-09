@@ -22,6 +22,7 @@
 
 #include "tudat/simulation/estimation_setup/processObservationFilesLegacy.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
@@ -915,15 +916,23 @@ tudatpy.estimation.observations.ObservationDataset
             []( const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > originalObservationCollection,
                 const unsigned int compressionRatio,
                 const unsigned int minimumNumberOfObservations,
-                const double maxArcGap ) {
+                const double maxArcGap,
+                const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions ) {
                 warnLegacyObservationIoInterface( "create_compressed_doppler_collection", "create_compressed_doppler_dataset" );
                 return tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        originalObservationCollection, compressionRatio, minimumNumberOfObservations, maxArcGap );
+                        originalObservationCollection,
+                        compressionRatio,
+                        minimumNumberOfObservations,
+                        maxArcGap,
+                        earthFixedGroundStationPositions );
             },
             py::arg( "original_observation_collection" ),
             py::arg( "compression_ratio" ),
             py::arg( "minimum_number_of_observations" ) = 10,
             py::arg( "max_arc_gap" ) = 300.0,
+            py::arg_v( "earth_fixed_ground_station_positions",
+                       tss::getCombinedApproximateGroundStationPositions( ),
+                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
             R"doc(
         Create a compressed Doppler observation collection.
 
@@ -939,6 +948,8 @@ tudatpy.estimation.observations.ObservationDataset
             The minimum number of observations required in an arc to be considered for compression, by default 10.
         max_arc_gap : float, optional
             Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
+        earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
+            Approximate ground-station positions in the Earth-fixed frame.
 
         Returns
         -------
@@ -952,6 +963,9 @@ tudatpy.estimation.observations.ObservationDataset
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
            R"doc(Create a compressed Doppler :class:`~tudatpy.estimation.observations.ObservationDataset`.)doc" );
 
     m.def(

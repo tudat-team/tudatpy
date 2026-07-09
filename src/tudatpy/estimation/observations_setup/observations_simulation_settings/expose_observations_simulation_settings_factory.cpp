@@ -22,6 +22,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;

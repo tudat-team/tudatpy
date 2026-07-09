@@ -12,6 +12,7 @@
 #define TUDAT_PROCESSOBSERVATIONFILESLEGACY_H
 
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
@@ -34,28 +35,6 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                                                                     observableTypesToProcess,
                                                                                     startAndEndTimesToProcess,
                                                                                     allowDuplicateObservationsWithinObservationSet ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
-        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio )
-{
-    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
-            compressDopplerData< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ), originalDopplerData->getObservationSetId( ), compressionRatio ) );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10,
-        const double maxArcGap = 300.0 )
-{
-    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
-            createCompressedDopplerDataset< ObservationScalarType, TimeType >(
-                    originalDopplerData->getObservationDataset( ), compressionRatio, minNumberObservations, maxArcGap ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >

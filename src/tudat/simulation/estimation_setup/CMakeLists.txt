@@ -79,6 +79,7 @@ set(estimation_HEADERS
         processPsfFile.h
         processTrackingTxtFile.h
         simulateObservationsLegacy.h
+        compressDopplerObservationCollection.h
         )
 
 # Add header files.
