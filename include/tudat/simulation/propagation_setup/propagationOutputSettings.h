@@ -24,6 +24,7 @@
 
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #endif
 
 namespace tudat
@@ -192,7 +193,9 @@ enum PropagationDependentVariables {
     proper_time_rate_potential_term = 80,
     vehicle_part_rotation_matrix_dependent_variable = 81,
     number_density = 82,
-    local_wind_velocity_dependent_variable = 83
+    local_wind_velocity_dependent_variable = 83,
+    acceleration_derivative_partial_wrt_parameter = 84,
+    total_acceleration_derivative_partial_wrt_parameter = 85
 
 };
 
@@ -1090,6 +1093,53 @@ private:
         ar( CEREAL_NVP( derivativeWrtBody_ ) );
     }
 };
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+//! Class to define partial of a single acceleration derivative model w.r.t. an estimatable parameter.
+class AccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    AccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( acceleration_derivative_partial_wrt_parameter,
+                                             bodyUndergoingAcceleration,
+                                             bodyExertingAcceleration ),
+        accelerationModelType_( accelerationModelType ), parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Type of acceleration for which the partial is to be saved.
+    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+
+//! Class to define partial of the total acceleration derivative of a given body w.r.t. an estimatable parameter.
+class TotalAccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    TotalAccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( total_acceleration_derivative_partial_wrt_parameter, bodyUndergoingAcceleration ),
+        parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+#endif
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
 class MinimumConstellationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -2008,6 +2058,26 @@ inline std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAcce
 {
     return std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( bodyUndergoingAcceleration, derivativeWrtBody );
 }
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+inline std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > accelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, parameterSettings );
+}
+
+inline std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings >
+totalAccelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( bodyUndergoingAcceleration, parameterSettings );
+}
+#endif
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation( const std::string& bodyName,
                                                                                                               const int minimumDegree,

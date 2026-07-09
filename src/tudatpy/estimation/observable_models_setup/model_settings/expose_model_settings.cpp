@@ -709,6 +709,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "correct_for_stellar_aberration" ) = false,
            R"doc(
 
  Function for creating settings for a pixel coordinates observable.
@@ -761,6 +762,9 @@ Examples
 
  light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
      Settings for convergence of the light-time
+
+ correct_for_stellar_aberration : bool, default = False
+     If true, the geometric light-time direction is converted to the apparent incoming direction using the receiver velocity before projection to pixel coordinates.
 
  Returns
  -------

@@ -13,6 +13,7 @@ from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.data.processTrk234 import converters as cnv
+from tudatpy.data.processTrk234 import OpenRampHandling
 
 
 # -----------------------------------------------------------------------------
@@ -243,6 +244,106 @@ def test_multiple_stations():
     result = result.sort_values(["station", "start_time"]).reset_index(drop=True)
     expected = expected.sort_values(["station", "start_time"]).reset_index(drop=True)
     pd.testing.assert_frame_equal(result, expected)
+
+
+def test_open_final_ramp_left_unbounded():
+    """A final ramp with no end event (no following start, no type 4/5) is returned by process() with end_time NaT."""
+    data = [
+        {
+            "station": "A",
+            "epoch": pd.Timestamp("2021-01-01 10:00:00"),
+            "type": 1,
+            "freq": 50.0,
+            "rate": 0.0,
+        },
+    ]
+    result = cnv.RampConverter().process(pd.DataFrame(data))
+    assert len(result) == 1
+    assert pd.isna(result["end_time"].iloc[0])
+
+
+def test_handle_open_ramps_raise_exception():
+    """raise_exception raises ValueError when an open ramp is present."""
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    with pytest.raises(ValueError):
+        cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.raise_exception)
+
+
+def test_handle_open_ramps_raise_exception_no_open_ramps():
+    """raise_exception does not raise when all ramps are already closed."""
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": pd.Timestamp("2021-01-01 10:05:00"),
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.raise_exception)
+    assert result["end_time"].iloc[0] == pd.Timestamp("2021-01-01 10:05:00")
+
+
+def test_handle_open_ramps_close_silently():
+    """close_silently closes an open ramp with end_time = start_time + 1 s."""
+    start = pd.Timestamp("2021-01-01 10:00:00")
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": start,
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.close_silently)
+    assert result["end_time"].iloc[0] == start + pd.Timedelta(seconds=1)
+
+
+def test_handle_open_ramps_close_silently_leaves_closed_untouched():
+    """close_silently only modifies open ramps; closed intervals are unchanged."""
+    closed_end = pd.Timestamp("2021-01-01 10:05:00")
+    open_start = pd.Timestamp("2021-01-01 10:10:00")
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": closed_end,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+            {
+                "start_time": open_start,
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.close_silently)
+    assert result["end_time"].iloc[0] == closed_end
+    assert result["end_time"].iloc[1] == open_start + pd.Timedelta(seconds=1)
 
 
 def test_reader():

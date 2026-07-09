@@ -876,8 +876,37 @@ bool
 
 
      )doc" )
+            .def( "get_total_number_density",
+                  &ta::AtmosphereModel::getTotalNumberDensity,
+                  py::arg( "altitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "latitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to compute the atmospheric freestream total number density at a given location.
+
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+
+         Returns
+         -------
+         float
+             Freestream total number density at the given time and location
+
+
+     )doc" )
             .def( "get_number_density",
-                  &ta::AtmosphereModel::getNumberDensity,
+                  py::overload_cast< const ta::AtmosphericCompositionSpecies, const double, const double, const double, const double >(
+                          &ta::AtmosphereModel::getNumberDensity ),
                   py::arg( "species" ),
                   py::arg( "altitude" ),
                   py::arg( "longitude" ),
@@ -1375,6 +1404,24 @@ bool
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
+            .def_property( "transponder_delay",
+                           &tsm::VehicleSystems::getTransponderDelay,
+                           &tsm::VehicleSystems::setTransponderDelay,
+                           R"doc(
+         Transponder retransmission delay for the vehicle, in seconds.
+
+         :type: float
+     )doc" )
+            .def( "is_transponder_delay_defined",
+                  &tsm::VehicleSystems::isTransponderDelayDefined,
+                  R"doc(
+         Check whether a transponder retransmission delay has been defined for the vehicle.
+
+         Returns
+         -------
+         bool
+             True if a transponder delay is defined.
+     )doc" )
             .def( "set_transmitted_frequency_calculator",
                   &tsm::VehicleSystems::setTransmittedFrequencyCalculator,
                   py::arg( "transmitted_frequency_calculator" ),
@@ -2697,85 +2744,12 @@ bool
 
      )doc" );
 
-    py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >( m, "GroundStation", R"doc(
-
-         Object used to define and store properties of a ground station.
-
-         Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
-
-     )doc" )
-            .def( "set_transmitting_frequency_calculator",
-                  &tgs::GroundStation::setTransmittingFrequencyCalculator,
-                  py::arg( "transmitting_frequency_calculator" ) )
-            //            .def( "set_water_vapor_partial_pressure_function",
-            //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
-            //                  py::arg( "water_vapor_partial_pressure_function" ) )
-            //            .def( "set_temperature_function",
-            //            &tgs::GroundStation::setTemperatureFunction, py::arg(
-            //            "temperature_function" ) ) .def( "set_pressure_function",
-            //            &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
-            //            .def( "set_relative_humidity_function",
-            //                  &tgs::GroundStation::setRelativeHumidityFunction,
-            //                  py::arg( "relative_humidity_function" ) )
-            .def_property( "transmitting_frequency_calculator",
-                           &tgs::GroundStation::getTransmittingFrequencyCalculator,
-                           &tgs::GroundStation::setTransmittingFrequencyCalculator,
-                           R"doc(
-
-         Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
-
-         :type: TransmittingFrequencyCalculator
-
-     )doc" )
-            .def_property_readonly( "temperature_function", &tgs::GroundStation::getTemperatureFunction, R"doc(
-
-         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
-
-         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "relative_humidity_function",
-                                    &tgs::GroundStation::getRelativeHumidityFunction,
-                                    R"doc(
-
-         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "pointing_angles_calculator",
-                                    &tgs::GroundStation::getPointingAnglesCalculator,
-                                    R"doc(
-
-         **read-only**
-
-         Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
-
-         :type: PointingAnglesCalculator
-
-     )doc" )
-            .def_property_readonly( "station_state", &tgs::GroundStation::getNominalStationState, R"doc(
-
-         **read-only**
-
-         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
-
-         :type: GroundStationState
-
-     )doc" )
-            .def( "set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg( "timing_system" ) )
-
-            .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ) );
-
     py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
-            m, "TransmittingFrequencyCalculator", R"doc(No documentation found.)doc" );
+            m, "TransmittingFrequencyCalculator", R"doc(
+            
+            Object that computes the current transmitting frequency of a ground station.
+
+            )doc" );
 
     py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
             .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
@@ -2791,7 +2765,14 @@ bool
 
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
                 std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
-                tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
+                tgs::StationFrequencyInterpolator >( m,
+                                                     "PiecewiseLinearFrequencyInterpolator",
+                                                     R"doc(
+                
+                Object that computes the current transmitting frequency of a ground station, using a piecewise linear interpolation of the frequency over defined intervals.
+
+                If multiple intervals are defined at the same time, the frequency of the interval with the latest start time is used. If no interval is defined at the current time, the frequency is computed using the strategy defined by ``gap_handling``.
+                )doc" )
             .def( py::init< const std::vector< tudat::Time >&,
                             const std::vector< tudat::Time >&,
                             const std::vector< double >&,
@@ -2801,14 +2782,81 @@ bool
                   py::arg( "end_times" ),
                   py::arg( "ramp_rates" ),
                   py::arg( "start_frequency" ),
-                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps )
-            .def_property_readonly( "start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
-            .def_property_readonly( "end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
-            .def_property_readonly( "ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
-            .def_property_readonly( "start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies )
+                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps,
+                  R"doc(
+                                    
+                Initialize the piecewise linear frequency interpolator.
+
+                Parameters
+                ----------
+                start_times : numpy.ndarray
+                    Start times of the piecewise linear frequency intervals.
+                end_times : numpy.ndarray
+                    End times of the piecewise linear frequency intervals.
+                ramp_rates : numpy.ndarray
+                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+                start_frequency : float
+                    Frequencies of the piecewise linear frequency interval at the start epoch.
+                gap_handling : FrequencyGapHandling, default = FrequencyGapHandling.extrapolate_at_gaps
+                    Strategy for handling frequency gaps.                          
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes,
+                                    R"doc(
+                                    
+                                    Start times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "end_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes,
+                                    R"doc(
+                                    
+                                    End times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "ramp_rates",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates,
+                                    R"doc(
+                                    
+                                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_frequencies",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies,
+                                    R"doc(
+                                    
+                                    Frequencies of the piecewise linear frequency interval at the start epoch.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
             .def( "compute_current_frequency",
                   &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
-                  py::arg( "lookup_time_original" ) );
+                  py::arg( "lookup_time_original" ) )
+            .def( "add_frequency_interpolator",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
+                  py::arg( "frequency_interpolator_to_add" ),
+                  R"doc(
+                       
+                     Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
+     
+                     Parameters
+                     ----------
+                     frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
+                         The frequency interpolator to add to the current interpolator.
+                       
+                       )doc" );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
@@ -2878,6 +2926,107 @@ bool
                             std::map< tudat::ground_stations::MeteoDataEntries, int > >( ),
                   py::arg( "interpolator" ),
                   py::arg( "vector_entries" ) );
+
+    py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >( m, "GroundStation", R"doc(
+
+         Object used to define and store properties of a ground station.
+
+         Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
+
+     )doc" )
+            .def( "set_transmitting_frequency_calculator",
+                  &tgs::GroundStation::setTransmittingFrequencyCalculator,
+                  py::arg( "transmitting_frequency_calculator" ),
+                  R"doc(
+
+         Set the transmitting frequency calculator for the ground station.
+
+         .. note::
+
+            This will override any previously set transmitting frequency calculator. To check if a frequency calculator is set, use the :meth:`~GroundStation.has_frequency_calculator` method. To merge multiple piecewise linear frequency interpolators, use the :meth:`~PiecewiseLinearFrequencyInterpolator.add_frequency_interpolator` function.
+
+         Parameters
+         ----------
+         transmitting_frequency_calculator : TransmittingFrequencyCalculator
+             The transmitting frequency calculator to set.
+
+     )doc" )
+            .def( "has_frequency_calculator", &tgs::GroundStation::hasFrequencyCalculator, R"doc(
+
+         Check if the ground station has a frequency calculator.
+
+         Returns
+         -------
+         bool
+            True if the ground station has a frequency calculator, False otherwise.
+
+     )doc" )
+            //            .def( "set_water_vapor_partial_pressure_function",
+            //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
+            //                  py::arg( "water_vapor_partial_pressure_function" ) )
+            //            .def( "set_temperature_function",
+            //            &tgs::GroundStation::setTemperatureFunction, py::arg(
+            //            "temperature_function" ) ) .def( "set_pressure_function",
+            //            &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
+            //            .def( "set_relative_humidity_function",
+            //                  &tgs::GroundStation::setRelativeHumidityFunction,
+            //                  py::arg( "relative_humidity_function" ) )
+            .def_property( "transmitting_frequency_calculator",
+                           &tgs::GroundStation::getTransmittingFrequencyCalculator,
+                           &tgs::GroundStation::setTransmittingFrequencyCalculator,
+                           R"doc(
+
+         Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
+
+         :type: TransmittingFrequencyCalculator
+
+     )doc" )
+            .def_property_readonly( "temperature_function", &tgs::GroundStation::getTemperatureFunction, R"doc(
+
+         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
+
+         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "relative_humidity_function",
+                                    &tgs::GroundStation::getRelativeHumidityFunction,
+                                    R"doc(
+
+         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "pointing_angles_calculator",
+                                    &tgs::GroundStation::getPointingAnglesCalculator,
+                                    R"doc(
+
+         **read-only**
+
+         Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
+
+         :type: PointingAnglesCalculator
+
+     )doc" )
+            .def_property_readonly( "station_state", &tgs::GroundStation::getNominalStationState, R"doc(
+
+         **read-only**
+
+         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+
+         :type: GroundStationState
+
+     )doc" )
+            .def( "set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg( "timing_system" ) )
+
+            .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ) );
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY

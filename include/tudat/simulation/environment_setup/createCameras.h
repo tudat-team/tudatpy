@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATECAMERAS_H
 #define TUDAT_CREATECAMERAS_H
 
+#include <functional>
+
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/system_models/camera.h"
@@ -47,9 +49,54 @@ public:
                     const Eigen::Vector3d& boresightEulerAngles,
                     const std::pair< double, double > focalLengths = std::make_pair( 1.0, 1.0 ),
                     const std::pair< double, double > opticalCenter = std::make_pair( 0.0, 0.0 ),
-                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) ):
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ),
+                    std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
         cameraName_( cameraName ), boresightEulerAngles_( boresightEulerAngles ), focalLengths_( focalLengths ),
-        opticalCenter_( opticalCenter ), bodyFixedCameraPosition_( bodyFixedCameraPosition )
+        opticalCenter_( opticalCenter ), bodyFixedCameraPosition_( bodyFixedCameraPosition ),
+        projectionModel_( std::make_shared< system_models::PinholeCameraProjectionModel >( focalLengths, opticalCenter ) ),
+        rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+    {}
+
+    CameraSettings( const std::string& cameraName,
+                    const Eigen::Vector3d& boresightEulerAngles,
+                    const std::shared_ptr< system_models::CameraProjectionModel > projectionModel,
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ),
+                    std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+        cameraName_( cameraName ), boresightEulerAngles_( boresightEulerAngles ), focalLengths_( std::make_pair( 1.0, 1.0 ) ),
+        opticalCenter_( std::make_pair( 0.0, 0.0 ) ), bodyFixedCameraPosition_( bodyFixedCameraPosition ),
+        projectionModel_( projectionModel ), rotationFromInertialToCameraFrameFunction_( rotationFromInertialToCameraFrameFunction )
+    {
+        if( projectionModel_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating camera settings: projection model is nullptr." );
+        }
+        try
+        {
+            const Eigen::DiagonalMatrix< double, 2 > focalLengthsMatrix = projectionModel_->getFocalLengthsMatrix( );
+            focalLengths_ = std::make_pair( focalLengthsMatrix.diagonal( )( 0 ), focalLengthsMatrix.diagonal( )( 1 ) );
+        }
+        catch( const std::runtime_error& )
+        {}
+
+        try
+        {
+            const Eigen::Vector2d opticalCenter = projectionModel_->getOpticalCenter( );
+            opticalCenter_ = std::make_pair( opticalCenter.x( ), opticalCenter.y( ) );
+        }
+        catch( const std::runtime_error& )
+        {}
+    }
+
+    CameraSettings( const std::string& cameraName,
+                    const Eigen::Vector3d& boresightEulerAngles,
+                    const std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel,
+                    const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ),
+                    std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction = nullptr ):
+        CameraSettings( cameraName,
+                        boresightEulerAngles,
+                        std::static_pointer_cast< system_models::CameraProjectionModel >( projectionModel ),
+                        bodyFixedCameraPosition,
+                        rotationFromInertialToCameraFrameFunction )
     {}
 
     std::string getCameraName( )
@@ -84,6 +131,7 @@ public:
     void setFocalLengths( const std::pair< double, double >& focalLengths )
     {
         focalLengths_ = focalLengths;
+        projectionModel_ = std::make_shared< system_models::PinholeCameraProjectionModel >( focalLengths_, opticalCenter_ );
     }
 
     std::pair< double, double > getOpticalCenter( )
@@ -94,6 +142,7 @@ public:
     void setOpticalCenter( const std::pair< double, double >& opticalCenter )
     {
         opticalCenter_ = opticalCenter;
+        projectionModel_ = std::make_shared< system_models::PinholeCameraProjectionModel >( focalLengths_, opticalCenter_ );
     }
 
     Eigen::Vector3d getBodyFixedCameraPosition( )
@@ -106,6 +155,31 @@ public:
         bodyFixedCameraPosition_ = bodyFixedCameraPosition;
     }
 
+    std::shared_ptr< system_models::CameraProjectionModel > getProjectionModel( )
+    {
+        return projectionModel_;
+    }
+
+    void setProjectionModel( const std::shared_ptr< system_models::CameraProjectionModel >& projectionModel )
+    {
+        if( projectionModel == nullptr )
+        {
+            throw std::runtime_error( "Error when setting camera projection model: input is nullptr." );
+        }
+        projectionModel_ = projectionModel;
+    }
+
+    std::function< Eigen::Quaterniond( const double ) > getRotationFromInertialToCameraFrameFunction( )
+    {
+        return rotationFromInertialToCameraFrameFunction_;
+    }
+
+    void setRotationFromInertialToCameraFrameFunction(
+            std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction )
+    {
+        rotationFromInertialToCameraFrameFunction_ = rotationFromInertialToCameraFrameFunction;
+    }
+
 protected:
     std::string cameraName_;
 
@@ -116,6 +190,10 @@ protected:
     std::pair< double, double > opticalCenter_;
 
     Eigen::Vector3d bodyFixedCameraPosition_;
+
+    std::shared_ptr< system_models::CameraProjectionModel > projectionModel_;
+
+    std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction_;
 };
 
 //! Function to create a shared pointer to CameraSettings object
@@ -142,6 +220,14 @@ inline std::shared_ptr< CameraSettings > cameraSettings( const std::string& came
                                                          const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
 {
     return std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, focalLengths, opticalCenter, bodyFixedCameraPosition );
+}
+
+inline std::shared_ptr< CameraSettings > cameraSettings( const std::string& cameraName,
+                                                         const Eigen::Vector3d& boresightEulerAngles,
+                                                         const std::shared_ptr< system_models::CameraProjectionModel > projectionModel,
+                                                         const Eigen::Vector3d& bodyFixedCameraPosition = Eigen::Vector3d::Zero( ) )
+{
+    return std::make_shared< CameraSettings >( cameraName, boresightEulerAngles, projectionModel, bodyFixedCameraPosition );
 }
 
 //! Function to create a camera and add it to a Body object

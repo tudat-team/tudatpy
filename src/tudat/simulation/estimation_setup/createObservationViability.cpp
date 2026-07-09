@@ -187,8 +187,9 @@ std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBou
     }
 
     std::vector< std::pair< double, double > > boundaries = boundariesSettings->getBoundaries( );
+    const int observableSize = getObservableSize( observationType );
 
-    if( boundaries.size( ) != getObservableSize( observationType ) )
+    if( boundaries.size( ) != static_cast< std::size_t >( observableSize ) )
     {
         throw std::runtime_error(
                 "Error when making observation boundaries calculator, "

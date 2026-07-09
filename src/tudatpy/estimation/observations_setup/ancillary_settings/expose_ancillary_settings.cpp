@@ -111,7 +111,7 @@ void expose_ancillary_settings( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings`
                     the mapping of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands`
-                    enum to integers (with s-band equal to 1, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
+                    enum to integers (with s-band equal to 0, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
                     ancillary setting gets the value ``[0, 1]``
                     )doc" )
             .value( "reception_reference_frequency_band",

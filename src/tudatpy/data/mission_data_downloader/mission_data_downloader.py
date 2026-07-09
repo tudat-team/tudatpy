@@ -15,11 +15,7 @@ import subprocess
 from tabulate import tabulate
 from colorama import Fore
 from collections import defaultdict
-from tudatpy.astro.time_representation import (
-    calendar_date_to_julian_day,
-    date_time_from_iso_string,
-    datetime_to_python,
-)
+from tudatpy.astro.time_representation import DateTime
 import shutil
 import time
 
@@ -58,7 +54,7 @@ class LoadPDS:
             },
             "mex": {
                 "ck": r"^(?P<mission>MEX)?_?(?P<data>ATNM)?_?(?P<purpose>(MEASURED|T6|SA))?_?(?P<start_date_file>(\d{4}|\d{6}|P\d{12}))?_?(?P<end_date_file>\d{6})?_?(?P<sclk>S\d{6})?_?(?P<version>(V\d+|\d+))?(?P<extension>\.BC)?$",
-                "spk": "^(?P<data>(ORMM|ORMF))_(?P<SPK_type>T19)_(?P<start_date_file>\d{6})_?(?P<end_date_file>\d{6})_(?P<version>\d{5})(?P<extension>\.BSP)?$",
+                "spk": r"^(?P<data>(ORMM|ORMF))_(?P<SPK_type>T19)_(?P<start_date_file>\d{6})_?(?P<end_date_file>\d{6})_(?P<version>\d{5})(?P<extension>\.BSP)?$",
                 "ifms": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
                 "dp2": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
                 "dpx": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
@@ -576,7 +572,7 @@ class LoadPDS:
             - `input_mission` (`str`): The name of the mission
             - `url` (`str`): The base URL where the kernel files are hosted.
             - `wanted_files` (`list`, optional): A list of specific filenames to be downloaded from the URL.
-            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '\*.tf') to match filenames for downloading.
+            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '\\*.tf') to match filenames for downloading.
             - `custom_output` (`str`, optional): The local directory where the downloaded files will be stored.
 
         Output:
@@ -1282,7 +1278,7 @@ class LoadPDS:
         # BeautifulSoup package to look for all pattern-matching names at the targeted url (without any a priori information on the date and/or
         # wildcard present in the file name)
         reduced_filename = filename_split[-1]
-        reduced_filename = reduced_filename.replace("\w", "*")
+        reduced_filename = reduced_filename.replace(r"\w", "*")
 
         # Retrieve all filenames present at the "local_path" location that match the specified filename format
 
@@ -4592,16 +4588,10 @@ class DownloadAtmosphericData:
         # Get DOY range
         year = start_utc[0:4]
         base_date = year + "-01-01T00:00:00"
-        doy0 = calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(base_date)))
+        doy0 = DateTime.from_iso_string(base_date).to_julian_day()
 
-        doy_start = int(
-            calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(start_utc)))
-            - doy0
-        )
-        doy_end = int(
-            calendar_date_to_julian_day(datetime_to_python(date_time_from_iso_string(end_utc)))
-            - doy0
-        )
+        doy_start = int(DateTime.from_iso_string(start_utc).to_julian_day() - doy0)
+        doy_end = int(DateTime.from_iso_string(end_utc).to_julian_day() - doy0)
 
         # Prepare HTTP session
         session = requests.Session()

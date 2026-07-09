@@ -10,10 +10,113 @@
 
 #include "tudat/io/readTrackingTxtFile.h"
 
+#include <cmath>
+#include <limits>
+
 namespace tudat
 {
 namespace input_output
 {
+
+static const std::vector< std::string >& getDefaultFdetsDatetimeStringColumnTypes( )
+{
+    static const std::vector< std::string > columnTypes = {
+        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
+    };
+    return columnTypes;
+}
+
+static std::vector< std::string > getFdetsColumnTypes( FdetDateFormat dateFormat )
+{
+    switch( dateFormat )
+    {
+        case FdetDateFormat::datetime_string:
+            return getDefaultFdetsDatetimeStringColumnTypes( );
+        case FdetDateFormat::pair_of_numbers:
+            throw std::runtime_error( "Fdet files with dates as a pair of values are not currently supported." );
+        default:
+            throw std::runtime_error( "Invalid Fdet date format." );
+    }
+}
+
+static std::size_t getFirstFdetsDataLineColumnCount( const std::string& fileName )
+{
+    std::ifstream dataFile( fileName );
+    if( !dataFile.good( ) )
+    {
+        throw std::runtime_error( "Error when opening Fdets file: file " + fileName + " could not be opened." );
+    }
+
+    std::string currentLine;
+    while( std::getline( dataFile, currentLine ) )
+    {
+        boost::algorithm::trim( currentLine );
+        if( currentLine.empty( ) || currentLine.at( 0 ) == '#' )
+        {
+            continue;
+        }
+
+        std::vector< std::string > currentSplitRawLine;
+        boost::algorithm::split( currentSplitRawLine, currentLine, boost::is_any_of( ", \t" ), boost::algorithm::token_compress_on );
+        return currentSplitRawLine.size( );
+    }
+
+    return 0;
+}
+
+static std::vector< std::string > addOptionalFdetsScanColumnType( const std::string& fileName,
+                                                                  const std::vector< std::string >& columnTypes )
+{
+    if( columnTypes == getDefaultFdetsDatetimeStringColumnTypes( ) && getFirstFdetsDataLineColumnCount( fileName ) == 6 )
+    {
+        std::vector< std::string > columnTypesWithScanNumber = { "scan_number" };
+        columnTypesWithScanNumber.insert( columnTypesWithScanNumber.end( ), columnTypes.begin( ), columnTypes.end( ) );
+        return columnTypesWithScanNumber;
+    }
+
+    return columnTypes;
+}
+
+double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationTimesUtc, const double cadenceTolerance )
+{
+    if( observationTimesUtc.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when getting nominal time step from tracking file contents, size is < 2" );
+    }
+
+    double firstObservationTimeStep = std::numeric_limits< double >::infinity( );
+    double minimumObservationTimeStep = std::numeric_limits< double >::infinity( );
+    for( unsigned int i = 1; i < observationTimesUtc.size( ); i++ )
+    {
+        double testObservationTimeStep = observationTimesUtc.at( i ) - observationTimesUtc.at( i - 1 );
+        if( std::isfinite( testObservationTimeStep ) && testObservationTimeStep > cadenceTolerance )
+        {
+            if( !std::isfinite( firstObservationTimeStep ) )
+            {
+                firstObservationTimeStep = testObservationTimeStep;
+            }
+            if( testObservationTimeStep < minimumObservationTimeStep )
+            {
+                minimumObservationTimeStep = testObservationTimeStep;
+            }
+        }
+    }
+
+    if( !std::isfinite( minimumObservationTimeStep ) )
+    {
+        throw std::runtime_error(
+                "Error when getting nominal time step from tracking file contents, no positive cadence could be inferred" );
+    }
+
+    if( firstObservationTimeStep > minimumObservationTimeStep + cadenceTolerance )
+    {
+        return minimumObservationTimeStep;
+    }
+    else
+    {
+        return firstObservationTimeStep;
+    }
+}
 
 void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dataFilterMethod )
 {
@@ -236,6 +339,31 @@ void TrackingTxtFileContents::subtractColumnType( const TrackingDataType& column
     {
         doubleDataMap_[ columnToSubtractFrom ][ i ] -= doubleDataMap_[ columnToSubtract ][ i ];
     }
+}
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, FdetDateFormat dateFormat )
+{
+    const std::vector< std::string > columnTypes = addOptionalFdetsScanColumnType( fileName, getFdetsColumnTypes( dateFormat ) );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t" );
+    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    return rawFileContents;
+}
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, const std::vector< std::string >& columnTypes )
+{
+    static bool hasPrintedDeprecationWarning = false;
+    if( !hasPrintedDeprecationWarning )
+    {
+        std::cerr << "Warning: readFdetsFile(fileName, columnTypes) is deprecated. Use readFdetsFile(fileName, FdetDateFormat) "
+                     "instead."
+                  << std::endl;
+        hasPrintedDeprecationWarning = true;
+    }
+
+    const std::vector< std::string > resolvedColumnTypes = addOptionalFdetsScanColumnType( fileName, columnTypes );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, resolvedColumnTypes, '#', ", \t" );
+    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    return rawFileContents;
 }
 
 }  // namespace input_output

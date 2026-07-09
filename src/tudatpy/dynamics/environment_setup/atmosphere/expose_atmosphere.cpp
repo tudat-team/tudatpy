@@ -83,7 +83,10 @@ The values in this class may be recomputed every time step to reflect changing a
 
                          Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
 
-                         :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
+                         Parameters
+                         ----------
+                         solar_activity_data : Dict[float, SolarActivityData]
+                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
                          )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
@@ -108,11 +111,21 @@ The values in this class may be recomputed every time step to reflect changing a
                              Returns the local density at the given altitude,
                              longitude, latitude and time.
 
-                             :param altitude: Altitude at which to get the density. [m]
-                             :param longitude: Longitude at which to get the density [rad].
-                             :param latitude: Latitude at which to get the density [rad].
-                             :param time: Time at which density is to be computed [seconds since J2000].
-                             :return: Local density. [kg/m^3]
+                             Parameters
+                             ----------
+                             altitude : float
+                                 Altitude at which to get the density. [m]
+                             longitude : float
+                                 Longitude at which to get the density [rad].
+                             latitude : float
+                                 Latitude at which to get the density [rad].
+                             time : float
+                                 Time at which density is to be computed [seconds since J2000].
+
+                             Returns
+                             -------
+                             float
+                                 Local density. [kg/m^3]
                              )doc" );
 
     // END OF NRLMSISE00
@@ -202,6 +215,10 @@ The values in this class may be recomputed every time step to reflect changing a
     py::class_< tss::CustomConstantTemperatureAtmosphereSettings,
                 std::shared_ptr< tss::CustomConstantTemperatureAtmosphereSettings >,
                 tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
+
+    py::class_< tss::CustomNumberDensityAtmosphereSettings,
+                std::shared_ptr< tss::CustomNumberDensityAtmosphereSettings >,
+                tss::AtmosphereSettings >( m, "CustomNumberDensityAtmosphereSettings", R"doc(No documentation found.)doc" );
 
     py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
             m, "ScaledAtmosphereSettings", R"doc(No documentation found.)doc" );
@@ -316,8 +333,8 @@ The values in this class may be recomputed every time step to reflect changing a
  Function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
  The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -349,9 +366,9 @@ The values in this class may be recomputed every time step to reflect changing a
 
    # Define the wind in 3 directions in the vertical reference frame
    def wind_function(h, lon, lat, time):
-       # Meridional wind (pointing North) depends on latitude [deg] and time [sec since J2000]
+       # Meridional wind (pointing North) depends on latitude [rad] and time [sec since J2000]
        wind_Xv = lat*10/time
-       # Zonal wind (pointing West) only depends on the longitude [deg]
+       # Zonal wind (pointing West) only depends on the longitude [rad]
        wind_Yv = 5/lon
        # Vertical wind (pointing out of the centre of the Earth) only depends on the altitude [m]
        wind_Zv = 1000/h
@@ -744,8 +761,8 @@ using the NRLMSISE-00 global reference model:
  Function for settings object, defining constant temperature atmosphere model from custom density profile.
  The user is specifying the density profile as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -775,7 +792,7 @@ using the NRLMSISE-00 global reference model:
 
  .. code-block:: python
 
-   # Define the density as a function of altitude [m], longitude [deg], latitude [deg], and time [sec since J2000]
+   # Define the density as a function of altitude [m], longitude [rad], latitude [rad], and time [sec since J2000]
    def density_function(h, lon, lat, time):
        # Return the density according to an exponential model that varies with time to add noise with a sine (ignore lon/lat)
        return (1 + 0.15 * np.sin(time/10)) * np.exp(-h/7300)
@@ -790,6 +807,44 @@ using the NRLMSISE-00 global reference model:
        specific_gas_constant,
        ratio_of_specific_heats )
 
+
+     )doc" );
+
+    m.def( "custom_number_density",
+           py::overload_cast< const std::function< double( const double, const double, const double, const double ) >,
+                              const double,
+                              const double,
+                              const double >( &tss::customNumberDensityAtmosphereSettings ),
+           py::arg( "number_density_function" ),
+           py::arg( "molar_mass" ),
+           py::arg( "constant_temperature" ) = TUDAT_NAN,
+           py::arg( "ratio_of_specific_heats" ) = 1.4,
+           R"doc(
+
+ Function for creating atmospheric model settings from a custom number-density profile.
+
+ The supplied function returns total number density in m^-3 as a function of altitude,
+ longitude, latitude and time. Mass density is computed internally from the molar mass
+ using Avogadro's constant.
+
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
+
+ Parameters
+ ----------
+ number_density_function : callable[[float, float, float, float], float]
+     Function to retrieve the total number density at the current altitude, longitude,
+     latitude and time.
+ molar_mass : float
+     Molar mass of the atmospheric species in kg/mol.
+ constant_temperature : float, optional
+     Constant temperature used only for pressure and speed-of-sound queries.
+ ratio_of_specific_heats : float, default = 1.4
+     Ratio of specific heats used only for speed-of-sound queries.
+ Returns
+ -------
+ CustomNumberDensityAtmosphereSettings
+     Settings for a custom number-density-driven atmosphere.
 
      )doc" );
 

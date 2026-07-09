@@ -1958,10 +1958,19 @@ firstOrderBodycentricRelativisticTimePropagatorSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
-                std::map< std::string, std::pair< int, int > >( ) )
+                std::map< std::string, std::pair< int, int > >( ),
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {} )
 {
     return std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
-            bodyName, externalBodies, initialTime, integratorSettings, terminationSettings, sphericalHarmonicGravityExpansions );
+            bodyName,
+            externalBodies,
+            initialTime,
+            integratorSettings,
+            terminationSettings,
+            sphericalHarmonicGravityExpansions,
+            []( const TimeType& inputTime ) { return inputTime; },
+            1.0,
+            dependentVariablesToSave );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -1990,7 +1999,8 @@ bodycenteredToTopocentricTimePropagatorSettings(
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
         const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSettings )
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {} )
 {
     return std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >(
             referencePointId,
@@ -2001,7 +2011,8 @@ bodycenteredToTopocentricTimePropagatorSettings(
             initialBodyStates,
             initialTime,
             integratorSettings,
-            terminationSettings );
+            terminationSettings,
+            dependentVariablesToSave );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >

@@ -519,6 +519,7 @@ private:
 enum AtmosphereTypes {
     exponential_atmosphere,
     custom_constant_temperature_atmosphere,
+    custom_number_density_atmosphere,
     tabulated_atmosphere,
     nrlmsise00,
     mars_dtm_atmosphere,
@@ -866,6 +867,50 @@ private:
      *  Vector of parameters to be used to set up the density function. Both meaning and number of parameters depends on the model.
      */
     std::vector< double > modelSpecificParameters_;
+};
+
+//  AtmosphereSettings for defining a custom number density atmosphere.
+class CustomNumberDensityAtmosphereSettings : public AtmosphereSettings
+{
+public:
+    typedef std::function< double( const double, const double, const double, const double ) > NumberDensityFunction;
+
+    CustomNumberDensityAtmosphereSettings( const NumberDensityFunction& numberDensityFunction,
+                                           const double molarMass,
+                                           const double constantTemperature = TUDAT_NAN,
+                                           const double ratioOfSpecificHeats = 1.4 ):
+        AtmosphereSettings( custom_number_density_atmosphere ), numberDensityFunction_( numberDensityFunction ), molarMass_( molarMass ),
+        constantTemperature_( constantTemperature ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    {}
+
+    NumberDensityFunction getNumberDensityFunction( )
+    {
+        return numberDensityFunction_;
+    }
+
+    double getMolarMass( )
+    {
+        return molarMass_;
+    }
+
+    double getConstantTemperature( )
+    {
+        return constantTemperature_;
+    }
+
+    double getRatioOfSpecificHeats( )
+    {
+        return ratioOfSpecificHeats_;
+    }
+
+private:
+    NumberDensityFunction numberDensityFunction_;
+
+    double molarMass_;
+
+    double constantTemperature_;
+
+    double ratioOfSpecificHeats_;
 };
 
 //  AtmosphereSettings for defining an NRLMSISE00 atmosphere reading space weather data from a text file.
@@ -1914,6 +1959,30 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
 {
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
             densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
+}
+
+//! @get_docstring(customNumberDensityAtmosphereSettings,0)
+inline std::shared_ptr< AtmosphereSettings > customNumberDensityAtmosphereSettings(
+        const std::function< double( const double ) > numberDensityFunction,
+        const double molarMass,
+        const double constantTemperature = TUDAT_NAN,
+        const double ratioOfSpecificHeats = 1.4 )
+{
+    DensityFunction fullNumberDensityFunction = [ = ]( const double altitude, const double, const double, const double ) {
+        return numberDensityFunction( altitude );
+    };
+    return std::make_shared< CustomNumberDensityAtmosphereSettings >(
+            fullNumberDensityFunction, molarMass, constantTemperature, ratioOfSpecificHeats );
+}
+
+//! @get_docstring(customNumberDensityAtmosphereSettings,1)
+inline std::shared_ptr< AtmosphereSettings > customNumberDensityAtmosphereSettings( const DensityFunction numberDensityFunction,
+                                                                                    const double molarMass,
+                                                                                    const double constantTemperature = TUDAT_NAN,
+                                                                                    const double ratioOfSpecificHeats = 1.4 )
+{
+    return std::make_shared< CustomNumberDensityAtmosphereSettings >(
+            numberDensityFunction, molarMass, constantTemperature, ratioOfSpecificHeats );
 }
 
 //! @get_docstring(scaledAtmosphereSettings,0)

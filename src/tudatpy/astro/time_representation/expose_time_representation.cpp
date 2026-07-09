@@ -14,30 +14,22 @@
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
-
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
+
+#include <tudat/astro/basic_astro/dateTime.h>
 #include <tudat/astro/basic_astro/timeConversions.h>
 #include <tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h>
 #include <tudat/math/basic/mathematicalConstants.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <pybind11/operators.h>
-
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <chrono>
-#include <ctime>
 
 #include "scalarTypes.h"
-#include "tudat/astro/basic_astro/dateTime.h"
-#include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tsi = tudat::sofa_interface;
-namespace pc = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
-namespace tutil = tudat::utilities;
 
 namespace pybind11
 {
@@ -97,53 +89,7 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverterPy( )
 
 }  // namespace earth_orientation
 
-namespace basic_astrodynamics
-{
-
-}  // namespace basic_astrodynamics
-
 }  // namespace tudat
-
-// Convert from Gregorian date to time_point (Python datetime). Only
-// year/month/day, no time.
-std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& dateTime )
-{
-    tutil::printDeprecationWarning( "datetime_to_python", "DateTime.to_python_datetime" );
-    return dateTime.timePoint( );
-}
-
-// Convert Julian day to calendar date. This code ensures that the value
-// returned is a time_point (Python datetime).
-std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const double julianDay )
-{
-    tutil::printDeprecationWarning( "julian_day_to_calendar_date", "DateTime.from_julian_day(...).to_python_datetime()" );
-
-    tba::DateTime dateTime = tba::DateTime::fromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
-
-    return dateTime.timePoint( );
-}
-
-// Convert calendar date to Julian day since a given epoch. This code allows for
-// the calendar date to be a time_point (Python datetime).
-template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDayPy( const std::chrono::system_clock::time_point calendarDate )
-{
-    tutil::printDeprecationWarning( "calendar_date_to_julian_day", "DateTime.from_python_datetime(...).to_julian_day()" );
-
-    tba::DateTime dateTime = tba::DateTime::fromTimePoint( calendarDate );
-    return dateTime.julianDay< TimeScalarType >( );
-}
-
-template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
-        const std::chrono::system_clock::time_point calendarDate,
-        const TimeScalarType epochSinceJulianDayZero = tba::getJulianDayOnJ2000< TimeScalarType >( ) )
-{
-    tutil::printDeprecationWarning( "calendar_date_to_days_since_epoch",
-                                    "DateTime.from_python_datetime(...).to_days_since_reference_julian_day()" );
-    tba::DateTime dateTime = tba::DateTime::fromTimePoint( calendarDate );
-    return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
-}
 
 namespace tudatpy
 {
@@ -155,9 +101,6 @@ namespace time_representation
 
 void expose_time_representation( py::module& m )
 {
-    //    m.attr("default_time_converter") =
-    //    tudat::earth_orientation::defaultTimeConverter;
-
     py::class_< tudat::Time >( m, "Time", R"doc(
         
     Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
@@ -389,7 +332,7 @@ void expose_time_representation( py::module& m )
                   py::arg( "hour" ) = 12,
                   py::arg( "minute" ) = 0,
                   py::arg( "seconds" ) = 0.0L )
-            .def( "__str__", []( tba::DateTime& datetime ) { return datetime.isoString( ); } )
+            .def( "__str__", []( const tba::DateTime& datetime ) { return datetime.isoString( ); } )
             .def( "__repr__",
                   []( const tba::DateTime& datetime ) {
                       return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
@@ -661,20 +604,37 @@ void expose_time_representation( py::module& m )
 
 
  )doc" )
-            .def_static( "from_python_datetime", &tba::DateTime::fromTimePoint, py::arg( "datetime" ), R"doc(
-            
+            .def_static(
+                    "from_python_datetime",
+                    []( py::object dt ) {
+                        const int year = dt.attr( "year" ).cast< int >( );
+                        const int month = dt.attr( "month" ).cast< int >( );
+                        const int day = dt.attr( "day" ).cast< int >( );
+                        const int hour = dt.attr( "hour" ).cast< int >( );
+                        const int minute = dt.attr( "minute" ).cast< int >( );
+                        const int second = dt.attr( "second" ).cast< int >( );
+                        const int microsecond = dt.attr( "microsecond" ).cast< int >( );
+                        return tba::DateTime(
+                                year,
+                                month,
+                                day,
+                                hour,
+                                minute,
+                                static_cast< long double >( second ) + static_cast< long double >( microsecond ) / 1000000.0L );
+                    },
+                    py::arg( "datetime" ),
+                    R"doc(
+
 Function to convert a Python `datetime.datetime` object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version.
 
-.. warning::
+.. note::
 
-    This function uses the C++ `std::chrono` library, which is limited in the time range it can represent. If the range is exceeded, the conversion will overflow and **NOT** throw an exception.
-
-    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
+    The calendar fields (year, month, day, hour, minute, second, microsecond) are read directly from the Python object and are not affected by the local timezone or DST settings. Any timezone information (``tzinfo``) attached to the datetime object is silently ignored.
 
 Parameters
 ----------
 datetime : datetime.datetime
-    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
+    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to microsecond resolution.
 Returns
 -------
 DateTime
@@ -852,15 +812,28 @@ In this example, the calendar date corresponding to when 122 days have passed in
      print(dt) # prints 2000-01-01 12:00:00.000000000000000
                          
                          )doc" )
-            .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
-                
-Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_representation.DateTime.from_python_datetime` method.
+            .def(
+                    "to_python_datetime",
+                    []( const tba::DateTime& self ) {
+                        const auto sec_int = static_cast< int >( self.getSeconds( ) );
+                        const auto microsecond = static_cast< int >(
+                                std::round( ( self.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
+                        return py::module_::import( "datetime" )
+                                .attr( "datetime" )( self.getYear( ),
+                                                     self.getMonth( ),
+                                                     self.getDay( ),
+                                                     self.getHour( ),
+                                                     self.getMinute( ),
+                                                     sec_int,
+                                                     microsecond );
+                    },
+                    R"doc(
+
+Method to retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_representation.DateTime.from_python_datetime` method.
 
 .. note::
 
-    The conversion uses the C++ `std::chrono` library, which is limited the time range it can represent. If the range is exceeded, the conversion will fail and throw an exception.
-    
-    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
+    The calendar fields are written directly to the Python object. The returned datetime is always naive (no ``tzinfo``), representing the same year, month, day, hour, minute, second and microsecond as stored in the Tudat object.
 
 Returns
 -------
@@ -1357,7 +1330,7 @@ datetime.datetime
    # Define the date and time
    date = datetime.datetime(2022, 2, 17, 15, 41, 2)
    # Convert it in Julian days since J2000
-   date_J2000 = time_representation.python_datetime_to_julian_day(date)
+   date_J2000 = time_representation.DateTime.from_python_datetime(date).to_julian_day()
    # Convert it in Julian seconds since J2000
    date_J2000_sec = time_representation.julian_day_to_seconds_since_epoch(date_J2000)
    # Check the date from the TCB scale to the TDB scale
@@ -1750,50 +1723,13 @@ datetime.datetime
 
      )doc" );
 
-    //    m.def("epoch_from_julian_day",
-    //          &tudat::timeFromJulianDay< TIME_TYPE >,
-    //          py::arg("julian_day"),
-    //          get_docstring("epoch_from_julian_day").c_str() );
-
-    //    m.def("epoch_from_modified_julian_day",
-    //          &tudat::timeFromModifiedJulianDay< TIME_TYPE >,
-    //          py::arg("modified_julian_day"),
-    //          get_docstring("epoch_from_modified_julian_day").c_str()
-    //          );
-
     /////////////// DEPRECATED
 
     m.def( "date_time_from_epoch", &tba::DateTime::fromTime< TIME_TYPE >, py::arg( "epoch" ) );
 
     m.def( "date_time_from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_string" ) );
 
-    m.def( "calendar_date_to_julian_day_since_epoch",
-           &convertCalendarDateToJulianDaySinceEpochPy< double >,
-           py::arg( "calendar_date" ),
-           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
-
-    m.def( "calendar_date_to_days_since_epoch",
-           &convertCalendarDateToJulianDaySinceEpochPy< double >,
-           py::arg( "calendar_date" ),
-           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
-
-    m.def( "python_datetime_to_days_since_epoch",
-           &convertCalendarDateToJulianDaySinceEpochPy< double >,
-           py::arg( "datetime" ),
-           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000 );
-
-    m.def( "julian_day_to_calendar_date", &convertJulianDayToCalendarDatePy, py::arg( "julian_day" ) );
-
-    m.def( "julian_day_to_python_datetime", &convertJulianDayToCalendarDatePy, py::arg( "julian_day" ) );
-
-    m.def( "calendar_date_to_julian_day", &convertCalendarDateToJulianDayPy< double >, py::arg( "calendar_date" ) );
-
-    m.def( "python_datetime_to_julian_day", &convertCalendarDateToJulianDayPy< double >, py::arg( "datetime" ) );
-    m.def( "datetime_to_tudat", &tba::DateTime::fromTimePoint, py::arg( "datetime" ) );
-
     m.def( "year_and_days_in_year_to_calendar_date", &tba::DateTime::fromYearAndDaysInYear, py::arg( "year" ), py::arg( "days_in_year" ) );
-
-    m.def( "datetime_to_python", &dateTimeToTimePoint, py::arg( "datetime" ) );
 
     m.def( "add_seconds_to_datetime", &tba::addSecondsToDateTime< TIME_TYPE >, py::arg( "datetime" ), py::arg( "seconds_to_add" ) );
 

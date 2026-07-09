@@ -11,15 +11,17 @@
 #ifndef TUDAT_PIXEL_COORDINATES_OBSERVATION_MODEL_H
 #define TUDAT_PIXEL_COORDINATES_OBSERVATION_MODEL_H
 
+#include <cmath>
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/system_models/camera.h"
 
 namespace tudat
@@ -56,7 +58,8 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< system_models::Camera > camera,
             const std::shared_ptr< ephemerides::RotationalEphemeris > receiverBodyRotationalEphemeris,
-            const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
+            const bool correctForStellarAberration = false ):
         ObservationModel< 2, ObservationScalarType, TimeType >(
                 pixel_coordinates,
                 linkEnds,
@@ -67,8 +70,13 @@ public:
                                 lightTimeCalculator },
                         std::make_shared< LightTimeConvergenceCriteria >( ),
                         false ) } ),
-        lightTimeCalculator_( lightTimeCalculator ), camera_( camera ), receiverBodyRotationalEphemeris_( receiverBodyRotationalEphemeris )
+        lightTimeCalculator_( lightTimeCalculator ), camera_( camera ), receiverBodyRotationalEphemeris_( receiverBodyRotationalEphemeris ),
+        correctForStellarAberration_( correctForStellarAberration )
     {
+        if( camera_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating pixel coordinates observation model: camera is nullptr." );
+        }
         if( receiverBodyRotationalEphemeris_ == nullptr )
         {
             throw std::runtime_error(
@@ -129,9 +137,25 @@ public:
         linkEndTimes.push_back( static_cast< double >( time - lightTime ) );
         linkEndTimes.push_back( static_cast< double >( time ) );
 
-        Eigen::Vector2d pixelCoordinates = camera_->calculateObservableFromInertial(
-                inertialRelativePosition.template cast< double >( ),
-                receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ) );
+        Eigen::Vector3d inertialDirectionToProject = inertialRelativePosition.template cast< double >( );
+        if( correctForStellarAberration_ )
+        {
+            inertialDirectionToProject = computeApparentDirectionWithStellarAberration(
+                    inertialDirectionToProject.normalized( ),
+                    observerState.segment( 3, 3 ).template cast< double >( ) / physical_constants::SPEED_OF_LIGHT );
+        }
+
+        Eigen::Vector2d pixelCoordinates;
+        if( camera_->hasRotationFromInertialToCameraFrameFunction( ) )
+        {
+            pixelCoordinates = camera_->calculateObservableFromInertial( inertialDirectionToProject, static_cast< double >( time ) );
+        }
+        else
+        {
+            pixelCoordinates = camera_->calculateObservableFromInertial(
+                    inertialDirectionToProject,
+                    receiverBodyRotationalEphemeris_->getRotationToTargetFrame( static_cast< double >( time ) ) );
+        }
         return pixelCoordinates.template cast< ObservationScalarType >( );
     }
 
@@ -146,7 +170,22 @@ public:
         return { { std::make_pair( transmitter, receiver ), { lightTimeCalculator_ } } };
     }
 
+    bool getCorrectForStellarAberration( ) const
+    {
+        return correctForStellarAberration_;
+    }
+
 protected:
+    //! Convert actual geometric direction to apparent direction using the inverse of Jacobson's stellar-aberration correction.
+    Eigen::Vector3d computeApparentDirectionWithStellarAberration( const Eigen::Vector3d& actualDirection,
+                                                                   const Eigen::Vector3d& observerVelocityDividedBySpeedOfLight ) const
+    {
+        const double directionDotVelocity = actualDirection.dot( observerVelocityDividedBySpeedOfLight );
+        const double velocitySquared = observerVelocityDividedBySpeedOfLight.squaredNorm( );
+        const double scaleFactor = -directionDotVelocity + std::sqrt( 1.0 - velocitySquared + directionDotVelocity * directionDotVelocity );
+        return ( scaleFactor * actualDirection + observerVelocityDividedBySpeedOfLight ).normalized( );
+    }
+
     //! Object to compute the light-time (including any corrections w.r.t. Euclidean case) between source and receiver
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 
@@ -155,6 +194,9 @@ protected:
 
     //! Rotational ephemeris of the camera host body.
     std::shared_ptr< ephemerides::RotationalEphemeris > receiverBodyRotationalEphemeris_;
+
+    //! If true, project the apparent incoming direction obtained from the geometric light-time direction and receiver velocity.
+    bool correctForStellarAberration_;
 };
 }  // namespace observation_models
 

@@ -41,9 +41,10 @@ endif()
 # Get version from file
 file(STRINGS "version" VERSION_LABEL)
 list(GET VERSION_LABEL 0 VERSION_LABEL)
+string(STRIP "${VERSION_LABEL}" TUDATPY_FULL_VERSION)
 string(
     REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
-    TUDATPY_VERSION "${VERSION_LABEL}"
+    TUDATPY_VERSION "${TUDATPY_FULL_VERSION}"
 )
 
 # Project declaration.
