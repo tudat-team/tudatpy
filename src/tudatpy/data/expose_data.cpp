@@ -889,6 +889,17 @@ Read a mapping from DOMES id to station name.
     py::class_< tudat::data::TrackingData<> >( m, "TrackingData", R"doc(
  TrackingData Class container.
     )doc" )
+            .def( py::init< const std::string,
+                            const tudat::data::PlainLinkDefinition&,
+                            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
+                            const std::vector< double >,
+                            const std::string >( ),
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "observations" ),
+                  py::arg( "epochs" ),
+                  py::arg( "reference_link_end" ),
+                  R"doc(Creates a TrackingData object.)doc" )
             .def_property_readonly( "observable_type", &tudat::data::TrackingData<>::getObservableType )
             .def_property_readonly( "link_ends", &tudat::data::TrackingData<>::getLinkEnds )
             .def_property_readonly( "observations", &tudat::data::TrackingData<>::getObservations )
