@@ -43,6 +43,7 @@ class ClassInfo:
     has_save_load: bool = False
     has_operator_eq: bool = False
     has_equals_method: bool = False
+    base_classes: list = field(default_factory=list)  # direct base class names
     cpp_test_files: list = field(default_factory=list)
     py_expose_file: str = ""
     py_has_equals: bool = False
@@ -100,6 +101,11 @@ def scan_headers() -> dict[str, ClassInfo]:
         classes = []
         for m in class_start_re.finditer(content):
             cls_name = m.group(1)
+            # Capture inheritance from the declaration line
+            decl_line = content[m.start() : m.start(2)]
+            base_re = re.compile(r":\s*(?:public|protected|private)\s+(\w+)")
+            base_m = base_re.search(decl_line)
+            base_name = base_m.group(1) if base_m else ""
             brace_start = m.start(2)  # position of '{'
             # Walk forward to find matching '}' (tracking brace depth)
             depth = 0
@@ -116,9 +122,9 @@ def scan_headers() -> dict[str, ClassInfo]:
             if depth != 0:
                 # Unmatched braces — skip
                 continue
-            classes.append((cls_name, brace_start, pos + 1))
+            classes.append((cls_name, base_name, brace_start, pos + 1))
 
-        for cls_name, body_start, body_end in classes:
+        for cls_name, base_name, body_start, body_end in classes:
             # Extract class body text
             body = content[body_start:body_end]
 
@@ -146,6 +152,22 @@ def scan_headers() -> dict[str, ClassInfo]:
                 info.has_operator_eq = True
             if has_eq_method:
                 info.has_equals_method = True
+            if base_name:
+                info.base_classes.append(base_name)
+
+    # Propagate has_operator_eq down the inheritance chain.
+    # operator== is inherited — if a base class has it, all derived classes do too.
+    changed = True
+    while changed:
+        changed = False
+        for cls_name, info in results.items():
+            if info.has_operator_eq:
+                continue
+            for base in info.base_classes:
+                if base in results and results[base].has_operator_eq:
+                    info.has_operator_eq = True
+                    changed = True
+                    break
 
     return results
 
