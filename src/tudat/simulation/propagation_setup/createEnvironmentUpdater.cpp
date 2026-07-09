@@ -1296,6 +1296,10 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case total_acceleration_partial_wrt_body_translational_state:
             break;
+        case acceleration_derivative_partial_wrt_parameter:
+            break;
+        case total_acceleration_derivative_partial_wrt_parameter:
+            break;
         case total_spherical_harmonic_cosine_coefficient_variation:
             variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;

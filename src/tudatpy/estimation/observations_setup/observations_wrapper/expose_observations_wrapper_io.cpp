@@ -416,10 +416,19 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" );
 
     m.def( "observations_from_fdets_files",
-           &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "ifms_file_name" ),
+           py::overload_cast< const std::string&,
+                              const double&,
+                              tudat::input_output::FdetDateFormat,
+                              const std::string&,
+                              const std::string&,
+                              const std::string&,
+                              const tom::FrequencyBands&,
+                              const tom::FrequencyBands&,
+                              const std::map< std::string, Eigen::Vector3d >& >(
+                   &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "fdets_file_name" ),
            py::arg( "base_frequency" ),
-           py::arg( "column_types" ),
+           py::arg( "date_format" ),
            py::arg( "target_name" ),
            py::arg( "transmitting_station_name" ),
            py::arg( "receiving_station_name" ),
@@ -435,12 +444,12 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Parameters
         ----------
-        ifms_file_name : str
+        fdets_file_name : str
             FDETS file name.
         base_frequency : float
             Base frequency for Doppler observables.
-        column_types : list[str]
-            List of column types in the FDETS file.
+        date_format : tudatpy.data.FdetDateFormat
+            Date format used in the FDETS file.
         target_name : str
             Name of the target spacecraft.
         transmitting_station_name : str
@@ -454,10 +463,36 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
 
-        Returns
-        -------
-        tudatpy.estimation.observations.ObservationCollection
-            Observation collection.
+        )doc" );
+
+    m.def( "observations_from_fdets_files",
+           py::overload_cast< const std::string&,
+                              const double&,
+                              const std::vector< std::string >&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string&,
+                              const tom::FrequencyBands&,
+                              const tom::FrequencyBands&,
+                              const std::map< std::string, Eigen::Vector3d >& >(
+                   &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "fdets_file_name" ),
+           py::arg( "base_frequency" ),
+           py::arg( "column_types" ),
+           py::arg( "target_name" ),
+           py::arg( "transmitting_station_name" ),
+           py::arg( "receiving_station_name" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
+           R"doc(
+        Create an observation collection from an FDETS file using explicit column identifiers.
+
+        .. deprecated::
+            Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
+
         )doc" );
 
     m.def( "create_compressed_doppler_collection",

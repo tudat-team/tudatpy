@@ -211,6 +211,7 @@ const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath( 
 const std::string junoRangePath = tudat::paths::getTudatTestDataPath( ) + "juno_range.txt";
 const std::string marinerRangePath = tudat::paths::getTudatTestDataPath( ) + "mariner9obs.txt";
 const std::string juiceFdetsDopplerPath = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2023.04.26.Hb.0006.r2i.txt";
+const std::string juiceFdetsDopplerWithScanPath = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
 
 //! Starting the entire test suite
 BOOST_AUTO_TEST_SUITE( test_tracking_txt_file_reader );
@@ -466,6 +467,34 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
 
     BOOST_CHECK_CLOSE_FRACTION(
             tdbObservationTime, concatenatedTimes.at( concatenatedTimes.size( ) - 1 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+}
+
+BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )
+{
+    std::shared_ptr< tio::TrackingTxtFileContents > rawFdetsDopplerFile = tio::readFdetsFile( juiceFdetsDopplerPath );
+    BOOST_CHECK_EQUAL( rawFdetsDopplerFile->getNumColumns( ), 5 );
+    BOOST_CHECK_EQUAL( rawFdetsDopplerFile->getRawColumnTypes( ).at( 0 ), "utc_datetime_string" );
+
+    std::shared_ptr< tio::TrackingTxtFileContents > rawFdetsDopplerFileWithScan = tio::readFdetsFile( juiceFdetsDopplerWithScanPath );
+
+    BOOST_CHECK_EQUAL( rawFdetsDopplerFileWithScan->getNumColumns( ), 6 );
+    BOOST_CHECK_EQUAL( rawFdetsDopplerFileWithScan->getRawColumnTypes( ).at( 0 ), "scan_number" );
+    BOOST_CHECK_EQUAL( rawFdetsDopplerFileWithScan->getRawColumnTypes( ).at( 1 ), "utc_datetime_string" );
+
+    auto dataMap = rawFdetsDopplerFileWithScan->getDoubleDataMap( );
+    auto dataBlockFirst = extractBlockFromVectorMap( dataMap, 0 );
+
+    DateTime utcObservationTime = DateTime( 2024, 8, 20, 17, 29, 51.5 );
+    BOOST_CHECK_CLOSE_FRACTION( dataBlockFirst[ tio::TrackingDataType::utc_reception_time_j2000 ],
+                                utcObservationTime.epoch< double >( ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_EQUAL( dataBlockFirst[ tio::TrackingDataType::scan_nr ], 1 );
+    BOOST_CHECK_EQUAL( dataBlockFirst[ tio::TrackingDataType::signal_to_noise ], 2.571405547427670390e+05 );
+    BOOST_CHECK_EQUAL( dataBlockFirst[ tio::TrackingDataType::spectral_max ], 6.072471290268301800e+02 );
+    BOOST_CHECK_EQUAL( dataBlockFirst[ tio::TrackingDataType::doppler_measured_frequency ], 13682699.425314944237 );
+    BOOST_CHECK_EQUAL( dataBlockFirst[ tio::TrackingDataType::doppler_noise ], 5.1043355817910196e-03 );
+
+    BOOST_CHECK_THROW( tio::readFdetsFile( juiceFdetsDopplerPath, tio::FdetDateFormat::pair_of_numbers ), std::runtime_error );
 }
 
 //! Test averaged Doppler cadence inference when filtered rows leave middle-of-file gaps

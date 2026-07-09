@@ -883,7 +883,8 @@ public:
             const bool iterateMultiLegLightTime = true ):
         lightTimeCalculators_( lightTimeCalculators ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
-        iterateMultiLegLightTime_( iterateMultiLegLightTime )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( iterateMultiLegLightTime ),
+        ancillaryDelayOverrideWarningPrinted_( false )
     {
         initializeFullLinkLightTimeCalculator( );
     }
@@ -896,7 +897,7 @@ public:
                                  const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                          std::make_shared< LightTimeConvergenceCriteria >( ) ):
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), numberOfLinks_( 1 ), numberOfLinkEnds_( 2 ),
-        iterateMultiLegLightTime_( false )
+        hasDefaultLinkEndDelayFunctions_( false ), iterateMultiLegLightTime_( false ), ancillaryDelayOverrideWarningPrinted_( false )
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -915,6 +916,15 @@ public:
 
         if( !linkEndsDelays_.empty( ) )
         {
+            if( hasDefaultLinkEndDelayFunctions_ && !ancillaryDelayOverrideWarningPrinted_ )
+            {
+                std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
+                             "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
+                             "This warning is printed only once for this light-time calculator."
+                          << std::endl;
+                ancillaryDelayOverrideWarningPrinted_ = true;
+            }
+
             // Delays vector not including delays at receiving and transmitting stations: set them to 0
             if( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
             {
@@ -930,9 +940,40 @@ public:
         }
         else
         {
-            for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+            if( hasDefaultLinkEndDelayFunctions_ )
             {
-                linkEndsDelays_.push_back( 0.0 );
+                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+                {
+                    linkEndsDelays_.push_back(
+                            defaultLinkEndDelayFunctions_.at( i ) == nullptr ? 0.0 : defaultLinkEndDelayFunctions_.at( i )( ) );
+                }
+            }
+            else
+            {
+                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+                {
+                    linkEndsDelays_.push_back( 0.0 );
+                }
+            }
+        }
+    }
+
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        if( !defaultLinkEndDelayFunctions.empty( ) && defaultLinkEndDelayFunctions.size( ) != numberOfLinkEnds_ )
+        {
+            throw std::runtime_error( "Error when setting default link-end delay functions: size (" +
+                                      std::to_string( defaultLinkEndDelayFunctions.size( ) ) +
+                                      ") is inconsistent with number of link ends (" + std::to_string( numberOfLinkEnds_ ) + ")." );
+        }
+        defaultLinkEndDelayFunctions_ = defaultLinkEndDelayFunctions;
+        hasDefaultLinkEndDelayFunctions_ = false;
+        for( const auto& defaultLinkEndDelayFunction : defaultLinkEndDelayFunctions_ )
+        {
+            if( defaultLinkEndDelayFunction != nullptr )
+            {
+                hasDefaultLinkEndDelayFunctions_ = true;
+                break;
             }
         }
     }
@@ -1229,6 +1270,10 @@ private:
 
     std::vector< double > linkEndsDelays_;
 
+    std::vector< std::function< double( ) > > defaultLinkEndDelayFunctions_;
+
+    bool hasDefaultLinkEndDelayFunctions_;
+
     unsigned int startLinkEndIndex_;
 
     unsigned int iterationCounter_;
@@ -1236,6 +1281,8 @@ private:
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 
     const bool iterateMultiLegLightTime_;
+
+    bool ancillaryDelayOverrideWarningPrinted_;
 
     bool correctionsNeedFrequency_;
 };

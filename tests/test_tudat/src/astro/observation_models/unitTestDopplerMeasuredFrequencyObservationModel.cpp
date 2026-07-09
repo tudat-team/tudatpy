@@ -134,13 +134,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         // Ancillary Settings
         std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection;
         std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
-        std::vector< std::string > columnTypes = {
-            "scan_number",     "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz",
-            "doppler_noise_hz"
-        };
         if( testType == 0 )
         {
-            std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, columnTypes );
+            std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, FdetDateFormat::datetime_string );
             fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
             fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
             fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6 );
@@ -150,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         else
         {
             observationCollection = createFdetsObservedObservationCollectionFromFile(
-                    juiceDataFile, 8422.49E6, columnTypes, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
+                    juiceDataFile, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
         }
 
         auto observationTimes = observationCollection->getConcatenatedObservationTimes( );
