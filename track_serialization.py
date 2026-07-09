@@ -41,7 +41,8 @@ class ClassInfo:
     is_settings: bool = False
     header_file: str = ""
     has_save_load: bool = False
-    has_equals: bool = False
+    has_operator_eq: bool = False
+    has_equals_method: bool = False
     cpp_test_files: list = field(default_factory=list)
     py_expose_file: str = ""
     py_has_equals: bool = False
@@ -71,11 +72,20 @@ def is_settings_class(name: str) -> bool:
 def scan_headers() -> dict[str, ClassInfo]:
     """Build inventory of all interesting classes from headers.
 
-    For each header file, find all class declarations, then check whether
-    the file contains save/load pairs, operator==, and which classes are
-    settings classes.
+    For each header file, find all class declarations, then check
+    per-class whether the class body contains save/load pairs and
+    operator==, and which classes are settings classes.
     """
     results: dict[str, ClassInfo] = {}
+
+    # Patterns for class/struct bodies: capture class name and position of '{'
+    class_start_re = re.compile(
+        r"(?:^|\n)\s*(?:class|struct)\s+(\w+)\s+[^{;]{0,2000}(\{)", re.MULTILINE
+    )
+    save_re = re.compile(r"void\s+save\s*\(\s*[^)]*Archive[^)]*\)")
+    load_re = re.compile(r"void\s+load\s*\(\s*[^)]*Archive[^)]*\)")
+    operator_eq_re = re.compile(r"(?:friend\s+)?(?:bool|auto)\s+operator\s*==\s*\([^)]*\)")
+    equals_method_re = re.compile(r"bool\s+equals\s*\([^)]*\)\s*const(?:\s+override)?")
 
     for hdr in sorted(INCLUDE_DIR.rglob("*.h")):
         rel = str(hdr.relative_to(ROOT))
@@ -84,37 +94,41 @@ def scan_headers() -> dict[str, ClassInfo]:
         except Exception:
             continue
 
-        # Find all class declarations.
-        # Handle both: 'class Foo ... {' and 'template<...> class Foo ... {'
-        # where the template may span multiple lines and contain nested <>.
-        #
-        # Strategy: find all 'class Name ... {' and then look backwards
-        # up to 10 lines for a 'template<' prefix.
-        # Match class/struct definitions (not forward declarations).
-        # [^{;] means the regex fails for `class Foo;` because `;` arrives
-        # before `{` — so forward declarations are silently skipped.
-        # Won't match multi-line templates with trailing `;` in same line
-        # either, which is the desired behavior.
-        simple_class = re.compile(
-            r"(?:^|\n)\s*(?:class|struct)\s+(\w+)\s+[^{;]{0,2000}\{", re.MULTILINE
-        )
-        classes = set()
-        for m in simple_class.finditer(content):
+        # Find each class/struct with its opening brace position
+        # Build list of (cls_name, body_start, body_end) where body
+        # is the text between the opening '{' and matching '}'.
+        classes = []
+        for m in class_start_re.finditer(content):
             cls_name = m.group(1)
-            classes.add(cls_name)
+            brace_start = m.start(2)  # position of '{'
+            # Walk forward to find matching '}' (tracking brace depth)
+            depth = 0
+            pos = brace_start
+            while pos < len(content):
+                ch = content[pos]
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                pos += 1
+            if depth != 0:
+                # Unmatched braces — skip
+                continue
+            classes.append((cls_name, brace_start, pos + 1))
 
-        # Check for save/load pairs
-        has_save = bool(re.search(r"void\s+save\s*\(\s*[^)]*Archive[^)]*\)", content))
-        has_load = bool(re.search(r"void\s+load\s*\(\s*[^)]*Archive[^)]*\)", content))
+        for cls_name, body_start, body_end in classes:
+            # Extract class body text
+            body = content[body_start:body_end]
 
-        # Check for operator== (friend or member, inline or declaration)
-        has_equals = bool(
-            re.search(r"(?:friend\s+)?(?:bool|auto)\s+operator\s*==\s*\([^)]*\)", content)
-        )
-
-        for cls_name in classes:
             is_set = is_settings_class(cls_name)
-            if not (is_set or has_save or has_load or has_equals):
+            has_save = bool(save_re.search(body))
+            has_load = bool(load_re.search(body))
+            has_op_eq = bool(operator_eq_re.search(body))
+            has_eq_method = bool(equals_method_re.search(body))
+
+            if not (is_set or has_save or has_load or has_op_eq or has_eq_method):
                 continue
 
             if cls_name not in results:
@@ -128,8 +142,10 @@ def scan_headers() -> dict[str, ClassInfo]:
                 info.is_settings = True
             if has_save and has_load:
                 info.has_save_load = True
-            if has_equals:
-                info.has_equals = True
+            if has_op_eq:
+                info.has_operator_eq = True
+            if has_eq_method:
+                info.has_equals_method = True
 
     return results
 
@@ -309,6 +325,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         "Is Settings",
         "Save/Load",
         "operator==",
+        "equals() method",
         "C++ Roundtrip Test",
         "Python Exposure File",
         "Py Binding: operator==",
@@ -333,7 +350,8 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             cls_name,
             _yesno(info.is_settings),
             _yesno(info.has_save_load),
-            _yesno(info.has_equals),
+            _yesno(info.has_operator_eq),
+            _yesno(info.has_equals_method),
             _yesno(bool(info.cpp_test_files)),
             info.py_expose_file or "",
             _yesno(info.py_has_equals),
@@ -347,7 +365,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         for c, v in enumerate(vals, 1):
             cell = ws.cell(row=row, column=c, value=v)
             cell.alignment = wrap
-            if c in (2, 3, 4, 5, 7, 8, 9, 10):
+            if c in (2, 3, 4, 5, 6, 8, 9, 10, 11):
                 cell.alignment = center
                 if v == "✓":
                     cell.fill = yes_fill
@@ -357,7 +375,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             ws.cell(row=row, column=1).fill = settings_fill
         row += 1
 
-    col_widths = [40, 12, 12, 12, 20, 50, 24, 22, 30, 22, 55, 55, 55]
+    col_widths = [40, 12, 12, 12, 16, 20, 50, 24, 22, 30, 22, 55, 55, 55]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws.freeze_panes = "A2"
@@ -383,7 +401,8 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             ("Metric", "All Classes", "Settings Only"),
             ("Total", total, settings),
             ("Has save/load", _c("has_save_load"), _c("has_save_load", True)),
-            ("Has operator==", _c("has_equals"), _c("has_equals", True)),
+            ("Has operator==", _c("has_operator_eq"), _c("has_operator_eq", True)),
+            ("Has equals() method", _c("has_equals_method"), _c("has_equals_method", True)),
             ("C++ roundtrip test", _cb("cpp_test_files"), _cb("cpp_test_files", True)),
             ("Py Binding: operator==", _c("py_has_equals"), _c("py_has_equals", True)),
             ("Py Binding: pickle", _c("py_has_pickle"), _c("py_has_pickle", True)),
@@ -407,6 +426,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         "Class",
         "Save/Load",
         "operator==",
+        "equals() method",
         "C++ Test",
         "Py Binding: operator==",
         "Py Binding: pickle",
@@ -427,7 +447,8 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         vals = [
             cls_name,
             _yesno(info.has_save_load),
-            _yesno(info.has_equals),
+            _yesno(info.has_operator_eq),
+            _yesno(info.has_equals_method),
             _yesno(bool(info.cpp_test_files)),
             _yesno(info.py_has_equals),
             _yesno(info.py_has_pickle),
@@ -437,7 +458,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         ]
         for c, v in enumerate(vals, 1):
             cell = ws3.cell(row=row, column=c, value=v)
-            if c in (2, 3, 4, 5, 6, 7, 8):
+            if c in (2, 3, 4, 5, 6, 7, 8, 9):
                 cell.alignment = center
                 if v == "✓":
                     cell.fill = yes_fill
@@ -445,7 +466,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
                     cell.fill = no_fill
         row += 1
 
-    for i, w in enumerate([45, 12, 14, 12, 24, 22, 30, 12, 60], 1):
+    for i, w in enumerate([45, 12, 14, 16, 12, 24, 22, 30, 12, 60], 1):
         ws3.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws3.freeze_panes = "A2"
     ws3.auto_filter.ref = f"A1:{openpyxl.utils.get_column_letter(len(s_headers))}{row - 1}"
@@ -465,7 +486,8 @@ def write_csv(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
                 "Class": cls_name,
                 "Is Settings": "yes" if info.is_settings else "no",
                 "Save/Load": "yes" if info.has_save_load else "no",
-                "operator==": "yes" if info.has_equals else "no",
+                "operator==": "yes" if info.has_operator_eq else "no",
+                "equals() method": "yes" if info.has_equals_method else "no",
                 "C++ Roundtrip Test": "yes" if info.cpp_test_files else "no",
                 "Python Exposure File": info.py_expose_file,
                 "Py Binding: operator==": "yes" if info.py_has_equals else "no",
@@ -525,7 +547,8 @@ def main():
     # Quick summary
     total = len(class_infos)
     sl = sum(1 for i in class_infos.values() if i.has_save_load)
-    eq = sum(1 for i in class_infos.values() if i.has_equals)
+    op_eq = sum(1 for i in class_infos.values() if i.has_operator_eq)
+    eq_method = sum(1 for i in class_infos.values() if i.has_equals_method)
     cpp = sum(1 for i in class_infos.values() if i.cpp_test_files)
     py_eq = sum(1 for i in class_infos.values() if i.py_has_equals)
     py_pk = sum(1 for i in class_infos.values() if i.py_has_pickle)
@@ -534,7 +557,9 @@ def main():
     settings = sum(1 for i in class_infos.values() if i.is_settings)
     print(f"\n{'='*60}")
     print(f"  Total: {total}  |  Settings: {settings}")
-    print(f"  save/load: {sl}  |  operator==: {eq}  |  C++ tests: {cpp}")
+    print(
+        f"  save/load: {sl}  |  operator==: {op_eq}  |  equals(): {eq_method}  |  C++ tests: {cpp}"
+    )
     print(
         f"  Py Binding: operator==: {py_eq}  |  Py Binding: pickle: {py_pk}  |  Py Binding: file I/O: {py_st}"
     )
