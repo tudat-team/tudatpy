@@ -270,8 +270,16 @@ def scan_python_exposure(class_infos: dict[str, ClassInfo]) -> None:
                 seg_end = len(content)
             segment = content[template_end:seg_end]
 
-            has_eq = bool(re.search(r'"__eq__"', segment) or re.search(r"py::self\s*==", segment))
-            has_pickle = "py::pickle" in segment or "make_pickle" in segment
+            has_eq = bool(
+                re.search(r'"__eq__"', segment)
+                or re.search(r"py::self\s*==", segment)
+                or re.search(r"TUDATPY_DEF_EQ_NE\s*\(", segment)
+            )
+            has_pickle = (
+                "py::pickle" in segment
+                or "make_pickle" in segment
+                or bool(re.search(r"TUDATPY_DEF_PICKLE", segment))
+            )
             has_save = bool(
                 re.search(r'"save_(?:to_)?(?:json|binary|bin)"', segment)
                 or re.search(r'"load_(?:from_)?(?:json|binary|bin)"', segment)
