@@ -129,11 +129,11 @@ void checkUtcOffsets( const std::shared_ptr< SingleObservationSet< double, doubl
 BOOST_AUTO_TEST_CASE( testProcessOdfData )
 {
     // Define ODF data paths
-    std::string odFile = tudat::paths::getTudatTestDataPath( ) + "/odf07155.odf";
+    std::string odfFile = tudat::paths::getTudatTestDataPath( ) + "/odf07155.odf";
 
     // Process ODF file data
     std::string spacecraftName = "MESSENGER";
-    auto [ trackingDataList, supplementaryData ] = loadOdfFile( std::vector< std::string >{ odFile }, spacecraftName, "Earth" );
+    auto [ trackingDataList, supplementaryData ] = loadOdfFile( std::vector< std::string >{ odfFile }, spacecraftName, "Earth" );
 
     spice_interface::loadStandardSpiceKernels( );
     // Create settings for default bodies
