@@ -1195,7 +1195,7 @@ std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeTyp
             for( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
                 auto currentTrackingDataSet = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >(
-                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver" );
+                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver", "UTC" );
 
                 setOdfMetadataInTrackingData( currentTrackingDataSet, ancillaryData.at( i ) );
                 trackingDataSets.push_back( currentTrackingDataSet );
