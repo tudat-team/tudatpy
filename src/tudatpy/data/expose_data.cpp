@@ -30,9 +30,12 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/readVariousPdsFiles.h"
+#include "tudat/io/preProcessFdetsFile.h"
+#include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/io/solarActivityData.h"
 #include "coma_model/expose_coma_model.h"
 #include "tudat/io/trackingData.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -821,6 +824,24 @@ Read a mapping from DOMES id to station name.
            ifms_contents : TrackingTxtFileContents
                Dictionary with contents of the IFMS file as lists of strings
            )doc" );
+
+    m.def( "read_ifms_files",
+           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< double, double > > >,
+                                   std::vector< std::shared_ptr< tudat::data::TrackingSupplementaryData > > > ( * )(
+                   const std::vector< std::string >&,
+                   const std::string&,
+                   const std::vector< std::string >&,
+                   const std::string&,
+                   const bool,
+                   const bool ) >( &tio::readIfmsFiles< double, double > ),
+           py::arg( "ifms_file_names" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "ground_station_names" ),
+           py::arg( "earth_name" ) = "Earth",
+           py::arg( "apply_tropospheric_correction" ) = true,
+           py::arg( "remove_invalid_lines" ) = true,
+           R"doc(Load IFMS files into tracking data and supplementary data objects.)doc" );
+
     m.def( "set_estrack_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
                               const std::vector< std::string >&,
@@ -886,25 +907,47 @@ Read a mapping from DOMES id to station name.
                Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 
-    py::class_< tudat::data::TrackingData<> >( m, "TrackingData", R"doc(
+    m.def( "read_fdets_files",
+           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< double, double > > >,
+                                   std::vector< std::shared_ptr< tudat::data::TrackingSupplementaryData > > > ( * )(
+                   const std::vector< std::string >&,
+                   const std::vector< double >&,
+                   const tio::FdetDateFormat,
+                   const std::string&,
+                   const std::vector< std::string >&,
+                   const std::vector< std::string >&,
+                   const std::string& ) >( &tio::readFdetsFiles< double, double > ),
+           py::arg( "fdets_file_names" ),
+           py::arg( "base_frequencies" ),
+           py::arg( "date_format" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "transmitting_station_names" ),
+           py::arg( "receiving_station_names" ),
+           py::arg( "earth_name" ) = "Earth",
+           R"doc(Load FDETS files into tracking data and supplementary data objects.)doc" );
+
+    py::class_< tudat::data::TrackingData<>, std::shared_ptr< tudat::data::TrackingData<> > >( m, "TrackingData", R"doc(
  TrackingData Class container.
     )doc" )
             .def( py::init< const std::string,
                             const tudat::data::PlainLinkDefinition&,
                             const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
                             const std::vector< double >,
+                            const std::string,
                             const std::string >( ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "observations" ),
                   py::arg( "epochs" ),
                   py::arg( "reference_link_end" ),
+                  py::arg( "time_scale" ) = "TDB",
                   R"doc(Creates a TrackingData object.)doc" )
             .def_property_readonly( "observable_type", &tudat::data::TrackingData<>::getObservableType )
             .def_property_readonly( "link_ends", &tudat::data::TrackingData<>::getLinkEnds )
             .def_property_readonly( "observations", &tudat::data::TrackingData<>::getObservations )
             .def_property_readonly( "epochs", &tudat::data::TrackingData<>::getObservationEpochs )
             .def_property_readonly( "reference_link_end", &tudat::data::TrackingData<>::getReferenceLinkEnd )
+            .def_property_readonly( "time_scale", &tudat::data::TrackingData<>::getTimeScale )
             .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< std::string > >(
                           &tudat::data::TrackingData<>::addAncillarySettings ),
@@ -965,6 +1008,11 @@ Read a mapping from DOMES id to station name.
                   ( &tudat::data::TrackingData<>::removeSingleObservationEntry ),
                   py::arg( "index" ),
                   R"doc(Removes a single observation entry from the TrackingData object.)doc" );
+
+    py::class_< tudat::data::TrackingSupplementaryData, std::shared_ptr< tudat::data::TrackingSupplementaryData > >(
+            m, "TrackingSupplementaryData", R"doc(Tracking supplementary data container.)doc" )
+            .def_property_readonly( "body_name", &tudat::data::TrackingSupplementaryData::getBodyName )
+            .def_property_readonly( "reference_point_name", &tudat::data::TrackingSupplementaryData::getReferencePointName );
 };
 
 }  // namespace data
