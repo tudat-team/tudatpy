@@ -195,6 +195,30 @@ public:
         return name;
     }
 
+    ObservationAncillarySimulationVariable getAncillaryVariableFromString( const std::string& name )
+    {
+        std::map< std::string, ObservationAncillarySimulationVariable > ancillaryVariableFromStringMap = {
+            { "link ends time delays", link_ends_delays },
+            { "frequency bands", frequency_bands },
+            { "Doppler observable integration time", doppler_integration_time },
+            { "DSN Doppler reference frequency", doppler_reference_frequency },
+            { "DSN reference frequency band at reception", reception_reference_frequency_band },
+            { "DSN sequential range lowest ranging component", sequential_range_lowest_ranging_component },
+            { "DSN range conversion factor from RU to meter", range_conversion_factor }
+        };
+
+        const auto it = ancillaryVariableFromStringMap.find( name );
+        if( it == ancillaryVariableFromStringMap.end( ) )
+        {
+            std::string validAncillaryVariableStrings;
+            for( const auto& entry : ancillaryVariableFromStringMap )
+                validAncillaryVariableStrings += ( validAncillaryVariableStrings.empty( ) ? "" : ", " ) + entry.first;
+            throw std::runtime_error( "Error when converting ancillary setting key " + name +
+                                      ", ancillary variable not recognised. Valid options are: " + validAncillaryVariableStrings + "." );
+        }
+        return it->second;
+    }
+
     void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable& variableType, const double variable )
     {
         switch( variableType )
@@ -377,6 +401,47 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDefaultAncil
             break;
     }
     return ancillarySettings;
+}
+
+std::vector< ObservationAncillarySimulationVariable > getListRequiredAncillaryVariables(
+        const observation_models::ObservableType observableType )
+{
+    switch( observableType )
+    {
+        case observation_models::one_way_differenced_range:
+        case observation_models::n_way_differenced_range:
+            return { doppler_integration_time };
+        case observation_models::dsn_n_way_averaged_doppler:
+            return { doppler_integration_time, doppler_reference_frequency, reception_reference_frequency_band, frequency_bands };
+        case observation_models::dsn_n_way_range:
+            return { sequential_range_lowest_ranging_component, frequency_bands };
+        case observation_models::doppler_measured_frequency:
+        case observation_models::one_way_doppler_measured_frequency:
+            return { frequency_bands };
+        default:
+            return {};
+    }
+}
+
+void checkTrackingDataAncillarySettings( const observation_models::ObservableType observableType,
+                                         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    // Extract ancillary data
+    const auto doubleData = ancillarySettings->getDoubleData( );
+    const auto doubleVectorData = ancillarySettings->getDoubleVectorData( );
+
+    std::vector< ObservationAncillarySimulationVariable > requiredAncillaryVariables = getListRequiredAncillaryVariables( observableType );
+
+    for( const ObservationAncillarySimulationVariable requiredAncillary : requiredAncillaryVariables )
+    {
+        bool ancillaryVariableDetected = doubleData.count( requiredAncillary ) > 0 || doubleVectorData.count( requiredAncillary ) > 0;
+        if( !ancillaryVariableDetected )
+        {
+            throw std::runtime_error( "Error when checking ancillary settings consistency: observable '" +
+                                      observation_models::getObservableName( observableType ) + "' requires ancillary setting '" +
+                                      ancillarySettings->getAncillaryDataName( requiredAncillary ) + "', which was not provided." );
+        }
+    }
 }
 
 }  // namespace observation_models
