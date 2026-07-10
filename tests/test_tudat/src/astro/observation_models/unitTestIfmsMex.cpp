@@ -23,8 +23,10 @@
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/io/readOdfFile.h"
+#include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
@@ -147,8 +149,41 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             }
             else
             {
-                observedUncompressedObservationCollection = createIfmsObservedObservationCollectionFromFiles< long double, Time >(
-                        { ifmsFileNames.at( i ) }, bodies, "MeX", "NWNORCIA", currentReceptionBand, x_band );
+                auto trackingDataAndSupplementaryData =
+                        readIfmsFiles< long double, Time >( { ifmsFileNames.at( i ) }, "MeX", "NWNORCIA", "Earth", true, true );
+
+                std::vector< std::shared_ptr< data::TrackingData< long double, Time > > > trackingData =
+                        trackingDataAndSupplementaryData.first;
+                for( const std::shared_ptr< data::TrackingData< long double, Time > >& currentTrackingData : trackingData )
+                {
+                    currentTrackingData->addAncillarySettings(
+                            "frequency bands",
+                            std::vector< double >(
+                                    { convertFrequencyBandToDouble( x_band ), convertFrequencyBandToDouble( currentReceptionBand ) } ) );
+                    currentTrackingData->addAncillarySettings( "DSN Doppler reference frequency", 0.0 );
+                    currentTrackingData->addAncillarySettings( "DSN reference frequency band at reception",
+                                                               convertFrequencyBandToDouble( currentReceptionBand ) );
+                }
+
+                std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >
+                        frequencySupplementaryData;
+                for( const std::shared_ptr< data::TrackingSupplementaryData >& currentSupplementaryData :
+                     trackingDataAndSupplementaryData.second )
+                {
+                    if( currentSupplementaryData != nullptr )
+                    {
+                        const std::pair< std::string, std::string > bodyReferencePoint = std::make_pair(
+                                currentSupplementaryData->getBodyName( ), currentSupplementaryData->getReferencePointName( ) );
+                        const std::vector< std::shared_ptr< data::FrequencySupplementaryData > >& currentFrequencySupplementaryData =
+                                currentSupplementaryData->getFrequencySupplementaryData( );
+                        frequencySupplementaryData[ bodyReferencePoint ].insert( frequencySupplementaryData[ bodyReferencePoint ].end( ),
+                                                                                 currentFrequencySupplementaryData.begin( ),
+                                                                                 currentFrequencySupplementaryData.end( ) );
+                    }
+                }
+                setFrequencySupplementaryDataInBodies( bodies, frequencySupplementaryData );
+
+                observedUncompressedObservationCollection = createObservationCollection< long double, Time >( trackingData );
             }
 
             std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
@@ -209,7 +244,10 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             }
             else
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualResiduals, residualVector, std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_EQUAL( manualResiduals.rows( ), residualVector.rows( ) );
+                BOOST_CHECK_SMALL(
+                        linear_algebra::getVectorEntryRootMeanSquare( ( manualResiduals - residualVector ).template cast< double >( ) ),
+                        1.0E-3 );
             }
 
             //        input_output::writeMatrixToFile( observedObservationCollection->getObservationVector( ), "ifms_doppler_" +

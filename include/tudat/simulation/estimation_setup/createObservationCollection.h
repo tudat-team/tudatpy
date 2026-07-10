@@ -51,34 +51,29 @@ inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
             interpolators::createOneDimensionalInterpolator( castStateHistory, interpolators::linearInterpolation( ) ) );
 }
 
-inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-        const std::map< double, Eigen::Vector6d >& stateHistory,
-        const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
-        const std::string& bodyName )
+inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,
+                                                                          const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
+                                                                          const std::string& bodyName )
 {
     if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, double > >( ephemeris ) != nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, double > >( ephemeris ) );
+                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, double > >( ephemeris ) );
     }
     else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, double > >( ephemeris ) );
+                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, double > >( ephemeris ) );
     }
     else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, Time > >( ephemeris ) );
+                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, Time > >( ephemeris ) );
     }
     else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) );
+                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) );
     }
     else
     {
@@ -125,8 +120,7 @@ inline void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHisto
                 rotationalStateHistory,
                 std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ) );
     }
-    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) !=
-             nullptr )
+    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) != nullptr )
     {
         resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
                 rotationalStateHistory,
@@ -183,8 +177,7 @@ inline std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVeloc
 
                     const double previousCoefficient =
                             ( currentTime - nextTime ) / ( ( previousTime - currentTime ) * ( previousTime - nextTime ) );
-                    const double currentCoefficient =
-                            ( 2.0 * currentTime - previousTime - nextTime ) /
+                    const double currentCoefficient = ( 2.0 * currentTime - previousTime - nextTime ) /
                             ( ( currentTime - previousTime ) * ( currentTime - nextTime ) );
                     const double nextCoefficient =
                             ( currentTime - previousTime ) / ( ( nextTime - previousTime ) * ( nextTime - currentTime ) );
@@ -202,11 +195,10 @@ inline std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVeloc
     return stateHistory;
 }
 
-
 inline void setTranslationalStateSupplementaryDataInBodies(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
-            translationalStateSupplementaryData )
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
+                translationalStateSupplementaryData )
 {
     for( auto it = translationalStateSupplementaryData.begin( ); it != translationalStateSupplementaryData.end( ); ++it )
     {
@@ -214,7 +206,9 @@ inline void setTranslationalStateSupplementaryDataInBodies(
         std::string referencePointName = it->first.second;
         if( referencePointName != "" )
         {
-            throw std::runtime_error( "Error, reference point ID for setting ephemeris from tracking supplementary data must be empty, but found " + referencePointName );
+            throw std::runtime_error(
+                    "Error, reference point ID for setting ephemeris from tracking supplementary data must be empty, but found " +
+                    referencePointName );
         }
         std::map< double, Eigen::Vector6d > stateHistory;
         std::vector< std::pair< double, std::pair< Eigen::Vector6d, Eigen::Vector6d > > > inconsistentDuplicateStateHistoryEntries;
@@ -228,14 +222,13 @@ inline void setTranslationalStateSupplementaryDataInBodies(
             }
             else if( it->second.at( i ).getFrameOrigin( ) != frameOrigin )
             {
-                throw std::runtime_error( "Error, inconsistent frame origins found when setting translational state from tracking "
-                                          "supplementary data for body " +
-                                          bodyName + ". Found " + it->second.at( i ).getFrameOrigin( ) + " but expected " +
-                                          frameOrigin + "." );
+                throw std::runtime_error(
+                        "Error, inconsistent frame origins found when setting translational state from tracking "
+                        "supplementary data for body " +
+                        bodyName + ". Found " + it->second.at( i ).getFrameOrigin( ) + " but expected " + frameOrigin + "." );
             }
 
-            std::map< double, Eigen::Vector6d > currentStateHistory =
-                    getTranslationalStateHistoryWithVelocity( it->second.at( i ) );
+            std::map< double, Eigen::Vector6d > currentStateHistory = getTranslationalStateHistoryWithVelocity( it->second.at( i ) );
             for( auto stateIterator = currentStateHistory.begin( ); stateIterator != currentStateHistory.end( ); ++stateIterator )
             {
                 if( stateHistory.count( stateIterator->first ) == 0 )
@@ -244,9 +237,8 @@ inline void setTranslationalStateSupplementaryDataInBodies(
                 }
                 else if( !stateHistory.at( stateIterator->first ).isApprox( stateIterator->second, 0.0 ) )
                 {
-                    inconsistentDuplicateStateHistoryEntries.push_back(
-                            std::make_pair( stateIterator->first,
-                                            std::make_pair( stateHistory.at( stateIterator->first ), stateIterator->second ) ) );
+                    inconsistentDuplicateStateHistoryEntries.push_back( std::make_pair(
+                            stateIterator->first, std::make_pair( stateHistory.at( stateIterator->first ), stateIterator->second ) ) );
                 }
             }
         }
@@ -282,9 +274,9 @@ inline void setTranslationalStateSupplementaryDataInBodies(
 }
 
 inline void setRotationalStateSupplementaryDataInBodies(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::map< std::pair< std::string, std::string >, std::vector< data::RotationalStateSupplementaryData > >&
-            rotationalStateSupplementaryData )
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< data::RotationalStateSupplementaryData > >&
+                rotationalStateSupplementaryData )
 {
     for( auto it = rotationalStateSupplementaryData.begin( ); it != rotationalStateSupplementaryData.end( ); ++it )
     {
@@ -292,10 +284,14 @@ inline void setRotationalStateSupplementaryDataInBodies(
         std::string referencePointName = it->first.second;
         if( referencePointName != "" )
         {
-            throw std::runtime_error( "Error, reference point ID for setting rotational ephemeris from tracking supplementary data must be empty, but found " + referencePointName );
+            throw std::runtime_error(
+                    "Error, reference point ID for setting rotational ephemeris from tracking supplementary data must be empty, but "
+                    "found " +
+                    referencePointName );
         }
         std::map< double, Eigen::Vector7d > rotationalStateHistory;
-        std::vector< std::pair< double, std::pair< Eigen::Vector7d, Eigen::Vector7d > > > inconsistentDuplicateRotationalStateHistoryEntries;
+        std::vector< std::pair< double, std::pair< Eigen::Vector7d, Eigen::Vector7d > > >
+                inconsistentDuplicateRotationalStateHistoryEntries;
         std::string baseFrameOrientation;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
@@ -306,16 +302,15 @@ inline void setRotationalStateSupplementaryDataInBodies(
             }
             else if( it->second.at( i ).getBaseFrameOrientation( ) != baseFrameOrientation )
             {
-                throw std::runtime_error( "Error, inconsistent base frame orientations found when setting rotational state from tracking "
-                                          "supplementary data for body " +
-                                          bodyName + ". Found " + it->second.at( i ).getBaseFrameOrientation( ) + " but expected " +
-                                          baseFrameOrientation + "." );
+                throw std::runtime_error(
+                        "Error, inconsistent base frame orientations found when setting rotational state from tracking "
+                        "supplementary data for body " +
+                        bodyName + ". Found " + it->second.at( i ).getBaseFrameOrientation( ) + " but expected " + baseFrameOrientation +
+                        "." );
             }
 
-            const std::map< double, Eigen::Vector7d >& currentRotationalStateHistory =
-                    it->second.at( i ).getRotationalStateHistory( );
-            for( auto stateIterator = currentRotationalStateHistory.begin( );
-                 stateIterator != currentRotationalStateHistory.end( );
+            const std::map< double, Eigen::Vector7d >& currentRotationalStateHistory = it->second.at( i ).getRotationalStateHistory( );
+            for( auto stateIterator = currentRotationalStateHistory.begin( ); stateIterator != currentRotationalStateHistory.end( );
                  ++stateIterator )
             {
                 if( rotationalStateHistory.count( stateIterator->first ) == 0 )
@@ -326,8 +321,7 @@ inline void setRotationalStateSupplementaryDataInBodies(
                 {
                     inconsistentDuplicateRotationalStateHistoryEntries.push_back(
                             std::make_pair( stateIterator->first,
-                                            std::make_pair( rotationalStateHistory.at( stateIterator->first ),
-                                                            stateIterator->second ) ) );
+                                            std::make_pair( rotationalStateHistory.at( stateIterator->first ), stateIterator->second ) ) );
                 }
             }
         }
@@ -349,28 +343,26 @@ inline void setRotationalStateSupplementaryDataInBodies(
                                           ", existing rotational ephemeris is not tabulated." );
             }
 
-            resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
-                    rotationalStateHistory, rotationalEphemeris, bodyName );
+            resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory( rotationalStateHistory, rotationalEphemeris, bodyName );
         }
         else
         {
             std::map< Time, Eigen::Vector7d > timeRotationalStateHistory;
             utilities::castMatrixMap< double, double, Time, double, 7, 1 >( rotationalStateHistory, timeRotationalStateHistory );
             bodies.at( bodyName )
-                    ->setRotationalEphemeris(
-                            std::make_shared< ephemerides::TabulatedRotationalEphemeris< double, Time > >(
-                                    interpolators::createOneDimensionalInterpolator( timeRotationalStateHistory,
-                                                                                     interpolators::linearInterpolation( ) ),
-                                    baseFrameOrientation,
-                                    bodyName + "_Fixed" ) );
+                    ->setRotationalEphemeris( std::make_shared< ephemerides::TabulatedRotationalEphemeris< double, Time > >(
+                            interpolators::createOneDimensionalInterpolator( timeRotationalStateHistory,
+                                                                             interpolators::linearInterpolation( ) ),
+                            baseFrameOrientation,
+                            bodyName + "_Fixed" ) );
         }
     }
 }
 
 inline void setFrequencySupplementaryDataInBodies(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >&
-            frequencySupplementaryData )
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >&
+                frequencySupplementaryData )
 {
     for( auto it = frequencySupplementaryData.begin( ); it != frequencySupplementaryData.end( ); ++it )
     {
@@ -389,16 +381,15 @@ inline void setFrequencySupplementaryDataInBodies(
         {
             if( it->second.at( i ) == nullptr )
             {
-                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName + ": frequency data entry is null." );
+                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": frequency data entry is null." );
             }
 
             if( i > 0 &&
                 it->second.at( i )->getFrequencySupplementaryDataType( ) != it->second.at( 0 )->getFrequencySupplementaryDataType( ) )
             {
-                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName +
-                                          ": all frequency supplementary data entries must have the same type." );
+                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": all frequency supplementary data entries must have the same type." );
             }
 
             if( it->second.at( i )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
@@ -407,8 +398,8 @@ inline void setFrequencySupplementaryDataInBodies(
                         std::dynamic_pointer_cast< data::RampedFrequencySupplementaryData >( it->second.at( i ) );
                 if( rampedFrequencySupplementaryData == nullptr )
                 {
-                    throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName +
-                                              ", reference point " + referencePointName +
+                    throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                              referencePointName +
                                               ": frequency data type is ramped, but derived object type is inconsistent." );
                 }
                 const std::vector< data::RampedFrequencySupplementaryData::FrequencyRamp >& currentFrequencyRamps =
@@ -422,8 +413,8 @@ inline void setFrequencySupplementaryDataInBodies(
                         std::dynamic_pointer_cast< data::PiecewiseConstantFrequencySupplementaryData >( it->second.at( i ) );
                 if( piecewiseConstantFrequencySupplementaryData == nullptr )
                 {
-                    throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName +
-                                              ", reference point " + referencePointName +
+                    throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                              referencePointName +
                                               ": frequency data type is piecewise constant, but derived object type is inconsistent." );
                 }
                 piecewiseConstantFrequencyHistories.push_back( piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) );
@@ -499,7 +490,8 @@ inline void setFrequencySupplementaryDataInBodies(
                 else
                 {
                     std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
-                            std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( existingFrequencyCalculator );
+                            std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                                    existingFrequencyCalculator );
                     if( existingFrequencyInterpolator == nullptr )
                     {
                         throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
@@ -513,9 +505,9 @@ inline void setFrequencySupplementaryDataInBodies(
 }
 
 inline void setInstrumentSupplementaryDataInBodies(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
-            instrumentSupplementaryData )
+        simulation_setup::SystemOfBodies& bodies,
+        const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
+                instrumentSupplementaryData )
 {
     for( auto it = instrumentSupplementaryData.begin( ); it != instrumentSupplementaryData.end( ); ++it )
     {
@@ -526,8 +518,8 @@ inline void setInstrumentSupplementaryDataInBodies(
         {
             if( it->second.at( i ) == nullptr )
             {
-                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName + ": instrument data entry is null." );
+                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": instrument data entry is null." );
             }
 
             if( it->second.at( i )->getInstrumentSupplementaryDataType( ) == data::InstrumentSupplementaryDataType::camera_settings )
@@ -536,16 +528,16 @@ inline void setInstrumentSupplementaryDataInBodies(
                         std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( it->second.at( i ) );
                 if( cameraSupplementaryData == nullptr )
                 {
-                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName +
-                                              ", reference point " + referencePointName +
+                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName + ", reference point " +
+                                              referencePointName +
                                               ": instrument data type is camera, but derived object type is inconsistent." );
                 }
 
                 if( referencePointName != "" && referencePointName != cameraSupplementaryData->getCameraId( ) )
                 {
-                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName +
-                                              ", reference point " + referencePointName + " does not match camera id " +
-                                              cameraSupplementaryData->getCameraId( ) + "." );
+                    throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName + ", reference point " +
+                                              referencePointName + " does not match camera id " + cameraSupplementaryData->getCameraId( ) +
+                                              "." );
                 }
 
                 if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
@@ -553,10 +545,7 @@ inline void setInstrumentSupplementaryDataInBodies(
                     bodies.at( bodyName )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
                 }
 
-                if( bodies.at( bodyName )
-                            ->getVehicleSystems( )
-                            ->getCameraMap( )
-                            .count( cameraSupplementaryData->getCameraId( ) ) != 0 )
+                if( bodies.at( bodyName )->getVehicleSystems( )->getCameraMap( ).count( cameraSupplementaryData->getCameraId( ) ) != 0 )
                 {
                     throw std::runtime_error( "Error when setting camera supplementary data in body " + bodyName + ", camera " +
                                               cameraSupplementaryData->getCameraId( ) +
@@ -564,31 +553,28 @@ inline void setInstrumentSupplementaryDataInBodies(
                 }
 
                 std::shared_ptr< system_models::PsfCameraProjectionModel > projectionModel =
-                        std::make_shared< system_models::PsfCameraProjectionModel >(
-                                cameraSupplementaryData->getFocalLength( ),
-                                cameraSupplementaryData->getPrincipalPoint( ),
-                                cameraSupplementaryData->getKMatrix( ),
-                                cameraSupplementaryData->getDistortionCoefficients( ),
-                                cameraSupplementaryData->getMountingOffsets( ),
-                                cameraSupplementaryData->getFieldOfViewBounds( ) );
+                        std::make_shared< system_models::PsfCameraProjectionModel >( cameraSupplementaryData->getFocalLength( ),
+                                                                                     cameraSupplementaryData->getPrincipalPoint( ),
+                                                                                     cameraSupplementaryData->getKMatrix( ),
+                                                                                     cameraSupplementaryData->getDistortionCoefficients( ),
+                                                                                     cameraSupplementaryData->getMountingOffsets( ),
+                                                                                     cameraSupplementaryData->getFieldOfViewBounds( ) );
 
-                std::shared_ptr< simulation_setup::CameraSettings > cameraSettings =
-                        std::make_shared< simulation_setup::CameraSettings >(
-                                cameraSupplementaryData->getCameraId( ), Eigen::Vector3d::Zero( ), projectionModel );
+                std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
+                        cameraSupplementaryData->getCameraId( ), Eigen::Vector3d::Zero( ), projectionModel );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
             }
             else
             {
-                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName + ": unsupported instrument data type." );
+                throw std::runtime_error( "Error when setting instrument supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": unsupported instrument data type." );
             }
         }
     }
 }
 
-inline void setTrackingSupplementaryDataInBodies(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::vector< data::TrackingSupplementaryData >& supplementaryData )
+inline void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
+                                                  const std::vector< data::TrackingSupplementaryData >& supplementaryData )
 {
     std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >
             translationalStateSupplementaryData;
@@ -599,32 +585,63 @@ inline void setTrackingSupplementaryDataInBodies(
     std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >
             instrumentSupplementaryData;
 
-    for( const data::TrackingSupplementaryData& currentSupplementaryData: supplementaryData )
+    for( const data::TrackingSupplementaryData& currentSupplementaryData : supplementaryData )
     {
-        const std::pair< std::string, std::string > bodyReferencePoint = std::make_pair(
-                currentSupplementaryData.getBodyName( ), currentSupplementaryData.getReferencePointName( ) );
+        const std::pair< std::string, std::string > bodyReferencePoint =
+                std::make_pair( currentSupplementaryData.getBodyName( ), currentSupplementaryData.getReferencePointName( ) );
 
-        translationalStateSupplementaryData[ bodyReferencePoint ].push_back(
-                currentSupplementaryData.getTranslationalStateSupplementaryData( ) );
-        rotationalStateSupplementaryData[ bodyReferencePoint ].push_back( currentSupplementaryData.getRotationalStateSupplementaryData( ) );
+        if( !currentSupplementaryData.getTranslationalStateSupplementaryData( ).getStateHistory( ).empty( ) )
+        {
+            translationalStateSupplementaryData[ bodyReferencePoint ].push_back(
+                    currentSupplementaryData.getTranslationalStateSupplementaryData( ) );
+        }
+        if( !currentSupplementaryData.getRotationalStateSupplementaryData( ).getRotationalStateHistory( ).empty( ) )
+        {
+            rotationalStateSupplementaryData[ bodyReferencePoint ].push_back(
+                    currentSupplementaryData.getRotationalStateSupplementaryData( ) );
+        }
 
         const std::vector< std::shared_ptr< data::FrequencySupplementaryData > >& currentFrequencySupplementaryData =
                 currentSupplementaryData.getFrequencySupplementaryData( );
-        frequencySupplementaryData[ bodyReferencePoint ].insert( frequencySupplementaryData[ bodyReferencePoint ].end( ),
-                                                                 currentFrequencySupplementaryData.begin( ),
-                                                                 currentFrequencySupplementaryData.end( ) );
+        if( !currentFrequencySupplementaryData.empty( ) )
+        {
+            frequencySupplementaryData[ bodyReferencePoint ].insert( frequencySupplementaryData[ bodyReferencePoint ].end( ),
+                                                                     currentFrequencySupplementaryData.begin( ),
+                                                                     currentFrequencySupplementaryData.end( ) );
+        }
 
         const std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >& currentInstrumentSupplementaryData =
                 currentSupplementaryData.getInstrumentSupplementaryData( );
-        instrumentSupplementaryData[ bodyReferencePoint ].insert( instrumentSupplementaryData[ bodyReferencePoint ].end( ),
-                                                                  currentInstrumentSupplementaryData.begin( ),
-                                                                  currentInstrumentSupplementaryData.end( ) );
+        if( !currentInstrumentSupplementaryData.empty( ) )
+        {
+            instrumentSupplementaryData[ bodyReferencePoint ].insert( instrumentSupplementaryData[ bodyReferencePoint ].end( ),
+                                                                      currentInstrumentSupplementaryData.begin( ),
+                                                                      currentInstrumentSupplementaryData.end( ) );
+        }
     }
 
     setTranslationalStateSupplementaryDataInBodies( bodies, translationalStateSupplementaryData );
     setRotationalStateSupplementaryDataInBodies( bodies, rotationalStateSupplementaryData );
     setFrequencySupplementaryDataInBodies( bodies, frequencySupplementaryData );
     setInstrumentSupplementaryDataInBodies( bodies, instrumentSupplementaryData );
+}
+
+inline void setTrackingSupplementaryDataInBodies(
+        simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData )
+{
+    std::vector< data::TrackingSupplementaryData > supplementaryDataValues;
+    supplementaryDataValues.reserve( supplementaryData.size( ) );
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& currentSupplementaryData : supplementaryData )
+    {
+        if( currentSupplementaryData == nullptr )
+        {
+            throw std::runtime_error( "Error when setting tracking supplementary data in bodies, supplementary data entry is null." );
+        }
+        supplementaryDataValues.push_back( *currentSupplementaryData );
+    }
+
+    setTrackingSupplementaryDataInBodies( bodies, supplementaryDataValues );
 }
 
 }  // namespace observation_models

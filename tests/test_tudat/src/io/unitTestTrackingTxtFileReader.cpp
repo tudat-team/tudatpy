@@ -470,8 +470,17 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BOOST_CHECK_EQUAL( observations.at( 2 )( 0 ), dopplerBaseFrequency + 5978747.672510409728 );
     BOOST_CHECK_EQUAL( observations.at( observations.size( ) - 1 )( 0 ), dopplerBaseFrequency + 5977954.253958693705 );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-            utcObservationTime.epoch< Time >( ), epochs.at( epochs.size( ) - 1 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( utcObservationTime.epoch< Time >( ) ),
+                                static_cast< double >( epochs.at( epochs.size( ) - 1 ) ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< tom::ObservationCollection< double, Time > > observationCollection =
+            tom::createObservationCollection< double, Time >( trackingData );
+    std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+    Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+            utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), Eigen::Vector3d::Zero( ) );
+    BOOST_REQUIRE_EQUAL( observationCollectionEpochs.size( ), epochs.size( ) );
+    BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
 
 BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )
