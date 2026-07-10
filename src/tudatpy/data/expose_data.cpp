@@ -995,9 +995,6 @@ Read a mapping from DOMES id to station name.
                   py::arg( "observationWeight" ),
                   R"doc(Allows resetting of a single observation weight (specified by index i)  into the TrackingData object.
 						It also perfroms some necessary consistency checks.)doc" )
-            .def( "get_observation_corrections",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationCorrections,
-                  R"doc(Returns the list (of arrays) of observation corrections stored in the TrackingData object.)doc" )
             .def( "get_observation_weights",
                   &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights,
                   R"doc(Returns the list (of arrays) of observation weights stored in the TrackingData object.)doc" )
@@ -1016,7 +1013,7 @@ Read a mapping from DOMES id to station name.
                   R"doc(Allows resetting of a single observation correction (specified by index i)  into the TrackingData object.
 						It also perfroms some necessary consistency checks.)doc" )
             .def( "get_observation_corrections",
-                  &tudat::data::TrackingData<>::getObservationCorrections,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationCorrections,
                   R"doc(Returns the list (of arrays) of observation corrections stored in the TrackingData object.)doc" )
             .def( "remove_single_observation_entry",
                   ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry ),

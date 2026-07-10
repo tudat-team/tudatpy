@@ -588,7 +588,7 @@ class BatchMPC:
             # TODO: to be changed with a function that actually
             # retrieves reference_link_end_type and observable_type
             # for each entry in table
-            observable_type, reference_link_end_type = "angular_position_type", "receiver"
+            observable_type, reference_link_end_type = "AngularPosition", "receiver"
             ###############################################################################
 
             link_ends = [
