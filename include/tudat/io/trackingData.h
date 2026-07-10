@@ -202,6 +202,18 @@ public:
     }
 
     // Add ancillary settings (string type)
+    void addAncillarySettings( const std::string ancillarySettingsType, const std::string ancillarySettingsValue )
+    {
+        ancillarySettingsString_[ ancillarySettingsType ] = ancillarySettingsValue;
+    }
+
+    //! Function that returns map of ancillary settings (string type)
+    std::map< std::string, std::string > getAncillarySettingsString( ) const
+    {
+        return ancillarySettingsString_;
+    }
+
+    // Add ancillary settings (string type)
     void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< std::string > ancillarySettingsValue )
     {
         ancillarySettingsStringVector_[ ancillarySettingsType ] = ancillarySettingsValue;
@@ -440,6 +452,8 @@ private:
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
+
+    std::map< std::string, std::string > ancillarySettingsString_;
 
     std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
 

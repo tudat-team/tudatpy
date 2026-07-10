@@ -1221,7 +1221,8 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > extractTrackin
     for( auto const& [ stationName, rampTable ] : rampTables )
     {
         auto currentSupplementarySet = std::make_shared< data::TrackingSupplementaryData >( earthName, stationName );
-        currentSupplementarySet->setFrequencySupplementaryData( rampTable );
+        currentSupplementarySet->setFrequencySupplementaryData(
+                std::vector< std::shared_ptr< data::FrequencySupplementaryData > >( { rampTable } ) );
         trackingSupplementaryDataSets.push_back( currentSupplementarySet );
     }
 
