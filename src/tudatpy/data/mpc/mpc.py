@@ -620,5 +620,5 @@ class BatchMPC:
 
             tracking_data_objects.append(tracking_data_object)
 
-        # There is no supplementary data to return
+        # There is no supplementary data to return, return empty list
         return tracking_data_objects, list()
