@@ -21,6 +21,8 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/io/preProcessIfmsFile.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
 // Some simplifications for shorter lines
@@ -96,11 +98,16 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
                     static_cast< double >( trackingData.at( 0 )->getObservationEpochs( ).at( 9 - linesToBeSkipped.at( i ) ) - utcTimeTest ),
                     1.0E-12 );
 
+            simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
+            bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+            simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
             std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection =
-                    observation_models::createObservationCollection< double, Time >( trackingData );
+                    observation_models::createObservationCollection< double, Time >( trackingData, bodies );
             std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+            const Eigen::Vector3d earthFixedPosition =
+                    bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
             Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
-                    utc_scale, tdb_scale, utcTimeTest, Eigen::Vector3d::Zero( ) );
+                    utc_scale, tdb_scale, utcTimeTest, earthFixedPosition );
             BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
                                1.0E-12 );
         }

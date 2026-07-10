@@ -26,6 +26,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
 #include "tudat/io/preProcessFdetsFile.h"
@@ -474,11 +476,16 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
                                 static_cast< double >( epochs.at( epochs.size( ) - 1 ) ),
                                 10.0 * std::numeric_limits< double >::epsilon( ) );
 
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     std::shared_ptr< tom::ObservationCollection< double, Time > > observationCollection =
-            tom::createObservationCollection< double, Time >( trackingData );
+            tom::createObservationCollection< double, Time >( trackingData, bodies );
     std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+    const Eigen::Vector3d earthFixedPosition =
+            bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
     Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
-            utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), Eigen::Vector3d::Zero( ) );
+            utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), earthFixedPosition );
     BOOST_REQUIRE_EQUAL( observationCollectionEpochs.size( ), epochs.size( ) );
     BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
