@@ -55,16 +55,16 @@ std::string getFrequencyBandNameForOdfId( const int bandId )
     switch( bandId )
     {
         case 0:
-            frequencyBandName = "Ku";
+            frequencyBandName = "Ku-band";
             break;
         case 1:
-            frequencyBandName = "S";
+            frequencyBandName = "S-band";
             break;
         case 2:
-            frequencyBandName = "X";
+            frequencyBandName = "X-band";
             break;
         case 3:
-            frequencyBandName = "Ka";
+            frequencyBandName = "Ka-band";
             break;
         default:
             throw std::runtime_error( "Error when getting frequency band name for ODF band ID, ID: " + std::to_string( bandId ) +
@@ -115,7 +115,7 @@ data::PlainLinkDefinition getLinkEndsFromOdfBlock( const std::shared_ptr< input_
                                                          getStationNameFromStationId( commonDataBlock->transmittingStationNetworkId_,
                                                                                       commonDataBlock->transmittingStationId_ ) ),
                                          "transmitter" ),
-                         std::make_pair( std::make_pair( spacecraftName, "" ), "reflector1" ),
+                         std::make_pair( std::make_pair( spacecraftName, "" ), "reflector_1" ),
                          std::make_pair( std::make_pair( "Earth", getStationNameFromStationId( 0, commonDataBlock->receivingStationId_ ) ),
                                          "receiver" ) };
 
