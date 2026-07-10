@@ -19,7 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
@@ -266,21 +266,9 @@ void expose_ancillary_settings( py::module& m )
 
 
 
-     )doc" )
-            .def( py::pickle(
-                          []( const tom::ObservationAncillarySimulationSettings& obj ) {
-                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                          },
-                          []( py::bytes data ) {
-                              return tudat::serialization::deserializeFromBinaryString< tom::ObservationAncillarySimulationSettings >(
-                                      data.cast< std::string >( ) );
-                          } ),
-                  R"doc(Pickle support for ObservationAncillarySimulationSettings.)doc" )
-            .def( "__eq__", &tom::ObservationAncillarySimulationSettings::operator==, py::arg( "rhs" ) )
-            .def( "__ne__",
-                  []( const tom::ObservationAncillarySimulationSettings& self, const tom::ObservationAncillarySimulationSettings& other ) {
-                      return self != other;
-                  } );
+     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationAncillarySimulationSettings )
+                    TUDATPY_DEF_EQ_NE( tom::ObservationAncillarySimulationSettings )
+                            TUDATPY_DEF_FILE_IO( tom::ObservationAncillarySimulationSettings );
 
     py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
                                                                                        "ObservationIntermediateSimulationVariable",

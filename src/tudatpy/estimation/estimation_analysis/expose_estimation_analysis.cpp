@@ -25,7 +25,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
-#include <tudat/io/serialization/base.h>
+#include <tudat/io/serialization/pybind_helpers.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -923,20 +923,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput`
              Loaded object.
 
-      )doc" )
-            .def( py::pickle(
-                          []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                          },
-                          []( py::bytes data ) {
-                              return tudat::serialization::deserializeFromBinaryString<
-                                      tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
-                          } ),
-                  R"doc(Pickle support for CovarianceAnalysisOutput.)doc" )
-            .def( "__eq__", &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
-            .def( "__ne__",
-                  []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& self,
-                      const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
+      )doc" ) TUDATPY_DEF_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -1043,20 +1031,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
              Loaded object.
 
-      )doc" )
-            .def( py::pickle(
-                          []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& obj ) {
-                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                          },
-                          []( py::bytes data ) {
-                              return tudat::serialization::deserializeFromBinaryString<
-                                      tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( data.cast< std::string >( ) );
-                          } ),
-                  R"doc(Pickle support for EstimationOutput.)doc" )
-            .def( "__eq__", &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::operator==, py::arg( "rhs" ) )
-            .def( "__ne__",
-                  []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& self,
-                      const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& other ) { return self != other; } );
+      )doc" ) TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 

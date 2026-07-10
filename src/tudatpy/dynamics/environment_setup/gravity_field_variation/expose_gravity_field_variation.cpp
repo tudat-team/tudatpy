@@ -23,6 +23,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "tudat/io/serialization/pybind_helpers.h"
+
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tg = tudat::gravitation;
@@ -153,7 +155,7 @@ Variation model due to pole tides
          Base class for providing settings for gravity field variations.
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tss::GravityFieldVariationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::GravityFieldVariationSettings );
 
     py::class_< tss::BasicSolidBodyGravityFieldVariationSettings,
                 std::shared_ptr< tss::BasicSolidBodyGravityFieldVariationSettings >,
@@ -163,8 +165,7 @@ Variation model due to pole tides
 
          Class for providing settings for solid body tidal gravity field variations, derived from GravityFieldVariationSettings.
 
-      )doc" )
-
+      )doc" ) TUDATPY_DEF_EQ_NE( tss::BasicSolidBodyGravityFieldVariationSettings )
             .def( "set_mean_tidal_forcing_terms_to_subtract",
                   &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
                   py::arg( "mean_tidal_forcing_cosine_terms" ),

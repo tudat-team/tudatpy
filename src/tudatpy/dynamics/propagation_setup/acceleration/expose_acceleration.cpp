@@ -262,25 +262,23 @@ void expose_acceleration_setup( py::module& m )
          (see createAccelerationModels.h), but users may also chose to do so manually.
          (Derived) Class members are all public, for ease of access and modification.
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings >( ), R"doc(Pickle support for AccelerationSettings.)doc" )
-            .def( "__eq__", &tss::AccelerationSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::AccelerationSettings ) TUDATPY_DEF_EQ_NE( tss::AccelerationSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings )
+                    .def( "__hash__", []( const tss::AccelerationSettings& ) { return 0; } );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
 
     py::class_< tss::RadiationPressureAccelerationSettings,
-            std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
-            tss::AccelerationSettings >( m,
-                               "RadiationPressureAccelerationSettings",
-                               R"doc(
+                std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "RadiationPressureAccelerationSettings",
+                                             R"doc(
 
        `AccelerationSettings`-derived class to define settings for the radiation pressure acceleration.
 
-    )doc" )
-        .def( tse::make_pickle_polymorphic< tss::AccelerationSettings,
-                                tss::RadiationPressureAccelerationSettings >( ) )
-        .def( "__eq__", &tss::RadiationPressureAccelerationSettings::operator==, py::arg( "rhs" ) );
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RadiationPressureAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RadiationPressureAccelerationSettings );
 
     py::class_< tss::SphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::SphericalHarmonicAccelerationSettings >,
@@ -293,10 +291,9 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings >( ) )
-            .def( "__eq__", &tss::SphericalHarmonicAccelerationSettings::operator==, py::arg( "rhs" ) );
-    ;
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
+
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
@@ -317,9 +314,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings >( ) )
-            .def( "__eq__", &tss::MutualSphericalHarmonicAccelerationSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MutualSphericalHarmonicAccelerationSettings );
 
     py::class_< tss::FullTwoBodySphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::FullTwoBodySphericalHarmonicAccelerationSettings >,
@@ -357,9 +353,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::EmpiricalAccelerationSettings >( ) )
-            .def( "__eq__", &tss::EmpiricalAccelerationSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::EmpiricalAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::EmpiricalAccelerationSettings );
 
     py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -372,21 +367,18 @@ void expose_acceleration_setup( py::module& m )
          force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
          to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::RTGAccelerationSettings >( ) )
-            .def( "__eq__", &tss::RTGAccelerationSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RTGAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RTGAccelerationSettings );
 
-    py::class_< tss::YarkovskyAccelerationSettings,
-            std::shared_ptr< tss::YarkovskyAccelerationSettings >,
-            tss::AccelerationSettings >( m,
-                               "YarkovskyAccelerationSettings",
-                               R"doc(
+    py::class_< tss::YarkovskyAccelerationSettings, std::shared_ptr< tss::YarkovskyAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "YarkovskyAccelerationSettings",
+            R"doc(
 
        `AccelerationSettings`-derived class to define settings for the Yarkovsky acceleration.
 
-    )doc" )
-        .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::YarkovskyAccelerationSettings >( ) )
-        .def( "__eq__", &tss::YarkovskyAccelerationSettings::operator==, py::arg( "rhs" ) );
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -404,9 +396,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings >( ) )
-            .def( "__eq__", &tss::RelativisticAccelerationCorrectionSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings )
+            TUDATPY_DEF_EQ_NE( tss::RelativisticAccelerationCorrectionSettings );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -422,7 +413,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::CustomAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::CustomAccelerationSettings );
 
     py::class_< tss::DirectTidalDissipationAccelerationSettings,
                 std::shared_ptr< tss::DirectTidalDissipationAccelerationSettings >,
@@ -440,9 +432,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings >( ) )
-            .def( "__eq__", &tss::DirectTidalDissipationAccelerationSettings::operator==, py::arg( "rhs" ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::DirectTidalDissipationAccelerationSettings );
 
     py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
                 std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
@@ -459,8 +450,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings >( ) );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MomentumWheelDesaturationAccelerationSettings );
 
     py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -482,8 +473,8 @@ void expose_acceleration_setup( py::module& m )
             .def_property_readonly(
                     "magnitude_settings",
                     &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
-            .def( tse::make_pickle_polymorphic< tss::AccelerationSettings, tss::ThrustAccelerationSettings >( ) )
-            .def( "__eq__", &tss::ThrustAccelerationSettings::operator==, py::arg( "rhs" ) );
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
+                            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,

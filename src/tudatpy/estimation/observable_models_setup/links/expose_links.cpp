@@ -19,7 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/pybind_helpers.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tom = tudat::observation_models;
@@ -336,12 +336,7 @@ Examples
 
 
 
-      )doc" )
-            .def( py::pickle( []( const tom::LinkEndId& obj ) { return py::bytes( tudat::serialization::serializeToBinaryString( obj ) ); },
-                              []( py::bytes data ) {
-                                  return tudat::serialization::deserializeFromBinaryString< tom::LinkEndId >( data.cast< std::string >( ) );
-                              } ),
-                  R"doc(Pickle support for LinkEndId.)doc" )
+      )doc" ) TUDATPY_DEF_PICKLE( tom::LinkEndId )
             .def_property_readonly( "station_name",
                                     &tom::LinkEndId::getReferencePointName,
                                     R"doc(
@@ -349,9 +344,8 @@ Examples
       )doc" )
             .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
             .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
-            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) )
-            .def( "__eq__", []( const tom::LinkEndId& self, const tom::LinkEndId& other ) { return self == other; } )
-            .def( "__ne__", []( const tom::LinkEndId& self, const tom::LinkEndId& other ) { return self != other; } );
+            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) ) TUDATPY_DEF_EQ_NE( tom::LinkEndId )
+                    TUDATPY_DEF_FILE_IO( tom::LinkEndId );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -521,18 +515,8 @@ Examples
 
              Attribute that contains the dictionary with link end type (as key) and link end if (as value).
 
-          )doc" )
-            .def( py::pickle(
-                          []( const tom::LinkDefinition& obj ) {
-                              return py::bytes( tudat::serialization::serializeToBinaryString( obj ) );
-                          },
-                          []( py::bytes data ) {
-                              return tudat::serialization::deserializeFromBinaryString< tom::LinkDefinition >(
-                                      data.cast< std::string >( ) );
-                          } ),
-                  R"doc(Pickle support for LinkDefinition.)doc" )
-            .def( "__eq__", []( const tom::LinkDefinition& self, const tom::LinkDefinition& other ) { return self == other; } )
-            .def( "__ne__", []( const tom::LinkDefinition& self, const tom::LinkDefinition& other ) { return self != other; } );
+          )doc" ) TUDATPY_DEF_PICKLE( tom::LinkDefinition ) TUDATPY_DEF_EQ_NE( tom::LinkDefinition )
+                    TUDATPY_DEF_FILE_IO( tom::LinkDefinition );
 
     m.def( "link_definition",
            &tom::linkDefinition,
