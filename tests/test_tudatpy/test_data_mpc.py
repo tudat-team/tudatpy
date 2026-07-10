@@ -87,7 +87,7 @@ def test_create_observations_from_astropy_table(mpc_code):
     """Check if observatory table matches observation_collection"""
     query = BatchMPC()
     query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
+    # query.filter(observatories=["T05", "T08"])
     # table values are sorted for easier comparison
     query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
 

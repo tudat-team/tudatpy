@@ -176,8 +176,8 @@ class BatchMPC:
             self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
-        self._epoch_start = self._table.epoch_seconds_TDB.min()
-        self._epoch_end = self._table.epoch_seconds_TDB.max()
+        self._epoch_start = self._table.epoch.min()
+        self._epoch_end = self._table.epoch.max()
 
     def _get_station_info(self) -> None:
         """Internal. Retrieve data on MPC listed observatories."""
@@ -207,46 +207,6 @@ class BatchMPC:
 
         return df
 
-    def _add_time_columns(self, table: pd.DataFrame) -> pd.DataFrame:
-        """
-        Internal helper to add standardized time columns to an observation table.
-
-        This function takes a DataFrame with an 'epoch' column (in Julian Days, UTC)
-        and adds 'epoch_seconds_TDB' and 'epoch_seconds_UTC' columns.
-
-        Parameters
-        ----------
-        table : pd.DataFrame
-            The input DataFrame, which must contain an 'epoch' column.
-
-        Returns
-        -------
-        pd.DataFrame
-            The DataFrame with the new time columns added.
-        """
-
-        # Create DateTime objects from the Julian Day 'epoch' column
-        dt_objects = [DateTime.from_julian_day(jd) for jd in table["epoch"]]
-
-        # Get the default time scale converter
-        time_scale_converter = time_representation.default_time_scale_converter()
-
-        augmented_table = table.copy()
-        # Add 'epoch_seconds_UTC' column by converting DateTime Objects to epoch
-        augmented_table["epoch_seconds_UTC"] = [dt_obj.epoch() for dt_obj in dt_objects]
-
-        # Add 'epoch_seconds_TDB' column by converting from UTC to TDB
-        augmented_table["epoch_seconds_TDB"] = [
-            time_scale_converter.convert_time(
-                input_scale=time_representation.utc_scale,
-                output_scale=time_representation.tdb_scale,
-                input_value=t_utc,
-            )
-            for t_utc in augmented_table["epoch_seconds_UTC"]
-        ]
-
-        return augmented_table
-
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
         augmented_table = table.copy()
         augmented_table["custom_name"] = [custom_name] * len(augmented_table)
@@ -255,7 +215,6 @@ class BatchMPC:
     def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
         """Internal. Formats a table of observations, used in from_astropy and in from_pandas."""
         obs = table
-        obs = self._add_time_columns(obs)
         obs = self._add_custom_name_column(obs, custom_name)
         if in_degrees:
             obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
@@ -357,8 +316,7 @@ class BatchMPC:
             obs = self._standardize_dataframe(obs)
             obs = self._add_custom_name_column(obs, custom_name)
 
-            # convert JD to J2000 and UTC, convert deg to rad
-            obs = self._add_time_columns(obs)
+            # convert deg to rad, wrapping as tudat wants [-pi, pi]
             obs = obs.assign(
                 RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
                 DEC=lambda x: np.radians(x.DEC),
@@ -572,25 +530,29 @@ class BatchMPC:
         self._validate_table(table, frame)
         self._add_table(table=table, in_degrees=in_degrees, custom_name=custom_name)
 
-    def to_tracking_dataset(self, apply_weights_VFCC17: bool = True):
+    def to_tracking_dataset(self, apply_weights_VFCC17: bool | None = False):
 
         if "epoch_seconds_TDB" not in self._table.columns:
-            self._table = self._add_time_columns(self._table)
             self._refresh_metadata()
 
         table = self._table
         if apply_weights_VFCC17:
             table = table.assign(weight=weights.get_weights_VFCC17(mpc_table=table))
 
+        ###############################################################################
+        # TODO: only keep wanted obs. types (To Be Done Later)
+        # if ignore_radar_observations:
+        #    self._table = self._table.query("note2 != @RADAR_OBS_TYPES")
+
+        # if ignore_space_based_observations:
+        #    self._table = self._table.query("note2 != @SPACE_BASED_OBS_TYPES")
+
+        # if ignore_astrometric_observations:
+        #    self._table = self._table.query("note2 in @RADAR_OBS_TYPES or note2 in @SPACE_BASED_OBS_TYPES")
+        ###############################################################################
+
         tracking_data_objects = []
         for (target, observatory), group in table.groupby(["number", "observatory"]):
-            link_ends = [
-                ((str(target), ""), "transmitter"),
-                (("Earth", str(observatory)), reference_link_end_type),
-            ]
-            observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
-            epochs = list(group["epoch_seconds_TDB"])
-
             ###############################################################################
             # TODO: to be changed with a function that actually
             # retrieves reference_link_end_type and observable_type
@@ -598,11 +560,23 @@ class BatchMPC:
             observable_type, reference_link_end_type = "angular_position_type", "receiver"
             ###############################################################################
 
+            link_ends = [
+                ((str(target), ""), "transmitter"),
+                (("Earth", str(observatory)), reference_link_end_type),
+            ]
+            observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
+            ###############################################################################
+            # we have to provide the same timescale as the observations. Not tdb.
+            # the tdb conversion must only happen at ObservationCollection level
+            # Note how astroquery provides epochs in JD (UTC), and here we convert them into
+            # seconds from J2000 (UTC).
+            epochs_utc = [DateTime.from_julian_day(jd).to_epoch() for jd in list(group["epoch"])]
+            ###############################################################################
             tracking_data_object = TrackingData(
                 observable_type=observable_type,
                 link_ends=link_ends,
                 observations=observations,
-                epochs=epochs,
+                epochs=epochs_utc,  # from J2000 (UTC)
                 reference_link_end=reference_link_end_type,
             )
 
