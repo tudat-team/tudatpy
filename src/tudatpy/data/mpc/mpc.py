@@ -10,7 +10,7 @@ from tudatpy.astro import time_representation
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
 from tudatpy.data import TrackingData, TrackingSupplementaryData
-from tudatpy.data.mpc import weights
+from tudatpy.data.mpc import weights, corrections
 
 # do not remove this line, even if it looks liek an unused import line
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
@@ -568,7 +568,7 @@ class BatchMPC:
             table = table.assign(_RA_weight=RA_weights, _DEC_weight=DEC_weights)
 
         if add_star_catalog_corrections:
-            RA_corr, DEC_corr = weights.get_biases_EFCC18(mpc_table=table)
+            RA_corr, DEC_corr = corrections.get_biases_EFCC18(mpc_table=table)
             table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
         if add_ancillary_data:
@@ -609,11 +609,11 @@ class BatchMPC:
                 tracking_data_object.set_observation_weights(weights_list)
 
             if add_star_catalog_corrections:
-                corrections = [
+                corrections_list = [
                     np.array([ra_c, dec_c])
                     for ra_c, dec_c in zip(group["_RA_corr"], group["_DEC_corr"])
                 ]
-                tracking_data_object.set_observation_corrections(corrections)
+                tracking_data_object.set_observation_corrections(corrections_list)
 
             if add_ancillary_data:
                 tracking_data_object.add_ancillary_settings("band", group["band"])

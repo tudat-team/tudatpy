@@ -1,324 +1,39 @@
 import pandas as pd
 import numpy as np
-from astroquery.mpc import MPC
-from astropy_healpix import HEALPix
 from astropy.units import Quantity
 import astropy.units as u
-import os
-import re
-from tudatpy.astro import time_representation
-from tudatpy.astro.time_representation import DateTime
-
-BIAS_LOWRES_FILE = os.path.join(
-    os.path.expanduser("~"),
-    ".tudat",
-    "resource",
-    "star_catalog_biases",
-    "debias_2018",
-    "bias.dat",
-)
-
-# Described here:
-# https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
-DEFAULT_CATALOG_FLAGS = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "g",
-    "i",
-    "j",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "t",
-    "u",
-    "v",
-    "w",
-    "L",
-    "N",
-    "Q",
-    "R",
-    "S",
-    "U",
-    "Y",
-]
-
-
-def load_bias_file(
-    filepath: str,
-    Nside: int | None = None,
-    catalog_flags: list = DEFAULT_CATALOG_FLAGS,
-) -> tuple[pd.DataFrame, int]:
-    """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
-
-    Parameters
-    ----------
-    filepath : str
-        Filepath of debias file.
-    Nside : int | None, optional
-        NSIDE value, to be left None in most cases as this is retrieved automatically by the function, by default None
-    catalog_flags : list | None, optional
-        list of catalog flags, should be left default in most cases, by default None
-
-    Returns
-    -------
-    tuple[pd.DataFrame, int]
-        Dataframe with biases in multiindex format ((Npix x Ncat) x Nvals), the numpix value
-
-    Raises
-    ------
-    ValueError
-        If NSIDE cannot be retrieved automatically.
-    """
-    # auto retrieve NSIDE
-    if Nside is None:
-        counter = 0
-        with open(filepath, "r") as file:
-            while counter < 10:
-                line = file.readline()
-                pattern = r"! NSIDE=\s*(\d+)"
-                match = re.search(pattern, line)
-                if match:
-                    Nside = int(match.group(1))
-                    break
-                counter += 1
-        if Nside is None:
-            raise ValueError(
-                "Could not automatically retrieve NSIDE, please provide it as a parameter"
-            )
-
-    if catalog_flags is None:
-        catalog_flags = DEFAULT_CATALOG_FLAGS
-    catalog_flags = catalog_flags + ["unknown"]
-
-    values = ["RA", "DEC", "PMRA", "PMDEC"]
-
-    # create a multi_index, this effectively creates a df with 3 dimensions. [row, catalog, value]
-    m_index = pd.MultiIndex.from_product(
-        [catalog_flags, values],
-        names=["catalog", "value"],
-    )
-
-    bias_dataframe = pd.read_csv(
-        filepath,
-        sep=" ",
-        skiprows=23,
-        skipinitialspace=True,
-        index_col=None,
-        header=None,
-    ).iloc[:, :-1]
-
-    # we add a set of 'unknown' columns to speed up assignment later
-    len_df = bias_dataframe.shape[0]
-    unknown_columns = np.zeros(shape=(len_df, 4))
-    bias_dataframe[["aa", "bb", "cc", "dd"]] = unknown_columns
-
-    # apply the multi_index
-    bias_dataframe.columns = m_index
-    # stack it so it goes from a Npix x (Ncat x Nvals) to (Npix x Ncat) x Nvals shape
-    bias_dataframe = bias_dataframe.stack(level=0, future_stack=True)
-
-    return bias_dataframe, Nside
-
-
-def get_biases_EFCC18(
-    RA: float | np.ndarray | list,
-    DEC: float | np.ndarray | list,
-    epoch_seconds_TDB: float | np.ndarray | list,
-    catalog: str | np.ndarray | list,
-    bias_file: str | None = BIAS_LOWRES_FILE,
-    Nside: int | None = None,
-    catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Calculate and return star catalog bias values as described in:
-    "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
-    Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
-    This can then be selected using the bias_file paramater.
-
-    Parameters
-    ----------
-    RA : float | np.ndarray | list
-        Right Ascension value in radians
-    DEC : float | np.ndarray | list
-        Declination value in radians
-    epoch_seconds_TDB : float | np.ndarray | list
-        Time in seconds since J2000 TDB.
-    catalog : str | np.ndarray | list
-        Star Catalog code as described by MPC: https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
-    bias_file : str | None, optional
-        Optional bias file location, used to load in alternative debias coefficients. By default coefficients are retrieved from Tudat resources, by default None
-    Nside : int | None, optional
-        Optional Nside value, should be left None in most cases, by default None
-    catalog_flags : list[str] | None, optional
-        List of catalog values to use, should be left None in most cases, by default None
-
-    Returns
-    -------
-    tuple[np.ndarray, np.ndarray]
-        Right Ascencion Corrections, Declination corrections
-
-    Raises
-    ------
-    ValueError
-        If all mandatory inputs are not matching in size.
-    """
-
-    if bias_file is None:
-        bias_file = BIAS_LOWRES_FILE
-
-    # transform input to numpy arrays
-    if not isinstance(RA, np.ndarray):
-        RA = np.array([RA]).flatten()
-    if not isinstance(DEC, np.ndarray):
-        DEC = np.array([DEC]).flatten()
-    if not isinstance(epoch_seconds_TDB, np.ndarray):
-        epoch_seconds_TDB = np.array([epoch_seconds_TDB]).flatten()
-    if not isinstance(catalog, np.ndarray):
-        catalog = np.array([catalog]).flatten()
-
-    if not (len(RA) == len(DEC) == len(epoch_seconds_TDB) == len(catalog)):
-        raise ValueError("All inputs must have same size")
-
-    # load bias file
-    # index matches the pixels
-    # this is effectively a 3d table with axes: (pixel, star catalog), value) using pandas multiindex
-    bias_df, nside = load_bias_file(filepath=bias_file, Nside=Nside, catalog_flags=catalog_flags)
-
-    # find nearest tile using HEALPix Algorithm and get indices
-    # ideally nside should be retrieved from the load_bias_file function
-    hp_obj = HEALPix(nside=nside)
-
-    pixels = hp_obj.lonlat_to_healpix(Quantity(RA, unit=u.rad), Quantity(DEC, unit=u.rad))
-
-    # retrieve bias values from bias file using indices
-    # result is N x 4 biases for the correct star catalog
-    all_catalog_ids = bias_df.index.levels[1].to_list()
-    # this changes all ids not present in the bias file to unknown, resulting in zero bias
-    catalog = ["unknown" if (cat not in all_catalog_ids) else cat for cat in catalog]
-
-    # create combinations of pixel id and catalog then retrieve biases
-    targets = [(pix, cat) for pix, cat in zip(pixels, catalog)]
-    biases = bias_df.loc[targets, ["RA", "DEC", "PMRA", "PMDEC"]].to_numpy()
-
-    # same as find_orb -> bias.cpp
-    # https://github.com/Bill-Gray/find_orb/blob/master/bias.cpp#L213
-    epochs_years = [
-        time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb)
-        for epoch_tdb in epoch_seconds_TDB
-    ]
-
-    # from the bias file readme.txt:
-    RA_correction = biases[:, 0] + (epochs_years * (biases[:, 2] / 1000))
-    RA_correction = RA_correction / np.cos(DEC)  # DEC here in radians because of cosine
-    DEC_correction = biases[:, 1] + (epochs_years * (biases[:, 3] / 1000))
-
-    # convert from arcsec to radians
-    RA_correction = Quantity(RA_correction, unit=u.arcsec).to(u.rad).value
-    DEC_correction = Quantity(DEC_correction, unit=u.arcsec).to(u.rad).value
-
-    return RA_correction, DEC_correction
+from astroquery.mpc import MPC
 
 
 def get_weights_VFCC17(
-    MPC_codes: pd.Series | list | np.ndarray | None = None,
-    epoch: pd.Series | list | np.ndarray | None = None,
-    observation_type: pd.Series | list | np.ndarray | None = None,
-    observatory: pd.Series | list | np.ndarray | None = None,
-    star_catalog: pd.Series | list | np.ndarray | None = None,
-    mpc_table: pd.DataFrame | None = None,
-    return_full_table=False,
-) -> np.ndarray | pd.DataFrame:
+    mpc_table: pd.DataFrame,
+) -> tuple[np.ndarray, np.ndarray]:
     """Retrieves observation weights using the weighting scheme presented in
     "Statistical analysis of astrometric errors for the most productive
-    asteroid surveys" by Veres et al. (2017). Input may be provided using
-    either a full MPC table (e.g. from BatchMPC) or using the individual
-    variables.
+    asteroid surveys" by Veres et al. (2017).
 
     Observation types: "x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O",
     are not described by the paper and receive a placeholder weight of 1/100
     if provided.
 
+    Note that VFCC17 produces a single positional weight per observation, not
+    separate RA/DEC weights - the two returned arrays are therefore identical,
+    provided as a pair only for interface symmetry with get_biases_EFCC18.
+
     Parameters
     ----------
-    MPC_codes : pd.Series | list | np.ndarray | None, optional
-        Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
-        other iterables, by default None
-    epoch : pd.Series | list | np.ndarray | None, optional
-        Epoch expressed as Julian Days. Size must match other iterables, by default None
-    observation_type : pd.Series | list | np.ndarray | None, optional
-        Iterable with the observation types in MPC format.
-        See the NOTE2 section of the MPC format description for the exact encoding:
-        https://minorplanetcenter.net/iau/info/OpticalObs.html.
-        Size must match other iterables, by default None
-    observatory : pd.Series | list | np.ndarray | None, optional
-        Iterable with the MPC target codes, e.g. 433 for Eros.
-        Size must match other iterables, by default None
-    star_catalog : pd.Series | list | np.ndarray | None, optional
-        Iterable with the star catalog codes.
-        See the MPC catalog codes page for the exact encoding:
-        https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html.
-        Size must match other iterables, by default None
-    mpc_table : pd.DataFrame | None, optional
-        Table retrieved by calling the mpc.BatchMPC.table property.
-        Set None when using iterable input.
-        Set others None when using table, by default None
-    return_full_table : bool, optional
-        Return the table with all intermediate calculations if True,
-        return a numpy array if False, by default False
+    mpc_table : pd.DataFrame
+        Table retrieved by calling the mpc.BatchMPC.table property. Must contain
+        'number', 'epoch' (Julian Days), 'note2', 'observatory' and 'catalog' columns.
 
     Returns
     -------
-    np.ndarray
-        If `return_full_table` is False, numpy array with weights with same size as input.
-    pd.DataFrame
-        If `return_full_table` is True, pandas table with all intermediate calculations.
-
-    Raises
-    ------
-    ValueError
-        MPC_codes, epoch, observation_type, observatory and star_catalog must all
-        be not None and the same size. mpc_table must be None.
-        If table input is used, the remaining input parameters must be done.
+    tuple[np.ndarray, np.ndarray]
+        Right Ascension weights, Declination weights (identical values), one entry
+        per row of `mpc_table`, in the same order.
     """
 
-    # Input handling
-    if (
-        (mpc_table is None)
-        and (epoch is not None)
-        and (observation_type is not None)
-        and (observatory is not None)
-        and (star_catalog is not None)
-    ):
-        if not (len(epoch) == len(observation_type) == len(observatory) == len(star_catalog)):
-            raise ValueError("All inputs must have same size")
-
-        table_dict = {
-            "number": MPC_codes,
-            "epoch": epoch,  # This is expressed in Julian Days
-            "note2": observation_type,
-            "observatory": observatory,
-            "catalog": star_catalog,
-        }
-        table = pd.DataFrame.from_dict(table_dict)
-    elif (
-        (mpc_table is not None)
-        and (epoch is None)
-        and (observation_type is None)
-        and (observatory is None)
-        and (star_catalog is None)
-    ):
-        table = mpc_table.copy()
-    else:
-        raise ValueError(
-            "Must provide either parameters: `epoch`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
-        )
-
+    table = mpc_table.copy()
     table["observatory"] = table["observatory"].astype(str).str.strip().str.zfill(3)
     table["number"] = table["number"].astype(str).str.strip()
 
@@ -337,7 +52,7 @@ def get_weights_VFCC17(
     )
 
     # the reset_index + set_index is a cheeky way to keep the original table index
-    # this prevents mismatches when adding weights to the tables in BatchMPC.to_tudat()
+    # this prevents mismatches when adding weights to the tables downstream
     table = (
         pd.merge(
             how="left",
@@ -356,7 +71,6 @@ def get_weights_VFCC17(
     table = table.assign(
         epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz)
     )  # epoch is in Julian Days.
-    # table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
 
     # Below are the weights applied as described per table in:
     # https://www.sciencedirect.com/science/article/pii/S0019103517301987
@@ -463,17 +177,7 @@ def get_weights_VFCC17(
     # Dates retrieved from: https://sbnmpc.astro.umd.edu/mpecwatch/obs.html
     # See also: https://lco.global/observatory/sites/mpccodes/
     LCO_new = [
-        # "L09",  # online 2018 Aqawan
-        # "Q58",  # online 2017 Clamshell
-        # "Q59",  # online 2017 Clamshell
-        # "T03",  # online 2017 Clamshell
-        # "T04",  # online 2016 Clamshell
-        # "V38",  # online 2018 Aqawan
         "V39",  # online 2019 1m
-        # "W79",  # online 2018 Aqawan
-        # "W89",  # online 2015 Aqawan
-        # "Z17",  # online 2017 Aqawan
-        # "Z21",  # online 2015 Aqawan
         "Z24",  # online 2021 1m
         "Z31",  # online 2021 1m
     ]
@@ -542,47 +246,8 @@ def get_weights_VFCC17(
 
     table = table.assign(weight=lambda x: x.weight_pre / x.mult_obs_deweight)
 
-    if return_full_table:
-        return table
-    else:
-        return table.weight.to_numpy()
+    weight = table.weight.to_numpy()
+    RA_weight = weight
+    DEC_weight = weight
 
-
-def _apply_EFCC18(
-    tracking_data_object,
-    bias_file=None,
-    Nside=None,
-    catalog_flags=None,
-):
-    """Internal, applies star catalog biases based on
-    'Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era' by Eggl et al. (2018)
-
-    Unlike the old pandas-table version, this does not overwrite `.observations` with
-    debiased values. It stores the (RA, DEC) corrections separately via
-    `set_observation_corrections`, so raw observations remain untouched and recoverable.
-    Downstream consumers that want debiased values must compute `observation - correction`
-    themselves (same sign convention as before: `RA_EFCC18 = RA - RA_corr`).
-    """
-    already_applied = tracking_data_object.get_ancillary_settings_double().get(
-        "EFCC18_applied", 0.0
-    )
-    if already_applied == 1.0:
-        return
-
-    observations = np.array(tracking_data_object.observations)  # shape (N, 2): [RA, DEC] per row
-    epochs = np.array(tracking_data_object.epochs)
-    catalog = np.array(tracking_data_object.get_ancillary_settings_string_vector()["catalog"])
-
-    RA_corr, DEC_corr = get_biases_EFCC18(
-        RA=observations[:, 0],
-        DEC=observations[:, 1],
-        epoch_seconds_TDB=epochs,
-        catalog=catalog,
-        bias_file=bias_file,
-        Nside=Nside,
-        catalog_flags=catalog_flags,
-    )
-
-    corrections = [np.array([ra_c, dec_c]) for ra_c, dec_c in zip(RA_corr, DEC_corr)]
-    tracking_data_object.set_observation_corrections(corrections)
-    tracking_data_object.add_ancillary_settings("EFCC18_applied", 1.0)
+    return RA_weight, DEC_weight
