@@ -39,12 +39,11 @@ public:
                   const PlainLinkDefinition& linkEnds,
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
-                  const std::string referenceLinkEnd ):
+                  const std::string referenceLinkEnd,
+                  const std::string timeScale = "TDB" ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), numberOfObservations_( observations.size( ) ),
-
-        // Set size of a single observation (zero if observations vector is empty)
-        singleObservationSize_( !observations.empty( ) ? observations[ 0 ].size( ) : 0 )
+        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), numberOfObservations_( observations.size( ) ),
+        singleObservationSize_( !observations.empty( ) ? static_cast< unsigned int >( observations[ 0 ].size( ) ) : 0 )
     {
         // Check inputs size consistency
         if( observations_.size( ) != epochs_.size( ) )
@@ -96,6 +95,24 @@ public:
     std::string getReferenceLinkEnd( )
     {
         return referenceLinkEnd_;
+    }
+
+    std::string getReferencePointName( ) const
+    {
+        for( auto const& [ linkEndPair, referencePoint ] : linkEnds_ )
+        {
+            if( referencePoint == referenceLinkEnd_ )
+            {
+                return linkEndPair.second;
+            }
+        }
+        throw std::runtime_error( "Reference point name not found." );
+    }
+
+    //! Function that returns the time scale of the observation epochs
+    std::string getTimeScale( )
+    {
+        return timeScale_;
     }
 
     //! Function that returns observation values
@@ -413,6 +430,8 @@ private:
     std::vector< TimeType > epochs_;
 
     const std::string referenceLinkEnd_;
+
+    const std::string timeScale_;
 
     unsigned int numberOfObservations_;
 

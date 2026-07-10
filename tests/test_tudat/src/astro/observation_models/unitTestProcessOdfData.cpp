@@ -18,6 +18,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 using namespace tudat::input_output;
 using namespace tudat::observation_models;
