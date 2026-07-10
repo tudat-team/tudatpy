@@ -576,6 +576,11 @@ class BatchMPC:
             # (coming from astroquery table) with strings.
             # Replace NaN/None with empty string before converting to string
             table["band"] = table["band"].fillna("").astype(str)
+            table["catalog"] = table["catalog"].fillna("").astype(str)
+            table["note2"] = table["note2"].fillna("").astype(str)
+            table["custom_name"] = table["custom_name"].fillna("").astype(str)
+            table["mag"] = table["mag"].fillna("").astype(str)
+            table["discovery"] = table["discovery"].fillna("").astype(str)
 
         tracking_data_objects = []
         for (target, observatory), group in table.groupby(["number", "observatory"]):
@@ -617,6 +622,11 @@ class BatchMPC:
 
             if add_ancillary_data:
                 tracking_data_object.add_ancillary_settings("band", group["band"])
+                tracking_data_object.add_ancillary_settings("catalog", group["catalog"])
+                tracking_data_object.add_ancillary_settings("note2", group["note2"])
+                tracking_data_object.add_ancillary_settings("custom_name", group["custom_name"])
+                tracking_data_object.add_ancillary_settings("mag", group["mag"])
+                tracking_data_object.add_ancillary_settings("discovery", group["discovery"])
 
             tracking_data_objects.append(tracking_data_object)
 
