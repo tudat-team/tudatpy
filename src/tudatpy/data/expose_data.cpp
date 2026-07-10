@@ -826,20 +826,24 @@ Read a mapping from DOMES id to station name.
            )doc" );
 
     m.def( "read_ifms_files",
-           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< double, double > > >,
-                                   std::vector< std::shared_ptr< tudat::data::TrackingSupplementaryData > > > ( * )(
-                   const std::vector< std::string >&,
-                   const std::string&,
-                   const std::vector< std::string >&,
-                   const std::string&,
-                   const bool,
-                   const bool ) >( &tio::readIfmsFiles< double, double > ),
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::string&,
+                              const std::vector< std::string >&,
+                              const std::string&,
+                              bool,
+                              bool,
+                              const std::vector< double >&,
+                              double,
+                              double >( &tio::readIfmsFiles< double, double > ),
            py::arg( "ifms_file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "ground_station_names" ),
            py::arg( "earth_name" ) = "Earth",
            py::arg( "apply_tropospheric_correction" ) = true,
            py::arg( "remove_invalid_lines" ) = true,
+           py::arg( "frequency_bands" ) = std::vector< double >( ),
+           py::arg( "reception_reference_frequency_band" ) = std::numeric_limits< double >::quiet_NaN( ),
+           py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ),
            R"doc(Load IFMS files into tracking data and supplementary data objects.)doc" );
 
     m.def( "set_estrack_weather_data_in_ground_stations",
