@@ -7,10 +7,9 @@ from astroquery.mpc import MPC
 import astropy
 import copy
 from tudatpy.astro import time_representation
-from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
 from tudatpy.data.mpc.parser_80col import unpackers
-from tudatpy.data import TrackingData
+from tudatpy.data import TrackingData, TrackingSupplementaryData
 from tudatpy.data.mpc import weights
 
 # do not remove this line, even if it looks liek an unused import line
@@ -530,14 +529,27 @@ class BatchMPC:
         self._validate_table(table, frame)
         self._add_table(table=table, in_degrees=in_degrees, custom_name=custom_name)
 
-    def to_tracking_dataset(self, apply_weights_VFCC17: bool | None = False):
+    def to_tracking_dataset(
+        self,
+        add_weights: bool | None = False,
+        add_star_catalog_corrections: bool | None = False,
+        add_ancillary_data: bool | None = False,
+    ):
 
         if "epoch_seconds_TDB" not in self._table.columns:
             self._refresh_metadata()
 
         table = self._table
-        if apply_weights_VFCC17:
-            table = table.assign(weight=weights.get_weights_VFCC17(mpc_table=table))
+        ###############################################################################
+        # we have to provide the same timescale as the observations. Not tdb.
+        # the tdb conversion must only happen at ObservationCollection level
+        # Note how astroquery provides epochs in JD (UTC), and here we convert them into
+        # seconds from J2000 (UTC).
+        epochs_utc = [
+            time_representation.julian_day_to_seconds_since_epoch(jd) for jd in list(table["epoch"])
+        ]
+        table["epoch_seconds_UTC"] = epochs_utc
+        ###############################################################################
 
         ###############################################################################
         # TODO: only keep wanted obs. types (To Be Done Later)
@@ -550,6 +562,20 @@ class BatchMPC:
         # if ignore_astrometric_observations:
         #    self._table = self._table.query("note2 in @RADAR_OBS_TYPES or note2 in @SPACE_BASED_OBS_TYPES")
         ###############################################################################
+
+        if add_weights:
+            RA_weights, DEC_weights = weights.get_weights_VFCC17(mpc_table=table)
+            table = table.assign(_RA_weight=RA_weights, _DEC_weight=DEC_weights)
+
+        if add_star_catalog_corrections:
+            RA_corr, DEC_corr = weights.get_biases_EFCC18(mpc_table=table)
+            table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
+
+        if add_ancillary_data:
+            # ancillary data has to be a string, replace NaNs
+            # (coming from astroquery table) with strings.
+            # Replace NaN/None with empty string before converting to string
+            table["band"] = table["band"].fillna("").astype(str)
 
         tracking_data_objects = []
         for (target, observatory), group in table.groupby(["number", "observatory"]):
@@ -565,27 +591,34 @@ class BatchMPC:
                 (("Earth", str(observatory)), reference_link_end_type),
             ]
             observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
-            ###############################################################################
-            # we have to provide the same timescale as the observations. Not tdb.
-            # the tdb conversion must only happen at ObservationCollection level
-            # Note how astroquery provides epochs in JD (UTC), and here we convert them into
-            # seconds from J2000 (UTC).
-            epochs_utc = [DateTime.from_julian_day(jd).to_epoch() for jd in list(group["epoch"])]
-            ###############################################################################
+
             tracking_data_object = TrackingData(
                 observable_type=observable_type,
                 link_ends=link_ends,
                 observations=observations,
-                epochs=epochs_utc,  # from J2000 (UTC)
+                epochs=group["epoch_seconds_UTC"],  # from J2000 (UTC)
                 reference_link_end=reference_link_end_type,
                 time_scale="UTC",
             )
 
-            if apply_weights_VFCC17:
-                weights_list = [np.array([w, w]) for w in group["weight"]]
-                print(f"{weights_list} \n")
+            if add_weights:
+                weights_list = [
+                    np.array([ra_w, dec_w])
+                    for ra_w, dec_w in zip(group["_RA_weight"], group["_DEC_weight"])
+                ]
                 tracking_data_object.set_observation_weights(weights_list)
+
+            if add_star_catalog_corrections:
+                corrections = [
+                    np.array([ra_c, dec_c])
+                    for ra_c, dec_c in zip(group["_RA_corr"], group["_DEC_corr"])
+                ]
+                tracking_data_object.set_observation_corrections(corrections)
+
+            if add_ancillary_data:
+                tracking_data_object.add_ancillary_settings("band", group["band"])
 
             tracking_data_objects.append(tracking_data_object)
 
-        return tracking_data_objects
+        # There is no supplementary data to return
+        return tracking_data_objects, list()
