@@ -12,7 +12,6 @@
  *
  */
 
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -25,6 +24,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 
 // Some simplifications for shorter lines
 using namespace tudat::input_output;
@@ -42,6 +42,7 @@ BOOST_AUTO_TEST_SUITE( test_ifms_file_reader );
 //! Test reading of mars express IFMS files.
 BOOST_AUTO_TEST_CASE( testIfmsFileReader )
 {
+    spice_interface::loadStandardSpiceKernels( );
     std::vector< std::string > ifmsFiles;
     ifmsFiles.push_back( paths::getTudatTestDataPath( ) + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630120_00.TAB.txt" );
     ifmsFiles.push_back( paths::getTudatTestDataPath( ) + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630203_00.TAB.txt" );
