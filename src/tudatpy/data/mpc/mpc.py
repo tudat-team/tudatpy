@@ -12,7 +12,7 @@ from tudatpy.data.mpc.parser_80col import unpackers
 from tudatpy.data import TrackingData, TrackingSupplementaryData
 from tudatpy.data.mpc import weights, corrections
 
-# do not remove this line, even if it looks liek an unused import line
+# do not remove this line, even if it looks like an unused import line
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 
