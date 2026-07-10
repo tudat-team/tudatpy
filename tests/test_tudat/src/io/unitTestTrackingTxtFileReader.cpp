@@ -12,6 +12,7 @@
  *
  */
 
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -479,8 +480,7 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
     bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    std::shared_ptr< tom::ObservationCollection< double, Time > > observationCollection =
-            tom::createObservationCollection< double, Time >( trackingData, bodies );
+    auto observationCollection = tom::createObservationCollection< double, Time >( trackingData, bodies );
     std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
     const Eigen::Vector3d earthFixedPosition =
             bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
