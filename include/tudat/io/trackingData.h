@@ -97,6 +97,18 @@ public:
         return referenceLinkEnd_;
     }
 
+    std::string getReferencePointName( ) const
+    {
+        for( auto const& [ linkEndPair, referencePoint ] : linkEnds_ )
+        {
+            if( referencePoint == referenceLinkEnd_ )
+            {
+                return linkEndPair.second;
+            }
+        }
+        throw std::runtime_error( "Reference point name not found." );
+    }
+
     //! Function that returns the time scale of the observation epochs
     std::string getTimeScale( )
     {

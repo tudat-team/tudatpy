@@ -17,12 +17,14 @@
 #include <memory>
 #include <vector>
 
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -2849,6 +2851,7 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const std::shared_ptr< SystemOfBodies > bodies,
         const bool applyCorrections = false )
 {
     observation_models::ObservableType observableType;
@@ -2905,6 +2908,28 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
         }
     }
 
+    auto epochsInput = trackingData->getObservationEpochs( );
+    auto epochsTdb = std::vector< TimeType >( epochsInput.size( ) );
+    auto timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
+    std::string referenceLinkEndName = trackingData->getReferencePointName( );
+
+    if( trackingData->getTimeScale( ) != "TDB" )
+    {
+        auto const& inputScale = timeScaleFromString( trackingData->getTimeScale( ) );
+
+        auto const& earthFixedPosition = bodies->getBody( "Earth" )
+                                                 ->getGroundStation( referenceLinkEndName )
+                                                 ->getNominalStationState( )
+                                                 ->getNominalCartesianPosition( );
+
+        epochsTdb = utilities::staticCastVector< TimeType, Time >( timeScaleConverter.getCurrentTimesFromSinglePosition< Time >(
+                inputScale, basic_astrodynamics::tdb_scale, epochsInput, earthFixedPosition ) );
+    }
+    else
+    {
+        epochsTdb = epochsInput;
+    }
+
     // Convert ancillary settings information from tracking data object to ObservationAncillarySimulationSettings
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
             getAncillarySettingsFromTrackingData< ObservationScalarType, TimeType >( trackingData );
@@ -2914,7 +2939,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
                     observableType,
                     linkEnds,
                     observations,
-                    trackingData->getObservationEpochs( ),
+                    epochsTdb,
                     getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ),
                     ancillarySettings );
 
