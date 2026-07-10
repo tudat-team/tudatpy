@@ -82,41 +82,45 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     {
         observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
                 ancillarySettings->getAncillaryVariableFromString( it.first );
-        std::vector< std::string > ancillaryValues = it.second;
 
         // Check consistency between ancillary variable and value type
-        if( ancillaryVariable != observation_models::reception_reference_frequency_band &&
-            ancillaryVariable != observation_models::frequency_bands )
+        if( ancillaryVariable != observation_models::frequency_bands )
+        {
+            throw std::runtime_error(
+                    "Error when setting ancillary simulation settings from tracking data, inconsistency between the ancillary variable (" +
+                    it.first + ") and the type of ancillary value provided (string vector)." );
+        }
+
+        // Convert frequency bands (strings) to doubles
+        std::vector< double > bandDoubles;
+        for( const std::string& band : it.second )
+        {
+            bandDoubles.push_back(
+                    observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( band ) ) );
+        }
+
+        // Set frequency bands as double vector
+        ancillarySettings->setAncillaryDoubleVectorData( ancillaryVariable, bandDoubles );
+    }
+
+    // Parse and add ancillary settings of type string (reception reference frequency band)
+    for( auto& it : trackingData->getAncillarySettingsString( ) )
+    {
+        observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
+                ancillarySettings->getAncillaryVariableFromString( it.first );
+
+        // Check consistency between ancillary variable and value type
+        if( ancillaryVariable != observation_models::reception_reference_frequency_band )
         {
             throw std::runtime_error(
                     "Error when setting ancillary simulation settings from tracking data, inconsistency between the ancillary variable (" +
                     it.first + ") and the type of ancillary value provided (string)." );
         }
 
-        // Convert frequency bands (strings) to doubles
-        std::vector< double > bandDoubles;
-        for( std::string& band : ancillaryValues )
-        {
-            bandDoubles.push_back(
-                    observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( band ) ) );
-        }
-
-        if( ancillaryVariable == observation_models::reception_reference_frequency_band )
-        {
-            if( bandDoubles.size( ) != 1 )
-            {
-                throw std::runtime_error(
-                        "Error when setting reception_reference_frequency_band ancillary settings, expects exactly one band." );
-            }
-
-            // Set reference frequency band as double
-            ancillarySettings->setAncillaryDoubleData( ancillaryVariable, bandDoubles.front( ) );
-        }
-        else if( ancillaryVariable == observation_models::frequency_bands )
-        {
-            // Set frequency bands as double vector
-            ancillarySettings->setAncillaryDoubleVectorData( ancillaryVariable, bandDoubles );
-        }
+        // Convert reference frequency band (string) to double and set it
+        ancillarySettings->setAncillaryDoubleData(
+                ancillaryVariable,
+                observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
     }
 
     return ancillarySettings;
