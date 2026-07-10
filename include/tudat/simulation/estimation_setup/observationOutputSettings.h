@@ -205,10 +205,7 @@ public:
     LinkEndType originatingLinkEndType_;
 
     //! Save dependent variable settings to a JSON file
-    void saveToJson( const std::string& path ) const;
-
-    //! Load dependent variable settings from a JSON file (static factory, preserves polymorphic type)
-    static std::shared_ptr< ObservationDependentVariableSettings > loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ObservationDependentVariableSettings )
 
 protected:
     // Default constructor for serialization
@@ -844,19 +841,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDepend
                                       tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
                                       tudat::simulation_setup::LightTimeCorrectionComponentsDependentVariableSettings )
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::simulation_setup::ObservationDependentVariableSettings::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline std::shared_ptr< tudat::simulation_setup::ObservationDependentVariableSettings >
-tudat::simulation_setup::ObservationDependentVariableSettings::loadFromJson( const std::string& path )
-{
-    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::simulation_setup::ObservationDependentVariableSettings >( path );
-}
 
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS

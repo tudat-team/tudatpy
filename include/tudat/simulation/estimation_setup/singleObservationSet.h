@@ -1279,6 +1279,7 @@ private:
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
 
+public:
     bool operator==( const SingleObservationSet& rhs ) const
     {
         return equals( rhs );
@@ -1299,6 +1300,8 @@ private:
                 numberOfObservations_ == rhs.numberOfObservations_ && singleObservationSize_ == rhs.singleObservationSize_ &&
                 weights_ == rhs.weights_ && residuals_ == rhs.residuals_ && filteredObservationSet_ == rhs.filteredObservationSet_;
     }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
 
 protected:
     // Default constructor for serialization
@@ -1331,7 +1334,7 @@ private:
     }
 
     template< class Archive >
-    void save( Archive& ar )
+    void save( Archive& ar ) const
     {
         // Use const_cast for const members (safe during deserialization into default-constructed object)
         ar( const_cast< ObservableType& >( observableType_ ) );

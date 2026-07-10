@@ -430,16 +430,7 @@ public:
     }
 
     //! Save dynamics results to a binary file
-    void saveToBinary( const std::string& path ) const
-    {
-        tudat::serialization::saveToBinaryFile( *this, path );
-    }
-
-    //! Load dynamics results from a binary file (static factory)
-    static SingleArcSimulationResults loadFromBinary( const std::string& path )
-    {
-        return tudat::serialization::loadFromBinaryFile< SingleArcSimulationResults >( path );
-    }
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcSimulationResults< StateScalarType, TimeType > )
 
     bool isPropagatedAndProcessedStateEqual( )
     {
@@ -771,16 +762,7 @@ public:
     }
 
     //! Save variational results to a binary file
-    void saveToBinary( const std::string& path ) const
-    {
-        tudat::serialization::saveToBinaryFile( *this, path );
-    }
-
-    //! Load variational results from a binary file (static factory)
-    static SingleArcVariationalSimulationResults loadFromBinary( const std::string& path )
-    {
-        return tudat::serialization::loadFromBinaryFile< SingleArcVariationalSimulationResults >( path );
-    }
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcVariationalSimulationResults< StateScalarType, TimeType > )
 
 protected:
     const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
@@ -1141,16 +1123,7 @@ public:
     }
 
     //! Save multi-arc results to a binary file
-    void saveToBinary( const std::string& path ) const
-    {
-        tudat::serialization::saveToBinaryFile( *this, path );
-    }
-
-    //! Load multi-arc results from a binary file (static factory)
-    static MultiArcSimulationResults loadFromBinary( const std::string& path )
-    {
-        return tudat::serialization::loadFromBinaryFile< MultiArcSimulationResults >( path );
-    }
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > )
 
 private:
     const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
@@ -1378,16 +1351,7 @@ public:
     }
 
     //! Save hybrid-arc results to a binary file
-    void saveToBinary( const std::string& path ) const
-    {
-        tudat::serialization::saveToBinaryFile( *this, path );
-    }
-
-    //! Load hybrid-arc results from a binary file (static factory)
-    static HybridArcSimulationResults loadFromBinary( const std::string& path )
-    {
-        return tudat::serialization::loadFromBinaryFile< HybridArcSimulationResults >( path );
-    }
+    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > )
 
 protected:
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults_;

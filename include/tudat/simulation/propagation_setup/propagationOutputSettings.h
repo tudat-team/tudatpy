@@ -77,10 +77,7 @@ public:
     }
 
     //! Save variable settings to a JSON file (preserves polymorphic type)
-    void saveToJson( const std::string& path ) const;
-
-    //! Load variable settings from a JSON file
-    static std::shared_ptr< VariableSettings > loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( VariableSettings )
 
 protected:
     // Default constructor for cereal deserialization
@@ -2312,17 +2309,6 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePote
         const std::string& referencePoint = "" )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_potential_term, bodyName, referencePoint );
-}
-
-// Out-of-line file-IO method implementations
-inline void VariableSettings::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline std::shared_ptr< VariableSettings > VariableSettings::loadFromJson( const std::string& path )
-{
-    return tudat::serialization::loadSharedPtrFromJsonFile< VariableSettings >( path );
 }
 
 }  // namespace propagators

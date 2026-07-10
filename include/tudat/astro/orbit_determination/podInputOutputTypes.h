@@ -1062,10 +1062,7 @@ public:
     }
 
     //! Save covariance analysis output to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load covariance analysis output from a binary file
-    static CovarianceAnalysisOutput loadFromBinary( const std::string& path );
+    TUDAT_DEFINE_BINARY_IO( CovarianceAnalysisOutput< ObservationScalarType, TimeType > )
 
 protected:
     bool equals( const CovarianceAnalysisOutput& rhs ) const
@@ -1347,10 +1344,7 @@ public:
     }
 
     //! Save estimation output to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load estimation output from a binary file
-    static EstimationOutput loadFromBinary( const std::string& path );
+    TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
 
 protected:
     bool equals( const EstimationOutput& rhs ) const
@@ -1435,36 +1429,5 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDT )
 // Register all polymorphic relations
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDD, tudat::simulation_setup::EstimationOutputDD )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDT, tudat::simulation_setup::EstimationOutputDT )
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-template< typename ObservationScalarType, typename TimeType >
-inline void tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType >::saveToBinary(
-        const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-template< typename ObservationScalarType, typename TimeType >
-inline tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType >
-tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType >::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-            path );
-}
-
-template< typename ObservationScalarType, typename TimeType >
-inline void tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType >::saveToBinary( const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-template< typename ObservationScalarType, typename TimeType >
-inline tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType >
-tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType >::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::simulation_setup::EstimationOutput< ObservationScalarType, TimeType > >( path );
-}
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

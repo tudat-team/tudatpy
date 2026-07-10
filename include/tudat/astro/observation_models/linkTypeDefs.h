@@ -88,17 +88,7 @@ struct LinkEndId {
         return bodyName_ == rhs.bodyName_ && stationName_ == rhs.stationName_;
     }
 
-    //! Save link end ID to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load link end ID from a binary file
-    static LinkEndId loadFromBinary( const std::string& path );
-
-    //! Save link end ID to a JSON file
-    void saveToJson( const std::string& path ) const;
-
-    //! Load link end ID from a JSON file
-    static LinkEndId loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO( LinkEndId )
 
     friend bool operator<( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
@@ -232,7 +222,7 @@ struct LinkDefinition {
         return linkEnds1.equals( linkEnds2 );
     }
 
-    friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    friend bool operator!=( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
     {
         return !operator==( linkEnds1, linkEnds2 );
     }
@@ -275,17 +265,7 @@ struct LinkDefinition {
         return isEqual;
     }
 
-    //! Save link definition to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load link definition from a binary file
-    static LinkDefinition loadFromBinary( const std::string& path );
-
-    //! Save link definition to a JSON file
-    void saveToJson( const std::string& path ) const;
-
-    //! Load link definition from a JSON file
-    static LinkDefinition loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO( LinkDefinition )
 
 private:
     friend class cereal::access;
@@ -395,48 +375,5 @@ bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch 
 }  // namespace observation_models
 
 }  // namespace tudat
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::observation_models::LinkDefinition::saveToBinary( const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-inline tudat::observation_models::LinkDefinition tudat::observation_models::LinkDefinition::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::observation_models::LinkDefinition >( path );
-}
-
-inline void tudat::observation_models::LinkDefinition::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline tudat::observation_models::LinkDefinition tudat::observation_models::LinkDefinition::loadFromJson( const std::string& path )
-{
-    return tudat::serialization::loadFromJsonFile< tudat::observation_models::LinkDefinition >( path );
-}
-
-inline void tudat::observation_models::LinkEndId::saveToBinary( const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-inline tudat::observation_models::LinkEndId tudat::observation_models::LinkEndId::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::observation_models::LinkEndId >( path );
-}
-
-inline void tudat::observation_models::LinkEndId::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline tudat::observation_models::LinkEndId tudat::observation_models::LinkEndId::loadFromJson( const std::string& path )
-{
-    return tudat::serialization::loadFromJsonFile< tudat::observation_models::LinkEndId >( path );
-}
 
 #endif  // TUDAT_LINKTYPEDEFS_H

@@ -84,10 +84,7 @@ public:
     }
 
     //! Save termination settings to a JSON file
-    void saveToJson( const std::string& path ) const;
-
-    //! Load termination settings from a JSON file (static factory, preserves polymorphic type)
-    static std::shared_ptr< PropagationTerminationSettings > loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( PropagationTerminationSettings )
 
 public:
     //! Default constructor for cereal deserialization
@@ -626,19 +623,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTermination
                                       tudat::propagators::PropagationHybridTerminationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
                                       tudat::propagators::NonSequentialPropagationTerminationSettings )
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::propagators::PropagationTerminationSettings::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline std::shared_ptr< tudat::propagators::PropagationTerminationSettings >
-tudat::propagators::PropagationTerminationSettings::loadFromJson( const std::string& path )
-{
-    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::propagators::PropagationTerminationSettings >( path );
-}
 
 #endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

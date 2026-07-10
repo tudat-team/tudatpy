@@ -2641,6 +2641,7 @@ private:
 
     int totalNumberOfObservables_;
 
+public:
     bool operator==( const ObservationCollection& rhs ) const
     {
         return equals( rhs );
@@ -2656,6 +2657,8 @@ private:
     {
         return observationSetList_ == rhs.observationSetList_;
     }
+
+    TUDAT_DEFINE_BINARY_IO( ObservationCollection< ObservationScalarType, TimeType > )
 
 private:
     friend class cereal::access;

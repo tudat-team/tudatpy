@@ -28,6 +28,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -1065,11 +1066,8 @@ protected:
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
 
-    //! Save time to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load time from a binary file
-    static Time loadFromBinary( const std::string& path );
+public:
+    TUDAT_DEFINE_BINARY_IO( Time )
 
 private:
     friend class cereal::access;
@@ -1090,19 +1088,6 @@ private:
 };  // class Time
 
 }  // namespace tudat
-
-// Serialization file-IO (must be outside namespace and after template save/load)
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::Time::saveToBinary( const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-inline tudat::Time tudat::Time::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::Time >( path );
-}
 
 namespace tudat
 {

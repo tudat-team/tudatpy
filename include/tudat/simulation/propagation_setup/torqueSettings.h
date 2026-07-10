@@ -70,10 +70,7 @@ public:
     }
 
     //! Save torque settings to a JSON file
-    void saveToJson( const std::string& path ) const;
-
-    //! Load torque settings from a JSON file (static factory, preserves polymorphic type)
-    static std::shared_ptr< TorqueSettings > loadFromJson( const std::string& path );
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( TorqueSettings )
 
 protected:
     // Default constructor for serialization
@@ -310,19 +307,5 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomTorqueSettings )
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::SphericalHarmonicTorqueSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::CustomTorqueSettings )
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::simulation_setup::TorqueSettings::saveToJson( const std::string& path ) const
-{
-    tudat::serialization::saveToJsonFile( *this, path );
-}
-
-inline std::shared_ptr< tudat::simulation_setup::TorqueSettings > tudat::simulation_setup::TorqueSettings::loadFromJson(
-        const std::string& path )
-{
-    return tudat::serialization::loadSharedPtrFromJsonFile< tudat::simulation_setup::TorqueSettings >( path );
-}
 
 #endif  // TUDAT_TORQUESETTINGS_H

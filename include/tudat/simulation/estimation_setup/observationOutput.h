@@ -170,10 +170,7 @@ public:
     }
 
     //! Save dependent variable bookkeeping to a binary file
-    void saveToBinary( const std::string& path ) const;
-
-    //! Load dependent variable bookkeeping from a binary file
-    static ObservationDependentVariableBookkeeping loadFromBinary( const std::string& path );
+    TUDAT_DEFINE_BINARY_IO( ObservationDependentVariableBookkeeping )
 
     bool operator==( const ObservationDependentVariableBookkeeping& rhs ) const
     {
@@ -341,19 +338,5 @@ private:
 }  // namespace simulation_setup
 
 }  // namespace tudat
-
-// Out-of-line file-IO method implementations
-#include "tudat/io/serialization/base.h"
-
-inline void tudat::simulation_setup::ObservationDependentVariableBookkeeping::saveToBinary( const std::string& path ) const
-{
-    tudat::serialization::saveToBinaryFile( *this, path );
-}
-
-inline tudat::simulation_setup::ObservationDependentVariableBookkeeping
-tudat::simulation_setup::ObservationDependentVariableBookkeeping::loadFromBinary( const std::string& path )
-{
-    return tudat::serialization::loadFromBinaryFile< tudat::simulation_setup::ObservationDependentVariableBookkeeping >( path );
-}
 
 #endif  // TUDAT_OBSERVATIONOUTPUT
