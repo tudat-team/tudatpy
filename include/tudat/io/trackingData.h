@@ -41,7 +41,10 @@ public:
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), numberOfObservations_( observations.size( ) )
+        referenceLinkEnd_( referenceLinkEnd ), numberOfObservations_( observations.size( ) ),
+
+        // Set size of a single observation (zero if observations vector is empty)
+        singleObservationSize_( !observations.empty( ) ? observations[ 0 ].size( ) : 0 )
     {
         // Check inputs size consistency
         if( observations_.size( ) != epochs_.size( ) )
@@ -57,9 +60,6 @@ public:
                 throw std::runtime_error( "Error when making TrackingData, input observables not of consistent size." );
             }
         }
-
-        // Set size of a single observation (zero is observations vector is empty)
-        singleObservationSize_ = ( !observations.empty( ) ? observations[ 0 ].size( ) : 0 );
     }
 
     //! Function that returns the number of observations
