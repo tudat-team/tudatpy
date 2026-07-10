@@ -17,8 +17,20 @@
 #include <string>
 #include <vector>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -65,6 +77,53 @@ public:
 
     //! Time step with which to evaluate model, and provide input to interpolator
     double timeStep_;
+
+    //! Equality operator for serialization testing
+    bool operator==( const ModelInterpolationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ModelInterpolationSettings& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+private:
+    //! Non-virtual equals function for member-wise comparison.
+    /*!
+     * Compares all members of ModelInterpolationSettings.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const ModelInterpolationSettings& rhs ) const
+    {
+        return initialTime_ == rhs.initialTime_ && finalTime_ == rhs.finalTime_ && timeStep_ == rhs.timeStep_ &&
+                ( ( interpolatorSettings_ == nullptr && rhs.interpolatorSettings_ == nullptr ) ||
+                  ( interpolatorSettings_ != nullptr && rhs.interpolatorSettings_ != nullptr &&
+                    interpolatorSettings_->getInterpolatorType( ) == rhs.interpolatorSettings_->getInterpolatorType( ) &&
+                    interpolatorSettings_->getSelectedLookupScheme( ) == rhs.interpolatorSettings_->getSelectedLookupScheme( ) &&
+                    interpolatorSettings_->getBoundaryHandling( ) == rhs.interpolatorSettings_->getBoundaryHandling( ) ) );
+    }
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( interpolatorSettings_ ) );
+        ar( CEREAL_NVP( initialTime_ ) );
+        ar( CEREAL_NVP( finalTime_ ) );
+        ar( CEREAL_NVP( timeStep_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( interpolatorSettings_ ) );
+        ar( CEREAL_NVP( initialTime_ ) );
+        ar( CEREAL_NVP( finalTime_ ) );
+        ar( CEREAL_NVP( timeStep_ ) );
+    }
 };
 
 //! Base class for defining settings for gravity field variations.
@@ -115,7 +174,38 @@ public:
         return interpolatorSettings_;
     }
 
+    //! Equality operator for serialization testing
+    bool operator==( const GravityFieldVariationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const GravityFieldVariationSettings& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Virtual equals function to be overridden by derived classes. Base class implementation
+     * compares base class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    virtual bool equals( const GravityFieldVariationSettings& rhs ) const
+    {
+        return bodyDeformationType_ == rhs.bodyDeformationType_ &&
+                ( ( interpolatorSettings_ == nullptr && rhs.interpolatorSettings_ == nullptr ) ||
+                  ( interpolatorSettings_ != nullptr && rhs.interpolatorSettings_ != nullptr &&
+                    *interpolatorSettings_ == *rhs.interpolatorSettings_ ) );
+    }
+
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( GravityFieldVariationSettings )
+
 protected:
+    //! Default constructor for serialization.
+    GravityFieldVariationSettings( ): bodyDeformationType_( gravitation::basic_solid_body ), interpolatorSettings_( nullptr ) {}
+
     //! Type of gravity field variation to be used.
     gravitation::BodyDeformationTypes bodyDeformationType_;
 
@@ -126,6 +216,23 @@ protected:
      * during propagation.
      */
     std::shared_ptr< ModelInterpolationSettings > interpolatorSettings_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( bodyDeformationType_ ) );
+        ar( CEREAL_NVP( interpolatorSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( bodyDeformationType_ ) );
+        ar( CEREAL_NVP( interpolatorSettings_ ) );
+    }
 };
 
 //! Class to define settings for basic tidal gravity field variations, i.e. according to Eq. (6.6)
@@ -314,7 +421,24 @@ public:
         return meanForcingSineTerms_;
     }
 
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const GravityFieldVariationSettings& rhs ) const override
+    {
+        const auto& derivedRhs = static_cast< const BasicSolidBodyGravityFieldVariationSettings& >( rhs );
+        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs.deformingBodies_ &&
+                loveNumbers_ == derivedRhs.loveNumbers_ && meanForcingCosineTerms_ == derivedRhs.meanForcingCosineTerms_ &&
+                meanForcingSineTerms_ == derivedRhs.meanForcingSineTerms_;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    BasicSolidBodyGravityFieldVariationSettings( ): GravityFieldVariationSettings( ) {}
+
     //! List of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
 
@@ -326,6 +450,27 @@ protected:
 
     //! Map with mean sine forcing terms per degree [key] and order [vector position]
     std::map< int, std::vector< double > > meanForcingSineTerms_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( deformingBodies_ ) );
+        ar( CEREAL_NVP( loveNumbers_ ) );
+        ar( CEREAL_NVP( meanForcingCosineTerms_ ) );
+        ar( CEREAL_NVP( meanForcingSineTerms_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( deformingBodies_ ) );
+        ar( CEREAL_NVP( loveNumbers_ ) );
+        ar( CEREAL_NVP( meanForcingCosineTerms_ ) );
+        ar( CEREAL_NVP( meanForcingSineTerms_ ) );
+    }
 };
 
 class ModeCoupledSolidBodyGravityFieldVariationSettings : public GravityFieldVariationSettings
@@ -370,12 +515,45 @@ public:
         deformingBodies_ = deformingBodies;
     }
 
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const GravityFieldVariationSettings& rhs ) const override
+    {
+        const auto& derivedRhs = static_cast< const ModeCoupledSolidBodyGravityFieldVariationSettings& >( rhs );
+        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs.deformingBodies_ &&
+                loveNumbers_ == derivedRhs.loveNumbers_;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    ModeCoupledSolidBodyGravityFieldVariationSettings( ): GravityFieldVariationSettings( ) {}
+
     //! List of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
 
     //! List of Love number for the deformed body.
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( deformingBodies_ ) );
+        ar( CEREAL_NVP( loveNumbers_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( deformingBodies_ ) );
+        ar( CEREAL_NVP( loveNumbers_ ) );
+    }
 };
 
 //! Class to define settings for tabulated gravity field variations.
@@ -445,7 +623,26 @@ public:
         return minimumOrder_;
     }
 
-private:
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const GravityFieldVariationSettings& rhs ) const override
+    {
+        const auto& derivedRhs = static_cast< const TabulatedGravityFieldVariationSettings& >( rhs );
+        return GravityFieldVariationSettings::equals( rhs ) && cosineCoefficientCorrections_ == derivedRhs.cosineCoefficientCorrections_ &&
+                sineCoefficientCorrections_ == derivedRhs.sineCoefficientCorrections_ && minimumDegree_ == derivedRhs.minimumDegree_ &&
+                minimumOrder_ == derivedRhs.minimumOrder_;
+    }
+
+protected:
+    //! Default constructor for serialization.
+    TabulatedGravityFieldVariationSettings( ):
+        GravityFieldVariationSettings( gravitation::tabulated_variation ), minimumDegree_( 2 ), minimumOrder_( 0 )
+    {}
+
     //! Map of corrections to cosine coefficients (key is time)
     std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections_;
 
@@ -457,6 +654,27 @@ private:
 
     //! Minimum order of spherical harmonic corrections.
     int minimumOrder_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( cosineCoefficientCorrections_ ) );
+        ar( CEREAL_NVP( sineCoefficientCorrections_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( cosineCoefficientCorrections_ ) );
+        ar( CEREAL_NVP( sineCoefficientCorrections_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
 };
 
 class PeriodicGravityFieldVariationsSettings : public GravityFieldVariationSettings
@@ -516,7 +734,29 @@ public:
         return minimumOrder_;
     }
 
-private:
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const GravityFieldVariationSettings& rhs ) const override
+    {
+        const auto& derivedRhs = static_cast< const PeriodicGravityFieldVariationsSettings& >( rhs );
+        return GravityFieldVariationSettings::equals( rhs ) && cosineShAmplitudesCosineTime_ == derivedRhs.cosineShAmplitudesCosineTime_ &&
+                cosineShAmplitudesSineTime_ == derivedRhs.cosineShAmplitudesSineTime_ &&
+                sineShAmplitudesCosineTime_ == derivedRhs.sineShAmplitudesCosineTime_ &&
+                sineShAmplitudesSineTime_ == derivedRhs.sineShAmplitudesSineTime_ && frequencies_ == derivedRhs.frequencies_ &&
+                referenceEpoch_ == derivedRhs.referenceEpoch_ && minimumDegree_ == derivedRhs.minimumDegree_ &&
+                minimumOrder_ == derivedRhs.minimumOrder_;
+    }
+
+protected:
+    //! Default constructor for serialization.
+    PeriodicGravityFieldVariationsSettings( ):
+        GravityFieldVariationSettings( gravitation::periodic_variation ), referenceEpoch_( 0.0 ), minimumDegree_( 2 ), minimumOrder_( 0 )
+    {}
+
     std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime_;
 
     std::vector< Eigen::MatrixXd > cosineShAmplitudesSineTime_;
@@ -532,6 +772,35 @@ private:
     int minimumDegree_;
 
     int minimumOrder_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( cosineShAmplitudesCosineTime_ ) );
+        ar( CEREAL_NVP( cosineShAmplitudesSineTime_ ) );
+        ar( CEREAL_NVP( sineShAmplitudesCosineTime_ ) );
+        ar( CEREAL_NVP( sineShAmplitudesSineTime_ ) );
+        ar( CEREAL_NVP( frequencies_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( cosineShAmplitudesCosineTime_ ) );
+        ar( CEREAL_NVP( cosineShAmplitudesSineTime_ ) );
+        ar( CEREAL_NVP( sineShAmplitudesCosineTime_ ) );
+        ar( CEREAL_NVP( sineShAmplitudesSineTime_ ) );
+        ar( CEREAL_NVP( frequencies_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
 };
 
 class PolynomialGravityFieldVariationsSettings : public GravityFieldVariationSettings
@@ -571,7 +840,26 @@ public:
         return minimumOrder_;
     }
 
-private:
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const GravityFieldVariationSettings& rhs ) const override
+    {
+        const auto& derivedRhs = static_cast< const PolynomialGravityFieldVariationsSettings& >( rhs );
+        return GravityFieldVariationSettings::equals( rhs ) && cosineAmplitudes_ == derivedRhs.cosineAmplitudes_ &&
+                sineAmplitudes_ == derivedRhs.sineAmplitudes_ && referenceEpoch_ == derivedRhs.referenceEpoch_ &&
+                minimumDegree_ == derivedRhs.minimumDegree_ && minimumOrder_ == derivedRhs.minimumOrder_;
+    }
+
+protected:
+    //! Default constructor for serialization.
+    PolynomialGravityFieldVariationsSettings( ):
+        GravityFieldVariationSettings( gravitation::polynomial_variation ), referenceEpoch_( 0.0 ), minimumDegree_( 2 ), minimumOrder_( 0 )
+    {}
+
     std::map< int, Eigen::MatrixXd > cosineAmplitudes_;
 
     std::map< int, Eigen::MatrixXd > sineAmplitudes_;
@@ -581,6 +869,29 @@ private:
     int minimumDegree_;
 
     int minimumOrder_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( cosineAmplitudes_ ) );
+        ar( CEREAL_NVP( sineAmplitudes_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( cosineAmplitudes_ ) );
+        ar( CEREAL_NVP( sineAmplitudes_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+        ar( CEREAL_NVP( minimumDegree_ ) );
+        ar( CEREAL_NVP( minimumOrder_ ) );
+    }
 };
 //! Function to create constant complex Love number list for a range of degrees and orders.
 /*!
@@ -833,4 +1144,23 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
 
 }  // namespace simulation_setup
 }  // namespace tudat
+
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::GravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::ModeCoupledSolidBodyGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::TabulatedGravityFieldVariationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::ModeCoupledSolidBodyGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::TabulatedGravityFieldVariationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
+                                      tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
+
 #endif  // TUDAT_CREATEGRAVITYFIELDVARIATIONS_H
