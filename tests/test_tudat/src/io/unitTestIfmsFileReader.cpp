@@ -12,30 +12,23 @@
  *
  */
 
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <utility>
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 #include "tudat/io/preProcessIfmsFile.h"
-#include "tudat/io/readTrackingTxtFile.h"
-#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
-#include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 // Some simplifications for shorter lines
 using namespace tudat::input_output;
 using namespace tudat::basic_astrodynamics;
-using namespace tudat::observation_models;
-using namespace tudat::simulation_setup;
-using namespace tudat::spice_interface;
-using namespace tudat::ground_stations;
 using namespace tudat;
 
 namespace tudat
@@ -105,6 +98,18 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             BOOST_CHECK_SMALL(
                     static_cast< double >( trackingData.at( 0 )->getObservationEpochs( ).at( 9 - linesToBeSkipped.at( i ) ) - utcTimeTest ),
                     1.0E-12 );
+
+            simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
+            bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+            simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+            auto observationCollection = observation_models::createObservationCollection< double, Time >( trackingData, bodies );
+            std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+            const Eigen::Vector3d earthFixedPosition =
+                    bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
+            Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+                    utc_scale, tdb_scale, utcTimeTest, earthFixedPosition );
+            BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
+                               1.0E-12 );
         }
         else
         {

@@ -62,6 +62,7 @@ set(estimation_HEADERS
         processOdfFile.h
         processPsfFile.h
         processTrackingTxtFile.h
+        createObservationCollection.h
         compressDopplerObservationCollection.h
         )
 
@@ -82,6 +83,7 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createObservationCollection.cpp
         createInverseAprioriCovariance.cpp
         createObservationViability.cpp
         observationSimulationSettings.cpp
