@@ -3022,7 +3022,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
 
     if( trackingData->getTimeScale( ) != "TDB" )
     {
-        auto const& inputScale = timeScaleFromString( trackingData->getTimeScale( ) );
+        auto const& inputScale = basic_astrodynamics::timeScaleFromString( trackingData->getTimeScale( ) );
 
         auto const& earthFixedPosition = bodies.getBody( "Earth" )
                                                  ->getGroundStation( referenceLinkEndName )
