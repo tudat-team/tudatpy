@@ -24,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
@@ -500,6 +501,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            R"doc(
         Create a compressed Doppler observation collection.
 

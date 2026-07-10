@@ -301,6 +301,7 @@ reference_epoch:
 
  Function for creating settings for all DSN stations, defined by nominal positions and linear velocities, as defined
  by Cartesian elements in *DSN No. 810-005, 301, Rev. O*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301O.pdf>`__.
+ DSS-65 is defined with a piecewise-constant motion, according to `this link <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/earthstns_itrf93_050714.cmt>`__, as it was moved to a new location in 2005.
  Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
  station positions, regardless of the selected Earth rotation model.
 
