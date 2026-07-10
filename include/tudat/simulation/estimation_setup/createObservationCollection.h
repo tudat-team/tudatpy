@@ -128,7 +128,7 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
-        SystemOfBodies& bodies,
+        const SystemOfBodies& bodies,
         const bool applyCorrections = false )
 {
     // Identify observable type from tracking data object
