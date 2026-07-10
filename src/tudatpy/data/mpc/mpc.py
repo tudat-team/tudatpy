@@ -578,6 +578,7 @@ class BatchMPC:
                 observations=observations,
                 epochs=epochs_utc,  # from J2000 (UTC)
                 reference_link_end=reference_link_end_type,
+                time_scale="UTC",
             )
 
             if apply_weights_VFCC17:
