@@ -744,10 +744,10 @@ private:
                         std::cerr << "Warning: Observable type " << ( currentObservableType ) << " is not implemented." << std::endl;
                     }
                 }
-            }
 
-            addOdfRawDataBlockToProcessedData(
-                    rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+                addOdfRawDataBlockToProcessedData(
+                        rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
         }
     }
 
@@ -897,8 +897,8 @@ private:
             {
                 rampTables_[ stationName ]->addFrequencyRamp( rampStartTimesPerStationUtc.at( i ),
                                                               rampEndTimesPerStationUtc.at( i ),
-                                                              rampRatesPerStation[ stationName ].at( i ),
-                                                              startFrequenciesPerStation[ stationName ].at( i ) );
+                                                              startFrequenciesPerStation[ stationName ].at( i ),
+                                                              rampRatesPerStation[ stationName ].at( i ) );
             }
         }
     }
@@ -1195,7 +1195,7 @@ std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeTyp
             for( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
                 auto currentTrackingDataSet = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >(
-                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver" );
+                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver", "UTC" );
 
                 setOdfMetadataInTrackingData( currentTrackingDataSet, ancillaryData.at( i ) );
                 trackingDataSets.push_back( currentTrackingDataSet );
@@ -1221,7 +1221,8 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > extractTrackin
     for( auto const& [ stationName, rampTable ] : rampTables )
     {
         auto currentSupplementarySet = std::make_shared< data::TrackingSupplementaryData >( earthName, stationName );
-        currentSupplementarySet->setFrequencySupplementaryData( rampTable );
+        currentSupplementarySet->setFrequencySupplementaryData(
+                std::vector< std::shared_ptr< data::FrequencySupplementaryData > >( { rampTable } ) );
         trackingSupplementaryDataSets.push_back( currentSupplementarySet );
     }
 

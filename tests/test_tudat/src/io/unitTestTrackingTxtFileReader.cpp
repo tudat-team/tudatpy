@@ -12,7 +12,6 @@
  *
  */
 
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -30,6 +29,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 
 #include "tudat/io/preProcessFdetsFile.h"
 #include "tudat/io/readTrackingTxtFile.h"
