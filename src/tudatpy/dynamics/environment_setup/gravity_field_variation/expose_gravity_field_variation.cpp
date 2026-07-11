@@ -166,11 +166,12 @@ Variation model due to pole tides
          Class for providing settings for solid body tidal gravity field variations, derived from GravityFieldVariationSettings.
 
       )doc" ) TUDATPY_DEF_EQ_NE( tss::BasicSolidBodyGravityFieldVariationSettings )
-            .def( "set_mean_tidal_forcing_terms_to_subtract",
-                  &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
-                  py::arg( "mean_tidal_forcing_cosine_terms" ),
-                  py::arg( "mean_tidal_forcing_sine_terms" ),
-                  R"doc(
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::GravityFieldVariationSettings, tss::BasicSolidBodyGravityFieldVariationSettings )
+                    .def( "set_mean_tidal_forcing_terms_to_subtract",
+                          &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
+                          py::arg( "mean_tidal_forcing_cosine_terms" ),
+                          py::arg( "mean_tidal_forcing_sine_terms" ),
+                          R"doc(
 
          Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations. This is typically
          used for tides raised on synchronously rotating satellites, where the variation in longitude :math:`\theta` (see :func:`~solid_body_tide`) is
