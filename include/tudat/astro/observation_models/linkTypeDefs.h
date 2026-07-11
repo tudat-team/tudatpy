@@ -72,14 +72,14 @@ struct LinkEndId {
         return std::make_pair( bodyName_, getReferencePointName( ) );
     }
 
-    friend bool operator==( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    bool operator==( const LinkEndId& rhs ) const
     {
-        return linkEnd1.equals( linkEnd2 );
+        return equals( rhs );
     }
 
-    friend bool operator!=( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    bool operator!=( const LinkEndId& rhs ) const
     {
-        return !operator==( linkEnd1, linkEnd2 );
+        return !operator==( rhs );
     }
 
     //! Equality comparison for LinkEndId
@@ -217,14 +217,14 @@ struct LinkDefinition {
         return static_cast< unsigned int >( linkEnds_.size( ) );
     }
 
-    friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
+    bool operator==( const LinkDefinition& rhs ) const
     {
-        return linkEnds1.equals( linkEnds2 );
+        return equals( rhs );
     }
 
-    friend bool operator!=( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
+    bool operator!=( const LinkDefinition& rhs ) const
     {
-        return !operator==( linkEnds1, linkEnds2 );
+        return !operator==( rhs );
     }
 
     //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
