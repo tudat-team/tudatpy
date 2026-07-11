@@ -42,9 +42,7 @@ class DerivedSraRangeConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(
-        self, range_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[TrackingData]:
+    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> list[TrackingData]:
 
         tracking_data_list = []
         for link_end in range_df["link_ends"].unique():
@@ -75,16 +73,14 @@ class DerivedSraRangeConverter(RadioBase):
                             tracking_data.add_ancillary_settings(
                                 "frequency bands",
                                 [
-                                    self.frequencyBandsDict[band[0]],
-                                    self.frequencyBandsDict[band[1]],
+                                    self.frequencyBandIds[band[0]],
+                                    self.frequencyBandIds[band[1]],
                                 ],
                             )
                             tracking_data.add_ancillary_settings(
                                 "DSN sequential range lowest ranging component", float(lrc)
                             )
-                            tracking_data.add_ancillary_settings(
-                                "link ends time delays", list(ttd)
-                            )
+                            tracking_data.add_ancillary_settings("link ends time delays", list(ttd))
                             tracking_data_list.append(tracking_data)
 
         return tracking_data_list

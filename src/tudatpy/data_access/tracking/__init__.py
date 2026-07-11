@@ -10,6 +10,7 @@ from . import (
     odf,
     optical_utilities,
     psf,
+    tnf,
 )
 
 globals()["80_column"] = _importlib.import_module(__name__ + ".80_column")

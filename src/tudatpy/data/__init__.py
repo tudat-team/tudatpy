@@ -1,4 +1,11 @@
-from tudatpy.kernel.data import *
+try:
+    from tudatpy.kernel.data import *
+except ModuleNotFoundError:
+    from tudatpy.data_access.tracking import (
+        RampedFrequencySupplementaryData,
+        TrackingData,
+        TrackingSupplementaryData,
+    )
 from ._support import save2txt, save_time_history_to_file
 from .mission_data_downloader import LoadPDS, DownloadAtmosphericData
 from .processTrk234 import Trk234Processor

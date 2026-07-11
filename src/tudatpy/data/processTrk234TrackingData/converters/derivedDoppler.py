@@ -60,23 +60,19 @@ class DerivedDopplerConverter(RadioBase):
                         tracking_data.add_ancillary_settings(
                             "frequency bands",
                             [
-                                self.frequencyBandsDict[band[0]],
-                                self.frequencyBandsDict[band[1]],
+                                self.frequencyBandIds[band[0]],
+                                self.frequencyBandIds[band[1]],
                             ],
                         )
                         tracking_data.add_ancillary_settings(
                             "DSN reference frequency band at reception",
-                            [self.frequencyBandsDict[band[1]]],
+                            self.frequencyBandIds[band[1]],
                         )
-                        tracking_data.add_ancillary_settings(
-                            "DSN Doppler reference frequency", 0.0
-                        )
+                        tracking_data.add_ancillary_settings("DSN Doppler reference frequency", 0.0)
                         tracking_data.add_ancillary_settings(
                             "Doppler observable integration time", float(ct)
                         )
-                        tracking_data.add_ancillary_settings(
-                            "link ends time delays", list(ttd)
-                        )
+                        tracking_data.add_ancillary_settings("link ends time delays", list(ttd))
                         tracking_data_list.append(tracking_data)
 
         return tracking_data_list
