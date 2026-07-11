@@ -43,6 +43,9 @@ class ClassInfo:
     has_save_load: bool = False
     has_operator_eq: bool = False
     has_equals_method: bool = False
+    has_file_io_binary: bool = False  # declares/defines saveToBinary + loadFromBinary
+    has_file_io_json: bool = False  # declares/defines saveToJson + loadFromJson
+    file_io_polymorphic: bool = False  # load returns shared_ptr<Base> (polymorphic)
     base_classes: list = field(default_factory=list)  # direct base class names
     cpp_test_files: list = field(default_factory=list)
     py_expose_file: str = ""
@@ -87,6 +90,48 @@ def scan_headers() -> dict[str, ClassInfo]:
     load_re = re.compile(r"void\s+load\s*\(\s*[^)]*Archive[^)]*\)")
     operator_eq_re = re.compile(r"(?:friend\s+)?(?:bool|auto)\s+operator\s*==\s*\([^)]*\)")
     equals_method_re = re.compile(r"bool\s+equals\s*\([^)]*\)\s*const(?:\s+override)?")
+    # File IO patterns — match both the explicit declaration and the macro invocation.
+    # The macros use __VA_ARGS__ so they can appear as:
+    #   TUDAT_DEFINE_FILE_IO( ClassName )
+    #   TUDAT_DEFINE_BINARY_IO( ClassName )
+    #   TUDAT_DEFINE_JSON_IO( ClassName )
+    #   TUDAT_DEFINE_FILE_IO_POLYMORPHIC( BaseName )
+    #   TUDAT_DEFINE_JSON_IO_POLYMORPHIC( BaseName )
+    #   TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( BaseName )
+    save_to_binary_re = re.compile(
+        r"(?:"
+        r"saveToBinary\s*\(\s*(?:const\s+)?std::string\s*&?\s*(?:const\s+)?(?:&\s*)?path\s*\)"
+        r"|"
+        r"TUDAT_DEFINE_(?:FILE_IO(?:_POLYMORPHIC)?|BINARY_IO(?:_POLYMORPHIC)?)\s*\("
+        r")"
+    )
+    load_from_binary_re = re.compile(
+        r"(?:"
+        r"loadFromBinary\s*\(\s*(?:const\s+)?std::string\s*&?\s*(?:const\s+)?(?:&\s*)?path\s*\)"
+        r"|"
+        r"TUDAT_DEFINE_(?:FILE_IO(?:_POLYMORPHIC)?|BINARY_IO(?:_POLYMORPHIC)?)\s*\("
+        r")"
+    )
+    save_to_json_re = re.compile(
+        r"(?:"
+        r"saveToJson\s*\(\s*(?:const\s+)?std::string\s*&?\s*(?:const\s+)?(?:&\s*)?path\s*\)"
+        r"|"
+        r"TUDAT_DEFINE_(?:FILE_IO(?:_POLYMORPHIC)?|JSON_IO(?:_POLYMORPHIC)?)\s*\("
+        r")"
+    )
+    load_from_json_re = re.compile(
+        r"(?:"
+        r"loadFromJson\s*\(\s*(?:const\s+)?std::string\s*&?\s*(?:const\s+)?(?:&\s*)?path\s*\)"
+        r"|"
+        r"TUDAT_DEFINE_(?:FILE_IO(?:_POLYMORPHIC)?|JSON_IO(?:_POLYMORPHIC)?)\s*\("
+        r")"
+    )
+    # Polymorphic load detection: returns shared_ptr<...> or uses _POLYMORPHIC macro variant
+    poly_load_re = re.compile(
+        r"static\s+std::shared_ptr\s*<"
+        r"|"
+        r"TUDAT_DEFINE_(?:FILE_IO_POLYMORPHIC|JSON_IO_POLYMORPHIC|BINARY_IO_POLYMORPHIC)\s*\("
+    )
 
     for hdr in sorted(INCLUDE_DIR.rglob("*.h")):
         rel = str(hdr.relative_to(ROOT))
@@ -133,8 +178,15 @@ def scan_headers() -> dict[str, ClassInfo]:
             has_load = bool(load_re.search(body))
             has_op_eq = bool(operator_eq_re.search(body))
             has_eq_method = bool(equals_method_re.search(body))
+            has_bin = bool(save_to_binary_re.search(body)) and bool(
+                load_from_binary_re.search(body)
+            )
+            has_json = bool(save_to_json_re.search(body)) and bool(load_from_json_re.search(body))
+            is_poly = bool(poly_load_re.search(body)) if (has_bin or has_json) else False
 
-            if not (is_set or has_save or has_load or has_op_eq or has_eq_method):
+            if not (
+                is_set or has_save or has_load or has_op_eq or has_eq_method or has_bin or has_json
+            ):
                 continue
 
             if cls_name not in results:
@@ -152,6 +204,12 @@ def scan_headers() -> dict[str, ClassInfo]:
                 info.has_operator_eq = True
             if has_eq_method:
                 info.has_equals_method = True
+            if has_bin:
+                info.has_file_io_binary = True
+            if has_json:
+                info.has_file_io_json = True
+            if is_poly:
+                info.file_io_polymorphic = True
             if base_name:
                 info.base_classes.append(base_name)
 
@@ -168,6 +226,52 @@ def scan_headers() -> dict[str, ClassInfo]:
                     info.has_operator_eq = True
                     changed = True
                     break
+
+    # ── Phase 1b: Harvest derived classes not yet in results ────────────
+    # Some derived types don't redeclare save/load/operator== themselves,
+    # so the initial scan missed them.  Scan headers again, looking for
+    # classes that inherit from any class we already track.
+    class_start_re2 = re.compile(
+        r"(?:^|\n)\s*(?:class|struct)\s+(\w+)\s*:\s*(?:public|protected|private)\s+(\w+)",
+        re.MULTILINE,
+    )
+    for hdr in sorted(INCLUDE_DIR.rglob("*.h")):
+        rel = str(hdr.relative_to(ROOT))
+        try:
+            content = hdr.read_text(errors="ignore")
+        except Exception:
+            continue
+        for m in class_start_re2.finditer(content):
+            derived, base = m.group(1), m.group(2)
+            if base not in results:
+                continue
+            if derived in results:
+                continue
+            results[derived] = ClassInfo(
+                name=derived,
+                header_file=rel,
+                base_classes=[base],
+            )
+
+    # Propagate has_operator_eq and file IO through inheritance.
+    # operator==, saveTo*, loadFrom* are all inherited by derived classes.
+    for attr in (
+        "has_operator_eq",
+        "has_file_io_binary",
+        "has_file_io_json",
+        "file_io_polymorphic",
+    ):
+        changed = True
+        while changed:
+            changed = False
+            for cls_name, info in results.items():
+                if getattr(info, attr):
+                    continue
+                for base in info.base_classes:
+                    if base in results and getattr(results[base], attr):
+                        setattr(info, attr, True)
+                        changed = True
+                        break
 
     return results
 
@@ -283,6 +387,10 @@ def scan_python_exposure(class_infos: dict[str, ClassInfo]) -> None:
             has_save = bool(
                 re.search(r'"save_(?:to_)?(?:json|binary|bin)"', segment)
                 or re.search(r'"load_(?:from_)?(?:json|binary|bin)"', segment)
+                or re.search(
+                    r"TUDATPY_DEF_(?:FILE_IO(?:_POLYMORPHIC)?|BINARY_IO(?:_POLYMORPHIC)?|JSON_IO(?:_POLYMORPHIC)?)\s*\(",
+                    segment,
+                )
             )
 
             for cls_name in name_map[short_name]:
@@ -353,15 +461,18 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
     headers = [
         "Class",
         "Is Settings",
-        "Save/Load",
+        "Has Cereal\n(save/load)",
         "operator==",
         "equals() method",
-        "C++ Roundtrip Test",
-        "Python Exposure File",
-        "Py Binding: operator==",
-        "Py Binding: pickle",
-        "Py Binding: file I/O (save/load)",
-        "Python Roundtrip Test",
+        "File IO\nBinary",
+        "File IO\nJSON",
+        "File IO\nPolymorphic",
+        "C++ Roundtrip\nTest",
+        "Python Exposure\nFile",
+        "Py: operator==",
+        "Py: pickle",
+        "Py: file I/O\n(save/load)",
+        "Python\nRoundtrip Test",
         "Header File",
         "C++ Test Files",
         "Python Test Files",
@@ -382,6 +493,9 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             _yesno(info.has_save_load),
             _yesno(info.has_operator_eq),
             _yesno(info.has_equals_method),
+            _yesno(info.has_file_io_binary),
+            _yesno(info.has_file_io_json),
+            _yesno(info.file_io_polymorphic),
             _yesno(bool(info.cpp_test_files)),
             info.py_expose_file or "",
             _yesno(info.py_has_equals),
@@ -395,7 +509,8 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         for c, v in enumerate(vals, 1):
             cell = ws.cell(row=row, column=c, value=v)
             cell.alignment = wrap
-            if c in (2, 3, 4, 5, 6, 8, 9, 10, 11):
+            center_cols = {2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14}
+            if c in center_cols:
                 cell.alignment = center
                 if v == "✓":
                     cell.fill = yes_fill
@@ -405,7 +520,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             ws.cell(row=row, column=1).fill = settings_fill
         row += 1
 
-    col_widths = [40, 12, 12, 12, 16, 20, 50, 24, 22, 30, 22, 55, 55, 55]
+    col_widths = [40, 12, 12, 12, 16, 14, 14, 16, 18, 50, 14, 14, 18, 18, 55, 55, 55]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws.freeze_panes = "A2"
@@ -430,13 +545,16 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         [
             ("Metric", "All Classes", "Settings Only"),
             ("Total", total, settings),
-            ("Has save/load", _c("has_save_load"), _c("has_save_load", True)),
+            ("Has cereal save/load", _c("has_save_load"), _c("has_save_load", True)),
             ("Has operator==", _c("has_operator_eq"), _c("has_operator_eq", True)),
             ("Has equals() method", _c("has_equals_method"), _c("has_equals_method", True)),
+            ("Has File IO Binary", _c("has_file_io_binary"), _c("has_file_io_binary", True)),
+            ("Has File IO JSON", _c("has_file_io_json"), _c("has_file_io_json", True)),
+            ("File IO Polymorphic", _c("file_io_polymorphic"), _c("file_io_polymorphic", True)),
             ("C++ roundtrip test", _cb("cpp_test_files"), _cb("cpp_test_files", True)),
             ("Py Binding: operator==", _c("py_has_equals"), _c("py_has_equals", True)),
             ("Py Binding: pickle", _c("py_has_pickle"), _c("py_has_pickle", True)),
-            ("Py Binding: file I/O (save/load)", _c("py_has_save_to"), _c("py_has_save_to", True)),
+            ("Py Binding: file I/O", _c("py_has_save_to"), _c("py_has_save_to", True)),
             ("Python roundtrip test", _cb("py_test_files"), _cb("py_test_files", True)),
         ],
         1,
@@ -457,10 +575,13 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         "Save/Load",
         "operator==",
         "equals() method",
+        "File IO\nBinary",
+        "File IO\nJSON",
+        "File IO\nPolymorphic",
         "C++ Test",
-        "Py Binding: operator==",
-        "Py Binding: pickle",
-        "Py Binding: file I/O (save/load)",
+        "Py: operator==",
+        "Py: pickle",
+        "Py: file I/O",
         "Py Test",
         "Header File",
     ]
@@ -479,6 +600,9 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
             _yesno(info.has_save_load),
             _yesno(info.has_operator_eq),
             _yesno(info.has_equals_method),
+            _yesno(info.has_file_io_binary),
+            _yesno(info.has_file_io_json),
+            _yesno(info.file_io_polymorphic),
             _yesno(bool(info.cpp_test_files)),
             _yesno(info.py_has_equals),
             _yesno(info.py_has_pickle),
@@ -488,7 +612,8 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
         ]
         for c, v in enumerate(vals, 1):
             cell = ws3.cell(row=row, column=c, value=v)
-            if c in (2, 3, 4, 5, 6, 7, 8, 9):
+            center_cols = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+            if c in center_cols:
                 cell.alignment = center
                 if v == "✓":
                     cell.fill = yes_fill
@@ -496,7 +621,7 @@ def write_excel(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
                     cell.fill = no_fill
         row += 1
 
-    for i, w in enumerate([45, 12, 14, 16, 12, 24, 22, 30, 12, 60], 1):
+    for i, w in enumerate([45, 12, 14, 16, 14, 14, 16, 12, 14, 14, 18, 12, 60], 1):
         ws3.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws3.freeze_panes = "A2"
     ws3.auto_filter.ref = f"A1:{openpyxl.utils.get_column_letter(len(s_headers))}{row - 1}"
@@ -518,11 +643,14 @@ def write_csv(class_infos: dict[str, ClassInfo], output_path: Path) -> Path:
                 "Save/Load": "yes" if info.has_save_load else "no",
                 "operator==": "yes" if info.has_operator_eq else "no",
                 "equals() method": "yes" if info.has_equals_method else "no",
+                "File IO Binary": "yes" if info.has_file_io_binary else "no",
+                "File IO JSON": "yes" if info.has_file_io_json else "no",
+                "File IO Polymorphic": "yes" if info.file_io_polymorphic else "no",
                 "C++ Roundtrip Test": "yes" if info.cpp_test_files else "no",
                 "Python Exposure File": info.py_expose_file,
                 "Py Binding: operator==": "yes" if info.py_has_equals else "no",
                 "Py Binding: pickle": "yes" if info.py_has_pickle else "no",
-                "Py Binding: file I/O (save/load)": "yes" if info.py_has_save_to else "no",
+                "Py Binding: file I/O": "yes" if info.py_has_save_to else "no",
                 "Python Roundtrip Test": "yes" if info.py_test_files else "no",
                 "Header File": info.header_file,
                 "C++ Test Files": "; ".join(info.cpp_test_files),
@@ -566,6 +694,24 @@ def main():
     print("Scanning Python test files...")
     scan_python_tests(class_infos)
 
+    # Propagate Python exposure status down the inheritance chain.
+    # A bound base with __eq__/pickle/save_to exposes those features for all
+    # derived types through polymorphic serialization — even if the derived
+    # type has no dedicated py::class_ of its own.
+    print("Propagating Python exposure through inheritance...")
+    for attr in ("py_has_equals", "py_has_pickle", "py_has_save_to", "py_expose_file"):
+        changed = True
+        while changed:
+            changed = False
+            for cls_name, info in class_infos.items():
+                if getattr(info, attr):
+                    continue
+                for base in info.base_classes:
+                    if base in class_infos and getattr(class_infos[base], attr):
+                        setattr(info, attr, getattr(class_infos[base], attr))
+                        changed = True
+                        break
+
     # Output
     if args.csv:
         path = write_csv(class_infos, args.output or DEFAULT_EXCEL.with_suffix(".csv"))
@@ -585,16 +731,22 @@ def main():
     py_st = sum(1 for i in class_infos.values() if i.py_has_save_to)
     py_t = sum(1 for i in class_infos.values() if i.py_test_files)
     settings = sum(1 for i in class_infos.values() if i.is_settings)
-    print(f"\n{'='*60}")
+    file_io_bin = sum(1 for i in class_infos.values() if i.has_file_io_binary)
+    file_io_json = sum(1 for i in class_infos.values() if i.has_file_io_json)
+    file_io_poly = sum(1 for i in class_infos.values() if i.file_io_polymorphic)
+    print(f"\n{'='*68}")
     print(f"  Total: {total}  |  Settings: {settings}")
     print(
         f"  save/load: {sl}  |  operator==: {op_eq}  |  equals(): {eq_method}  |  C++ tests: {cpp}"
     )
     print(
+        f"  File IO binary: {file_io_bin}  |  File IO JSON: {file_io_json}  |  Polymorphic: {file_io_poly}"
+    )
+    print(
         f"  Py Binding: operator==: {py_eq}  |  Py Binding: pickle: {py_pk}  |  Py Binding: file I/O: {py_st}"
     )
     print(f"  Py tests:  {py_t}")
-    print(f"{'='*60}")
+    print(f"{'='*68}")
 
 
 if __name__ == "__main__":
