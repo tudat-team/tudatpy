@@ -744,10 +744,10 @@ private:
                         std::cerr << "Warning: Observable type " << ( currentObservableType ) << " is not implemented." << std::endl;
                     }
                 }
-            }
 
-            addOdfRawDataBlockToProcessedData(
-                    rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+                addOdfRawDataBlockToProcessedData(
+                        rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
         }
     }
 
@@ -897,8 +897,8 @@ private:
             {
                 rampTables_[ stationName ]->addFrequencyRamp( rampStartTimesPerStationUtc.at( i ),
                                                               rampEndTimesPerStationUtc.at( i ),
-                                                              rampRatesPerStation[ stationName ].at( i ),
-                                                              startFrequenciesPerStation[ stationName ].at( i ) );
+                                                              startFrequenciesPerStation[ stationName ].at( i ),
+                                                              rampRatesPerStation[ stationName ].at( i ) );
             }
         }
     }
