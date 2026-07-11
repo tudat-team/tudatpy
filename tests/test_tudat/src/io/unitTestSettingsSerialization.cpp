@@ -31,6 +31,17 @@
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/math/root_finders/createRootFinder.h"
 
+// Headers for new serialization tests
+#include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+
+#if TUDAT_BUILD_WITH_PAGMO
+#include "tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
+#endif
+
 namespace tudat
 {
 namespace unit_tests
@@ -473,6 +484,176 @@ BOOST_AUTO_TEST_CASE( test_RootFinderSettingsSerialization )
     catch( std::exception& e )
     {
         BOOST_ERROR( "Serialization failed for RootFinderSettings: " << e.what( ) );
+    }
+}
+
+// Test FixedTimeHodographicShapingOptimisationProblem serialization
+#if TUDAT_BUILD_WITH_PAGMO
+BOOST_AUTO_TEST_CASE( test_FixedTimeHodographicShapingSerialization )
+{
+    using namespace shape_based_methods;
+
+    // Create object with bounds (the only serialized member)
+    std::vector< std::vector< double > > bounds = { { -10.0, 10.0 }, { -5.0, 5.0 } };
+    FixedTimeHodographicShapingOptimisationProblem problem( Eigen::Vector6d::Zero( ),
+                                                            Eigen::Vector6d::Zero( ),
+                                                            0.0,
+                                                            0.0,
+                                                            0,
+                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
+                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
+                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
+                                                            bounds );
+
+    std::stringstream ss;
+
+    try
+    {
+        {
+            cereal::BinaryOutputArchive oarchive( ss );
+            oarchive( problem );
+        }
+
+        FixedTimeHodographicShapingOptimisationProblem deserializedProblem;
+
+        {
+            cereal::BinaryInputArchive iarchive( ss );
+            iarchive( deserializedProblem );
+        }
+
+        // Only problemBounds_ is serialized; directly compare that field
+        std::pair< std::vector< double >, std::vector< double > > origBounds = problem.get_bounds( );
+        std::pair< std::vector< double >, std::vector< double > > deserBounds = deserializedProblem.get_bounds( );
+        BOOST_CHECK( origBounds.first == deserBounds.first );
+        BOOST_CHECK( origBounds.second == deserBounds.second );
+    }
+    catch( std::exception& e )
+    {
+        BOOST_ERROR( "Serialization failed for FixedTimeHodographicShapingOptimisationProblem: " << e.what( ) );
+    }
+}
+
+// Test HodographicShapingOptimisationProblem serialization
+BOOST_AUTO_TEST_CASE( test_HodographicShapingOptimisationSerialization )
+{
+    using namespace shape_based_methods;
+
+    // Create object with bounds (the only serialized member)
+    std::vector< std::vector< double > > bounds = { { -10.0, 10.0 }, { -5.0, 5.0 } };
+    HodographicShapingOptimisationProblem problem(
+            []( const double ) { return Eigen::Vector6d::Zero( ); },
+            []( const double ) { return Eigen::Vector6d::Zero( ); },
+            0.0,
+            0,
+            []( const double ) { return std::vector< HodographicShapingOptimisationProblem::BaseFunctionVector >( ); },
+            bounds,
+            false,
+            TUDAT_NAN );
+
+    std::stringstream ss;
+
+    try
+    {
+        {
+            cereal::BinaryOutputArchive oarchive( ss );
+            oarchive( problem );
+        }
+
+        HodographicShapingOptimisationProblem deserializedProblem;
+
+        {
+            cereal::BinaryInputArchive iarchive( ss );
+            iarchive( deserializedProblem );
+        }
+
+        // Only problemBounds_ is serialized; directly compare that field
+        std::pair< std::vector< double >, std::vector< double > > origBounds = problem.get_bounds( );
+        std::pair< std::vector< double >, std::vector< double > > deserBounds = deserializedProblem.get_bounds( );
+        BOOST_CHECK( origBounds.first == deserBounds.first );
+        BOOST_CHECK( origBounds.second == deserBounds.second );
+    }
+    catch( std::exception& e )
+    {
+        BOOST_ERROR( "Serialization failed for HodographicShapingOptimisationProblem: " << e.what( ) );
+    }
+}
+#endif
+
+// Test ObservationDependentVariableBookkeeping serialization
+BOOST_AUTO_TEST_CASE( test_ObservationDependentVariableBookkeepingSerialization )
+{
+    using namespace observation_models;
+    using namespace simulation_setup;
+
+    // Create a minimal bookkeeping with observable type and link ends
+    LinkDefinition linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Earth", "station" );
+    linkEnds[ receiver ] = LinkEndId( "Moon", "" );
+
+    auto bookkeeping = std::make_shared< ObservationDependentVariableBookkeeping >( one_way_range, linkEnds );
+
+    std::stringstream ss;
+
+    try
+    {
+        {
+            cereal::BinaryOutputArchive oarchive( ss );
+            oarchive( bookkeeping );
+        }
+
+        std::shared_ptr< ObservationDependentVariableBookkeeping > deserializedBookkeeping;
+
+        {
+            cereal::BinaryInputArchive iarchive( ss );
+            iarchive( deserializedBookkeeping );
+        }
+
+        BOOST_REQUIRE( deserializedBookkeeping != nullptr );
+        BOOST_CHECK( *bookkeeping == *deserializedBookkeeping );
+    }
+    catch( std::exception& e )
+    {
+        BOOST_ERROR( "Serialization failed for ObservationDependentVariableBookkeeping: " << e.what( ) );
+    }
+}
+
+// Test PropagationTerminationDetailsFromHybridCondition serialization
+BOOST_AUTO_TEST_CASE( test_PropagationTerminationDetailsFromHybridConditionSerialization )
+{
+    using namespace propagators;
+
+    // Create a hybrid termination condition to populate the details
+    auto fixedTimeCondition = std::make_shared< FixedTimePropagationTerminationCondition >( 1000.0, true );
+    std::vector< std::shared_ptr< PropagationTerminationCondition > > conditions = { fixedTimeCondition };
+    auto hybridCondition = std::make_shared< HybridPropagationTerminationCondition >( conditions, true );
+
+    auto details = std::make_shared< PropagationTerminationDetailsFromHybridCondition >( true, hybridCondition );
+
+    // Serialize through the base type pointer to exercise polymorphic tagging
+    std::shared_ptr< PropagationTerminationDetails > detailsBase = details;
+
+    std::stringstream ss;
+
+    try
+    {
+        {
+            cereal::BinaryOutputArchive oarchive( ss );
+            oarchive( detailsBase );
+        }
+
+        std::shared_ptr< PropagationTerminationDetails > deserializedDetails;
+
+        {
+            cereal::BinaryInputArchive iarchive( ss );
+            iarchive( deserializedDetails );
+        }
+
+        BOOST_REQUIRE( deserializedDetails != nullptr );
+        BOOST_CHECK( *detailsBase == *deserializedDetails );
+    }
+    catch( std::exception& e )
+    {
+        BOOST_ERROR( "Serialization failed for PropagationTerminationDetailsFromHybridCondition: " << e.what( ) );
     }
 }
 
