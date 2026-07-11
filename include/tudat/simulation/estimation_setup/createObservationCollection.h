@@ -123,6 +123,12 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
                 observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
     }
 
+    if( trackingData->getAncillarySettingsDouble( ).empty( ) && trackingData->getAncillarySettingsDoubleVector( ).empty( ) &&
+        trackingData->getAncillarySettingsStringVector( ).empty( ) && trackingData->getAncillarySettingsString( ).empty( ) )
+    {
+        return nullptr;
+    }
+
     return ancillarySettings;
 }
 

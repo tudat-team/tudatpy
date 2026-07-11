@@ -74,7 +74,7 @@ E.g., Jupiter XIII is represented as "J013S", Saturn X as "S010S" and Neptune II
 # SPACE_BASED_OBS_TYPES = ["S", "s", "T", "t"]
 ###############################################################################
 
-OBS_TYPES_TO_DROP = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
+OBS_TYPES_TO_DROP = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O", "S", "s", "T", "t"]
 """ Observation types to be ignored during parsing.
     See: https://minorplanetcenter.net/iau/info/OpticalObs.html (Note 2)
 """
