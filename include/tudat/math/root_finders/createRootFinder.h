@@ -103,9 +103,13 @@ protected:
             return false;
         }
         return rootFinderType_ == rhs->rootFinderType_ &&
-                relativeIndependentVariableTolerance_ == rhs->relativeIndependentVariableTolerance_ &&
-                absoluteIndependentVariableTolerance_ == rhs->absoluteIndependentVariableTolerance_ &&
-                rootFunctionTolerance_ == rhs->rootFunctionTolerance_ && maximumNumberOfIterations_ == rhs->maximumNumberOfIterations_ &&
+                ( relativeIndependentVariableTolerance_ == rhs->relativeIndependentVariableTolerance_ ||
+                  ( std::isnan( relativeIndependentVariableTolerance_ ) && std::isnan( rhs->relativeIndependentVariableTolerance_ ) ) ) &&
+                ( absoluteIndependentVariableTolerance_ == rhs->absoluteIndependentVariableTolerance_ ||
+                  ( std::isnan( absoluteIndependentVariableTolerance_ ) && std::isnan( rhs->absoluteIndependentVariableTolerance_ ) ) ) &&
+                ( rootFunctionTolerance_ == rhs->rootFunctionTolerance_ ||
+                  ( std::isnan( rootFunctionTolerance_ ) && std::isnan( rhs->rootFunctionTolerance_ ) ) ) &&
+                maximumNumberOfIterations_ == rhs->maximumNumberOfIterations_ &&
                 maximumIterationHandling_ == rhs->maximumIterationHandling_;
     }
 
