@@ -17,10 +17,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <Eigen/Core>
