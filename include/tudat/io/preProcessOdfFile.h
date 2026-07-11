@@ -14,6 +14,7 @@
 #ifndef TUDAT_PREPROCESSODFFILE_H
 #define TUDAT_PREPROCESSODFFILE_H
 
+#include <cmath>
 #include <map>
 #include <memory>
 #include <string>
@@ -67,12 +68,31 @@ struct OdfAncillaryData {
 
     bool operator==( const OdfAncillaryData& other ) const
     {
+        auto doublesEqual = []( const double left, const double right ) {
+            return left == right || ( std::isnan( left ) && std::isnan( right ) );
+        };
+
+        auto doubleVectorsEqual = [ &doublesEqual ]( const std::vector< double >& left, const std::vector< double >& right ) {
+            if( left.size( ) != right.size( ) )
+            {
+                return false;
+            }
+            for( unsigned int i = 0; i < left.size( ); ++i )
+            {
+                if( !doublesEqual( left.at( i ), right.at( i ) ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
         return frequencyBandIds_ == other.frequencyBandIds_ &&
                 receptionReferenceFrequencyBandId_ == other.receptionReferenceFrequencyBandId_ &&
-                dopplerIntegrationTime_ == other.dopplerIntegrationTime_ &&
-                dopplerReferenceFrequency_ == other.dopplerReferenceFrequency_ &&
-                sequentialRangeLowestRangingComponent_ == other.sequentialRangeLowestRangingComponent_ &&
-                linkEndsDelays_ == other.linkEndsDelays_;
+                doublesEqual( dopplerIntegrationTime_, other.dopplerIntegrationTime_ ) &&
+                doublesEqual( dopplerReferenceFrequency_, other.dopplerReferenceFrequency_ ) &&
+                doublesEqual( sequentialRangeLowestRangingComponent_, other.sequentialRangeLowestRangingComponent_ ) &&
+                doubleVectorsEqual( linkEndsDelays_, other.linkEndsDelays_ );
     }
 };
 

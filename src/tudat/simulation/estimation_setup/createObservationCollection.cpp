@@ -1,6 +1,8 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
 
+#include <cmath>
+
 namespace tudat
 {
 
@@ -70,6 +72,43 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
     return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
+}
+
+std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
+        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
+{
+    if( rotationFromInertialToCameraFrameHistory.empty( ) )
+    {
+        return nullptr;
+    }
+
+    std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
+    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter;
+    for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
+    {
+        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter.getCurrentTime< double >(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
+                rotationEntry.second;
+    }
+
+    return [ = ]( const double time ) {
+        auto upperIterator = tdbRotationFromInertialToCameraFrameHistory.lower_bound( time );
+        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.begin( ) )
+        {
+            return upperIterator->second;
+        }
+        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.end( ) )
+        {
+            return std::prev( upperIterator )->second;
+        }
+
+        auto lowerIterator = std::prev( upperIterator );
+        if( std::fabs( time - lowerIterator->first ) <= std::fabs( upperIterator->first - time ) )
+        {
+            return lowerIterator->second;
+        }
+        return upperIterator->second;
+    };
 }
 
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,
@@ -568,7 +607,11 @@ void setInstrumentSupplementaryDataInBodies(
                                                                                      cameraSupplementaryData->getFieldOfViewBounds( ) );
 
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
-                        cameraSupplementaryData->getCameraId( ), Eigen::Vector3d::Zero( ), projectionModel );
+                        cameraSupplementaryData->getCameraId( ),
+                        Eigen::Vector3d::Zero( ),
+                        projectionModel,
+                        Eigen::Vector3d::Zero( ),
+                        createNearestCameraPointingFunction( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
             }
             else

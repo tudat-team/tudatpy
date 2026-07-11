@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/io/trackingData.h"
@@ -109,6 +110,8 @@ std::shared_ptr< const data::CameraInstrumentSupplementaryData > getPsfCameraIns
         const std::string& cameraId );
 
 double getPsfPictureObservationTime( const RawPsfFileImageContents& imageContents, const bool useMidExposureTime = true );
+
+Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const RawPsfFileImageContents& imageContents );
 
 RawPsfFileContents readRawPsfFile( const std::string& psfFile );
 

@@ -12,6 +12,7 @@
 #define TUDAT_TRACKING_SUPPLEMENTARY_DATA_H
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <functional>
 #include <map>
 #include <memory>
@@ -137,10 +138,13 @@ public:
                                        const Eigen::Vector4d& fieldOfViewBounds,
                                        const Eigen::Matrix< double, 2, 3 >& kMatrix,
                                        const Eigen::Matrix< double, 6, 1 >& distortionCoefficients,
-                                       const Eigen::Vector3d& mountingOffsets ):
+                                       const Eigen::Vector3d& mountingOffsets,
+                                       const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory =
+                                               std::map< double, Eigen::Quaterniond >( ) ):
         InstrumentSupplementaryData( InstrumentSupplementaryDataType::camera_settings ), cameraId_( cameraId ), focalLength_( focalLength ),
         principalPoint_( principalPoint ), fieldOfViewBounds_( fieldOfViewBounds ), kMatrix_( kMatrix ),
-        distortionCoefficients_( distortionCoefficients ), mountingOffsets_( mountingOffsets )
+        distortionCoefficients_( distortionCoefficients ), mountingOffsets_( mountingOffsets ),
+        rotationFromInertialToCameraFrameHistory_( rotationFromInertialToCameraFrameHistory )
     {}
 
     const std::string& getCameraId( ) const
@@ -178,6 +182,11 @@ public:
         return mountingOffsets_;
     }
 
+    const std::map< double, Eigen::Quaterniond >& getRotationFromInertialToCameraFrameHistory( ) const
+    {
+        return rotationFromInertialToCameraFrameHistory_;
+    }
+
 private:
     std::string cameraId_;
 
@@ -192,6 +201,8 @@ private:
     Eigen::Matrix< double, 6, 1 > distortionCoefficients_ = Eigen::Matrix< double, 6, 1 >::Zero( );
 
     Eigen::Vector3d mountingOffsets_ = Eigen::Vector3d::Zero( );
+
+    std::map< double, Eigen::Quaterniond > rotationFromInertialToCameraFrameHistory_;
 };
 
 class TranslationalStateSupplementaryData

@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <fstream>
 #include <map>
 #include <sstream>
@@ -21,6 +22,7 @@
 
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/io/readTrackingTxtFile.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -499,6 +501,88 @@ double getPsfPictureObservationTime( const RawPsfFileImageContents& imageContent
         observationTime -= 0.5 * imageContents.exposureTimeSeconds_;
     }
     return observationTime;
+}
+
+Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const RawPsfFileImageContents& imageContents )
+{
+    const double rightAscension = imageContents.rightAscensionDegrees_ * mathematical_constants::PI / 180.0;
+    const double declination = imageContents.declinationDegrees_ * mathematical_constants::PI / 180.0;
+    const double plateAngle = ( imageContents.twistDegrees_ - 90.0 ) * mathematical_constants::PI / 180.0;
+
+    const Eigen::Vector3d boresight = ( Eigen::Vector3d( ) << std::cos( declination ) * std::cos( rightAscension ),
+                                        std::cos( declination ) * std::sin( rightAscension ),
+                                        std::sin( declination ) )
+                                              .finished( );
+    const Eigen::Vector3d east = ( Eigen::Vector3d( ) << -std::sin( rightAscension ), std::cos( rightAscension ), 0.0 ).finished( );
+    const Eigen::Vector3d north = ( Eigen::Vector3d( ) << -std::sin( declination ) * std::cos( rightAscension ),
+                                    -std::sin( declination ) * std::sin( rightAscension ),
+                                    std::cos( declination ) )
+                                          .finished( );
+
+    Eigen::Matrix3d rotationFromCameraToInertial;
+    rotationFromCameraToInertial.col( 0 ) = std::cos( plateAngle ) * east + std::sin( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 1 ) = -std::sin( plateAngle ) * east + std::cos( plateAngle ) * north;
+    rotationFromCameraToInertial.col( 2 ) = boresight;
+
+    return Eigen::Quaterniond( rotationFromCameraToInertial.transpose( ) );
+}
+
+std::map< std::string, std::map< double, Eigen::Quaterniond > > getPsfCameraPointingHistory( const RawPsfFileContents& psfFileContents )
+{
+    std::map< std::string, std::map< double, Eigen::Quaterniond > > pointingHistory;
+    for( const RawPsfFileImageContents& imageContents : psfFileContents.images_ )
+    {
+        pointingHistory[ imageContents.cameraId_ ][ getPsfPictureObservationTime( imageContents, true ) ] =
+                getPsfPictureRotationFromInertialToCameraFrame( imageContents );
+    }
+    return pointingHistory;
+}
+
+void rebuildPsfCameraSupplementaryDataWithPointingHistory( RawPsfFileContents& psfFileContents )
+{
+    const std::map< std::string, std::map< double, Eigen::Quaterniond > > cameraPointingHistory =
+            getPsfCameraPointingHistory( psfFileContents );
+    std::vector< std::shared_ptr< data::TrackingSupplementaryData > > updatedSupplementaryData;
+    updatedSupplementaryData.reserve( psfFileContents.trackingSupplementaryData_.size( ) );
+
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData : psfFileContents.trackingSupplementaryData_ )
+    {
+        if( supplementaryData == nullptr )
+        {
+            throw std::runtime_error( "Error when converting PSF data, supplementary data entry is null." );
+        }
+
+        std::shared_ptr< const data::CameraInstrumentSupplementaryData > cameraData =
+                getPsfCameraInstrumentSupplementaryData( psfFileContents, supplementaryData->getReferencePointName( ) );
+        if( cameraData == nullptr )
+        {
+            updatedSupplementaryData.push_back( supplementaryData );
+            continue;
+        }
+
+        std::map< double, Eigen::Quaterniond > pointingHistory;
+        if( cameraPointingHistory.count( cameraData->getCameraId( ) ) != 0 )
+        {
+            pointingHistory = cameraPointingHistory.at( cameraData->getCameraId( ) );
+        }
+
+        std::shared_ptr< data::CameraInstrumentSupplementaryData > updatedCameraData =
+                std::make_shared< data::CameraInstrumentSupplementaryData >( cameraData->getCameraId( ),
+                                                                             cameraData->getFocalLength( ),
+                                                                             cameraData->getPrincipalPoint( ),
+                                                                             cameraData->getFieldOfViewBounds( ),
+                                                                             cameraData->getKMatrix( ),
+                                                                             cameraData->getDistortionCoefficients( ),
+                                                                             cameraData->getMountingOffsets( ),
+                                                                             pointingHistory );
+        std::shared_ptr< data::TrackingSupplementaryData > updatedData = std::make_shared< data::TrackingSupplementaryData >(
+                supplementaryData->getBodyName( ), supplementaryData->getReferencePointName( ) );
+        updatedData->setInstrumentSupplementaryData(
+                std::vector< std::shared_ptr< data::InstrumentSupplementaryData > >( { updatedCameraData } ) );
+        updatedSupplementaryData.push_back( updatedData );
+    }
+
+    psfFileContents.trackingSupplementaryData_ = updatedSupplementaryData;
 }
 
 std::string getTudatBodyNameForPsfMeasurement( const RawPsfMeasurement& measurement,
@@ -1095,6 +1179,7 @@ RawPsfFileContents readRawPsfFile( const std::string& psfFile )
                                   std::to_string( fileContents.trackingSupplementaryData_.size( ) ) + " camera properties were parsed." );
     }
 
+    rebuildPsfCameraSupplementaryDataWithPointingHistory( fileContents );
     return fileContents;
 }
 
